@@ -1,0 +1,49 @@
+# TODO (V1): Events & Agenda (Browse, Detail, Presence)
+
+**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
+**Status:** Active  
+**Owners:** Backend Team + Delphi (Flutter)  
+**Objective:** Deliver the core events experience: browse/search, event detail, invite flows, and presence confirmation.
+
+---
+
+## References
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
+- `foundation_documentation/system_roadmap.md`
+
+---
+
+## A) Backend Tasks
+
+### A1) Agenda/events endpoints (MOD-201)
+- [ ] ⚪ Ensure `/api/v1/agenda` contract is implemented or mocked (page-based pagination + filters + geo + confirmed_only) per `foundation_documentation/endpoints_mvp_contracts.md`
+- [ ] ⚪ Ensure `/api/v1/events/stream` SSE emits delta events aligned with active filters (created/updated/deleted)
+- [ ] ⚪ Ensure event detail includes:
+  - [ ] ⚪ `id`, `slug`, `type`, `title`, `content`, `location`
+  - [ ] ⚪ `date_time_start`, `date_time_end` (or default duration)
+  - [ ] ⚪ venue + artists + participants projections
+  - [ ] ⚪ invite-related arrays (`received_invites`, `sent_invites`, `friends_going`)
+
+### A2) Presence confirmation
+- [ ] ⚪ Confirm presence endpoint `/api/v1/events/{event_id}/check-in` (mock or implemented)
+- [ ] ⚪ Ensure responses update confirmed/presence state deterministically
+
+---
+
+## B) Flutter Tasks
+
+### B1) Browse/search
+- [ ] ⚪ Events list/search works end-to-end (paged, filters, past toggle where supported)
+
+### B2) Event detail
+- [ ] ⚪ Event detail renders venue + artists summaries
+- [ ] ⚪ Invite actions available (send/accept/decline) with credited acceptance selector (from invites TODO)
+- [ ] ⚪ Confirm presence flow available and updates UI state
+
+---
+
+## C) Acceptance Criteria
+
+- [ ] ⚪ Users can browse events, open event detail, and confirm presence
+- [ ] ⚪ Invite actions are available from event detail and do not duplicate invites
