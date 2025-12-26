@@ -35,11 +35,11 @@
 
 ## A) Migration Plan
 
-- [ ] ⚪ Confirm docs repo settings (private/public, default branch `main`).
-- [ ] ⚪ Create local git history for `foundation_documentation/` and push to new repo.
-- [ ] ⚪ Remove in-repo `foundation_documentation/` and add submodule pointing to new repo.
-- [ ] ⚪ Add/update documentation on the new workflow (how to update docs and submodule pointer).
-- [ ] ⚪ Validate submodule status and working tree clean.
+- [x] ✅ Production-Ready Confirm docs repo settings (private/public, default branch `main`).
+- [x] ✅ Production-Ready Create local git history for `foundation_documentation/` and push to new repo.
+- [x] ✅ Production-Ready Remove in-repo `foundation_documentation/` and add submodule pointing to new repo.
+- [x] ✅ Production-Ready Add/update documentation on the new workflow (how to update docs and submodule pointer).
+- [ ] ⚪ Pending Validate submodule status and working tree clean.
 
 ## B) Decisions
 
@@ -51,3 +51,10 @@
 
 - [x] ✅ Production-Ready No stub/placeholder in `belluga_now_docker`; submodule will be initialized now.
 - [x] ✅ Production-Ready Add a short `README.md` in the docs repo describing the workflow and Delphi usage instructions.
+
+---
+
+## Completion Notes
+
+- Docs repo commit: `27f103dd20a589eba7e7563f88dc9dbea514470c` (README + workflow guidance).
+- Docker repo commit: pending (changes staged; commit required to finalize).
