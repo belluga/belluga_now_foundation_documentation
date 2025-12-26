@@ -56,5 +56,5 @@
 
 ## Completion Notes
 
-- Docs repo commit: `27f103dd20a589eba7e7563f88dc9dbea514470c` (README + workflow guidance).
+- Docs repo commit: `c9e486bb74768a64e4d5f3fd684c197b3f80fcb8` (README + workflow guidance + TODO update).
 - Docker repo commit: pending (changes staged; commit required to finalize).
