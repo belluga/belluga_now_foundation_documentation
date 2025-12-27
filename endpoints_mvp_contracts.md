@@ -7,7 +7,7 @@
 ---
 
 ## 0) Conventions
-- Base prefix is `/api/v1` (router-mounted). Paths below omit the prefix.
+- Base prefix is `/api/v1` (router-mounted). Paths below omit the prefix unless explicitly stated.
 - All responses include `tenant_id` when the request is tenant-scoped.
 - IDs are stable string IDs (Mongo ObjectId as string).
 - Date/times are ISO 8601 (`YYYY-MM-DDTHH:mm:ssZ`).
@@ -54,7 +54,7 @@
 **Field Definitions**
 - `identity_state`: `anonymous`.
 
-### `GET /environment` (root or tenant subdomain)
+### `GET /api/v1/environment` (root or tenant subdomain)
 **Purpose:** Resolve landlord/tenant context + branding.  
 **Request (query):** `app_domain`, `domain`, `subdomain` (all optional).  
 **Tenant resolution:** App calls the configured tenant domain directly. Web resolves by the request host domain. Root-level usage is optional for discovery/lookup flows.
@@ -973,7 +973,7 @@
 ## 8) Deferred (Do Not Implement in MVP)
 - Partner-issued invites + partner invite metrics endpoints.
 - Sponsors POIs endpoints.
-- `/initialize` (system bootstrap) is out of MVP scope; `/environment` is the MVP entrypoint.
+- `/initialize` (system bootstrap) is out of MVP scope; `/api/v1/environment` is the MVP entrypoint.
 
 ---
 

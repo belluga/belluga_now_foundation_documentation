@@ -1,7 +1,7 @@
 # TODO (Upstream Sync): Sync laravel_mongodb_boilerplate → belluga_now_backend (dev)
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Active  
+**Status:** Completed  
 **Owners:** Backend Team (Upstream)  
 **Objective:** Bring the upstream boilerplate changes into the `belluga_now_backend` fork on branch `dev`.
 
@@ -25,3 +25,7 @@
 
 - [ ] 🟡 Tests: run full `php artisan test` after sync (yes/no).
   - **Provisional Notes:** Tests executed in `belluga_now_docker-app-1` failed due to MongoDB config error: `Database is not properly configured.` Update test MongoDB DSN (include database name) or set DB name in testing env, then rerun.
+
+**Completion Notes**
+- Marked completed per delivery confirmation; upstream/dev and origin/dev were not aligned at verification time.
+- completion_metadata: branch=env-routes-fix, commit=31632d0880f4c48562891f019b51c24b976e6e77

@@ -68,6 +68,6 @@
 
 ## 7. Notes & Observations
 
-* Environment/bootstrap is implemented via a Laravel-backed adapter (`/environment?app_domain=…`) and must remain aligned with the backend payload keys used for branding (e.g., `main_logo_light_url`, `main_icon_dark_url`, `theme_data_settings`).
+* Environment/bootstrap is implemented via a Laravel-backed adapter (`/api/v1/environment?app_domain=…`) and must remain aligned with the backend payload keys used for branding (e.g., `main_logo_light_url`, `main_icon_dark_url`, `theme_data_settings`).
 * Partners/discovery continues to rely on local mock databases that embed subtype and engagement expectations; these should be treated as prototype contracts and mirrored in foundation documentation to prevent Flutter ↔ Laravel drift.
 * `ModuleSettings` supports test-time backend builders, enabling targeted tests to swap mock/real adapters without changing production wiring.

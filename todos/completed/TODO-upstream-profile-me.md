@@ -37,3 +37,6 @@
 
 - [x] ✅ Production‑Ready `/api/v1/me` returns the documented schema (no missing keys).
 - [x] ✅ Production‑Ready Contract tests pass in upstream boilerplate.
+
+**Completion Notes**
+- completion_metadata: branch=env-routes-fix, commit=31632d0880f4c48562891f019b51c24b976e6e77

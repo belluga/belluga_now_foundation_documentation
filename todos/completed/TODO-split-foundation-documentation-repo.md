@@ -1,7 +1,7 @@
 # TODO (Docs Split): Move foundation_documentation to dedicated repo
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production-Ready`.
-**Status:** Active
+**Status:** Completed
 **Owners:** Docs + Platform Leads
 **Objective:** Extract `foundation_documentation/` into a dedicated repo and integrate it back into `belluga_now_docker` as a submodule (recommended) for faster cross-team doc sync.
 
@@ -58,3 +58,4 @@
 
 - Docs repo commit: `48f2d99a02dc8bcc1d36777b24abed25a3ed8cb8` (README + workflow guidance + TODO updates).
 - Docker repo commit: pending (changes staged; commit required to finalize).
+- completion_metadata: branch=main, commit=6decc43baa6f704a84b786493ad98b9348461f04

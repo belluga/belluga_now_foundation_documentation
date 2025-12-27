@@ -54,6 +54,8 @@
 - [ ] ⚪ Render dynamic Event POIs distinctly from static POIs
 - [ ] ⚪ Keep categories coarse; use tags for subcategories (no enum expansion in V1)
   - StaticAsset and Event are POI-enabled sources; Account/Partner is conditional per MVP scope.
+- [ ] ⚪ MVP tiles: use public OpenStreetMap tiles (no key), with explicit limitation to dev + early MVP.
+- [ ] ⚪ Migrate map rendering from `free_map` to `flutter_map` to unblock `package_info_plus` upgrades.
 
 ### B2) Same-spot UX
 - [ ] ⚪ Marker shows top POI + `+N` badge when stack has multiple items
