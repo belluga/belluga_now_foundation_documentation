@@ -22,6 +22,7 @@
 - Contract tests against existing DTOs + fixtures (deserialization + invariants).
 - Widget tests for routing/guards and critical UI gating logic.
 - Minimal integration tests for smoke flows.
+- Improve integration-test diagnostics for real `/environment` failures (include HTTP status/URL/body in errors).
 - Network contract tests against Cloudflared domain(s):
   - Validate `/environment` resolution (root domain vs tenant subdomain).
   - Validate fixed branding asset endpoints never return `404`.
@@ -128,9 +129,11 @@ For both landlord and tenant origins, these endpoints must return `200` or `304`
 **Coverage**
 - [x] ✅ One integration test that boots the app and reaches initial route without exceptions (`integration_test/app_test.dart`).
 - [ ] ⚪ Optional: navigate to schedule or invites route (smoke only).
+- [ ] ⚪ Agenda filters regression: selecting filters in Agenda and Home uses the same controller state and updates the visible event list (use deterministic mock schedule data).
 
 **Definition of Done**
 - [x] ✅ Integration tests are stable and do not rely on external services (uses `MockBackend`).
+- [ ] ⚪ Agenda filters regression test passes and guards against filter state divergence between Home and Agenda.
 
 ---
 
@@ -149,3 +152,15 @@ For both landlord and tenant origins, these endpoints must return `200` or `304`
 - Whether CI runs network tests on every PR or on a scheduled pipeline (tunnel flakiness tradeoff).
 - What fallback UI is acceptable for logo/icon failures (placeholder asset vs empty container).
 
+## Decisions (Agenda Filters Regression)
+- Cover all agenda filters: past events, invited to, only confirmed (after confirming an invite), and search.
+- Assert in Home and Agenda screens (past events only in Agenda).
+- Use deterministic fixture data defined in the integration test file; avoid relying on runtime mock backends.
+
+## Decisions (Integration Tests: Real Domains)
+- For integration tests, use the real environment backend and actual tenant domains (not fake `example.com`) so AppData resolves from the live `/environment` payload.
+
+## Decisions (Environment Error Diagnostics)
+- When real `/environment` calls fail in integration tests, surface actionable error details (HTTP status + URL + payload where available).
+
+completion_metadata: branch=main, commit=99eeb62c308ee1be99d9f39268631955c2ff6133
