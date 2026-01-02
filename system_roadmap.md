@@ -21,7 +21,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | Endpoint | Module | Description | Current Status | Notes |
 |----------|--------|-------------|----------------|-------|
 | `/api/v1/anonymous/identities` | MOD-101 | Anonymous identity bootstrap (Sanctum token issuance for web/app guest flows). | Implemented | Unauthenticated route returns `{user_id, identity_state, token, abilities, expires_at?}`; abilities/TTL controlled by `tenant.anonymous_access_policy`. |
-| `/api/v1/environment` | MOD-101 | Tenant/landlord resolution + branding payload for app/web bootstraps. | Defined | Returns tenant identity + theme settings; uses host/app domain context. |
+| `/api/v1/environment` | MOD-101 | Tenant/landlord resolution + branding payload for app/web bootstraps. | Implemented | Returns tenant identity + theme settings; uses host/app domain context. |
 | `/api/v1/invites` | MOD-201 | Invite feed and referral graph. | Mocked | Prioritizes nearest events; enforces 1 invite per person/event; limits pending invites by role. |
 | `/api/v1/invites/stream` | MOD-201 | Invite delta stream (SSE). | Planned | Emits invite created/updated/deleted events for authenticated user. |
 | `/api/v1/invites/settings` | MOD-201 | Backend-owned invite quotas, anti-spam limits, and UX messaging settings. | Planned | Backend enforces over-quota responses (`429`) and returns reset metadata; Flutter fetches for messaging/UX. |
@@ -33,7 +33,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/map/pois` | MOD-201 | Map POIs (projection-backed). | Defined | `map_pois` projection updated from StaticAssets, Events, and POI-enabled Accounts; use MongoDB GeoQuery with viewport + optional origin/radius and filters (`categories`, `tags`, `taxonomy`, `search`). |
 | `/api/v1/map/pois/stream` | MOD-201 | Map POI delta stream (SSE). | Planned | Emits POI created/updated/deleted events for active viewport/filters. |
 | `/api/v1/map/filters` | MOD-201 | Map filter discovery (categories/tags). | Planned | Required to remove hardcoded filter catalogs from mocks. |
-| `/api/v1/me` | MOD-201 | Authenticated profile summary and role claims. | Defined | Mock payload authoring queued in FCX-02. |
+| `/api/v1/me` | MOD-201 | Authenticated profile summary and role claims. | Implemented | Mock payload authoring queued in FCX-02. |
 | `/api/v1/partners/discovery` | MOD-201 | Partner discovery cards with engagement metrics and invite counts. | Mocked | Needs DTO/value-object mapping and shared prototype data for Laravel alignment. |
 | `/api/v1/events/{event_id}/check-in` | MOD-201 | Presence confirmation with geofence/QR/staff methods. | Mocked | Partner-defined radius; QR optional; accepted without check-in becomes no-show. |
 | `/api/v1/missions` | MOD-201 | Partner-created missions with metric targets and rewards. | Defined | Metrics selectable per mission; partner dashboard must show rankings/progress. |
@@ -41,7 +41,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/discover/people` | MOD-201 | People/Influencer row ordered by monthly Social Score. | Defined | Prefer verified on ties; respects privacy by anonymizing friends-only profiles. |
 | `/api/v1/discover/curator-content` | MOD-201 | Curator-produced content for “Veja isso…” row. | Defined | Ordered by latest published (future: most viewed); links to partner/event. |
 | `/api/v1/contacts/import` | MOD-201 | Hashed contact import for friend suggestions and invite matching. | Planned | Accepts salted hashes only; no raw PII stored. |
-| `/api/v1/push/register` | MOD-201 | Register device token for push notifications. | Planned | Stores per-device tokens; used for invites/reminders. |
+| `/api/v1/push/register` | MOD-201 | Register device token for push notifications. | Implemented | Stores per-device tokens; used for invites/reminders. |
 | `/api/v1/accounts` | Tenant Admin | List accounts (unmanaged + managed). | Planned | Admin/tenant scoped, page-based. |
 | `/api/v1/accounts` | Tenant Admin | Create account (unmanaged). | Planned | Creates account without linked user. |
 | `/api/v1/accounts/{account_id}` | Tenant Admin | Update account (partial). | Planned | Patch account metadata + lifecycle state. |
