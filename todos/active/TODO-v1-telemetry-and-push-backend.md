@@ -14,6 +14,12 @@
 - Enforce delivery lifecycle (accepted/delivered/opened) and metrics aggregation.
 - Implement quota-check endpoint and transactional single-recipient send.
 - Enforce audience eligibility via host-provided contract (domain-agnostic).pi/v1/settings/push/cred
+- Provide single-credential per tenant (upsert), removing dependency on `firebase_credentials_id` in settings.
+- Use a single upsert endpoint for credentials (`PUT /api/v1/settings/push/credentials`) and block multiple legacy credentials (409).
+- Require `firebase` public config and `push.enabled` in tenant push settings updates.
+- Provide a tenant push status endpoint that reports configuration state.
+- Default `max_ttl_days` to 7 when omitted.
+- Document the push activation flow in the project README (service account, tenant settings, status endpoint).
 
 ## Out of Scope
 - Flutter UI behavior, deep links, or telemetry client wiring.
@@ -23,7 +29,7 @@
 - [x] ✅ Push message data endpoint defined: `GET /api/v1/push/messages/{push_message_id}/data`.
 - [x] ✅ Push message CRUD endpoints defined (create/update/list/archive).
 - [x] ✅ Push message schema documented (config + data payload).
-- [x] ✅ Push message access rules enforced (401/403 behavior, anonymous token allowed for data fetch).
+- [x] ✅ Push message access rules enforced (401/404 behavior, anonymous token allowed for data fetch).
 - [x] ✅ Push message TTL/validity and `active` flag honored; inactive/expired returns `ok=false`.
 - [x] ✅ Push message delete semantics enforced (hard delete only if not delivered).
 - [x] ✅ Package migration lives inside `belluga_push_handler` and is loaded via the package service provider.
@@ -42,10 +48,19 @@
 - [x] ✅ Delivery lifecycle and metrics defined and stored.
 - [x] ✅ Backend tests cover auth, access, TTL/active, CRUD, cross-tenant access.
 - [x] ✅ Sync `laravel-app` submodule to the latest upstream `dev` commit that contains this implementation.
+- [ ] ⚪ Tenant push settings require `firebase` and `push.enabled` (no `firebase_credentials_id`).
+- [ ] ⚪ Validation errors clearly report missing required Firebase/push settings fields (no `firebase_credentials_id`).
+- [x] ✅ Tenant push status endpoint returns `not_configured | pending_tests | active`.
+- [x] ✅ Tenant push settings default `max_ttl_days` to 7 when omitted.
+- [ ] 🟡 Provisional Push settings validated end-to-end with real tenant credentials and device.
+- [ ] 🟡 Provisional Push delivery test confirms status flips to `active`.
+- [ ] ⚪ README includes step-by-step instructions to enable push + Firebase (credentials + settings + status check).
+- [ ] 🟡 Provisional Add temporary FCM delivery logging to capture HTTP v1 response errors (remove after validation).
+- [ ] 🟡 Provisional Single-credential flow: settings no longer require `firebase_credentials_id`; credentials upsert via `PUT` and only one credential is used per tenant.
 
 ## Validation Steps
 - [x] ✅ Feature tests for CRUD endpoints (create/list/update/archive/delete).
-- [x] ✅ Auth tests: 401 without token, 403 without access.
+- [x] ✅ Auth tests: 401 without token, 404 without access.
 - [x] ✅ Data fetch returns `ok=false` for inactive/expired message.
 - [x] ✅ Cross-tenant access blocked for landlord tokens without tenant access.
 - [x] ✅ Device registration/unregister tests (upsert, rotation, removal).
@@ -62,6 +77,20 @@
 - [x] ✅ Transactional send respects `transactional` type and tenant scoping (user_id/email).
 - [x] ✅ Audience eligibility tests cover host-provided contract outcomes (allow/deny).
 - [x] ✅ Confirm `laravel-app` submodule commit matches upstream `dev` with push/telemetry changes.
+- [ ] ⚪ `PATCH /api/v1/settings/push` returns 422 when required Firebase/push fields are missing (no `firebase_credentials_id`).
+- [ ] ⚪ `PATCH /api/v1/settings/push` accepts payload when required fields are present (no `firebase_credentials_id`).
+- [x] ✅ `GET /api/v1/settings/push/status` returns `not_configured` when required settings are missing.
+- [x] ✅ `GET /api/v1/settings/push/status` returns `pending_tests` when configuration exists but no push delivery logs exist.
+- [x] ✅ `GET /api/v1/settings/push/status` returns `active` when configuration exists and a delivery log with `accepted` exists.
+- [x] ✅ `PATCH /api/v1/settings/push` without `max_ttl_days` persists `max_ttl_days = 7`.
+- [ ] 🟡 Provisional Send a test push to a real device and verify:
+  - `FCM` token registration succeeds (`/api/v1/push/register`).
+  - `/api/v1/settings/push/status` transitions `pending_tests` → `active`.
+  - `/api/v1/push/messages/{push_message_id}/actions` records `delivered` + `opened`.
+- [ ] ⚪ README instructions validated against the live endpoints.
+- [ ] 🟡 Provisional Tests updated for single-credential behavior (PUT upsert + no `firebase_credentials_id` requirement).
+- [ ] 🟡 Provisional `PUT /api/v1/settings/push/credentials` upserts the single credential (200 on update, 201 on first create).
+- [ ] 🟡 Provisional Multiple legacy credentials return 409 and do not attempt delivery until resolved.
 
 ## Implementation Tasks (Remaining)
 - [x] ✅ Define audience eligibility contract, default allow-all binding, and integration in data/send flows.
@@ -95,6 +124,26 @@
 - [x] ✅ Close Gap 6 (FCM options limits/overrides): title/body caps + platform override behavior.
 - [x] ✅ Close Gap 7 (external action validation): missing URL + invalid open_mode -> 422.
 - [x] ✅ Update `laravel-app` submodule pointer to the upstream `dev` commit containing the backend implementation.
+- [x] ✅ Update tenant push settings validation to require `firebase_credentials_id`.
+- [x] ✅ Update tenant push settings validation to require `firebase` public config.
+- [x] ✅ Update tenant push settings validation to require `push.enabled`.
+- [x] ✅ Update/extend tests for tenant settings validation errors.
+- [x] ✅ Add push status endpoint in tenant settings routes (`/api/v1/settings/push/status`).
+- [x] ✅ Define push status computation rules (config present + delivery log evidence).
+- [x] ✅ Add status derivation using delivery logs (accepted = active).
+- [x] ✅ Update tests for push status endpoint states.
+- [x] ✅ Add defaulting logic for `max_ttl_days` when omitted.
+- [ ] 🟡 Provisional Execute live push settings + test delivery on tenant device.
+- [ ] ⚪ Update README with push activation flow and payload examples (after test validation).
+- [x] ✅ Adjust credential endpoints to upsert single tenant credential; update settings validation to remove `firebase_credentials_id` requirement; update `PushCredentialService` to select the single credential.
+- [x] ✅ Remove `firebase_credentials_id` from tenant push settings payloads (request/response) and model casts.
+- [x] ✅ Replace credential endpoints with `PUT /api/v1/settings/push/credentials` (no `:id`) and update tests accordingly.
+- [x] ✅ Enforce single-credential rule: if multiple legacy credentials exist, return 409 and require cleanup.
+- [ ] 🟡 Provisional Verify FCM HTTP v1 response logs and resolve accepted_count=0 root cause.
+
+## Provisional Notes
+- Push activation instructions are deferred until real-device testing confirms behavior.
+- If testing reveals missing data or unexpected status transitions, update settings validation and status rules before finalizing README steps.
 
 ## Test Plan
 
@@ -105,7 +154,7 @@
 - [ ] ⚪ Close remaining coverage gaps with explicit tests before final sign-off.
 
 **Credentials & Settings**
-- [x] ✅ Tenant settings store and return `firebase_credentials_id`.
+- [ ] ⚪ Tenant settings store and return `firebase` public config + `push.enabled` (no `firebase_credentials_id`).
 - [x] ✅ `push_credentials` create/update/read works and fields are encrypted.
 - [x] ✅ Credential endpoints return 201/200 and 422/403 as expected.
 
@@ -233,7 +282,7 @@
 - Send semantics: create triggers delivery; immediate delivery dispatches on create. Jobs orchestrate async fan-out and delivery pipeline.
 - Push payload fetch auth transport: `Authorization: Bearer <token>` header (never query params).
 - Push payload fetch auth: bearer token required (anonymous token allowed).
-- Push payload fetch authorization: 401 when no token, 403 when token lacks access to message.
+- Push payload fetch authorization: 401 when no token, 404 when token lacks access to message.
 - Push payload fetch response: structured JSON payload (no stringification required).
 - Push payload TTL/validity: controlled by push settings; backend returns `ok=false` when expired/invalid.
 - Push payload `active` state: backend decides whether to return payload; inactive returns `ok=false`.
@@ -267,7 +316,7 @@
 - Rate limiting: package enforces tenant throttles; account quotas enforced via `PushPlanPolicyContract`.
 - Failure logging: separate `push_delivery_logs` collection plus aggregate metrics.
 - Multi-project support: one Firebase project per tenant in v1.
-- Settings surface: `push_enabled`, `firebase_credentials_id`, `firebase_public_config`, `throttles`, `push_message_types`, `push_message_routes`.
+- Settings surface: `push_enabled`, `firebase_public_config`, `throttles`, `push_message_types`, `push_message_routes`.
 - Defaults/seeding: package provides defaults; host opts in via config flag.
 - FCM flexibility: keep core fields (title/body/image) and add optional `fcm_options` for advanced FCM features, validated at send time.
 - Quota check: add a dedicated quota-check endpoint that calls policy and returns a rich quota decision payload (allowed/limit/used/remaining). Use it for confirmation dialogs before enqueue.
@@ -284,6 +333,8 @@
 - Event TTL should be enforced by host eligibility logic (package stays domain-agnostic).
 - PushPlanPolicyContract stays as-is (no extra context payload); message + account + audience size are sufficient.
 - Credential management: tenant-only endpoints guarded by a dedicated, restrictive permission.
+- Credential upsert updates the existing record (preserve id). If multiple credentials exist, return 409 and require cleanup.
+- Settings payloads remove `firebase_credentials_id` from both request and response.
 - FCM options: accept optional `fcm_options` object; no extra required fields at creation beyond core templates. Validate only when provided, per FCM platform rules.
 - Audience eligibility contract proposal:
   - Interface: `PushAudienceEligibilityContract`
@@ -295,10 +346,7 @@
   - Query: `audience_size`, `message_type`, `push_message_id` (optional)
   - Returns decision payload (allowed/limit/current_used/requested/remaining_after/period/reason).
 - Credential endpoints (tenant-scoped):
-  - `GET /api/v1/settings/push/credentials`
-  - `POST /api/v1/settings/push/credentials`
-  - `PATCH /api/v1/settings/push/credentials/{credential_id}`
-  - `DELETE /api/v1/settings/push/credentials/{credential_id}`
+  - `PUT /api/v1/settings/push/credentials`
 - FCM options mapping:
   - Default mapping: `title_template`/`body_template` populate `fcm_options.notification` when no notification override is provided.
   - Override rule: `fcm_options.notification` replaces defaults; no duplication.
@@ -307,7 +355,7 @@
   - Top-level `title`, `body`, `allowDismiss`, `layoutType`, `onClickLayoutType`, `image`, `steps`, `buttons`.
   - Buttons use `routeType` + `routeInternal`/`routeExternal` (no nested `action` object in the delivered payload).
 - Credential endpoint payloads (tenant-only):
-  - Create/Update: `{ "project_id": "...", "client_email": "...", "private_key": "..." }` (all required; stored encrypted).
+  - Upsert: `{ "project_id": "...", "client_email": "...", "private_key": "..." }` (all required; stored encrypted).
   - Read: `{ "id": "...", "project_id": "...", "client_email": "...", "created_at": "...", "updated_at": "..." }` (never return private_key).
 - Delivery log schema:
   - `push_message_id`, `batch_id`, `token_hash`, `status` (`accepted|failed`), `error_code`, `error_message`, `provider_message_id`, `created_at`.

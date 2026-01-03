@@ -199,6 +199,67 @@
   "inviter_principal": { "kind": "user|partner", "id": "string" }
 }
 ```
+
+---
+
+## 9) Push Messages (Tenant)
+
+### `GET /push/messages/{push_message_id}/data`
+**Purpose:** Fetch user-specific push payload rendered for the authenticated user.  
+**Auth:** Bearer token (tenant user).  
+**Request (headers):**
+- `Authorization: Bearer <token>`
+
+**Response (success):**
+```json
+{
+  "ok": true,
+  "push_message_id": "string",
+  "payload": {
+    "title": "string",
+    "body": "string",
+    "layoutType": "MessageLayoutType.popup",
+    "allowDismiss": true,
+    "steps": [],
+    "buttons": []
+  }
+}
+```
+**Response (not eligible or missing):**
+```json
+{ "ok": false, "reason": "not_found" }
+```
+**Response (inactive):**
+```json
+{ "ok": false, "reason": "inactive" }
+```
+**Response (expired):**
+```json
+{ "ok": false, "reason": "expired" }
+```
+
+**Field Definitions**
+- `reason`: `not_found`, `inactive`, `expired`.
+
+### `POST /push/messages/{push_message_id}/actions`
+**Purpose:** Record delivery/opened/button actions for a push message.  
+**Auth:** Bearer token (tenant user).  
+**Request (body):**
+```json
+{
+  "action": "opened|delivered|clicked",
+  "step_index": 0,
+  "button_key": "string?",
+  "metadata": {}
+}
+```
+**Field Definitions**
+- `action`: `opened`, `delivered`, `clicked`.
+
+**Response (minimum):**
+```json
+{ "ok": true, "data": { "action": "string" } }
+```
 **Field Definitions**
 - `inviter_principal.kind`: `user`, `partner`.
 **Implementation Notes (Uniqueness):**
