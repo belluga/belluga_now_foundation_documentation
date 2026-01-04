@@ -1,7 +1,7 @@
 # TODO (V1): Push Metrics — Step Views & Clicks
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Active  
+**Status:** Completed  
 **Owners:** Delphi (Flutter + Laravel)  
 **Objective:** Ensure step view counts, button click counts, and unique click metrics are recorded for push messages, and centralize push-specific fetching/handling inside the `push_handler` plugin where appropriate.
 
@@ -43,8 +43,8 @@
 - Refactoring unrelated app networking/services.
 
 ## Definition of Done
-- [ ] ✅ Production‑Ready Step view counts increment when users progress through steps.
-- [ ] ✅ Production‑Ready Button click counts and unique clicks increment when users tap a push action.
+- [x] ✅ Production‑Ready Step view counts increment when users progress through steps.
+- [x] ✅ Production‑Ready Button click counts and unique clicks increment when users tap a push action.
 - [x] ✅ Production‑Ready Push message fetch/parsing flows through `push_handler` (no duplicate app-layer parsing).
 - [x] ✅ Production‑Ready Push-specific responsibilities are consolidated into `push_handler` with clear app-facing API.
 - [x] ✅ Production‑Ready App no longer registers Firebase Messaging listeners directly; `push_handler` owns listener + initial message wiring.
@@ -63,10 +63,10 @@
 - [x] ✅ Production‑Ready Test suite covers all layouts (popup, bottomModal, snackBar, actionButton), steps, and button click reporting.
 
 ## Validation Steps
-- [ ] ✅ Production‑Ready Send a push with multiple steps and buttons, then verify metrics update for step views and button clicks.
-- [ ] ✅ Production‑Ready Trigger a push fetch and confirm it uses `push_handler` in logs or tracing.
+- [x] ✅ Production‑Ready Send a push with multiple steps and buttons, then verify metrics update for step views and button clicks.
+- [x] ✅ Production‑Ready Trigger a push fetch and confirm it uses `push_handler` in logs or tracing.
 - [x] ✅ Production‑Ready Fetching message data no longer records `opened`; presenter is the sole source for `opened`.
-- [ ] ✅ Production‑Ready Debug console shows action report logs with action, step_index, button_key, and idempotency_key.
+- [x] ✅ Production‑Ready Debug console shows action report logs with action, step_index, button_key, and idempotency_key.
 - [x] ✅ Production‑Ready Confirm `PushCoordinator` no longer uses `FirebaseMessaging.onMessage*` or `getInitialMessage`.
 - [x] ✅ Production‑Ready Confirm Firebase init happens in Application init flow (not in PushCoordinator) and push still works.
 - [x] ✅ Production‑Ready Verify `AuthRepository` persists `userToken` + `deviceId` and no other repo reads those keys directly.
