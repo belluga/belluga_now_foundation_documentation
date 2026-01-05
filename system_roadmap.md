@@ -42,6 +42,10 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/discover/curator-content` | MOD-201 | Curator-produced content for “Veja isso…” row. | Defined | Ordered by latest published (future: most viewed); links to partner/event. |
 | `/api/v1/contacts/import` | MOD-201 | Hashed contact import for friend suggestions and invite matching. | Planned | Accepts salted hashes only; no raw PII stored. |
 | `/api/v1/push/register` | MOD-201 | Register device token for push notifications. | Implemented | Stores per-device tokens; used for invites/reminders. |
+| `/api/v1/settings/push` | Tenant Admin | Update tenant push settings (push-only). | Implemented | Split from firebase/telemetry; returns push config payload. |
+| `/api/v1/settings/firebase` | Tenant Admin | Update tenant firebase settings. | Implemented | Dedicated endpoint for firebase config. |
+| `/api/v1/settings/telemetry` | Tenant Admin | Manage telemetry integrations (list + upsert). | Implemented | Upsert by `type`; unique types enforced. |
+| `/api/v1/settings/telemetry/{type}` | Tenant Admin | Remove telemetry integration by type. | Implemented | DELETE removes a single type. |
 | `/api/v1/accounts` | Tenant Admin | List accounts (unmanaged + managed). | Planned | Admin/tenant scoped, page-based. |
 | `/api/v1/accounts` | Tenant Admin | Create account (unmanaged). | Planned | Creates account without linked user. |
 | `/api/v1/accounts/{account_id}` | Tenant Admin | Update account (partial). | Planned | Patch account metadata + lifecycle state. |

@@ -16,7 +16,143 @@ Placeholder for the Tenant Administration (landlord) interface where city govern
 4. **Compliance & Auditing:** View audit trails (invite Fulfillment steps, attendance confirmations) and respond to data-access requests.
 5. **Government/Institutional Reporting:** Generate reports for city stakeholders (tourism impact, local business engagement, partner mix).
 
-## 3. Next Steps
+## 3. API Endpoint Definitions
+
+### `PATCH /api/v1/settings/push`
+Update tenant push settings (push-only).
+
+**Request Schema**
+```json
+{
+  "push": {
+    "max_ttl_days": 30,
+    "throttles": {
+      "max_per_minute": 60,
+      "max_per_hour": 600
+    }
+  }
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "max_ttl_days": 30,
+    "throttles": {
+      "max_per_minute": 60,
+      "max_per_hour": 600
+    }
+  }
+}
+```
+
+### `GET /api/v1/settings/firebase`
+Fetch firebase settings.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "apiKey": "string",
+    "appId": "string",
+    "projectId": "string",
+    "messagingSenderId": "string",
+    "storageBucket": "string"
+  }
+}
+```
+
+### `PATCH /api/v1/settings/firebase`
+Update firebase settings.
+
+**Request Schema**
+```json
+{
+  "firebase": {
+    "apiKey": "string",
+    "appId": "string",
+    "projectId": "string",
+    "messagingSenderId": "string",
+    "storageBucket": "string"
+  }
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "apiKey": "string",
+    "appId": "string",
+    "projectId": "string",
+    "messagingSenderId": "string",
+    "storageBucket": "string"
+  }
+}
+```
+
+### `GET /api/v1/settings/telemetry`
+List telemetry integrations.
+
+**Response Schema**
+```json
+{
+  "data": [
+    {
+      "type": "mixpanel",
+      "events": ["string"],
+      "token": "string"
+    }
+  ]
+}
+```
+
+### `POST /api/v1/settings/telemetry`
+Add or update a telemetry integration (upsert by `type`).
+
+**Request Schema**
+```json
+{
+  "type": "mixpanel",
+  "events": ["string"],
+  "token": "string"
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": [
+    {
+      "type": "mixpanel",
+      "events": ["string"],
+      "token": "string"
+    }
+  ]
+}
+```
+
+### `DELETE /api/v1/settings/telemetry/{type}`
+Remove a telemetry integration by type.
+
+**Response Schema**
+```json
+{
+  "data": [
+    {
+      "type": "webhook",
+      "events": ["string"],
+      "url": "https://example.org/hook"
+    }
+  ]
+}
+```
+
+**Field Definitions**
+- `telemetry.type` (enum): `mixpanel`, `firebase`, `webhook`
+
+## 4. Next Steps
 
 Defer detailed schemas and APIs until the core consumer modules are stable. Tenant admin requirements will be inferred from:
 

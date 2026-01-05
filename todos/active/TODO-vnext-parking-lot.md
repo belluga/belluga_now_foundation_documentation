@@ -40,6 +40,17 @@
 
 ---
 
+## G) Push (Deferred)
+
+- **Web push configuration + guardrails**
+  - Reason: web push needs Firebase web config, service worker setup, and VAPID key before enabling registration; defer until web stack is ready.
+- **Push debug logging flag**
+  - Reason: keep logs for validation now, but add a toggle to disable in production.
+- **Web registration guard when config is missing**
+  - Reason: avoid noisy Firebase failures on web when service worker/VAPID are not configured.
+
+---
+
 ## C) Favorites (Deferred Enhancements)
 
 - **Backend-persistent favorites**

@@ -15,11 +15,13 @@
 
 ## Definition of Done
 - [x] ✅ Production‑Ready Backend TODO completed: `foundation_documentation/todos/completed/TODO-v1-telemetry-and-push-backend.md`
-- [ ] ⚪ Frontend TODO completed: `foundation_documentation/todos/active/TODO-v1-telemetry-and-push-frontend.md`
+- [ ] ⚪ Frontend push TODO completed: `foundation_documentation/todos/active/mvp_slices/TODO-v1-push-frontend.md`
+- [ ] ⚪ Frontend telemetry TODO completed: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-frontend.md`
 
 ## Validation Steps
 - [ ] ⚪ Backend validation completed (per backend TODO).
-- [ ] ⚪ Frontend validation completed (per frontend TODO).
+- [ ] ⚪ Frontend push validation completed (per push TODO).
+- [ ] ⚪ Frontend telemetry validation completed (per telemetry TODO).
 
 ## Decisions
 - Split into backend and frontend TODOs; keep this file as the index.
@@ -29,7 +31,8 @@
 
 ## References
 - `foundation_documentation/todos/completed/TODO-v1-telemetry-and-push-backend.md`
-- `foundation_documentation/todos/active/TODO-v1-telemetry-and-push-frontend.md`
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-push-frontend.md`
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-frontend.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
 - `foundation_documentation/system_roadmap.md`
