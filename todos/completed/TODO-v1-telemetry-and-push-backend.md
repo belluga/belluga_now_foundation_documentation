@@ -1,11 +1,29 @@
 # TODO (V1): Telemetry + Push Notifications (Backend)
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Completed  
+**Status:** Active  
 **Owners:** Backend Team (source of truth)  
 **Objective:** Deliver backend contracts for telemetry config, push message CRUD, and secure payload delivery.
 
 ---
+
+## Scope (Current Increment)
+- Add explicit feature tests for push message creation failure cases (validation + auth/abilities).
+- Add feature test that `/send` returns `inactive` when message is active but scope mismatch (tenant vs account).
+
+## Out of Scope (Current Increment)
+- Any changes to push payload schema or delivery behavior.
+- Frontend/UI changes.
+
+## Definition of Done (Current Increment)
+- [x] ✅ Production‑Ready Feature tests cover missing required fields on message creation (title/body/steps/audience).
+- [x] ✅ Production‑Ready Feature tests cover invalid audience payloads (`users` without `user_ids`).
+- [x] ✅ Production‑Ready Feature tests cover auth/ability failures for message creation (401/403).
+- [x] ✅ Production‑Ready Tests pass (`php artisan test --filter=PushMessageFlowTest` or equivalent).
+- [x] ✅ Production‑Ready Feature test covers `/send` scope mismatch returning `inactive`.
+
+## Validation Steps (Current Increment)
+- [x] ✅ Production‑Ready Run `php artisan test --filter=PushMessageFlowTest` and confirm green.
 
 ## Scope
 - Define and deliver the plug'n'play push package: CRUD, data fetch, actions, metrics, and delivery pipeline.
