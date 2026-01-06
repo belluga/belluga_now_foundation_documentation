@@ -125,6 +125,84 @@ Answer payload (app-side, not sent by backend):
 
 ---
 
+## Telemetry (Plugin Event Emission)
+
+### Goal
+- `push_handler` emits structured events without tracking logic.
+- `event_tracker_handler` subscribes (or not) and maps to analytics backends.
+
+### Event Emitter Contract (push_handler)
+- Provide one mechanism (choose one):
+  - `Stream<PushEvent> onPushEvent`, or
+  - `void Function(PushEvent event)? onPushEvent`
+- Emission must be synchronous with UI actions when possible.
+
+### Event Payload (PushEvent)
+- `type`: `delivered | opened | step_viewed | button_tap | dismissed | submit | gate_blocked | error`
+- `push_id`: message identifier
+- `message_instance_id`: unique per delivery/tap if available
+- `step_slug`: current step slug (nullable)
+- `step_type`: `copy | cta | question | selector` (nullable)
+- `button_key`: if action came from a button
+- `action_type`: `route | external | custom` (nullable)
+- `route_key`: if action is `route`
+- `timestamp`: ISO8601 UTC
+- `app_state`: `foreground | background`
+- `source`: `notification_tap | background_delivery | in_app`
+- `metadata`: freeform map (app can extend)
+
+### Emission Points
+- On delivery enqueue: `delivered`
+- On open/present: `opened`
+- On step render: `step_viewed`
+- On button tap: `button_tap`
+- On close/dismiss: `dismissed`
+- On submit confirmation: `submit`
+- On gate fail: `gate_blocked`
+- On internal errors: `error`
+
+### event_tracker_handler Subscription
+- The app registers a listener and forwards events to tracking backends.
+- Mapping is external to `push_handler` and must not add domain logic in plugin.
+
+---
+
+## Display Pipeline Integration Tests (Flutter + Plugin)
+
+### Goal
+Validate the end‑to‑end display pipeline: **push ID → fetch payload → render steps** without relying on real FCM delivery.
+
+### Test Hook (Debug/Test Only)
+- Provide a test‑only injection entrypoint:
+  - `PushHandler.debugInjectMessageId(String messageId)` or similar.
+- The hook must follow the **real** code path used by production:
+  - call the transport client to fetch payload (or a mock HTTP server with fixtures)
+  - render the push content UI with the fetched payload
+
+### Test Fixtures (Payload Variants)
+- **Copy Step**
+  - `type: copy`, `body` as Markdown with image
+- **CTA Step**
+  - `type: cta`, `closeOnTap: true` and `closeOnTap: false`
+- **Question Step**
+  - `question_type: single_select`, `layout: row`
+  - `question_type: multi_select`, `layout: grid`, `min_selected`/`max_selected`
+  - `question_type: text`
+- **Selector Step**
+  - `layout: list`, `layout: tags`
+  - dynamic `option_source` (mocked by `optionsBuilder`)
+- **Gate Step**
+  - `gate.required: true` with fail toast and fallback step
+
+### Integration Assertions
+- Renders correct step `slug` and title/body.
+- Buttons appear with correct labels and close behavior.
+- Gate blocks progress until gatekeeper returns true; re‑evaluates on resume.
+- `onStepSubmit` called with expected `AnswerPayload` shape for each step type.
+- Telemetry events emitted for each interaction (`opened`, `step_viewed`, `button_tap`, `submit`, `dismissed`).
+
+---
+
 ## Laravel (Backend) Implementation
 
 ### Data Model + Validation
@@ -154,6 +232,41 @@ Answer payload (app-side, not sent by backend):
   - new step schema
   - examples for question and selector
   - note that `gate` and `onSubmit` are app-handled
+
+---
+
+## Tasks (Execution Checklist)
+
+### Backend (Laravel)
+- [ ] Add validation rules for `payload_template.steps[*]` with required `slug`, `type`, `config` by type, and `gate`/`onSubmit` objects.
+- [ ] Reject payloads without `slug` (no fallback).
+- [ ] Validate `gate.onFail.fallback_step` matches an existing slug.
+- [ ] Validate `question/selector` configs (layout, grid_columns, min/max, option_source).
+- [ ] Update push message README examples to include onboarding steps and selector samples.
+
+### push_handler Plugin
+- [ ] Extend step model to require `slug` and include `closeOnTap`, `gate`, `onSubmit`, `config`.
+- [ ] Add `AnswerPayload` class and pass to `onStepSubmit`.
+- [ ] Implement `gatekeeper` callback + recheck on app resume after actions.
+- [ ] Implement `optionsBuilder` callback + `OptionItem` (label optional if custom widget provided).
+- [ ] Enforce `min_selected`/`max_selected` across question/selector UI.
+- [ ] Add telemetry emitter (`PushEvent`) and emit at defined points.
+- [ ] Add debug/test hook: inject message ID and follow normal fetch/render pipeline.
+- [ ] Update plugin README + CHANGELOG + version bump when complete.
+
+### Flutter App
+- [ ] Implement gatekeeper mapping for `gate.type` values.
+- [ ] Implement optionsBuilder sources (static, tags, endpoint/query allowlist).
+- [ ] Wire `onStepSubmit` to persistence handler (store_key mapping).
+- [ ] Render layouts (row/grid/list/tags) with HTML/Markdown body support.
+- [ ] Subscribe to push telemetry events and forward to event_tracker_handler.
+- [ ] Add debug/test route or entrypoint for message ID injection.
+
+### Tests
+- [ ] Unit tests for step parsing and config validation (plugin).
+- [ ] Widget tests for layouts, min/max selection, closeOnTap.
+- [ ] Integration tests using debug injection hook to validate display pipeline.
+- [ ] Telemetry event assertions for each interaction type.
 
 ---
 
@@ -244,6 +357,7 @@ Answer payload (app-side, not sent by backend):
   - dynamic options from backend
   - gatekeeper blocking progression
   - closeOnTap behavior
+- [ ] ⚪ push_handler emits PushEvent telemetry and event_tracker_handler can subscribe.
 
 ## Validation Steps
 - [ ] ⚪ Push payload with multi-step question renders and collects responses.
@@ -252,6 +366,7 @@ Answer payload (app-side, not sent by backend):
 - [ ] ⚪ closeOnTap true closes on final CTA.
 - [ ] ⚪ Step removal/reorder does not break analytics (slugs stable).
 - [ ] ⚪ A/B payload variants (different steps) render correctly without app changes.
+- [ ] ⚪ PushEvent emission observed for delivered/opened/step_viewed/button_tap/submit/dismissed.
 
 ## Notes for Implementers
 - Keep push_handler agnostic: no favorites logic inside plugin.
