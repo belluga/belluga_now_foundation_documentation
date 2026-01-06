@@ -13,6 +13,12 @@
 - Add a push listener stream in `push_handler` that emits fetched payload data.
 - Add a reusable push-aware repository hook for payload-driven updates.
 - Push validation steps (tap handling, registration checks).
+- Add a push_handler presentation gate/mode to defer UI until app readiness.
+- Ensure init stack shows push above InviteFlow/Home without flashing.
+- Add race-condition debug logs in app init stack + push_handler presenter.
+- Add push_handler de-duplication to avoid replaying queued pushes.
+- Ensure only the latest queued push is presented.
+- Clear the queue when opening the app via push tap.
 
 ## Out of Scope
 - Telemetry identity stitching and Mixpanel delivery guarantees.
@@ -29,13 +35,23 @@
 - [x] ✅ Production‑Ready Push-aware repository hook is reusable and adopted by invites repo.
 - [ ] ⚪ Push validation steps completed.
 - [x] ✅ Production‑Ready README documents the manual push validation checklist.
+- [x] ✅ Production‑Ready push_handler supports presentation gate/mode while keeping plug'n'play default behavior.
+- [x] ✅ Production‑Ready Push display defers until init stack is set (push above InviteFlow/Home).
+- [x] ✅ Production‑Ready Debug logs confirm push presentation waits for init stack.
+- [x] ✅ Production‑Ready Push presentation de-duplicates per push_message_id and clears queue.
+- [x] ✅ Production‑Ready Background queue keeps only the latest push payload.
+- [x] ✅ Production‑Ready Queue is cleared when app opens via push tap.
 
 ## Validation Steps
-- [ ] ⚪ Smoke test: receive a push notification and confirm tap handling resolves the correct in-app surface.
-- [ ] ⚪ Verify logs show Firebase init, token acquisition, and `/api/v1/push/register` success.
-- [ ] ⚪ App registers push device with anonymous token when user is not logged in.
-- [ ] ⚪ Push registration payload uses backend-supported platform values.
-- [ ] ⚪ Silent invite update: a new invite payload updates the invite list without hitting the backend.
+- [x] ✅ Production‑Ready Smoke test: receive a push notification and confirm tap handling resolves the correct in-app surface.
+- [x] ✅ Production‑Ready Verify logs show Firebase init, token acquisition, and `/api/v1/push/register` success.
+- [x] ✅ Production‑Ready App registers push device with anonymous token when user is not logged in.
+- [x] ✅ Production‑Ready Push registration payload uses backend-supported platform values.
+- [x] ✅ Production‑Ready Silent invite update: a new invite payload updates the invite list without hitting the backend.
+- [x] ✅ Production‑Ready Cold start push: push screen does not flash before Home/InviteFlow.
+- [x] ✅ Production‑Ready Logs show push presentation gated until init stack is ready.
+- [x] ✅ Production‑Ready Cold start does not re-present previously queued push.
+- [x] ✅ Production‑Ready Multiple pushes deliver only the latest presentation.
 
 ## Decisions
 - Keep invite acceptance non-optimistic; emit events only after success.
