@@ -449,6 +449,7 @@ Use this payload to validate two gates (location required, contacts dismissible)
 - [x] ✅ Production‑Ready Remove bottom "pular" and bottom-right ">" button.
 - [x] ✅ Production‑Ready Add default "Continuar" below content when no CTA exists.
 - [x] ✅ Production‑Ready Replace custom colors/styles with Theme-derived styles across push UI.
+- [ ] ⚪ Pending Unify CTA placement: move question/selector default “Continuar” into the bottom action area (align with CTA steps) and remove inline CTA placement within step content.
 
 ### Flutter App
 - [x] ✅ Production‑Ready Implement gatekeeper mapping for `gate.type` values.
