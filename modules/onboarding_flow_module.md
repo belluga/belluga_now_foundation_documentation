@@ -41,6 +41,13 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 3. **Preference Capture**
     * MVP stores preferences locally (categories, tags, location preference, radius default).
     * Backend preference persistence is deferred post-MVP.
+    * Push onboarding steps must only enable CTA when validation passes:
+        * `question_type=text` uses the configured validator; CTA stays disabled while it returns an error string.
+        * `selector` with `selection_ui=inline` uses `selection_mode`; `single` requires one selection, `multi` requires `min_selected`.
+        * `selector` with `selection_ui=external` uses an external selector sheet; its "Continuar" CTA stays disabled until the selector selection requirement is satisfied.
+    * Plugin gate handling must remain generic: no app-specific gate names; inline selectors avoid gate auto-skip when selection constraints (e.g., `min_selected`) are present.
+    * Answer persistence for dynamic onboarding steps is scoped by `message_instance_id` to prevent prior deliveries from auto-satisfying gates.
+    * For gated steps, custom actions always re-check the gate and advance when it passes; `continue_after_action` applies only to non-gated CTA behavior.
 
 4. **Location Consent & Initialization**
     * Step ensures location permissions are requested once, with tenant-specific privacy copy.

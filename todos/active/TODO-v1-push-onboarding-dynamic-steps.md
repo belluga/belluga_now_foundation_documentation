@@ -72,6 +72,7 @@ payload_template: {
 ```
 {
   "label": "string",
+  "continue_after_action": true|false,
   "action": {
     "type": "route" | "external" | "custom",
     "route_key": "string",
@@ -88,7 +89,7 @@ payload_template: {
 ### Question step config (generic)
 ```
 {
-  "question_type": "single_select" | "multi_select" | "text",
+  "question_type": "text",
   "option_source": {
     "type": "method",
     "name": "getFavorites" | "getTags" | "getMapPois",
@@ -107,6 +108,7 @@ payload_template: {
 ### Selector step config (generic)
 ```
 {
+  "selection_mode": "single" | "multi",
   "option_source": { ...same as question... },
   "min_selected": 0,
   "max_selected": 0,
@@ -203,11 +205,10 @@ Validate the end‑to‑end display pipeline: **push ID → fetch payload → re
   - `type: cta`, `dismissible: true` and `dismissible: false`
   - `closeOnLastStepAction: true` and `closeOnLastStepAction: false`
 - **Question Step**
-  - `question_type: single_select`, `layout: row`
-  - `question_type: multi_select`, `layout: grid`, `min_selected`/`max_selected`
   - `question_type: text`
 - **Selector Step**
   - `layout: list`, `layout: tags`
+  - `selection_mode: single` and `selection_mode: multi`
   - dynamic `option_source` (mocked by `optionsBuilder`)
 - **Gate Step**
   - gate with fail toast and fallback step
@@ -370,11 +371,17 @@ Use this payload to validate two gates (location required, contacts dismissible)
 - `payload_template.steps[*].slug` is required, string, max 64, unique within the steps array. No fallback.
 - `payload_template.steps[*].type` required and must be one of: `copy`, `cta`, `question`, `selector`.
 - `payload_template.closeOnLastStepAction` optional boolean (applies only to last-step actions).
+- `payload_template.title` optional string (step container title).
+- `payload_template.body` optional string (step container body).
+- `payload_template.image` optional object with:
+  - `image.path` required string/URL if present
+  - `image.width|image.height` numeric (optional)
 - `payload_template.steps[*].dismissible` optional boolean (controls step-level skip).
 - `payload_template.steps[*].gate` optional object with:
   - `type` required string if present
   - `onFail.toast` optional string
   - `onFail.fallback_step` optional string (must match a step slug if provided)
+  - `min_selected` optional non-negative integer (selection gates)
 - `payload_template.steps[*].onSubmit` optional object with:
   - `action` required string if present (e.g., `save_response`)
   - `store_key` required string if present
@@ -385,9 +392,20 @@ Use this payload to validate two gates (location required, contacts dismissible)
   - `action.url` required when `external`
   - `action.custom_action` required when `custom`
   - `show_loading` optional boolean
+  - `continue_after_action` optional boolean
 - `payload_template.steps[*].config` optional object validated by `type`:
-  - `question`: validate `question_type`, `option_source.type == method` + `name` (or `options` fallback), `min_selected`, `max_selected`, `layout`, `grid_columns`, `store_key`
+  - `question`: validate `question_type=text` + `validator` + `store_key` (no options/min/max for text-only questions)
   - `selector`: validate `option_source.type == method` + `name` (or `options` fallback), `min_selected`, `max_selected`, `layout`, `grid_columns`, `store_key`
+- `payload_template.steps[*].config.selection_ui` required when `type=selector` (`inline|external`).
+- `payload_template.steps[*].config.validator` optional for `question`:
+  - string name OR `{ name: string, params?: array }`.
+- `payload_template.steps[*].config.options` item shape validation (if present):
+  - `options.*.id` required string
+  - `options.*.label` required string
+  - `options.*.image` optional string/URL
+- `payload_template.steps[*].image` shape validation (if present):
+  - `image.path` string/URL
+  - `image.width|image.height` numeric (optional)
 - Ensure `min_selected <= max_selected` when both provided.
 - Ensure `grid_columns` only when `layout=grid`.
 - Simplify validation:
@@ -415,9 +433,20 @@ Use this payload to validate two gates (location required, contacts dismissible)
 - [x] ✅ Production‑Ready Validate `gate.onFail.fallback_step` matches an existing slug.
 - [x] ✅ Production‑Ready Validate `question/selector` configs (layout, grid_columns, min/max, option_source).
 - [x] ✅ Production‑Ready Validate `payload_template.steps[*].buttons` (label, action.type, route/external/custom requirements, show_loading).
-- [x] ✅ Production‑Ready Update push message README examples to include onboarding steps and selector samples.
+- [x] ✅ Production‑Ready Update push message README examples to include onboarding steps and selector samples (selector steps with `selection_ui` + `selection_mode`, questions text-only).
 - [x] ✅ Production‑Ready Update validation to require `option_source.type == method` + `name`, and allow `options` fallback only.
 - [x] ✅ Production‑Ready Update README/examples to show method-based `option_source` (no query/tags/endpoint).
+- [ ] ⚪ Pending Validate `selection_ui` for selectors (`inline|external`) and require it for selector steps.
+- [ ] ⚪ Pending Validate `question` config `validator` (string or `{name, params}` object) for text-only questions.
+- [ ] ⚪ Pending Validate `config.options` item shape (`id`, `label`, optional `image`).
+- [ ] ⚪ Pending Validate `steps[*].image` shape (`path`, optional `width/height`).
+- [ ] ⚪ Pending Apply route/key/path/query validation for `steps[*].buttons[*]` (same as message-level buttons).
+- [x] ✅ Production‑Ready Validate `selection_mode` for selector steps (`single|multi`) and reject it for question steps.
+- [x] ✅ Production‑Ready Enforce `min_selected`/`max_selected` only when selector `selection_mode=multi` (reject on `single`).
+- [x] ✅ Production‑Ready Reject non-text `question_type` values (`single_select`, `multi_select`).
+- [ ] ⚪ Pending Validate `payload_template.title`/`body`/`image` top-level display fields.
+- [ ] ⚪ Pending Validate `steps[*].gate.min_selected` (non-negative integer).
+- [ ] ⚪ Pending Validate `steps[*].buttons[*].continue_after_action` (boolean).
 - [x] ✅ Production‑Ready Generate a `message_instance_id` per send (UUID/ULID), include it in payload meta, and persist in `push_delivery_logs`.
 - [x] ✅ Production‑Ready Add message-level optional deadline field (e.g., `delivery_deadline_at`) to push message schema/model.
 - [x] ✅ Production‑Ready Validate `delivery_deadline_at` when present (datetime, not in the past).
@@ -450,6 +479,20 @@ Use this payload to validate two gates (location required, contacts dismissible)
 - [x] ✅ Production‑Ready Add default "Continuar" below content when no CTA exists.
 - [x] ✅ Production‑Ready Replace custom colors/styles with Theme-derived styles across push UI.
 - [ ] ⚪ Pending Unify CTA placement: move question/selector default “Continuar” into the bottom action area (align with CTA steps) and remove inline CTA placement within step content.
+- [x] ✅ Production‑Ready Update “voltar” UI: increase size slightly; position below action buttons; add 16px inner padding from left/bottom; respect SafeArea while keeping button aligned with action area.
+- [ ] ⚪ Pending Ensure `voltar` stays below action buttons (even when no actions) and respects 16px inner padding from left/bottom within SafeArea.
+- [ ] ⚪ Pending Add selector `layout=list` rendering + scroll cap for long tag/list option sets.
+- [x] ✅ Production‑Ready Enforce `selection_mode` in plugin for selector steps only and apply min/max only for multi.
+  - Update `StepConfig` to expose `selection_mode`.
+  - Update `PushStepQuestionContent` to treat non-text questions as unsupported (do not render options).
+  - Add widget tests for selector single vs multi selection behavior in `push_step_selector_content_test.dart`.
+- [ ] ⚪ Pending Question validation must control CTA enablement (button disabled until validator passes for text/single/multi).
+- [ ] ⚪ Pending Inline selector must enable CTA only when selection passes min/max (no auto-advance with invalid selection).
+- [ ] ⚪ Pending Single-select question must require one selection before enabling CTA (no implicit pass).
+- [x] ✅ Production‑Ready Selector with `selection_ui=external` must not render inline options (external sheet only).
+- [x] ✅ Production‑Ready Remove app-specific gate aliases (e.g., `favorites_min_selected`) from plugin gate logic; keep gate handling fully generic.
+- [x] ✅ Production‑Ready For inline selectors, skip gate auto-advance based on selection constraints (e.g., `min_selected > 0`) instead of gate type names.
+- [x] ✅ Production‑Ready For gated steps, custom actions always re-check the gate and advance when satisfied (ignore `continue_after_action`).
 
 ### Flutter App
 - [x] ✅ Production‑Ready Implement gatekeeper mapping for `gate.type` values.
@@ -470,6 +513,12 @@ Use this payload to validate two gates (location required, contacts dismissible)
 - [x] ✅ Production‑Ready Add `PushOptionsController` that resolves method names via repositories (e.g., `getFavorites`, `getTags`) and returns `OptionItem` list.
 - [x] ✅ Production‑Ready Wire `ApplicationContract`/DI to use controller-backed optionsBuilder (controller -> repositories).
 - [x] ✅ Production‑Ready Update tests to cover method-based option_source resolution (favorites + tags).
+- [x] ✅ Production‑Ready Scope push answer persistence keys by `message_instance_id` to avoid cross-delivery selection bleed.
+- [x] ✅ Production‑Ready Enforce `selection_mode` in app parsing for selector steps only.
+  - Update `PushOptionSelectorSheet` to support selector `selection_mode` (default `single`).
+  - Add widget test in `push_option_selector_sheet_test.dart` for selector single-select behavior.
+- [ ] ⚪ Pending Add list layout rendering for selector/question option lists and make tags/list scrollable.
+- [x] ✅ Production‑Ready External selector sheet uses "Continuar" CTA gated by `min_selected` (disabled until satisfied).
 
 ### Tests
 - [x] ✅ Production‑Ready Unit tests for step parsing and config validation (plugin).
@@ -477,6 +526,13 @@ Use this payload to validate two gates (location required, contacts dismissible)
 - [x] ✅ Production‑Ready Integration tests using debug injection hook to validate display pipeline.
 - [x] ✅ Production‑Ready Telemetry event assertions for each interaction type.
 - [x] ✅ Production‑Ready Add coverage to verify dedupe uses `message_instance_id` when available.
+- [ ] ⚪ Pending Move generic push UI widget tests from app into push_handler plugin (keep app wiring tests in app).
+- [x] ✅ Production‑Ready Add widget tests for selector list layout + single/multi selection_mode enforcement (push_handler plugin).
+- [ ] ⚪ Pending Add widget tests for question validator gating (text required, single-select required, multi-select min).
+- [ ] ⚪ Pending Add widget test for inline selector min/max enabling/disabling CTA.
+- [x] ✅ Production‑Ready Add widget test for external selector sheet CTA gating (min_selected).
+- [x] ✅ Production‑Ready Add widget test that external selector hides inline options.
+- [x] ✅ Production‑Ready Add widget test that gated custom actions advance regardless of `continue_after_action`.
 
 ---
 
@@ -501,7 +557,7 @@ Use this payload to validate two gates (location required, contacts dismissible)
 - When rendering a step:
   - If the step has a `gate`, disable navigation until `gatekeeper(step)` returns true.
   - Re-run `gatekeeper` when returning to the app (resume) after any step action (open settings, navigate, popup, etc.).
-  - After a step CTA button action completes, immediately re-run `gatekeeper(step)`; if it passes, advance to the next step, otherwise keep the step and apply `onFail` (toast and/or fallback step).
+  - For `custom_action` buttons, auto-advance only when `continue_after_action=true`; when enabled, re-run `gatekeeper(step)` and advance if it passes (otherwise keep the step and apply `onFail`).
   - If a button has `show_loading: true`, it must display a spinner and disable itself while the action is running (including `custom_action` callbacks).
   - If a button is tapped on the last step and `closeOnLastStepAction == true`, close the push UI.
   - On non-last steps, `closeOnLastStepAction` is ignored (push stays open).
