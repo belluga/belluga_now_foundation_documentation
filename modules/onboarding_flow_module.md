@@ -45,9 +45,19 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
         * `question_type=text` uses the configured validator; CTA stays disabled while it returns an error string.
         * `selector` with `selection_ui=inline` uses `selection_mode`; `single` requires one selection, `multi` requires `min_selected`.
         * `selector` with `selection_ui=external` uses an external selector sheet; its "Continuar" CTA stays disabled until the selector selection requirement is satisfied.
+    * Each step must provide at least one of `title`, `body`, or `image` so the UI always has content to render.
+    * Step bodies accept a **sanitized HTML subset** (auto-detected by tags) and fall back to Markdown/plain text otherwise.
+        * Allowed tags: `p`, `br`, `strong`, `em`, `u`, `span` (style: `color`, `font-size`, `font-weight`), `ul`, `ol`, `li`, `img` (`src`, `width`, `height`, `alt`).
+        * HTML is stripped on the backend before persistence/response for immediate feedback.
+        * Non-HTML bodies are centered in the push UI.
     * Plugin gate handling must remain generic: no app-specific gate names; inline selectors avoid gate auto-skip when selection constraints (e.g., `min_selected`) are present.
-    * Answer persistence for dynamic onboarding steps is scoped by `message_instance_id` to prevent prior deliveries from auto-satisfying gates.
+    * Dynamic onboarding answers are **callback-driven**: the push flow stores nothing (no disk or in-memory), and gate checks resolve current selections via app-provided callbacks.
+    * Option pre-selection is callback-driven using `OptionItem.isSelected` (app-provided), so external selectors can surface already-selected items without plugin persistence.
+    * Message-level close behavior uses `closeBehavior` (enum: `after_action`, `close_button`). `after_action` closes the UI after last-step actions; `close_button` keeps the UI open and shows a close (X) on the last step.
     * For gated steps, custom actions always re-check the gate and advance when it passes; `continue_after_action` applies only to non-gated CTA behavior.
+    * Inline selector step content scrolls as a single column to prevent overflow on smaller screens.
+    * External selector "open" actions are never blocked by gates; gate checks only block continuing after selection.
+    * The last-step close (X) respects SafeArea so it does not overlap system bars.
 
 4. **Location Consent & Initialization**
     * Step ensures location permissions are requested once, with tenant-specific privacy copy.

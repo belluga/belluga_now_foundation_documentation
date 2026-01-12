@@ -8,24 +8,26 @@
 ---
 
 ## Scope
-- Maintain the split TODOs for frontend push and telemetry work.
+- Track the remaining telemetry frontend TODO.
+- Keep the push delivery archive consolidated in a single document.
 
 ## Out of Scope
 - Detailed implementation steps (tracked in the split TODOs).
 
 ## Definition of Done
-- [ ] ⚪ Push TODO completed: `foundation_documentation/todos/active/mvp_slices/TODO-v1-push-frontend.md`
+- [x] ✅ Production‑Ready Push delivery archive consolidated: `foundation_documentation/todos/completed/TODO-v1-push-delivery-consolidated.md`
 - [ ] ⚪ Telemetry TODO completed: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-frontend.md`
+- [x] ✅ Production‑Ready Split push TODOs removed in favor of the consolidated archive.
 
 ## Validation Steps
-- [ ] ⚪ Push validation completed (per push TODO).
+- [x] ✅ Production‑Ready Push validation completed (per consolidated archive).
 - [ ] ⚪ Telemetry validation completed (per telemetry TODO).
+- [x] ✅ Production‑Ready Consolidation verified: only one push delivery archive remains and the split files are removed.
 
 ## Decisions
 - Split the frontend work into dedicated push + telemetry TODOs to avoid oversized scope.
 
 ## References
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-push-frontend.md`
+- `foundation_documentation/todos/completed/TODO-v1-push-delivery-consolidated.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-frontend.md`
-- `foundation_documentation/todos/active/TODO-v1-telemetry-and-push-backend.md`
 - `foundation_documentation/system_roadmap.md`

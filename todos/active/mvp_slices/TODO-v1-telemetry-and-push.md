@@ -14,13 +14,13 @@
 - Detailed implementation steps (tracked in the split TODOs).
 
 ## Definition of Done
-- [x] ✅ Production‑Ready Backend TODO completed: `foundation_documentation/todos/completed/TODO-v1-telemetry-and-push-backend.md`
-- [ ] ⚪ Frontend push TODO completed: `foundation_documentation/todos/active/mvp_slices/TODO-v1-push-frontend.md`
+- [x] ✅ Production‑Ready Backend TODO archived in consolidated push delivery archive: `foundation_documentation/todos/completed/TODO-v1-push-delivery-consolidated.md`
+- [x] ✅ Production‑Ready Frontend push delivery archive consolidated: `foundation_documentation/todos/completed/TODO-v1-push-delivery-consolidated.md`
 - [ ] ⚪ Frontend telemetry TODO completed: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-frontend.md`
 
 ## Validation Steps
-- [ ] ⚪ Backend validation completed (per backend TODO).
-- [ ] ⚪ Frontend push validation completed (per push TODO).
+- [ ] ⚪ Backend validation completed (per consolidated archive).
+- [x] ✅ Production‑Ready Frontend push validation completed (per consolidated archive).
 - [ ] ⚪ Frontend telemetry validation completed (per telemetry TODO).
 
 ## Decisions
@@ -30,8 +30,7 @@
 - Remaining decisions are tracked in the backend and frontend TODOs.
 
 ## References
-- `foundation_documentation/todos/completed/TODO-v1-telemetry-and-push-backend.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-push-frontend.md`
+- `foundation_documentation/todos/completed/TODO-v1-push-delivery-consolidated.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-frontend.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
