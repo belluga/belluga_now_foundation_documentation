@@ -56,6 +56,9 @@
   - StaticAsset and Event are POI-enabled sources; Account/Partner is conditional per MVP scope.
 - [ ] ⚪ MVP tiles: use public OpenStreetMap tiles (no key), with explicit limitation to dev + early MVP.
 - [ ] ⚪ Migrate map rendering from `free_map` to `flutter_map` to unblock `package_info_plus` upgrades.
+- [x] ✅ Expose both map implementations via Menu actions (City map + Prototype) for comparison before removing one.
+- [x] ✅ Remove unused City map artifacts (routes/screens/widgets/controllers) after comparison decision.
+- [x] ✅ Rename remaining prototype map files/paths to production naming (remove “prototype”).
 
 ### B2) Same-spot UX
 - [ ] ⚪ Marker shows top POI + `+N` badge when stack has multiple items

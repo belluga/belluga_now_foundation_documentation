@@ -101,6 +101,7 @@ List telemetry integrations.
   "data": [
     {
       "type": "mixpanel",
+      "track_all": false,
       "events": ["string"],
       "token": "string"
     }
@@ -115,6 +116,7 @@ Add or update a telemetry integration (upsert by `type`).
 ```json
 {
   "type": "mixpanel",
+  "track_all": false,
   "events": ["string"],
   "token": "string"
 }
@@ -126,6 +128,7 @@ Add or update a telemetry integration (upsert by `type`).
   "data": [
     {
       "type": "mixpanel",
+      "track_all": false,
       "events": ["string"],
       "token": "string"
     }
@@ -142,6 +145,7 @@ Remove a telemetry integration by type.
   "data": [
     {
       "type": "webhook",
+      "track_all": false,
       "events": ["string"],
       "url": "https://example.org/hook"
     }
@@ -151,6 +155,8 @@ Remove a telemetry integration by type.
 
 **Field Definitions**
 - `telemetry.type` (enum): `mixpanel`, `firebase`, `webhook`
+- `telemetry.track_all` (bool): when true, all supported events are emitted and `events` is ignored.
+- `telemetry.events` (list): required when `track_all=false`; ignored when `track_all=true`.
 
 ## 4. Next Steps
 

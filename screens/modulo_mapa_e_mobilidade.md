@@ -4,7 +4,7 @@
 
 ---
 
-## 1. Protótipo da Tela Principal: Mapa (`mapa.md`)
+## 1. Tela Principal: Mapa (`mapa.md`)
 
 ### 1.0. Gate de Localização (Permissão + Serviços)
 

@@ -153,6 +153,8 @@ Suggested defaults (override per tenant + plan):
 ### 2.5 Tracking / Analytics (Mixpanel)
 - [ ] ⚪ Provide a stable event taxonomy and required properties (tenant-aware)
 - [ ] ⚪ If backend emits events too, align naming/ownership to avoid double-counting
+- [ ] ⚪ Emit telemetry for implemented auth/profile/account endpoints (Mixpanel + webhook) per `TODO-v1-telemetry-and-push.md`
+- [ ] ⚪ Update tenant telemetry settings (Mixpanel + webhook) once admin settings UI is ready (deferred)
 
 ---
 

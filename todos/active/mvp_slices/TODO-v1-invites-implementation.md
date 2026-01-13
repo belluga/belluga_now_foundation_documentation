@@ -86,9 +86,31 @@
   - per issuer user: same breakdown
   - totals
 
+### A7) Telemetry emission (backend-owned)
+- [ ] ⚪ Emit state-changing invite/presence events from backend services (not from UI).
+- [ ] ⚪ Use `user_id` as `distinct_id` for all telemetry events.
+- [ ] ⚪ Use an idempotency key per event + entity + user (e.g., `${event}:${invite_id}:${user_id}`).
+- [ ] ⚪ Mixpanel: send `$insert_id` with the idempotency key.
+- [ ] ⚪ Webhook: send unified envelope `{type, timestamp, context, payload}` with `tenant.id` + `user.id`.
+- [ ] ⚪ Events + required properties:
+  - `invite_accept_selected_inviter` (on persisted inviter selection):
+    - `event_id`, `invite_id`, `inviter_kind`, `inviter_id`, `source=invite_accept`
+    - Optional: `partner_id` when `inviter_kind=partner`
+  - `invite_accepted` (on acceptance commit):
+    - `event_id`, `invite_id`, `inviter_kind`, `inviter_id`, `source=invite_accept`
+    - Optional: `partner_id`, `credited_acceptance=true`
+  - `invite_declined` (on decline commit):
+    - `event_id`, `invite_id`, `inviter_kind`, `inviter_id`, `source=invite_decline`
+    - Optional: `partner_id`
+  - `event_confirmed_presence` (on attendance commit):
+    - `event_id`, `source=event_attendance`
+
 ---
 
 ## B) Flutter Work
+
+### B0) Telemetry ownership (frontend)
+- [x] ✅ Do not emit `invite_accept_selected_inviter`, `invite_accepted`, `invite_declined`, or `event_confirmed_presence` from Flutter. These are backend-owned.
 
 ### B1) “Accept invite from…” UX (no default)
 - [ ] ⚪ Invite card shows:
