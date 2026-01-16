@@ -13,6 +13,7 @@
 - Support `track_all=true` in telemetry settings (bypass explicit event lists).
 - Update backend telemetry filtering + settings validation to honor `track_all` (events list optional).
 - Update tenant telemetry settings with the backend event list (deferred).
+- Track the backend context + identity consistency fix needed to complete telemetry validation.
 
 ## Out of Scope
 - Detailed implementation steps (tracked in the split TODOs).
@@ -21,7 +22,9 @@
 - [x] ✅ Backend telemetry emits Mixpanel + webhook for implemented Laravel endpoints (below).
 - [x] ✅ Backend telemetry emitter bypasses event filtering when `track_all=true`.
 - [x] ✅ Telemetry settings accept `track_all=true` and both backend + frontend honor it.
-- [ ] ⚪ Tenant telemetry settings updated to include backend events (Mixpanel + webhook).
+- [x] ✅ Tenant telemetry settings updated to include backend events (Mixpanel + webhook). (2026-01-13)
+- [x] ✅ Production backend defaults to Laravel auth; mocks only via DI overrides to prevent fake telemetry identities. (2026-01-14)
+- [ ] ⚪ Environment payload exposes telemetry config as an object (`telemetry.trackers` + `telemetry.location_freshness_minutes`).
 
 ## Validation Steps
 - [ ] ⚪ Backend telemetry events appear for implemented endpoints with correct `distinct_id` and required properties.
@@ -33,6 +36,8 @@
 - Split into backend and frontend TODOs; keep this file as the index.
 - Backend telemetry targets only endpoints that exist today; planned endpoints remain in their owning TODOs.
 - `track_all=true` bypasses explicit event lists for Mixpanel + webhook trackers.
+- Environment payload now shapes telemetry as `{trackers: [...], location_freshness_minutes: 5}` for client consumption.
+- Mixpanel validation exposed mock/production ID drift; we are resolving it in `TODO-v1-backend-context-and-identity.md` to unblock telemetry and push verification.
 
 ## Questions to Close
 - Remaining decisions are tracked in the backend and frontend TODOs.
@@ -101,6 +106,7 @@
 ## References
 - `foundation_documentation/todos/completed/TODO-v1-push-delivery-consolidated.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-frontend.md`
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-backend-context-and-identity.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
 - `foundation_documentation/system_roadmap.md`

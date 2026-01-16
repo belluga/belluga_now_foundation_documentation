@@ -72,12 +72,24 @@
     "primary_seed_color": "#RRGGBB",
     "secondary_seed_color": "#RRGGBB",
     "brightness_default": "light|dark"
+  },
+  "telemetry": {
+    "trackers": [
+      {
+        "type": "mixpanel",
+        "track_all": false,
+        "events": ["string"],
+        "token": "string"
+      }
+    ],
+    "location_freshness_minutes": 5
   }
 }
 ```
 **Field Definitions**
 - `type`: `landlord`, `tenant`.
 - `theme_data_settings.brightness_default`: `light`, `dark`.
+- `telemetry.location_freshness_minutes`: Integer minutes; defaults to 5 when omitted.
 
 **Branding assets:** use default paths `GET /logo-light.png`, `/logo-dark.png`, `/icon-light.png`, `/icon-dark.png` (no direct URLs in this payload).
 

@@ -170,6 +170,7 @@
 * **Metrics:** Custom analytics events (`home_section_view`, `invite_action`, `poi_tap`) proxied through a unified `AnalyticsService`.
 * **Tracing:** Session traces captured with Firebase Performance; spans named `Controller::<Action>` (e.g., `TenantHomeController::loadHome`).
 * **Alerts:** Crash-free sessions threshold ≥99%; analytics anomaly detection (invite acceptance drop >20 % triggers alert).
+* **Telemetry Context:** `/api/v1/environment` returns `telemetry.location_freshness_minutes` (default 5) to gate location context enrichment on emitted events.
 
 #### 2.7 Testing Strategy
 

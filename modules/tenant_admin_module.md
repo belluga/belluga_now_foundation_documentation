@@ -105,7 +105,8 @@ List telemetry integrations.
       "events": ["string"],
       "token": "string"
     }
-  ]
+  ],
+  "available_events": ["string"]
 }
 ```
 
@@ -132,7 +133,8 @@ Add or update a telemetry integration (upsert by `type`).
       "events": ["string"],
       "token": "string"
     }
-  ]
+  ],
+  "available_events": ["string"]
 }
 ```
 
@@ -149,7 +151,8 @@ Remove a telemetry integration by type.
       "events": ["string"],
       "url": "https://example.org/hook"
     }
-  ]
+  ],
+  "available_events": ["string"]
 }
 ```
 
@@ -157,6 +160,7 @@ Remove a telemetry integration by type.
 - `telemetry.type` (enum): `mixpanel`, `firebase`, `webhook`
 - `telemetry.track_all` (bool): when true, all supported events are emitted and `events` is ignored.
 - `telemetry.events` (list): required when `track_all=false`; ignored when `track_all=true`.
+- `available_events` (list): backend event names supported for Mixpanel and webhook telemetry.
 
 ## 4. Next Steps
 
