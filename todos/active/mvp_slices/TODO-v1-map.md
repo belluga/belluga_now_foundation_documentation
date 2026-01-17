@@ -16,6 +16,9 @@
 
 ## A) Backend Tasks
 
+### A0) Decision Notes
+- [ ] ⚪ Map POI endpoint contract: confirm whether the intended path is `/api/v1/map/pois` (roadmap) or `/api/v1/app/map/pois` (current implementation), then align.
+
 ### A1) `map_pois` projection persistence
 - [ ] ⚪ On create/update of Account/Partner, StaticAsset, or Event (and POI-enabled custom objects), upsert linked `map_pois` record (transactional / consistent write)
 - [ ] ⚪ Support `time_anchor_at` nullable on `map_pois` (no stored `visible_from/visible_until`)

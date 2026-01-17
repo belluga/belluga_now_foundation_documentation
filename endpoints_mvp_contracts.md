@@ -2,7 +2,7 @@
 
 **Status:** Draft  
 **Purpose:** Define the MVP endpoints and the minimum response schemas required so Flutter can mock and backend can implement with the same contract.  
-**Scope:** MVP only (partner-issued invites, partner metrics, sponsors POIs are deferred).
+**Scope:** MVP only (account-profile invites are allowed, but memberships + partner metrics are deferred; sponsor POIs are deferred).
 
 ---
 
@@ -54,6 +54,25 @@
 **Field Definitions**
 - `identity_state`: `anonymous`.
 
+**Client retry policy (Flutter):** up to 3 attempts with delays of 200ms then 800ms; fail hard after final attempt.
+
+### `GET /auth/token_validate`
+**Purpose:** Validate the bearer token and return a minimal user profile.  
+**Request (headers):** `Authorization: Bearer {token}`  
+**Response:**
+```json
+{
+  "data": {
+    "user": {
+      "id": "string",
+      "name": "string?",
+      "emails": ["string"],
+      "custom_data": {}
+    }
+  }
+}
+```
+
 ### `GET /api/v1/environment` (root or tenant subdomain)
 **Purpose:** Resolve landlord/tenant context + branding.  
 **Request (query):** `app_domain`, `domain`, `subdomain` (all optional).  
@@ -76,19 +95,33 @@
   "telemetry": {
     "trackers": [
       {
-        "type": "mixpanel",
-        "track_all": false,
-        "events": ["string"],
-        "token": "string"
+        "type": "mixpanel|firebase|webhook",
+        "token": "string?",
+        "url": "string?",
+        "track_all": true,
+        "events": ["string"]
       }
     ],
     "location_freshness_minutes": 5
+  },
+  "firebase": {
+    "apiKey": "string",
+    "appId": "string",
+    "projectId": "string",
+    "messagingSenderId": "string",
+    "storageBucket": "string"
+  },
+  "push": {
+    "enabled": true,
+    "types": ["string"],
+    "throttles": {}
   }
 }
 ```
 **Field Definitions**
 - `type`: `landlord`, `tenant`.
 - `theme_data_settings.brightness_default`: `light`, `dark`.
+- `telemetry.trackers[].type`: `mixpanel`, `firebase`, `webhook`.
 - `telemetry.location_freshness_minutes`: Integer minutes; defaults to 5 when omitted.
 
 **Branding assets:** use default paths `GET /logo-light.png`, `/logo-dark.png`, `/icon-light.png`, `/icon-dark.png` (no direct URLs in this payload).

@@ -113,4 +113,95 @@
 
 ---
 
-The detailed scope, requirements, and decisions now live in the backend and frontend TODOs.
+## A) What Push Is For (V1)
+
+Minimum notifications:
+- Invite received (high priority)
+- Event reminder for confirmed attendance (if scheduling is available)
+
+Required behaviors:
+- Deep link into the app to the correct surface (invite context or event detail).
+- Respect tenant-level notification policies provided by the backend.
+
+## Push Policy Summary (MVP)
+- No channel filtering in V1; users receive all push types by default.
+- Backend uses server-side fan‑out for event reminders and favorites audiences.
+
+---
+
+## B) Backend Requirements
+
+### B1) Device registration (Upstream/Boilerplate)
+- [x] ✅ Production‑Ready — Implement `POST /api/v1/push/register` in upstream:
+  - [x] ✅ Production‑Ready — accept `{ device_id, platform, push_token }`
+  - [x] ✅ Production‑Ready — associate token with authenticated user + tenant
+- [x] ✅ Production‑Ready — Optional `DELETE /api/v1/push/unregister` in upstream
+- [x] ✅ Production‑Ready — Handle token rotation idempotently
+
+### B2) Notification policies (tenant settings)
+- [x] ✅ Production‑Ready — Return which notification categories are enabled and any throttles (tenant settings)
+- [x] ✅ Production‑Ready — Keep backend authoritative; Flutter should not implement quota rules beyond UX
+
+### B3) Notification payload contract (deep linking)
+Payload must include enough data to route:
+- `tenant_id`
+- `type`: `invite_received | event_reminder | invite_status_changed | ...`
+- `event_id` (if applicable)
+- `invite_id` or `invite_code` (if applicable)
+- optional `inviter_principal` summary for display
+
+---
+
+## C) Flutter Requirements
+
+### C1) Push bootstrap
+- [x] ✅ Production‑Ready — Register token on startup/login, and re-register on rotation
+- [x] ✅ Production‑Ready — Route notification taps into:
+  - [x] ✅ Production‑Ready — invite flow (received invites)
+  - [x] ✅ Production‑Ready — event detail (event reminders)
+
+### C2) UX
+- [x] ✅ Production‑Ready — If user is already on the target event, skip duplicate navigation (treat in-place state as sufficient).
+
+---
+
+## D) Mixpanel Requirements
+
+### D1) Initialization
+- [x] ✅ Production‑Ready — Prefer backend-provided configuration (tenant-aware token/keys)
+- [x] ✅ Production‑Ready — Plan anonymous-to-authenticated identity stitching (even if deferred)
+
+### D2) Event taxonomy (minimum)
+- [x] ✅ Production‑Ready — Invite telemetry events delegated to `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`.
+- [x] ✅ Production‑Ready — Track events funnel:
+  - [x] ✅ Production‑Ready — `event_opened`
+  - [x] ✅ Production‑Ready — `event_confirmed_presence` delegated to event implementation TODO.
+- [x] ✅ Production‑Ready — Track discovery/navigation:
+  - [x] ✅ Production‑Ready — `map_opened` covered by screen_view on map route.
+  - [x] ✅ Production‑Ready — `poi_opened`
+  - [x] ✅ Production‑Ready — `favorite_artist_toggled`
+
+### D2.1) Trigger moments (must define)
+- [x] ✅ Production‑Ready — Define when each Mixpanel event fires (screen load, CTA tap, success response).
+- [x] ✅ Production‑Ready — Confirm event detail open trigger (screen first paint vs data loaded).
+- [x] ✅ Production‑Ready — Invite trigger moments delegated to `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`.
+
+### D3) Required properties (attach when available)
+- [x] ✅ Production‑Ready — Include required properties (when available):
+  - `tenant_id` (always)
+  - `user_id` (when authenticated)
+  - `event_id` (when applicable)
+  - `partner_id` (when applicable)
+  - `source` (screen/route name)
+- [x] ✅ Production‑Ready — Invite-specific properties delegated to `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`.
+
+---
+
+## E) Acceptance Criteria
+
+- [x] ✅ Production‑Ready — Invite telemetry + push acceptance criteria delegated to `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`.
+
+---
+
+## F) Documentation Sync (Foundation Docs)
+See `foundation_documentation/todos/active/TODO-telemetry-push-pr-readiness-decisions.md` for the derived documentation tasks.

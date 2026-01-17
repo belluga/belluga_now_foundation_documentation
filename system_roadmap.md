@@ -21,6 +21,8 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | Endpoint | Module | Description | Current Status | Notes |
 |----------|--------|-------------|----------------|-------|
 | `/api/v1/anonymous/identities` | MOD-101 | Anonymous identity bootstrap (Sanctum token issuance for web/app guest flows). | Implemented | Unauthenticated route returns `{user_id, identity_state, token, abilities, expires_at?}`; abilities/TTL controlled by `tenant.anonymous_access_policy`. |
+| `/api/v1/auth/token_validate` | MOD-101 | Validate bearer token and return minimal user profile. | Defined | Returns `{ data: { user: { id, name, emails, custom_data } } }` for login check. |
+| `/api/v1/environment` | MOD-101 | Tenant/landlord resolution + branding payload for app/web bootstraps. | Defined | Returns tenant identity + theme settings + telemetry/firebase/push config (location freshness lives under `telemetry`); uses host/app domain context. |
 | `/api/v1/environment` | MOD-101 | Tenant/landlord resolution + branding payload for app/web bootstraps. | Implemented | Returns tenant identity + theme settings; uses host/app domain context. |
 | `/api/v1/invites` | MOD-201 | Invite feed and referral graph. | Mocked | Prioritizes nearest events; enforces 1 invite per person/event; limits pending invites by role. |
 | `/api/v1/invites/stream` | MOD-201 | Invite delta stream (SSE). | Planned | Emits invite created/updated/deleted events for authenticated user. |

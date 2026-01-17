@@ -145,6 +145,20 @@
 
 ---
 
+## C) Telemetry + Push (Invite-specific)
+- [ ] ⚪ Define source of truth + trigger moments for invite telemetry events (backend vs client).
+- [ ] ⚪ Specify push payload contract for invite detection (payload must include `invite` or `invites` root keys so Flutter can upsert).
+- [ ] ⚪ Track `invite_received` when invite is first delivered (push payload applied or invite list fetch).
+- [x] ✅ Production‑Ready — Track `invite_opened` when invite card is first surfaced (Flutter invite flow).
+- [ ] ⚪ Track `invite_accept_selected_inviter` when user selects the inviter to accept.
+- [ ] ⚪ Track `invite_accepted` after accept succeeds.
+- [ ] ⚪ Track `invite_declined` after decline succeeds.
+- [ ] ⚪ Include invite telemetry properties: `tenant_id`, `event_id`, `invite_id` or `invite_code`, `inviter_kind`, `inviter_id`, `source`.
+- [ ] ⚪ Invite received push arrives and routes correctly into the app.
+- [ ] ⚪ Telemetry shows end-to-end invite funnel with consistent identifiers.
+
+---
+
 ## C) VNext Notes (do not implement now)
 - Offline persistence of invite state
 - Rich suppression management UI
