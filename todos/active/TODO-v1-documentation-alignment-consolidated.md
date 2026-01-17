@@ -80,4 +80,4 @@ Consolidate and align documentation updates from this session into a single sour
 - Added explicit account_profile optional geolocation rule, the user→influencer upgrade flow, and the boilerplate AccountProfile requirement to system architecture principles.
 - Resolved `system_roadmap.md` duplicate environment row and aligned map/event notes to account profiles.
 - Replaced remaining Partner Workspace terminology with Account Profile Workspace in policy and admin module docs.
-- Created implementation TODO: `foundation_documentation/todos/active/TODO-v1-account-profile-implementation.md`.
+- Created implementation TODO: `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-implementation.md`.

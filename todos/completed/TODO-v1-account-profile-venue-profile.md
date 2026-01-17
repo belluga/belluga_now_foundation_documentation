@@ -1,15 +1,17 @@
-# TODO (V1): Venue Profile (Reduced Tabs)
+# TODO (V1): Account Profile (Venue) Profile (Reduced Tabs)
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Active  
+**Status:** Completed  
 **Owners:** Flutter Team + Product  
-**Objective:** Deliver the reduced Venue profile using the existing Account Profile Detail base page (Flutter: Partner Detail).
+**Objective:** Deprecated. Merged into `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`.
+**Note:** This file is retained for history; all work continues in the unified Account Profile UI slice.
 
 ---
 
 ## References
 - `foundation_documentation/todos/completed/TODO-mvp-scope-definition.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-implementation.md`
 - `lib/presentation/tenant/partners/models/partner_profile_config.dart`
 
 ---
@@ -27,14 +29,14 @@
 ---
 
 ## B) Flutter Tasks
-- [ ] ⚪ Implement venue `PartnerProfileConfig` with the reduced tabs above.
-- [ ] ⚪ Ensure Venue profiles open from:
-  - [ ] ⚪ Event Detail `O Local` CTA
-  - [ ] ⚪ Venue favorites
+- [x] ✅ Implement venue account profile `PartnerProfileConfig` with the reduced tabs above (Flutter naming).
+- [x] ✅ Ensure Venue account profiles open from:
+  - [x] ✅ Event Detail `O Local` CTA
+  - [x] ✅ Venue favorites
 
 ---
 
 ## C) Acceptance Criteria
-- [ ] ⚪ Venue profile renders reduced tabs with correct ordering.
-- [ ] ⚪ `Como Chegar` shows map preview + route CTA.
-- [ ] ⚪ Tapping venue in Event Detail routes to the Venue profile.
+- [x] ✅ Venue account profile renders reduced tabs with correct ordering.
+- [x] ✅ `Como Chegar` shows map preview + route CTA.
+- [x] ✅ Tapping venue in Event Detail routes to the Venue account profile.

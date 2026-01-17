@@ -1,7 +1,7 @@
 # TODO (V1): Flutter Test Foundation (Baseline + Contract Fidelity)
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Active  
+**Status:** Completed  
 **Owners:** Delphi (Flutter) + Backend Team (contract source)  
 **Objective:** Establish a reliable Flutter test suite (unit/contract/widget/integration + network contract checks) that locks current behavior and prevents regressions before implementing V1 feature slices.
 
@@ -128,8 +128,8 @@ For both landlord and tenant origins, these endpoints must return `200` or `304`
 ### M5 — Minimal integration smoke
 **Coverage**
 - [x] ✅ One integration test that boots the app and reaches initial route without exceptions (`integration_test/app_test.dart`).
-- [ ] ⚪ Optional: navigate to schedule or invites route (smoke only).
-- [ ] ⚪ Agenda filters regression: selecting filters in Agenda and Home uses the same controller state and updates the visible event list (use deterministic mock schedule data).
+- [x] ✅ Optional: navigate to schedule or invites route (smoke only).
+- [x] ✅ Agenda filters regression: selecting filters in Agenda and Home uses the same controller state and updates the visible event list (use deterministic mock schedule data).
 
 **Definition of Done**
 - [x] ✅ Integration tests are stable and do not rely on external services (uses `MockBackend`).
@@ -146,11 +146,6 @@ For both landlord and tenant origins, these endpoints must return `200` or `304`
 - `cd flutter-app && fvm flutter test test/network --dart-define=NETWORK_TEST_ROOT_DOMAIN=belluga.app --dart-define=NETWORK_TEST_TENANT_SUBDOMAIN=guarappari`
 
 ---
-
-## Open Decisions (Close Before Implementation)
-- Which tenant subdomain is canonical for tests (suggest: `guarappari`).
-- Whether CI runs network tests on every PR or on a scheduled pipeline (tunnel flakiness tradeoff).
-- What fallback UI is acceptable for logo/icon failures (placeholder asset vs empty container).
 
 ## Decisions (Agenda Filters Regression)
 - Cover all agenda filters: past events, invited to, only confirmed (after confirming an invite), and search.

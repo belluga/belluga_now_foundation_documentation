@@ -23,7 +23,7 @@ This TODO is the “gate” for scope clarity: we answer the questions below, th
 
 ### 2.1 Tenant (public-facing) MVP
 - Reduced profiles:
-  - Artist reduced profile (already tracked in `foundation_documentation/todos/active/mvp_slices/TODO-v1-artist-favorites-and-profile.md`)
+  - Account Profile reduced tabs (already tracked in `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`)
   - Venue reduced profile (defined in MVP decisions)
 - Map POIs:
   - Beaches

@@ -1,7 +1,7 @@
 # TODO (V1): Backend Context + Identity Consistency (Flutter)
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Active  
+**Status:** Completed  
 **Owners:** Delphi (Flutter)  
 **Objective:** Centralize backend connection context after environment bootstrap and guarantee stable identity usage across telemetry and future API actions without losing mock swap flexibility.
 
@@ -22,12 +22,12 @@
 - [x] ✅ Production backend defaults to Laravel auth; mocks only via DI overrides to prevent fake identity usage. (2026-01-14)
 - [x] ✅ `BackendContext` registered after environment bootstrap and used by Laravel adapters. (2026-01-14)
 - [x] ✅ Laravel adapters no longer construct their own base URLs; they use the shared context when available. (2026-01-14)
-- [ ] ⚪ Mixpanel distinct IDs remain stable across app relaunches, and no mock IDs appear in telemetry or API calls.
+- [x] ✅ Mixpanel distinct IDs remain stable across app relaunches, and no mock IDs appear in telemetry or API calls.
 
 ## Validation Steps
-- [ ] ⚪ Reinstall app, confirm `user_id` persists across relaunch and matches `account_users._id`.
-- [ ] ⚪ Mixpanel events retain the same `distinct_id` across multiple launches of the same install.
-- [ ] ⚪ Auth bootstrap fails fast if the backend is unreachable (no mock IDs generated).
+- [x] ✅ Reinstall app, confirm `user_id` persists across relaunch and matches `account_users._id`.
+- [x] ✅ Mixpanel events retain the same `distinct_id` across multiple launches of the same install.
+- [x] ✅ Auth bootstrap fails fast if the backend is unreachable (no mock IDs generated).
 
 ## Decisions
 - Triggered by Mixpanel validation: mock/production ID drift corrupted telemetry and could affect future API workflows (invites, confirmations). We are resolving this now to unblock telemetry/push validation safely.

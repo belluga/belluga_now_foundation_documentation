@@ -116,16 +116,15 @@
 
 ## Frontend Tasks (Flutter/Web)
 - [ ] ⚪ Orchestrator: `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
-- [ ] ⚪ Test foundation: `foundation_documentation/todos/active/mvp_slices/TODO-v1-flutter-test-foundation.md`
+- [ ] ⚪ Test foundation: `foundation_documentation/todos/completed/TODO-v1-flutter-test-foundation.md`
 - [ ] ⚪ Events & Agenda: `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-and-agenda.md`
 - [ ] ⚪ Invites (Flutter): `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
 - [ ] ⚪ Map: `foundation_documentation/todos/active/mvp_slices/TODO-v1-map.md`
-- [ ] ⚪ Artist profile + favorites: `foundation_documentation/todos/active/mvp_slices/TODO-v1-artist-favorites-and-profile.md`
-- [ ] ⚪ Venue profile: `foundation_documentation/todos/active/mvp_slices/TODO-v1-venue-profile.md`
-- [ ] ⚪ Tenant/Admin area (Account Workspace): `foundation_documentation/todos/active/mvp_slices/TODO-v1-partner-workspace.md`
+- [ ] ⚪ Account Profile UI (type-driven): `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
+- [ ] ⚪ Tenant/Admin area (MVP: Account + Account Profile creation): `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
 - [ ] ⚪ Web-to-app policy: `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md`
 - [ ] ⚪ Telemetry + push: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-and-push.md`
-- [ ] ⚪ UI/UX polish: `foundation_documentation/todos/active/mvp_slices/TODO-mvp-ui-polish.md`
+- [ ] ⚪ UI/UX polish: `foundation_documentation/todos/completed/TODO-mvp-ui-polish.md`
 
 ---
 
@@ -135,7 +134,7 @@
 - [ ] ⚪ Events & Agenda (API): `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-and-agenda.md`
 - [ ] ⚪ Map/POI projection: `foundation_documentation/todos/active/mvp_slices/TODO-v1-map.md`
 - [ ] ⚪ Telemetry + push: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-and-push.md`
-- [ ] ⚪ Tenant/Admin area (accounts/assets/branding): `foundation_documentation/todos/active/mvp_slices/TODO-v1-partner-workspace.md`
+- [ ] ⚪ Tenant/Admin area (accounts/assets/branding): `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
 
 ---
 
