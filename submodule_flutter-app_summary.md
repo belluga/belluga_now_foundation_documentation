@@ -53,7 +53,7 @@
 
 * **P-1 (Domain-First, Schema-Second):** Partially Aligned — Domain entities and value objects exist, but partner subtype vocabulary (e.g., influencer/curator) and engagement metrics still need stricter documentation traceability in foundation docs.
 * **P-3 (API-Centric Ecosystem):** Partially Aligned — The app bootstraps against a Laravel-backed environment endpoint, while most feature data remains mock-backed to unblock UI/flow development ahead of finalized API delivery.
-* **P-8 (Explicit Schemas):** Partially Aligned — Significant DTO coverage exists (app_data, schedule, invites, profile, map), but mock databases (notably partners/discovery) still encode schema expectations implicitly.
+* **P-8 (Explicit Schemas):** Partially Aligned — Significant DTO coverage exists (app_data, schedule, invites, profile, map), but mock databases (notably account_profiles/discovery) still encode schema expectations implicitly.
 * **Appendix A (Flutter Tenets):** Partially Aligned — Feature-first organization and controller/stream patterns are present; continued tightening is needed to keep DTOs out of widgets and keep screen logic consistently controller-driven.
 
 ---
@@ -61,7 +61,7 @@
 ## 6. Key Integration Points / API Surface (If Applicable)
 
 * **API Prefix/Base:** `https://{AppData.hostname}/api` (derived at runtime from the environment bootstrap payload).
-* **Primary Endpoints/Modules (Current Consumer Shape):** App environment/bootstrap (branding + theme), schedule/events, invites, favorites, partners/discovery, profile, map POIs (mixed: bootstrap via Laravel adapter; others primarily mock-backed).
+* **Primary Endpoints/Modules (Current Consumer Shape):** App environment/bootstrap (branding + theme), schedule/events, invites, favorites, account_profiles/discovery, profile, map POIs (mixed: bootstrap via Laravel adapter; others primarily mock-backed).
 * **Authentication Method:** Presentational auth flows exist, but repository/backends are currently mock-focused; secure storage is available for future token/session persistence.
 
 ---
@@ -69,5 +69,5 @@
 ## 7. Notes & Observations
 
 * Environment/bootstrap is implemented via a Laravel-backed adapter (`/api/v1/environment?app_domain=…`) and must remain aligned with the backend payload keys used for branding (e.g., `main_logo_light_url`, `main_icon_dark_url`, `theme_data_settings`).
-* Partners/discovery continues to rely on local mock databases that embed subtype and engagement expectations; these should be treated as prototype contracts and mirrored in foundation documentation to prevent Flutter ↔ Laravel drift.
+* Account profiles/discovery continues to rely on local mock databases that embed subtype and engagement expectations; these should be treated as prototype contracts and mirrored in foundation documentation to prevent Flutter ↔ Laravel drift.
 * `ModuleSettings` supports test-time backend builders, enabling targeted tests to swap mock/real adapters without changing production wiring.

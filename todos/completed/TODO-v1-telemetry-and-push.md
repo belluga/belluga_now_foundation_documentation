@@ -191,7 +191,7 @@ Payload must include enough data to route:
   - `tenant_id` (always)
   - `user_id` (when authenticated)
   - `event_id` (when applicable)
-  - `partner_id` (when applicable)
+  - `partner_profile_id` (when applicable)
   - `source` (screen/route name)
 - [x] ✅ Production‑Ready — Invite-specific properties delegated to `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`.
 

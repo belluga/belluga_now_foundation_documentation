@@ -19,7 +19,7 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
             2. Contact import prompt (`import contacts to share with friends`) wired to Invite module’s endpoint.
             3. Optional “Find friends” preview from `friend_resumes` to encourage immediate viral sharing.
         * After contact import (or skip), user transitions to preference capture + location consent steps to personalize home/map.
-    * Integration: Calls `/invites/share/{code}/accept` to confirm the invite, then uses `POST /contacts/import` if the user opts to import contacts. Invite metadata is stored locally so preference recommendations can reference the same event/partner.
+    * Integration: Calls `/invites/share/{code}/accept` to confirm the invite, then uses `POST /contacts/import` if the user opts to import contacts. Invite metadata is stored locally so preference recommendations can reference the same event/account profile.
 
 2. **Invite Decline / No Invite Path**
     * Steps:
@@ -31,7 +31,7 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 ## 3. Core Responsibilities
 
 1. **Invite Context Transfer**
-    * Store `invite_context_snapshot` with sender info, event metadata, partner incentives.
+    * Store `invite_context_snapshot` with sender info, event metadata, account profile incentives.
     * Provide this snapshot to downstream modules to pre-populate CTAs (“Join João at Praia Jam”).
 
 2. **Partial Profile Persistence**
@@ -79,7 +79,7 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 
 1. Should we allow anonymous exploration (limited map access) before completing onboarding, or do we gate all main surfaces until preferences/location are captured?
 2. How do we handle invite acceptance when the event is full or expired mid-onboarding? (Fallback suggestions, auto-decline plus onboarding path.)
-3. Do we need separate onboarding variants for partner/promoter roles, or do they share the same core flow with role selection prompts?
+3. Do we need separate onboarding variants for account/promoter roles, or do they share the same core flow with role selection prompts?
 
 ---
 

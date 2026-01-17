@@ -2,7 +2,7 @@
 
 **Status:** Draft  
 **Purpose:** Define the MVP endpoints and the minimum response schemas required so Flutter can mock and backend can implement with the same contract.  
-**Scope:** MVP only (account-profile invites are allowed, but memberships + partner metrics are deferred; sponsor POIs are deferred).
+**Scope:** MVP only (account-profile invites are allowed; memberships are deferred; invite metrics **data capture is required**, dashboards are deferred; sponsor POIs are deferred).
 
 ---
 
@@ -11,7 +11,7 @@
 - All responses include `tenant_id` when the request is tenant-scoped.
 - IDs are stable string IDs (Mongo ObjectId as string).
 - Date/times are ISO 8601 (`YYYY-MM-DDTHH:mm:ssZ`).
-- Home composition is client-side only. There is **no** aggregated `/home-overview` endpoint; use independent requests (e.g., `/invites`, `/agenda` with `confirmed_only=true` for confirmed events, `/partners/discovery`, `/missions`, `/discover/people`, `/discover/curator-content`, `/map/pois`).
+- Home composition is client-side only. There is **no** aggregated `/home-overview` endpoint; use independent requests (e.g., `/invites`, `/agenda` with `confirmed_only=true` for confirmed events, `/account_profiles/discovery`, `/missions`, `/discover/people`, `/discover/curator-content`, `/map/pois`).
 - Event list queries **must** treat “happening now” as part of the “upcoming” bucket. This applies to any list surfaced as “upcoming” or “my events” (confirmed).
 - Pagination conventions (MVP): **all lists are page-based**.
   - Request: `page` (int, optional), `page_size` or `per_page` (int, optional).
@@ -19,7 +19,7 @@
 - Distance fields:
   - `distance_meters` is returned when the backend computes distance from an origin (see Map).
   - For non-map lists (agenda/home), include `distance_meters` only when requested; otherwise omit.
-- Taxonomy terms are typed pairs: `{ "type": "string", "value": "string" }` (WordPress-style, multi-taxonomy per partner).
+- Taxonomy terms are typed pairs: `{ "type": "string", "value": "string" }` (WordPress-style, multi-taxonomy per account profile).
 
 ---
 
@@ -153,7 +153,7 @@
       "favorites": 0
     },
     "role_claims": {
-      "is_partner": false,
+      "is_account_operator": false,
       "is_curator": false,
       "is_verified": false
     }
@@ -166,7 +166,7 @@
 
 ---
 
-## 3) Invites (User-to-User)
+## 3) Invites (User + Account Profile)
 
 ### `GET /invites/stream` (SSE)
 **Purpose:** Stream invite changes (SSE).  
@@ -218,7 +218,7 @@
   "limits": {
     "pending_limit_basic": 20,
     "pending_limit_verified": 50,
-    "pending_limit_partner_paid": 100,
+    "pending_limit_account_paid": 100,
     "per_event_invite_limit": 1
   },
   "cooldowns": {
@@ -233,7 +233,7 @@
 **Purpose:** Create share code for invite attribution.  
 **Request (body):**
 ```json
-{ "event_id": "string" }
+{ "event_id": "string", "account_profile_id": "string?" }
 ```
 **Response (minimum):**
 ```json
@@ -241,9 +241,13 @@
   "tenant_id": "string",
   "code": "string",
   "event_id": "string",
-  "inviter_principal": { "kind": "user|partner", "id": "string" }
+  "inviter_principal": { "kind": "user|account_profile", "id": "string" }
 }
 ```
+**Eligibility Rules (MVP):**
+- **User invites:** only to imported contacts (hashed) or existing app users.
+- **Account Profile invites:** may target followers/favorites for broader reach; direct user targeting allowed as needed.
+- When `inviter_principal.kind = account_profile`, `account_profile_id` is **required** and must belong to the inviter’s account/tenant context.
 
 ---
 
@@ -306,7 +310,7 @@
 { "ok": true, "data": { "action": "string" } }
 ```
 **Field Definitions**
-- `inviter_principal.kind`: `user`, `partner`.
+- `inviter_principal.kind`: `user`, `account_profile`.
 **Implementation Notes (Uniqueness):**
 - `code` must be unique per tenant. Enforce a unique index on `(tenant_id, code)` (or global unique if tenant scope is not used).
 - Generate URL-safe codes (base62/ULID/short hash). Recommended length ≥ 8–10 chars.
@@ -321,14 +325,14 @@
   "tenant_id": "string",
   "invite_id": "string",
   "event_id": "string",
-  "inviter_principal": { "kind": "user|partner", "id": "string" },
+  "inviter_principal": { "kind": "user|account_profile", "id": "string" },
   "status": "accepted|declined|already_accepted|expired",
   "attribution_bound": true,
   "accepted_at": "2025-01-01T00:00:00Z?"
 }
 ```
 **Field Definitions**
-- `inviter_principal.kind`: `user`, `partner`.
+- `inviter_principal.kind`: `user`, `account_profile`.
 - `status`: `accepted`, `declined`, `already_accepted`, `expired`.
 
 **Requirement:** Invite share links must carry `code` as a GET parameter.
@@ -338,7 +342,7 @@
 
 #### Invite Flow & Friends Management (MVP)
 - **Primary invite paths:**
-  - **Direct invite (existing user):** server creates a per-recipient invite and sends push. Source = `direct_invite`.
+- **Direct invite (existing user):** server creates a per-recipient invite and sends push. Source = `direct_invite`.
   - **Share link:** server issues a `code` via `POST /invites/share`; no per-recipient record until acceptance. Source = `share_url`.
 - **Acceptance rules:** only one accepted invite per invitee per event. Acceptances should bind attribution to the inviter principal.
 - **Tracking:** `share_visit` is analytics-only. `invite_sent` and `invite_accepted` should include a `source` (`direct_invite`, `share_url`).
@@ -459,7 +463,7 @@
       ],
       "participants": [
         {
-          "partner": {
+          "account_profile": {
             "id": "string",
             "display_name": "string",
             "tagline": "string?",
@@ -562,7 +566,7 @@
     ],
     "participants": [
       {
-        "partner": {
+        "account_profile": {
           "id": "string",
           "display_name": "string",
           "tagline": "string?",
@@ -742,8 +746,8 @@
 - **Invites:** direct device push to recipient users; do not rely on event topics.
 **User Preferences (MVP):**
 - Users receive all push types by default. Preference filtering is deferred to later versions.
-**Future (Partner/Account push):**
-- Partners can target audiences they own (e.g., their followers/favorites, confirmed attendees) via server-side fan-out with permission checks.
+**Future (Account Profile push):**
+- Account profiles can target audiences they own (e.g., their followers/favorites, confirmed attendees) via server-side fan-out with permission checks.
 
 **Response:**
 ```json
@@ -756,12 +760,12 @@
 
 **Admin routing:** endpoints in this section are served by the tenant/admin route file (no `/admin` prefix). Keep admin vs app separation by **route file**, not path prefix.
 
-### Account + Partner Data Strategy (MVP Decision)
+### Account + Account Profile Data Strategy (MVP Decision)
 - **Account** stays generic (core boilerplate model).
-- **Partner** is a first-class domain model, stored separately and linked 1:1 to `account_id`.
-- **Discovery** should be served by a MongoDB aggregation that joins Account + Partner and returns a **Discovery DTO** (not the core models), enabling filters (tags/type/search) without polluting the base Account.
+- **Account Profile** is a first-class domain model, stored separately and linked **1:N** to `account_id`.
+- **Discovery** should be served by a MongoDB aggregation that joins Account + Account Profile and returns a **Discovery DTO** (not the core models), enabling filters (tags/type/search) without polluting the base Account.
 - **Auth Policy (Upstream):** wildcard (`*`) abilities are prohibited for tenant/app tokens; abilities must be explicit. This must be implemented in the upstream Laravel core and then merged into this project.
-- **Boilerplate extensibility (explicit instruction):** the boilerplate may include `ConcreteAccount` / `ConcretePartner` as **examples only**. Every project **must replace** these with its own domain models and **must not ship** the boilerplate examples as-is. The project implementation must define a `PartnerModel` as a **sibling** to `AccountAbstract` (1:1 by `account_id`), not a child or extension of the boilerplate concrete model.
+- **Boilerplate policy (updated):** the boilerplate **does** include a generic `AccountProfile` model as the canonical 1:N identity unit. Projects extend the model via configuration (profile types, labels, capabilities) rather than replacing the base implementation.
 - **Project routes (explicit instruction):** create project-specific route files (e.g., `routes/api/project_api_v1.php`) and register only those for the project runtime. Do **not** expose boilerplate CRUD routes in the project API surface.
 
 ### `GET /accounts`
@@ -1077,7 +1081,7 @@
 ---
 
 ## 8) Deferred (Do Not Implement in MVP)
-- Partner-issued invites + partner invite metrics endpoints.
+- Account-profile invites are allowed in MVP (admin-assigned); invite metrics remain deferred post‑MVP.
 - Sponsors POIs endpoints.
 - `/initialize` (system bootstrap) is out of MVP scope; `/api/v1/environment` is the MVP entrypoint.
 

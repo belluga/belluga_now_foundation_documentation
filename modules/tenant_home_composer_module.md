@@ -14,8 +14,8 @@ The Tenant Home Composer module (MOD-301) assembles the personalized landing exp
 
 1. **Snapshot Everything:** Each generated home overview is stored as an immutable `home_overviews` document tied to `user_id`, `tenant_id`, and `generated_at`. Controllers only mutate by writing a brand-new snapshot, which preserves historical personalization for audits and experimentation.
 2. **Composable Sections:** Every home surface (hero carousel, invite nudges, POI strips, agenda actions) is modeled as a `HomeSection` with a `type` discriminator. Clients render sections declaratively based on this metadata, so we can add/remove sections without redeploying Flutter UI.
-3. **External Source Isolation:** The module never queries external services directly. It relies on upstream modules (Map, Invite, Agenda, Partner Catalog) via asynchronous events or cached read models. This ensures each producer maintains its own invariants while the composer simply curates.
-4. **Business-Driven Prioritization:** Section ordering, CTA selection, and copy tone derive from rule sets stored in `home_rulesets`. Rules encapsulate partner campaigns, invite boosts, and locality signals so we avoid hardcoding logic inside controllers.
+3. **External Source Isolation:** The module never queries external services directly. It relies on upstream modules (Map, Invite, Agenda, Account Profile Catalog) via asynchronous events or cached read models. This ensures each producer maintains its own invariants while the composer simply curates.
+4. **Business-Driven Prioritization:** Section ordering, CTA selection, and copy tone derive from rule sets stored in `home_rulesets`. Rules encapsulate account profile campaigns, invite boosts, and locality signals so we avoid hardcoding logic inside controllers.
 5. **Search & Map Bridging:** Quick filters and search suggestions on the home screen map to `HomeSection` instances that deep-link into the Map module via `initial_filter_payload`s (categories, tags, radius). This keeps the “predefined filter buttons” and search results consistent with the map architecture.
 
 ---
@@ -33,7 +33,7 @@ The Tenant Home Composer module (MOD-301) assembles the personalized landing exp
   "audience_filters": {
     "roles": ["String"],
     "geo_hashes": ["String"],
-    "partner_ids": ["ObjectId()"]
+    "account_profile_ids": ["ObjectId()"]
   },
   "section_blueprints": [
     {
@@ -96,7 +96,7 @@ Captures user actions taken from the home screen so ranking logic can adapt.
 **MVP note:** no home composer API is shipped; the app composes home from independent endpoints. Post-MVP endpoint names are to be defined alongside the final home payload contract.
 
 ### 4.2 Events
-* **Inbound:** `invites.summary.updated`, `agenda.snapshot.updated`, `partner.highlight.updated`, `poi.highlight.updated`.
+* **Inbound:** `invites.summary.updated`, `agenda.snapshot.updated`, `account_profile.highlight.updated`, `poi.highlight.updated`.
 * **Outbound:** `home.snapshot.generated` (used for analytics) and `home.section.rendered` (fire-and-forget metric event).
 
 ---

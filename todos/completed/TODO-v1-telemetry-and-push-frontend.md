@@ -16,12 +16,12 @@
 
 ## Definition of Done
 - [x] ✅ Production‑Ready Push delivery archive consolidated: `foundation_documentation/todos/completed/TODO-v1-push-delivery-consolidated.md`
-- [ ] ⚪ Telemetry TODO completed: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-frontend.md`
+- [x] ✅ Telemetry TODO completed: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-frontend.md`
 - [x] ✅ Production‑Ready Split push TODOs removed in favor of the consolidated archive.
 
 ## Validation Steps
 - [x] ✅ Production‑Ready Push validation completed (per consolidated archive).
-- [ ] ⚪ Telemetry validation completed (per telemetry TODO).
+- [x] ✅ Telemetry validation completed (per telemetry TODO).
 - [x] ✅ Production‑Ready Consolidation verified: only one push delivery archive remains and the split files are removed.
 
 ## Decisions

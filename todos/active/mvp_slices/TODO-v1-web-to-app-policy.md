@@ -25,15 +25,15 @@
 - [ ] ⚪ V1 exception: allow re-share only the same event after acceptance (external share only), backend rate-limited
 - [ ] ⚪ Map browsing (read-only): allow web navigation on map for discovery (no favorites, no check-in)
 
-### Web (Authenticated) is allowed for (partner workspace)
-- [ ] ⚪ Partner Workspace: event creation + management
-- [ ] ⚪ Partner Workspace: memberships/team management
-- [ ] ⚪ Partner Workspace: invite metrics dashboards
+### Web (Authenticated) is allowed for (account profile workspace)
+- [ ] ⚪ Account Profile Workspace: event creation + management
+- [ ] ⚪ Account Profile Workspace: memberships/team management (post‑MVP)
+- [ ] ⚪ Account Profile Workspace: invite metrics dashboards (post‑MVP)
 
 ### App-only for V1 (tenant conversion + trust actions)
 - [ ] ⚪ Accept/Decline invite from agenda surfaces (credited acceptance + anti-gaming); invite landing by `code` is the only web exception
 - [ ] ⚪ Confirm presence / check-in
-- [ ] ⚪ Send invites (user + partner-issued)
+- [ ] ⚪ Send invites (user + account_profile; account_profile issuance is admin-assigned in MVP)
 - [ ] ⚪ Favorites (artist favorites)
 - [ ] ⚪ Full map experience (location permission, stacked POI deck UX parity, search/filter); web can browse read-only
 - [ ] ⚪ Any “full map parity” behavior beyond read-only browsing (favorites on map, check-in from map, credited acceptance selection UI)

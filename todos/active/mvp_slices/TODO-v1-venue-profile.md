@@ -3,7 +3,7 @@
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
 **Status:** Active  
 **Owners:** Flutter Team + Product  
-**Objective:** Deliver the reduced Venue profile using the existing Partner Detail base page.
+**Objective:** Deliver the reduced Venue profile using the existing Account Profile Detail base page (Flutter: Partner Detail).
 
 ---
 

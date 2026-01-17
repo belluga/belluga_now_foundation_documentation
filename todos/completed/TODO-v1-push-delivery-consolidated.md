@@ -2673,9 +2673,9 @@ Use this payload to validate two gates (location required, contacts dismissible)
 - Audience evaluation happens at `/data` fetch time; segments are out of scope for V1.
 - V1 audience types: `all`, `users`, `event`.
 - Event audience qualifier is required and evaluated dynamically at fetch: `event.confirmed`, `event.invited`, `event.all`, `event.sent_invites`.
-- Push messages are partner-scoped by default; tenant-scoped messages exist for tenant owners.
-- Message `type` supports partner-defined custom types; tenants can define custom types that partners use.
-- Partner messages store `partner_id`; tenant messages rely on tenant database context (no `tenant_id` field).
+- (Decision moved) Account profile scoping + 1:N profile requirements are documented in system architecture + endpoint contracts; implementation tracking lives in the Account Profile implementation TODO.
+- Message `type` supports account-profile-defined custom types; tenants can define custom types that account profiles use.
+- Account profile messages store `account_profile_id`; tenant messages rely on tenant database context (no `tenant_id` field) but still bind to a profile.
 - Message type definitions live under Tenant Settings (shared settings hub).
 - Template variable defaults are configured per message by the creator.
 - Delivery metrics recorded via per-user actions in a separate collection; transactions update aggregates.
@@ -2883,7 +2883,7 @@ This config must be merged into the existing `/api/v1/environment` response (no 
 
 **PushMessage (config)**
 - `id` (ObjectId)
-- `partner_id` (ObjectId, required for partner messages)
+- `partner_profile_id` (ObjectId, required for account_profile messages)
 - `internal_name` (string, required, max 120, unique per account)
 - `title_template` (string, max 255)
 - `body_template` (string, max 1000)

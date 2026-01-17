@@ -11,8 +11,8 @@
 
 ### MOD-201: Flutter Client Experience Module
 
-* **Purpose Statement:** Establish the foundational Flutter application that orchestrates tenant, partner, and promoter experiences through a clean architecture stack (presentation, domain, infrastructure) wired to mocked service contracts that mirror the definitive API.
-* **Core Entities:** User, Partner, Offering, Transaction.
+* **Purpose Statement:** Establish the foundational Flutter application that orchestrates tenant, account/profile, and promoter experiences through a clean architecture stack (presentation, domain, infrastructure) wired to mocked service contracts that mirror the definitive API.
+* **Core Entities:** User, Account, Account Profile, Offering, Transaction.
 * **Key Workflows:** Adaptive onboarding, tenant home discovery, invite and social growth loop, agenda management, map exploration with POIs, authenticated profile utilities.
 * **External Dependencies:** AutoRoute (navigation), GetIt (DI container), StreamValue (reactive state wrapper), value_object_pattern, Firebase Cloud Messaging (future push integration), mocked HTTP + SSE backends.
 * **Service-Level Objectives:** Screen state transitions <150 ms under mock data; cold-start bootstrap <2.5 s on mid-range devices; navigation stack integrity with zero controller leaks; 100 % controller-stream parity (no orphaned state).
@@ -21,7 +21,7 @@
 
 * **Invariants:** Controllers are the sole owners of state mutations; widgets remain presentational; every domain entity surfaces as a value-object backed model; DI registrations occur before route build.
 * **Validation Rules:** Input fields rely on domain value objects (e.g., `EmailValue`, `PasswordValue`); invite codes enforce length 6–12; POI filter radius 1–50 km; schedule entries require ISO-8601 timestamps.
-* **Authorization Requirements:** Anonymous flow limited to onboarding and invite acceptance; authenticated tenant scope unlocks home, schedule, map; partner scope exposes partner dashboards (future flavor); promoter scope requires explicit feature flag.
+* **Authorization Requirements:** Anonymous flow limited to onboarding and invite acceptance; authenticated tenant scope unlocks home, schedule, map; account workspace scope exposes account/profile dashboards (future flavor); promoter scope requires explicit feature flag.
 * **Shared Services:** `UserLocationService` + `LocationRepository` live in the domain layer. Controllers (Map, Search, Invite Check-in) inject the service to request permission, seed initial filters, and pass coordinates to repositories. Repositories never call each other; services wrap a single repository per architecture principle §2.5.
 * **Task & Invite Hooks:** TaskStream integration is deferred post-MVP. Invite controllers must respect `Web-to-App Promotion Policy` by deep-linking to `/invites/share/{code}/accept` and using `POST /contacts/import` instead of handling critical actions purely on the web.
 
@@ -84,7 +84,7 @@
 
 **Field Definitions**
 
-* `InviteDocument.type`: Valid values are `tenant_share`, `partner_campaign`, `event_guestlist` — orchestrates controller handling.
+* `InviteDocument.type`: Valid values are `tenant_share`, `account_profile_campaign`, `event_guestlist` — orchestrates controller handling.
 * `InviteDocument.status`: Valid values are `pending`, `accepted`, `declined`, `expired` — drives UI badge state.
 * `ReferralNodeDocument.relationship`: Valid values are `direct`, `indirect`, `influencer` — indicates invitation depth.
 
@@ -117,7 +117,7 @@
 | Field | Type | Description | Required | Notes |
 |-------|------|-------------|----------|-------|
 | `_id` | ObjectId | POI identifier. | Yes | |
-| `partner_id` | ObjectId | Owning partner reference. | Yes | |
+| `account_profile_id` | ObjectId | Owning account profile reference. | Yes | |
 | `category` | String | High-level POI category. | Yes | |
 | `tags` | Array\<String\> | Secondary classification tags. | Yes | Max 10. |
 | `priority` | Integer | Render stacking priority (higher first). | Yes | 0–100. |
@@ -141,22 +141,22 @@
 | `user_id` | ObjectId | Primary user identifier. | Yes | |
 | `display_name` | String | Render-ready name. | Yes | 1–64 chars. |
 | `avatar_url` | String | Remote image URL. | No | Must be HTTPS. |
-| `roles` | Array\<String\> | Active roles (tenant, partner, promoter). | Yes | Non-empty. |
+| `roles` | Array\<String\> | Active roles (tenant, account, promoter). | Yes | Non-empty. |
 | `permissions` | Array\<String\> | Granted permissions or feature flags. | Yes | |
-| `connected_partners` | Array\<ConnectedPartnerDocument\> | Partners the user manages or follows. | No | |
+| `connected_accounts` | Array\<ConnectedAccountDocument\> | Accounts or profiles the user manages or follows. | No | |
 | `last_synced_at` | DateTime | Timestamp for last profile sync. | Yes | |
 
 **Field Definitions**
 
-* `roles`: Valid values are `tenant`, `partner`, `promoter`.
+* `roles`: Valid values are `tenant`, `account`, `promoter`.
 * `permissions`: Valid values are `manage_pois`, `send_notifications`, `access_reports`, `beta_feature`.
-* `ConnectedPartnerDocument.relationship`: Valid values are `owner`, `manager`, `fan`.
+* `ConnectedAccountDocument.relationship`: Valid values are `owner`, `manager`, `fan`.
 
 #### 2.4 Event & Messaging Contracts
 
 * **Outbound Events:** `app.session_bootstrapped` emitted when the bootstrap sequence finalizes, payload includes `user_id`, `active_modules`, `timestamp`. `app.invite_consumed` fired when an invite transitions to `accepted`.
 * **Inbound Events:** SSE delta events (`poi.created`, `poi.updated`, `poi.deleted`, `event.created`, `event.updated`, `event.deleted`) simulated through mock streams; controllers ensure idempotent application by comparing `event.sequence`.
-* **Queue/Topic Configuration:** FCM topics follow `partner_{partnerId}` naming; mocked notifier replicates topic subscription flow to guarantee DI wiring.
+* **Queue/Topic Configuration:** FCM topics follow `account_profile_{accountProfileId}` naming; mocked notifier replicates topic subscription flow to guarantee DI wiring.
 
 #### 2.5 Background Jobs & Schedulers
 
@@ -181,6 +181,7 @@
 
 ## 3. Cross-Module Considerations
 
+* **Partner Naming (Tenant Labels):** “Partner” is a tenant-facing label applied to Account Profiles. The label system is a future capability (post‑MVP) that lets tenants rename or group profile types without changing the underlying Account Profile model.
 * **Shared Libraries:** `lib/application` hosts theming and localization contracts; `lib/presentation/shared/widgets` houses reusable components (e.g., `MainLogo`, `BellugaBottomNavigationBar`); `lib/domain/value_objects` encapsulates validation logic shared across modules.
 * **Data Ownership Boundaries:** Mock repositories remain the single source of truth for state; cached DTOs never overwrite domain models without controller orchestration.
 * **Failure & Degradation Modes:** When SSE streams disconnect, controllers downgrade to polling (`/map/pois`) and surface passive UI states; offline mode caches last successful responses and displays timestamped banners.
@@ -200,5 +201,5 @@
 ## 6. Appendices
 
 * **Reference APIs:** Laravel backend contracts defined in MOD-101 (pending).
-* **Security Review Checklist:** Enforce HTTPS-only asset loading; sanitize invite codes before display; gate partner dashboards behind role checks.
+* **Security Review Checklist:** Enforce HTTPS-only asset loading; sanitize invite codes before display; gate account workspace dashboards behind role checks.
 * **Operational Runbooks:** `docs/runbooks/flutter_bootstrap.md` (to be authored) will outline cold-start troubleshooting, mock backend rotation, and DI registration audits.

@@ -9,7 +9,7 @@
 
 ## References
 - Invites contract + limits: `foundation_documentation/modules/invite_and_social_loop_module.md`
-- Partner/admin module (draft): `foundation_documentation/modules/partner_admin_module.md`
+- Account Profile admin/workspace module (draft): `foundation_documentation/modules/partner_admin_module.md`
 - Map/POI architecture: `foundation_documentation/modules/map_poi_module.md`
 - MVP scope gate (decisions): `foundation_documentation/todos/completed/TODO-mvp-scope-definition.md`
 - Roadmap tracking: `foundation_documentation/system_roadmap.md`
@@ -32,7 +32,7 @@ These are scope descriptors (not tasks).
 - Invite crediting selection (“Accept invite from…”, no default)
 - Web: invite landing + accept via code (V1 is web functional for these flows)
 - Map POIs with categories: `Culture`, `Restaurant`, `Beach`, `Nature`, `Historic` + dynamic `Events`
-- StaticAssets (landlord-managed) are POI-enabled sources; Unmanaged accounts are supported for partner creation.
+- StaticAssets (landlord-managed) are POI-enabled sources; Unmanaged accounts are supported for account profile creation.
 - Favorites: Artists + Venues (favorites remain surfaced in Home)
 - Venue profile pages (reduced profile)
 - Push notifications (V1 baseline)
@@ -42,8 +42,8 @@ These are scope descriptors (not tasks).
 ### Out of scope (tracked in `foundation_documentation/todos/active/TODO-vnext-parking-lot.md`)
 - Wallet / purchases / premium
 - Persistent favorites (backend later; mock can reset on load)
-- Full partner profile modules/store for all partner types
-- Partner-issued invites + partner invite metrics
+- Full account profile modules/store for all profile types
+- Account profile metrics (deferred; account_profile invites are allowed in MVP via admin-assigned operators)
 
 ---
 
@@ -57,7 +57,7 @@ These are scope descriptors (not tasks).
 - Core loop: Invites + Agenda → unlock Telemetry/Push.
 - Web invite acceptance depends on stable environment resolution + share code contract (and must remain contract-aligned with app invites).
 - Map depends on stable event detail routing + time-window settings for event POIs.
-- Tenant/admin area depends on account memberships + permissions (credited acceptance semantics for invites remain app-side).
+- Tenant/admin area depends on landlord/admin operators for MVP; memberships are deferred (credited acceptance semantics for invites remain app-side).
 
 ---
 
@@ -106,14 +106,14 @@ These are scope descriptors (not tasks).
 - Uniqueness: forbid duplicate invite key `(tenant_id, event_id, receiver_user_id, inviter_principal.kind, inviter_principal.id)` → respond `already_invited`.
 - Credited acceptance: exactly one `credited_acceptance=true` per `(receiver_user_id, event_id)`; others become `closed_duplicate`.
 - No default inviter selection in UI; user must pick who to credit before accepting.
-- Inviter principal is union `{kind:user|partner, id}`; partner-issued invites are deferred in MVP.
+- Inviter principal is union `{kind:user|account_profile, id}`; account_profile invites are allowed in MVP (admin-assigned).
 
 ### 1.2 Canonical IDs
-- Events and participants always reference stable `partner_id` (create partners upfront with Tiny Free when needed).
+- Events and participants always reference stable `account_profile_id` (create profiles upfront with Tiny Free when needed).
 - Never rely on name-only references except as display fallbacks.
 
 ### 1.3 Metrics access boundary
-- Partner invite metrics are deferred in MVP.
+- Invite metrics **data capture is required in MVP**; dashboards/account-profile-facing surfaces are deferred.
 
 ---
 
@@ -128,16 +128,16 @@ These are scope descriptors (not tasks).
 
 Suggested defaults (override per tenant + plan):
 - `max_invites_per_event_per_inviter = 300`
-- `max_invites_per_day_per_partner = 500` (Tiny Free: `50–100`)
+- `max_invites_per_day_per_account_profile = 500` (Tiny Free: `50–100`)
 - `max_invites_per_day_per_user_actor = 100`
 - `max_pending_invites_per_invitee = 20`
 - `max_invites_to_same_invitee_per_30d = 10`
-- suppression: per-partner blocklist + per-user opt-out
+- suppression: per-profile blocklist + per-user opt-out
 
-### 2.2 Account memberships
-- [ ] ⚪ Implement account memberships (draft spec in `foundation_documentation/modules/partner_admin_module.md`)
+### 2.2 Account memberships (Deferred)
+- [ ] ⚪ Implement account memberships post‑MVP (draft spec in `foundation_documentation/modules/partner_admin_module.md`)
 
-### 2.3 Event invite metrics (partner-facing)
+### 2.3 Event invite metrics (account-profile-facing dashboards, post‑MVP)
 - (Deferred to VNext)
 
 ### 2.4 Push notifications (baseline)
@@ -170,8 +170,8 @@ Suggested defaults (override per tenant + plan):
 
 ### 3.2 Tenant: Favorites (Artists + Venues)
 - [ ] ⚪ Keep favorites displayed in Home
-- [ ] ⚪ Clicking an artist favorite opens the existing Partner Detail base page with reduced tabs (artist config)
-- [ ] ⚪ Clicking a venue favorite opens the existing Partner Detail base page with reduced tabs (venue config)
+- [ ] ⚪ Clicking an artist favorite opens the existing Partner Detail base page (Flutter naming) with reduced tabs (artist config)
+- [ ] ⚪ Clicking a venue favorite opens the existing Partner Detail base page (Flutter naming) with reduced tabs (venue config)
 - [ ] ⚪ Enforce “favoritable” for artists + venues only in the mock repository path until backend sends capabilities
 
 ### 3.3 Tenant: Map
@@ -190,7 +190,7 @@ Suggested defaults (override per tenant + plan):
   - [ ] ⚪ `invite_received`, `invite_opened`, `invite_accept_selected_inviter`, `invite_accepted`, `invite_declined`
   - [ ] ⚪ `event_opened`, `event_confirmed_presence`
   - [ ] ⚪ `favorite_artist_toggled`, `map_opened`, `poi_opened`
-- [ ] ⚪ Ensure every event includes: `tenant_id`, `event_id` (when applicable), `inviter_kind/id` (when applicable), `partner_id` (when applicable)
+- [ ] ⚪ Ensure every event includes: `tenant_id`, `event_id` (when applicable), `inviter_kind/id` (when applicable), `account_profile_id` (when applicable)
 
 ### 3.4 Tenant/Admin area (V1 minimum pages)
 - [ ] ⚪ Tenant/Admin Home
@@ -198,7 +198,7 @@ Suggested defaults (override per tenant + plan):
 - [ ] ⚪ Assets management (StaticAssets)
 - [ ] ⚪ Events management
 - [ ] ⚪ Tenant branding management (About/logo/icon/colors)
-- [ ] ⚪ Plan/Limits read-only view (uses invite settings payload + partner plan payload)
+- [ ] ⚪ Plan/Limits read-only view (uses invite settings payload + account profile plan payload)
 
 ---
 

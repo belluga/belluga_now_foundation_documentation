@@ -18,9 +18,16 @@
 
 ### A0) Decision Notes
 - [ ] ⚪ Map POI endpoint contract: confirm whether the intended path is `/api/v1/map/pois` (roadmap) or `/api/v1/app/map/pois` (current implementation), then align.
+- [ ] ⚪ Define `map_pois` schema contract (fields + enums) in `foundation_documentation/modules/map_poi_module.md` and `endpoints_mvp_contracts.md`.
+- [ ] ⚪ Document `/map/pois`, `/map/filters`, and `/map/pois/stream` request/response contracts (query params, filters, response shape, SSE payload).
+- [ ] ⚪ Remove `movement_radius_meters` from POI contracts/mocks (moving POIs deferred; keep V1 static/event focus).
+- [ ] ⚪ Define POI source rules by `account_profile.profile_type` (which types are POI-enabled) and where the toggle lives.
+- [ ] ⚪ Make the projection rule explicit: **no location → no POI projection** for account profiles.
+- [ ] ⚪ Set priority policy defaults (numeric scale + initial ordering) for POI stacking.
+- [ ] ⚪ Document access/scoping (tenant vs admin) for map endpoints.
 
 ### A1) `map_pois` projection persistence
-- [ ] ⚪ On create/update of Account/Partner, StaticAsset, or Event (and POI-enabled custom objects), upsert linked `map_pois` record (transactional / consistent write)
+- [ ] ⚪ On create/update of Account/Account Profile, StaticAsset, or Event (and POI-enabled custom objects), upsert linked `map_pois` record (transactional / consistent write)
 - [ ] ⚪ Support `time_anchor_at` nullable on `map_pois` (no stored `visible_from/visible_until`)
 - [ ] ⚪ Implement tenant settings for time-window filtering:
   - [ ] ⚪ `map_poi_future_window_days`
@@ -56,7 +63,7 @@
 - [ ] ⚪ Render static POIs for categories: `Culture`, `Restaurant`, `Beach`, `Nature`, `Historic`
 - [ ] ⚪ Render dynamic Event POIs distinctly from static POIs
 - [ ] ⚪ Keep categories coarse; use tags for subcategories (no enum expansion in V1)
-  - StaticAsset and Event are POI-enabled sources; Account/Partner is conditional per MVP scope.
+  - StaticAsset and Event are POI-enabled sources; Account/Account Profile is conditional per MVP scope.
 - [ ] ⚪ MVP tiles: use public OpenStreetMap tiles (no key), with explicit limitation to dev + early MVP.
 - [ ] ⚪ Migrate map rendering from `free_map` to `flutter_map` to unblock `package_info_plus` upgrades.
 - [x] ✅ Expose both map implementations via Menu actions (City map + Prototype) for comparison before removing one.
@@ -79,3 +86,26 @@
 - [ ] ⚪ Beaches and Nature POIs appear as static POIs and are filterable
 - [ ] ⚪ Event POIs appear only within backend-defined time windows (via settings)
 - [ ] ⚪ Same-spot POIs stack with `+N` badge and open a POI deck with deterministic ordering
+
+---
+
+## D) Decisions to Close (Proposals)
+
+### D1) `map_pois` schema minimum (proposed)
+- Required: `_id`, `tenant_id`, `ref_type`, `ref_id`, `name`, `category`, `tags[]`, `priority`, `location`, `is_active`.
+- Optional: `time_anchor_at`, `distance_meters` (response-only), `exact_key`, `media`, `badge`, `subtitle`.
+
+### D2) POI-enabled profile types (proposed)
+- POI-enabled by default: `venue`, `restaurant`, `experience_provider`.
+- POI-disabled by default: `artist`, `influencer`, `curator` (unless explicitly toggled).
+
+### D3) Priority defaults (proposed)
+- 100: Sponsored/boosted  
+- 80: Live event  
+- 60: Upcoming event  
+- 40: Static POI (venue/restaurant)  
+- 20: Landmark/static asset
+
+### D4) Endpoint access (proposed)
+- `/map/pois` and `/map/filters`: tenant-authenticated (app) + anonymous token allowed for read-only discovery.
+- Admin endpoints (if any): tenant/admin only.

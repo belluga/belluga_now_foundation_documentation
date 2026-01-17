@@ -8,9 +8,9 @@
 ---
 
 ## A) Home
-- [ ] ⚪ Remove search bar (MVP).
-- [ ] ⚪ Remove alert surface (MVP).
-- [ ] ⚪ “My Events” tap leads directly to event (clarify target).
+- [x] ✅ Remove search bar (MVP).
+- [x] ✅ Remove alert surface (MVP).
+- [x] ✅ “My Events” tap leads directly to event (clarify target).
 
 ## B) Favorites
 - [ ] ⚪ Order favorites by nearest upcoming event.

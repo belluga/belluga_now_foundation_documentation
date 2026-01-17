@@ -102,8 +102,8 @@ This TODO is the “gate” for scope clarity: we answer the questions below, th
 ### D3) Unmanaged account model
 **Decided (MVP)**
 - Use only `is_managed` as the Unmanaged flag (no `managed_at`/`managed_by_user_id`).
-- Account-based memberships; no owner role.
-- Use **Unmanaged** state to represent accounts with no responsible user; compute/update the flag on relevant writes (account save + membership/user attach/detach).
+- **Superseded:** MVP now ships with **no memberships**; account/profile operators are admin-assigned only. Memberships remain post‑MVP.
+- Use **Unmanaged** state to represent accounts with no responsible user; compute/update the flag once memberships land (post‑MVP).
 
 - Manage flow: create user (if needed) and grant access to the Account.
 
@@ -131,7 +131,7 @@ This TODO is the “gate” for scope clarity: we answer the questions below, th
 - Telemetry (Mixpanel) is included in MVP scope (not deferred).
 - Invites from other users are included in MVP.
 - Push notifications are included in MVP.
-- Partner invite metrics are deferred (see VNext).
+- Partner invite **dashboards** are deferred; metrics data capture is required in MVP.
 
 ---
 

@@ -3,7 +3,7 @@
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
 **Status:** Active  
 **Owners:** Backend Team (source of truth) + Delphi (Flutter)  
-**Objective:** Deliver invites that are quota-safe, audit-safe, and metrics-ready for partner gamification.
+**Objective:** Deliver invites that are quota-safe, audit-safe, and metrics-ready for account-profile gamification.
 
 ---
 
@@ -17,6 +17,7 @@
 - To invite:
   - **Matched user**: app uses `POST /api/v1/contacts/import` (hashed contacts). If a match exists, backend creates invite and sends push.
   - **No match**: app generates a share link via `POST /api/v1/invites/share` and sends externally (e.g., WhatsApp).
+- **Audience eligibility:** users can invite only their imported contacts or existing app users; account profiles can invite followers/favorites for broader reach (admin-assigned in MVP).
 - Acceptance:
   - `POST /api/v1/invites/share/{code}/accept` binds attribution to `inviter_principal`.
   - Acceptance counts as `invite_accepted` with `source = share_url`.
@@ -31,8 +32,9 @@
 - [ ] ⚪ Persist invites with:
   - `event_id`, `tenant_id`
   - `receiver_user_id`
-  - `inviter_principal { kind:user|partner, id }`
-  - `issued_by_user_id` (nullable; required when inviter is partner)
+  - `inviter_principal { kind:user|account_profile, id }`
+- `account_profile_id` (required when inviter is account_profile)
+  - `issued_by_user_id` (nullable; required when inviter is account_profile)
   - `status` includes `closed_duplicate`
   - `credited_acceptance` boolean
   - timestamps: `created_at`, `viewed_at?`, `responded_at?`, `updated_at`
@@ -72,16 +74,16 @@
 ### A4) Limits (tenant settings)
 - [ ] ⚪ Implement `GET /api/v1/invites/settings` and enforce:
   - [ ] ⚪ per-event per-inviter limits
-  - [ ] ⚪ per-day limits (partner + user actor)
+  - [ ] ⚪ per-day limits (account_profile + user actor)
   - [ ] ⚪ pending invites cap per receiver
   - [ ] ⚪ suppression lists and opt-out
 - [ ] ⚪ On limit hit: return `429` with payload `{ limit_key, resets_at, remaining?, allowed?, scope }`
 
-### A5) Partner-issued invites authorization
-- [ ] ⚪ Validate `issued_by_user_id` has an active membership in inviter partner with `can_invite=true`
+### A5) Account Profile invites authorization (MVP)
+- [ ] ⚪ Validate `issued_by_user_id` is an admin-assigned account operator for the inviter `account_profile_id` (memberships deferred in MVP).
 
-### A6) Partner event metrics
-- [ ] ⚪ Provide aggregates for event host/managing partner:
+### A6) Account Profile event metrics
+- [ ] ⚪ Provide aggregates for event host/managing account profile:
   - per inviter principal: sent/viewed/accepted(credited)/declined/closed_duplicate
   - per issuer user: same breakdown
   - totals
@@ -95,13 +97,13 @@
 - [ ] ⚪ Events + required properties:
   - `invite_accept_selected_inviter` (on persisted inviter selection):
     - `event_id`, `invite_id`, `inviter_kind`, `inviter_id`, `source=invite_accept`
-    - Optional: `partner_id` when `inviter_kind=partner`
+    - Optional: `account_profile_id` when `inviter_kind=account_profile`
   - `invite_accepted` (on acceptance commit):
     - `event_id`, `invite_id`, `inviter_kind`, `inviter_id`, `source=invite_accept`
-    - Optional: `partner_id`, `credited_acceptance=true`
+    - Optional: `account_profile_id`, `credited_acceptance=true`
   - `invite_declined` (on decline commit):
     - `event_id`, `invite_id`, `inviter_kind`, `inviter_id`, `source=invite_decline`
-    - Optional: `partner_id`
+    - Optional: `account_profile_id`
   - `event_confirmed_presence` (on attendance commit):
     - `event_id`, `source=event_attendance`
 

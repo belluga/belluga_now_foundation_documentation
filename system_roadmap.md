@@ -22,26 +22,25 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 |----------|--------|-------------|----------------|-------|
 | `/api/v1/anonymous/identities` | MOD-101 | Anonymous identity bootstrap (Sanctum token issuance for web/app guest flows). | Implemented | Unauthenticated route returns `{user_id, identity_state, token, abilities, expires_at?}`; abilities/TTL controlled by `tenant.anonymous_access_policy`. |
 | `/api/v1/auth/token_validate` | MOD-101 | Validate bearer token and return minimal user profile. | Defined | Returns `{ data: { user: { id, name, emails, custom_data } } }` for login check. |
-| `/api/v1/environment` | MOD-101 | Tenant/landlord resolution + branding payload for app/web bootstraps. | Defined | Returns tenant identity + theme settings + telemetry/firebase/push config (location freshness lives under `telemetry`); uses host/app domain context. |
-| `/api/v1/environment` | MOD-101 | Tenant/landlord resolution + branding payload for app/web bootstraps. | Implemented | Returns tenant identity + theme settings; uses host/app domain context. |
-| `/api/v1/invites` | MOD-201 | Invite feed and referral graph. | Mocked | Prioritizes nearest events; enforces 1 invite per person/event; limits pending invites by role. |
-| `/api/v1/invites/stream` | MOD-201 | Invite delta stream (SSE). | Planned | Emits invite created/updated/deleted events for authenticated user. |
+| `/api/v1/environment` | MOD-101 | Tenant/landlord resolution + branding payload for app/web bootstraps. | Implemented | Returns tenant identity + theme settings + telemetry/firebase/push config (location freshness lives under `telemetry`); uses host/app domain context. |
+| `/api/v1/invites` | MOD-201 | Invite feed and referral graph. | Mocked | Enforces 1 invite per person/event; **user invites** limited to contacts/installed users; **account_profile invites** can target favorites/followers (admin-assigned in MVP). |
+| `/api/v1/invites/stream` | MOD-201 | Invite delta stream (SSE). | Planned | Emits invite created/updated/deleted events for authenticated user; inviter principal kind = `user|account_profile`. |
 | `/api/v1/invites/settings` | MOD-201 | Backend-owned invite quotas, anti-spam limits, and UX messaging settings. | Planned | Backend enforces over-quota responses (`429`) and returns reset metadata; Flutter fetches for messaging/UX. |
-| `/api/v1/invites/share` | MOD-201 | External share codes for event invites (new user install/signup attribution). | Planned | Anyone who can invite can generate; resolves to `inviter_principal` (user or partner) + `event_id`; includes `/consume` to bind attribution post-install. |
+| `/api/v1/invites/share` | MOD-201 | External share codes for event invites (new user install/signup attribution). | Planned | Anyone who can invite can generate; resolves to `inviter_principal` (user or account_profile) + `event_id`; requires `account_profile_id` when inviter is account_profile; includes `/consume` to bind attribution post-install. |
 | `/api/v1/invites/share/{code}/accept` | MOD-201 | Web landing acceptance for invite share codes. | Planned | Requires Sanctum (anonymous token); binds attribution and returns invite state. |
 | `/api/v1/agenda` | MOD-201 | Paged agenda feed with search + past toggle, includes happening-now events. | Defined | Request: `page`, `page_size`, `past_only`, `search`, `categories`, `tags`, `taxonomy`, `confirmed_only`, `origin_lat/lng`, `max_distance_meters`. Response: full event DTO items (type, actions, tags, invites, sent_invites, friends_going, is_confirmed, total_confirmed), `has_more` flag. Happening-now rule: `date_time_start <= now < date_time_end` (default end = start + 3h). |
 | `/api/v1/events/stream` | MOD-201 | Event delta stream (SSE). | Planned | Emits event created/updated/deleted events for filtered feeds. |
 | `/api/v1/events/{event_id}` | MOD-201 | Event detail payload. | Defined | Event detail contract aligned to agenda cards + map POI references. |
-| `/api/v1/map/pois` | MOD-201 | Map POIs (projection-backed). | Defined | `map_pois` projection updated from StaticAssets, Events, and POI-enabled Accounts; use MongoDB GeoQuery with viewport + optional origin/radius and filters (`categories`, `tags`, `taxonomy`, `search`). |
+| `/api/v1/map/pois` | MOD-201 | Map POIs (projection-backed). | Defined | `map_pois` projection updated from StaticAssets, Events, and POI-enabled Account Profiles; use MongoDB GeoQuery with viewport + optional origin/radius and filters (`categories`, `tags`, `taxonomy`, `search`). |
 | `/api/v1/map/pois/stream` | MOD-201 | Map POI delta stream (SSE). | Planned | Emits POI created/updated/deleted events for active viewport/filters. |
 | `/api/v1/map/filters` | MOD-201 | Map filter discovery (categories/tags). | Planned | Required to remove hardcoded filter catalogs from mocks. |
 | `/api/v1/me` | MOD-201 | Authenticated profile summary and role claims. | Implemented | Mock payload authoring queued in FCX-02. |
-| `/api/v1/partners/discovery` | MOD-201 | Partner discovery cards with engagement metrics and invite counts. | Mocked | Needs DTO/value-object mapping and shared prototype data for Laravel alignment. |
-| `/api/v1/events/{event_id}/check-in` | MOD-201 | Presence confirmation with geofence/QR/staff methods. | Mocked | Partner-defined radius; QR optional; accepted without check-in becomes no-show. |
-| `/api/v1/missions` | MOD-201 | Partner-created missions with metric targets and rewards. | Defined | Metrics selectable per mission; partner dashboard must show rankings/progress. |
-| `/api/v1/partner-links` | MOD-201 | Partner ↔ curador/pessoa linkage. | Defined | Bidirectional proposals; statuses pending/accepted; monthly proof-of-presence window. |
+| `/api/v1/account_profiles/discovery` | MOD-201 | Account profile discovery cards with engagement metrics and invite counts. | Mocked | Needs DTO/value-object mapping and shared prototype data for Laravel alignment. |
+| `/api/v1/events/{event_id}/check-in` | MOD-201 | Presence confirmation with geofence/QR/staff methods. | Mocked | Account-profile-defined radius; QR optional; accepted without check-in becomes no-show. |
+| `/api/v1/missions` | MOD-201 | Account-profile-created missions with metric targets and rewards. | Defined | Metrics selectable per mission; account workspace must show rankings/progress. |
+| `/api/v1/account_profile_links` | MOD-201 | Account profile ↔ curador/pessoa linkage. | Defined | Bidirectional proposals; statuses pending/accepted; monthly proof-of-presence window. |
 | `/api/v1/discover/people` | MOD-201 | People/Influencer row ordered by monthly Social Score. | Defined | Prefer verified on ties; respects privacy by anonymizing friends-only profiles. |
-| `/api/v1/discover/curator-content` | MOD-201 | Curator-produced content for “Veja isso…” row. | Defined | Ordered by latest published (future: most viewed); links to partner/event. |
+| `/api/v1/discover/curator-content` | MOD-201 | Curator-produced content for “Veja isso…” row. | Defined | Ordered by latest published (future: most viewed); links to account profile/event. |
 | `/api/v1/contacts/import` | MOD-201 | Hashed contact import for friend suggestions and invite matching. | Planned | Accepts salted hashes only; no raw PII stored. |
 | `/api/v1/push/register` | MOD-201 | Register device token for push notifications. | Implemented | Stores per-device tokens; used for invites/reminders. |
 | `/api/v1/settings/push` | Tenant Admin | Update tenant push settings (push-only). | Implemented | Split from firebase/telemetry; returns push config payload. |
@@ -56,7 +55,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/assets` | Tenant Admin | Create asset. | Planned | Upload/register media for tenant assets. |
 | `/api/v1/assets/{asset_id}` | Tenant Admin | Update asset (partial). | Planned | Patch asset metadata. |
 | `/api/v1/events` | Tenant Admin | List events (admin). | Planned | Admin listing, page-based. |
-| `/api/v1/events` | Tenant Admin | Create event. | Planned | Admin/partner creates event. |
+| `/api/v1/events` | Tenant Admin | Create event. | Planned | Admin/account profile creates event. |
 | `/api/v1/events/{event_id}` | Tenant Admin | Update event (partial). | Planned | Patch event metadata + schedule. |
 | `/api/v1/branding/update` | Tenant Admin | Update tenant branding settings. | Planned | Drives `/environment` payload + asset paths. |
 
@@ -71,14 +70,14 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 
 These roadmap phases extend the Flutter persona track and remain aligned with the platform-wide milestones above. Each phase is expressed as a target-state capability so downstream modules can scope their dependencies early.
 
-- **Phase 6 – User Personalization / Favorites:** establish persistent bookmarking across POIs and events, wired to authenticated tenants so saved items hydrate the invite loop, agenda, and partner insights.
+- **Phase 6 – User Personalization / Favorites:** establish persistent bookmarking across POIs and events, wired to authenticated tenants so saved items hydrate the invite loop, agenda, and account profile insights.
 - **Phase 6.1 – Remote Onboarding Experience:** deliver a geo-aware entry path for out-of-city visitors by defaulting map focus to the tenant-configured hub, prioritizing lodging/hosting templates, and emitting “potential visitor” analytics events.
 - **Phase 7 – Offline Reliability:** design “forever cache” strategies (tiles, POI snapshots, invite context) to keep the app responsive in low-connectivity regions while respecting data-expiry policies.
-- **Phase 8 – Gamification Spine:** standardize ranking schemas (global invites, partner-specific ladders, custom rank labels) and UI hooks so each module can project consistent reward states.
+- **Phase 8 – Gamification Spine:** standardize ranking schemas (global invites, account-profile-specific ladders, custom rank labels) and UI hooks so each module can project consistent reward states.
 - **Phase 9 – Invite Flow Evolution:** finalize the Tinder-style invite carousel, WhatsApp/in-app share contracts, and the analytics wiring that feeds the Phase 8 ranking services.
-- **Phase 10 – Tenant Home & Global Aggregations:** converge backend-driven home composition with multi-source data (offers, agenda, social actions) to give partners a single payload to target experiments.
+- **Phase 10 – Tenant Home & Global Aggregations:** converge backend-driven home composition with multi-source data (offers, agenda, social actions) to give account profiles a single payload to target experiments.
 - **Phase 11 – Invite Status & Privacy Controls:** attach invite-state halos to schedule cards, surface modal drill-downs, and enforce privacy toggles so invitees govern their exposure.
-- **Phase 12 – Partner (Landlord) Workspace:** scope the business-facing module where partners manage POIs, campaigns, promotions, and telemetry with the same backend contracts used by the tenant app.
+- **Phase 12 – Account Workspace:** scope the business-facing module where accounts manage account profiles, POIs, campaigns, promotions, and telemetry with the same backend contracts used by the tenant app.
 - **Phase 13 – Profile, Global Search, and Notifications:** expand user settings/privacy, add cross-surface search, and align push topics with the backend FCM contract so experiences feel continuous.
 
 ## 6. Web-to-App Promotion Policy
@@ -99,11 +98,11 @@ These roadmap phases extend the Flutter persona track and remain aligned with th
 **App-only (V1):**
 - Accept/Decline invite from agenda surfaces (credited acceptance selection + anti-gaming + quota enforcement).
 - Confirm presence / check-in.
-- Send invites (user only; partner-issued invites deferred).
+- Send invites (user + account_profile; account_profile issuance is admin-assigned in MVP).
 - Favorites and trust actions (check-in, credited acceptance selection).
 
 **Attribution requirement:** External share links carry a single `code` as a GET param that resolves `{ tenant_id, event_id, inviter_principal }`. Web must preserve this `code` through install and the app must call a backend `consume` endpoint post-install/post-signup to bind attribution.
 
 **Tracking mandate (V1):** Instrument web → install → signup → acceptance → presence funnel to validate whether web-only actions should be expanded later. Use Mixpanel (client) and/or server-side events, but align naming to avoid double-counting.
 
-**Future consideration:** Revisit after Phase 8 once viral loops and partner analytics are stable. At that time we can evaluate a lightweight web confirmation flow for specific tenants or campaigns, balancing lower friction against the need to keep Task & Reminder and map experiences consistent. Any shift will require the invite, onboarding, and task modules to expose parallel web APIs with equivalent security guarantees.
+**Future consideration:** Revisit after Phase 8 once viral loops and account profile analytics are stable. At that time we can evaluate a lightweight web confirmation flow for specific tenants or campaigns, balancing lower friction against the need to keep Task & Reminder and map experiences consistent. Any shift will require the invite, onboarding, and task modules to expose parallel web APIs with equivalent security guarantees.

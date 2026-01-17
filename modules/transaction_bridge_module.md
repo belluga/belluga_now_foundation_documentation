@@ -12,7 +12,7 @@ The Transaction Bridge module (MOD-305) connects tenant experiences to the exter
 
 ## 2. Responsibilities
 
-1. **Booking Lifecycle Management:** Translate offering reservations from the Partner Catalog or Map module into `booking_reservations` documents, assign status transitions, and keep agenda nodes synchronized.
+1. **Booking Lifecycle Management:** Translate offering reservations from the Account Profile Catalog or Map module into `booking_reservations` documents, assign status transitions, and keep agenda nodes synchronized.
 2. **Payment Intent Mediation:** Create payment intents through the Commercial Engine, store the resulting `intent_reference`, and expose simplified status flags to clients (`pending`, `authorized`, `captured`, `failed`).
 3. **Transaction Ledger Projection:** Maintain a tenant-scoped ledger summarizing every financial event so UI surfaces (profile balances, booking history) can query a single read model without touching external systems.
 4. **Webhooks & Retry Policies:** Handle webhook callbacks (`payment.succeeded`, `refund.created`) with idempotent processors and exponential backoff queues.
@@ -28,7 +28,7 @@ The Transaction Bridge module (MOD-305) connects tenant experiences to the exter
   "tenant_id": "ObjectId()",
   "user_id": "ObjectId()",
   "offer_id": "ObjectId()",
-  "partner_id": "ObjectId()",
+  "account_profile_id": "ObjectId()",
   "status": "String",
   "party_size": "Number",
   "scheduled_at": "Date",
@@ -74,7 +74,7 @@ Durable log of inbound webhook deliveries with ack status for observability.
 | `/api/v1/bookings` | POST | Creates a reservation and initializes a payment intent. |
 | `/api/v1/bookings/{bookingId}` | GET | Returns booking status, payment state, and action descriptors. |
 | `/api/v1/bookings/{bookingId}/cancel` | POST | Cancels a pending booking and issues refunds when applicable. |
-| `/api/v1/transactions` | GET | Lists ledger entries filtered by date or partner. |
+| `/api/v1/transactions` | GET | Lists ledger entries filtered by date or account profile. |
 | `/webhooks/commercial-engine` | POST | Receives signed webhook callbacks from the external Commercial Engine. |
 
 ---
@@ -90,4 +90,4 @@ Durable log of inbound webhook deliveries with ack status for observability.
 
 * **Short Term (Mocks):** Use deterministic mock payment responses and store fake intent IDs while still generating ledger entries.
 * **Launch:** Integrate with the landlord-hosted Commercial Engine using service-to-service auth; enable multi-currency pricing.
-* **Future:** Extend ledger with loyalty credits and offline settlement flows for partners without real-time payment capabilities.
+* **Future:** Extend ledger with loyalty credits and offline settlement flows for account profiles without real-time payment capabilities.

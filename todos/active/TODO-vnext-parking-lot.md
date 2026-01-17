@@ -14,29 +14,27 @@
   - Notes: defer until payment/ledger contracts are implemented and a stable Transaction Bridge read-model exists.
 - **Purchases & Reservations history**
   - Source reference: `foundation_documentation/screens/modulo_perfil_e_utilidades.md`
-  - Notes: depends on Transaction Bridge + booking lifecycles and partner-side fulfillment.
+  - Notes: depends on Transaction Bridge + booking lifecycles and account-profile-side fulfillment.
 - **Premium plan management**
   - Source reference: `foundation_documentation/screens/modulo_perfil_e_utilidades.md`
   - Notes: depends on subscription/billing system + entitlements delivery.
 
 ---
 
-## B) Partner Profiles (Deferred / Simplify in V1)
+## B) Account Profiles (Deferred / Simplify in V1)
 
-- **Full partner profile modular tabs for all partner types**
-  - V1 intent: keep minimal reduced profiles; defer richer modules (store, galleries, curated content) to when Partner Blueprints/Capabilities are backend-driven.
+- **Full account profile modular tabs for all profile types**
+  - V1 intent: keep minimal reduced profiles; defer richer modules (store, galleries, curated content) to when Account Profile Blueprints/Capabilities are backend-driven.
 
-## F) Partner Self-Management (Deferred)
+## F) Account Self-Management (Deferred)
 
-- **Partner self-management area**
-  - Reason: MVP uses tenant/admin area; partner self-management comes next.
+- **Account profile self-management area**
+  - Reason: MVP uses tenant/admin area; account profile self-management comes next.
 
 ## E) Invites & Metrics (Deferred)
 
-- **Partner invite metrics**
-  - Reason: defer partner-facing metrics dashboards until after MVP invite flows are stable.
-- **Partner-issued invites**
-  - Reason: defer partner-issued invites until after MVP user-invite flows are stable.
+- **Account profile invite metrics**
+  - Reason: defer account_profile-facing metrics dashboards until after MVP invite flows are stable.
 
 ---
 

@@ -12,20 +12,17 @@
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
 - Deferred items: `foundation_documentation/todos/active/TODO-vnext-parking-lot.md`
 
-## Account + Partner Context (MVP)
-- Account remains generic; Partner is a 1:1 sibling model linked by `account_id`.
-- Partner stores domain fields like `type`, `tags`, and taxonomy terms (multi‑taxonomy: e.g., Venue can have `cuisines` and `music_genres`).
-- Discovery uses an aggregation over Account + Partner; admin CRUD remains in the tenant/admin route file.
+## Account + Account Profile Context (MVP)
+- Account remains generic; Account Profiles are 1:N siblings linked by `account_id`.
+- Account Profiles store domain fields like `type`, `tags`, and taxonomy terms (multi‑taxonomy: e.g., Venue can have `cuisines` and `music_genres`).
+- Discovery uses an aggregation over Account + Account Profile; admin CRUD remains in the tenant/admin route file.
 
 ---
 
 ## A) Backend Tasks
 
-### A1) Account access + permissions
-- [ ] ⚪ Implement account memberships with roles + permission flags (draft in `foundation_documentation/modules/partner_admin_module.md`)
-- [ ] ⚪ Enforce permissions for account-managed actions:
-  - [ ] ⚪ `can_manage_details`
-  - [ ] ⚪ `can_manage_events`
+### A1) Account access + permissions (Deferred)
+- [ ] ⚪ Implement account memberships with roles + permission flags post‑MVP (draft in `foundation_documentation/modules/partner_admin_module.md`)
 
 ### A2) Tenant branding management
 - [ ] ⚪ Allow tenant admin to edit About, logo, icon, and branding colors.
@@ -56,8 +53,8 @@
 - [ ] ⚪ Plan/Limits view (read-only; shows quotas and reset times)
 
 ### B3) Event form UX requirements
-- [ ] ⚪ Venue selector lists accessible venue accounts.
-- [ ] ⚪ Artist selector lists accessible artist accounts.
+- [ ] ⚪ Venue selector lists accessible venue account profiles.
+- [ ] ⚪ Artist selector lists accessible artist account profiles.
 - [ ] ⚪ Both selectors include shortcut to create a new Artist or Venue.
 
 ---

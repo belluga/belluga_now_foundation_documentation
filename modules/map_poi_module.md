@@ -88,17 +88,17 @@ This architecture requires a REST API for on-demand queries and an SSE API for r
 
 ### 3.6 Materialized `map_pois` (Projection Records, Optional Time Anchor)
 
-For V1, we treat `map_pois` as a **materialized projection/read model** used by the map experience. Whenever a Partner or an Event is created/updated (by landlord admins or partner members), we write/update a linked `map_pois` record in the same logical transaction.
+For V1, we treat `map_pois` as a **materialized projection/read model** used by the map experience. Whenever an Account Profile or an Event is created/updated (by landlord/tenant admins; memberships are deferred), we write/update a linked `map_pois` record in the same logical transaction.
 
 Key properties:
 - `map_pois` is the map projection (geometry + category + tags + priority + deep-link reference).
 - The record may carry an optional `time_anchor_at` (nullable). We do **not** store `visible_from`/`visible_until`. Visibility windows are computed at query time using backend-owned tenant settings.
-- Partner/Custom Object types can enable/disable POI projection via capabilities. When disabled, the backend can keep the POI record but set `is_active=false` (soft disabled), or omit creation entirely for that type.
+- Account Profile/Custom Object types can enable/disable POI projection via capabilities. When disabled, the backend can keep the POI record but set `is_active=false` (soft disabled), or omit creation entirely for that type.
 
 **Reference linkage (required):**
 ```json
 {
-  "ref_type": "partner|event|static",
+  "ref_type": "account_profile|event|static",
   "ref_id": "ObjectId() | null"
 }
 ```
@@ -119,7 +119,7 @@ This ensures future events/campaigns do not appear immediately when created, whi
 
 #### Example: “Promotional Coupon” Custom Object (POI-enabled)
 
-Scenario: A partner wants a time-bound promotion (“Pague 1, leve 2” de cerveja). This can be modeled as a POI-enabled custom object type (it may be “a partner-like object” from the map’s point of view, but it is not required to be a Partner profile).
+Scenario: An account profile wants a time-bound promotion (“Pague 1, leve 2” de cerveja). This can be modeled as a POI-enabled custom object type (it may be “account-profile-like” from the map’s point of view, but it is not required to be an Account Profile record).
 
 Custom object fields (example):
 ```json
@@ -127,7 +127,7 @@ Custom object fields (example):
   "type": "promotional_coupon",
   "title": "Pague 1, leve 2 (Cerveja)",
   "details": "Válido das 18h às 22h, somente hoje.",
-  "partner_id": "ObjectId()",
+  "account_profile_id": "ObjectId()",
   "starts_at": "Date",
   "ends_at": "Date",
   "location": { "type": "Point", "coordinates": [-40.498383, -20.673067] },
@@ -246,7 +246,7 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 -   **v1.1 (Fast-Follow):** Advanced real-time features like "moving POIs" and "live offers" will be fully enabled in the UI.
 
 ### 5.2. Unified Codebase
--   The "Partner" or "Landlord" functionality for managing POIs and offers will not be a separate application. It will be a different mode or build flavor within the main Flutter codebase, ensuring efficiency and code reuse.
+-   The "Account Workspace" (Account Profile management) or landlord functionality for managing POIs and offers will not be a separate application. It will be a different mode or build flavor within the main Flutter codebase, ensuring efficiency and code reuse.
 
 ### 5.3. Implementation Roadmap
 -   **Phase 1 (Complete):** Foundational Mock Data Layer (`MockPoiDatabase`, `MockHttpService`, `MockSseService`).

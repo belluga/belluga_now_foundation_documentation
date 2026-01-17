@@ -12,7 +12,7 @@ The Agenda & Action Planner module (MOD-303) tracks every upcoming experience, b
 
 ## 2. Architectural Tenets
 
-1. **Timeline as the Source of Truth:** Agenda entries are modeled as immutable `timeline_nodes`. Each node references a `context_document` describing the originating entity (POI booking, invite, partner reminder reference). Mutations append new nodes instead of updating in place so history remains auditable.
+1. **Timeline as the Source of Truth:** Agenda entries are modeled as immutable `timeline_nodes`. Each node references a `context_document` describing the originating entity (POI booking, invite, account profile reminder reference). Mutations append new nodes instead of updating in place so history remains auditable.
 2. **Action Contract Standardization:** Every actionable item surfaces the same action schema (`ActionDescriptor`) with verbs (`confirm`, `share`, `navigate`, `chat`) and CTA payloads. Flutter controllers bind directly to these descriptors, eliminating UI branching logic.
 3. **State Derivation:** `agenda_states` documents hold derived state (e.g., upcoming_count, overdue_count) for fast reads. They are rebuilt asynchronously from events rather than mutated procedurally.
 4. **Calendar-Ready Segmentation:** Entries are partitioned by day and by semantic `channel` (experiences, logistics, social) so we can sync to native calendars without extra mapping later.
@@ -114,7 +114,7 @@ Agenda surfaces events as a paged list; Flutter consumes this shape for cards, i
       ],
       "participants": [
         {
-          "partner": {
+          "account_profile": {
             "id": "string",
             "display_name": "string",
             "tagline": "string?",

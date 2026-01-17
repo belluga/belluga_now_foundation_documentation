@@ -1,4 +1,4 @@
-# Documentation: Partner Catalog & Offer Module
+# Documentation: Account Profile Catalog & Offer Module
 
 **Version:** 1.0  
 **Date:** February 28, 2025  
@@ -6,29 +6,29 @@
 
 ## 1. Overview
 
-The Partner Catalog & Offer module (MOD-304) maintains the canonical representation of restaurants, artists, guides, and merchants that operate within a tenant. It exposes the offer graph consumed by the Map & POI module, Tenant Home Composer, and Agenda Planner. The module sits between partner-facing tooling (future Partner Workspace) and consumer experiences, enforcing validation, media standards, and availability lifecycles.
+The Account Profile Catalog & Offer module (MOD-304) maintains the canonical representation of **account profiles** (restaurants, artists, guides, merchants) that operate within a tenant. It exposes the offer graph consumed by the Map & POI module, Tenant Home Composer, and Agenda Planner. The module sits between account-facing tooling (future Account Profile Workspace) and consumer experiences, enforcing validation, media standards, and availability lifecycles.
 
 ---
 
 ## 2. Principles
 
-1. **Value Objects Everywhere:** Every textual or media attribute is wrapped in value objects (`PartnerNameValue`, `HeroImageValue`, `OfferPriceValue`) stored within the module so Flutter and Laravel layers never juggle raw primitives.
+1. **Value Objects Everywhere:** Every textual or media attribute is wrapped in value objects (`AccountProfileNameValue`, `HeroImageValue`, `OfferPriceValue`) stored within the module so Flutter and Laravel layers never juggle raw primitives.
 2. **Availability Windows:** Offers declare explicit `available_windows` objects (dates, days of week, time ranges) to guarantee map and agenda projections can reason about current vs. future availability.
-3. **Geo-Safe Modeling:** Partner locations and POIs rely on normalized `geo_shapes` with both `lat/long` and `geohash` representations to align with the multi-tenant map stack.
+3. **Geo-Safe Modeling:** Account profile locations and POIs rely on normalized `geo_shapes` with both `lat/long` and `geohash` representations to align with the multi-tenant map stack.
 4. **Decoupled Media Storage:** Media metadata lives in this module, but binary assets are uploaded to landlord-managed storage buckets. Documents store signed URLs plus invariants (resolution, aspect ratio).
 
 ---
 
 ## 3. Core Collections
 
-### 3.1 `partners`
+### 3.1 `account_profiles`
 ```json
 {
   "_id": "ObjectId()",
   "tenant_id": "ObjectId()",
   "legal_name": "String",
   "display_name": "String",
-  "partner_type": "String",
+  "account_profile_type": "String",
   "tagline": "String",
   "description": "String",
   "media": {
@@ -56,7 +56,7 @@ The Partner Catalog & Offer module (MOD-304) maintains the canonical representat
 ```json
 {
   "_id": "ObjectId()",
-  "partner_id": "ObjectId()",
+  "account_profile_id": "ObjectId()",
   "tenant_id": "ObjectId()",
   "name": "String",
   "category": "String",
@@ -81,8 +81,8 @@ The Partner Catalog & Offer module (MOD-304) maintains the canonical representat
 }
 ```
 
-### 3.3 `partner_profiles`
-Aggregated data served to authenticated partners (owner/managers) once the workspace launches. Stores metrics, insights references, and invite stats.
+### 3.3 `account_profile_dashboards`
+Aggregated data served to authenticated account operators once the workspace launches. Stores metrics, insights references, and invite stats.
 
 ---
 
@@ -90,26 +90,26 @@ Aggregated data served to authenticated partners (owner/managers) once the works
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/v1/partners` | GET | Tenant-scoped list with filtering by category, status, verification flags. |
-| `/api/v1/partners/{partnerId}` | GET | Detailed partner profile summary for consumer experiences. |
-| `/api/v1/offers` | GET | Offer catalog filtered by partner, category, availability window. |
-| `/api/v1/offers/{offerId}` | PATCH | Admin/partner operation to update descriptions or windows (behind auth). |
+| `/api/v1/account_profiles` | GET | Tenant-scoped list of account profiles with filtering by category, status, verification flags. |
+| `/api/v1/account_profiles/{accountProfileId}` | GET | Detailed account profile summary for consumer experiences. |
+| `/api/v1/offers` | GET | Offer catalog filtered by account profile, category, availability window. |
+| `/api/v1/offers/{offerId}` | PATCH | Admin/account operator operation to update descriptions or windows (behind auth). |
 
 **Events**
-* `partner.created`, `partner.updated`, `offer.published`, `offer.unavailable`, `offer.window.expired`.
+* `account_profile.created`, `account_profile.updated`, `offer.published`, `offer.unavailable`, `offer.window.expired`.
 
 ---
 
 ## 5. Dependencies
 
-* **Map & POI Module:** Consumes partner + offer data to render map markers.
+* **Map & POI Module:** Consumes account profile + offer data to render map markers.
 * **Commercial Engine (external):** Provides pricing references when offers tie to real inventory or booking flows.
-* **Multidimensional Insights Service:** Supplies badge thresholds (e.g., “Top Partner of the Week”) that update `badges`.
+* **Multidimensional Insights Service:** Supplies badge thresholds (e.g., “Top Account Profile of the Week”) that update `badges`.
 
 ---
 
 ## 6. Roadmap
 
-* **Phase 5:** Aligns with Flutter FCX-02 to serve mocked partner feeds.
-* **Phase 10:** Provides partner-driven home compositions and aggregated insights to Tenant Home Composer.
-* **Phase 12:** Powers the Partner Workspace module, reusing the same schema for partner CRUD operations.
+* **Phase 5:** Aligns with Flutter FCX-02 to serve mocked account profile feeds.
+* **Phase 10:** Provides account-profile-driven home compositions and aggregated insights to Tenant Home Composer.
+* **Phase 12:** Powers the Account Profile Workspace module, reusing the same schema for account profile CRUD operations.

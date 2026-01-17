@@ -12,7 +12,7 @@ This list serves as the domain source of truth referenced by the `system_archite
 ## 2. Core Business Entities
 
 * **Primary Entity:** **User** (The consumer, including moratoriums and tourists, who discovers, books, and shares experiences). Users exist as soon as an identity token is issued and transition from unauthenticated to authenticated without changing entity type; identity state is a lifecycle attribute, not a separate user model.
-* **Supporting Entity A:** **Partner** (The B2B client and provider, including establishments, guides, artists, and producers who offer services and products). Partner types are explicitly enumerated to cover both supply and social amplification roles: `artist`, `venue`, `experience_provider`, `influencer`, and `curator`. Invite surfaces now consume the `InvitePartnerSummary` aggregate (id, partner type, display name, tagline, hero + logo URIs) so Flutter and Laravel share the same social-proof branding contract. The canonical Partner aggregate (id, profile, verification flags, contact information, invite/offer badges, engagement metrics, semantic tags) must live under `lib/domain/partner/` with value objects for every textual or media attribute so that all downstream summaries inherit the same invariants. Engagement metrics are type-aware (e.g., live-status for artists, presence counts for venues, invite counts for influencers) and are always non-negative integers or bounded strings represented as value objects rather than raw primitives.
+* **Supporting Entity A:** **Partner (Label, Future Capability)** — the tenant-facing label applied to **Account Profiles** that operate as B2B providers (restaurants, artists, guides, merchants). The label system is deferred; in V1 we still model **Account Profiles** as the canonical entity and project account-profile-facing summaries from them. Account profile types remain explicitly enumerated for UI/analytics: `artist`, `venue`, `experience_provider`, `influencer`, and `curator`. Invite surfaces consume the `InvitePartnerSummary` aggregate (id, partner type, display name, tagline, hero + logo URIs) so Flutter and Laravel share the same social-proof branding contract. The canonical account-profile-facing aggregate (id, profile, verification flags, contact information, invite/offer badges, engagement metrics, semantic tags) is produced from Account Profiles and shared via value objects to preserve invariants. Engagement metrics are type-aware (e.g., live-status for artists, presence counts for venues, invite counts for influencers) and are always non-negative integers or bounded strings represented as value objects rather than raw primitives.
 * **Supporting Entity B:** **Offering** (The catalog of consumable items, encompassing Events, Products, and Experiences/Guides).
 * **Supporting Entity C:** **Transaction** (The record of action and value exchange, including Bookings, Orders, Payments, and social Invitations).
 
@@ -38,14 +38,14 @@ This list serves as the domain source of truth referenced by the `system_archite
 | Venue / Local | Canonical “place” aggregate referenced by offerings/events. A Venue can be physical (address + coordinates) or online (no fixed locality, optional URL). Physical venues must be eligible for GeoQuery and navigation; online venues must be treated as “available anywhere” and must not trigger distance ordering or geo constraints. | The map module owns the normalized POI registry; schedule/agendas reference venues by `venue_id` + summary fields. |
 | Invite | Represents a social invitation tied to an event/offering, with inviter, invitees, status, timestamps, and source links for attribution. | Only one accepted invite per invitee per event; expires at event end; supports invite attribution for ranking and missions. |
 | Presence / Check-in | Captures the verified presence of a user at an event via geofence/QR/staff confirmation. | Presence is the source of truth for “Presenças Confirmadas”; accepted-without-check-in is treated as no-show. |
-| Mission | Defines partner-created goals (e.g., `10 convites aceitos`) with metric target, window, reward, and validation source. | Metric is selected per mission; pre-event missions should prefer invites/engagement over presence. |
-| Social Score | Aggregates north-star metrics for users and partners: `Convites Aceitos` (esforço) and `Presenças Confirmadas` (resultado), tracked all-time and for the current month (“Em Alta”). | Drives rankings, badges, and Pro/Verificado unlocks; respects privacy/anonymization when applicable. |
+| Mission | Defines account-profile-created goals (e.g., `10 convites aceitos`) with metric target, window, reward, and validation source. | Metric is selected per mission; pre-event missions should prefer invites/engagement over presence. |
+| Social Score | Aggregates north-star metrics for users and account profiles (partner label): `Convites Aceitos` (esforço) and `Presenças Confirmadas` (resultado), tracked all-time and for the current month (“Em Alta”). | Drives rankings, badges, and Pro/Verificado unlocks; respects privacy/anonymization when applicable. |
 | Contact Hash Directory | Stores salted hashes of user-imported contacts to enable friend suggestions and invite matching without storing raw PII. | Used to suggest “Pessoas” in discovery and to match invite acceptance with previously imported contact hashes. |
 
-### Partner Field Definitions
+### Account Profile Label Field Definitions
 
-- `partner_type` (enum): allowed values `artist`, `venue`, `experience_provider`, `influencer`, `curator`. Drives engagement metrics, labeling, and permissioning per role.
-- `accepted_invites` (int): cumulative, non-negative count of invites accepted that are attributable to the partner; zero default; must not be null.
+- `account_profile_type` (enum): allowed values `artist`, `venue`, `experience_provider`, `influencer`, `curator`. Drives engagement metrics, labeling, and permissioning per role.
+- `accepted_invites` (int): cumulative, non-negative count of invites accepted that are attributable to the account profile; zero default; must not be null.
 - `engagement` (object): optional; type-specific metrics expressed via value objects.
   - For `artist`: `status_label` (bounded string, <=32 chars, e.g., “Tocando agora”), `next_show_at` (ISO8601, optional).
   - For `venue`: `presence_count` (non-negative int).
@@ -58,7 +58,7 @@ This list serves as the domain source of truth referenced by the `system_archite
   - `experience_provider`: context/location tags (e.g., mar, praia, mergulho, montanha).
   - `curator`: curatorial focus (e.g., história, causos).
   - `influencer` (personalidade): focus areas (e.g., lifestyle, baladas).
-- `taxonomy_terms` (array of objects): optional, WordPress-style multi-taxonomy list of `{type, value}` pairs (e.g., `{type: cuisine, value: italian}` or `{type: music_genre, value: samba}`). Partners may carry multiple taxonomy types simultaneously (venues can have cuisines + music genres).
+- `taxonomy_terms` (array of objects): optional, WordPress-style multi-taxonomy list of `{type, value}` pairs (e.g., `{type: cuisine, value: italian}` or `{type: music_genre, value: samba}`). Account profiles may carry multiple taxonomy types simultaneously (venues can have cuisines + music genres).
 
 ### Social Graph & Presence Field Definitions
 
@@ -66,10 +66,10 @@ This list serves as the domain source of truth referenced by the `system_archite
 - `privacy_mode` (enum): `public`, `friends_only` (friends defined as reciprocated favorites). Private users are anonymized in rankings (blur/avatar masking) but still count toward metrics.
 - `people_discovery_priority`: order “Pessoas” by monthly Social Score; verified users are surfaced first when scores tie, but both verified and basic can appear.
 - `invite_status` (enum): `pending`, `accepted`, `declined`; `expired` is derived when the event ends. Exactly one accepted invite per invitee per event.
-- `invite_limits` (by role): `basic` up to 20 pending invites simultaneously; `verified` up to 50; `partner_paid` up to 100 (higher via plan tiers). Invites are single-use per invitee/event.
-- `check_in_method` (enum): `geofence`, `qr`, `staff_manual`. Geofence radius is partner-defined; QR is optional reinforcement; manual is staff-only for auditability.
+- `invite_limits` (by role): `basic` up to 20 pending invites simultaneously; `verified` up to 50; `account_paid` up to 100 (higher via plan tiers). Invites are single-use per invitee/event.
+- `check_in_method` (enum): `geofence`, `qr`, `staff_manual`. Geofence radius is account-profile-defined; QR is optional reinforcement; manual is staff-only for auditability.
 - `presence_status` (enum): `confirmed`, `no_show` (accepted invite without check-in by event end).
-- `mission_metric` (enum): `invites_accepted`, `presences_confirmed`, `check_ins`, `purchases` (future). Chosen per mission by the partner; pre-event missions are advised to avoid presence unless explicitly desired.
+- `mission_metric` (enum): `invites_accepted`, `presences_confirmed`, `check_ins`, `purchases` (future). Chosen per mission by the account profile; pre-event missions are advised to avoid presence unless explicitly desired.
 - `mission_status` (enum): `pending`, `active`, `completed`, `expired`.
-- `partner_curator_link_status` (enum): `pending`, `accepted`; either side can propose, reciprocal acceptance required.
+- `account_profile_curator_link_status` (enum): `pending`, `accepted`; either side can propose, reciprocal acceptance required.
 - `contact_hash` (string): salted hash for a contact identifier (e.g., phone/email) used solely for matching imported contacts to existing users; raw identifiers are never stored.

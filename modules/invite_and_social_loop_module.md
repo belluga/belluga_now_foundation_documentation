@@ -6,37 +6,44 @@
 
 ## 1. Overview
 
-The Invite & Social Loop module (MOD-302) governs the tenant app virality engine. It manages invite issuance, referral graph analytics, friend resume projections, and gamified progression that feeds both the tenant app and the partner workspace. The module is built to operate with mocked persistence today while remaining API-compatible with a future backend microservice.
+The Invite & Social Loop module (MOD-302) governs the tenant app virality engine. It manages invite issuance, referral graph analytics, friend resume projections, and gamified progression that feeds both the tenant app and the account profile workspace. The module is built to operate with mocked persistence today while remaining API-compatible with a future backend microservice.
+**MVP scope:** only **Account User** invite issuance is implemented; account-plan quotas/monetization are deferred to post‑MVP.
 
 ---
 
 ## 2. Design Principles
 
-1. **Graph-Native Modeling:** Invites, referrals, and friend relationships are stored as a directed multigraph (`invite_edges`). Every edge carries immutable metadata (source partner, campaign id, channel) so downstream scoring remains deterministic.
+1. **Graph-Native Modeling:** Invites, referrals, and friend relationships are stored as a directed multigraph (`invite_edges`). Every edge carries immutable metadata (source account profile, campaign id, channel) so downstream scoring remains deterministic.
 2. **Privacy-Respecting Exposure:** Contact metadata is normalized into `friend_resumes` that only include the data points explicitly allowed by each user (display name, avatar, teaser label). The module never leaks raw address book details to other modules.
 3. **Progressive Disclosure:** Invite payloads include `contextual_prompts` describing why an invite matters (e.g., “3 friends are attending this gig”). Context is generated from other modules but cached locally to avoid tight coupling.
 4. **Event-Driven Incentives:** Rank changes, streaks, or reward unlocks emit events consumed by the Insights Service and Tenant Home Composer. The module does not compute final leaderboards; it only updates counters and emits domain events.
-5. **Quota-Aware Monetization:** Invite issuance is tied to partner plans. Every invite maps to a `plan_charge_bucket`, allowing us to invoice or enforce limits according to the partner’s subscription tier.
+5. **Quota-Aware Monetization (Post‑MVP):** Invite issuance is tied to account plans. Every invite maps to a `plan_charge_bucket`, allowing us to invoice or enforce limits according to the account’s subscription tier.
 6. **Automatic Event-Scoped Security:** Invite codes inherit the lifecycle of the underlying experience; when the event expires or a receiver suppresses invitations for that event, tokens are invalidated automatically and cannot be reused.
 
 ---
 
 ## 2.1 V1 Structural Decisions (Crediting, Uniqueness, Limits)
 
-These decisions are foundational because they prevent metric inflation, preserve monetization integrity, and unlock partner-facing analytics.
+These decisions are foundational because they prevent metric inflation, preserve monetization integrity, and unlock account-profile-facing analytics.
 
-### A) Inviter Principal (User vs Partner)
+### A) Inviter Principal (User vs Account Profile)
 Every invite is issued by an `inviter_principal`:
 
 ```json
 {
-  "inviter_principal": { "kind": "user|partner", "id": "ObjectId()" },
+  "inviter_principal": { "kind": "user|account_profile", "id": "ObjectId()" },
   "issued_by_user_id": "ObjectId() | null"
 }
 ```
 
 - The **recipient-facing inviter** is always the `inviter_principal`.
-- When `inviter_principal.kind == "partner"`, `issued_by_user_id` records which user (landlord/admin or partner team member) issued the invite on behalf of the partner. This supports auditing, permissions, and abuse investigations; it does not change who gets invite credit.
+- When `inviter_principal.kind == "account_profile"`, `issued_by_user_id` records which user (landlord/admin or account operator) issued the invite on behalf of the profile. This supports auditing, permissions, and abuse investigations; it does not change who gets invite credit.
+- **MVP constraint:** account/profile invite issuance is admin-assigned (no memberships yet); account operators are explicitly linked by landlord/tenant admins.
+
+### A1) Audience Eligibility (User vs Account Profile)
+- **User invites:** may target only imported contacts (hashed) or users already installed in the app.
+- **Account Profile invites:** may target followers/favorites for broader reach; direct user targeting is also allowed as needed.
+- **Share codes:** allowed for both inviter types; eligibility rules still apply (user shares only to their contacts, account profiles can share to followers/favorites audiences).
 
 ### B) Uniqueness (No Duplicate Invites From Same Inviter)
 We never allow the same inviter to invite the same receiver to the same event more than once.
@@ -67,11 +74,11 @@ Backend must return:
 
 **Suggested healthy defaults (backend-owned; per-tenant + per-plan override):**
 - `max_invites_per_event_per_inviter`: `300`
-- `max_invites_per_day_per_partner`: `500` (Tiny Free plan: `50–100`)
+- `max_invites_per_day_per_account`: `500` (Tiny Free plan: `50–100`)
 - `max_invites_per_day_per_user_actor`: `100`
 - `max_pending_invites_per_invitee`: `20`
 - `max_invites_to_same_invitee_per_30d` (any events): `10`
-- Suppression: per-partner blocklist + per-user opt-out
+- Suppression: per-account blocklist + per-user opt-out
 
 ## 3. Data Model
 
@@ -85,7 +92,7 @@ Backend must return:
   "invite_code": "String",
   "status": "String",
   "attendance_status": "String",
-  "source_partner_id": "ObjectId()",
+  "source_account_profile_id": "ObjectId()",
   "campaign_id": "String",
   "channel": "String",
   "channel_payload": {},
@@ -99,17 +106,19 @@ Backend must return:
   "updated_at": "Date"
 }
 ```
-`status` ∈ {`pending`, `viewed`, `accepted`, `declined`, `closed_duplicate`, `expired`, `snoozed`, `suppressed`}. `attendance_status` ∈ {`unknown`, `confirmed`, `no_show`}. `unknown` is the default and represents “attendance not yet reported”. `channel` includes `whatsapp`, `in_app`, `qr`, `link`. `auto_expire_at` is derived from the related event/offer end time so invitations automatically close when the underlying experience has passed. `plan_charge_bucket` ties each invite to the partner plan quota bucket used by billing (e.g., `core`, `premium_boost`), enabling per-plan limits.
+`status` ∈ {`pending`, `viewed`, `accepted`, `declined`, `closed_duplicate`, `expired`, `snoozed`, `suppressed`}. `attendance_status` ∈ {`unknown`, `confirmed`, `no_show`}. `unknown` is the default and represents “attendance not yet reported”. `channel` includes `whatsapp`, `in_app`, `qr`, `link`. `auto_expire_at` is derived from the related event/offer end time so invitations automatically close when the underlying experience has passed. `plan_charge_bucket` ties each invite to the account plan quota bucket used by billing (e.g., `core`, `premium_boost`), enabling per-plan limits.
 
 **V1 additional fields (required):**
 ```json
 {
   "event_id": "ObjectId()",
-  "inviter_principal": { "kind": "user|partner", "id": "ObjectId()" },
+  "inviter_principal": { "kind": "user|account_profile", "id": "ObjectId()" },
+  "account_profile_id": "ObjectId() | null",
   "issued_by_user_id": "ObjectId() | null",
   "credited_acceptance": "Boolean"
 }
 ```
+`account_profile_id` is required when `inviter_principal.kind = account_profile` and must match the profile issuing the invite.
 
 ### 3.2 `invite_actions`
 Captures all user actions performed on an invite entry.
@@ -139,7 +148,7 @@ Authoritative resume objects consumed by Flutter domain models.
 ```
 
 ### 3.4 Quotas & Throttling Snapshots
-To enforce both anti-spam policies and partner plan limits, the module maintains supporting documents:
+To enforce both anti-spam policies and account plan limits, the module maintains supporting documents:
 ```json
 {
   "_id": "ObjectId()",
@@ -153,7 +162,7 @@ To enforce both anti-spam policies and partner plan limits, the module maintains
   "last_violation_at": "Date"
 }
 ```
-`scope_type` ∈ {`user_sender`, `partner_plan`}. When `current_count >= max_allowed`, new invites are blocked and the API returns `429` with metadata describing the plan or quota that was exhausted. Violations emit `invite.rate-limited` or `invite.plan-limit-reached` events so Commercial/Partner Analytics modules can track upsell opportunities.
+`scope_type` ∈ {`user_sender`, `account_plan`}. When `current_count >= max_allowed`, new invites are blocked and the API returns `429` with metadata describing the plan or quota that was exhausted. Violations emit `invite.rate-limited` or `invite.plan-limit-reached` events so Commercial/Account Analytics modules can track upsell opportunities.
 
 ---
 
@@ -176,7 +185,7 @@ V1 requires tracking external shares (WhatsApp/Instagram/etc.) for **new users**
 
 **Eligibility rule (agreed):** anyone who can send invites can generate external share invites.
 - For user inviters: authenticated user with invite permission.
-- For partner inviters: authenticated user must be an active `partner_membership` with `can_invite=true`; the inviter principal remains the partner, and `issued_by_user_id` is required for auditing.
+- **MVP note:** account_profile invites are admin-assigned; memberships are deferred post‑MVP. When memberships land, `issued_by_user_id` must be validated against the account_profile’s membership/role permissions.
 
 **Share code contract (server-stored, MVP minimum):**
 ```json
@@ -184,7 +193,7 @@ V1 requires tracking external shares (WhatsApp/Instagram/etc.) for **new users**
   "code": "String",
   "tenant_id": "ObjectId()",
   "event_id": "ObjectId()",
-  "inviter_principal": { "kind": "user|partner", "id": "ObjectId()" },
+  "inviter_principal": { "kind": "user|account_profile", "id": "ObjectId()" },
   "issued_by_user_id": "ObjectId() | null",
   "created_at": "Date",
   "expires_at": "Date | null"
@@ -216,8 +225,8 @@ Even on web “unauthenticated” landings, the canonical API is Sanctum-validat
 **Events**
 * Outbound: `invite.created`, `invite.accepted`, `invite.accepted.contacts-import-triggered`, `invite.fulfillment.step-required`, `invite.fulfillment.step-completed`, `invite.attendance.confirmed`, `invite.attendance.no-show`, `invite.attendance.unconfirmed`, `invite.expired`, `invite.reward-unlocked`, `invite.rate-limited`, `invite.plan-limit-reached`, `invite.snoozed`, `invite.suppressed`.
 * Inbound: `user.profile.updated` (refresh resumes), `agenda.action.completed` (to suggest invites tied to actions), `insights.rank.changed`, `task.completed` (so we can auto-unsnooze when reminders convert).
-* Analytics/CRM Integration: Every fulfillment intent (`invite.fulfillment.step-required`, e.g., pay deposit, upload document) is mirrored to the Partner Analytics/CRM module along with contact info so partners can track outstanding requirements. When tasks complete, the analytics module receives `invite.fulfillment.step-completed` events (emitted by Transaction Bridge or Task & Reminder). Final conversion is measured via attendance events: `invite.attendance.confirmed` (partner confirms presence or user checks in) and `invite.attendance.no-show`. These events tie back to partner KPIs and invite reward logic.
-* Task & Reminder Integration: `invite.snoozed` dispatches a `task.intent` payload `{ source_type: "invite", invite_id, reminder_type: "invite_followup" }` so MOD-306 can schedule pushes. When a user selects “Decide later,” remind them before the invite expires. As the event time approaches, the invite module emits a `task.intent` with `reminder_type: "invite_checkin"` targeting the invitee to confirm attendance or mark a no-show. This “check-in” reminder can carry deep links to the `/attendance` endpoint so users can self-report quickly, while partner confirmations remain authoritative. When the tenant shares venue coordinates, the check-in flow can also request a passive location permission check—if the device reports being within the event geofence at the event time, the module sets `attendance_status = confirmed_geo` and emits `invite.attendance.geo-confirmed`, giving partners extra confidence without manual input. (Flutter reference: `native_geofence` package can be used during mock/prototype stages to monitor entry/exit events while keeping the invite module decoupled from the specific plugin.) Future enhancement: once we unlock partner-to-guest messaging, accepted invitees will be able to opt into push channels—or even lightweight chat rooms—so partners and invite trees can coordinate in real time. That capability is deferred beyond v1 and will reuse the Task/Reminder notification rails with additional consent checks.
+* Analytics/CRM Integration: Every fulfillment intent (`invite.fulfillment.step-required`, e.g., pay deposit, upload document) is mirrored to the Account Analytics/CRM module along with contact info so account operators can track outstanding requirements. When tasks complete, the analytics module receives `invite.fulfillment.step-completed` events (emitted by Transaction Bridge or Task & Reminder). Final conversion is measured via attendance events: `invite.attendance.confirmed` (account operator confirms presence or user checks in) and `invite.attendance.no-show`. These events tie back to account KPIs and invite reward logic.
+* Task & Reminder Integration: `invite.snoozed` dispatches a `task.intent` payload `{ source_type: "invite", invite_id, reminder_type: "invite_followup" }` so MOD-306 can schedule pushes. When a user selects “Decide later,” remind them before the invite expires. As the event time approaches, the invite module emits a `task.intent` with `reminder_type: "invite_checkin"` targeting the invitee to confirm attendance or mark a no-show. This “check-in” reminder can carry deep links to the `/attendance` endpoint so users can self-report quickly, while account profile confirmations remain authoritative. When the tenant shares venue coordinates, the check-in flow can also request a passive location permission check—if the device reports being within the event geofence at the event time, the module sets `attendance_status = confirmed_geo` and emits `invite.attendance.geo-confirmed`, giving account profiles extra confidence without manual input. (Flutter reference: `native_geofence` package can be used during mock/prototype stages to monitor entry/exit events while keeping the invite module decoupled from the specific plugin.) Future enhancement: once we unlock account-profile-to-guest messaging, accepted invitees will be able to opt into push channels—or even lightweight chat rooms—so account profiles and invite trees can coordinate in real time. That capability is deferred beyond v1 and will reuse the Task/Reminder notification rails with additional consent checks.
 
 ---
 
@@ -233,4 +242,4 @@ Even on web “unauthenticated” landings, the canonical API is Sanctum-validat
 
 * FCX-02 wires mocked repositories to this contract.
 * Phase 9 extends the module with swipe-style carousels and WhatsApp deep links.
-* Partner Workspace fast-follow consumes `invite_edges` to expose referral funnels to partners without duplicating logic. A dedicated Partner Analytics module will aggregate invitation performance per plan, quota bucket, and channel to support billing and upsell strategies.
+* Account Profile Workspace fast-follow consumes `invite_edges` to expose referral funnels to account operators without duplicating logic. A dedicated Account Analytics module will aggregate invitation performance per plan, quota bucket, and channel to support billing and upsell strategies.

@@ -58,7 +58,7 @@
 
 ## Frontend TODO (Flutter/Web)
 - [ ] ⚪ Events browsing, event detail, and presence confirmation.
-- [ ] ⚪ Invites between users (send/receive/accept/decline) with credited acceptance selection.
+- [ ] ⚪ Invites between users + account profiles (send/receive/accept/decline) with credited acceptance selection (account_profile issuance is admin-assigned in MVP).
 - [ ] ⚪ Favorites for **Artists + Venues**, shown on Home and opening reduced profiles.
 - [ ] ⚪ Reduced Artist profile (tabs: `Sobre` if bio exists, `Eventos`).
 - [ ] ⚪ Reduced Venue profile (tabs: `Sobre` if bio exists, `Como Chegar`, `Eventos`).
@@ -82,16 +82,16 @@
   - [ ] ⚪ Project-specific API route files are additive; boilerplate routes remain exposed by default.
 - [ ] ⚪ Accounts can be created without users (Unmanaged state).
 - [ ] ⚪ Unmanaged accounts become managed by linking/creating a user and granting access.
-- [ ] ⚪ StaticAssets exist as non-partner sources for POIs (landlord-managed; account users read-only).
+- [ ] ⚪ StaticAssets exist as non-account-profile sources for POIs (landlord-managed; account users read-only).
 - [ ] ⚪ POI projection:
   - [ ] ⚪ `map_pois` is the projection store for map queries.
   - [ ] ⚪ Projection updates on create/update/delete of POI-enabled sources (StaticAsset, Event, conditional Account).
 - [ ] ⚪ Landlord permissions (Sanctum abilities) are app-wide (not admin-only):
-  - [ ] ⚪ `can_create_partners`
-  - [ ] ⚪ `can_delete_partners`
-  - [ ] ⚪ `can_view_partners`
-  - [ ] ⚪ `can_manage_partner_all`
-  - [ ] ⚪ `can_manage_partner_unmanaged`
+  - [ ] ⚪ `can_create_account_profiles`
+  - [ ] ⚪ `can_delete_account_profiles`
+  - [ ] ⚪ `can_view_account_profiles`
+  - [ ] ⚪ `can_manage_account_profiles_all`
+  - [ ] ⚪ `can_manage_account_profiles_unmanaged`
   - [ ] ⚪ `can_manage_assets`
 - [ ] ⚪ Account user permissions (Sanctum abilities):
   - [ ] ⚪ `can_manage_details`
@@ -122,7 +122,7 @@
 - [ ] ⚪ Map: `foundation_documentation/todos/active/mvp_slices/TODO-v1-map.md`
 - [ ] ⚪ Artist profile + favorites: `foundation_documentation/todos/active/mvp_slices/TODO-v1-artist-favorites-and-profile.md`
 - [ ] ⚪ Venue profile: `foundation_documentation/todos/active/mvp_slices/TODO-v1-venue-profile.md`
-- [ ] ⚪ Tenant/Admin area: `foundation_documentation/todos/active/mvp_slices/TODO-v1-partner-workspace.md`
+- [ ] ⚪ Tenant/Admin area (Account Workspace): `foundation_documentation/todos/active/mvp_slices/TODO-v1-partner-workspace.md`
 - [ ] ⚪ Web-to-app policy: `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md`
 - [ ] ⚪ Telemetry + push: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-and-push.md`
 - [ ] ⚪ UI/UX polish: `foundation_documentation/todos/active/mvp_slices/TODO-mvp-ui-polish.md`
@@ -141,6 +141,6 @@
 
 ## Explicitly Deferred (VNext)
 - [ ] ⚪ Sponsors as POIs (multi-location/moving model needed).
-- [ ] ⚪ Partner-issued invites + partner invite metrics.
-- [ ] ⚪ Full partner profile modules beyond reduced tabs.
+- [ ] ⚪ Account profile invite metrics (deferred post‑MVP).
+- [ ] ⚪ Full account profile modules beyond reduced tabs.
 - [ ] ⚪ Backend-persistent favorites.

@@ -52,7 +52,7 @@
 
 ## Definition of Done
 - [x] ✅ Anonymous tracking identifies/merges on login.
-- [x] ✅ Required properties populated where applicable (`event_id`, `inviter_kind`, `inviter_id`, `partner_id`, `source`).
+- [x] ✅ Required properties populated where applicable (`event_id`, `inviter_kind`, `inviter_id`, `partner_profile_id`, `source`).
 - [x] ✅ `event_tracker_handler` supports idempotency (`$insert_id`) and exposes delivery outcomes.
 - [x] ✅ `track_all=true` bypasses the `events` list for Mixpanel + webhook trackers.
 - [x] ✅ Frontend no longer logs `invite_received` when opening invite flow.
@@ -77,19 +77,19 @@
 - [x] ✅ Custom webhook emits identity_merge payload when alias is triggered.
 - [x] ✅ Web custom webhook payload includes browser/device metadata (user agent, platform, browser name, viewport). (2026-01-15)
 - [x] ✅ App init events emitted with tenant/user properties. (2026-01-14)
-- [ ] ⚪ App lifecycle events coalesce rapid transitions and include `state` + `sequence`.
-- [ ] ⚪ app_lifecycle is disabled on web (mobile-only emission).
-- [ ] ⚪ invite_opened fires on every top invite change (stacked invites).
+- [x] ✅ App lifecycle events coalesce rapid transitions and include `state` + `sequence`.
+- [x] ✅ app_lifecycle is disabled on web (mobile-only emission).
+- [x] ✅ invite_opened fires on every top invite change (stacked invites).
 - [x] ✅ App background/foreground events removed in favor of app_lifecycle. (2026-01-14)
 - [x] ✅ Location context included on all events when permission granted (lat/lng/accuracy/timestamp).
 - [x] ✅ Section view events emitted on header visibility with section_title + position_index + screen_context.
 - [x] ✅ Telemetry uses tenant-configured location freshness threshold (default 5 minutes, under `telemetry.location_freshness_minutes`). (2026-01-13)
-- [ ] ⚪ Production web telemetry logs emit for screen_view timed start/finish and route observer transitions.
-- [ ] ⚪ Telemetry finish/flush is fire-and-forget (non-blocking) on all platforms and logs queue failures.
-- [ ] ⚪ Web uses AppRouter-only screen_view timing (no NavigatorObserver duplication).
-- [ ] ⚪ Timed event start succeeds on web (insert-id fallback) and logs failures if they occur.
-- [ ] ⚪ App init logs a version marker in production builds for deployment verification.
-- [ ] ⚪ Telemetry validation steps completed.
+- [x] ✅ Production web telemetry logs emit for screen_view timed start/finish and route observer transitions.
+- [x] ✅ Telemetry finish/flush is fire-and-forget (non-blocking) on all platforms and logs queue failures.
+- [x] ✅ Web uses AppRouter-only screen_view timing (no NavigatorObserver duplication).
+- [x] ✅ Timed event start succeeds on web (insert-id fallback) and logs failures if they occur.
+- [x] ✅ App init logs a version marker in production builds for deployment verification.
+- [x] ✅ Telemetry validation steps completed.
 
 ## Validation Steps
 - [x] ✅ Verify Mixpanel events appear for invite and event funnels (with `tenant_id` and `user_id` when authenticated).
@@ -99,30 +99,30 @@
 - [x] ✅ Verify Mixpanel alias runs once per user/device (no repeated alias on subsequent launches).
 - [x] ✅ Verify Mixpanel alias is skipped when distinct ID already equals user ID.
 - [x] ✅ Verify screen_view fires for all routes (including overlays) once per transition.
-- [ ] ⚪ Verify web initial screen_view starts on first render and emits duration on lifecycle flush.
-- [ ] ⚪ Verify screen_view duration appears in Mixpanel via time_event.
-- [ ] ⚪ Verify event_opened duration appears in Mixpanel via time_event.
-- [ ] ⚪ Verify invite_opened duration appears in Mixpanel via time_event.
-- [ ] ⚪ Verify poi_opened duration appears in Mixpanel via time_event.
-- [ ] ⚪ Verify section_viewed duration appears in Mixpanel via time_event.
-- [ ] ⚪ Verify timed events emit when app becomes inactive/paused/hidden/detached.
-- [ ] ⚪ Verify web lifecycle observer flushes timed events on tab hide/blur/pagehide.
+- [x] ✅ Verify web initial screen_view starts on first render and emits duration on lifecycle flush.
+- [x] ✅ Verify screen_view duration appears in Mixpanel via time_event.
+- [x] ✅ Verify event_opened duration appears in Mixpanel via time_event.
+- [x] ✅ Verify invite_opened duration appears in Mixpanel via time_event.
+- [x] ✅ Verify poi_opened duration appears in Mixpanel via time_event.
+- [x] ✅ Verify section_viewed duration appears in Mixpanel via time_event.
+- [x] ✅ Verify timed events emit when app becomes inactive/paused/hidden/detached.
+- [x] ✅ Verify web lifecycle observer flushes timed events on tab hide/blur/pagehide.
 - [x] ✅ Verify map telemetry captures filters/search/region/directions interactions with non-empty properties.
 - [x] ✅ Verify webhook payload uses the unified envelope and includes identity_merge when users merge.
-- [ ] ⚪ Verify web webhook payload includes browser/device metadata (user agent, platform, browser name, viewport).
+- [x] ✅ Verify web webhook payload includes browser/device metadata (user agent, platform, browser name, viewport).
 - [x] ✅ Verify `track_all=true` emits events that are not listed in `events`.
-- [ ] ⚪ Verify app_lifecycle emits one event per transition burst with `state` + `sequence`.
-- [ ] ⚪ Verify web does not emit app_lifecycle events.
-- [ ] ⚪ Verify stacked invites emit invite_opened for each new top card.
-- [ ] ⚪ Verify app_background/app_foreground no longer emit.
+- [x] ✅ Verify app_lifecycle emits one event per transition burst with `state` + `sequence`.
+- [x] ✅ Verify web does not emit app_lifecycle events.
+- [x] ✅ Verify stacked invites emit invite_opened for each new top card.
+- [x] ✅ Verify app_background/app_foreground no longer emit.
 - [x] ✅ Verify location context appears on events when permission is granted (lat/lng/accuracy/timestamp).
 - [x] ✅ Verify section view events fire when section headers become visible.
 - [x] ✅ Verify location freshness uses tenant settings default (5 minutes) when not provided. (2026-01-13)
-- [ ] ⚪ Verify production logs show screen_view timing start/finish for web navigation.
-- [ ] ⚪ Verify UI actions (close modal, reject invite) complete even when telemetry queue fails or retries.
-- [ ] ⚪ Verify web screen_view duration fires once per route change (no duplicates).
-- [ ] ⚪ Verify web timed event start no longer fails silently (see logs or Mixpanel durations).
-- [ ] ⚪ Verify app init prints the deployment/version marker in production console logs.
+- [x] ✅ Verify production logs show screen_view timing start/finish for web navigation.
+- [x] ✅ Verify UI actions (close modal, reject invite) complete even when telemetry queue fails or retries.
+- [x] ✅ Verify web screen_view duration fires once per route change (no duplicates).
+- [x] ✅ Verify web timed event start no longer fails silently (see logs or Mixpanel durations).
+- [x] ✅ Verify app init prints the deployment/version marker in production console logs.
 
 ## Decisions
 - Telemetry remains non-optimistic; events fire only after success responses.

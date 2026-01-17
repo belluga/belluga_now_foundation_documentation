@@ -11,8 +11,8 @@ The Multidimensional Insights Service provides a generalized analytics and scori
 
 Core capabilities:
 
-* **Insight Model Registry:** Tenants define named analysis models such as "invite conversion health" or "partner engagement maturity."
-* **Insight Topics:** Each topic represents an entity being scored (e.g., partner, invite cohort, marketing source).
+* **Insight Model Registry:** Tenants define named analysis models such as "invite conversion health" or "account profile engagement maturity."
+* **Insight Topics:** Each topic represents an entity being scored (e.g., account profile, invite cohort, marketing source).
 * **Dimension Calculations:** Models aggregate weighted metrics across arbitrary dimensions with configurable formulas.
 * **Snapshot Streams:** The service produces immutable insight snapshots and optional leaderboard projections for downstream clients.
 * **Radar-Ready Outputs:** Dimension scores are formatted to feed radar/spider charts so tenant apps can visualize multi-dimensional health for events (e.g., vibe, logistics, hospitality, sustainability) or customers (e.g., engagement, reliability, promotion strength).
@@ -83,7 +83,7 @@ Although deployed externally, the service mirrors our documentation standards so
 ### 3.3 `insight_snapshots`
 
 * **Purpose:** Stores immutable scoring outputs per topic and model. Guar[APP]ari tenants commonly maintain two model families:
-    * **Event Quality Radar:** topics represent events/offers and dimensions can include `experience_quality`, `local_culture_index`, `inclusivity`, `logistics_score`, `partner_hospitality`. Scores render as radar graphs in tenant/partner UIs.
+    * **Event Quality Radar:** topics represent events/offers and dimensions can include `experience_quality`, `local_culture_index`, `inclusivity`, `logistics_score`, `account_profile_hospitality`. Scores render as radar graphs in tenant/account workspace UIs.
     * **Customer Engagement Radar (FCM-inspired):** topics represent users or invite trees and dimensions can include `invite_conversion`, `attendance_reliability`, `promotion_strength`, `feedback_sentiment`. Used to personalize rewards and highlight superfans.
 * **Structure:**
     ```json
@@ -112,8 +112,8 @@ Although deployed externally, the service mirrors our documentation standards so
 
 ### 3.4 Event Streams
 
-* `insights.topic-events.{tenantKey}` – carries normalized business events (invite accepted, partner offer claimed, POI favorited, etc.).
-* `insights.snapshot-updates.{tenantKey}` – emits new snapshot metadata for downstream caches (Flutter mock backend, partner dashboards).
+* `insights.topic-events.{tenantKey}` – carries normalized business events (invite accepted, account profile offer claimed, POI favorited, etc.).
+* `insights.snapshot-updates.{tenantKey}` – emits new snapshot metadata for downstream caches (Flutter mock backend, account workspace dashboards).
 
 ---
 
@@ -127,6 +127,6 @@ Although deployed externally, the service mirrors our documentation standards so
 
 ## 5. Roadmap Alignment
 
-* Phase 8 (Gamification Spine) of the Flutter roadmap consumes this service for ranking invites and partners and for rendering customer radar badges.
+* Phase 8 (Gamification Spine) of the Flutter roadmap consumes this service for ranking invites and account profiles and for rendering customer radar badges.
 * Phase 10 (Tenant Home Aggregations) depends on leaderboard snapshots to feature trending offerings and radar summaries for marquee events.
-* Future Partner Workspace modules reuse the same leaderboards for incentive design without re-implementing scoring logic and surface radar graphs for events/customers directly to partners.
+* Future Account Profile Workspace modules reuse the same leaderboards for incentive design without re-implementing scoring logic and surface radar graphs for events/customers directly to account operators.
