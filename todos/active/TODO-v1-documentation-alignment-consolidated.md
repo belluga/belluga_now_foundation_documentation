@@ -9,7 +9,7 @@ Consolidate and align documentation updates from this session into a single sour
 ## Scope
 - Consolidate the recent documentation decisions into one TODO and remove the session-specific TODOs that were created for individual updates.
 - Ensure all affected documentation reflects:
-  - **Account Profile** (generic) as 1:N under Account.
+  - **Account Profile** (generic) as 1:1 under Account (single profile per account).
   - `inviter_principal.kind = user|account_profile`.
   - Account Profile invites are allowed in MVP and are **admin-assigned** (no memberships yet).
   - User invites are limited to contacts/installed users; account profiles can target favorites/followers.
@@ -19,10 +19,10 @@ Consolidate and align documentation updates from this session into a single sour
 - Replace any lingering “partner-issued invites deferred” language with “account_profile invites allowed; dashboards deferred.”
 - Make it explicit that `account_profile.location` is optional and only geo-enabled profiles are indexed/queried.
 - Document the “user upgrades to influencer” path as: create Account + AccountProfile + link operator (admin-assigned in MVP; self-serve later).
-- Make it explicit that the **AccountProfile** model is intended to live in the boilerplate (generic, project-defined types).
+- Make it explicit that the **AccountProfile** model is **project-specific** (not upstream boilerplate) to avoid coupling other boilerplate consumers.
 - Resolve merge conflict markers in `foundation_documentation/system_roadmap.md` and reconcile endpoint status notes.
 - Align partner terminology to Account/Account Profile where required:
-  - Update `endpoints_mvp_contracts.md` Account + Partner Data Strategy to confirm generic AccountProfile in boilerplate.
+  - Update `endpoints_mvp_contracts.md` Account + Partner Data Strategy to confirm project-specific AccountProfile.
   - Update `flutter_client_experience_module.md` to prefer Account/AccountProfile terms; note Partner is a tenant-facing label (future label system).
   - Rename roadmap Phase 12 to **Account Workspace** (includes Account Profile Management).
   - Update `invite_and_social_loop_module.md` to use Account plan/quota naming (post‑MVP); MVP = account user invite flow only.
@@ -30,7 +30,7 @@ Consolidate and align documentation updates from this session into a single sour
 - Standardize partner-facing endpoints to `/api/v1/account_profiles` (replace `/partners`) and align related links/contracts (`/account_profile_links`).
 
 ## Task Checklist
-- [x] ✅ Production‑Ready Align all module docs with AccountProfile 1:N + boilerplate positioning.
+- [x] ✅ Production‑Ready Align all module docs with AccountProfile 1:1 + project-specific positioning.
 - [x] ✅ Production‑Ready Ensure invite rules + inviter principal kind are consistent everywhere.
 - [x] ✅ Production‑Ready Ensure push message creation requires `account_profile_id` on account + tenant routes.
 - [x] ✅ Production‑Ready Replace remaining `partner_id`/`partner_profile_id` references with `account_profile_id` where they represent profiles (active docs only).
@@ -73,11 +73,11 @@ Consolidate and align documentation updates from this session into a single sour
 ## Progress So Far
 - Consolidated this session’s documentation updates under this single TODO.
 - Removed the session-specific TODOs listed in Scope.
-- Documentation reflects account_profile 1:N, inviter principal kind, invite audience eligibility, admin-assigned MVP issuance, push profile requirement, and metrics capture now / dashboards later.
+- Documentation reflects account_profile 1:1, inviter principal kind, invite audience eligibility, admin-assigned MVP issuance, push profile requirement, and metrics capture now / dashboards later.
 - Replaced remaining `partner_id`/`partner_profile_id` references with `account_profile_id` in active docs (invites, share codes, roadmap, TODOs).
 - Partner terminology alignment completed across strategy, roadmap, Flutter module, invite quotas, and domain entities.
 - Endpoint paths standardized to `account_profiles` and related link endpoints.
-- Added explicit account_profile optional geolocation rule, the user→influencer upgrade flow, and the boilerplate AccountProfile requirement to system architecture principles.
+- Added explicit account_profile optional geolocation rule, the user→influencer upgrade flow, and the project-specific AccountProfile requirement to system architecture principles.
 - Resolved `system_roadmap.md` duplicate environment row and aligned map/event notes to account profiles.
 - Replaced remaining Partner Workspace terminology with Account Profile Workspace in policy and admin module docs.
 - Created implementation TODO: `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-implementation.md`.

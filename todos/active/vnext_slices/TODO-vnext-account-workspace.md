@@ -14,8 +14,8 @@
 - Deferred items: `foundation_documentation/todos/active/TODO-vnext-parking-lot.md`
 
 ## Account + Account Profile Context (VNext)
-- Account remains generic; Account Profiles are 1:N siblings linked by `account_id`.
-- Account Profiles store domain fields like `type`, `tags`, and taxonomy terms (multi‑taxonomy: e.g., Venue can have `cuisines` and `music_genres`).
+- Account remains generic; Account Profiles are **1:1** with Accounts (single profile per account).
+- Account Profiles store domain fields like `profile_type`, `tags`, and taxonomy terms (multi‑taxonomy: e.g., Venue can have `cuisines` and `music_genres`).
 - Discovery uses an aggregation over Account + Account Profile; admin CRUD remains in the tenant/admin route file.
 
 ---
@@ -28,6 +28,12 @@
 ### A2) Tenant branding management
 - [ ] ⚪ Allow tenant admin to edit About, logo, icon, and branding colors.
 
+### A2.1) Temporary Static POIs (VNext)
+- [ ] ⚪ Add `is_temporary` and date range fields for Static Assets.
+- [ ] ⚪ Background job toggles `is_active` based on the date window.
+- [ ] ⚪ Map queries filter by `is_active` only (no time logic at query time).
+- [ ] ⚪ MVP fallback: `is_active` managed manually.
+
 ### A3) Accounts + assets management
 - [ ] ⚪ CRUD accounts (including unmanaged accounts).
 - [ ] ⚪ CRUD StaticAssets (landlord-managed assets within tenant scope).
@@ -35,7 +41,7 @@
 ### A4) Audit + Unmanaged lifecycle
 - [ ] ⚪ Track `created_by` / `updated_by` + `*_by_type` on managed entities.
 - [ ] ⚪ Emit `action_audit_log` entries for create/update/delete actions.
-- [ ] ⚪ Ensure `is_managed` toggles when account access is granted/removed.
+- [ ] ⚪ Ensure `ownership_state` is enforced (`tenant_owned`, `unmanaged`, `user_owned`) with clear transitions.
 
 ---
 

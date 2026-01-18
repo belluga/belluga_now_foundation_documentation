@@ -81,7 +81,7 @@
   - [ ] ⚪ Disallow wildcard (`*`) abilities for tenant/app tokens.
   - [ ] ⚪ Project-specific API route files are additive; boilerplate routes remain exposed by default.
 - [ ] ⚪ Accounts can be created without users (Unmanaged state).
-- [ ] ⚪ Unmanaged accounts become managed by linking/creating a user and granting access.
+- [ ] ⚪ Unmanaged accounts become managed by linking/creating a user and granting access (post‑MVP).
 - [ ] ⚪ StaticAssets exist as non-account-profile sources for POIs (landlord-managed; account users read-only).
 - [ ] ⚪ POI projection:
   - [ ] ⚪ `map_pois` is the projection store for map queries.

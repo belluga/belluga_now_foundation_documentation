@@ -12,9 +12,10 @@ This list serves as the domain source of truth referenced by the `system_archite
 ## 2. Core Business Entities
 
 * **Primary Entity:** **User** (The consumer, including moratoriums and tourists, who discovers, books, and shares experiences). Users exist as soon as an identity token is issued and transition from unauthenticated to authenticated without changing entity type; identity state is a lifecycle attribute, not a separate user model.
-* **Supporting Entity A:** **Partner (Label, Future Capability)** — the tenant-facing label applied to **Account Profiles** that operate as B2B providers (restaurants, artists, guides, merchants). The label system is deferred; in V1 we still model **Account Profiles** as the canonical entity and project account-profile-facing summaries from them. Account profile types remain explicitly enumerated for UI/analytics: `artist`, `venue`, `experience_provider`, `influencer`, and `curator`. Invite surfaces consume the `InvitePartnerSummary` aggregate (id, partner type, display name, tagline, hero + logo URIs) so Flutter and Laravel share the same social-proof branding contract. The canonical account-profile-facing aggregate (id, profile, verification flags, contact information, invite/offer badges, engagement metrics, semantic tags) is produced from Account Profiles and shared via value objects to preserve invariants. Engagement metrics are type-aware (e.g., live-status for artists, presence counts for venues, invite counts for influencers) and are always non-negative integers or bounded strings represented as value objects rather than raw primitives.
-* **Supporting Entity B:** **Offering** (The catalog of consumable items, encompassing Events, Products, and Experiences/Guides).
-* **Supporting Entity C:** **Transaction** (The record of action and value exchange, including Bookings, Orders, Payments, and social Invitations).
+* **Supporting Entity A:** **Organization** — optional grouping of **accounts belonging to the same real‑world entity** (tenant, sponsor, hotel group, multi‑location brand). Organizations are **not required**; most accounts will be standalone. MVP usage is grouping only; memberships/billing can be layered later.
+* **Supporting Entity B:** **Partner (Label, Future Capability)** — the tenant-facing label applied to **Account Profiles** that operate as B2B providers (restaurants, artists, guides, merchants). The label system is deferred; in V1 we still model **Account Profiles** as the canonical entity and project account-profile-facing summaries from them. **Account profile types are not hardcoded enums**; they are provided by a **Profile Type Registry** (WP‑like custom post types, without WP meta) fetched from tenant settings and cached locally. The registry defines label, hierarchy (`parent_type`), allowed taxonomies, capabilities (e.g., `is_favoritable`, `is_poi_enabled`), and default UI modules per type. Taxonomies apply to a type and all descendants; children may add but never remove parent behavior. Invite surfaces consume the `InvitePartnerSummary` aggregate (id, partner type, display name, tagline, hero + logo URIs) so Flutter and Laravel share the same social-proof branding contract. The canonical account-profile-facing aggregate (id, profile, verification flags, contact information, invite/offer badges, engagement metrics, semantic tags) is produced from Account Profiles and shared via value objects to preserve invariants. Engagement metrics are type-aware (e.g., live-status for artists, presence counts for venues, invite counts for influencers) and are always non-negative integers or bounded strings represented as value objects rather than raw primitives. Accounts are the permission boundary and have **exactly one Account Profile** (1:1), with `ownership_state` controlling whether the account is tenant_owned, unmanaged, or user_owned. **Account Profile is implemented in this project** (not upstream boilerplate) to avoid coupling other boilerplate consumers.
+* **Supporting Entity C:** **Offering** (The catalog of consumable items, encompassing Events, Products, and Experiences/Guides).
+* **Supporting Entity D:** **Transaction** (The record of action and value exchange, including Bookings, Orders, Payments, and social Invitations).
 
 ### Location & Venue Field Definitions
 
@@ -44,7 +45,7 @@ This list serves as the domain source of truth referenced by the `system_archite
 
 ### Account Profile Label Field Definitions
 
-- `account_profile_type` (enum): allowed values `artist`, `venue`, `experience_provider`, `influencer`, `curator`. Drives engagement metrics, labeling, and permissioning per role.
+- `account_profile_type` (string): **must match** a `profile_type_registry.type` entry from tenant settings. Drives engagement metrics, labeling, and permissioning per role.
 - `accepted_invites` (int): cumulative, non-negative count of invites accepted that are attributable to the account profile; zero default; must not be null.
 - `engagement` (object): optional; type-specific metrics expressed via value objects.
   - For `artist`: `status_label` (bounded string, <=32 chars, e.g., “Tocando agora”), `next_show_at` (ISO8601, optional).
@@ -59,6 +60,28 @@ This list serves as the domain source of truth referenced by the `system_archite
   - `curator`: curatorial focus (e.g., história, causos).
   - `influencer` (personalidade): focus areas (e.g., lifestyle, baladas).
 - `taxonomy_terms` (array of objects): optional, WordPress-style multi-taxonomy list of `{type, value}` pairs (e.g., `{type: cuisine, value: italian}` or `{type: music_genre, value: samba}`). Account profiles may carry multiple taxonomy types simultaneously (venues can have cuisines + music genres).
+
+### Account Ownership Field Definitions
+
+- `ownership_state` (enum): `tenant_owned`, `unmanaged`, `user_owned`.
+  - **MVP note:** `ownership_state` is derived (not required in payload/response); stored field can be added post‑MVP.
+
+**Field Definitions**
+- `ownership_state`
+  - `tenant_owned`: Official tenant-owned accounts (may be grouped under an Organization or standalone).
+  - `unmanaged`: Tenant-managed but not owned (must be standalone; no organization).
+  - `user_owned`: User-owned accounts. In **MVP**, only the auto-created **personal** account exists (private by default) and is created **when the user is identified/authenticated**. Post‑MVP, users may **claim unmanaged accounts** or create **additional business accounts**; those remain `user_owned`.
+
+### Audit Field Definitions (Account + Account Profile)
+
+- `created_by` (string): Actor id (user or landlord user) that created the record.
+- `created_by_type` (enum): `tenant`, `landlord`.
+- `updated_by` (string): Actor id (user or landlord user) that last updated the record.
+- `updated_by_type` (enum): `tenant`, `landlord`.
+
+### Organization Field Definitions
+
+- `organization_id` (ObjectId, optional): account grouping reference for multi‑account entities (tenant, sponsor, hotel group). Optional by design; most accounts will not have one.
 
 ### Social Graph & Presence Field Definitions
 

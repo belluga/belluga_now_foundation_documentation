@@ -3,7 +3,7 @@
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
 **Status:** Active  
 **Owners:** Backend Team + Delphi (Flutter) + Product  
-**Objective:** Deliver a single Account Profile detail experience that adapts to profile types (Artist, Venue in MVP) via configuration, with favorites behavior driven by profile capabilities. “Partner” remains a tenant-facing label; the canonical model is Account Profile (1:N per Account).
+**Objective:** Deliver a single Account Profile detail experience that adapts to profile types (Artist, Venue in MVP) via configuration, with favorites behavior driven by profile capabilities. “Partner” remains a tenant-facing label; the canonical model is Account Profile (1:1 per Account).
 
 ---
 

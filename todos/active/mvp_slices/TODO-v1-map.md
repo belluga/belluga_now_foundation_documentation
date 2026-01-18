@@ -19,12 +19,14 @@
 ### A0) Decision Notes
 - [ ] ⚪ Map POI endpoint contract: confirm whether the intended path is `/api/v1/map/pois` (roadmap) or `/api/v1/app/map/pois` (current implementation), then align.
 - [ ] ⚪ Define `map_pois` schema contract (fields + enums) in `foundation_documentation/modules/map_poi_module.md` and `endpoints_mvp_contracts.md`.
-- [ ] ⚪ Document `/map/pois`, `/map/filters`, and `/map/pois/stream` request/response contracts (query params, filters, response shape, SSE payload).
+- [ ] ⚪ Document `/map/pois`, `/map/filters`, and `/map/pois/stream` request/response contracts (query params, **taxonomy filters**, response shape, SSE payload).
 - [ ] ⚪ Remove `movement_radius_meters` from POI contracts/mocks (moving POIs deferred; keep V1 static/event focus).
 - [ ] ⚪ Define POI source rules by `account_profile.profile_type` (which types are POI-enabled) and where the toggle lives.
 - [ ] ⚪ Make the projection rule explicit: **no location → no POI projection** for account profiles.
 - [ ] ⚪ Set priority policy defaults (numeric scale + initial ordering) for POI stacking.
 - [ ] ⚪ Document access/scoping (tenant vs admin) for map endpoints.
+- [ ] ⚪ MVP: map queries **must** filter by `is_active` only (manual toggle in MVP).
+- [ ] ⚪ Map filters must include **taxonomy terms** (type + values) when the registry exposes them.
 
 ### A1) `map_pois` projection persistence
 - [ ] ⚪ On create/update of Account/Account Profile, StaticAsset, or Event (and POI-enabled custom objects), upsert linked `map_pois` record (transactional / consistent write)
@@ -41,7 +43,7 @@
 
 ### A2.1) Realtime deltas (SSE)
 - [ ] ⚪ Expose `/api/v1/map/pois/stream` with delta events (created/updated/deleted)
-- [ ] ⚪ Stream filters match `/api/v1/map/pois` (viewport, categories, tags, search, geo)
+- [ ] ⚪ Stream filters match `/api/v1/map/pois` (viewport, categories, **taxonomy**, tags, search, geo)
 
 ### A3) Same-spot stacking (V1 exact-key)
 - [ ] ⚪ Normalize coordinates on write (fixed precision, e.g., 6 decimals)
@@ -64,6 +66,7 @@
 - [ ] ⚪ Render dynamic Event POIs distinctly from static POIs
 - [ ] ⚪ Keep categories coarse; use tags for subcategories (no enum expansion in V1)
   - StaticAsset and Event are POI-enabled sources; Account/Account Profile is conditional per MVP scope.
+- [ ] ⚪ If taxonomy filters are returned, render them under Map filters (grouped by taxonomy type).
 - [ ] ⚪ MVP tiles: use public OpenStreetMap tiles (no key), with explicit limitation to dev + early MVP.
 - [ ] ⚪ Migrate map rendering from `free_map` to `flutter_map` to unblock `package_info_plus` upgrades.
 - [x] ✅ Expose both map implementations via Menu actions (City map + Prototype) for comparison before removing one.
@@ -123,6 +126,10 @@
 - POI-enabled by default: `venue`, `restaurant`, `experience_provider`.
 - POI-disabled by default: `artist`, `influencer`, `curator` (unless explicitly toggled).
 
+### D5) Static Assets remain separate (decision)
+- Static Assets are **not** Account Profiles. They project into `map_pois` with `ref_type=static`.
+- They are tenant/landlord‑managed POIs without operator linkage or invite/favorite semantics.
+
 ### D3) Priority defaults (proposed)
 - 100: Sponsored/boosted  
 - 80: Live event  
@@ -131,5 +138,5 @@
 - 20: Landmark/static asset
 
 ### D4) Endpoint access (proposed)
-- `/map/pois` and `/map/filters`: tenant-authenticated (app) + anonymous token allowed for read-only discovery.
+- `/map/pois` and `/map/filters`: tenant-authenticated (app) + anonymous token allowed for read-only discovery. Filters must include taxonomy types/values when available.
 - Admin endpoints (if any): tenant/admin only.

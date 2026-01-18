@@ -47,9 +47,12 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/settings/firebase` | Tenant Admin | Update tenant firebase settings. | Implemented | Dedicated endpoint for firebase config. |
 | `/api/v1/settings/telemetry` | Tenant Admin | Manage telemetry integrations (list + upsert). | Implemented | Upsert by `type`; unique types enforced. |
 | `/api/v1/settings/telemetry/{type}` | Tenant Admin | Remove telemetry integration by type. | Implemented | DELETE removes a single type. |
-| `/api/v1/accounts` | Tenant Admin | List accounts (unmanaged + managed). | Planned | Admin/tenant scoped, page-based. |
-| `/api/v1/accounts` | Tenant Admin | Create account (unmanaged). | Planned | Creates account without linked user. |
-| `/api/v1/accounts/{account_id}` | Tenant Admin | Update account (partial). | Planned | Patch account metadata + lifecycle state. |
+| `/api/v1/organizations` | Tenant Admin | List organizations (grouping only). | Defined | Tenant‑scoped; landlord users only. Optional grouping for tenant-owned accounts. |
+| `/api/v1/organizations` | Tenant Admin | Create organization. | Defined | Tenant‑scoped; landlord users only. Minimal MVP fields: `name`, optional `slug`. |
+| `/api/v1/organizations/{organization_id}` | Tenant Admin | Organization detail. | Defined | Tenant‑scoped; landlord users only. Returns account_count + metadata. |
+| `/api/v1/accounts` | Tenant Admin | List accounts (tenant-owned, unmanaged, user-owned). | Defined | Tenant‑scoped; landlord users only. `ownership_state` is derived in MVP. |
+| `/api/v1/accounts` | Tenant Admin | Create account. | Defined | Tenant‑scoped; landlord users only. Uses boilerplate payload (`name` + `document`). |
+| `/api/v1/accounts/{account_id}` | Tenant Admin | Update account (partial). | Defined | Tenant‑scoped; landlord users only. Patch name/document (ownership_state derived in MVP). |
 | `/api/v1/assets` | Tenant Admin | List assets. | Planned | Page-based admin listing. |
 | `/api/v1/assets/{asset_id}` | Tenant Admin | Get asset detail. | Planned | Returns asset metadata + URLs. |
 | `/api/v1/assets` | Tenant Admin | Create asset. | Planned | Upload/register media for tenant assets. |

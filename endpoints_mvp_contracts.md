@@ -56,6 +56,11 @@
 
 **Client retry policy (Flutter):** up to 3 attempts with delays of 200ms then 800ms; fail hard after final attempt.
 
+### `POST /auth/register/password`
+**Purpose:** Register an authenticated user.  
+**Response:** Must include the same payload as `GET /me` (or embed it under a `me` key) so the client does not need a follow‑up request.  
+**Side effect:** On first authenticated identification, backend auto‑creates the user’s **personal Account + Account Profile** (user_owned, private by default).
+
 ### `GET /auth/token_validate`
 **Purpose:** Validate the bearer token and return a minimal user profile.  
 **Request (headers):** `Authorization: Bearer {token}`  
@@ -758,17 +763,73 @@
 
 ## 7) Tenant/Admin Area (Authenticated)
 
-**Admin routing:** endpoints in this section are served by the tenant/admin route file (no `/admin` prefix). Keep admin vs app separation by **route file**, not path prefix.
+**Admin routing:** tenant management endpoints live under **tenant scope** (`/api/v1/*`) and are restricted to landlord users via abilities. Landlord/global routes remain under `/admin/api/v1/*`.
 
 ### Account + Account Profile Data Strategy (MVP Decision)
-- **Account** stays generic (core boilerplate model).
-- **Account Profile** is a first-class domain model, stored separately and linked **1:N** to `account_id`.
+- **Account** stays generic (core boilerplate model) and is the permission boundary.
+- **Account Profile** is a first-class domain model, stored separately and linked **1:1** to `account_id`.
+- **Organization** is optional and groups accounts belonging to the same real‑world entity (tenant, sponsor, hotel group). Most accounts will have **no org**.
+- **Ownership State** is a single conceptual flag on Account: `tenant_owned`, `unmanaged`, `user_owned`.  
+  **MVP note:** derived (not required in payload/response); unmanaged accounts are standalone (no org).
 - **Discovery** should be served by a MongoDB aggregation that joins Account + Account Profile and returns a **Discovery DTO** (not the core models), enabling filters (tags/type/search) without polluting the base Account.
 - **Auth Policy (Upstream):** wildcard (`*`) abilities are prohibited for tenant/app tokens; abilities must be explicit. This must be implemented in the upstream Laravel core and then merged into this project.
-- **Boilerplate policy (updated):** the boilerplate **does** include a generic `AccountProfile` model as the canonical 1:N identity unit. Projects extend the model via configuration (profile types, labels, capabilities) rather than replacing the base implementation.
+- **Project policy:** the `AccountProfile` model is implemented **in this project** (not upstream boilerplate) to avoid coupling unrelated boilerplate consumers. The model remains a generic 1:1 identity unit under Account, but contracts and behavior are owned here.
 - **Project routes (explicit instruction):** create project-specific route files (e.g., `routes/api/project_api_v1.php`) and register only those for the project runtime. Do **not** expose boilerplate CRUD routes in the project API surface.
 
-### `GET /accounts`
+### `GET /api/v1/organizations`
+**Purpose:** List organizations (grouping only).  
+**Response:**
+```json
+{
+  "tenant_id": "string",
+  "data": [
+    {
+      "organization_id": "string",
+      "name": "string",
+      "slug": "string?",
+      "account_count": 0
+    }
+  ]
+}
+```
+
+### `POST /api/v1/organizations`
+**Purpose:** Create organization.  
+**Request (body):**
+```json
+{
+  "name": "string",
+  "slug": "string?"
+}
+```
+**Response:**
+```json
+{
+  "tenant_id": "string",
+  "data": {
+    "organization_id": "string",
+    "name": "string",
+    "slug": "string?"
+  }
+}
+```
+
+### `GET /api/v1/organizations/{organization_id}`
+**Purpose:** Organization detail.  
+**Response:**
+```json
+{
+  "tenant_id": "string",
+  "data": {
+    "organization_id": "string",
+    "name": "string",
+    "slug": "string?",
+    "account_count": 0
+  }
+}
+```
+
+### `GET /api/v1/accounts`
 **Purpose:** List accounts (including unmanaged).  
 **Pagination:** Page-based (`page`, `per_page`); no cursor.
 **Response:**
@@ -779,12 +840,10 @@
     {
       "account_id": "string",
       "name": "string",
-      "type": "artist|venue|restaurant|culture|other",
-      "category": "string?",
-      "tags": ["string"],
-      "location": { "lat": 0.0, "lng": 0.0 },
-      "is_managed": false,
-      "linked_user_id": "string?",
+      "document": {
+        "type": "cpf|cnpj",
+        "number": "string"
+      },
       "updated_at": "2025-01-01T00:00:00Z",
       "created_at": "2025-01-01T00:00:00Z"
     }
@@ -795,10 +854,9 @@
   "total": 0
 }
 ```
-**Field Definitions**
-- `type`: `artist`, `venue`, `restaurant`, `culture`, `other`.
+**Notes:** `ownership_state` is **derived in MVP** (not required in payload/response).
 
-### `POST /accounts`
+### `POST /api/v1/accounts`
 **Purpose:** Create account.  
 **Request (body):**
 ```json
@@ -829,10 +887,10 @@
   }
 }
 ```
-**Field Definitions**
+**Notes:** `ownership_state` is **derived in MVP** (not required in payload/response).
 - `document.type`: `cpf`, `cnpj`.
 
-### `PATCH /accounts/{account_id}`
+### `PATCH /api/v1/accounts/{account_id}`
 **Purpose:** Update account details.  
 **Request (body):** same fields as create (partial).  
 **Response:**
@@ -851,7 +909,7 @@
   }
 }
 ```
-**Field Definitions**
+**Notes:** `ownership_state` is **derived in MVP** (not required in payload/response).
 - `document.type`: `cpf`, `cnpj`.
 
 ### `GET /assets`

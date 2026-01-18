@@ -126,6 +126,8 @@ Query-time window policy (backend settings example):
 
 This ensures future events/campaigns do not appear immediately when created, while still allowing the backend to tune visibility without rewriting data.
 
+**Temporary Static POIs (VNext):** Static Assets may be marked as temporary (`is_temporary`) with a date range. A background job flips `is_active` based on the window. Map queries always filter by `is_active` only (no time logic at query time). In MVP, `is_active` is managed manually.
+
 #### Example: “Promotional Coupon” Custom Object (POI-enabled)
 
 Scenario: An account profile wants a time-bound promotion (“Pague 1, leve 2” de cerveja). This can be modeled as a POI-enabled custom object type (it may be “account-profile-like” from the map’s point of view, but it is not required to be an Account Profile record).

@@ -25,11 +25,18 @@
 
 - **Full account profile modular tabs for all profile types**
   - V1 intent: keep minimal reduced profiles; defer richer modules (store, galleries, curated content) to when Account Profile Blueprints/Capabilities are backend-driven.
+- **Account Profile slug update endpoint (study)**
+  - Reason: MVP treats slugs as immutable. VNext should evaluate a dedicated endpoint with audit trail, rate limits, and redirect mapping to preserve deep links.
+- **Capability evaluator + enforcement (VNext)**
+  - Reason: MVP treats capabilities as registry flags only. VNext should add a `CapabilityGate` (or equivalent policy service) to evaluate complex capabilities (e.g., `can_issue_invites`) against profile flags, user abilities, tenant settings, and plan limits.
 
 ## F) Account Self-Management (Deferred)
 
 - **Account profile self-management area**
   - Reason: MVP uses tenant/admin area; account profile self-management comes next.
+- **Account claim endpoint (attach user + ownership_state transition)**
+  - Reason: MVP has no operator attachment. VNext should introduce a transactional claim flow that attaches a user to an unmanaged account and flips `ownership_state` to `user_owned`.
+  - Tracking: `foundation_documentation/todos/active/vnext_slices/TODO-vnext-account-claim-flow.md`
 
 ## E) Invites & Metrics (Deferred)
 

@@ -18,6 +18,153 @@ Placeholder for the Tenant Administration (landlord) interface where city govern
 
 ## 3. API Endpoint Definitions
 
+### `GET /api/v1/organizations`
+List organizations for the tenant.
+
+**Response Schema**
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "name": "string",
+      "slug": "string",
+      "account_count": 0
+    }
+  ]
+}
+```
+
+### `POST /api/v1/organizations`
+Create an organization (grouping only in MVP).
+
+**Request Schema**
+```json
+{
+  "name": "string",
+  "slug": "string"
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "name": "string",
+    "slug": "string"
+  }
+}
+```
+
+### `GET /api/v1/organizations/{organization_id}`
+Fetch organization detail.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "name": "string",
+    "slug": "string",
+    "account_count": 0
+  }
+}
+```
+
+### `GET /api/v1/accounts`
+List accounts (tenant-owned + unmanaged + user-owned visibility per admin rules).
+
+**Response Schema**
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "name": "string",
+      "document": {
+        "type": "cpf|cnpj",
+        "number": "string"
+      }
+    }
+  ]
+}
+```
+**Notes:** `ownership_state` is **derived in MVP** (not required in payload/response).
+
+### `POST /api/v1/accounts`
+Create an account (tenant admin).
+
+**Request Schema**
+```json
+{
+  "name": "string",
+  "document": {
+    "type": "cpf|cnpj",
+    "number": "string"
+  }
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "name": "string",
+    "document": {
+      "type": "cpf|cnpj",
+      "number": "string"
+    }
+  }
+}
+```
+
+### `GET /api/v1/accounts/{account_id}`
+Fetch account detail.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "name": "string",
+    "document": {
+      "type": "cpf|cnpj",
+      "number": "string"
+    }
+  }
+}
+```
+
+### `PATCH /api/v1/accounts/{account_id}`
+Update account metadata (name/document only in MVP).
+
+**Request Schema**
+```json
+{
+  "name": "string",
+  "document": {
+    "type": "cpf|cnpj",
+    "number": "string"
+  }
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "name": "string",
+    "document": {
+      "type": "cpf|cnpj",
+      "number": "string"
+    }
+  }
+}
+```
+
 ### `PATCH /api/v1/settings/push`
 Update tenant push settings (push-only).
 
