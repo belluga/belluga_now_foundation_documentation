@@ -95,6 +95,30 @@
 - Required: `_id`, `tenant_id`, `ref_type`, `ref_id`, `name`, `category`, `tags[]`, `priority`, `location`, `is_active`.
 - Optional: `time_anchor_at`, `distance_meters` (response-only), `exact_key`, `media`, `badge`, `subtitle`.
 
+### D1.1) Radius semantics + “Search this area” (proposed)
+- `max_distance_meters` is always anchored to a reference origin (`origin_lat/lng`), not auto‑updated as the user pans.
+- Panning the map does not change origin until the user taps **Search this area** (sets origin to new center + refetches).
+- Tenant settings (nested) define defaults and bounds for radius:
+  - `map_ui.radius.min_km` (default: 1)
+  - `map_ui.radius.default_km` (default: 5)
+  - `map_ui.radius.max_km` (default: 50)
+  - Optional `map_ui.default_location` with `{ lat, lng }` for initial origin when user location is unavailable.
+
+### D1.2) `distance_meters` contract (proposed)
+- If `origin_lat/lng` is provided, the backend **must** include `distance_meters` on each POI in the response.
+- When origin is absent, `distance_meters` may be omitted.
+
+### D1.3) POI registry + taxonomy registry (proposed)
+- Define a POI type registry (`poi_types`) and taxonomy/terms registry for normalization and routing.
+- Reads **never** run pipelines; they fetch normalized POI records by `ref_type/ref_id` and `slug`.
+
+### D1.4) Map endpoint canonical path (proposed)
+- Standardize the map POI endpoint as `/api/v1/map/pois` (deprecate `/api/v1/app/map/pois`).
+
+### D1.5) POI enablement defaults (proposed)
+- Account Profile types default allowlist for POI projection (MVP): `venue`, `restaurant`, `experience_provider`.
+- `artist`, `influencer`, `curator` are POI‑disabled by default, toggled via tenant settings or profile capability.
+
 ### D2) POI-enabled profile types (proposed)
 - POI-enabled by default: `venue`, `restaurant`, `experience_provider`.
 - POI-disabled by default: `artist`, `influencer`, `curator` (unless explicitly toggled).

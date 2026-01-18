@@ -35,6 +35,15 @@ The primary mechanism for fetching POIs will be an on-demand process driven by t
 
 **Radius semantics:** The radius filter is always anchored around a reference point (current user location by default, or a manually selected center supplied through the initial filter payload). While the user pans the map, the reference point does **not** change automatically; we continue to query “POIs within X meters of the reference point.” If the user wants to search the newly centered area, we surface a “Search this area” button — pressing it resets the reference point to the new center and reissues the radius-constrained fetch. This keeps “Max 10 km” intentions consistent regardless of map movement. The client caches the results of these calls to ensure smooth performance and provide a degree of offline functionality.
 
+**Tenant settings (map_ui):** Radius defaults and bounds are configured via nested tenant settings:
+```json
+map_ui: {
+  radius: { min_km: 1, default_km: 5, max_km: 50 },
+  default_location: { lat: Number, lng: Number } // optional
+}
+```
+If tenant settings are missing, the defaults above apply. `default_location` is used as the initial origin when user location is unavailable.
+
 ### 3.2. Real-Time Updates (SSE)
 
 For instant updates like moving POIs and live offers, a persistent SSE connection will be used. The backend will push delta events to subscribed clients, which will update the UI in real-time without a full refresh.
