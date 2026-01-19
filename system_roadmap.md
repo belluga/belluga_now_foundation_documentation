@@ -47,12 +47,18 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/settings/firebase` | Tenant Admin | Update tenant firebase settings. | Implemented | Dedicated endpoint for firebase config. |
 | `/api/v1/settings/telemetry` | Tenant Admin | Manage telemetry integrations (list + upsert). | Implemented | Upsert by `type`; unique types enforced. |
 | `/api/v1/settings/telemetry/{type}` | Tenant Admin | Remove telemetry integration by type. | Implemented | DELETE removes a single type. |
-| `/api/v1/organizations` | Tenant Admin | List organizations (grouping only). | Defined | Tenant‑scoped; landlord users only. Optional grouping for tenant-owned accounts. |
-| `/api/v1/organizations` | Tenant Admin | Create organization. | Defined | Tenant‑scoped; landlord users only. Minimal MVP fields: `name`, optional `slug`. |
-| `/api/v1/organizations/{organization_id}` | Tenant Admin | Organization detail. | Defined | Tenant‑scoped; landlord users only. Returns account_count + metadata. |
-| `/api/v1/accounts` | Tenant Admin | List accounts (tenant-owned, unmanaged, user-owned). | Defined | Tenant‑scoped; landlord users only. `ownership_state` is derived in MVP. |
-| `/api/v1/accounts` | Tenant Admin | Create account. | Defined | Tenant‑scoped; landlord users only. Uses boilerplate payload (`name` + `document`). |
-| `/api/v1/accounts/{account_id}` | Tenant Admin | Update account (partial). | Defined | Tenant‑scoped; landlord users only. Patch name/document (ownership_state derived in MVP). |
+| `/api/v1/organizations` | Tenant Admin | List organizations (grouping only). | Implemented | Tenant‑scoped; landlord users only. Paged response with org metadata. |
+| `/api/v1/organizations` | Tenant Admin | Create organization. | Implemented | Tenant‑scoped; landlord users only. Minimal MVP fields: `name`, optional `description`. |
+| `/api/v1/organizations/{organization_id}` | Tenant Admin | Organization detail. | Implemented | Tenant‑scoped; landlord users only. Returns org metadata. |
+| `/api/v1/organizations/{organization_id}` | Tenant Admin | Update organization. | Implemented | Tenant‑scoped; landlord users only. Patch name/description. |
+| `/api/v1/organizations/{organization_id}` | Tenant Admin | Delete/restore organization. | Implemented | Soft delete + restore + force delete endpoints are live. |
+| `/api/v1/accounts` | Tenant Admin | List accounts (tenant-owned, unmanaged, user-owned). | Implemented | Tenant‑scoped; landlord users only. `ownership_state` is derived in MVP. |
+| `/api/v1/accounts` | Tenant Admin | Create account. | Implemented | Tenant‑scoped; landlord users only. Uses boilerplate payload (`name` + `document`). |
+| `/api/v1/accounts/{account_slug}` | Tenant Admin | Fetch/update/delete account (partial). | Implemented | Uses `account_slug`; soft delete + restore + force delete endpoints are live. |
+| `/api/v1/account_profiles` | Tenant Admin | List/create account profiles. | Implemented | Tenant‑scoped; landlord users only. Paged response with profile metadata. |
+| `/api/v1/account_profiles/{account_profile_id}` | Tenant Admin | Fetch/update/delete account profile. | Implemented | Tenant‑scoped; landlord users only. Soft delete + restore + force delete endpoints are live. |
+| `/api/v1/account_profiles/geo` | Tenant Admin | Geo search for POI-enabled profiles. | Implemented | Optional origin + distance; filters by `profile_type`. |
+| `/api/v1/account_profile_types` | Tenant Admin | Profile type registry (tenant settings). | Implemented | Returns registry entries and capabilities. |
 | `/api/v1/assets` | Tenant Admin | List assets. | Planned | Page-based admin listing. |
 | `/api/v1/assets/{asset_id}` | Tenant Admin | Get asset detail. | Planned | Returns asset metadata + URLs. |
 | `/api/v1/assets` | Tenant Admin | Create asset. | Planned | Upload/register media for tenant assets. |

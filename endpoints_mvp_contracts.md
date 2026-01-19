@@ -781,15 +781,21 @@
 **Response:**
 ```json
 {
-  "tenant_id": "string",
   "data": [
     {
-      "organization_id": "string",
+      "id": "string",
       "name": "string",
       "slug": "string?",
-      "account_count": 0
+      "description": "string?",
+      "created_at": "2025-01-01T00:00:00Z",
+      "updated_at": "2025-01-01T00:00:00Z",
+      "deleted_at": "2025-01-01T00:00:00Z"
     }
-  ]
+  ],
+  "current_page": 1,
+  "last_page": 1,
+  "per_page": 15,
+  "total": 0
 }
 ```
 
@@ -799,17 +805,20 @@
 ```json
 {
   "name": "string",
-  "slug": "string?"
+  "description": "string?"
 }
 ```
 **Response:**
 ```json
 {
-  "tenant_id": "string",
   "data": {
-    "organization_id": "string",
+    "id": "string",
     "name": "string",
-    "slug": "string?"
+    "slug": "string?",
+    "description": "string?",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
   }
 }
 ```
@@ -819,14 +828,71 @@
 **Response:**
 ```json
 {
-  "tenant_id": "string",
   "data": {
-    "organization_id": "string",
+    "id": "string",
     "name": "string",
     "slug": "string?",
-    "account_count": 0
+    "description": "string?",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
   }
 }
+```
+
+### `PATCH /api/v1/organizations/{organization_id}`
+**Purpose:** Update organization (MVP: name/description only).  
+**Request (body):**
+```json
+{
+  "name": "string?",
+  "description": "string?"
+}
+```
+**Response:**
+```json
+{
+  "data": {
+    "id": "string",
+    "name": "string",
+    "slug": "string?",
+    "description": "string?",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
+  }
+}
+```
+
+### `DELETE /api/v1/organizations/{organization_id}`
+**Purpose:** Soft delete organization.  
+**Response:**
+```json
+{}
+```
+
+### `POST /api/v1/organizations/{organization_id}/restore`
+**Purpose:** Restore organization.  
+**Response:**
+```json
+{
+  "data": {
+    "id": "string",
+    "name": "string",
+    "slug": "string?",
+    "description": "string?",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": null
+  }
+}
+```
+
+### `POST /api/v1/organizations/{organization_id}/force_delete`
+**Purpose:** Force delete organization.  
+**Response:**
+```json
+{}
 ```
 
 ### `GET /api/v1/accounts`
@@ -835,17 +901,19 @@
 **Response:**
 ```json
 {
-  "tenant_id": "string",
   "data": [
     {
-      "account_id": "string",
+      "id": "string",
       "name": "string",
+      "slug": "string",
       "document": {
         "type": "cpf|cnpj",
         "number": "string"
       },
+      "organization_id": "string?",
       "updated_at": "2025-01-01T00:00:00Z",
-      "created_at": "2025-01-01T00:00:00Z"
+      "created_at": "2025-01-01T00:00:00Z",
+      "deleted_at": "2025-01-01T00:00:00Z"
     }
   ],
   "current_page": 1,
@@ -874,43 +942,323 @@
 **Response:**
 ```json
 {
-  "tenant_id": "string",
   "data": {
-    "account_id": "string",
-    "name": "string",
-    "document": {
-      "type": "cpf|cnpj",
-      "number": "string"
+    "account": {
+      "id": "string",
+      "name": "string",
+      "slug": "string",
+      "document": {
+        "type": "cpf|cnpj",
+        "number": "string"
+      },
+      "organization_id": "string?",
+      "updated_at": "2025-01-01T00:00:00Z",
+      "created_at": "2025-01-01T00:00:00Z",
+      "deleted_at": "2025-01-01T00:00:00Z"
     },
-    "updated_at": "2025-01-01T00:00:00Z",
-    "created_at": "2025-01-01T00:00:00Z"
+    "role": {
+      "id": "string",
+      "name": "Admin",
+      "slug": "admin",
+      "permissions": ["*"]
+    }
   }
 }
 ```
 **Notes:** `ownership_state` is **derived in MVP** (not required in payload/response).
 - `document.type`: `cpf`, `cnpj`.
 
-### `PATCH /api/v1/accounts/{account_id}`
+### `GET /api/v1/accounts/{account_slug}`
+**Purpose:** Fetch account detail by slug.  
+**Response:**
+```json
+{
+  "data": {
+    "id": "string",
+    "name": "string",
+    "slug": "string",
+    "document": {
+      "type": "cpf|cnpj",
+      "number": "string"
+    },
+    "organization_id": "string?",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "created_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
+  }
+}
+```
+
+### `PATCH /api/v1/accounts/{account_slug}`
 **Purpose:** Update account details.  
 **Request (body):** same fields as create (partial).  
 **Response:**
 ```json
 {
-  "tenant_id": "string",
   "data": {
-    "account_id": "string",
+    "id": "string",
     "name": "string",
+    "slug": "string",
     "document": {
       "type": "cpf|cnpj",
       "number": "string"
     },
+    "organization_id": "string?",
     "updated_at": "2025-01-01T00:00:00Z",
-    "created_at": "2025-01-01T00:00:00Z"
+    "created_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
   }
 }
 ```
 **Notes:** `ownership_state` is **derived in MVP** (not required in payload/response).
 - `document.type`: `cpf`, `cnpj`.
+
+### `DELETE /api/v1/accounts/{account_slug}`
+**Purpose:** Soft delete account.  
+**Response:**
+```json
+{}
+```
+
+### `POST /api/v1/accounts/{account_slug}/restore`
+**Purpose:** Restore account.  
+**Response:**
+```json
+{
+  "data": {
+    "id": "string",
+    "name": "string",
+    "slug": "string",
+    "document": {
+      "type": "cpf|cnpj",
+      "number": "string"
+    },
+    "organization_id": "string?",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "created_at": "2025-01-01T00:00:00Z",
+    "deleted_at": null
+  }
+}
+```
+
+### `POST /api/v1/accounts/{account_slug}/force_delete`
+**Purpose:** Force delete account.  
+**Response:**
+```json
+{}
+```
+
+### `GET /api/v1/account_profile_types`
+**Purpose:** List account profile types (registry).  
+**Response:**
+```json
+{
+  "data": [
+    {
+      "type": "string",
+      "label": "string",
+      "parent_type": "string?",
+      "allowed_taxonomies": ["string"],
+      "capabilities": {
+        "is_favoritable": true,
+        "is_poi_enabled": false
+      }
+    }
+  ]
+}
+```
+
+### `GET /api/v1/account_profiles`
+**Purpose:** List account profiles (filterable by `account_id`).  
+**Response:**
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "account_id": "string",
+      "profile_type": "string",
+      "display_name": "string",
+      "slug": "string",
+      "avatar_url": "string?",
+      "cover_url": "string?",
+      "bio": "string?",
+      "taxonomy_terms": [
+        { "type": "string", "value": "string" }
+      ],
+      "location": { "lat": 0.0, "lng": 0.0 },
+      "updated_at": "2025-01-01T00:00:00Z",
+      "created_at": "2025-01-01T00:00:00Z",
+      "deleted_at": "2025-01-01T00:00:00Z"
+    }
+  ],
+  "current_page": 1,
+  "last_page": 1,
+  "per_page": 15,
+  "total": 0
+}
+```
+
+### `POST /api/v1/account_profiles`
+**Purpose:** Create account profile.  
+**Request (body):**
+```json
+{
+  "account_id": "string",
+  "profile_type": "string",
+  "display_name": "string",
+  "location": { "lat": 0.0, "lng": 0.0 },
+  "taxonomy_terms": [{ "type": "string", "value": "string" }],
+  "bio": "string?",
+  "avatar_url": "string?",
+  "cover_url": "string?"
+}
+```
+**Notes:** `location` is **required** when the registry marks `profile_type` as `is_poi_enabled=true`.
+**Response:**
+```json
+{
+  "data": {
+    "id": "string",
+    "account_id": "string",
+    "profile_type": "string",
+    "display_name": "string",
+    "slug": "string",
+    "avatar_url": "string?",
+    "cover_url": "string?",
+    "bio": "string?",
+    "taxonomy_terms": [
+      { "type": "string", "value": "string" }
+    ],
+    "location": { "lat": 0.0, "lng": 0.0 },
+    "ownership_state": "tenant_owned|unmanaged|user_owned",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "created_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
+  }
+}
+```
+
+### `GET /api/v1/account_profiles/{account_profile_id}`
+**Purpose:** Account profile detail.  
+**Response:**
+```json
+{
+  "data": {
+    "id": "string",
+    "account_id": "string",
+    "profile_type": "string",
+    "display_name": "string",
+    "slug": "string",
+    "avatar_url": "string?",
+    "cover_url": "string?",
+    "bio": "string?",
+    "taxonomy_terms": [
+      { "type": "string", "value": "string" }
+    ],
+    "location": { "lat": 0.0, "lng": 0.0 },
+    "ownership_state": "tenant_owned|unmanaged|user_owned",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "created_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
+  }
+}
+```
+
+### `PATCH /api/v1/account_profiles/{account_profile_id}`
+**Purpose:** Update account profile.  
+**Request (body):** same as create (partial).  
+**Response:**
+```json
+{
+  "data": {
+    "id": "string",
+    "account_id": "string",
+    "profile_type": "string",
+    "display_name": "string",
+    "slug": "string",
+    "avatar_url": "string?",
+    "cover_url": "string?",
+    "bio": "string?",
+    "taxonomy_terms": [
+      { "type": "string", "value": "string" }
+    ],
+    "location": { "lat": 0.0, "lng": 0.0 },
+    "ownership_state": "tenant_owned|unmanaged|user_owned",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "created_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
+  }
+}
+```
+
+### `DELETE /api/v1/account_profiles/{account_profile_id}`
+**Purpose:** Soft delete account profile.  
+**Response:**
+```json
+{}
+```
+
+### `POST /api/v1/account_profiles/{account_profile_id}/restore`
+**Purpose:** Restore account profile.  
+**Response:**
+```json
+{
+  "data": {
+    "id": "string",
+    "account_id": "string",
+    "profile_type": "string",
+    "display_name": "string",
+    "slug": "string",
+    "avatar_url": "string?",
+    "cover_url": "string?",
+    "bio": "string?",
+    "taxonomy_terms": [
+      { "type": "string", "value": "string" }
+    ],
+    "location": { "lat": 0.0, "lng": 0.0 },
+    "ownership_state": "tenant_owned|unmanaged|user_owned",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "created_at": "2025-01-01T00:00:00Z",
+    "deleted_at": null
+  }
+}
+```
+
+### `POST /api/v1/account_profiles/{account_profile_id}/force_delete`
+**Purpose:** Force delete account profile.  
+**Response:**
+```json
+{}
+```
+
+### `GET /api/v1/account_profiles/geo`
+**Purpose:** Geo search for POI-enabled profiles.  
+**Query Params:** `origin_lat`, `origin_lng`, `max_distance_meters`, `profile_type`, `limit`.  
+**Response:**
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "account_id": "string",
+      "profile_type": "string",
+      "display_name": "string",
+      "slug": "string",
+      "avatar_url": "string?",
+      "cover_url": "string?",
+      "bio": "string?",
+      "taxonomy_terms": [
+        { "type": "string", "value": "string" }
+      ],
+      "location": { "lat": 0.0, "lng": 0.0 },
+      "distance_meters": 0.0,
+      "updated_at": "2025-01-01T00:00:00Z",
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  ]
+}
+```
 
 ### `GET /assets`
 **Purpose:** List StaticAssets.  

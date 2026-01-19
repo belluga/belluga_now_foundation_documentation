@@ -29,9 +29,16 @@ List organizations for the tenant.
       "id": "string",
       "name": "string",
       "slug": "string",
-      "account_count": 0
+      "description": "string?",
+      "created_at": "2025-01-01T00:00:00Z",
+      "updated_at": "2025-01-01T00:00:00Z",
+      "deleted_at": "2025-01-01T00:00:00Z"
     }
-  ]
+  ],
+  "current_page": 1,
+  "last_page": 1,
+  "per_page": 15,
+  "total": 0
 }
 ```
 
@@ -42,7 +49,7 @@ Create an organization (grouping only in MVP).
 ```json
 {
   "name": "string",
-  "slug": "string"
+  "description": "string?"
 }
 ```
 
@@ -52,7 +59,11 @@ Create an organization (grouping only in MVP).
   "data": {
     "id": "string",
     "name": "string",
-    "slug": "string"
+    "slug": "string",
+    "description": "string?",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
   }
 }
 ```
@@ -67,9 +78,72 @@ Fetch organization detail.
     "id": "string",
     "name": "string",
     "slug": "string",
-    "account_count": 0
+    "description": "string?",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
   }
 }
+```
+
+### `PATCH /api/v1/organizations/{organization_id}`
+Update organization (MVP: name/description only).
+
+**Request Schema**
+```json
+{
+  "name": "string",
+  "description": "string?"
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "name": "string",
+    "slug": "string",
+    "description": "string?",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
+  }
+}
+```
+
+### `DELETE /api/v1/organizations/{organization_id}`
+Soft delete organization.
+
+**Response Schema**
+```json
+{}
+```
+
+### `POST /api/v1/organizations/{organization_id}/restore`
+Restore organization.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "name": "string",
+    "slug": "string",
+    "description": "string?",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": null
+  }
+}
+```
+
+### `POST /api/v1/organizations/{organization_id}/force_delete`
+Force delete organization.
+
+**Response Schema**
+```json
+{}
 ```
 
 ### `GET /api/v1/accounts`
@@ -82,12 +156,21 @@ List accounts (tenant-owned + unmanaged + user-owned visibility per admin rules)
     {
       "id": "string",
       "name": "string",
+      "slug": "string",
       "document": {
         "type": "cpf|cnpj",
         "number": "string"
-      }
+      },
+      "organization_id": "string?",
+      "created_at": "2025-01-01T00:00:00Z",
+      "updated_at": "2025-01-01T00:00:00Z",
+      "deleted_at": "2025-01-01T00:00:00Z"
     }
-  ]
+  ],
+  "current_page": 1,
+  "last_page": 1,
+  "per_page": 15,
+  "total": 0
 }
 ```
 **Notes:** `ownership_state` is **derived in MVP** (not required in payload/response).
@@ -110,17 +193,30 @@ Create an account (tenant admin).
 ```json
 {
   "data": {
-    "id": "string",
-    "name": "string",
-    "document": {
-      "type": "cpf|cnpj",
-      "number": "string"
+    "account": {
+      "id": "string",
+      "name": "string",
+      "slug": "string",
+      "document": {
+        "type": "cpf|cnpj",
+        "number": "string"
+      },
+      "organization_id": "string?",
+      "created_at": "2025-01-01T00:00:00Z",
+      "updated_at": "2025-01-01T00:00:00Z",
+      "deleted_at": "2025-01-01T00:00:00Z"
+    },
+    "role": {
+      "id": "string",
+      "name": "Admin",
+      "slug": "admin",
+      "permissions": ["*"]
     }
   }
 }
 ```
 
-### `GET /api/v1/accounts/{account_id}`
+### `GET /api/v1/accounts/{account_slug}`
 Fetch account detail.
 
 **Response Schema**
@@ -129,15 +225,20 @@ Fetch account detail.
   "data": {
     "id": "string",
     "name": "string",
+    "slug": "string",
     "document": {
       "type": "cpf|cnpj",
       "number": "string"
-    }
+    },
+    "organization_id": "string?",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
   }
 }
 ```
 
-### `PATCH /api/v1/accounts/{account_id}`
+### `PATCH /api/v1/accounts/{account_slug}`
 Update account metadata (name/document only in MVP).
 
 **Request Schema**
@@ -157,11 +258,293 @@ Update account metadata (name/document only in MVP).
   "data": {
     "id": "string",
     "name": "string",
+    "slug": "string",
     "document": {
       "type": "cpf|cnpj",
       "number": "string"
-    }
+    },
+    "organization_id": "string?",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
   }
+}
+```
+
+### `DELETE /api/v1/accounts/{account_slug}`
+Soft delete account.
+
+**Response Schema**
+```json
+{}
+```
+
+### `POST /api/v1/accounts/{account_slug}/restore`
+Restore account.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "name": "string",
+    "slug": "string",
+    "document": {
+      "type": "cpf|cnpj",
+      "number": "string"
+    },
+    "organization_id": "string?",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": null
+  }
+}
+```
+
+### `POST /api/v1/accounts/{account_slug}/force_delete`
+Force delete account.
+
+**Response Schema**
+```json
+{}
+```
+
+### `GET /api/v1/account_profile_types`
+List profile type registry for the tenant.
+
+**Response Schema**
+```json
+{
+  "data": [
+    {
+      "type": "string",
+      "label": "string",
+      "parent_type": "string?",
+      "allowed_taxonomies": ["string"],
+      "capabilities": {
+        "is_favoritable": true,
+        "is_poi_enabled": false
+      }
+    }
+  ]
+}
+```
+
+### `GET /api/v1/account_profiles`
+List account profiles (optionally filter by `account_id`).
+
+**Response Schema**
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "account_id": "string",
+      "profile_type": "string",
+      "display_name": "string",
+      "slug": "string",
+      "avatar_url": "string?",
+      "cover_url": "string?",
+      "bio": "string?",
+      "taxonomy_terms": [
+        { "type": "string", "value": "string" }
+      ],
+      "location": { "lat": 0.0, "lng": 0.0 },
+      "created_at": "2025-01-01T00:00:00Z",
+      "updated_at": "2025-01-01T00:00:00Z",
+      "deleted_at": "2025-01-01T00:00:00Z"
+    }
+  ],
+  "current_page": 1,
+  "last_page": 1,
+  "per_page": 15,
+  "total": 0
+}
+```
+
+### `POST /api/v1/account_profiles`
+Create account profile (requires `account_id`).
+
+**Request Schema**
+```json
+{
+  "account_id": "string",
+  "profile_type": "string",
+  "display_name": "string",
+  "location": { "lat": 0.0, "lng": 0.0 },
+  "taxonomy_terms": [{ "type": "string", "value": "string" }],
+  "bio": "string?",
+  "avatar_url": "string?",
+  "cover_url": "string?"
+}
+```
+**Notes:** `location` is **required** when the registry marks `profile_type` as `is_poi_enabled=true`.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "account_id": "string",
+    "profile_type": "string",
+    "display_name": "string",
+    "slug": "string",
+    "avatar_url": "string?",
+    "cover_url": "string?",
+    "bio": "string?",
+    "taxonomy_terms": [
+      { "type": "string", "value": "string" }
+    ],
+    "location": { "lat": 0.0, "lng": 0.0 },
+    "ownership_state": "tenant_owned|unmanaged|user_owned",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
+  }
+}
+```
+
+### `GET /api/v1/account_profiles/{account_profile_id}`
+Fetch account profile detail.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "account_id": "string",
+    "profile_type": "string",
+    "display_name": "string",
+    "slug": "string",
+    "avatar_url": "string?",
+    "cover_url": "string?",
+    "bio": "string?",
+    "taxonomy_terms": [
+      { "type": "string", "value": "string" }
+    ],
+    "location": { "lat": 0.0, "lng": 0.0 },
+    "ownership_state": "tenant_owned|unmanaged|user_owned",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
+  }
+}
+```
+
+### `PATCH /api/v1/account_profiles/{account_profile_id}`
+Update account profile basic fields.
+
+**Request Schema**
+```json
+{
+  "profile_type": "string?",
+  "display_name": "string?",
+  "location": { "lat": 0.0, "lng": 0.0 },
+  "taxonomy_terms": [{ "type": "string", "value": "string" }],
+  "bio": "string?",
+  "avatar_url": "string?",
+  "cover_url": "string?"
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "account_id": "string",
+    "profile_type": "string",
+    "display_name": "string",
+    "slug": "string",
+    "avatar_url": "string?",
+    "cover_url": "string?",
+    "bio": "string?",
+    "taxonomy_terms": [
+      { "type": "string", "value": "string" }
+    ],
+    "location": { "lat": 0.0, "lng": 0.0 },
+    "ownership_state": "tenant_owned|unmanaged|user_owned",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
+  }
+}
+```
+
+### `DELETE /api/v1/account_profiles/{account_profile_id}`
+Soft delete account profile.
+
+**Response Schema**
+```json
+{}
+```
+
+### `POST /api/v1/account_profiles/{account_profile_id}/restore`
+Restore account profile.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "account_id": "string",
+    "profile_type": "string",
+    "display_name": "string",
+    "slug": "string",
+    "avatar_url": "string?",
+    "cover_url": "string?",
+    "bio": "string?",
+    "taxonomy_terms": [
+      { "type": "string", "value": "string" }
+    ],
+    "location": { "lat": 0.0, "lng": 0.0 },
+    "ownership_state": "tenant_owned|unmanaged|user_owned",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": null
+  }
+}
+```
+
+### `POST /api/v1/account_profiles/{account_profile_id}/force_delete`
+Force delete account profile.
+
+**Response Schema**
+```json
+{}
+```
+
+### `GET /api/v1/account_profiles/geo`
+Geo query for POI-enabled profiles.
+
+**Query Params**
+- `origin_lat`, `origin_lng` (optional, required for geo distance)
+- `max_distance_meters` (optional)
+- `profile_type` (optional, repeatable)
+- `limit` (optional, default 50)
+
+**Response Schema**
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "account_id": "string",
+      "profile_type": "string",
+      "display_name": "string",
+      "slug": "string",
+      "avatar_url": "string?",
+      "cover_url": "string?",
+      "bio": "string?",
+      "taxonomy_terms": [
+        { "type": "string", "value": "string" }
+      ],
+      "location": { "lat": 0.0, "lng": 0.0 },
+      "distance_meters": 0.0,
+      "created_at": "2025-01-01T00:00:00Z",
+      "updated_at": "2025-01-01T00:00:00Z"
+    }
+  ]
 }
 ```
 

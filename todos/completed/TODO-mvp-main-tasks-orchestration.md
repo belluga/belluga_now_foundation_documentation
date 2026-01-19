@@ -38,7 +38,7 @@
 - [x] ✅ Production‑Ready `POST /push/register` (Upstream/Boilerplate)
 - [ ] ⚪ `GET /accounts`
 - [ ] ⚪ `POST /accounts`
-- [ ] ⚪ `PATCH /accounts/{account_id}`
+- [ ] ⚪ `PATCH /accounts/{account_slug}`
 - [ ] ⚪ `GET /assets`
 - [ ] ⚪ `GET /assets/{asset_id}`
 - [ ] ⚪ `POST /assets`

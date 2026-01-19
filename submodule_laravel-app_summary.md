@@ -4,8 +4,8 @@
 ## 1. Analyzed Version
 
 * **Submodule Name:** `laravel-app`
-* **Commit Hash:** `ae34bbac1be0f6ff6f65215afc9749157b627d76`
-* **Analysis Date:** `2026-01-02`
+* **Commit Hash:** `0b9bb12d76cc3437ee4662c74742928b42f057c6`
+* **Analysis Date:** `2026-01-19`
 
 *Purpose: This document summarizes the key architectural aspects of the specified submodule version relevant to the main ecosystem.*
 
@@ -56,7 +56,7 @@
 ## 6. Key Integration Points / API Surface (If Applicable)
 
 * **API Prefix/Base:** `/api/v1`, `/admin/api/v1`, `/api/v1/initialize`, `/api/v1/accounts/{account_slug}`.
-* **Primary Endpoints/Modules:** Tenant auth, anonymous identity, environment/branding, accounts/users/roles, push device registration, landlord admin routes.
+* **Primary Endpoints/Modules:** Tenant auth, anonymous identity, environment/branding, accounts/users/roles, **organizations**, **account profiles**, **account profile types**, push device registration, landlord admin routes.
 * **Authentication Method:** Laravel Sanctum tokens with abilities; wildcard abilities are sanitized/expanded in auth services.
 
 ---
@@ -66,5 +66,9 @@
 * Tenant resolution uses `DomainTenantFinder` with MongoDB database switching (`SwitchMongoTenantDatabaseTask`).
 * Anonymous identity flow is implemented with fingerprint-based idempotency and tenant-driven ability/TTL policy.
 * Project-specific API route files are optional and additive, enabling downstream extensions without removing boilerplate routes.
+* **Account Profile domain:** new `account_profiles` collection with 1:1 profile per account, registry-driven `profile_type` validation, and POI-aware location enforcement.
+* **Organization grouping:** new `organizations` collection with tenant‑scoped CRUD and optional linking to accounts.
+* **Geo query:** `GET /api/v1/account_profiles/geo` uses `$geoNear` with optional origin/distance and profile type filters.
+* **Bootstrap on register:** password registration now ensures a personal account + profile via `AccountProfileBootstrapService`.
 * Tenant push credentials are now single-credential only (upsert via `PUT /api/v1/settings/push/credentials`); multiple credentials return 409 until cleaned up.
 * Tenant push settings no longer accept or return `firebase_credentials_id`; configuration relies on a single stored credential plus `firebase` public config.

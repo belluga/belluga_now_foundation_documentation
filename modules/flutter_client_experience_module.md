@@ -156,7 +156,7 @@
 
 * **Outbound Events:** `app.session_bootstrapped` emitted when the bootstrap sequence finalizes, payload includes `user_id`, `active_modules`, `timestamp`. `app.invite_consumed` fired when an invite transitions to `accepted`.
 * **Inbound Events:** SSE delta events (`poi.created`, `poi.updated`, `poi.deleted`, `event.created`, `event.updated`, `event.deleted`) simulated through mock streams; controllers ensure idempotent application by comparing `event.sequence`.
-* **Queue/Topic Configuration:** FCM topics follow `account_profile_{accountProfileId}` naming; mocked notifier replicates topic subscription flow to guarantee DI wiring.
+* **Queue/Topic Configuration:** FCM topics follow `account_profile_{account_profile_id}` naming; mocked notifier replicates topic subscription flow to guarantee DI wiring.
 
 #### 2.5 Background Jobs & Schedulers
 

@@ -30,11 +30,35 @@ Deliver the Account Profile model and required contracts as a **project-specific
 - Optional geo location + geo index behavior is documented.
 - User→influencer upgrade path is documented.
 - MVP admin/tenant endpoints for Account + Account Profile creation (and optional Organization creation) are defined and referenced by the Tenant User Area TODO.
+- README includes **Spatie multi‑tenancy migration commands** (landlord + tenant).
+- Dockerized migrations and full test suite are run; failing tests are fixed until **green** with negative/ability coverage.
+- Endpoint docs + roadmap + submodule summary reflect the implemented Account Profile, Organization, and Account admin APIs.
+
+## Implementation Sync (Delivered vs Pending)
+**Delivered**
+- [x] Account Profile + Organization models and migrations.
+- [x] Account Profile registry seeder and bootstrapper for personal profiles on registration.
+- [x] Tenant routes for organizations, account profiles, and account profile types.
+- [x] Account routes use **slug** for show/update/destroy.
+- [x] Account Profiles geo endpoint (`/account_profiles/geo`) with auth + type filter.
+- [x] Ability/negative coverage tests for account profiles and organizations.
+- [x] Full test suite green in Docker.
+- [x] README updated with landlord/tenant migration commands (Spatie).
+
+**Pending (Documentation Sync)**
+- [x] `tenant_admin_module.md` endpoints/response shapes aligned to slug + new routes.
+- [x] `endpoints_mvp_contracts.md` updated for Account/Org/Profile contracts + slug usage.
+- [x] `system_roadmap.md` milestones updated to “Implemented”.
+- [x] `submodule_laravel-app_summary.md` updated with latest hash + feature summary.
 
 ## Validation Steps
 - Manual doc review: ensure Account Profile references are consistent across modules and contracts.
 - Verify invite/push/map/offers contracts reference `account_profile_id`.
 - Verify Tenant User Area endpoints are enumerated in this TODO and match UI flows.
+- Update README with landlord/tenant migration commands (Spatie).
+- Run landlord + tenant migrations via Docker (record exact commands).
+- Run full test suite (max 2h) and iterate until all tests pass, including negative paths and ability checks for Account/Organization/Profile endpoints.
+- Update `tenant_admin_module.md`, `endpoints_mvp_contracts.md`, `system_roadmap.md`, and `submodule_laravel-app_summary.md`.
 
 ## Decisions
 - Account Profile is **project-specific** (not boilerplate) with project-defined `profile_type` values.
@@ -166,18 +190,30 @@ Track in `foundation_documentation/todos/active/vnext_slices/TODO-vnext-account-
 ### Organizations (Optional, MVP)
 - `GET /api/v1/organizations` — list organizations (tenant scope; landlord user only)
 - `POST /api/v1/organizations` — create organization (landlord user only)
-- `GET /api/v1/organizations/{id}` — organization detail (landlord user only)
+- `GET /api/v1/organizations/{organization_id}` — organization detail (landlord user only)
+- `PATCH /api/v1/organizations/{organization_id}` — update (landlord user only)
+- `DELETE /api/v1/organizations/{organization_id}` — soft delete (landlord user only)
+- `POST /api/v1/organizations/{organization_id}/restore` — restore (landlord user only)
+- `POST /api/v1/organizations/{organization_id}/force_delete` — force delete (landlord user only)
 
 ### Accounts
 - `GET /api/v1/accounts` — list accounts (tenant scope; landlord user only)
 - `POST /api/v1/accounts` — create account (landlord user only)
-- `GET /api/v1/accounts/{id}` — account detail (landlord user only)
+- `GET /api/v1/accounts/{account_slug}` — account detail (landlord user only)
+- `PATCH /api/v1/accounts/{account_slug}` — update (landlord user only)
+- `DELETE /api/v1/accounts/{account_slug}` — soft delete (landlord user only)
+- `POST /api/v1/accounts/{account_slug}/restore` — restore (landlord user only)
+- `POST /api/v1/accounts/{account_slug}/force_delete` — force delete (landlord user only)
 
 ### Account Profiles
 - `GET /api/v1/account_profiles?account_id=...` — list profiles for an account (landlord user only)
 - `POST /api/v1/account_profiles` — create account profile (**requires `account_id`**; landlord user only)
-- `GET /api/v1/account_profiles/{id}` — profile detail (landlord user only)
-- `PATCH /api/v1/account_profiles/{id}` — edit basic fields (landlord user only)
+- `GET /api/v1/account_profiles/{account_profile_id}` — profile detail (landlord user only)
+- `PATCH /api/v1/account_profiles/{account_profile_id}` — edit basic fields (landlord user only)
+- `DELETE /api/v1/account_profiles/{account_profile_id}` — soft delete (landlord user only)
+- `POST /api/v1/account_profiles/{account_profile_id}/restore` — restore (landlord user only)
+- `POST /api/v1/account_profiles/{account_profile_id}/force_delete` — force delete (landlord user only)
+- `GET /api/v1/account_profiles/geo` — geo-index query (landlord user only)
 
 ### Optional (if UI needs it)
 - `GET /api/v1/account_profile_types` — list supported `profile_type` values (landlord user only)

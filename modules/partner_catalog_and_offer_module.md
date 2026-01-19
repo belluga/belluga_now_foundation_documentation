@@ -91,7 +91,7 @@ Aggregated data served to authenticated account operators once the workspace lau
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/v1/account_profiles` | GET | Tenant-scoped list of account profiles with filtering by category, status, verification flags. |
-| `/api/v1/account_profiles/{accountProfileId}` | GET | Detailed account profile summary for consumer experiences. |
+| `/api/v1/account_profiles/{account_profile_id}` | GET | Detailed account profile summary for consumer experiences. |
 | `/api/v1/offers` | GET | Offer catalog filtered by account profile, category, availability window. |
 | `/api/v1/offers/{offerId}` | PATCH | Admin/account operator operation to update descriptions or windows (behind auth). |
 
