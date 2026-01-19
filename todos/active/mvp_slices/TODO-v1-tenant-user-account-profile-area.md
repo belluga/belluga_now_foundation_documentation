@@ -11,6 +11,7 @@ Deliver the MVP **frontend-only** tenant user area that allows creation of Accou
   - Create Account
   - Create Account Profile and attach it to an Account
   - View existing Accounts/Profiles (basic list/detail)
+- Document **Landlord (tenant admin) authentication** for mobile usage.
 - Optional: create or select an **Organization** when creating tenant-owned accounts (grouping only).
 - Separate listings by `ownership_state` (tenant_owned vs unmanaged vs user_owned).
 - Reference required endpoint contracts and payloads (admin/tenant routes) defined in the Account Profile Implementation TODO.
@@ -29,6 +30,7 @@ Deliver the MVP **frontend-only** tenant user area that allows creation of Accou
 - Flows and endpoint contracts for Account + Account Profile creation are documented.
 - Access control rules are explicit (admin-assigned in MVP).
 - Cross-references to Account Profile implementation are present.
+- Mobile admin UI + routing strategy is documented.
 
 ## Validation Steps
 - Manual doc review: ensure creation flows are documented and match contracts.
@@ -41,6 +43,41 @@ Deliver the MVP **frontend-only** tenant user area that allows creation of Accou
 - `ownership_state` is the single **conceptual** flag (derived in MVP): `tenant_owned`, `unmanaged`, `user_owned`.
 - Organizations are optional; unmanaged accounts must be standalone (no org).
 - User claim flow for unmanaged accounts and user-created additional business accounts are **post‑MVP**.
+- Tenant Admin is allowed in **mobile** via Landlord User auth.
+- Landlord auth is **separate** from tenant/user auth; use independent tokens.
+- Landlord login: `POST /admin/api/v1/auth/login` (already in backend).
+- Landlord session validation: `GET /admin/api/v1/auth/token_validate`.
+- Landlord profile: `GET /admin/api/v1/me`.
+- Tenant Admin shell/routes appear **only** when landlord token is active.
+- Tenant admin requests still hit `/api/v1/*` but require Landlord abilities + `CheckTenantAccess` (Landlord User is **not** an Account User).
+- Mobile supports **mode switching** between user and landlord tokens, but **only one mode is active at a time**.
+- Switching modes performs a **full navigation reset** into the target shell (no mixed history).
+- UI must clearly indicate the active mode (banner + badge) and allow “Exit Admin Mode”.
+
+## Routing & UI Strategy (Mobile Admin Mode)
+- Add a **mode switcher** under profile/settings:
+  - `Modo Usuário` (tenant user token)
+  - `Modo Admin` (landlord token)
+- Persist both tokens, but only one is active; all actions use the active token.
+- When admin mode is active:
+  - Show a **persistent banner**: “Modo Admin — Tenant X”.
+  - Show an **Admin badge** on avatar/header.
+  - Route to `TenantAdminShell` (Accounts, Account Profiles, Organizations).
+- When user mode is active:
+  - Route to `TenantAppShell` (normal tenant experience).
+- If landlord token expires or `CheckTenantAccess` fails:
+  - Prompt for re‑login; if declined, fall back to user mode.
+- Bottom navigation **Menu → Perfil**:
+  - If anonymous, `Perfil` shows CTA “Entrar / Criar conta”.
+  - Login screen includes a discreet **“Entrar como Admin”** link.
+  - “Entrar como Admin” routes to Landlord login (`/admin/api/v1/auth/login`).
+
+## Execution Plan (First Steps)
+- [ ] ⚪ Pending Replace bottom nav “Menu” with “Perfil”; wire login/register and **anonymous merge** flow (register merges anonymous profile).
+- [ ] ⚪ Pending Wire **Landlord login** (`/admin/api/v1/auth/login`) and session hydration.
+- [ ] ⚪ Pending Build **management routing shell** (TenantAdminShell + guards).
+- [ ] ⚪ Pending Create routes + wiring for **Account / Account Profile management**.
+- [ ] ⚪ Pending Create routes + wiring for **Event management**.
 
 ## Questions to Close
 - None.
