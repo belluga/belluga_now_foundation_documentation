@@ -109,7 +109,7 @@ These are scope descriptors (not tasks).
 - Inviter principal is union `{kind:user|account_profile, id}`; account_profile invites are allowed in MVP (admin-assigned).
 
 ### 1.2 Canonical IDs
-- Events and participants always reference stable `account_profile_id` (create profiles upfront with Tiny Free when needed).
+- Events and artists always reference stable `account_profile_id` (create profiles upfront with Tiny Free when needed).
 - Never rely on name-only references except as display fallbacks.
 
 ### 1.3 Metrics access boundary

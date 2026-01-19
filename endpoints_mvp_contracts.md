@@ -425,11 +425,11 @@
 - "Happening now" means `date_time_start <= now < date_time_end`. If `date_time_end` is missing, assume `date_time_start + 3h`.
 - `confirmed_only=true` returns only events confirmed by the current user (includes “happening now” using the same rule above).
 - Sort order: upcoming/now ascending by `date_time_start`, past descending by `date_time_start`.
-- Search matches `title`, `content`, or any `artists[].name` (case-insensitive).
+- Search matches `title`, `content`, `location`, any `artists[].display_name`, or `venue.display_name` (case-insensitive).
 - Categories filter matches `type.slug` or event categories when available (case-insensitive).
 - Tags filter matches any `tags[]` on the event (case-insensitive).
-- Taxonomy filter matches any `taxonomy_terms` attached to the venue or participants (case-insensitive).
-- If `origin_lat`/`origin_lng` are provided, filter within `max_distance_meters` (default 50000); if no matches, fall back to the unfiltered list.
+- Taxonomy filter matches any `taxonomy_terms` attached to the venue or artists (case-insensitive).
+- If `origin_lat`/`origin_lng` are provided, filter within `max_distance_meters` using **tenant settings defaults** (`map_ui.radius.default_km`, bounded by `min_km`/`max_km`). If no matches, fall back to the unfiltered list.
 
 **Response (minimum):**
 ```json
@@ -464,33 +464,7 @@
       "date_time_start": "2025-01-01T00:00:00Z",
       "date_time_end": "2025-01-01T00:00:00Z?",
       "artists": [
-        { "id": "string", "name": "string", "avatar_url": "string?", "highlight": false, "genres": ["string"] }
-      ],
-      "participants": [
-        {
-          "account_profile": {
-            "id": "string",
-            "display_name": "string",
-            "tagline": "string?",
-            "hero_image_url": "string?",
-            "logo_url": "string?",
-            "taxonomy_terms": [{ "type": "string", "value": "string" }]
-          },
-          "role": "string",
-          "is_highlight": false
-        }
-      ],
-      "actions": [
-        {
-          "id": "string?",
-          "label": "string",
-          "open_in": "external|inApp",
-          "color": "#RRGGBB?",
-          "item_type": "string?",
-          "item_id": "string?",
-          "external_url": "string?",
-          "message": "string?"
-        }
+        { "id": "string", "display_name": "string", "avatar_url": "string?", "highlight": false, "genres": ["string"] }
       ],
       "is_confirmed": false,
       "total_confirmed": 0,
@@ -529,7 +503,6 @@
 ```
 **Field Definitions**
 - `thumb.type`: `image`.
-- `actions[].open_in`: `external`, `inApp`.
 - `sent_invites[].status`: `pending`, `accepted`, `declined`, `viewed`.
 
 ### `GET /events/{event_id}`
@@ -567,33 +540,7 @@
     "date_time_end": "2025-01-01T00:00:00Z?",
     "tags": ["string"],
     "artists": [
-      { "id": "string", "name": "string", "avatar_url": "string?", "highlight": false, "genres": ["string"] }
-    ],
-    "participants": [
-      {
-        "account_profile": {
-          "id": "string",
-          "display_name": "string",
-          "tagline": "string?",
-          "hero_image_url": "string?",
-          "logo_url": "string?",
-          "taxonomy_terms": [{ "type": "string", "value": "string" }]
-        },
-        "role": "string",
-        "is_highlight": false
-      }
-    ],
-    "actions": [
-      {
-        "id": "string?",
-        "label": "string",
-        "open_in": "external|inApp",
-        "color": "#RRGGBB?",
-        "item_type": "string?",
-        "item_id": "string?",
-        "external_url": "string?",
-        "message": "string?"
-      }
+      { "id": "string", "display_name": "string", "avatar_url": "string?", "highlight": false, "genres": ["string"] }
     ],
     "is_confirmed": false,
     "total_confirmed": 0,
@@ -629,7 +576,6 @@
 ```
 **Field Definitions**
 - `thumb.type`: `image`.
-- `actions[].open_in`: `external`, `inApp`.
 - `sent_invites[].status`: `pending`, `accepted`, `declined`, `viewed`.
 
 ### `POST /events/{event_id}/check-in`

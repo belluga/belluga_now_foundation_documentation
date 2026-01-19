@@ -110,23 +110,8 @@ Agenda surfaces events as a paged list; Flutter consumes this shape for cards, i
       "date_time_start": "2025-01-01T00:00:00Z",
       "date_time_end": "2025-01-01T00:00:00Z?",
       "artists": [
-        { "id": "string", "name": "string", "avatar_url": "string (optional)", "highlight": false, "genres": ["string"] }
+        { "id": "string", "display_name": "string", "avatar_url": "string (optional)", "highlight": false, "genres": ["string"] }
       ],
-      "participants": [
-        {
-          "account_profile": {
-            "id": "string",
-            "display_name": "string",
-            "tagline": "string?",
-            "hero_image_url": "string?",
-            "logo_url": "string?",
-            "taxonomy_terms": [{ "type": "string", "value": "string" }]
-          },
-          "role": "string",
-          "is_highlight": false
-        }
-      ],
-      "actions": [ /* CTA descriptors, unchanged */ ],
       "is_confirmed": false,
       "total_confirmed": 0,
       "received_invites": [ /* invite DTOs */ ],
