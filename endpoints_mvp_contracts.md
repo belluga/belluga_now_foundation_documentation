@@ -120,6 +120,15 @@
     "enabled": true,
     "types": ["string"],
     "throttles": {}
+  },
+  "settings": {
+    "map_ui": {
+      "radius": {
+        "min_km": 1,
+        "default_km": 5,
+        "max_km": 50
+      }
+    }
   }
 }
 ```
@@ -128,6 +137,9 @@
 - `theme_data_settings.brightness_default`: `light`, `dark`.
 - `telemetry.trackers[].type`: `mixpanel`, `firebase`, `webhook`.
 - `telemetry.location_freshness_minutes`: Integer minutes; defaults to 5 when omitted.
+- `settings.map_ui.radius.min_km`: Minimum radius bound for map/agenda filters (km).
+- `settings.map_ui.radius.default_km`: Default radius for map/agenda filters (km).
+- `settings.map_ui.radius.max_km`: Maximum radius bound for map/agenda filters (km).
 
 **Branding assets:** use default paths `GET /logo-light.png`, `/logo-dark.png`, `/icon-light.png`, `/icon-dark.png` (no direct URLs in this payload).
 
