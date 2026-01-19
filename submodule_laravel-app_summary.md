@@ -4,7 +4,7 @@
 ## 1. Analyzed Version
 
 * **Submodule Name:** `laravel-app`
-* **Commit Hash:** `0b9bb12d76cc3437ee4662c74742928b42f057c6`
+* **Commit Hash:** `a34e9d5a8ad81e4ef37a93f01f1fe26620678848`
 * **Analysis Date:** `2026-01-19`
 
 *Purpose: This document summarizes the key architectural aspects of the specified submodule version relevant to the main ecosystem.*
@@ -56,7 +56,7 @@
 ## 6. Key Integration Points / API Surface (If Applicable)
 
 * **API Prefix/Base:** `/api/v1`, `/admin/api/v1`, `/api/v1/initialize`, `/api/v1/accounts/{account_slug}`.
-* **Primary Endpoints/Modules:** Tenant auth, anonymous identity, environment/branding, accounts/users/roles, **organizations**, **account profiles**, **account profile types**, push device registration, landlord admin routes.
+* **Primary Endpoints/Modules:** Tenant auth, anonymous identity, environment/branding, accounts/users/roles, **organizations**, **account profiles**, **account profile types**, **agenda + events (list/detail/stream + admin CRUD)**, push device registration, landlord admin routes.
 * **Authentication Method:** Laravel Sanctum tokens with abilities; wildcard abilities are sanitized/expanded in auth services.
 
 ---
@@ -69,6 +69,8 @@
 * **Account Profile domain:** new `account_profiles` collection with 1:1 profile per account, registry-driven `profile_type` validation, and POI-aware location enforcement.
 * **Organization grouping:** new `organizations` collection with tenant‑scoped CRUD and optional linking to accounts.
 * **Geo query:** `GET /api/v1/account_profiles/geo` uses `$geoNear` with optional origin/distance and profile type filters.
+* **Agenda + Events:** new `events` collection with agenda feed (`/api/v1/agenda`), detail (`/api/v1/events/{event_id}`), SSE stream (`/api/v1/events/stream`), and tenant CRUD (`/api/v1/events`). Event publication is managed via `publication.status` + `publication.publish_at` with an hourly job to promote scheduled events. Event payloads use native BSON arrays (no model array casts), derive geo from venue profile location (no standalone event location), and project venue/artist summaries from Account Profiles.
+* **Account Profile BSON:** `AccountProfile` no longer casts `location` or `taxonomy_terms` to arrays, preserving MongoDB BSON for geo indexes and taxonomy payloads.
 * **Bootstrap on register:** password registration now ensures a personal account + profile via `AccountProfileBootstrapService`.
 * Tenant push credentials are now single-credential only (upsert via `PUT /api/v1/settings/push/credentials`); multiple credentials return 409 until cleaned up.
 * Tenant push settings no longer accept or return `firebase_credentials_id`; configuration relies on a single stored credential plus `firebase` public config.

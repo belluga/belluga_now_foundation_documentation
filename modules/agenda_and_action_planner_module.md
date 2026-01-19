@@ -74,6 +74,7 @@ Stores every user action triggered from an agenda card for observability and com
 
 ## 3.4 Client Event Payload (Agenda API)
 Agenda surfaces events as a paged list; Flutter consumes this shape for cards, invites, and chips.
+Event geo is derived from the venue Account Profile location; events do not carry a standalone `location` string.
 
 **Request (paged list)**
 - Query: `page` (int), `page_size` (int), `past_only` (bool), `search` (string), `categories[]`, `tags[]`, `taxonomy[]`, `origin_lat`, `origin_lng`, `max_distance_meters`, `confirmed_only` (bool).
@@ -95,7 +96,6 @@ Agenda surfaces events as a paged list; Flutter consumes this shape for cards, i
       },
       "title": "string",
       "content": "string",
-      "location": "string",
       "venue": {
         "id": "string",
         "display_name": "string",

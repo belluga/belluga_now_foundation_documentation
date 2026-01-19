@@ -28,9 +28,9 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/invites/settings` | MOD-201 | Backend-owned invite quotas, anti-spam limits, and UX messaging settings. | Planned | Backend enforces over-quota responses (`429`) and returns reset metadata; Flutter fetches for messaging/UX. |
 | `/api/v1/invites/share` | MOD-201 | External share codes for event invites (new user install/signup attribution). | Planned | Anyone who can invite can generate; resolves to `inviter_principal` (user or account_profile) + `event_id`; requires `account_profile_id` when inviter is account_profile; includes `/consume` to bind attribution post-install. |
 | `/api/v1/invites/share/{code}/accept` | MOD-201 | Web landing acceptance for invite share codes. | Planned | Requires Sanctum (anonymous token); binds attribution and returns invite state. |
-| `/api/v1/agenda` | MOD-201 | Paged agenda feed with search + past toggle, includes happening-now events. | Defined | Request: `page`, `page_size`, `past_only`, `search`, `categories`, `tags`, `taxonomy`, `confirmed_only`, `origin_lat/lng`, `max_distance_meters`. Response: event DTO items (type, venue, artists, tags, invite arrays, is_confirmed, total_confirmed), `has_more` flag. Happening-now rule: `date_time_start <= now < date_time_end` (default end = start + 3h). |
-| `/api/v1/events/stream` | MOD-201 | Event delta stream (SSE). | Planned | Emits event created/updated/deleted events for filtered feeds. |
-| `/api/v1/events/{event_id}` | MOD-201 | Event detail payload. | Defined | Event detail contract aligned to agenda cards + map POI references. |
+| `/api/v1/agenda` | MOD-201 | Paged agenda feed with search + past toggle, includes happening-now events. | Tested & Ready | Request: `page`, `page_size`, `past_only`, `search`, `categories`, `tags`, `taxonomy`, `confirmed_only`, `origin_lat/lng`, `max_distance_meters`. Response: event DTO items (type, venue, artists, tags, invite arrays, is_confirmed, total_confirmed), `has_more` flag. Event geo is derived from venue profile location (no standalone event location). Happening-now rule: `date_time_start <= now < date_time_end` (default end = start + 3h). |
+| `/api/v1/events/stream` | MOD-201 | Event delta stream (SSE). | Tested & Ready | Emits event created/updated/deleted events for filtered feeds. |
+| `/api/v1/events/{event_id}` | MOD-201 | Event detail payload. | Tested & Ready | Event detail contract aligned to agenda cards + map POI references. Event geo comes from venue profile location. |
 | `/api/v1/map/pois` | MOD-201 | Map POIs (projection-backed). | Defined | `map_pois` projection updated from StaticAssets, Events, and POI-enabled Account Profiles; use MongoDB GeoQuery with viewport + optional origin/radius and filters (`categories`, `tags`, `taxonomy`, `search`). |
 | `/api/v1/map/pois/stream` | MOD-201 | Map POI delta stream (SSE). | Planned | Emits POI created/updated/deleted events for active viewport/filters. |
 | `/api/v1/map/filters` | MOD-201 | Map filter discovery (categories/tags). | Planned | Required to remove hardcoded filter catalogs from mocks. |
@@ -63,9 +63,9 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/assets/{asset_id}` | Tenant Admin | Get asset detail. | Planned | Returns asset metadata + URLs. |
 | `/api/v1/assets` | Tenant Admin | Create asset. | Planned | Upload/register media for tenant assets. |
 | `/api/v1/assets/{asset_id}` | Tenant Admin | Update asset (partial). | Planned | Patch asset metadata. |
-| `/api/v1/events` | Tenant Admin | List events (admin). | Planned | Admin listing, page-based. |
-| `/api/v1/events` | Tenant Admin | Create event. | Planned | Admin/account profile creates event. |
-| `/api/v1/events/{event_id}` | Tenant Admin | Update event (partial). | Planned | Patch event metadata + schedule. |
+| `/api/v1/events` | Tenant Admin | List events (admin). | Tested & Ready | Admin listing, page-based. |
+| `/api/v1/events` | Tenant Admin | Create event. | Tested & Ready | Admin/account profile creates event. |
+| `/api/v1/events/{event_id}` | Tenant Admin | Update event (partial). | Tested & Ready | Patch event metadata + schedule. |
 | `/api/v1/branding/update` | Tenant Admin | Update tenant branding settings. | Planned | Drives `/environment` payload + asset paths. |
 
 ## 4. Risk & Mitigation Log

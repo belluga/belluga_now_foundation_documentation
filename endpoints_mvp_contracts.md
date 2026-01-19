@@ -437,7 +437,7 @@
 - "Happening now" means `date_time_start <= now < date_time_end`. If `date_time_end` is missing, assume `date_time_start + 3h`.
 - `confirmed_only=true` returns only events confirmed by the current user (includes “happening now” using the same rule above).
 - Sort order: upcoming/now ascending by `date_time_start`, past descending by `date_time_start`.
-- Search matches `title`, `content`, `location`, any `artists[].display_name`, or `venue.display_name` (case-insensitive).
+- Search matches `title`, `content`, any `artists[].display_name`, or `venue.display_name` (case-insensitive).
 - Categories filter matches `type.slug` or event categories when available (case-insensitive).
 - Tags filter matches any `tags[]` on the event (case-insensitive).
 - Taxonomy filter matches any `taxonomy_terms` attached to the venue or artists (case-insensitive).
@@ -461,7 +461,6 @@
       },
       "title": "string",
       "content": "string",
-      "location": "string",
       "venue": {
         "id": "string",
         "display_name": "string",
@@ -536,7 +535,6 @@
     },
     "title": "string",
     "content": "string",
-    "location": "string",
     "venue": {
       "id": "string",
       "display_name": "string",
@@ -1329,6 +1327,7 @@
 
 ### `GET /events`
 **Purpose:** List events (tenant scope).  
+**Note:** Event geo is derived from the venue profile location; events do not carry a standalone `location` field.  
 **Response:**
 ```json
 {
@@ -1341,7 +1340,6 @@
       "end_at": "2025-01-01T00:00:00Z",
       "venue_account_id": "string",
       "artist_account_ids": ["string"],
-      "location": { "lat": 0.0, "lng": 0.0 },
       "updated_at": "2025-01-01T00:00:00Z",
       "created_at": "2025-01-01T00:00:00Z"
     }
@@ -1362,8 +1360,7 @@
   "start_at": "2025-01-01T00:00:00Z",
   "end_at": "2025-01-01T00:00:00Z",
   "venue_account_id": "string",
-  "artist_account_ids": ["string"],
-  "location": { "lat": 0.0, "lng": 0.0 }
+  "artist_account_ids": ["string"]
 }
 ```
 **Response:**
@@ -1377,7 +1374,6 @@
     "end_at": "2025-01-01T00:00:00Z",
     "venue_account_id": "string",
     "artist_account_ids": ["string"],
-    "location": { "lat": 0.0, "lng": 0.0 },
     "updated_at": "2025-01-01T00:00:00Z",
     "created_at": "2025-01-01T00:00:00Z"
   }
@@ -1398,7 +1394,6 @@
     "end_at": "2025-01-01T00:00:00Z",
     "venue_account_id": "string",
     "artist_account_ids": ["string"],
-    "location": { "lat": 0.0, "lng": 0.0 },
     "updated_at": "2025-01-01T00:00:00Z",
     "created_at": "2025-01-01T00:00:00Z"
   }
