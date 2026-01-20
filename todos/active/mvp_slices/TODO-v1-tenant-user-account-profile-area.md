@@ -38,7 +38,7 @@ Deliver the MVP **frontend-only** tenant user area that allows creation of Accou
 ## Decisions
 - MVP access is admin/tenant only (no memberships).
 - Account Profiles must be linked to Accounts at creation.
-- Backend endpoint definitions live in `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-implementation.md`.
+- Backend endpoint definitions live in `foundation_documentation/todos/completed/TODO-v1-account-profile-implementation.md`.
 - Account = 1 Profile; personal profiles are user-owned and created at user creation (no self-serve upgrade in MVP).
 - `ownership_state` is the single **conceptual** flag (derived in MVP): `tenant_owned`, `unmanaged`, `user_owned`.
 - Organizations are optional; unmanaged accounts must be standalone (no org).
@@ -73,11 +73,128 @@ Deliver the MVP **frontend-only** tenant user area that allows creation of Accou
   - “Entrar como Admin” routes to Landlord login (`/admin/api/v1/auth/login`).
 
 ## Execution Plan (First Steps)
-- [ ] ⚪ Pending Replace bottom nav “Menu” with “Perfil”; wire login/register and **anonymous merge** flow (register merges anonymous profile).
-- [ ] ⚪ Pending Wire **Landlord login** (`/admin/api/v1/auth/login`) and session hydration.
-- [ ] ⚪ Pending Build **management routing shell** (TenantAdminShell + guards).
-- [ ] ⚪ Pending Create routes + wiring for **Account / Account Profile management**.
-- [ ] ⚪ Pending Create routes + wiring for **Event management**.
+- [x] Done Draft list/detail/create screen flows for Accounts, Account Profiles, and Organizations.
+- [x] Done Confirm endpoints, payloads, and access rules against `foundation_documentation/todos/completed/TODO-v1-account-profile-implementation.md`.
+- [x] Done Define data model mapping for Account + Account Profile + Organization (UI shapes for list/detail/create).
+- [x] Done Replace bottom nav "Menu" with "Perfil"; wire login/register and anonymous merge flow (register merges anonymous profile).
+- [x] Done Add **mode switcher** in Profile/Settings (user/admin) with full navigation reset.
+- [x] Done Wire **Landlord login** (`/admin/api/v1/auth/login`) and session hydration (`token_validate`, `me`).
+- [x] Done Persist both tokens; ensure only one active at a time; show banner + badge in Admin mode.
+- [x] Done Build **TenantAdminShell** with guards (landlord token + `CheckTenantAccess`).
+- [ ] ?s? Pending Create admin routes: Accounts list/detail/create.
+- [ ] ?s? Pending Create admin routes: Account Profiles list/detail/create (linked to Account).
+- [ ] ?s? Pending Create admin routes: Organizations list/create/select (optional on Account creation).
+- [ ] ?s? Pending Implement ownership_state filters + segmented lists (tenant_owned, unmanaged, user_owned).
+- [ ] ?s? Pending Add empty/error states for each list and create flow validation feedback.
+- [ ] ?s? Pending Ensure event management routes are stubbed or hidden until ready.
+
+## UI Data Model Mapping (Tenant Admin UI)
+
+### Account (list/detail/create)
+- id: string
+- slug: string (routing key)
+- name: string
+- document: { type: string, number: string }
+- ownership_state: tenant_owned | unmanaged | user_owned (derived)
+- organization_id: string | null
+- created_at: datetime
+- updated_at: datetime
+
+### Account Profile (list/detail/create)
+- id: string
+- account_id: string
+- profile_type: string (from registry)
+- display_name: string
+- slug: string (server-generated, immutable)
+- capabilities: { is_favoritable: bool, is_poi_enabled: bool }
+- location: { lat: number, lng: number, address?: string, status?: string } | null
+- taxonomy_terms: string[] | null
+- bio: string | null
+- avatar_url: string | null
+- cover_url: string | null
+- created_at: datetime
+- updated_at: datetime
+
+### Organization (list/detail/create)
+- id: string
+- name: string
+- slug: string | null
+- created_at: datetime
+- updated_at: datetime
+
+### UI Notes
+- Account list uses slug for detail routes; show ownership_state segments.
+- Account Profile create requires account_id + profile_type + display_name; location required when is_poi_enabled.
+- Organization is optional; unmanaged accounts must be standalone (no org).
+
+## Auth + Mode Switching Checklist
+
+- Landlord login UI entrypoint: "Entrar como Admin" links to `/admin/api/v1/auth/login`.
+- Session hydration on app start for both tokens; only one is active.
+- Token validate: call `/admin/api/v1/auth/token_validate` for landlord sessions.
+- Load landlord profile via `/admin/api/v1/me` when admin mode is active.
+- Mode switch triggers full navigation reset into TenantAdminShell or TenantAppShell.
+- Admin mode UI chrome: persistent banner + admin badge + "Exit Admin Mode" action.
+- Guard admin routes by landlord token + `CheckTenantAccess`.
+- On landlord token expiry: prompt re-login; if declined, fall back to user mode.
+
+## Screen Flows (Tenant Admin UI)
+
+### Accounts
+- List: segmented by ownership_state; tap row -> Account Detail.
+- Create: name + document; optional org selection; submit -> Account Detail.
+- Detail: show fields + linked Account Profile summary; CTA to create profile if missing.
+
+### Account Profiles
+- List: filtered by account_id; show display_name + profile_type; tap -> Profile Detail.
+- Create: require account_id, profile_type, display_name; if is_poi_enabled, require location.
+- Detail: show core fields; edit basic fields; link back to Account.
+
+### Organizations
+- List: show name + slug; tap -> Organization Detail.
+- Create: name (required), slug optional; submit -> Organization Detail.
+- Detail: show fields; CTA to view linked Accounts (filtered list).
+
+## Admin Routing Shell (TenantAdminShell)
+
+### Route Map
+- /admin (root) -> TenantAdminShell (guarded)
+- /admin/accounts -> AccountsList
+- /admin/accounts/create -> AccountCreate
+- /admin/accounts/:accountSlug -> AccountDetail
+- /admin/accounts/:accountSlug/profiles -> AccountProfilesList
+- /admin/accounts/:accountSlug/profiles/create -> AccountProfileCreate
+- /admin/profiles/:accountProfileId -> AccountProfileDetail
+- /admin/organizations -> OrganizationsList
+- /admin/organizations/create -> OrganizationCreate
+- /admin/organizations/:organizationId -> OrganizationDetail
+
+### Shell Rules
+- Guard entry by landlord token + CheckTenantAccess.
+- On guard failure, redirect to Admin Login (or fallback to user mode if token expired).
+- Admin shell owns header/banner, mode badge, and exit action.
+- Deep links must respect active mode; if user mode active, prompt switch.
+
+## Empty + Error States (Tenant Admin UI)
+
+### Accounts
+- Empty list: show CTA to create account.
+- Detail not found: show 404 + back to list.
+- Create validation: surface 422 field errors for name/document.
+
+### Account Profiles
+- Empty list for account: show CTA to create profile.
+- Create validation: 422 errors for missing display_name/profile_type; require location when POI.
+- Detail not found: show 404 + back to account detail.
+
+### Organizations
+- Empty list: show CTA to create organization (optional step).
+- Create validation: 422 errors for missing name.
+- Detail not found: show 404 + back to list.
+
+### Auth/Access
+- Unauthorized (401/403): show admin login prompt or fallback to user mode.
+- Token expired: prompt re-login; if declined, exit admin mode.
 
 ## Questions to Close
 - None.
