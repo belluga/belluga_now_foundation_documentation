@@ -81,12 +81,12 @@ Deliver the MVP **frontend-only** tenant user area that allows creation of Accou
 - [x] Done Wire **Landlord login** (`/admin/api/v1/auth/login`) and session hydration (`token_validate`, `me`).
 - [x] Done Persist both tokens; ensure only one active at a time; show banner + badge in Admin mode.
 - [x] Done Build **TenantAdminShell** with guards (landlord token + `CheckTenantAccess`).
-- [ ] ?s? Pending Create admin routes: Accounts list/detail/create.
-- [ ] ?s? Pending Create admin routes: Account Profiles list/detail/create (linked to Account).
-- [ ] ?s? Pending Create admin routes: Organizations list/create/select (optional on Account creation).
-- [ ] ?s? Pending Implement ownership_state filters + segmented lists (tenant_owned, unmanaged, user_owned).
-- [ ] ?s? Pending Add empty/error states for each list and create flow validation feedback.
-- [ ] ?s? Pending Ensure event management routes are stubbed or hidden until ready.
+- [x] Done Create admin routes: Accounts list/detail/create.
+- [x] Done Create admin routes: Account Profiles list/detail/create (linked to Account).
+- [x] Done Create admin routes: Organizations list/create/select (optional on Account creation).
+- [x] Done Implement ownership_state filters + segmented lists (tenant_owned, unmanaged, user_owned).
+- [x] Done Add empty/error states for each list and create flow validation feedback.
+- [x] Done Ensure event management routes are stubbed or hidden until ready.
 
 ## UI Data Model Mapping (Tenant Admin UI)
 
