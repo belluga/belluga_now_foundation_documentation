@@ -141,20 +141,20 @@ Suggested defaults (override per tenant + plan):
 - (Deferred to VNext)
 
 ### 2.4 Push notifications (baseline)
-- [ ] ⚪ Implement device registration endpoint (exact naming TBD):
-  - [ ] ⚪ `POST /api/v1/push/register` with `{ device_id, platform, push_token }`
-  - [ ] ⚪ Optional `DELETE /api/v1/push/unregister`
+- [x] ✅ Production‑Ready Implement device registration endpoint (exact naming TBD):
+  - [x] ✅ Production‑Ready `POST /api/v1/push/register` with `{ device_id, platform, push_token }`
+  - [x] ✅ Production‑Ready Optional `DELETE /api/v1/push/unregister`
 - [ ] ⚪ Send notifications (minimum):
   - [ ] ⚪ New invite received
   - [ ] ⚪ Invite status change (accepted/declined) when relevant
   - [ ] ⚪ Event reminder for confirmed attendance (or delegate to Task/Reminder service)
-- [ ] ⚪ Make notification policies tenant-configurable (no app release required)
+- [x] ✅ Production‑Ready Make notification policies tenant-configurable (no app release required)
 
 ### 2.5 Tracking / Analytics (Mixpanel)
-- [ ] ⚪ Provide a stable event taxonomy and required properties (tenant-aware)
-- [ ] ⚪ If backend emits events too, align naming/ownership to avoid double-counting
-- [ ] ⚪ Emit telemetry for implemented auth/profile/account endpoints (Mixpanel + webhook) per `TODO-v1-telemetry-and-push.md`
-- [ ] ⚪ Update tenant telemetry settings (Mixpanel + webhook) once admin settings UI is ready (deferred)
+- [x] ✅ Production‑Ready Provide a stable event taxonomy and required properties (tenant-aware)
+- [x] ✅ Production‑Ready If backend emits events too, align naming/ownership to avoid double-counting
+- [x] ✅ Production‑Ready Emit telemetry for implemented auth/profile/account endpoints (Mixpanel + webhook) per `TODO-v1-telemetry-and-push.md`
+- [x] ✅ Production‑Ready Update tenant telemetry settings (Mixpanel + webhook) once admin settings UI is ready (deferred)
 
 ---
 

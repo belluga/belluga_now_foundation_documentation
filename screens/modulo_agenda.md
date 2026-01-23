@@ -34,6 +34,7 @@
 - **Título:** Próximos Eventos
 - **Componente:** Lista vertical de cards de evento.
 - **Ação no Card:** Leva para a Tela 3: Detalhes do Evento.
+- **Estado vazio:** sem filtros → "Nenhum evento disponível no momento."; com filtros/busca/histórico → "Nenhum resultado encontrado".
 
 ---
 

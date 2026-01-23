@@ -26,12 +26,12 @@
 - Refactors outside push transport path resolution.
 
 ## Tasks
-- [x] ✅ Production‑Ready Identify the current push transport base URL assembly path.
-- [x] ✅ Production‑Ready Update the push transport config to use `{baseUrl}/v1/` (keeping other adapters intact).
-- [x] ✅ Production‑Ready Verify push endpoints resolve to `/api/v1/push/*`.
-- [x] ✅ Production‑Ready Add temporary logging/interceptor to print resolved push register URL + auth header presence.
-- [x] ✅ Production‑Ready Run Flutter unit/widget tests and targeted integration test(s) or device run to capture the log output.
-- [x] ✅ Production‑Ready Remove temporary logging once the URL is confirmed.
+- [x] ✅ Identify the current push transport base URL assembly path.
+- [x] ✅ Update the push transport config to use `{baseUrl}/v1` (keeping other adapters intact).
+- [x] ✅ Verify push endpoints resolve to `/api/v1/push/*`.
+- [x] ✅ Add temporary logging/interceptor to print resolved push register URL + auth header presence.
+- [x] ✅ Run Flutter unit/widget tests and targeted integration test(s) or device run to capture the log output.
+- [x] ✅ Remove temporary logging once the URL is confirmed.
 
 ## Definition of Done
 - Push registration hits `/api/v1/push/register` from Flutter.

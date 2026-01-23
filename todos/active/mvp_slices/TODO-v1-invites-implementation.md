@@ -107,6 +107,10 @@
   - `event_confirmed_presence` (on attendance commit):
     - `event_id`, `source=event_attendance`
 
+### A8) Map invite filter (invited_only)
+- [ ] ⚪ Add an `invited_only` map filter for event POIs (map shows events the user was invited to).
+- [ ] ⚪ Decide invite status inclusion + icon behavior during implementation (pending/accepted/declined, share-code attribution, etc.).
+
 ---
 
 ## B) Flutter Work
@@ -120,6 +124,7 @@
   - [ ] ⚪ “+N convites para esse evento”
 - [ ] ⚪ Tap opens selector list of inviters (tiles), user must select one
 - [ ] ⚪ Accept CTA disabled until selection exists
+- [ ] ⚪ Invite flow close/back exits to Home when the invite screen is the root route (avoid freeze).
 
 ### B2) Handling `already_invited`
 - [ ] ⚪ When sending invite returns `already_invited`, show state “Já convidado” and avoid duplicate UI entries

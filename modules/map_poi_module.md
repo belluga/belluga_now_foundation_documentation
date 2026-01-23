@@ -39,7 +39,8 @@ The primary mechanism for fetching POIs will be an on-demand process driven by t
 ```json
 map_ui: {
   radius: { min_km: 1, default_km: 5, max_km: 50 },
-  default_location: { lat: Number, lng: Number } // optional
+  default_location: { lat: Number, lng: Number }, // optional
+  poi_time_window_hours: { past: 6, future: 720 } // optional
 }
 ```
 If tenant settings are missing, the defaults above apply. `default_location` is used as the initial origin when user location is unavailable.
@@ -97,7 +98,7 @@ This architecture requires a REST API for on-demand queries and an SSE API for r
 
 ### 3.6 Materialized `map_pois` (Projection Records, Optional Time Anchor)
 
-For V1, we treat `map_pois` as a **materialized projection/read model** used by the map experience. Whenever an Account Profile or an Event is created/updated (by landlord/tenant admins; memberships are deferred), we write/update a linked `map_pois` record in the same logical transaction.
+For V1, we treat `map_pois` as a **materialized projection/read model** used by the map experience. Whenever an Account Profile, Event, or Static Asset is created/updated (by landlord/tenant admins; memberships are deferred), we write/update a linked `map_pois` record in the same logical transaction.
 
 Key properties:
 - `map_pois` is the map projection (geometry + category + tags + priority + deep-link reference).
@@ -120,8 +121,8 @@ Key properties:
 ```
 
 Query-time window policy (backend settings example):
-- include time-anchored POIs where `time_anchor_at <= now + future_window_days`
-- and `time_anchor_at >= now - past_window_days`
+- include time-anchored POIs where `time_anchor_at <= now + future_window_hours`
+- and `time_anchor_at >= now - past_window_hours`
 - POIs without `time_anchor_at` are always eligible (subject to `is_active`, viewport, and filters)
 
 This ensures future events/campaigns do not appear immediately when created, while still allowing the backend to tune visibility without rewriting data.
@@ -173,7 +174,7 @@ Multiple POIs can share the same coordinates (e.g., venue + promotion + event + 
 
 #### A) Model-level rules
 - `ref_type + ref_id` is the identity; never duplicate the same reference as multiple POIs.
-- Use `priority` as the primary sort key (lower number = higher priority).
+- Use `priority` as the primary sort key (higher number = higher priority).
 - Use a stable tiebreaker (e.g., `ref_type` precedence + `ref_id`) to keep ordering deterministic across refreshes.
 
 #### B) Stacking vs Clustering (Two Scenarios We Must Support)

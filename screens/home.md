@@ -15,7 +15,7 @@
 
 **Estados vazios:**
 - “Meus Eventos”: esconder quando vazio.
-- Agenda: exibir widget vazio padrão da Agenda.
+- Agenda: exibir estado vazio padrão da Agenda ("Nenhum evento disponível no momento." sem filtros; "Nenhum resultado encontrado" com filtros ativos).
 
 ---
 

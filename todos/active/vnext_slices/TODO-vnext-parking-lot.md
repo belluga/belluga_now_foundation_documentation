@@ -60,8 +60,6 @@
 
 - **Backend-persistent favorites**
   - V1 intent: mock behavior can reset on load; backend becomes source of truth later.
-- **Favorite venues**
-  - V1 intent: only artist favorites; venues deferred.
 
 ---
 

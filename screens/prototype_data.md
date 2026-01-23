@@ -145,6 +145,7 @@ Guar[APP]ari é uma plataforma de experiências que cria um **ecossistema simbi�
 - **Busca e Filtros:** `[🔎 Buscar...]` `[Ícone de Filtro 📊]`
 - **Destaques:** `[Carrossel de Banners Patrocinados]`
 - **Feed Principal:** Lista de `[Card de Evento]` com Data, Título, Local, Tags e Indicador Social.
+- **Estado vazio:** sem filtros → "Nenhum evento disponível no momento."; com filtros/busca/histórico → "Nenhum resultado encontrado".
 
 ### Tela de Detalhes do Evento
 - **Hero:** `[Banner do evento]`, Título, Data, `[Link: Local]`
@@ -233,6 +234,7 @@ Guar[APP]ari é uma plataforma de experiências que cria um **ecossistema simbi�
   - **Pessoas:** perfis ordenados pelo Social Score do mês; verificados aparecem primeiro em empates, mas perfis básicos também podem aparecer. Respeita `privacy_mode` (amigos_only → blur/anônimo em ranking público).
 - **Lista Completa:** chips logo abaixo do título para filtros rápidos (Todos, Artistas, Locais, Experiências, Pessoas) em vez de bottom sheet. Ícone de filtro opcional apenas para distância, se exposto; quando ativo, mostrar badge e cor.
 - **Cards:** exibem métricas sociais (convites aceitos/presenças no mês), badge “Tocando agora” para artistas live, verificado (Pro) quando aplicável, favorito toggle.
+- **Estado vazio:** sem busca/filtros → "Nenhum perfil disponível no momento."; com busca/filtros → "Nenhum resultado para os filtros."
 - **Contratos/Parâmetros:**
   - `live_now=true` (derivado de start/end ou start em <2h).
   - `nearby=true` + `distance_meters` (geoquery Mongo) para Perto de Você.

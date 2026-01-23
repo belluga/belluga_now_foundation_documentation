@@ -319,7 +319,6 @@ List profile type registry for the tenant.
     {
       "type": "string",
       "label": "string",
-      "parent_type": "string?",
       "allowed_taxonomies": ["string"],
       "capabilities": {
         "is_favoritable": true,

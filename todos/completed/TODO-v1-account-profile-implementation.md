@@ -75,7 +75,7 @@ Deliver the Account Profile model and required contracts as a **project-specific
 - **User-owned accounts (MVP):** only the **auto-created personal** account exists (private by default).
 - **Creation timing:** personal Account + Account Profile are created **on first authenticated identification** (login/register), not at anonymous identity creation.
 - **Register response:** `POST /api/v1/auth/register/password` must return the same payload as `GET /api/v1/me` (or embed a `me` object) so the client does not need a follow-up request.
-- **Personal profile upgrades** (influencer/artist/curator) are **type changes** within the personal tree (no new account). Upgrade flow is **post‑MVP**.
+- **Personal profile upgrades** (influencer/artist/curator) are **type changes** from `personal` to the target type (no new account). Upgrade flow is **post‑MVP**.
 - **User claims & additional business accounts (Post‑MVP):** claiming an unmanaged account or creating additional business accounts is **deferred**. When enabled, claiming transitions `ownership_state` from `unmanaged` → `user_owned` and keeps Account as the permission boundary.
 - User→influencer upgrade (when unlocked) creates Account + AccountProfile + operator link if not already present.
 - Tenant User Area is **frontend-only**; backend endpoints are defined here.
@@ -88,14 +88,9 @@ Deliver the Account Profile model and required contracts as a **project-specific
 ## Pending Decisions (to Close Before Implementation)
 
 ### D1) Profile type enum (API canonical values)
-**Decision (Final):** **No hardcoded enum in code.** Profile types are defined by a **Profile Type Registry** (hierarchical, WP‑like) sourced from tenant settings. The registry is the sole source of truth.
+**Decision (Final):** **No hardcoded enum in code.** Profile types are defined by a **Profile Type Registry** (flat, WP‑like) sourced from tenant settings. The registry is the sole source of truth. **No inheritance is used in V1** (`parent_type` is omitted).
 **Implications:** UI, API validation, and projections must reference the registry, not compile‑time enums.
-**Subtopics (Finalized under D1):**
-- **Restaurants without events:** Use a child type under `venue` (e.g., `restaurant` with `parent_type=venue`). Do **not** create a separate hard enum. 
-- **Shopping centers + markets (“feiras”):** Use child types under `venue` (e.g., `marketplace`, `farmers_market`, `street_market`/`open_air_market`, `mall`/`shopping_center`).
-- **Personal vs Business roots:** Maintain separate roots in the registry (e.g., `personal` vs `business`), with influencer/curator/artist under personal and venue/experience_provider under business. Root grouping is a registry concern, not a schema fork.
-- **Taxonomies:** Apply taxonomy **directly to the child types** if it should not be available on all venues. Example: `cuisines` applies to `restaurant` and `marketplace`, not to parent `venue`.
-- **Inheritance rule:** Child types **inherit** parent taxonomies and capabilities. Children **cannot remove or override** parent behavior; they only add.
+**MVP registry types:** `personal`, `artist`, `venue`, `restaurant`, `experience_provider`. Additional types (e.g., `influencer`, `curator`) are deferred to VNext (tracked in `foundation_documentation/todos/active/vnext_slices/TODO-vnext-account-profile-types.md`).
 
 ### D2) Account Profile required fields
 **Decision (Final):** `account_id`, `profile_type`, `display_name`, `slug` (server‑generated, immutable).
@@ -141,21 +136,27 @@ Deliver the Account Profile model and required contracts as a **project-specific
 Track in `foundation_documentation/todos/active/vnext_slices/TODO-vnext-account-claim-flow.md`.
 
 ### D11) Profile Type Registry (WP‑like, typed)
-**Decision (Final):** Use a typed `profile_type_registry` (like WP custom post types) that defines labels, hierarchy, allowed taxonomies, capabilities, and default UI modules. The Account Profile model remains strongly‑typed (no freeform meta).
+**Decision (Final):** Use a typed `profile_type_registry` (like WP custom post types) that defines labels, allowed taxonomies, capabilities, and default UI modules. **No inheritance is used in V1** (`parent_type` is omitted). The Account Profile model remains strongly‑typed (no freeform meta).
 **Runtime source:** The registry is **fetched from tenant settings** and cached locally; it is **not** hardcoded in the client or backend.
 **Cache/refresh rules (Final):**
 - **Cache‑first:** App boot uses cached registry immediately (no blocking).
 - **Async refresh:** Registry refresh happens after initialization.
 - **No hardcoded fallback:** If refresh fails and **no cache exists**, the app must surface an explicit error and avoid rendering type‑dependent UI. Only **real cached data** is acceptable as fallback.
 - **If cache exists:** continue with cached registry and attempt refresh in background.
-**Proposed schema (V1 example, hierarchical):**
+**Proposed schema (V1 example, flat):**
 ```json
 {
   "profile_type_registry": [
     {
+      "type": "personal",
+      "label": "Personal",
+      "allowed_taxonomies": [],
+      "capabilities": { "is_favoritable": false, "is_poi_enabled": false },
+      "default_modules": []
+    },
+    {
       "type": "artist",
       "label": "Artista",
-      "parent_type": null,
       "allowed_taxonomies": ["music_genres"],
       "capabilities": { "is_favoritable": true, "is_poi_enabled": false },
       "default_modules": ["bio", "agenda"]
@@ -163,17 +164,9 @@ Track in `foundation_documentation/todos/active/vnext_slices/TODO-vnext-account-
     {
       "type": "venue",
       "label": "Local",
-      "parent_type": null,
       "allowed_taxonomies": ["cuisines", "music_genres", "experiences"],
       "capabilities": { "is_favoritable": true, "is_poi_enabled": true },
       "default_modules": ["about", "location", "agenda"]
-    },
-    {
-      "type": "restaurant",
-      "label": "Restaurante",
-      "parent_type": "venue",
-      "allowed_taxonomies": ["cuisines"],
-      "capabilities": { "is_favoritable": true, "is_poi_enabled": true }
     }
   ]
 }

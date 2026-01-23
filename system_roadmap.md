@@ -29,11 +29,11 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/invites/share` | MOD-201 | External share codes for event invites (new user install/signup attribution). | Planned | Anyone who can invite can generate; resolves to `inviter_principal` (user or account_profile) + `event_id`; requires `account_profile_id` when inviter is account_profile; includes `/consume` to bind attribution post-install. |
 | `/api/v1/invites/share/{code}/accept` | MOD-201 | Web landing acceptance for invite share codes. | Planned | Requires Sanctum (anonymous token); binds attribution and returns invite state. |
 | `/api/v1/agenda` | MOD-201 | Paged agenda feed with search + past toggle, includes happening-now events. | Tested & Ready | Request: `page`, `page_size`, `past_only`, `search`, `categories`, `tags`, `taxonomy`, `confirmed_only`, `origin_lat/lng`, `max_distance_meters`. Response: event DTO items (type, venue, artists, tags, invite arrays, is_confirmed, total_confirmed), `has_more` flag. Event geo is derived from venue profile location (no standalone event location). Happening-now rule: `date_time_start <= now < date_time_end` (default end = start + 3h). |
-| `/api/v1/events/stream` | MOD-201 | Event delta stream (SSE). | Tested & Ready | Emits event created/updated/deleted events for filtered feeds. |
+| `/api/v1/events/stream` | MOD-201 | Event delta stream (SSE). | Tested & Ready | Emits event created/updated/deleted events for filtered feeds; clients resume with `Last-Event-ID` and reload page 1 on reconnect without it. |
 | `/api/v1/events/{event_id}` | MOD-201 | Event detail payload. | Tested & Ready | Event detail contract aligned to agenda cards + map POI references. Event geo comes from venue profile location. |
-| `/api/v1/map/pois` | MOD-201 | Map POIs (projection-backed). | Defined | `map_pois` projection updated from StaticAssets, Events, and POI-enabled Account Profiles; use MongoDB GeoQuery with viewport + optional origin/radius and filters (`categories`, `tags`, `taxonomy`, `search`). |
-| `/api/v1/map/pois/stream` | MOD-201 | Map POI delta stream (SSE). | Planned | Emits POI created/updated/deleted events for active viewport/filters. |
-| `/api/v1/map/filters` | MOD-201 | Map filter discovery (categories/tags). | Planned | Required to remove hardcoded filter catalogs from mocks. |
+| `/api/v1/map/pois` | MOD-201 | Map POIs (projection-backed). | Implemented | `map_pois` projection updated from StaticAssets, Events, and POI-enabled Account Profiles; use MongoDB GeoQuery with viewport + optional origin/radius and filters (`categories`, `tags`, `taxonomy`, `search`). |
+| `/api/v1/map/pois/stream` | MOD-201 | Map POI delta stream (SSE). | Implemented | Emits POI created/updated/deleted events for active viewport/filters. |
+| `/api/v1/map/filters` | MOD-201 | Map filter discovery (categories/tags). | Implemented | Required to remove hardcoded filter catalogs from mocks. |
 | `/api/v1/me` | MOD-201 | Authenticated profile summary and role claims. | Implemented | Mock payload authoring queued in FCX-02. |
 | `/api/v1/account_profiles/discovery` | MOD-201 | Account profile discovery cards with engagement metrics and invite counts. | Mocked | Needs DTO/value-object mapping and shared prototype data for Laravel alignment. |
 | `/api/v1/events/{event_id}/check-in` | MOD-201 | Presence confirmation with geofence/QR/staff methods. | Planned | Deferred to VNext; MVP uses invite acceptance only for confirmations. |
@@ -63,6 +63,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/assets/{asset_id}` | Tenant Admin | Get asset detail. | Planned | Returns asset metadata + URLs. |
 | `/api/v1/assets` | Tenant Admin | Create asset. | Planned | Upload/register media for tenant assets. |
 | `/api/v1/assets/{asset_id}` | Tenant Admin | Update asset (partial). | Planned | Patch asset metadata. |
+| `/admin/api/v1/static_assets` | Tenant Admin | Static Asset CRUD for map POIs. | Implemented | Tenant-admin endpoints for create/update/delete/restore of static map POIs. |
 | `/api/v1/events` | Tenant Admin | List events (admin). | Tested & Ready | Admin listing, page-based. |
 | `/api/v1/events` | Tenant Admin | Create event. | Tested & Ready | Admin/account profile creates event. |
 | `/api/v1/events/{event_id}` | Tenant Admin | Update event (partial). | Tested & Ready | Patch event metadata + schedule. |

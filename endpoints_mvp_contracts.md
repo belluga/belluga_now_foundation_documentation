@@ -121,6 +121,17 @@
     "types": ["string"],
     "throttles": {}
   },
+  "profile_types": [
+    {
+      "type": "string",
+      "label": "string",
+      "allowed_taxonomies": ["string"],
+      "capabilities": {
+        "is_favoritable": true,
+        "is_poi_enabled": false
+      }
+    }
+  ],
   "settings": {
     "map_ui": {
       "radius": {
@@ -138,6 +149,7 @@
 - `telemetry.trackers[].type`: `mixpanel`, `firebase`, `webhook`.
 - `telemetry.location_freshness_minutes`: Integer minutes; defaults to 5 when omitted.
 - `settings.map_ui.radius.min_km`: Minimum radius bound for map/agenda filters (km).
+- `profile_types`: Tenant profile type registry entries used to drive profile UI + favorites.
 - `settings.map_ui.radius.default_km`: Default radius for map/agenda filters (km).
 - `settings.map_ui.radius.max_km`: Maximum radius bound for map/agenda filters (km).
 
@@ -404,6 +416,7 @@
 ### `GET /events/stream` (SSE)
 **Purpose:** Stream event changes for active app filters (SSE).  
 **Request (query):** same filters as `/agenda` (`search`, `categories[]`, `tags[]`, `taxonomy[]`, `confirmed_only`, `origin_lat`, `origin_lng`, `max_distance_meters`).  
+**Headers (optional):** `Last-Event-ID` to resume from the last received SSE cursor.  
 **Event types:**
 - `event.created` (new event matches filters)
 - `event.updated` (fields changed)
@@ -412,6 +425,7 @@
 ```json
 { "event_id": "string", "type": "event.created|event.updated|event.deleted", "updated_at": "2025-01-01T00:00:00Z" }
 ```
+**Resync behavior:** if the client connects without `Last-Event-ID` or the stream reconnects after an error, refresh page 1 from `/agenda` as the source of truth.
 
 ### `GET /agenda`
 **Purpose:** Paged agenda feed.  
@@ -617,7 +631,7 @@
 - `poi.deleted` (POI removed)
 **Payload (minimum):**
 ```json
-{ "ref_type": "event|account|static_asset", "ref_id": "string", "type": "poi.created|poi.updated|poi.deleted", "updated_at": "2025-01-01T00:00:00Z" }
+{ "ref_type": "event|account_profile|static", "ref_id": "string", "type": "poi.created|poi.updated|poi.deleted", "updated_at": "2025-01-01T00:00:00Z" }
 ```
 
 ### `GET /map/pois`
@@ -648,7 +662,7 @@
   "tenant_id": "string",
   "items": [
     {
-      "ref_type": "event|account|static_asset",
+      "ref_type": "event|account_profile|static",
       "ref_id": "string",
       "category": "culture|beach|nature|historic|restaurant",
       "tags": ["string"],
@@ -661,7 +675,7 @@
 }
 ```
 **Field Definitions**
-- `ref_type`: `event`, `account`, `static_asset`.
+- `ref_type`: `event`, `account_profile`, `static`.
 - `category`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
 - `taxonomy_terms[]`: typed pairs `{type, value}` attached to the POI for filtering.
 
@@ -1013,7 +1027,6 @@
     {
       "type": "string",
       "label": "string",
-      "parent_type": "string?",
       "allowed_taxonomies": ["string"],
       "capabilities": {
         "is_favoritable": true,
@@ -1216,23 +1229,25 @@
 }
 ```
 
-### `GET /assets`
-**Purpose:** List StaticAssets.  
+### `GET /admin/api/v1/static_assets`
+**Purpose:** List Static Assets (tenant-admin).  
 **Response:**
 ```json
 {
-  "tenant_id": "string",
   "data": [
     {
-      "asset_id": "string",
+      "id": "string",
       "name": "string",
+      "description": "string?",
       "category": "culture|beach|nature|historic|restaurant",
       "tags": ["string"],
-      "description": "string?",
-      "thumbnail_url": "string?",
+      "taxonomy_terms": [{ "type": "string", "value": "string" }],
       "location": { "lat": 0.0, "lng": 0.0 },
+      "priority": 20,
+      "is_active": true,
+      "created_at": "2025-01-01T00:00:00Z",
       "updated_at": "2025-01-01T00:00:00Z",
-      "created_at": "2025-01-01T00:00:00Z"
+      "deleted_at": "2025-01-01T00:00:00Z"
     }
   ],
   "current_page": 1,
@@ -1244,39 +1259,43 @@
 **Field Definitions**
 - `category`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
 
-### `GET /assets/{asset_id}`
-**Purpose:** Fetch a single StaticAsset by id.  
+### `GET /admin/api/v1/static_assets/{asset_id}`
+**Purpose:** Fetch a single Static Asset by id (tenant-admin).  
 **Response:**
 ```json
 {
-  "tenant_id": "string",
   "data": {
-    "asset_id": "string",
+    "id": "string",
     "name": "string",
+    "description": "string?",
     "category": "culture|beach|nature|historic|restaurant",
     "tags": ["string"],
-    "description": "string?",
-    "thumbnail_url": "string?",
+    "taxonomy_terms": [{ "type": "string", "value": "string" }],
     "location": { "lat": 0.0, "lng": 0.0 },
+    "priority": 20,
+    "is_active": true,
+    "created_at": "2025-01-01T00:00:00Z",
     "updated_at": "2025-01-01T00:00:00Z",
-    "created_at": "2025-01-01T00:00:00Z"
+    "deleted_at": "2025-01-01T00:00:00Z"
   }
 }
 ```
 **Field Definitions**
 - `category`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
 
-### `POST /assets`
-**Purpose:** Create StaticAsset.  
+### `POST /admin/api/v1/static_assets`
+**Purpose:** Create Static Asset (tenant-admin).  
 **Request (body):**
 ```json
 {
   "name": "string",
+  "description": "string?",
   "category": "culture|beach|nature|historic|restaurant",
   "tags": ["string"],
-  "description": "string?",
-  "thumbnail_url": "string?",
-  "location": { "lat": 0.0, "lng": 0.0 }
+  "taxonomy_terms": [{ "type": "string", "value": "string" }],
+  "location": { "lat": 0.0, "lng": 0.0 },
+  "priority": 20,
+  "is_active": true
 }
 ```
 **Field Definitions**
@@ -1285,45 +1304,55 @@
 **Response:**
 ```json
 {
-  "tenant_id": "string",
   "data": {
-    "asset_id": "string",
+    "id": "string",
     "name": "string",
+    "description": "string?",
     "category": "culture|beach|nature|historic|restaurant",
     "tags": ["string"],
-    "description": "string?",
-    "thumbnail_url": "string?",
+    "taxonomy_terms": [{ "type": "string", "value": "string" }],
     "location": { "lat": 0.0, "lng": 0.0 },
+    "priority": 20,
+    "is_active": true,
+    "created_at": "2025-01-01T00:00:00Z",
     "updated_at": "2025-01-01T00:00:00Z",
-    "created_at": "2025-01-01T00:00:00Z"
+    "deleted_at": "2025-01-01T00:00:00Z"
   }
 }
 ```
 **Field Definitions**
 - `category`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
 
-### `PATCH /assets/{asset_id}`
-**Purpose:** Update StaticAsset.  
+### `PATCH /admin/api/v1/static_assets/{asset_id}`
+**Purpose:** Update Static Asset (tenant-admin).  
 **Request (body):** same fields as create (partial).  
 **Response:**
 ```json
 {
-  "tenant_id": "string",
   "data": {
-    "asset_id": "string",
+    "id": "string",
     "name": "string",
+    "description": "string?",
     "category": "culture|beach|nature|historic|restaurant",
     "tags": ["string"],
-    "description": "string?",
-    "thumbnail_url": "string?",
+    "taxonomy_terms": [{ "type": "string", "value": "string" }],
     "location": { "lat": 0.0, "lng": 0.0 },
+    "priority": 20,
+    "is_active": true,
+    "created_at": "2025-01-01T00:00:00Z",
     "updated_at": "2025-01-01T00:00:00Z",
-    "created_at": "2025-01-01T00:00:00Z"
+    "deleted_at": "2025-01-01T00:00:00Z"
   }
 }
 ```
 **Field Definitions**
 - `category`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
+
+### `POST /admin/api/v1/static_assets/{asset_id}/restore`
+**Purpose:** Restore Static Asset (tenant-admin).  
+
+### `DELETE /admin/api/v1/static_assets/{asset_id}/force_delete`
+**Purpose:** Force delete Static Asset (tenant-admin).  
 
 ### `GET /events`
 **Purpose:** List events (tenant scope).  
