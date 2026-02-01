@@ -33,6 +33,50 @@
   - `rg -n "class .*extends (StatelessWidget|StatefulWidget)" flutter-app/lib/presentation | awk -F: '{count[$1]++} END {for (f in count) if (count[f]>1) print count[f] \" \" f}' | sort -nr`
   - `rg -n "Dto|DTO" flutter-app/lib/domain`
 
+## Current Findings (Recheck 2026-02-01)
+### setState usage (soft-no unless truly ephemeral)
+- `flutter-app/lib/presentation/tenant_admin/account_profiles/screens/tenant_admin_account_profile_edit_screen.dart`
+- `flutter-app/lib/presentation/tenant_admin/account_profiles/screens/tenant_admin_account_profile_create_screen.dart`
+- `flutter-app/lib/presentation/tenant_admin/profile_types/screens/tenant_admin_profile_type_form_screen.dart`
+- `flutter-app/lib/presentation/tenant_admin/accounts/screens/tenant_admin_accounts_list_screen.dart`
+- `flutter-app/lib/presentation/tenant_admin/accounts/screens/tenant_admin_account_detail_screen.dart`
+- `flutter-app/lib/presentation/tenant_admin/accounts/screens/tenant_admin_account_create_screen.dart`
+- `flutter-app/lib/presentation/tenant/invites/screens/invite_flow_screen/invite_flow_screen.dart`
+- `flutter-app/lib/presentation/tenant/schedule/screens/event_detail_screen/widgets/swipeable_invite_widget.dart`
+- `flutter-app/lib/presentation/tenant/profile/screens/profile_screen/profile_screen.dart`
+- `flutter-app/lib/presentation/common/push/push_option_selector_sheet.dart`
+- `flutter-app/lib/presentation/tenant/map/screens/map_screen/widgets/fab_menu.dart`
+- `flutter-app/lib/presentation/tenant/map/screens/map_screen/widgets/poi_details_deck.dart`
+- `flutter-app/lib/presentation/tenant/schedule/widgets/agenda_app_bar.dart` (local builder setState)
+- `flutter-app/lib/presentation/tenant/widgets/animated_search_button.dart`
+- `flutter-app/lib/presentation/tenant/widgets/carousel_card.dart`
+- `flutter-app/lib/presentation/common/widgets/swipeable_card/swipeable_card.dart`
+- `flutter-app/lib/presentation/common/init/screens/init_screen/init_screen.dart`
+- `flutter-app/lib/presentation/prototypes/map_debug/map_debug_screen.dart`
+
+### FutureBuilder/StreamBuilder (hard-no)
+- `flutter-app/lib/presentation/tenant/schedule/routes/widgets/event_detail_loader.dart`
+- `flutter-app/lib/presentation/common/widgets/image_palette_theme.dart`
+
+### Direct Navigator usage in presentation (hard-no)
+- `flutter-app/lib/presentation/common/push/push_option_selector_sheet.dart`
+- `flutter-app/lib/presentation/tenant_admin/accounts/screens/tenant_admin_account_detail_screen.dart`
+- `flutter-app/lib/presentation/common/widgets/immersive_detail_screen/immersive_detail_screen.dart`
+- `flutter-app/lib/presentation/tenant_admin/profile_types/screens/tenant_admin_profile_types_list_screen.dart`
+- `flutter-app/lib/presentation/tenant/schedule/widgets/agenda_app_bar.dart`
+- `flutter-app/lib/presentation/common/auth/screens/auth_login_screen/widgets/auth_login_canva_content.dart`
+- `flutter-app/lib/presentation/common/location_permission/screens/location_permission_screen/location_permission_screen.dart`
+- `flutter-app/lib/presentation/landlord/auth/widgets/landlord_login_sheet.dart`
+- `flutter-app/lib/presentation/common/location_permission/screens/location_not_live_screen/location_not_live_screen.dart`
+- `flutter-app/lib/presentation/tenant/invites/screens/invite_flow_screen/widgets/invite_card_inviter_banner.dart`
+- `flutter-app/lib/presentation/tenant/schedule/screens/event_detail_screen/widgets/event_detail_header.dart`
+- `flutter-app/lib/presentation/tenant/map/screens/map_screen/widgets/poi_details_deck.dart`
+- `flutter-app/lib/presentation/tenant/profile/screens/profile_screen/profile_screen.dart`
+- `flutter-app/lib/presentation/tenant/home/screens/tenant_home_screen/tenant_home_screen.dart`
+
+### Multi-widget files (hard-no; split to 1 widget per file)
+- None (clean)
+
 ## Tasks
 - [x] ✅ Production‑Ready — Confirm device test runner grants runtime permissions (location + notifications) **before each test run**.
 - [x] ✅ Production‑Ready — Run a single integration test to validate no permission dialogs block execution; capture result in checklist.
@@ -64,13 +108,21 @@
   - Move disposal to controller `onDispose` and ensure controller implements `Disposable`.
 - [ ] ⚪ Pending — Remove **GetIt** usage from widgets/screens (ModuleScope/controller-provided only):
   - All files flagged by `rg -n "GetIt\\.I|getIt\\." flutter-app/lib/presentation | rg -v "/controllers/"`.
-- [ ] ⚪ Pending — Remove `FutureBuilder`/`StreamBuilder` from presentation (use StreamValueBuilder + controller state):
+- [x] ✅ Production‑Ready — Remove `FutureBuilder`/`StreamBuilder` from presentation (use StreamValueBuilder + controller state):
   - `flutter-app/lib/presentation/common/widgets/image_palette_theme.dart`
   - `flutter-app/lib/presentation/tenant/schedule/routes/widgets/event_detail_loader.dart`
-- [ ] ⚪ Pending — Remove direct `Navigator.*` usage from presentation (router/controller-driven):
+- [x] ✅ Production‑Ready — Remove direct `Navigator.*` usage from presentation (router/controller-driven):
   - All files flagged by `rg -n "Navigator\\." flutter-app/lib/presentation`.
-- [ ] ⚪ Pending — Split files with multiple widget classes (1 widget per file rule):
-  - All files flagged by the multi-widget scan (see Validation Steps).
+- [x] ✅ Production‑Ready — Split files with multiple widget classes (1 widget per file rule):
+  - Multi-widget scan clean (no files reported).
+- [ ] ⚪ Pending — Hard‑NO cleanup sweep (must reach **zero**):
+  - Repository/domain/DAO access inside screens/widgets.
+  - Any state manager other than StreamValue (Provider/Bloc/GetX/ChangeNotifier/ValueNotifier/etc.).
+  - Business logic in screens (filters, mapping, validation, formatting).
+  - Direct GetIt access in widgets (controllers only).
+  - Network calls or side effects inside UI (no async work in widgets).
+  - DTOs used directly in UI/controllers (must be domain/projection).
+  - UI deciding what to fetch (controller/route owns).
 - [x] ✅ Production‑Ready — Remove DTO usage from **domain** layer (DTOs only in infrastructure):
   - All files flagged by `rg -n "Dto|DTO" flutter-app/lib/domain` are clean; mapping is centralized in infrastructure DTO mappers.
 
