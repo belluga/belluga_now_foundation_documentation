@@ -7,6 +7,8 @@ This document defines the Core Business Entities (CBEs) for the Bóora! platform
 
 This list serves as the domain source of truth referenced by the `system_architecture_principles.md` (Principle P-1) and is the foundation for all module design.
 
+**Flutter domain boundary:** Domain entities and value objects must not depend on DTOs or infrastructure types. All DTO parsing/mapping lives in the infrastructure layer (mappers/repositories), and UI/controllers consume only domain/projection models.
+
 ---
 
 ## 2. Core Business Entities
