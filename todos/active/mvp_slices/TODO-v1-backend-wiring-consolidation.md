@@ -47,6 +47,11 @@
 - [ ] ⚪ Validate app data + tenant fetch flows still resolve through `BackendContract`.
 - [x] ✅ Production-Ready Validate backend HTTP layers consume context via `BackendContract`.
 
+### C4) No fallback + offline UX
+- [ ] ⚪ Remove any implicit backend fallback in production paths; hard-fail when backend is unavailable.
+- [ ] ⚪ Implement explicit offline UX (screens/snacks) for backend-down scenarios, per flow.
+- [ ] ⚪ Add connectivity snack: start with "Conectando…" and if it persists switch to "Parece que você está sem conexão à internet.".
+
 ---
 
 ## D) Definition of Done

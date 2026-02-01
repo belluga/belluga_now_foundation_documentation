@@ -30,6 +30,7 @@
 - [x] ✅ Map uses schedule events for **current date only** and filters by location radius.
 - [ ] ⚪ Agenda/event requests include `Authorization: Bearer <AuthRepository.userToken>` and `Accept: application/json`; event stream includes `Authorization` header.
 - [ ] ⚪ Fix analyzer error from missing `InviteFilter` import in Home agenda empty state.
+- [x] ✅ Production‑Ready SSE query params are serialized as strings (lists via queryParametersAll, taxonomy as JSON string) to avoid `Uri` type errors.
 
 ### A2) Event detail
 - [x] ✅ Event detail renders venue + artists summaries.

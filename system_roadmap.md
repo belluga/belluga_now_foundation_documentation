@@ -22,7 +22,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 |----------|--------|-------------|----------------|-------|
 | `/api/v1/anonymous/identities` | MOD-101 | Anonymous identity bootstrap (Sanctum token issuance for web/app guest flows). | Implemented | Unauthenticated route returns `{user_id, identity_state, token, abilities, expires_at?}`; abilities/TTL controlled by `tenant.anonymous_access_policy`. |
 | `/api/v1/auth/token_validate` | MOD-101 | Validate bearer token and return minimal user profile. | Defined | Returns `{ data: { user: { id, name, emails, custom_data } } }` for login check. |
-| `/api/v1/environment` | MOD-101 | Tenant/landlord resolution + branding payload for app/web bootstraps. | Implemented | Returns tenant identity + theme settings + telemetry/firebase/push config + `settings.map_ui.radius` (min/default/max); location freshness lives under `telemetry`; uses host/app domain context. |
+| `/api/v1/environment` | MOD-101 | Tenant/landlord resolution + branding payload for app/web bootstraps. | Implemented | Returns tenant identity + theme settings + telemetry/firebase/push config + `profile_types` registry + `settings.map_ui.radius` (min/default/max); location freshness lives under `telemetry`; uses host/app domain context. |
 | `/api/v1/invites` | MOD-201 | Invite feed and referral graph. | Mocked | Enforces 1 invite per person/event; **user invites** limited to contacts/installed users; **account_profile invites** can target favorites/followers (admin-assigned in MVP). |
 | `/api/v1/invites/stream` | MOD-201 | Invite delta stream (SSE). | Planned | Emits invite created/updated/deleted events for authenticated user; inviter principal kind = `user|account_profile`. |
 | `/api/v1/invites/settings` | MOD-201 | Backend-owned invite quotas, anti-spam limits, and UX messaging settings. | Planned | Backend enforces over-quota responses (`429`) and returns reset metadata; Flutter fetches for messaging/UX. |
@@ -59,6 +59,9 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/account_profiles/{account_profile_id}` | Tenant Admin | Fetch/update/delete account profile. | Implemented | Tenant‑scoped; landlord users only. Soft delete + restore + force delete endpoints are live. |
 | `/api/v1/account_profiles/geo` | Tenant Admin | Geo search for POI-enabled profiles. | Implemented | Optional origin + distance; filters by `profile_type`. |
 | `/api/v1/account_profile_types` | Tenant Admin | Profile type registry (tenant settings). | Implemented | Returns registry entries and capabilities. |
+| `/api/v1/account_profile_types` | Tenant Admin | Create profile type registry entry. | Implemented | Persists to `TenantSettings.profile_type_registry`. |
+| `/api/v1/account_profile_types/{profile_type}` | Tenant Admin | Update profile type registry entry. | Implemented | `profile_type` is immutable; patch label/capabilities/taxonomies. |
+| `/api/v1/account_profile_types/{profile_type}` | Tenant Admin | Delete profile type registry entry. | Implemented | Removes entry from registry; no soft delete in MVP. |
 | `/api/v1/assets` | Tenant Admin | List assets. | Planned | Page-based admin listing. |
 | `/api/v1/assets/{asset_id}` | Tenant Admin | Get asset detail. | Planned | Returns asset metadata + URLs. |
 | `/api/v1/assets` | Tenant Admin | Create asset. | Planned | Upload/register media for tenant assets. |

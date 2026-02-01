@@ -6,6 +6,10 @@
 ## Objective
 Deliver the MVP **frontend-only** tenant user area that allows creation of Accounts and Account Profiles, and links profiles to accounts. This enables admin-assigned operators to bootstrap account profile identities (partner label) without full memberships. The UI must respect `ownership_state` and optional Organization grouping.
 
+## References
+- `foundation_documentation/todos/completed/TODO-v1-account-profile-implementation.md`
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-admin-data-layer-rebuild.md`
+
 ## Scope
 - Document the **tenant user area** flows for:
   - Create Account
@@ -87,6 +91,11 @@ Deliver the MVP **frontend-only** tenant user area that allows creation of Accou
 - [x] Done Implement ownership_state filters + segmented lists (tenant_owned, unmanaged, user_owned).
 - [x] Done Add empty/error states for each list and create flow validation feedback.
 - [x] Done Ensure event management routes are stubbed or hidden until ready.
+
+## Merge Stabilization (tenant-area)
+- [x] ✅ Production-Ready Remove legacy auth fallback wrapper in `lib/infrastructure/dal/dao/laravel_backend/auth_backend/auth_backend.dart` (strict contract only).
+- [ ] ⚪ Resolve remaining analyzer errors after merging tenant-area into dev.
+- [ ] ⚪ Run `fvm flutter analyze` and confirm a clean result.
 
 ## UI Data Model Mapping (Tenant Admin UI)
 

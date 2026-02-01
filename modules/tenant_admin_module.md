@@ -329,6 +329,82 @@ List profile type registry for the tenant.
 }
 ```
 
+### `POST /api/v1/account_profile_types`
+Create a profile type registry entry (tenant admin).
+
+**Request Schema**
+```json
+{
+  "type": "string",
+  "label": "string",
+  "allowed_taxonomies": ["string"],
+  "capabilities": {
+    "is_favoritable": true,
+    "is_poi_enabled": false
+  }
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "type": "string",
+    "label": "string",
+    "allowed_taxonomies": ["string"],
+    "capabilities": {
+      "is_favoritable": true,
+      "is_poi_enabled": false
+    }
+  }
+}
+```
+
+### `PATCH /api/v1/account_profile_types/{profile_type}`
+Update a profile type registry entry (tenant admin).
+
+**Request Schema**
+```json
+{
+  "label": "string?",
+  "allowed_taxonomies": ["string"],
+  "capabilities": {
+    "is_favoritable": true,
+    "is_poi_enabled": false
+  }
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "type": "string",
+    "label": "string",
+    "allowed_taxonomies": ["string"],
+    "capabilities": {
+      "is_favoritable": true,
+      "is_poi_enabled": false
+    }
+  }
+}
+```
+
+### `DELETE /api/v1/account_profile_types/{profile_type}`
+Delete a profile type registry entry (tenant admin).
+
+**Response Schema**
+```json
+{}
+```
+
+**Field Definitions**
+- `profile_type_registry.type` (string): unique key for the profile type registry entry (immutable after creation).
+- `profile_type_registry.label` (string): human-readable name of the profile type.
+- `profile_type_registry.allowed_taxonomies` (list): list of taxonomy keys allowed for the profile type.
+- `profile_type_registry.capabilities.is_favoritable` (bool): whether the profile type can be favorited.
+- `profile_type_registry.capabilities.is_poi_enabled` (bool): whether the profile type requires/participates in map POI location.
+
 ### `GET /api/v1/account_profiles`
 List account profiles (optionally filter by `account_id`).
 
@@ -374,10 +450,14 @@ Create account profile (requires `account_id`).
   "taxonomy_terms": [{ "type": "string", "value": "string" }],
   "bio": "string?",
   "avatar_url": "string?",
-  "cover_url": "string?"
+  "cover_url": "string?",
+  "avatar": "file?",
+  "cover": "file?"
 }
 ```
+**Upload notes:** When sending `avatar`/`cover`, use `multipart/form-data`. The backend stores files and persists the resulting public URLs in `avatar_url`/`cover_url`.
 **Notes:** `location` is **required** when the registry marks `profile_type` as `is_poi_enabled=true`.
+**Tenant Admin UX:** The bound Account + Profile creation flow must enforce the location requirement for POI-enabled profile types and offer a **Map Pick** action to populate `location.lat`/`location.lng`.
 
 **Response Schema**
 ```json
@@ -442,9 +522,12 @@ Update account profile basic fields.
   "taxonomy_terms": [{ "type": "string", "value": "string" }],
   "bio": "string?",
   "avatar_url": "string?",
-  "cover_url": "string?"
+  "cover_url": "string?",
+  "avatar": "file?",
+  "cover": "file?"
 }
 ```
+**Upload notes:** Use `multipart/form-data` when sending `avatar`/`cover`. PATCH updates are partial; only provided fields are modified.
 
 **Response Schema**
 ```json
