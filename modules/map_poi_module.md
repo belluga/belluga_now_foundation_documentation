@@ -40,7 +40,8 @@ The primary mechanism for fetching POIs will be an on-demand process driven by t
 map_ui: {
   radius: { min_km: 1, default_km: 5, max_km: 50 },
   default_location: { lat: Number, lng: Number }, // optional
-  poi_time_window_hours: { past: 6, future: 720 } // optional
+  poi_time_window_days: { past: 1, future: 30 }, // optional
+  events: { default_duration_hours: 3 } // optional
 }
 ```
 If tenant settings are missing, the defaults above apply. `default_location` is used as the initial origin when user location is unavailable.
@@ -102,7 +103,7 @@ For V1, we treat `map_pois` as a **materialized projection/read model** used by 
 
 Key properties:
 - `map_pois` is the map projection (geometry + category + tags + priority + deep-link reference).
-- The record may carry an optional `time_anchor_at` (nullable). We do **not** store `visible_from`/`visible_until`. Visibility windows are computed at query time using backend-owned tenant settings.
+- The record may carry optional `active_window_start_at` + `active_window_end_at` (nullable). We do **not** store `visible_from`/`visible_until`. Visibility windows are computed at query time using backend-owned tenant settings and the **user timezone** stored on the user profile.
 - Account Profile/Custom Object types can enable/disable POI projection via capabilities. When disabled, the backend can keep the POI record but set `is_active=false` (soft disabled), or omit creation entirely for that type.
 
 **Reference linkage (required):**
@@ -116,14 +117,15 @@ Key properties:
 **Time anchor (optional):**
 ```json
 {
-  "time_anchor_at": "Date | null"
+  "active_window_start_at": "Date | null",
+  "active_window_end_at": "Date | null"
 }
 ```
 
 Query-time window policy (backend settings example):
-- include time-anchored POIs where `time_anchor_at <= now + future_window_hours`
-- and `time_anchor_at >= now - past_window_hours`
-- POIs without `time_anchor_at` are always eligible (subject to `is_active`, viewport, and filters)
+- include time-windowed POIs where `active_window_start_at <= endOfDay(now + future_window_days)`
+- and `active_window_end_at >= startOfDay(now - past_window_days)`
+- POIs without `active_window_*` are always eligible (subject to `is_active`, viewport, and filters)
 
 This ensures future events/campaigns do not appear immediately when created, while still allowing the backend to tune visibility without rewriting data.
 
@@ -160,13 +162,14 @@ Projection into `map_pois` on save (example):
   "tags": ["cerveja", "promo", "happy-hour"],
   "priority": 10,
   "is_active": true,
-  "time_anchor_at": "2025-12-13T18:00:00Z"
+  "active_window_start_at": "2025-12-13T18:00:00Z",
+  "active_window_end_at": "2025-12-13T21:00:00Z"
 }
 ```
 
 Notes:
 - The POI exists as a projection; the canonical coupon object holds the full details and validation rules.
-- `time_anchor_at` uses `starts_at` by default; tenant settings decide how early/late it appears.
+- `active_window_*` defaults to `event.date_time_start` and `event.date_time_end` (or `start + settings.events.default_duration_hours`).
 
 ### 3.7 Same-Spot POIs (Stacking, Deduplication, and Performance)
 
@@ -189,7 +192,7 @@ For V1, we implement (1) as the default and defer (2) unless density demands it.
 #### C) Coordinate Normalization (Required for Exact-Key Stacks)
 
 To make “exact same location” deterministic across writes, the backend must normalize coordinates when persisting `map_pois`:
-- Store `location.coordinates` rounded to a fixed precision (e.g., 6 decimals).
+- Store `location.coordinates` rounded to a fixed precision (5 decimals).
 - Derive an `exact_key` from the normalized coordinates (string or separate fields), e.g. `"lat,lng"`.
 
 This avoids float noise causing two logically identical points to fail stacking.
@@ -240,9 +243,17 @@ Response shape (example):
     -   Backend enforcement:
         - Use MongoDB geospatial queries (`$geoNear` and/or `$geoWithin`) as the authoritative source of “nearby” truth.
         - When `origin_lat/lng` is provided, return `distance_meters` for each POI.
-        - Apply time-window filters for `time_anchor_at` using backend-owned tenant settings (future/past windows). The client should not hardcode visibility windows.
-    -   Response fields: standard POI attributes plus `distance_meters` (double, optional when distance is not requested) and `taxonomy_terms` (typed pairs for filtering). When sorting by `distance`, backend orders by ascending distance while still honoring priority tiers (sponsors > live events > others).
-2.  **Filter Discovery Endpoint:** `GET /api/v1/map/filters`
+        - Apply time-window filters for `active_window_*` using backend-owned tenant settings (future/past **days**). The client should not hardcode visibility windows.
+    -   Response fields: **stack groups** keyed by `stack_key`, each with `center`, `stack_count`, and a `top_poi` payload. The `top_poi.updated_at` field is required for polling cache validation. `tags[]` and `taxonomy_terms[]` are **filter-only** and are not returned in this payload. When sorting by `distance`, backend orders by ascending distance while still honoring priority tiers (sponsors > live events > others).
+2.  **Nearby Card List Endpoint:** `GET /api/v1/map/near`
+    -   Purpose: return a distance-ordered list of POI cards, paginated (default 10/page), with richer fields for navigation.
+    -   Parameters (query string):
+        - `origin_lat`, `origin_lng` (required).
+        - `max_distance_meters` (optional).
+        - `categories[]`, `tags[]`, `taxonomy[]`, `search` (optional).
+        - `page`, `page_size` (optional; default 10).
+    -   Response fields: `ref_type`, `ref_id`, `ref_slug`, `ref_path` (`/{ref_type}/{ref_slug}`), `title`, `subtitle?`, `category`, `location`, `distance_meters`, `updated_at`, `avatar_url?`, `cover_url?`, `badge?`, `time_start?`, `time_end?`, plus `tags[]` and `taxonomy_terms[]`.
+3.  **Filter Discovery Endpoint:** `GET /api/v1/map/filters`
     -   Returns all available categories and their associated tags to dynamically build the filter UI (taxonomy catalog is sourced separately and applied as advanced filters when needed).
 
 ### 4.2. SSE API (Real-Time Events)

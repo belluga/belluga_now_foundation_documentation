@@ -633,54 +633,122 @@
 ```json
 { "ref_type": "event|account_profile|static", "ref_id": "string", "type": "poi.created|poi.updated|poi.deleted", "updated_at": "2025-01-01T00:00:00Z" }
 ```
+**MVP note:** SSE is deferred; keep the contract documented but do not implement for V1 unless polling proves insufficient.
 
 ### `GET /map/pois`
 **Purpose:** Map POIs from projection (`map_pois`).  
 **Request (query):**
 ```json
 {
-  "viewport": { "north": 0.0, "south": 0.0, "east": 0.0, "west": 0.0 },
+  "ne_lat": 0.0,
+  "ne_lng": 0.0,
+  "sw_lat": 0.0,
+  "sw_lng": 0.0,
   "origin_lat": 0.0,
   "origin_lng": 0.0,
   "max_distance_meters": 100000,
   "categories": ["culture"],
   "tags": ["string"],
-  "taxonomy": [{ "type": "string", "value": "string" }],
+  "taxonomy": ["type:value"],
   "search": "string?",
-  "sort": "priority|distance|time_to_event"
+  "sort": "priority|distance|time_to_event",
+  "stack_key": "string?"
 }
 ```
 **Field Definitions**
 - `categories[]`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
 - `sort`: `priority`, `distance`, `time_to_event`.
+- `taxonomy[]`: `type:value` tokens (e.g., `cuisine:italian`).
 
 **Notes:**
 - Pagination is page-based elsewhere; map queries rely on viewport + radius rather than explicit item limits.
+- `tags[]` and `taxonomy[]` are **filter-only** and are not returned in the `/map/pois` payload.
+- Response includes `server_time` and the echoed `bounds` for client cache + delta logic.
+- Day-based event window filtering uses the **user profile timezone**.
 **Response (minimum):**
 ```json
 {
   "tenant_id": "string",
+  "server_time": "2025-01-01T00:00:00Z",
+  "bounds": { "ne_lat": 0.0, "ne_lng": 0.0, "sw_lat": 0.0, "sw_lng": 0.0 },
+  "stacks": [
+    {
+      "stack_key": "string",
+      "center": { "lat": 0.0, "lng": 0.0 },
+      "stack_count": 1,
+      "top_poi": {
+        "ref_type": "event|account_profile|static",
+        "ref_id": "string",
+        "category": "culture|beach|nature|historic|restaurant",
+        "location": { "lat": 0.0, "lng": 0.0 },
+        "priority": 0,
+        "updated_at": "2025-01-01T00:00:00Z",
+        "distance_meters": 0
+      }
+    }
+  ]
+}
+```
+**Stack expansion:** When `stack_key` is provided, each stack includes `items[]` (ordered by priority + stable tiebreaker) with the same minimal POI fields as `top_poi`.
+**Field Definitions**
+- `ref_type`: `event`, `account_profile`, `static`.
+- `category`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
+- `stack_key`: required for every stack, even when `stack_count = 1`.
+- `top_poi.updated_at`: required for polling cache validation.
+
+### `GET /map/near`
+**Purpose:** Distance-ordered card list for POIs (paginated, richer payload).  
+**Request (query):**
+```json
+{
+  "origin_lat": 0.0,
+  "origin_lng": 0.0,
+  "max_distance_meters": 100000,
+  "categories": ["culture"],
+  "tags": ["string"],
+  "taxonomy": ["type:value"],
+  "search": "string?",
+  "page": 1,
+  "page_size": 10
+}
+```
+**Response (minimum):**
+```json
+{
+  "tenant_id": "string",
+  "page": 1,
+  "page_size": 10,
+  "has_more": false,
   "items": [
     {
       "ref_type": "event|account_profile|static",
       "ref_id": "string",
+      "ref_slug": "string",
+      "ref_path": "/event/sample-event",
+      "title": "string",
+      "subtitle": "string?",
       "category": "culture|beach|nature|historic|restaurant",
-      "tags": ["string"],
-      "taxonomy_terms": [{ "type": "string", "value": "string" }],
       "location": { "lat": 0.0, "lng": 0.0 },
-      "time_anchor_at": "2025-01-01T00:00:00Z",
-      "distance_meters": 0
+      "distance_meters": 0,
+      "updated_at": "2025-01-01T00:00:00Z",
+      "time_start": "2025-01-01T00:00:00Z",
+      "time_end": "2025-01-01T03:00:00Z",
+      "avatar_url": "string?",
+      "cover_url": "string?",
+      "badge": "string?",
+      "tags": ["string"],
+      "taxonomy_terms": [{ "type": "string", "value": "string" }]
     }
   ]
 }
 ```
 **Field Definitions**
-- `ref_type`: `event`, `account_profile`, `static`.
-- `category`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
+- `ref_path`: `/{ref_type}/{ref_slug}` (slugs are unique per model only).
 - `taxonomy_terms[]`: typed pairs `{type, value}` attached to the POI for filtering.
 
 ### `GET /map/filters`
 **Purpose:** Server-defined filter catalog.  
+**Request (query params):** Same scoping filters as `/map/pois` (`ne_lat`, `ne_lng`, `sw_lat`, `sw_lng`, `origin_lat`, `origin_lng`, `max_distance_meters`, `categories[]`, `tags[]`, `taxonomy[]`, `search`).  
 **Response:**
 ```json
 {

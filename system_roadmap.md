@@ -22,9 +22,9 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | Endpoint | Module | Description | Current Status | Notes |
 |----------|--------|-------------|----------------|-------|
 | `/api/v1/anonymous/identities` | MOD-101 | Anonymous identity bootstrap (Sanctum token issuance for web/app guest flows). | Implemented | Unauthenticated route returns `{user_id, identity_state, token, abilities, expires_at?}`; abilities/TTL controlled by `tenant.anonymous_access_policy`. |
-| `/api/v1/auth/token_validate` | MOD-101 | Validate bearer token and return minimal user profile. | Defined | Returns `{ data: { user: { id, name, emails, custom_data } } }` for login check. |
+| `/api/v1/auth/token_validate` | MOD-101 | Validate bearer token and return minimal user profile. | Implemented | Returns `{ data: { user: { id, name, emails, custom_data } } }` for login check; route registered in `routes/api/public_tenant_maybe_api_v1.php`. |
 | `/api/v1/environment` | MOD-101 | Tenant/landlord resolution + branding payload for app/web bootstraps. | Implemented | Returns tenant identity + theme settings + telemetry/firebase/push config + `profile_types` registry + `settings.map_ui.radius` (min/default/max); location freshness lives under `telemetry`; uses host/app domain context. |
-| `/api/v1/invites` | MOD-201 | Invite feed and referral graph. | Mocked | Enforces 1 invite per person/event; **user invites** limited to contacts/installed users; **account_profile invites** can target favorites/followers (admin-assigned in MVP). |
+| `/api/v1/invites` | MOD-201 | Invite feed and referral graph. | Defined | Enforces 1 invite per person/event; **user invites** limited to contacts/installed users; **account_profile invites** can target favorites/followers (admin-assigned in MVP). No route registered in `routes/api`. |
 | `/api/v1/invites/stream` | MOD-201 | Invite delta stream (SSE). | Planned | Emits invite created/updated/deleted events for authenticated user; inviter principal kind = `user|account_profile`. |
 | `/api/v1/invites/settings` | MOD-201 | Backend-owned invite quotas, anti-spam limits, and UX messaging settings. | Planned | Backend enforces over-quota responses (`429`) and returns reset metadata; Flutter fetches for messaging/UX. |
 | `/api/v1/invites/share` | MOD-201 | External share codes for event invites (new user install/signup attribution). | Planned | Anyone who can invite can generate; resolves to `inviter_principal` (user or account_profile) + `event_id`; requires `account_profile_id` when inviter is account_profile; includes `/consume` to bind attribution post-install. |
@@ -32,11 +32,12 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/agenda` | MOD-201 | Paged agenda feed with search + past toggle, includes happening-now events. | Tested & Ready | Request: `page`, `page_size`, `past_only`, `search`, `categories`, `tags`, `taxonomy`, `confirmed_only`, `origin_lat/lng`, `max_distance_meters`. Response: event DTO items (type, venue, artists, tags, invite arrays, is_confirmed, total_confirmed), `has_more` flag. Event geo is derived from venue profile location (no standalone event location). Happening-now rule: `date_time_start <= now < date_time_end` (default end = start + 3h). |
 | `/api/v1/events/stream` | MOD-201 | Event delta stream (SSE). | Tested & Ready | Emits event created/updated/deleted events for filtered feeds; clients resume with `Last-Event-ID` and reload page 1 on reconnect without it. |
 | `/api/v1/events/{event_id}` | MOD-201 | Event detail payload. | Tested & Ready | Event detail contract aligned to agenda cards + map POI references. Event geo comes from venue profile location. |
-| `/api/v1/map/pois` | MOD-201 | Map POIs (projection-backed). | Implemented | `map_pois` projection updated from StaticAssets, Events, and POI-enabled Account Profiles; use MongoDB GeoQuery with viewport + optional origin/radius and filters (`categories`, `tags`, `taxonomy`, `search`). |
-| `/api/v1/map/pois/stream` | MOD-201 | Map POI delta stream (SSE). | Implemented | Emits POI created/updated/deleted events for active viewport/filters. |
-| `/api/v1/map/filters` | MOD-201 | Map filter discovery (categories/tags). | Implemented | Required to remove hardcoded filter catalogs from mocks. |
+| `/api/v1/map/pois` | MOD-201 | Map POIs (projection-backed). | Tested & Ready | Minimal stack payload with `stack_key` + `top_poi.updated_at`; filters by `categories`, `tags`, `taxonomy`, `search`; no tags/taxonomy returned. Uses user profile timezone for day-based event window filters. |
+| `/api/v1/map/pois/stream` | MOD-201 | Map POI delta stream (SSE). | Defined | Emits POI created/updated/deleted events for active viewport/filters. Deferred for MVP (polling only); no route registered in `routes/api`. |
+| `/api/v1/map/filters` | MOD-201 | Map filter discovery (categories/tags). | Tested & Ready | Returns category/tag/taxonomy catalogs from the projection set; removes hardcoded filter catalogs from mocks. |
+| `/api/v1/map/near` | MOD-201 | Map POI card list (distance-ordered). | Tested & Ready | Paginated (default 10/page) with rich card fields, tags, and taxonomy terms; includes `ref_slug` + `ref_path`. |
 | `/api/v1/me` | MOD-201 | Authenticated profile summary and role claims. | Implemented | Mock payload authoring queued in FCX-02. |
-| `/api/v1/account_profiles/discovery` | MOD-201 | Account profile discovery cards with engagement metrics and invite counts. | Mocked | Needs DTO/value-object mapping and shared prototype data for Laravel alignment. |
+| `/api/v1/account_profiles/discovery` | MOD-201 | Account profile discovery cards with engagement metrics and invite counts. | Defined | Needs DTO/value-object mapping and shared prototype data for Laravel alignment. No route registered; public index exists at `/api/v1/account_profiles`. |
 | `/api/v1/events/{event_id}/check-in` | MOD-201 | Presence confirmation with geofence/QR/staff methods. | Planned | Deferred to VNext; MVP uses invite acceptance only for confirmations. |
 | `/api/v1/missions` | MOD-201 | Account-profile-created missions with metric targets and rewards. | Defined | Metrics selectable per mission; account workspace must show rankings/progress. |
 | `/api/v1/account_profile_links` | MOD-201 | Account profile ↔ curador/pessoa linkage. | Defined | Bidirectional proposals; statuses pending/accepted; monthly proof-of-presence window. |
@@ -48,17 +49,17 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/settings/firebase` | Tenant Admin | Update tenant firebase settings. | Implemented | Dedicated endpoint for firebase config. |
 | `/api/v1/settings/telemetry` | Tenant Admin | Manage telemetry integrations (list + upsert). | Implemented | Upsert by `type`; unique types enforced. |
 | `/api/v1/settings/telemetry/{type}` | Tenant Admin | Remove telemetry integration by type. | Implemented | DELETE removes a single type. |
-| `/api/v1/organizations` | Tenant Admin | List organizations (grouping only). | Implemented | Tenant‑scoped; landlord users only. Paged response with org metadata. |
-| `/api/v1/organizations` | Tenant Admin | Create organization. | Implemented | Tenant‑scoped; landlord users only. Minimal MVP fields: `name`, optional `description`. |
-| `/api/v1/organizations/{organization_id}` | Tenant Admin | Organization detail. | Implemented | Tenant‑scoped; landlord users only. Returns org metadata. |
-| `/api/v1/organizations/{organization_id}` | Tenant Admin | Update organization. | Implemented | Tenant‑scoped; landlord users only. Patch name/description. |
-| `/api/v1/organizations/{organization_id}` | Tenant Admin | Delete/restore organization. | Implemented | Soft delete + restore + force delete endpoints are live. |
-| `/api/v1/accounts` | Tenant Admin | List accounts (tenant-owned, unmanaged, user-owned). | Implemented | Tenant‑scoped; landlord users only. `ownership_state` is derived in MVP. |
-| `/api/v1/accounts` | Tenant Admin | Create account. | Implemented | Tenant‑scoped; landlord users only. Uses boilerplate payload (`name` + `document`). |
-| `/api/v1/accounts/{account_slug}` | Tenant Admin | Fetch/update/delete account (partial). | Implemented | Uses `account_slug`; soft delete + restore + force delete endpoints are live. |
-| `/api/v1/account_profiles` | Tenant Admin | List/create account profiles. | Implemented | Tenant‑scoped; landlord users only. Paged response with profile metadata. |
-| `/api/v1/account_profiles/{account_profile_id}` | Tenant Admin | Fetch/update/delete account profile. | Implemented | Tenant‑scoped; landlord users only. Soft delete + restore + force delete endpoints are live. |
-| `/api/v1/account_profiles/geo` | Tenant Admin | Geo search for POI-enabled profiles. | Implemented | Optional origin + distance; filters by `profile_type`. |
+| `/admin/api/v1/organizations` | Tenant Admin | List organizations (grouping only). | Implemented | Tenant‑scoped; landlord users only. Paged response with org metadata. |
+| `/admin/api/v1/organizations` | Tenant Admin | Create organization. | Implemented | Tenant‑scoped; landlord users only. Minimal MVP fields: `name`, optional `description`. |
+| `/admin/api/v1/organizations/{organization_id}` | Tenant Admin | Organization detail. | Implemented | Tenant‑scoped; landlord users only. Returns org metadata. |
+| `/admin/api/v1/organizations/{organization_id}` | Tenant Admin | Update organization. | Implemented | Tenant‑scoped; landlord users only. Patch name/description. |
+| `/admin/api/v1/organizations/{organization_id}` | Tenant Admin | Delete/restore organization. | Implemented | Soft delete + restore + force delete endpoints are live. |
+| `/admin/api/v1/accounts` | Tenant Admin | List accounts (tenant-owned, unmanaged, user-owned). | Implemented | Tenant‑scoped; landlord users only. `ownership_state` is derived in MVP. |
+| `/admin/api/v1/accounts` | Tenant Admin | Create account. | Implemented | Tenant‑scoped; landlord users only. Uses boilerplate payload (`name` + `document`). |
+| `/admin/api/v1/accounts/{account_slug}` | Tenant Admin | Fetch/update/delete account (partial). | Implemented | Uses `account_slug`; soft delete + restore + force delete endpoints are live. |
+| `/admin/api/v1/account_profiles` | Tenant Admin | List/create account profiles. | Implemented | Tenant‑scoped; landlord users only. Paged response with profile metadata. |
+| `/admin/api/v1/account_profiles/{account_profile_id}` | Tenant Admin | Fetch/update/delete account profile. | Implemented | Tenant‑scoped; landlord users only. Soft delete + restore + force delete endpoints are live. |
+| `/admin/api/v1/account_profiles/geo` | Tenant Admin | Geo search for POI-enabled profiles. | Implemented | **Removed** from tenant admin routes; superseded by `/api/v1/map/pois`. |
 | `/admin/api/v1/account_profile_types` | Tenant Admin | Profile type registry (tenant settings). | Implemented | Returns registry entries and capabilities. |
 | `/admin/api/v1/account_profile_types` | Tenant Admin | Create profile type registry entry. | Implemented | Persists to `account_profile_types`. |
 | `/admin/api/v1/account_profile_types/{profile_type}` | Tenant Admin | Update profile type registry entry. | Implemented | `profile_type` is immutable; patch label/capabilities/taxonomies. |
@@ -77,10 +78,10 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/admin/api/v1/static_profile_types/{profile_type}` | Tenant Admin | Delete static profile type. | Tested & Ready | Removes entry from registry. |
 | `/admin/api/v1/static_assets` | Tenant Admin | Static Asset CRUD for map POIs + pages. | Tested & Ready | Tenant-admin endpoints for create/update/delete/restore of static assets. |
 | `/api/v1/static_assets/{asset_ref}` | Tenant | Static Asset public read (page). | Tested & Ready | Returns the static asset page payload by id or slug. |
-| `/api/v1/events` | Tenant Admin | List events (admin). | Tested & Ready | Admin listing, page-based. |
-| `/api/v1/events` | Tenant Admin | Create event. | Tested & Ready | Admin/account profile creates event. |
-| `/api/v1/events/{event_id}` | Tenant Admin | Update event (partial). | Tested & Ready | Patch event metadata + schedule. |
-| `/api/v1/branding/update` | Tenant Admin | Update tenant branding settings. | Planned | Drives `/environment` payload + asset paths. |
+| `/admin/api/v1/events` | Tenant Admin | List events (admin). | Tested & Ready | Admin listing, page-based. |
+| `/admin/api/v1/events` | Tenant Admin | Create event. | Tested & Ready | Admin/account profile creates event. |
+| `/admin/api/v1/events/{event_id}` | Tenant Admin | Update event (partial). | Tested & Ready | Patch event metadata + schedule. |
+| `/admin/api/v1/branding/update` | Tenant Admin | Update tenant branding settings. | Implemented | Drives `/environment` payload + asset paths; route registered in `routes/api/tenant_api_v1.php`. |
 
 ## 4. Risk & Mitigation Log
 

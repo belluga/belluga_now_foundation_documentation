@@ -4,7 +4,7 @@
 ## 1. Analyzed Version
 
 * **Submodule Name:** `laravel-app`
-* **Commit Hash:** `f4e67eef63ccb73503ce376b093aa9b5d4dd1073`
+* **Commit Hash:** `00206722680208c2507610de2db3d65c08f73c6d`
 * **Analysis Date:** `2026-02-02`
 
 *Purpose: This document summarizes the key architectural aspects of the specified submodule version relevant to the main ecosystem.*
@@ -56,7 +56,7 @@
 ## 6. Key Integration Points / API Surface (If Applicable)
 
 * **API Prefix/Base:** `/api/v1`, `/admin/api/v1`, `/api/v1/initialize`, `/api/v1/accounts/{account_slug}`.
-* **Primary Endpoints/Modules:** Tenant auth, anonymous identity, environment/branding, accounts/users/roles, **organizations**, **account profiles**, **account profile types**, **agenda + events (list/detail/stream + admin CRUD)**, **map POIs + filters + SSE stream**, **static assets (tenant-admin CRUD)**, push device registration, landlord admin routes.
+* **Primary Endpoints/Modules:** Tenant auth, anonymous identity, environment/branding, accounts/users/roles, **organizations**, **account profiles**, **account profile types**, **agenda + events (list/detail/stream + admin CRUD)**, **map POIs + filters + near**, **static assets (tenant-admin CRUD)**, push device registration, landlord admin routes.
 * **Authentication Method:** Laravel Sanctum tokens with abilities; wildcard abilities are sanitized/expanded in auth services.
 
 ---
@@ -69,9 +69,9 @@
 * **Account Profile domain:** new `account_profiles` collection with 1:1 profile per account, registry-driven `profile_type` validation, and POI-aware location enforcement.
 * **Profile type registry (V1):** default registry is flat (no `parent_type`), with `personal`, `artist`, `venue`, `restaurant`, and `experience_provider`; `personal` is not favoritable by default.
 * **Organization grouping:** new `organizations` collection with tenant‑scoped CRUD and optional linking to accounts.
-* **Geo query:** `GET /api/v1/account_profiles/geo` uses `$geoNear` with optional origin/distance and profile type filters.
+* **Geo query:** `/admin/api/v1/account_profiles/geo` removed from tenant admin routes; superseded by `/api/v1/map/pois`.
 * **Agenda + Events:** new `events` collection with agenda feed (`/api/v1/agenda`), detail (`/api/v1/events/{event_id}`), SSE stream (`/api/v1/events/stream`), and tenant CRUD (`/api/v1/events`). Event publication is managed via `publication.status` + `publication.publish_at` with an hourly job to promote scheduled events. Event payloads use native BSON arrays (no model array casts), derive geo from venue profile location (no standalone event location), and project venue/artist summaries from Account Profiles.
-* **Map POIs:** `map_pois` projection collection with exact-key stacking, time-window filters via `settings.map_ui.poi_time_window_hours`, and SSE deltas at `/api/v1/map/pois/stream`; projection Jobs sync POIs for Events, Account Profiles, and Static Assets.
+* **Map POIs:** `map_pois` projection collection with exact-key stacking and time-window filters via `settings.map_ui.poi_time_window_days` (user timezone); projection Jobs sync POIs for Events, Account Profiles, and Static Assets. `/api/v1/map/pois` returns marker stacks, `/api/v1/map/near` returns rich cards, `/api/v1/map/filters` returns catalog filters; `/api/v1/map/pois/stream` is deferred (no route registered).
 * **Static Assets:** tenant-admin CRUD under `/admin/api/v1/static_assets`, stored in `static_assets` collection and projected into `map_pois` as `ref_type=static`.
 * **Static profile types:** new `static_profile_types` registry parallels account profile types, governing page/POI capabilities for static assets.
 * **Static asset pages:** public read endpoint returns static asset page payloads by id or slug; static assets reuse the shared profile page schema (display name, media, content, taxonomy).
