@@ -156,6 +156,12 @@ Suggested defaults (override per tenant + plan):
 - [x] ✅ Production‑Ready Emit telemetry for implemented auth/profile/account endpoints (Mixpanel + webhook) per `TODO-v1-telemetry-and-push.md`
 - [x] ✅ Production‑Ready Update tenant telemetry settings (Mixpanel + webhook) once admin settings UI is ready (deferred)
 
+### 2.6 Runtime / Workers (MVP)
+- [x] ✅ Production‑Ready Add a dedicated Docker Compose worker service for Laravel queue processing (uses `php artisan queue:work` with sane retries/timeouts).
+- [x] ✅ Production‑Ready Ensure worker uses the same code volume and environment as `app`, and respects host UID/GID ownership.
+- [x] ✅ Production‑Ready Document worker usage in README (start/stop notes + expected queue connection).
+- [x] ✅ Production‑Ready Add a scheduler service for `php artisan schedule:run` (required for `PublishScheduledEventsJob` in `routes/console.php`).
+
 ---
 
 ## 3) Flutter Deliverables
