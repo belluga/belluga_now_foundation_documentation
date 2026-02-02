@@ -18,7 +18,7 @@ This list serves as the domain source of truth referenced by the `system_archite
 * **Supporting Entity B:** **Partner (Label, Future Capability)** — the tenant-facing label applied to **Account Profiles** that operate as B2B providers (restaurants, artists, guides, merchants). The label system is deferred; in V1 we still model **Account Profiles** as the canonical entity and project account-profile-facing summaries from them. **Account profile types are not hardcoded enums**; they are provided by a **Profile Type Registry** (WP‑like custom post types, without WP meta) fetched from `/api/v1/environment.profile_types` and cached locally. The registry defines label, allowed taxonomies, capabilities (e.g., `is_favoritable`, `is_poi_enabled`), and default UI modules per type. **No inheritance is used in V1** (`parent_type` is omitted); taxonomies apply only to the type they are declared on. **MVP registry types:** `personal`, `artist`, `venue`, `restaurant`, `experience_provider` (others deferred to VNext). Invite surfaces consume the `InvitePartnerSummary` aggregate (id, partner type, display name, tagline, hero + logo URIs) so Flutter and Laravel share the same social-proof branding contract. The canonical account-profile-facing aggregate (id, profile, verification flags, contact information, invite/offer badges, engagement metrics, semantic tags) is produced from Account Profiles and shared via value objects to preserve invariants. Engagement metrics are type-aware (e.g., live-status for artists, presence counts for venues, invite counts for influencers) and are always non-negative integers or bounded strings represented as value objects rather than raw primitives. Accounts are the permission boundary and have **exactly one Account Profile** (1:1), with `ownership_state` controlling whether the account is tenant_owned, unmanaged, or user_owned. **Account Profile is implemented in this project** (not upstream boilerplate) to avoid coupling other boilerplate consumers.
 * **Supporting Entity C:** **Offering** (The catalog of consumable items, encompassing Events, Products, and Experiences/Guides).
 * **Supporting Entity D:** **Transaction** (The record of action and value exchange, including Bookings, Orders, Payments, and social Invitations).
-* **Supporting Entity E:** **Static Asset** — landlord/tenant-managed POIs (beaches, nature, culture, historic) that are **not** Account Profiles; they project into `map_pois` as `ref_type=static` and carry no operator or invite/favorite semantics.
+* **Supporting Entity E:** **Static Asset** — tenant-managed POIs and pages (beaches, nature, culture, historic, etc.) that are **not** Account Profiles; they project into `map_pois` as `ref_type=static` and carry no operator or invite/favorite semantics. Static Assets are governed by a **static profile type registry** and reuse a shared profile page schema for public read surfaces.
 
 ### Location & Venue Field Definitions
 
@@ -63,6 +63,54 @@ This list serves as the domain source of truth referenced by the `system_archite
   - `curator`: curatorial focus (e.g., história, causos).
   - `influencer` (personalidade): focus areas (e.g., lifestyle, baladas).
 - `taxonomy_terms` (array of objects): optional, WordPress-style multi-taxonomy list of `{type, value}` pairs (e.g., `{type: cuisine, value: italian}` or `{type: music_genre, value: samba}`). Account profiles may carry multiple taxonomy types simultaneously (venues can have cuisines + music genres).
+
+### Taxonomy Registry Field Definitions (V1)
+
+**Taxonomy (registry entry)**
+- `slug` (string): unique taxonomy key for the tenant (used as `taxonomy_terms[].type`).
+- `name` (string): human-readable label.
+- `applies_to` (array of strings): object types that may use this taxonomy.
+- `icon` (string, optional): Material icon name (e.g., `mode_subscription`).
+- `color` (string, optional): HEX color `#RRGGBB`.
+
+**Term (taxonomy term)**
+- `slug` (string): unique term key within its taxonomy (used as `taxonomy_terms[].value`).
+- `name` (string): human-readable term label.
+- `taxonomy_id` (ObjectId): owning taxonomy reference.
+
+**Field Definitions**
+- `applies_to`
+  - `account_profile`: Taxonomy terms can be attached to Account Profiles.
+  - `static_asset`: Taxonomy terms can be attached to Static Assets.
+  - `event`: Taxonomy terms can be attached to Events.
+
+### Static Profile Type Registry Field Definitions (V1)
+
+**Static Profile Type (registry entry)**
+- `type` (string): unique key used by `static_assets.profile_type`.
+- `label` (string): human-readable label.
+- `allowed_taxonomies` (array of strings): taxonomy slugs allowed for this static profile type.
+- `capabilities` (object):
+  - `is_poi_enabled` (bool): requires `location`.
+  - `has_bio` (bool): enables short description field.
+  - `has_taxonomies` (bool): enables taxonomy terms in the UI.
+  - `has_avatar` (bool): enables avatar media.
+  - `has_cover` (bool): enables cover media.
+  - `has_content` (bool): enables long-form page content.
+
+### Static Asset Field Definitions (V1)
+- `profile_type` (string): references `static_profile_types.type`.
+- `display_name` (string): primary title for the page and POI.
+- `slug` (string): URL slug derived from `display_name`.
+- `bio` (string, optional): short summary (bounded string).
+- `content` (string, optional): long-form page content (bounded string).
+- `avatar_url` / `cover_url` (string, optional): media URLs.
+- `tags` (array of strings, optional): tag tokens for search/filtering.
+- `categories` (array of strings, optional): category tokens for search/filtering.
+- `taxonomy_terms` (array of objects): typed `{type, value}` pairs.
+- `location` (object): required when `static_profile_types.capabilities.is_poi_enabled=true`; uses the same `lat`/`lng` structure as account profiles.
+- `is_active` (bool): controls whether the static asset is available to public read surfaces.
+- `created_by` / `created_by_type` / `updated_by` / `updated_by_type`: audit fields (see Audit Field Definitions).
 
 ### Account Ownership Field Definitions
 

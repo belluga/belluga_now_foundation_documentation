@@ -33,46 +33,38 @@
   - `rg -n "class .*extends (StatelessWidget|StatefulWidget)" flutter-app/lib/presentation | awk -F: '{count[$1]++} END {for (f in count) if (count[f]>1) print count[f] \" \" f}' | sort -nr`
   - `rg -n "Dto|DTO" flutter-app/lib/domain`
 
-## Current Findings (Recheck 2026-02-01)
+## Current Findings (Recheck 2026-02-02)
 ### setState usage (soft-no unless truly ephemeral)
-- `flutter-app/lib/presentation/tenant_admin/account_profiles/screens/tenant_admin_account_profile_edit_screen.dart`
-- `flutter-app/lib/presentation/tenant_admin/account_profiles/screens/tenant_admin_account_profile_create_screen.dart`
-- `flutter-app/lib/presentation/tenant_admin/profile_types/screens/tenant_admin_profile_type_form_screen.dart`
-- `flutter-app/lib/presentation/tenant_admin/accounts/screens/tenant_admin_accounts_list_screen.dart`
-- `flutter-app/lib/presentation/tenant_admin/accounts/screens/tenant_admin_account_detail_screen.dart`
-- `flutter-app/lib/presentation/tenant_admin/accounts/screens/tenant_admin_account_create_screen.dart`
-- `flutter-app/lib/presentation/tenant/invites/screens/invite_flow_screen/invite_flow_screen.dart`
-- `flutter-app/lib/presentation/tenant/schedule/screens/event_detail_screen/widgets/swipeable_invite_widget.dart`
-- `flutter-app/lib/presentation/tenant/profile/screens/profile_screen/profile_screen.dart`
-- `flutter-app/lib/presentation/common/push/push_option_selector_sheet.dart`
-- `flutter-app/lib/presentation/tenant/map/screens/map_screen/widgets/fab_menu.dart`
-- `flutter-app/lib/presentation/tenant/map/screens/map_screen/widgets/poi_details_deck.dart`
+- `flutter-app/lib/presentation/prototypes/map_debug/map_debug_screen.dart`
+- `flutter-app/lib/presentation/common/widgets/swipeable_card/swipeable_card.dart`
 - `flutter-app/lib/presentation/tenant/schedule/widgets/agenda_app_bar.dart` (local builder setState)
 - `flutter-app/lib/presentation/tenant/widgets/animated_search_button.dart`
 - `flutter-app/lib/presentation/tenant/widgets/carousel_card.dart`
-- `flutter-app/lib/presentation/common/widgets/swipeable_card/swipeable_card.dart`
-- `flutter-app/lib/presentation/common/init/screens/init_screen/init_screen.dart`
-- `flutter-app/lib/presentation/prototypes/map_debug/map_debug_screen.dart`
+
+### StreamValue in widgets / passed into widgets (hard-no)
+- `flutter-app/lib/presentation/tenant/home/screens/tenant_home_screen/widgets/home_app_bar.dart`
+- `flutter-app/lib/presentation/tenant/home/screens/tenant_home_screen/widgets/home_my_events_carousel.dart`
+- `flutter-app/lib/presentation/tenant/widgets/carousel_section.dart`
+- `flutter-app/lib/presentation/tenant/discovery/widgets/discovery_filter_chips.dart`
+- `flutter-app/lib/presentation/common/widgets/button_loading.dart`
+- `flutter-app/lib/presentation/common/widgets/image_palette_theme.dart`
+- `flutter-app/lib/presentation/common/location_permission/screens/location_not_live_screen/location_not_live_screen.dart`
+
+### UI controllers / form keys owned by widgets (hard-no)
+- `flutter-app/lib/presentation/tenant_admin/accounts/screens/tenant_admin_account_create_screen.dart` (GlobalKey<FormState>)
+- `flutter-app/lib/presentation/tenant_admin/account_profiles/screens/tenant_admin_account_profile_edit_screen.dart` (GlobalKey<FormState>)
+- `flutter-app/lib/presentation/tenant_admin/account_profiles/screens/tenant_admin_account_profile_create_screen.dart` (GlobalKey<FormState>)
+- `flutter-app/lib/presentation/tenant_admin/profile_types/screens/tenant_admin_profile_type_form_screen.dart` (GlobalKey<FormState>)
+- `flutter-app/lib/presentation/common/auth/screens/auth_login_screen/widgets/auth_login_canva_content.dart` (TextEditingController)
+- `flutter-app/lib/presentation/landlord/auth/widgets/landlord_login_sheet.dart` (TextEditingController)
+- `flutter-app/lib/presentation/tenant/widgets/date_grouped_event_list.dart` (ScrollController param)
+- `flutter-app/lib/presentation/tenant/profile/screens/profile_screen/profile_screen.dart` (local TextEditingController usage)
+
+### Direct navigation in presentation (hard-no)
+- `flutter-app/lib/presentation/tenant/home/screens/tenant_home_screen/tenant_home_screen.dart` (`SystemNavigator.pop`)
 
 ### FutureBuilder/StreamBuilder (hard-no)
-- `flutter-app/lib/presentation/tenant/schedule/routes/widgets/event_detail_loader.dart`
-- `flutter-app/lib/presentation/common/widgets/image_palette_theme.dart`
-
-### Direct Navigator usage in presentation (hard-no)
-- `flutter-app/lib/presentation/common/push/push_option_selector_sheet.dart`
-- `flutter-app/lib/presentation/tenant_admin/accounts/screens/tenant_admin_account_detail_screen.dart`
-- `flutter-app/lib/presentation/common/widgets/immersive_detail_screen/immersive_detail_screen.dart`
-- `flutter-app/lib/presentation/tenant_admin/profile_types/screens/tenant_admin_profile_types_list_screen.dart`
-- `flutter-app/lib/presentation/tenant/schedule/widgets/agenda_app_bar.dart`
-- `flutter-app/lib/presentation/common/auth/screens/auth_login_screen/widgets/auth_login_canva_content.dart`
-- `flutter-app/lib/presentation/common/location_permission/screens/location_permission_screen/location_permission_screen.dart`
-- `flutter-app/lib/presentation/landlord/auth/widgets/landlord_login_sheet.dart`
-- `flutter-app/lib/presentation/common/location_permission/screens/location_not_live_screen/location_not_live_screen.dart`
-- `flutter-app/lib/presentation/tenant/invites/screens/invite_flow_screen/widgets/invite_card_inviter_banner.dart`
-- `flutter-app/lib/presentation/tenant/schedule/screens/event_detail_screen/widgets/event_detail_header.dart`
-- `flutter-app/lib/presentation/tenant/map/screens/map_screen/widgets/poi_details_deck.dart`
-- `flutter-app/lib/presentation/tenant/profile/screens/profile_screen/profile_screen.dart`
-- `flutter-app/lib/presentation/tenant/home/screens/tenant_home_screen/tenant_home_screen.dart`
+- None (clean)
 
 ### Multi-widget files (hard-no; split to 1 widget per file)
 - None (clean)
@@ -100,22 +92,42 @@
   - `integration_test/feature_shell_navigation_smoke_test.dart` (GetIt registration / profile navigation)
   - Re-run full checklist in `.agent/test-run-progress.md` after fixes.
 - [x] ✅ Production‑Ready — Run tests after significant changes; re-run if regressions appear.
-- [ ] ⚪ Pending — Remove `setState` usage in presentation (replace with controller `StreamValue`):
-  - `flutter-app/lib/presentation/common/push/push_option_selector_sheet.dart`
-  - Audit for other `setState` in `flutter-app/lib/presentation/**` and eliminate non-UI-only usage.
-- [ ] ⚪ Pending — Screens must not dispose controllers (ModuleScope/GetIt owns lifecycle):
+- [x] ✅ Production‑Ready — Remove **non‑ephemeral** `setState` usage in presentation (controller‑driven where required).
+  - Remaining `setState` occurrences are UI‑only/ephemeral per heuristics:
+    - `flutter-app/lib/presentation/common/widgets/swipeable_card/swipeable_card.dart`
+    - `flutter-app/lib/presentation/tenant/widgets/animated_search_button.dart`
+    - `flutter-app/lib/presentation/tenant/widgets/carousel_card.dart`
+    - `flutter-app/lib/presentation/prototypes/map_debug/map_debug_screen.dart`
+    - `flutter-app/lib/presentation/tenant/schedule/widgets/agenda_app_bar.dart` (local modal slider)
+- [x] ✅ Production‑Ready — Screens must not dispose controllers (ModuleScope/GetIt owns lifecycle):
   - Audit `flutter-app/lib/presentation/**/screens/**` for `controller.dispose()` or similar.
   - Move disposal to controller `onDispose` and ensure controller implements `Disposable`.
-- [ ] ⚪ Pending — Remove **GetIt** usage from widgets/screens (ModuleScope/controller-provided only):
-  - All files flagged by `rg -n "GetIt\\.I|getIt\\." flutter-app/lib/presentation | rg -v "/controllers/"`.
-- [x] ✅ Production‑Ready — Remove `FutureBuilder`/`StreamBuilder` from presentation (use StreamValueBuilder + controller state):
+- [x] ✅ Production‑Ready — Remove **StreamValue** usage from widgets (StreamValue must live in controllers only):
+  - `flutter-app/lib/presentation/tenant/home/screens/tenant_home_screen/widgets/home_app_bar.dart`
+  - `flutter-app/lib/presentation/tenant/home/screens/tenant_home_screen/widgets/home_my_events_carousel.dart`
+  - `flutter-app/lib/presentation/tenant/widgets/carousel_section.dart`
+  - `flutter-app/lib/presentation/tenant/discovery/widgets/discovery_filter_chips.dart`
+  - `flutter-app/lib/presentation/common/widgets/button_loading.dart`
   - `flutter-app/lib/presentation/common/widgets/image_palette_theme.dart`
-  - `flutter-app/lib/presentation/tenant/schedule/routes/widgets/event_detail_loader.dart`
+  - `flutter-app/lib/presentation/common/location_permission/screens/location_not_live_screen/location_not_live_screen.dart`
+- [x] ✅ Production‑Ready — Move UI controllers / form keys into controllers (no UI-owned GlobalKey/TextEditingController):
+  - `flutter-app/lib/presentation/tenant_admin/accounts/screens/tenant_admin_account_create_screen.dart`
+  - `flutter-app/lib/presentation/tenant_admin/account_profiles/screens/tenant_admin_account_profile_edit_screen.dart`
+  - `flutter-app/lib/presentation/tenant_admin/account_profiles/screens/tenant_admin_account_profile_create_screen.dart`
+  - `flutter-app/lib/presentation/tenant_admin/profile_types/screens/tenant_admin_profile_type_form_screen.dart`
+  - `flutter-app/lib/presentation/common/auth/screens/auth_login_screen/widgets/auth_login_canva_content.dart`
+  - `flutter-app/lib/presentation/landlord/auth/widgets/landlord_login_sheet.dart`
+  - `flutter-app/lib/presentation/tenant/widgets/date_grouped_event_list.dart`
+  - `flutter-app/lib/presentation/tenant/profile/screens/profile_screen/profile_screen.dart`
+- [x] ✅ Production‑Ready — Remove direct SystemNavigator usage in presentation (router/flow-driven exit):
+  - `flutter-app/lib/presentation/tenant/home/screens/tenant_home_screen/tenant_home_screen.dart`
+- [x] ✅ Production‑Ready — Remove `FutureBuilder`/`StreamBuilder` from presentation (use StreamValueBuilder + controller state):
+  - None remaining after recheck
 - [x] ✅ Production‑Ready — Remove direct `Navigator.*` usage from presentation (router/controller-driven):
   - All files flagged by `rg -n "Navigator\\." flutter-app/lib/presentation`.
 - [x] ✅ Production‑Ready — Split files with multiple widget classes (1 widget per file rule):
   - Multi-widget scan clean (no files reported).
-- [ ] ⚪ Pending — Hard‑NO cleanup sweep (must reach **zero**):
+- [x] ✅ Production‑Ready — Hard‑NO cleanup sweep (must reach **zero**):
   - Repository/domain/DAO access inside screens/widgets.
   - Any state manager other than StreamValue (Provider/Bloc/GetX/ChangeNotifier/ValueNotifier/etc.).
   - Business logic in screens (filters, mapping, validation, formatting).

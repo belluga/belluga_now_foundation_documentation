@@ -1018,7 +1018,7 @@
 {}
 ```
 
-### `GET /api/v1/account_profile_types`
+### `GET /admin/api/v1/account_profile_types`
 **Purpose:** List account profile types (registry).  
 **Response:**
 ```json
@@ -1037,7 +1037,237 @@
 }
 ```
 
-### `GET /api/v1/account_profiles`
+### `POST /admin/api/v1/account_profile_types`
+**Purpose:** Create account profile type.  
+**Request (body):**
+```json
+{
+  "type": "string",
+  "label": "string",
+  "allowed_taxonomies": ["string"],
+  "capabilities": {
+    "is_favoritable": true,
+    "is_poi_enabled": false,
+    "has_bio": true,
+    "has_taxonomies": true,
+    "has_avatar": true,
+    "has_cover": true,
+    "has_events": true
+  }
+}
+```
+**Response:** same as GET item.
+
+### `PATCH /admin/api/v1/account_profile_types/{profile_type}`
+**Purpose:** Update account profile type.  
+**Request (body):** same as create (partial).  
+**Response:** same as GET item.
+
+### `DELETE /admin/api/v1/account_profile_types/{profile_type}`
+**Purpose:** Delete account profile type.  
+**Response:**
+```json
+{}
+```
+
+### `GET /admin/api/v1/static_profile_types`
+**Purpose:** List static profile types (registry).  
+**Response:**
+```json
+{
+  "data": [
+    {
+      "type": "string",
+      "label": "string",
+      "allowed_taxonomies": ["string"],
+      "capabilities": {
+        "is_poi_enabled": true,
+        "has_bio": true,
+        "has_taxonomies": true,
+        "has_avatar": true,
+        "has_cover": true,
+        "has_content": true
+      }
+    }
+  ]
+}
+```
+
+### `POST /admin/api/v1/static_profile_types`
+**Purpose:** Create static profile type.  
+**Request (body):**
+```json
+{
+  "type": "string",
+  "label": "string",
+  "allowed_taxonomies": ["string"],
+  "capabilities": {
+    "is_poi_enabled": true,
+    "has_bio": true,
+    "has_taxonomies": true,
+    "has_avatar": true,
+    "has_cover": true,
+    "has_content": true
+  }
+}
+```
+**Response:** same as GET item.
+
+### `PATCH /admin/api/v1/static_profile_types/{profile_type}`
+**Purpose:** Update static profile type.  
+**Request (body):** same as create (partial).  
+**Response:** same as GET item.
+
+### `DELETE /admin/api/v1/static_profile_types/{profile_type}`
+**Purpose:** Delete static profile type.  
+**Response:**
+```json
+{}
+```
+
+### `GET /admin/api/v1/taxonomies`
+**Purpose:** List taxonomies (Account Profiles + Static Assets + Events).  
+**Response:**
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "slug": "string",
+      "name": "string",
+      "applies_to": ["account_profile", "static_asset", "event"],
+      "icon": "mode_subscription",
+      "color": "#FFAA00"
+    }
+  ]
+}
+```
+
+### `POST /admin/api/v1/taxonomies`
+**Purpose:** Create a taxonomy.  
+**Request (body):**
+```json
+{
+  "slug": "string",
+  "name": "string",
+  "applies_to": ["account_profile", "static_asset", "event"],
+  "icon": "mode_subscription",
+  "color": "#FFAA00"
+}
+```
+**Response:**
+```json
+{
+  "data": {
+    "id": "string",
+    "slug": "string",
+    "name": "string",
+    "applies_to": ["account_profile", "static_asset", "event"],
+    "icon": "mode_subscription",
+    "color": "#FFAA00"
+  }
+}
+```
+
+### `PATCH /admin/api/v1/taxonomies/{taxonomy_id}`
+**Purpose:** Update a taxonomy.  
+**Request (body):**
+```json
+{
+  "slug": "string?",
+  "name": "string?",
+  "applies_to": ["account_profile", "static_asset", "event"],
+  "icon": "mode_subscription",
+  "color": "#FFAA00"
+}
+```
+**Response:**
+```json
+{
+  "data": {
+    "id": "string",
+    "slug": "string",
+    "name": "string",
+    "applies_to": ["account_profile", "static_asset", "event"],
+    "icon": "mode_subscription",
+    "color": "#FFAA00"
+  }
+}
+```
+
+### `DELETE /admin/api/v1/taxonomies/{taxonomy_id}`
+**Purpose:** Delete a taxonomy.  
+**Response:**
+```json
+{}
+```
+
+### `GET /admin/api/v1/taxonomies/{taxonomy_id}/terms`
+**Purpose:** List taxonomy terms.  
+**Response:**
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "taxonomy_id": "string",
+      "slug": "string",
+      "name": "string"
+    }
+  ]
+}
+```
+
+### `POST /admin/api/v1/taxonomies/{taxonomy_id}/terms`
+**Purpose:** Create a taxonomy term.  
+**Request (body):**
+```json
+{
+  "slug": "string",
+  "name": "string"
+}
+```
+**Response:**
+```json
+{
+  "data": {
+    "id": "string",
+    "taxonomy_id": "string",
+    "slug": "string",
+    "name": "string"
+  }
+}
+```
+
+### `PATCH /admin/api/v1/taxonomies/{taxonomy_id}/terms/{term_id}`
+**Purpose:** Update a taxonomy term.  
+**Request (body):**
+```json
+{
+  "slug": "string?",
+  "name": "string?"
+}
+```
+**Response:**
+```json
+{
+  "data": {
+    "id": "string",
+    "taxonomy_id": "string",
+    "slug": "string",
+    "name": "string"
+  }
+}
+```
+
+### `DELETE /admin/api/v1/taxonomies/{taxonomy_id}/terms/{term_id}`
+**Purpose:** Delete a taxonomy term.  
+**Response:**
+```json
+{}
+```
+
+### `GET /admin/api/v1/account_profiles`
 **Purpose:** List account profiles (filterable by `account_id`).  
 **Response:**
 ```json
@@ -1068,7 +1298,7 @@
 }
 ```
 
-### `POST /api/v1/account_profiles`
+### `POST /admin/api/v1/account_profiles`
 **Purpose:** Create account profile.  
 **Request (body):**
 ```json
@@ -1108,7 +1338,7 @@
 }
 ```
 
-### `GET /api/v1/account_profiles/{account_profile_id}`
+### `GET /admin/api/v1/account_profiles/{account_profile_id}`
 **Purpose:** Account profile detail.  
 **Response:**
 ```json
@@ -1134,7 +1364,7 @@
 }
 ```
 
-### `PATCH /api/v1/account_profiles/{account_profile_id}`
+### `PATCH /admin/api/v1/account_profiles/{account_profile_id}`
 **Purpose:** Update account profile.  
 **Request (body):** same as create (partial).  
 **Response:**
@@ -1161,14 +1391,14 @@
 }
 ```
 
-### `DELETE /api/v1/account_profiles/{account_profile_id}`
+### `DELETE /admin/api/v1/account_profiles/{account_profile_id}`
 **Purpose:** Soft delete account profile.  
 **Response:**
 ```json
 {}
 ```
 
-### `POST /api/v1/account_profiles/{account_profile_id}/restore`
+### `POST /admin/api/v1/account_profiles/{account_profile_id}/restore`
 **Purpose:** Restore account profile.  
 **Response:**
 ```json
@@ -1194,14 +1424,14 @@
 }
 ```
 
-### `POST /api/v1/account_profiles/{account_profile_id}/force_delete`
+### `POST /admin/api/v1/account_profiles/{account_profile_id}/force_delete`
 **Purpose:** Force delete account profile.  
 **Response:**
 ```json
 {}
 ```
 
-### `GET /api/v1/account_profiles/geo`
+### `GET /admin/api/v1/account_profiles/geo`
 **Purpose:** Geo search for POI-enabled profiles.  
 **Query Params:** `origin_lat`, `origin_lng`, `max_distance_meters`, `profile_type`, `limit`.  
 **Response:**
@@ -1237,13 +1467,17 @@
   "data": [
     {
       "id": "string",
-      "name": "string",
-      "description": "string?",
-      "category": "culture|beach|nature|historic|restaurant",
+      "profile_type": "string",
+      "display_name": "string",
+      "slug": "string",
+      "avatar_url": "string?",
+      "cover_url": "string?",
+      "bio": "string?",
+      "content": "string?",
       "tags": ["string"],
+      "categories": ["string"],
       "taxonomy_terms": [{ "type": "string", "value": "string" }],
       "location": { "lat": 0.0, "lng": 0.0 },
-      "priority": 20,
       "is_active": true,
       "created_at": "2025-01-01T00:00:00Z",
       "updated_at": "2025-01-01T00:00:00Z",
@@ -1256,8 +1490,6 @@
   "total": 0
 }
 ```
-**Field Definitions**
-- `category`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
 
 ### `GET /admin/api/v1/static_assets/{asset_id}`
 **Purpose:** Fetch a single Static Asset by id (tenant-admin).  
@@ -1266,13 +1498,17 @@
 {
   "data": {
     "id": "string",
-    "name": "string",
-    "description": "string?",
-    "category": "culture|beach|nature|historic|restaurant",
+    "profile_type": "string",
+    "display_name": "string",
+    "slug": "string",
+    "avatar_url": "string?",
+    "cover_url": "string?",
+    "bio": "string?",
+    "content": "string?",
     "tags": ["string"],
+    "categories": ["string"],
     "taxonomy_terms": [{ "type": "string", "value": "string" }],
     "location": { "lat": 0.0, "lng": 0.0 },
-    "priority": 20,
     "is_active": true,
     "created_at": "2025-01-01T00:00:00Z",
     "updated_at": "2025-01-01T00:00:00Z",
@@ -1280,39 +1516,44 @@
   }
 }
 ```
-**Field Definitions**
-- `category`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
 
 ### `POST /admin/api/v1/static_assets`
 **Purpose:** Create Static Asset (tenant-admin).  
 **Request (body):**
 ```json
 {
-  "name": "string",
-  "description": "string?",
-  "category": "culture|beach|nature|historic|restaurant",
-  "tags": ["string"],
-  "taxonomy_terms": [{ "type": "string", "value": "string" }],
+  "profile_type": "string",
+  "display_name": "string",
   "location": { "lat": 0.0, "lng": 0.0 },
-  "priority": 20,
-  "is_active": true
+  "taxonomy_terms": [{ "type": "string", "value": "string" }],
+  "tags": ["string"],
+  "categories": ["string"],
+  "bio": "string?",
+  "content": "string?",
+  "is_active": true,
+  "avatar_url": "string?",
+  "cover_url": "string?",
+  "avatar": "file?",
+  "cover": "file?"
 }
 ```
-**Field Definitions**
-- `category`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
 
 **Response:**
 ```json
 {
   "data": {
     "id": "string",
-    "name": "string",
-    "description": "string?",
-    "category": "culture|beach|nature|historic|restaurant",
+    "profile_type": "string",
+    "display_name": "string",
+    "slug": "string",
+    "avatar_url": "string?",
+    "cover_url": "string?",
+    "bio": "string?",
+    "content": "string?",
     "tags": ["string"],
+    "categories": ["string"],
     "taxonomy_terms": [{ "type": "string", "value": "string" }],
     "location": { "lat": 0.0, "lng": 0.0 },
-    "priority": 20,
     "is_active": true,
     "created_at": "2025-01-01T00:00:00Z",
     "updated_at": "2025-01-01T00:00:00Z",
@@ -1320,8 +1561,6 @@
   }
 }
 ```
-**Field Definitions**
-- `category`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
 
 ### `PATCH /admin/api/v1/static_assets/{asset_id}`
 **Purpose:** Update Static Asset (tenant-admin).  
@@ -1331,13 +1570,17 @@
 {
   "data": {
     "id": "string",
-    "name": "string",
-    "description": "string?",
-    "category": "culture|beach|nature|historic|restaurant",
+    "profile_type": "string",
+    "display_name": "string",
+    "slug": "string",
+    "avatar_url": "string?",
+    "cover_url": "string?",
+    "bio": "string?",
+    "content": "string?",
     "tags": ["string"],
+    "categories": ["string"],
     "taxonomy_terms": [{ "type": "string", "value": "string" }],
     "location": { "lat": 0.0, "lng": 0.0 },
-    "priority": 20,
     "is_active": true,
     "created_at": "2025-01-01T00:00:00Z",
     "updated_at": "2025-01-01T00:00:00Z",
@@ -1345,14 +1588,18 @@
   }
 }
 ```
-**Field Definitions**
-- `category`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
 
 ### `POST /admin/api/v1/static_assets/{asset_id}/restore`
 **Purpose:** Restore Static Asset (tenant-admin).  
 
 ### `DELETE /admin/api/v1/static_assets/{asset_id}/force_delete`
 **Purpose:** Force delete Static Asset (tenant-admin).  
+
+### `GET /api/v1/static_assets/{asset_ref}`
+**Purpose:** Public read of a static asset page (tenant scope).  
+**Auth:** Requires tenant-authenticated user (account users allowed).  
+**Notes:** `asset_ref` accepts either the static asset id or the slug (POI refs use id).  
+**Response:** same schema as `GET /admin/api/v1/static_assets/{asset_id}` (without `deleted_at` when not archived).
 
 ### `GET /events`
 **Purpose:** List events (tenant scope).  

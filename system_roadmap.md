@@ -59,15 +59,24 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/account_profiles` | Tenant Admin | List/create account profiles. | Implemented | Tenant‑scoped; landlord users only. Paged response with profile metadata. |
 | `/api/v1/account_profiles/{account_profile_id}` | Tenant Admin | Fetch/update/delete account profile. | Implemented | Tenant‑scoped; landlord users only. Soft delete + restore + force delete endpoints are live. |
 | `/api/v1/account_profiles/geo` | Tenant Admin | Geo search for POI-enabled profiles. | Implemented | Optional origin + distance; filters by `profile_type`. |
-| `/api/v1/account_profile_types` | Tenant Admin | Profile type registry (tenant settings). | Implemented | Returns registry entries and capabilities. |
-| `/api/v1/account_profile_types` | Tenant Admin | Create profile type registry entry. | Implemented | Persists to `TenantSettings.profile_type_registry`. |
-| `/api/v1/account_profile_types/{profile_type}` | Tenant Admin | Update profile type registry entry. | Implemented | `profile_type` is immutable; patch label/capabilities/taxonomies. |
-| `/api/v1/account_profile_types/{profile_type}` | Tenant Admin | Delete profile type registry entry. | Implemented | Removes entry from registry; no soft delete in MVP. |
-| `/api/v1/assets` | Tenant Admin | List assets. | Planned | Page-based admin listing. |
-| `/api/v1/assets/{asset_id}` | Tenant Admin | Get asset detail. | Planned | Returns asset metadata + URLs. |
-| `/api/v1/assets` | Tenant Admin | Create asset. | Planned | Upload/register media for tenant assets. |
-| `/api/v1/assets/{asset_id}` | Tenant Admin | Update asset (partial). | Planned | Patch asset metadata. |
-| `/admin/api/v1/static_assets` | Tenant Admin | Static Asset CRUD for map POIs. | Implemented | Tenant-admin endpoints for create/update/delete/restore of static map POIs. |
+| `/admin/api/v1/account_profile_types` | Tenant Admin | Profile type registry (tenant settings). | Implemented | Returns registry entries and capabilities. |
+| `/admin/api/v1/account_profile_types` | Tenant Admin | Create profile type registry entry. | Implemented | Persists to `account_profile_types`. |
+| `/admin/api/v1/account_profile_types/{profile_type}` | Tenant Admin | Update profile type registry entry. | Implemented | `profile_type` is immutable; patch label/capabilities/taxonomies. |
+| `/admin/api/v1/account_profile_types/{profile_type}` | Tenant Admin | Delete profile type registry entry. | Implemented | Removes entry from registry; no soft delete in MVP. |
+| `/admin/api/v1/taxonomies` | Tenant Admin | List taxonomies (Account Profiles + Static Assets + Events). | Tested & Ready | Returns taxonomy registry (slug/name/applies_to/icon/color). |
+| `/admin/api/v1/taxonomies` | Tenant Admin | Create taxonomy. | Tested & Ready | Validates slug uniqueness and applies_to values. |
+| `/admin/api/v1/taxonomies/{taxonomy_id}` | Tenant Admin | Update taxonomy. | Tested & Ready | Patch slug/name/applies_to/icon/color. |
+| `/admin/api/v1/taxonomies/{taxonomy_id}` | Tenant Admin | Delete taxonomy. | Tested & Ready | Also deletes associated terms. |
+| `/admin/api/v1/taxonomies/{taxonomy_id}/terms` | Tenant Admin | List taxonomy terms. | Tested & Ready | Terms are managed only under /terms. |
+| `/admin/api/v1/taxonomies/{taxonomy_id}/terms` | Tenant Admin | Create taxonomy term. | Tested & Ready | Term slug unique per taxonomy. |
+| `/admin/api/v1/taxonomies/{taxonomy_id}/terms/{term_id}` | Tenant Admin | Update taxonomy term. | Tested & Ready | Patch slug/name. |
+| `/admin/api/v1/taxonomies/{taxonomy_id}/terms/{term_id}` | Tenant Admin | Delete taxonomy term. | Tested & Ready | Removes term from registry. |
+| `/admin/api/v1/static_profile_types` | Tenant Admin | List static profile types. | Tested & Ready | Returns registry entries for static assets. |
+| `/admin/api/v1/static_profile_types` | Tenant Admin | Create static profile type. | Tested & Ready | Persists to `static_profile_types`. |
+| `/admin/api/v1/static_profile_types/{profile_type}` | Tenant Admin | Update static profile type. | Tested & Ready | `profile_type` is immutable; patch label/capabilities/taxonomies. |
+| `/admin/api/v1/static_profile_types/{profile_type}` | Tenant Admin | Delete static profile type. | Tested & Ready | Removes entry from registry. |
+| `/admin/api/v1/static_assets` | Tenant Admin | Static Asset CRUD for map POIs + pages. | Tested & Ready | Tenant-admin endpoints for create/update/delete/restore of static assets. |
+| `/api/v1/static_assets/{asset_ref}` | Tenant | Static Asset public read (page). | Tested & Ready | Returns the static asset page payload by id or slug. |
 | `/api/v1/events` | Tenant Admin | List events (admin). | Tested & Ready | Admin listing, page-based. |
 | `/api/v1/events` | Tenant Admin | Create event. | Tested & Ready | Admin/account profile creates event. |
 | `/api/v1/events/{event_id}` | Tenant Admin | Update event (partial). | Tested & Ready | Patch event metadata + schedule. |

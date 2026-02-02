@@ -18,7 +18,9 @@ Placeholder for the Tenant Administration (landlord) interface where city govern
 
 ## 3. API Endpoint Definitions
 
-### `GET /api/v1/organizations`
+**Scope note:** All endpoints in this module live under `/admin/api/v1` on **tenant domains** and are guarded by `tenant` + `landlord` middleware. This shares the `/admin` prefix with landlord admin routes but does **not** overlap in scope or domain.
+
+### `GET /admin/api/v1/organizations`
 List organizations for the tenant.
 
 **Response Schema**
@@ -42,7 +44,7 @@ List organizations for the tenant.
 }
 ```
 
-### `POST /api/v1/organizations`
+### `POST /admin/api/v1/organizations`
 Create an organization (grouping only in MVP).
 
 **Request Schema**
@@ -68,7 +70,7 @@ Create an organization (grouping only in MVP).
 }
 ```
 
-### `GET /api/v1/organizations/{organization_id}`
+### `GET /admin/api/v1/organizations/{organization_id}`
 Fetch organization detail.
 
 **Response Schema**
@@ -86,7 +88,7 @@ Fetch organization detail.
 }
 ```
 
-### `PATCH /api/v1/organizations/{organization_id}`
+### `PATCH /admin/api/v1/organizations/{organization_id}`
 Update organization (MVP: name/description only).
 
 **Request Schema**
@@ -112,7 +114,7 @@ Update organization (MVP: name/description only).
 }
 ```
 
-### `DELETE /api/v1/organizations/{organization_id}`
+### `DELETE /admin/api/v1/organizations/{organization_id}`
 Soft delete organization.
 
 **Response Schema**
@@ -120,7 +122,7 @@ Soft delete organization.
 {}
 ```
 
-### `POST /api/v1/organizations/{organization_id}/restore`
+### `POST /admin/api/v1/organizations/{organization_id}/restore`
 Restore organization.
 
 **Response Schema**
@@ -138,7 +140,7 @@ Restore organization.
 }
 ```
 
-### `POST /api/v1/organizations/{organization_id}/force_delete`
+### `POST /admin/api/v1/organizations/{organization_id}/force_delete`
 Force delete organization.
 
 **Response Schema**
@@ -146,7 +148,7 @@ Force delete organization.
 {}
 ```
 
-### `GET /api/v1/accounts`
+### `GET /admin/api/v1/accounts`
 List accounts (tenant-owned + unmanaged + user-owned visibility per admin rules).
 
 **Response Schema**
@@ -175,7 +177,7 @@ List accounts (tenant-owned + unmanaged + user-owned visibility per admin rules)
 ```
 **Notes:** `ownership_state` is **derived in MVP** (not required in payload/response).
 
-### `POST /api/v1/accounts`
+### `POST /admin/api/v1/accounts`
 Create an account (tenant admin).
 
 **Request Schema**
@@ -216,7 +218,7 @@ Create an account (tenant admin).
 }
 ```
 
-### `GET /api/v1/accounts/{account_slug}`
+### `GET /admin/api/v1/accounts/{account_slug}`
 Fetch account detail.
 
 **Response Schema**
@@ -238,7 +240,7 @@ Fetch account detail.
 }
 ```
 
-### `PATCH /api/v1/accounts/{account_slug}`
+### `PATCH /admin/api/v1/accounts/{account_slug}`
 Update account metadata (name/document only in MVP).
 
 **Request Schema**
@@ -271,7 +273,7 @@ Update account metadata (name/document only in MVP).
 }
 ```
 
-### `DELETE /api/v1/accounts/{account_slug}`
+### `DELETE /admin/api/v1/accounts/{account_slug}`
 Soft delete account.
 
 **Response Schema**
@@ -279,7 +281,7 @@ Soft delete account.
 {}
 ```
 
-### `POST /api/v1/accounts/{account_slug}/restore`
+### `POST /admin/api/v1/accounts/{account_slug}/restore`
 Restore account.
 
 **Response Schema**
@@ -301,7 +303,7 @@ Restore account.
 }
 ```
 
-### `POST /api/v1/accounts/{account_slug}/force_delete`
+### `POST /admin/api/v1/accounts/{account_slug}/force_delete`
 Force delete account.
 
 **Response Schema**
@@ -309,7 +311,7 @@ Force delete account.
 {}
 ```
 
-### `GET /api/v1/account_profile_types`
+### `GET /admin/api/v1/account_profile_types`
 List profile type registry for the tenant.
 
 **Response Schema**
@@ -329,7 +331,7 @@ List profile type registry for the tenant.
 }
 ```
 
-### `POST /api/v1/account_profile_types`
+### `POST /admin/api/v1/account_profile_types`
 Create a profile type registry entry (tenant admin).
 
 **Request Schema**
@@ -360,7 +362,7 @@ Create a profile type registry entry (tenant admin).
 }
 ```
 
-### `PATCH /api/v1/account_profile_types/{profile_type}`
+### `PATCH /admin/api/v1/account_profile_types/{profile_type}`
 Update a profile type registry entry (tenant admin).
 
 **Request Schema**
@@ -390,8 +392,117 @@ Update a profile type registry entry (tenant admin).
 }
 ```
 
-### `DELETE /api/v1/account_profile_types/{profile_type}`
+### `DELETE /admin/api/v1/account_profile_types/{profile_type}`
 Delete a profile type registry entry (tenant admin).
+
+**Response Schema**
+```json
+{}
+```
+
+### `GET /admin/api/v1/static_profile_types`
+List static profile type registry for the tenant.
+
+**Response Schema**
+```json
+{
+  "data": [
+    {
+      "type": "string",
+      "label": "string",
+      "allowed_taxonomies": ["string"],
+      "capabilities": {
+        "is_poi_enabled": true,
+        "has_bio": true,
+        "has_taxonomies": true,
+        "has_avatar": true,
+        "has_cover": true,
+        "has_content": true
+      }
+    }
+  ]
+}
+```
+
+### `POST /admin/api/v1/static_profile_types`
+Create a static profile type registry entry (tenant admin).
+
+**Request Schema**
+```json
+{
+  "type": "string",
+  "label": "string",
+  "allowed_taxonomies": ["string"],
+  "capabilities": {
+    "is_poi_enabled": true,
+    "has_bio": true,
+    "has_taxonomies": true,
+    "has_avatar": true,
+    "has_cover": true,
+    "has_content": true
+  }
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "type": "string",
+    "label": "string",
+    "allowed_taxonomies": ["string"],
+    "capabilities": {
+      "is_poi_enabled": true,
+      "has_bio": true,
+      "has_taxonomies": true,
+      "has_avatar": true,
+      "has_cover": true,
+      "has_content": true
+    }
+  }
+}
+```
+
+### `PATCH /admin/api/v1/static_profile_types/{profile_type}`
+Update a static profile type registry entry (tenant admin).
+
+**Request Schema**
+```json
+{
+  "label": "string?",
+  "allowed_taxonomies": ["string"],
+  "capabilities": {
+    "is_poi_enabled": true,
+    "has_bio": true,
+    "has_taxonomies": true,
+    "has_avatar": true,
+    "has_cover": true,
+    "has_content": true
+  }
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "type": "string",
+    "label": "string",
+    "allowed_taxonomies": ["string"],
+    "capabilities": {
+      "is_poi_enabled": true,
+      "has_bio": true,
+      "has_taxonomies": true,
+      "has_avatar": true,
+      "has_cover": true,
+      "has_content": true
+    }
+  }
+}
+```
+
+### `DELETE /admin/api/v1/static_profile_types/{profile_type}`
+Delete a static profile type registry entry (tenant admin).
 
 **Response Schema**
 ```json
@@ -405,7 +516,168 @@ Delete a profile type registry entry (tenant admin).
 - `profile_type_registry.capabilities.is_favoritable` (bool): whether the profile type can be favorited.
 - `profile_type_registry.capabilities.is_poi_enabled` (bool): whether the profile type requires/participates in map POI location.
 
-### `GET /api/v1/account_profiles`
+### `GET /admin/api/v1/taxonomies`
+List taxonomies for the tenant (Account Profiles + Static Assets + Events).
+
+**Response Schema**
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "slug": "string",
+      "name": "string",
+      "applies_to": ["account_profile", "static_asset", "event"],
+      "icon": "mode_subscription",
+      "color": "#FFAA00"
+    }
+  ]
+}
+```
+
+### `POST /admin/api/v1/taxonomies`
+Create a taxonomy.
+
+**Request Schema**
+```json
+{
+  "slug": "string",
+  "name": "string",
+  "applies_to": ["account_profile", "static_asset", "event"],
+  "icon": "mode_subscription",
+  "color": "#FFAA00"
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "slug": "string",
+    "name": "string",
+    "applies_to": ["account_profile", "static_asset", "event"],
+    "icon": "mode_subscription",
+    "color": "#FFAA00"
+  }
+}
+```
+
+### `PATCH /admin/api/v1/taxonomies/{taxonomy_id}`
+Update a taxonomy.
+
+**Request Schema**
+```json
+{
+  "slug": "string?",
+  "name": "string?",
+  "applies_to": ["account_profile", "static_asset", "event"],
+  "icon": "mode_subscription",
+  "color": "#FFAA00"
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "slug": "string",
+    "name": "string",
+    "applies_to": ["account_profile", "static_asset", "event"],
+    "icon": "mode_subscription",
+    "color": "#FFAA00"
+  }
+}
+```
+
+### `DELETE /admin/api/v1/taxonomies/{taxonomy_id}`
+Delete a taxonomy (also removes its terms).
+
+**Response Schema**
+```json
+{}
+```
+
+### `GET /admin/api/v1/taxonomies/{taxonomy_id}/terms`
+List terms for a taxonomy.
+
+**Response Schema**
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "taxonomy_id": "string",
+      "slug": "string",
+      "name": "string"
+    }
+  ]
+}
+```
+
+### `POST /admin/api/v1/taxonomies/{taxonomy_id}/terms`
+Create a taxonomy term.
+
+**Request Schema**
+```json
+{
+  "slug": "string",
+  "name": "string"
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "taxonomy_id": "string",
+    "slug": "string",
+    "name": "string"
+  }
+}
+```
+
+### `PATCH /admin/api/v1/taxonomies/{taxonomy_id}/terms/{term_id}`
+Update a taxonomy term.
+
+**Request Schema**
+```json
+{
+  "slug": "string?",
+  "name": "string?"
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "taxonomy_id": "string",
+    "slug": "string",
+    "name": "string"
+  }
+}
+```
+
+### `DELETE /admin/api/v1/taxonomies/{taxonomy_id}/terms/{term_id}`
+Delete a taxonomy term.
+
+**Response Schema**
+```json
+{}
+```
+
+**Field Definitions**
+- `taxonomy.slug` (string): unique taxonomy key (used in `taxonomy_terms[].type`).
+- `taxonomy.name` (string): display label.
+- `taxonomy.applies_to` (list): allowed values `account_profile`, `static_asset`, `event`.
+- `taxonomy.icon` (string, optional): Material icon name string (e.g., `mode_subscription`).
+- `taxonomy.color` (string, optional): HEX color `#RRGGBB`.
+
+### `GET /admin/api/v1/account_profiles`
 List account profiles (optionally filter by `account_id`).
 
 **Response Schema**
@@ -437,7 +709,7 @@ List account profiles (optionally filter by `account_id`).
 }
 ```
 
-### `POST /api/v1/account_profiles`
+### `POST /admin/api/v1/account_profiles`
 Create account profile (requires `account_id`).
 
 **Request Schema**
@@ -483,7 +755,7 @@ Create account profile (requires `account_id`).
 }
 ```
 
-### `GET /api/v1/account_profiles/{account_profile_id}`
+### `GET /admin/api/v1/account_profiles/{account_profile_id}`
 Fetch account profile detail.
 
 **Response Schema**
@@ -510,7 +782,7 @@ Fetch account profile detail.
 }
 ```
 
-### `PATCH /api/v1/account_profiles/{account_profile_id}`
+### `PATCH /admin/api/v1/account_profiles/{account_profile_id}`
 Update account profile basic fields.
 
 **Request Schema**
@@ -553,7 +825,7 @@ Update account profile basic fields.
 }
 ```
 
-### `DELETE /api/v1/account_profiles/{account_profile_id}`
+### `DELETE /admin/api/v1/account_profiles/{account_profile_id}`
 Soft delete account profile.
 
 **Response Schema**
@@ -561,7 +833,7 @@ Soft delete account profile.
 {}
 ```
 
-### `POST /api/v1/account_profiles/{account_profile_id}/restore`
+### `POST /admin/api/v1/account_profiles/{account_profile_id}/restore`
 Restore account profile.
 
 **Response Schema**
@@ -588,7 +860,7 @@ Restore account profile.
 }
 ```
 
-### `POST /api/v1/account_profiles/{account_profile_id}/force_delete`
+### `POST /admin/api/v1/account_profiles/{account_profile_id}/force_delete`
 Force delete account profile.
 
 **Response Schema**
@@ -596,7 +868,7 @@ Force delete account profile.
 {}
 ```
 
-### `GET /api/v1/account_profiles/geo`
+### `GET /admin/api/v1/account_profiles/geo`
 Geo query for POI-enabled profiles.
 
 **Query Params**
@@ -630,7 +902,142 @@ Geo query for POI-enabled profiles.
 }
 ```
 
-### `PATCH /api/v1/settings/push`
+### `GET /admin/api/v1/static_assets`
+List static assets (tenant admin).
+
+**Response Schema**
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "profile_type": "string",
+      "display_name": "string",
+      "slug": "string",
+      "avatar_url": "string?",
+      "cover_url": "string?",
+      "bio": "string?",
+      "content": "string?",
+      "tags": ["string"],
+      "categories": ["string"],
+      "taxonomy_terms": [{ "type": "string", "value": "string" }],
+      "location": { "lat": 0.0, "lng": 0.0 },
+      "is_active": true,
+      "created_at": "2025-01-01T00:00:00Z",
+      "updated_at": "2025-01-01T00:00:00Z",
+      "deleted_at": "2025-01-01T00:00:00Z"
+    }
+  ],
+  "current_page": 1,
+  "last_page": 1,
+  "per_page": 15,
+  "total": 0
+}
+```
+
+### `POST /admin/api/v1/static_assets`
+Create static asset (tenant admin).
+
+**Request Schema**
+```json
+{
+  "profile_type": "string",
+  "display_name": "string",
+  "location": { "lat": 0.0, "lng": 0.0 },
+  "taxonomy_terms": [{ "type": "string", "value": "string" }],
+  "tags": ["string"],
+  "categories": ["string"],
+  "bio": "string?",
+  "content": "string?",
+  "is_active": true,
+  "avatar_url": "string?",
+  "cover_url": "string?",
+  "avatar": "file?",
+  "cover": "file?"
+}
+```
+**Upload notes:** When sending `avatar`/`cover`, use `multipart/form-data`. The backend stores files and persists the resulting public URLs in `avatar_url`/`cover_url`.
+**Notes:** `location` is **required** when the registry marks `profile_type` as `is_poi_enabled=true`.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "profile_type": "string",
+    "display_name": "string",
+    "slug": "string",
+    "avatar_url": "string?",
+    "cover_url": "string?",
+    "bio": "string?",
+    "content": "string?",
+    "tags": ["string"],
+    "categories": ["string"],
+    "taxonomy_terms": [{ "type": "string", "value": "string" }],
+    "location": { "lat": 0.0, "lng": 0.0 },
+    "is_active": true,
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
+  }
+}
+```
+
+### `GET /admin/api/v1/static_assets/{asset_id}`
+Fetch static asset detail.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "profile_type": "string",
+    "display_name": "string",
+    "slug": "string",
+    "avatar_url": "string?",
+    "cover_url": "string?",
+    "bio": "string?",
+    "content": "string?",
+    "tags": ["string"],
+    "categories": ["string"],
+    "taxonomy_terms": [{ "type": "string", "value": "string" }],
+    "location": { "lat": 0.0, "lng": 0.0 },
+    "is_active": true,
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "deleted_at": "2025-01-01T00:00:00Z"
+  }
+}
+```
+
+### `PATCH /admin/api/v1/static_assets/{asset_id}`
+Update static asset (tenant admin).
+
+**Request Schema:** same as create (partial).  
+**Response:** same as detail.
+
+### `DELETE /admin/api/v1/static_assets/{asset_id}`
+Soft delete static asset.
+
+**Response Schema**
+```json
+{}
+```
+
+### `POST /admin/api/v1/static_assets/{asset_id}/restore`
+Restore static asset.
+
+**Response Schema:** same as detail with `deleted_at: null`.
+
+### `DELETE /admin/api/v1/static_assets/{asset_id}/force_delete`
+Force delete static asset.
+
+**Response Schema**
+```json
+{}
+```
+
+### `PATCH /admin/api/v1/settings/push`
 Update tenant push settings (push-only).
 
 **Request Schema**
@@ -659,7 +1066,7 @@ Update tenant push settings (push-only).
 }
 ```
 
-### `GET /api/v1/settings/firebase`
+### `GET /admin/api/v1/settings/firebase`
 Fetch firebase settings.
 
 **Response Schema**
@@ -675,7 +1082,7 @@ Fetch firebase settings.
 }
 ```
 
-### `PATCH /api/v1/settings/firebase`
+### `PATCH /admin/api/v1/settings/firebase`
 Update firebase settings.
 
 **Request Schema**
@@ -704,7 +1111,7 @@ Update firebase settings.
 }
 ```
 
-### `GET /api/v1/settings/telemetry`
+### `GET /admin/api/v1/settings/telemetry`
 List telemetry integrations.
 
 **Response Schema**
@@ -722,7 +1129,7 @@ List telemetry integrations.
 }
 ```
 
-### `POST /api/v1/settings/telemetry`
+### `POST /admin/api/v1/settings/telemetry`
 Add or update a telemetry integration (upsert by `type`).
 
 **Request Schema**
@@ -750,7 +1157,7 @@ Add or update a telemetry integration (upsert by `type`).
 }
 ```
 
-### `DELETE /api/v1/settings/telemetry/{type}`
+### `DELETE /admin/api/v1/settings/telemetry/{type}`
 Remove a telemetry integration by type.
 
 **Response Schema**

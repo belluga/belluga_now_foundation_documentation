@@ -4,8 +4,8 @@
 ## 1. Analyzed Version
 
 * **Submodule Name:** `laravel-app`
-* **Commit Hash:** `45640f845a8586386d996c7eee3dfba665f9c816`
-* **Analysis Date:** `2026-01-22`
+* **Commit Hash:** `f4e67eef63ccb73503ce376b093aa9b5d4dd1073`
+* **Analysis Date:** `2026-02-02`
 
 *Purpose: This document summarizes the key architectural aspects of the specified submodule version relevant to the main ecosystem.*
 
@@ -73,6 +73,8 @@
 * **Agenda + Events:** new `events` collection with agenda feed (`/api/v1/agenda`), detail (`/api/v1/events/{event_id}`), SSE stream (`/api/v1/events/stream`), and tenant CRUD (`/api/v1/events`). Event publication is managed via `publication.status` + `publication.publish_at` with an hourly job to promote scheduled events. Event payloads use native BSON arrays (no model array casts), derive geo from venue profile location (no standalone event location), and project venue/artist summaries from Account Profiles.
 * **Map POIs:** `map_pois` projection collection with exact-key stacking, time-window filters via `settings.map_ui.poi_time_window_hours`, and SSE deltas at `/api/v1/map/pois/stream`; projection Jobs sync POIs for Events, Account Profiles, and Static Assets.
 * **Static Assets:** tenant-admin CRUD under `/admin/api/v1/static_assets`, stored in `static_assets` collection and projected into `map_pois` as `ref_type=static`.
+* **Static profile types:** new `static_profile_types` registry parallels account profile types, governing page/POI capabilities for static assets.
+* **Static asset pages:** public read endpoint returns static asset page payloads by id or slug; static assets reuse the shared profile page schema (display name, media, content, taxonomy).
 * **Account Profile BSON:** `AccountProfile` no longer casts `location` or `taxonomy_terms` to arrays, preserving MongoDB BSON for geo indexes and taxonomy payloads.
 * **Bootstrap on register:** password registration now ensures a personal account + profile via `AccountProfileBootstrapService`.
 * Tenant push credentials are now single-credential only (upsert via `PUT /api/v1/settings/push/credentials`); multiple credentials return 409 until cleaned up.
