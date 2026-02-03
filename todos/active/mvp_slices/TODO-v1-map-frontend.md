@@ -31,6 +31,8 @@
 
 ### A1.1) Endpoint usage notes
 - [ ] ⚪ Use `/api/v1/map/pois` with filters: `viewport`, `categories[]`, `tags[]`, `taxonomy[]`, `search`, `origin_lat`, `origin_lng`, `max_distance_meters`.
+  - Reference: `foundation_documentation/endpoints_mvp_contracts.md` (Map + POIs section).
+  - Reference: `foundation_documentation/modules/map_poi_module.md` (stacking + time window rules).
 - [ ] ⚪ Connect SSE to `/api/v1/map/pois/stream`; on reconnect without `Last-Event-ID`, refetch `/map/pois`.
 - [ ] ⚪ Use `/api/v1/map/filters` for category/tag/taxonomy discovery (remove hardcoded filter catalogs).
 - [ ] ⚪ Requests include `Authorization: Bearer <AuthRepository.userToken>` and `Accept: application/json`.
