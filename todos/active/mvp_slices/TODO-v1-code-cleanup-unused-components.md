@@ -17,6 +17,7 @@ Remove unused widgets, DTOs, repository methods, and mock payloads to reduce mai
 ## Candidates (Initial List)
 - Agenda summary (schedule summary) DTOs + repository methods + mock backend (`fetchSummary`), if unused by current UI.
 - Any unused event/agenda widgets that are not referenced by schedule or home flows.
+- `lib/presentation/prototypes/map_debug/map_debug_screen.dart` (no route or usage; remove if still unused).
 
 ## Out of Scope
 - Refactors that change public APIs without a feature decision.
