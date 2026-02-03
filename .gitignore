@@ -1,0 +1,4 @@
+# Ephemeral TODOs (keep folder and its control files)
+todos/ephemeral/*
+!todos/ephemeral/.gitkeep
+!todos/ephemeral/.gitignore
