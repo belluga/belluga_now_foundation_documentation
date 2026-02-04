@@ -6,6 +6,7 @@ Eliminate all flagged Flutter performance smells (mounted checks, async navigati
 ## Scope
 - Flutter app only (`flutter-app/`).
 - Performance smells identified by the Flutter performance smell skills.
+- Track mounted-check exceptions in a dedicated artifact under `foundation_documentation/artifacts/`.
 - No backend changes unless explicitly required by documented contracts.
 
 ## Out of Scope
@@ -16,6 +17,7 @@ Eliminate all flagged Flutter performance smells (mounted checks, async navigati
 - All smell categories are clean (no remaining flags).
 - No FutureBuilder/StreamBuilder introduced.
 - No controller/navigation/DI rule regressions.
+- Mounted exceptions recorded in a project artifact and referenced by the mounted-check skill.
 - `fvm flutter analyze` is clean.
 - Device integration tests run per `flutter-device-test-runner` and are green **or** explicitly marked as permission‑blocked (see Validation Steps).
 
@@ -60,6 +62,8 @@ Eliminate all flagged Flutter performance smells (mounted checks, async navigati
 ## Execution Plan
 1) Re‑run smell scans and build a concrete checklist of files.
 2) Fix mounted/async navigation smells first (highest risk).
+   - Create `foundation_documentation/artifacts/flutter-mounted-exceptions.md` and log accepted exceptions.
+   - Update `delphi-ai/skills/flutter-smell-mounted-checks/SKILL.md` to require logging exceptions in that artifact.
 3) Address build side‑effects, then layout/list, then image/media.
 4) After each batch: `fvm flutter analyze`.
 5) Run device integration tests (single‑file) until green.
