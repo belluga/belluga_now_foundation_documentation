@@ -2,7 +2,7 @@
 **Version:** 1.0
 
 ## 1. Overview
-This document defines the tenant admin UI surfaces used to manage **Contas**, **Organizações**, and **Tipos de Perfil** for a tenant. The UI is built on top of the `tenant_admin_module.md` contracts and must enforce the domain rules in `domain_entities.md`, especially the bound **Account + Account Profile** creation flow and the **Profile Type Registry**.
+This document defines the tenant admin UI surfaces used to manage **Contas**, **Organizações**, and **Tipos de Perfil**, and **Taxonomias** for a tenant. The UI is built on top of the `tenant_admin_module.md` contracts and must enforce the domain rules in `domain_entities.md`, especially the bound **Account + Account Profile** creation flow and the **Profile Type Registry**, and the **Taxonomy Registry**.
 
 **Material 3 mandate:** all tenant-admin screens use Material 3 components, spacing, and navigation. List views use cards + consistent empty states. Forms are grouped into cards with clear section titles.
 
@@ -48,6 +48,9 @@ This document defines the tenant admin UI surfaces used to manage **Contas**, **
 - Account Profile: profile_type, display_name.
 **Optional media fields:**
 - Account Profile: avatar (image upload), cover (image upload). Saved as public URLs.
+**Taxonomias:**
+- Select taxonomy terms from the registry (no free text).
+- Term options are filtered by `applies_to=account_profile` **and** the selected profile type's `allowed_taxonomies`.
 
 **UI pattern:**
 - Material 3 cards for account data, media, and location.
@@ -86,6 +89,9 @@ This document defines the tenant admin UI surfaces used to manage **Contas**, **
 **Primary actions:**
 - Update profile type, display name, and location (when POI-enabled).
 - Update avatar/cover (auto-save on selection).
+**Taxonomias:**
+- Edit taxonomy terms from the registry (no free text).
+- Term options are filtered by `applies_to=account_profile` **and** the selected profile type's `allowed_taxonomies`.
 
 **UI pattern:**
 - M3 cards for data, images, and location.
@@ -124,6 +130,41 @@ This document defines the tenant admin UI surfaces used to manage **Contas**, **
 
 ---
 
+### 2.8 Taxonomias � List
+**Purpose:** Manage taxonomy registry entries that classify Account Profiles, Static Assets, and Events.  
+**Primary actions:**
+- Create taxonomy (slug, name, applies_to, icon, color).
+- Edit taxonomy.
+- Delete taxonomy.
+- Open **Terms** for a selected taxonomy.
+
+**UI pattern:**
+- M3 card list with contextual menu actions.
+- M3 card form for create/edit.
+- Link or CTA to **Terms** list (next screen).
+
+**Notes:**
+- Taxonomy entries are stored in `taxonomies`.
+- `icon` is a Material icon name string.
+- `color` is HEX `#RRGGBB`.
+
+---
+
+### 2.9 Taxonomias � Terms (for a taxonomy)
+**Purpose:** Manage terms for a selected taxonomy.  
+**Primary actions:**
+- Create term (slug, name).
+- Edit term.
+- Delete term.
+
+**UI pattern:**
+- M3 card list with contextual menu actions.
+- M3 card form for create/edit.
+
+**Notes:**
+- Terms are stored in `taxonomy_terms` and scoped to a taxonomy via `taxonomy_id`.
+
+---
 ## 3. Data Dependencies
 - `tenant_admin_module.md` for REST contracts.
 - `domain_entities.md` for Account/Profile relationships and profile type definitions.
@@ -135,3 +176,7 @@ This document defines the tenant admin UI surfaces used to manage **Contas**, **
 - POI-enabled type requires location and Map Pick path works.
 - Account/Profile creation remains a single flow (no standalone profile create).
 - Profile Type Registry UI is functional end-to-end (list/create/edit/delete).
+
+
+
+

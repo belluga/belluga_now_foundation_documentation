@@ -27,6 +27,10 @@
 - Static Assets remain a **separate tenant-managed entity** (no accounts). We will **not** allow Account Profiles without Accounts.
 - Static Assets reuse a **shared profile page schema** (page fields + taxonomy/tags/categories) but remain distinct from Account Profiles in persistence.
 - Introduce a **static profile type registry** (e.g., `static_profile_types`) in tenant settings, separate from `account_profile_types`.
+- Tenant-admin Taxonomy management uses **two screens**: Taxonomies list → Terms list.
+- Navigation placement: **Settings → Taxonomies**.
+- Form updates apply to **all three**: Account Profile, Static Asset, Event.
+- Term selection filters by `applies_to` **and** `allowed_taxonomies` from the selected profile type registry.
 
 ## Questions To Close
 - None (decisions locked).
@@ -42,6 +46,7 @@
   - `endpoints_mvp_contracts.md`
 - Add new endpoints to `system_roadmap.md` with status tracking.
 - Ensure taxonomy endpoint paths use `/admin/api/v1` and explicitly note tenant scope vs landlord admin scope.
+- Update tenant-admin screen documentation to include Taxonomies/Terms screens and Settings navigation placement.
 
 ### A2) Laravel (tenant-admin)
 - Add tenant collections: `taxonomies`, `taxonomy_terms`.
@@ -69,8 +74,9 @@
 
 ### A3) Flutter (tenant-admin UI)
 - Add DTOs/repositories for taxonomies + terms.
-- Tenant-admin screens to manage taxonomies and terms.
+- Tenant-admin screens to manage taxonomies and terms (two-screen flow).
 - Update Account Profile / Static Asset / Event forms to pick terms from registry (no free text).
+- Filter term options by `applies_to` + `allowed_taxonomies` from the selected profile type registry.
 
 ---
 
@@ -102,3 +108,11 @@
 - Docs: tenant-admin routes standardized to `/admin/api/v1`, static asset schema updated, roadmap updated.
 - Tests: ran `php artisan test` in Docker for static assets + static profile types + taxonomy registry (all passing).
 - Flutter: pending (tenant-admin UI + form selection updates).
+
+## Execution Notes (2026-02-04)
+- Flutter: added taxonomies domain + repository contract + repository implementation + controller; added tenant-admin Taxonomies and Terms screens/routes; wired navigation in tenant admin shell + dashboard.
+- Flutter: account profile create/edit now uses registry-based taxonomy term selection filtered by `applies_to` + `allowed_taxonomies`.
+- Flutter: removed build-time side effects by moving sync/preload logic into controller-driven listeners; ran build_runner and `fvm flutter analyze` (clean).
+- Flutter: static asset + event admin forms do not exist in the Flutter tenant-admin UI yet, so taxonomy selection updates for those forms remain pending.
+- Flutter tests: added `integration_test/feature_admin_taxonomy_registry_test.dart` covering taxonomy CRUD + term selection flows.
+- Flutter tests: `fvm flutter test integration_test/feature_admin_taxonomy_registry_test.dart` failed due to device selection; rerun with `-d windows` timed out after 124s (needs follow-up).
