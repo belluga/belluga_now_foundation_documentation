@@ -1,4 +1,5 @@
 # Ephemeral TODOs (keep folder and its control files)
+artifacts/tmp/*
 todos/ephemeral/*
 !todos/ephemeral/.gitkeep
 !todos/ephemeral/.gitignore
