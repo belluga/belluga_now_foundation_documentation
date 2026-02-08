@@ -224,3 +224,24 @@ Suggested defaults (override per tenant + plan):
 - Tests: `cd flutter-app && fvm flutter test`
 - Manual: `flutter run` (emulator/device) and verify the milestone’s manual checklist
 - Web: verify `/environment` on root and tenant subdomain, plus fixed branding paths (`/logo-*.png`, `/icon-*.png`, `/manifest.json`, `/favicon.ico`)
+
+## 6) DevOps Governance (Paid Plan)
+- [ ] ⚪ Pending Enable paid GitHub plan and ensure admin access to repository settings for:
+  - `belluga_now_docker`
+  - `belluga_now_front` (`flutter-app`)
+  - `belluga_now_backend` (`laravel-app`)
+  - `belluga_now_web` (`web-app`)
+- [ ] ⚪ Pending Configure Branch Protection/Rulesets for `stage` and `main` in all repositories:
+  - Require PR before merge
+  - Require status checks before merge
+  - Include administrators
+  - Disallow force push and branch deletion
+- [ ] ⚪ Pending Mark required checks in each repository:
+  - Orchestrator: `Lane Promotion Policy`, `Preflight Validation`
+  - Flutter: `Lane Promotion Policy`, `Validate and Build Web`
+  - Laravel: `Lane Promotion Policy`, `test`
+  - Web: `Lane Promotion Policy`, `navigation`
+- [ ] ⚪ Pending After configuration is done, run a full validation round with Delphi:
+  - Attempt direct push to `stage` (must be blocked by GitHub)
+  - Open invalid promotion PR (must fail lane policy)
+  - Open valid promotion PR (must pass required checks)
