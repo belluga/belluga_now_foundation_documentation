@@ -128,3 +128,7 @@ Establish the simplest possible CI/CD deployment flow for two environments (stag
 ## Notes
 - Domains are intentionally deferred; local tunnel setup is out of scope for this project.
 - If Atlas is used, `laravel-app/.env` must point to Atlas connection string per environment (not committed).
+- 2026-02-09: Phase 2 implementation started in `.github/workflows/orchestration-ci-cd.yml` with `Deploy Stage` job (push to `stage` after preflight).
+- 2026-02-09: Added `.github/scripts/deploy_stage_over_ssh.sh` for idempotent remote deploy using pinned submodule SHAs.
+- 2026-02-09: Runtime validation on real stage host completed (containers healthy + `/api/v1/environment` returning 200 from host after deploy run `21845018042`).
+- 2026-02-09: Public ingress validation (`belluga.app`) remains pending firewall/security-group confirmation for inbound `80/443`.
