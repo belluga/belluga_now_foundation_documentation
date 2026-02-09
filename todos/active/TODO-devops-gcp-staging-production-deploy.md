@@ -49,7 +49,7 @@ Establish the simplest possible CI/CD deployment flow for two environments (stag
 ## Assumptions
 - Servers will have Docker + Docker Compose installed.
 - GitHub Actions can SSH into both servers using deploy keys.
-- Cloudflare tunnels or proxying will be configured when domains are defined.
+- No local tunnel is used in this project; stage/production use hosted domains.
 
 ## Deliverables
 - GitHub Actions workflow file(s) for staging + production deploy.
@@ -126,5 +126,5 @@ Establish the simplest possible CI/CD deployment flow for two environments (stag
 1. Domain names for staging and production (when available).
 
 ## Notes
-- Domains are intentionally deferred; Cloudflare config will be added once domains are decided.
+- Domains are intentionally deferred; local tunnel setup is out of scope for this project.
 - If Atlas is used, `laravel-app/.env` must point to Atlas connection string per environment (not committed).
