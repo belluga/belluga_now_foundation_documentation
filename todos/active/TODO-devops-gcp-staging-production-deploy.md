@@ -83,6 +83,36 @@ Establish the simplest possible CI/CD deployment flow for two environments (stag
 - Use CI env vars to point Laravel to local Mongo (not Atlas) for tests.
 - Ensure migrations or tenant seed steps run before integration tests.
 
+### Laravel migrations (Spatie multitenancy: landlord vs tenant)
+This project uses `spatie/laravel-multitenancy` and has **separate migration scopes**:
+- **Landlord migrations**: `laravel-app/database/migrations/landlord`
+- **Tenant migrations**: `laravel-app/database/migrations/tenants`
+- **Tenant package migrations**: `laravel-app/packages/belluga/belluga_push_handler/database/migrations`
+
+Rules (must not be violated in stage/prod bootstrap):
+- Do **not** run plain `php artisan migrate` against a fresh environment expecting it to “do everything”.
+  - It can create the wrong collections in the wrong scope (especially package migrations).
+- For a fresh stage/prod database, run **landlord-only** migrations by path and connection:
+
+```bash
+php artisan migrate:fresh --force --database=landlord --path=database/migrations/landlord
+```
+
+- Tenant migrations are **not** a global command here.
+  - This codebase does not expose `tenants:migrate`.
+  - Tenant migrations are executed when a `Tenant` is created (project-specific behavior): it switches tenant DB and calls `Artisan::call('migrate', ...)` with:
+    - `--database=tenants`
+    - `--path` = `config('multitenancy.tenant_migration_paths')` (must include both tenant migrations and push handler migrations).
+
+Expected bootstrap order (stage/prod):
+1. Landlord migrate (path-scoped, landlord connection).
+2. System initialization request (creates the first tenant + domains + any required configuration).
+3. Tenant create triggers tenant migrations (including push handler collections).
+
+Remediation if migrations were run incorrectly on a fresh environment:
+1. Re-run landlord migrations using the landlord-only `migrate:fresh` command above.
+2. Re-run system initialization (which will recreate tenants and re-run tenant migrations).
+
 ### Docker repo compatibility gate (pre-deploy)
 - Deploy pipeline should validate that the `web-app` bundle metadata references the same `flutter-app` commit.
 - Fail deploy if metadata does not match, to prevent cross-repo drift.
