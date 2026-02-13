@@ -31,6 +31,8 @@ Keep one authoritative CI/CD flow for `dev`, `stage`, and `main`, with `belluga_
 12. Exact-SHA promotion merge strategy is `--merge` only; `--squash`/`--rebase` are forbidden because they rewrite commit identity.
 13. Lane-promotion PR broker concurrency is lane-scoped (`source_repo + head + base`), not SHA-scoped, to avoid stale SHA overwrite races.
 14. Source promotion PR head may advance, but it must still contain the expected SHA as an ancestor at merge time.
+15. Docker promotion PR must be blocked while any source promotion PR is not merge-ready (`mergeStateStatus != CLEAN`), including failing/pending checks or draft state.
+16. Source repos must callback docker after promotion-PR CI completion so docker PR checks are automatically rerun (no manual rerun loop).
 
 ## End-to-End Flow
 
@@ -61,7 +63,9 @@ Applicable for both mappings:
    - exact pinned SHA CI status (green) for all required repos
    - existence on proper source lane (with no-op exceptions described above)
    - expected SHA is present on source lane (snapshot model)
+   - source promotion PRs are merge-ready before docker PR is mergeable
 5. Docker PR becomes mergeable only if all required checks pass.
+6. If source PR checks complete after docker preflight already failed, source callback triggers docker check rerun automatically.
 
 ### C) Promotion Execution on Docker Merge
 1. Merge docker promotion PR into target lane (`stage` or `main`).
@@ -123,6 +127,8 @@ Applicable for both mappings:
 - [ ] 🟡 Provisional — Adjusted web/laravel lane-auto-promotion triggers so promotion remains docker-orchestrated; pending CI validation.
 - [ ] 🟡 Provisional — Disabled direct docker submodule-sync PR creation for `stage/main` lanes; only `dev` sync PRs are allowed, pending CI validation.
 - [ ] 🟡 Provisional — Serialized lane-promotion broker runs per lane (`source_repo/head/base`) to prevent stale SHA lock overwrites; pending CI validation.
+- [ ] 🟡 Provisional — Added docker preflight gate that blocks docker promotion PR while any source promotion PR is not merge-ready (`mergeStateStatus=CLEAN` required); pending CI validation.
+- [ ] 🟡 Provisional — Added source-repo callback (`repository_dispatch`) to rerun docker promotion PR checks automatically when source PR CI finishes; pending CI validation.
 
 ## Definition of Done
 1. This file is the single canonical CI/CD flow reference for lane promotion.
@@ -155,6 +161,8 @@ Expected reaction: each source PR body contains `- Expected SHA: <40-char-sha>`.
 Expected reaction: source lane policy checks pass without `bot/promote-*` branch errors and without requiring lane tip freeze.
 - [ ] Confirm source PRs are not auto-merged during docker PR phase.
 Expected reaction: source PRs remain open until docker promotion merge.
+- [ ] Confirm callback-driven rerun works after source PR checks complete.
+Expected reaction: docker PR preflight reruns automatically (without manual rerun) and only turns green when all source PRs are merge-ready.
 - [ ] Merge docker PR `dev -> stage`.
 Expected reaction: docker post-merge merges only exact-SHA green source PRs (or records no-op success), then deploys stage.
 - [ ] Verify stage deploy starts only after `promote_source_repos` success.
