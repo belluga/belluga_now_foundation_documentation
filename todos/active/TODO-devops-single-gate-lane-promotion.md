@@ -25,6 +25,7 @@ Keep one authoritative CI/CD flow for `dev`, `stage`, and `main`, with `belluga_
    - `stage -> main`: expected SHA must exist on `stage`, or already exist on `main` (unchanged no-op).
 7. Already-promoted exact SHA is a success case (no-op), not a failure.
 8. Fail fast if expected SHA is not the current tip of source lane (`dev` for `dev->stage`, `stage` for `stage->main`), unless already-promoted no-op applies.
+9. Source promotion required checks must rerun when PR body is edited (for `Expected SHA` lock correction), via `pull_request.edited`.
 
 ## End-to-End Flow
 
