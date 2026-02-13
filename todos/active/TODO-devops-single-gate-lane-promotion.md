@@ -24,6 +24,7 @@ Keep one authoritative CI/CD flow for `dev`, `stage`, and `main`, with `belluga_
    - `dev -> stage`: expected SHA must exist on `dev`, or already exist on `stage`/`main` (unchanged no-op).
    - `stage -> main`: expected SHA must exist on `stage`, or already exist on `main` (unchanged no-op).
 7. Already-promoted exact SHA is a success case (no-op), not a failure.
+8. Fail fast if expected SHA is not the current tip of source lane (`dev` for `dev->stage`, `stage` for `stage->main`), unless already-promoted no-op applies.
 
 ## End-to-End Flow
 
@@ -53,6 +54,7 @@ Applicable for both mappings:
    - web/flutter metadata compatibility
    - exact pinned SHA CI status (green) for all required repos
    - existence on proper source lane (with no-op exceptions described above)
+   - expected SHA equals source-lane tip (fast-fail before merge), unless no-op applies
 5. Docker PR becomes mergeable only if all required checks pass.
 
 ### C) Promotion Execution on Docker Merge
