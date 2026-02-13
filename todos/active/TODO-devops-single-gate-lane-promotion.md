@@ -26,6 +26,10 @@ Keep one authoritative CI/CD flow for `dev`, `stage`, and `main`, with `belluga_
 7. Already-promoted exact SHA is a success case (no-op), not a failure.
 8. Fail fast if expected SHA is not the current tip of source lane (`dev` for `dev->stage`, `stage` for `stage->main`), unless already-promoted no-op applies.
 9. Source promotion required checks must rerun when PR body is edited (for `Expected SHA` lock correction), via `pull_request.edited`.
+10. Push preflight on promotion targets is lane-aware: `stage` push accepts SHA on `dev|stage|main`; `main` push accepts SHA on `stage|main` so post-merge source promotion can execute.
+11. Lane gates are strict for promotions: `stage` only accepts PRs from `dev`; `main` only accepts PRs from `stage` (no bot sync branches to stage/main).
+12. Exact-SHA promotion merge strategy is `--merge` only; `--squash`/`--rebase` are forbidden because they rewrite commit identity.
+13. Lane-promotion PR broker concurrency is lane-scoped (`source_repo + head + base`), not SHA-scoped, to avoid stale SHA overwrite races.
 
 ## End-to-End Flow
 
@@ -68,6 +72,7 @@ Applicable for both mappings:
 4. If the exact SHA is already present in the target or a more advanced lane branch, mark that repo as successful no-op for this promotion.
 5. If any repo is neither mergeable exact-SHA+green nor already-promoted no-op, that repo merge is blocked.
 6. Deployment runs from docker pinned SHAs on the target lane.
+7. Push preflight must not block lane promotion execution solely because pinned SHAs are still only on source lane during promotion.
 
 ## Worked Examples
 
@@ -110,10 +115,13 @@ Applicable for both mappings:
 - [x] ✅ Production‑Ready — Docker PR phase enforces lane-aware SHA existence policy (`dev->stage` and `stage->main`).
 - [ ] 🟡 Provisional — Added docker post-merge workflow step that triggers source PR merge attempts only after docker merge; pending CI validation.
 - [ ] 🟡 Provisional — Added post-merge source PR merge gate enforcing exact SHA match + green checks; pending CI validation.
+- [ ] 🟡 Provisional — Restricted post-merge source PR merge strategy to `--merge` only and added post-merge ancestor verification for exact SHA; pending CI validation.
 - [ ] 🟡 Provisional — Added source PR drift protection via `Expected SHA` lock + execution-time head SHA check on real lane PRs; pending CI validation.
 - [ ] 🟡 Provisional — Extended no-op allowance into post-merge execution (already present in preflight checks); pending CI validation.
 - [x] ✅ Production‑Ready — Web sync updates both `web` and related `flutter` gitlinks in docker from metadata.
 - [ ] 🟡 Provisional — Adjusted web/laravel lane-auto-promotion triggers so promotion remains docker-orchestrated; pending CI validation.
+- [ ] 🟡 Provisional — Disabled direct docker submodule-sync PR creation for `stage/main` lanes; only `dev` sync PRs are allowed, pending CI validation.
+- [ ] 🟡 Provisional — Serialized lane-promotion broker runs per lane (`source_repo/head/base`) to prevent stale SHA lock overwrites; pending CI validation.
 
 ## Definition of Done
 1. This file is the single canonical CI/CD flow reference for lane promotion.
@@ -131,11 +139,11 @@ Applicable for both mappings:
    - No autonomous source-repo push trigger reintroduces lane promotion dispatch outside docker orchestration.
 
 ## Operator Checklist (One-Screen)
-- [ ] Merge CI/CD fix branches into `dev` (`docker`, `flutter`, `web`, `laravel`, `foundation_documentation`).
+- [x] Merge CI/CD fix branches into `dev` (`docker`, `flutter`, `web`, `laravel`, `foundation_documentation`).
 Expected reaction: lane-promotion logic is live on `dev` with real lane PRs and `Expected SHA` lock checks.
-- [ ] Close stale source promotion PRs created with `bot/promote-*` heads.
+- [x] Close stale source promotion PRs created with `bot/promote-*` heads.
 Expected reaction: no obsolete promotion PR remains open for this run.
-- [ ] Close stale docker promotion PR `dev -> stage` (if still open).
+- [x] Close stale docker promotion PR `dev -> stage` (if still open).
 Expected reaction: promotion run starts from a clean state.
 
 - [ ] Open a fresh docker PR `dev -> stage`.
