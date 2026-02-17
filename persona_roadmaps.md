@@ -28,7 +28,7 @@ This document tracks active initiatives per persona to keep architectural work a
 ## 4. DevOps / Docker
 **Active Initiatives**
 - Maintain submodule alignment and symlinked docs/scripts for shared tooling.
-- Keep local development runtime tunnel-free and use hosted URLs for stage/production.
+- Keep local development runtime tunnel-optional (default tunnel-free), and use hosted URLs for stage/production.
 
 ---
 
