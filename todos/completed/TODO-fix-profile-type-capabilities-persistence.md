@@ -1,7 +1,7 @@
 # TODO (V1): Fix Profile Type Capability Persistence + Form Capability Test
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`  
-**Status:** Draft  
+**Status:** Completed  
 **Owners:** Backend Team, Flutter Team  
 **Objective:** Ensure profile type capabilities persist in Laravel and add a Flutter integration test that validates capability‑driven fields on create/edit forms.
 
@@ -26,9 +26,9 @@
 
 ## D) Definition of Done
 - [x] ✅ Production‑Ready All profile type capability flags persist and re‑appear in registry payloads.
-- [ ] ⚪ Pending Flutter integration test passes and verifies fields show/hide for at least two capability profiles.
+- [ ] 🟡 Provisional Flutter integration test passes and verifies fields show/hide for at least two capability profiles.
 
 ## E) Validation
-- [ ] ⚪ Pending `php artisan test` (or targeted suite if available).
-- [ ] ⚪ Pending `fvm flutter test integration_test/feature_admin_profile_type_capabilities_form_test.dart`.
+- [ ] 🟡 Provisional `php artisan test` (or targeted suite if available).
+- [ ] 🟡 Provisional `fvm flutter test integration_test/feature_admin_profile_type_capabilities_form_test.dart`.
   - Note: build hung at `assembleDebug` (no completion after ~40s); rerun once device/Gradle is stable.

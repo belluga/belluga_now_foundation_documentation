@@ -1,7 +1,16 @@
 # TODO: AWS Lightsail Staging + Production Deploy (GitHub Actions + Docker Compose)
-**Version:** 1.0
+**Version:** 1.1
 **Owner:** Delphi
 **Date:** 2026-02-04
+**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`
+**Status:** Completed (Superseded)
+
+## Completion Notes (2026-02-21)
+- This TODO was superseded by lane-governed authoritative flow and follow-up deploy TODOs.
+- Canonical active reference for promotion/deploy governance is:
+  - `foundation_documentation/todos/active/TODO-devops-single-gate-lane-promotion.md`
+- Supporting completed items include cloudflared/local-runtime scope separation and deploy hardening TODOs under `todos/completed/`.
+
 
 ## Goal
 Establish the simplest possible CI/CD deployment flow for two environments (staging + production) hosted on AWS Lightsail, using GitHub Actions to deploy Docker Compose stacks with minimal operational burden.
@@ -113,6 +122,22 @@ Remediation if migrations were run incorrectly on a fresh environment:
 1. Re-run landlord migrations using the landlord-only `migrate:fresh` command above.
 2. Re-run system initialization (which will recreate tenants and re-run tenant migrations).
 
+### Automatic Migrations During Stage/Main Deploy (Required)
+Problem: stage/main deploy currently updates the docker stack without enforcing DB migrations. This can ship code that depends on new indexes/collections while stage/prod DBs remain stale, causing runtime failures (e.g., Mongo `E11000` surfacing as `422 Account already exists`).
+
+Decision:
+- Deploy scripts must run migrations after `docker compose up -d` and before health checks.
+- Always run landlord migrations first.
+- Then run tenant migrations for all tenants via `tenants:artisan`.
+- The step must be idempotent and safe to re-run on every deploy.
+- If the environment is not initialized yet (no tenants), the tenant-migration step must not fail the deploy.
+
+Target commands (executed on the remote host inside the `app` container):
+```bash
+docker compose exec -T app php artisan migrate --database=landlord --path=database/migrations/landlord --force
+docker compose exec -T app php artisan tenants:artisan "migrate --database=tenant --path=database/migrations/tenants --path=packages/belluga/belluga_push_handler/database/migrations --force"
+```
+
 ### Docker repo compatibility gate (pre-deploy)
 - Deploy pipeline should validate that the `web-app` bundle metadata references the same `flutter-app` commit.
 - Fail deploy if metadata does not match, to prevent cross-repo drift.
@@ -141,6 +166,7 @@ Remediation if migrations were run incorrectly on a fresh environment:
 - [ ] ⚪ Pending Rollback guidance documented (revert commit + redeploy).
 - [ ] ⚪ Pending Deploy pipeline validates `web-app` metadata matches the pinned `flutter-app` commit.
 - [ ] ⚪ Pending Deploy pipeline blocks on failed Laravel/Web compatibility for the pinned submodule pair.
+- [ ] ⚪ Pending Stage + production deploy run landlord + tenant migrations automatically (post-compose up, pre-healthcheck).
 
 ## Validation Steps
 - [ ] ⚪ Pending Push to `dev` and verify CI runs preflight checks only (no deploy jobs).
@@ -149,6 +175,8 @@ Remediation if migrations were run incorrectly on a fresh environment:
 - [ ] ⚪ Pending Phase 2: run staging deploy workflow and confirm containers are up.
 - [ ] ⚪ Pending Phase 2: run production deploy workflow and confirm containers are up.
 - [ ] ⚪ Pending Phase 2: verify NGINX responds with the expected environment.
+- [ ] ⚪ Pending Phase 2: deploy stage and confirm migrations ran (no pending landlord/tenant migrations remain).
+- [ ] ⚪ Pending Phase 2: deploy production and confirm migrations ran (no pending landlord/tenant migrations remain).
 - [ ] ⚪ Pending Validate that a Laravel-only submodule bump fails deployment if current web version is incompatible.
 - [ ] ⚪ Pending Validate that a web-only submodule bump fails deployment if current Laravel version is incompatible.
 

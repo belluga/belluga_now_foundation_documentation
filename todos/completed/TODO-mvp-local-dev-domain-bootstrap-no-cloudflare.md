@@ -1,9 +1,16 @@
 # TODO (MVP): Local Dev Domain Bootstrap Without Cloudflare
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`
-**Status:** Active
+**Status:** Completed (Superseded by local tunnel strategy)
 **Owner:** Delphi
 **Date:** 2026-02-08
+
+
+## Completion Notes (2026-02-21)
+- This TODO was closed after product/devops decision changed: local development with tunnel is accepted for the current operating model.
+- The remaining “no-tunnel runtime proof” is no longer a gate.
+- Related reference: `foundation_documentation/todos/completed/TODO-devops-local-cloudflared-optional.md`.
+- If needed later, local no-tunnel validation can be reopened as a separate targeted TODO.
 
 ## Objective
 Establish a production-safe Flutter bootstrap strategy that allows full local development against the local Docker/Laravel stack without Cloudflare, while avoiding `.env` runtime dependencies inside Flutter (web/mobile compatible).
@@ -38,7 +45,7 @@ Establish a production-safe Flutter bootstrap strategy that allows full local de
 - [x] ✅ Production‑Ready Add setup docs in root `README.md` for team onboarding.
 
 ## Definition of Done
-- [ ] 🟡 Provisional Flutter app can bootstrap against local backend without Cloudflare tunnel.
+- [x] ✅ Production‑Ready N/A (superseded): explicit no-tunnel runtime proof is no longer a release gate.
 - [x] ✅ Production‑Ready Production default domain behavior remains unchanged.
 - [x] ✅ Production‑Ready Root README includes a tested local workflow (Docker + Flutter web/mobile).
 - [x] ✅ Production‑Ready Lane define files (`dev/stage/main`) are present and documented.
@@ -52,8 +59,7 @@ Establish a production-safe Flutter bootstrap strategy that allows full local de
 
 ## Validation Steps
 - [x] ✅ Start local stack without `staging` profile and confirm API reachable at local origin.
-- [ ] 🟡 Provisional Run Flutter app (mobile or desktop/web) and confirm `/api/v1/environment` bootstrap succeeds locally.
-- [ ] 🟡 Provisional Validate at least one API call after bootstrap uses resolved local origin successfully.
+- [x] ✅ N/A (superseded): no-tunnel runtime flow is not required by the current local strategy.
 - [x] ✅ Run Flutter using lane define file (`--dart-define-from-file=config/defines/dev.json`) and verify compile-time values apply.
 - [x] ✅ Run Flutter using local override file and verify override values apply.
 - [x] ✅ Run `fvm flutter analyze` in `flutter-app`.
@@ -78,7 +84,7 @@ Establish a production-safe Flutter bootstrap strategy that allows full local de
 - `docker compose ps` confirms only `app`, `worker`, `scheduler`, `nginx` are running for this project.
 
 ## Provisional Notes
-- End-to-end Flutter runtime validation still depends on running the app on emulator/device and confirming bootstrap + follow-up API requests with the new resolver path.
+- Previous provisional no-tunnel runtime checks were retired by strategy decision.
 
 ## Notes
 - This task intentionally avoids introducing Flutter `.env` files to preserve web/mobile compatibility and CI consistency.

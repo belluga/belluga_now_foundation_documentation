@@ -224,6 +224,7 @@ Suggested defaults (override per tenant + plan):
 - Tests: `cd flutter-app && fvm flutter test`
 - Manual: `flutter run` (emulator/device) and verify the milestone’s manual checklist
 - Web: verify `/environment` on root and tenant subdomain, plus fixed branding paths (`/logo-*.png`, `/icon-*.png`, `/manifest.json`, `/favicon.ico`)
+- [ ] ⚪ Tenant-admin MVP gate: ensure controller + endpoint coverage matrix is wired for success + auth/permission failures (landlord, tenant, account scopes), including cross-layer contract checks.
 
 ## 6) DevOps Governance (Paid Plan)
 - [ ] ⚪ Pending Enable paid GitHub plan and ensure admin access to repository settings for:

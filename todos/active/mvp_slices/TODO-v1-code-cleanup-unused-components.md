@@ -19,6 +19,14 @@ Remove unused widgets, DTOs, repository methods, and mock payloads to reduce mai
 - Any unused event/agenda widgets that are not referenced by schedule or home flows.
 - `lib/presentation/prototypes/map_debug/map_debug_screen.dart` (no route or usage; remove if still unused).
 
+## Tasks
+- [ ] ⚪ Pending Confirm runtime usage for `fetchSummary` across controllers/routes/screens before removal.
+- [ ] ⚪ Pending If `fetchSummary` is unused, remove contract + implementations + tests/mocks tied only to summary flow.
+- [ ] ⚪ Pending Confirm whether `lib/presentation/prototypes/map_debug/map_debug_screen.dart` is intentionally kept as a local prototype.
+- [ ] ⚪ Pending If map debug screen is not intentional, remove file and any dead imports/tests.
+- [ ] ⚪ Pending Run dead-code pass for unused agenda/event widgets and remove only those without active route/controller ownership.
+- [ ] ⚪ Pending Run/update tests affected by removals (no skip/fallback masking).
+
 ## Out of Scope
 - Refactors that change public APIs without a feature decision.
 - Performance rewrites or architectural migrations.
@@ -26,3 +34,8 @@ Remove unused widgets, DTOs, repository methods, and mock payloads to reduce mai
 ## Success Criteria
 - No unused summary/agenda artifacts remain in MVP codebase.
 - Tests pass with clean contracts and reduced dead code.
+
+## Validation
+- [ ] ⚪ Pending `rg`/route audit proves removed artifacts are not referenced by active flows.
+- [ ] ⚪ Pending `fvm flutter analyze` passes clean.
+- [ ] ⚪ Pending Targeted tests for affected modules pass with no skip/workaround.

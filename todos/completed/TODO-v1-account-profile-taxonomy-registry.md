@@ -1,7 +1,7 @@
 # TODO (V1): Taxonomy Registry + Terms (Account Profiles, Static Assets, Events)
-**Version:** 1.0  
+**Version:** 1.1  
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production-Ready`  
-**Status:** Draft  
+**Status:** Completed  
 **Owners:** Laravel + Flutter + Docs  
 **Objective:** Establish WP-like taxonomies/terms for Account Profiles, Static Assets, and Events using tenant-admin CRUD, while keeping `taxonomy_terms` as `{type, value}` pairs.
 
@@ -34,6 +34,20 @@
 
 ## Questions To Close
 - None (decisions locked).
+
+## Current Delivery Snapshot (2026-02-21)
+- [x] ✅ Production-Ready Contracts/docs aligned for taxonomy + term model and tenant-admin routing.
+- [x] ✅ Production-Ready Laravel taxonomy/terms + static asset registry validation shipped.
+- [x] ✅ Production-Ready Laravel events endpoints accept/validate/persist `taxonomy_terms` (event scope wired server-side).
+- [x] ✅ Production-Ready Flutter tenant-admin taxonomy CRUD shipped (list/edit/terms flow).
+- [x] ✅ Production-Ready Flutter account profile + static asset forms consume taxonomy registry terms (filtered by `applies_to` + allowed taxonomies).
+- [x] ✅ Production-Ready Remaining tenant-admin event form taxonomy gap moved to events frontend TODO:
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-and-agenda-frontend.md` (section `A3`).
+
+## Completion Notes (2026-02-21)
+- Taxonomy registry architecture and core CRUD/validation flow are complete across backend + docs + Flutter forms where those forms exist (accounts/static assets).
+- Event taxonomy persistence is complete server-side.
+- Missing tenant-admin event create/edit form is now tracked in the events frontend TODO to keep domain ownership clear and avoid cross-cutting TODO overlap.
 
 ---
 

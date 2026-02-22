@@ -16,7 +16,95 @@ Placeholder for the Tenant Administration (landlord) interface where city govern
 4. **Compliance & Auditing:** View audit trails (invite Fulfillment steps, attendance confirmations) and respond to data-access requests.
 5. **Government/Institutional Reporting:** Generate reports for city stakeholders (tourism impact, local business engagement, account profile mix).
 
-## 3. API Endpoint Definitions
+## 3. Flutter Route Map (V1)
+
+Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with tenant selection gating before feature routes are rendered.
+
+### 3.1 Shell Entry
+
+- `/admin` → `TenantAdminShellRoute` (guarded by `LandlordRouteGuard`)
+- Initial child: `TenantAdminDashboardRoute`
+
+### 3.2 Top-Level Navigation Groups
+
+- `Início` → dashboard route (`/admin`)
+- `Accounts` → accounts + account profile + organizations routes
+- `Catálogo` → profile types + static profile types + taxonomies routes
+- `Ativos` → static assets routes
+- `Config` → settings route
+
+### 3.3 Child Routes
+
+- `/admin/accounts`
+- `/admin/accounts/create`
+- `/admin/accounts/location-picker`
+- `/admin/accounts/:accountSlug`
+- `/admin/accounts/:accountSlug/profiles/create`
+- `/admin/accounts/:accountSlug/profiles/:accountProfileId/edit`
+- `/admin/organizations`
+- `/admin/organizations/create`
+- `/admin/organizations/:organizationId`
+- `/admin/profile-types`
+- `/admin/profile-types/create`
+- `/admin/profile-types/:profileType/edit`
+- `/admin/static_profile_types`
+- `/admin/static_profile_types/create`
+- `/admin/static_profile_types/:profileType/edit`
+- `/admin/taxonomies`
+- `/admin/taxonomies/create`
+- `/admin/taxonomies/:taxonomyId/edit`
+- `/admin/taxonomies/:taxonomyId/terms`
+- `/admin/taxonomies/:taxonomyId/terms/create`
+- `/admin/taxonomies/:taxonomyId/terms/:termId/edit`
+- `/admin/static_assets`
+- `/admin/static_assets/create`
+- `/admin/static_assets/:assetId/edit`
+- `/admin/settings`
+- `/admin/settings/local-preferences`
+- `/admin/settings/visual-identity`
+- `/admin/settings/technical-integrations`
+- `/admin/settings/environment-snapshot`
+
+### 3.4 Mobile UX Rules
+
+- List/shell routes keep admin chrome (app bar + nav bar).
+- Create/edit/detail routes run in focused full-screen mode on mobile (shell chrome hidden).
+- If only one tenant is available, selection is automatic and the tenant-change affordance is hidden.
+
+### 3.5 Admin UI Architecture Baseline (Settings-first Canonical Pattern)
+
+- **Material 3 top app bar policy:** tenant-admin shell/list app bars use neutral M3 surface styling (no colored/gradient top bars).
+- **Separation of concerns policy:**
+  - Screens compose sections, layout, and navigation.
+  - Controllers own mutable state (`StreamValue`), validation, and async orchestration.
+  - Form interactions use field-edit sheets or full-screen forms; widgets/screens do not own operational business state.
+- **Adoption policy:** `/admin/settings` is the canonical first implementation of this pattern, and all admin modules (Accounts, Ativos, Taxonomias, Tipos, Organizações) must adopt the same structure in subsequent slices while keeping existing contracts stable.
+
+### 3.6 Settings Multi-Screen Strategy (Hub + Dedicated Flows)
+
+- `/admin/settings` is the **Settings Hub** entrypoint.
+- Dedicated settings routes:
+  - `/admin/settings/local-preferences` → local device preferences (theme + map radius)
+  - `/admin/settings/visual-identity` → branding/visual identity
+  - `/admin/settings/technical-integrations` → firebase/push/telemetry
+  - `/admin/settings/environment-snapshot` → read-only environment diagnostics
+- The settings controller remains the state owner; each settings screen consumes only the relevant state slices and actions.
+
+### 3.7 Selected Tenant State Ownership (Shared Repository)
+
+- Tenant-admin tenant context is owned by a dedicated shared repository:
+  - `TenantAdminSelectedTenantRepositoryContract`
+- This repository is the canonical source of truth for:
+  - available tenant options
+  - selected tenant domain
+  - selected tenant option object
+  - derived tenant-admin base URL for tenant-scoped calls
+- `TenantAdminShellController` hydrates this repository from bootstrap tenant hints and landlord tenant listing.
+- Any tenant-admin controller that needs tenant context should read it from the shared repository (directly or via compatibility contract).
+- Compatibility rule: `TenantAdminTenantScopeContract` remains available as an adapter over the same shared state during migration, so existing repositories/controllers keep behavior without state duplication.
+- Tenant-scoped reads/writes must resolve origin from selected tenant scope only; landlord environment fallback is not valid inside tenant-admin scope.
+
+## 4. API Endpoint Definitions
 
 **Scope note:** All endpoints in this module live under `/admin/api/v1` on **tenant domains** and are guarded by `tenant` + `landlord` middleware. This shares the `/admin` prefix with landlord admin routes but does **not** overlap in scope or domain.
 
@@ -151,6 +239,11 @@ Force delete organization.
 ### `GET /admin/api/v1/accounts`
 List accounts (tenant-owned + unmanaged + user-owned visibility per admin rules).
 
+**Query Params**
+- `page` (optional, integer, default backend value)
+- `page_size` (optional, integer, default backend value)
+- `ownership_state` (optional): `tenant_owned|unmanaged|user_owned`
+
 **Response Schema**
 ```json
 {
@@ -163,6 +256,7 @@ List accounts (tenant-owned + unmanaged + user-owned visibility per admin rules)
         "type": "cpf|cnpj",
         "number": "string"
       },
+      "ownership_state": "tenant_owned|unmanaged|user_owned",
       "organization_id": "string?",
       "created_at": "2025-01-01T00:00:00Z",
       "updated_at": "2025-01-01T00:00:00Z",
@@ -175,7 +269,7 @@ List accounts (tenant-owned + unmanaged + user-owned visibility per admin rules)
   "total": 0
 }
 ```
-**Notes:** `ownership_state` is **derived in MVP** (not required in payload/response).
+**Notes:** `ownership_state` is derived from account ownership invariants and is required in read responses.
 
 ### `POST /admin/api/v1/accounts`
 Create an account (tenant admin).
@@ -187,9 +281,11 @@ Create an account (tenant admin).
   "document": {
     "type": "cpf|cnpj",
     "number": "string"
-  }
+  },
+  "ownership_state": "tenant_owned|unmanaged"
 }
 ```
+`user_owned` is not allowed in this admin create flow.
 
 **Response Schema**
 ```json
@@ -203,6 +299,7 @@ Create an account (tenant admin).
         "type": "cpf|cnpj",
         "number": "string"
       },
+      "ownership_state": "tenant_owned|unmanaged|user_owned",
       "organization_id": "string?",
       "created_at": "2025-01-01T00:00:00Z",
       "updated_at": "2025-01-01T00:00:00Z",
@@ -232,6 +329,7 @@ Fetch account detail.
       "type": "cpf|cnpj",
       "number": "string"
     },
+    "ownership_state": "tenant_owned|unmanaged|user_owned",
     "organization_id": "string?",
     "created_at": "2025-01-01T00:00:00Z",
     "updated_at": "2025-01-01T00:00:00Z",
@@ -250,7 +348,8 @@ Update account metadata (name/document only in MVP).
   "document": {
     "type": "cpf|cnpj",
     "number": "string"
-  }
+  },
+  "ownership_state": "tenant_owned|unmanaged?"
 }
 ```
 
@@ -265,6 +364,7 @@ Update account metadata (name/document only in MVP).
       "type": "cpf|cnpj",
       "number": "string"
     },
+    "ownership_state": "tenant_owned|unmanaged|user_owned",
     "organization_id": "string?",
     "created_at": "2025-01-01T00:00:00Z",
     "updated_at": "2025-01-01T00:00:00Z",
@@ -321,6 +421,7 @@ List profile type registry for the tenant.
     {
       "type": "string",
       "label": "string",
+      "map_category": "string",
       "allowed_taxonomies": ["string"],
       "capabilities": {
         "is_favoritable": true,
@@ -339,6 +440,7 @@ Create a profile type registry entry (tenant admin).
 {
   "type": "string",
   "label": "string",
+  "map_category": "string?",
   "allowed_taxonomies": ["string"],
   "capabilities": {
     "is_favoritable": true,
@@ -353,6 +455,7 @@ Create a profile type registry entry (tenant admin).
   "data": {
     "type": "string",
     "label": "string",
+    "map_category": "string",
     "allowed_taxonomies": ["string"],
     "capabilities": {
       "is_favoritable": true,
@@ -369,6 +472,7 @@ Update a profile type registry entry (tenant admin).
 ```json
 {
   "label": "string?",
+  "map_category": "string?",
   "allowed_taxonomies": ["string"],
   "capabilities": {
     "is_favoritable": true,
@@ -383,6 +487,7 @@ Update a profile type registry entry (tenant admin).
   "data": {
     "type": "string",
     "label": "string",
+    "map_category": "string",
     "allowed_taxonomies": ["string"],
     "capabilities": {
       "is_favoritable": true,
@@ -512,6 +617,7 @@ Delete a static profile type registry entry (tenant admin).
 **Field Definitions**
 - `profile_type_registry.type` (string): unique key for the profile type registry entry (immutable after creation).
 - `profile_type_registry.label` (string): human-readable name of the profile type.
+- `profile_type_registry.map_category` (string): coarse map bucket used when projecting static assets into `map_pois.category`.
 - `profile_type_registry.allowed_taxonomies` (list): list of taxonomy keys allowed for the profile type.
 - `profile_type_registry.capabilities.is_favoritable` (bool): whether the profile type can be favorited.
 - `profile_type_registry.capabilities.is_poi_enabled` (bool): whether the profile type requires/participates in map POI location.
@@ -680,6 +786,10 @@ Delete a taxonomy term.
 ### `GET /admin/api/v1/account_profiles`
 List account profiles (optionally filter by `account_id`).
 
+**Query Params**
+- `account_id` (optional)
+- `ownership_state` (optional): `tenant_owned|unmanaged|user_owned`
+
 **Response Schema**
 ```json
 {
@@ -697,6 +807,7 @@ List account profiles (optionally filter by `account_id`).
         { "type": "string", "value": "string" }
       ],
       "location": { "lat": 0.0, "lng": 0.0 },
+      "ownership_state": "tenant_owned|unmanaged|user_owned",
       "created_at": "2025-01-01T00:00:00Z",
       "updated_at": "2025-01-01T00:00:00Z",
       "deleted_at": "2025-01-01T00:00:00Z"
@@ -946,10 +1057,8 @@ Create static asset (tenant admin).
   "location": { "lat": 0.0, "lng": 0.0 },
   "taxonomy_terms": [{ "type": "string", "value": "string" }],
   "tags": ["string"],
-  "categories": ["string"],
   "bio": "string?",
   "content": "string?",
-  "is_active": true,
   "avatar_url": "string?",
   "cover_url": "string?",
   "avatar": "file?",
@@ -957,7 +1066,7 @@ Create static asset (tenant admin).
 }
 ```
 **Upload notes:** When sending `avatar`/`cover`, use `multipart/form-data`. The backend stores files and persists the resulting public URLs in `avatar_url`/`cover_url`.
-**Notes:** `location` is **required** when the registry marks `profile_type` as `is_poi_enabled=true`.
+**Notes:** `location` is **required** when the registry marks `profile_type` as `is_poi_enabled=true`. `slug` is backend-generated and must not be sent by clients. `categories` and `is_active` remain accepted for backward compatibility but are no longer exposed in tenant-admin create/edit forms.
 
 **Response Schema**
 ```json
@@ -1014,6 +1123,7 @@ Fetch static asset detail.
 Update static asset (tenant admin).
 
 **Request Schema:** same as create (partial).  
+**Compatibility note:** `categories` and `is_active` are still accepted by backend validation for compatibility, but tenant-admin forms no longer send these fields.
 **Response:** same as detail.
 
 ### `DELETE /admin/api/v1/static_assets/{asset_id}`
@@ -1036,6 +1146,38 @@ Force delete static asset.
 ```json
 {}
 ```
+
+### `POST /admin/api/v1/media/external-image`
+Proxy an external image URL and return raw image bytes for client-side ingestion.
+
+**Purpose:** Flutter Web cannot reliably download arbitrary third-party image URLs due to CORS/hotlink protection. This endpoint performs a server-to-server fetch (with SSRF guardrails) and returns the bytes so the client can run the normal crop/normalize/upload pipeline. The client must **never** persist the original URL as canonical avatar/cover state.
+
+**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `account-users:create,account-users:update`
+
+**Request Schema**
+```json
+{
+  "url": "string"
+}
+```
+
+**Response (bytes, not JSON)**
+- Status: `200`
+- Body: raw image bytes
+- Headers:
+  - `Content-Type: image/*` (validated)
+  - `Cache-Control: no-store`
+
+**Validation/Failure Modes**
+- `401`: unauthenticated
+- `403`: tenant access denied
+- `422`: invalid URL, blocked destination (private/reserved), too large, too many redirects, or non-image response
+
+**Safety Limits (V1)**
+- Max bytes: 15MB
+- Max redirects: 3
+- Scheme: `http|https` only
+- Blocks `localhost`, private IPs, and reserved IP ranges (SSRF guardrail)
 
 ### `PATCH /admin/api/v1/settings/push`
 Update tenant push settings (push-only).

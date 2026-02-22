@@ -1,7 +1,7 @@
 # TODO (DEVOPS): Optional Cloudflared Tunnel for Local Environment
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`  
-**Status:** Active  
+**Status:** Completed  
 **Owner:** Delphi  
 **Date:** 2026-02-17
 

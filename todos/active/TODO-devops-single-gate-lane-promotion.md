@@ -1,7 +1,9 @@
-# TODO — DevOps Single-Gate Lane Promotion (Authoritative Flow)
-
-## Objective
-Keep one authoritative CI/CD flow for `dev`, `stage`, and `main`, with `belluga_now_docker` as the single promotion gate and exact-SHA validation as the release contract.
+# TODO (V1): DevOps Single-Gate Lane Promotion (Authoritative Flow)
+**Version:** 1.1
+**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`
+**Status:** Active
+**Owners:** DevOps + Platform Team
+**Objective:** Keep one authoritative CI/CD flow for `dev`, `stage`, and `main`, with `belluga_now_docker` as the single promotion gate and exact-SHA validation as the release contract.
 
 ## Scope
 - Repositories:
@@ -19,20 +21,38 @@ Keep one authoritative CI/CD flow for `dev`, `stage`, and `main`, with `belluga_
 2. Stage and main promotion are exact-SHA based (no tag-gated policy).
 3. Promotion validation uses AND across all required repos (never OR).
 4. During docker PR phase, source promotion PRs may be opened/updated, but must not be auto-merged.
-5. Source PR merge automation is allowed only after docker merge and only for exact-SHA green candidates.
-6. Lane policy is lane-aware:
-   - `dev -> stage`: expected SHA must exist on `dev`, or already exist on `stage`/`main` (unchanged no-op).
-   - `stage -> main`: expected SHA must exist on `stage`, or already exist on `main` (unchanged no-op).
+5. Docker promotion PR must not be mergeable until every pinned SHA is already promoted to the target lane (or an allowed more-advanced lane):
+   - Target `stage`: SHA must exist on `origin/stage` or `origin/main`.
+   - Target `main`: SHA must exist on `origin/main` only.
+6. Lane policy is snapshot-based for PR preparation, but strict for merge:
+   - Preparation (opening/updating source PRs): expected SHA must exist on the source lane (`dev` for `dev->stage`, `stage` for `stage->main`) or already be promoted (no-op).
+   - Merge gate (docker PR mergeable): expected SHA must satisfy Rule 5.
 7. Already-promoted exact SHA is a success case (no-op), not a failure.
 8. Promotion is snapshot-based: expected SHA must exist on the source lane, but is not required to be the current source-lane tip.
 9. Source promotion required checks must rerun when PR body is edited (for `Expected SHA` lock correction), via `pull_request.edited`.
-10. Push preflight on promotion targets is lane-aware: `stage` push accepts SHA on `dev|stage|main`; `main` push accepts SHA on `stage|main` so post-merge source promotion can execute.
+10. Push preflight on target lanes is strict:
+    - `stage` push accepts SHA on `stage|main`.
+    - `main` push accepts SHA on `main` only.
 11. Lane gates are strict for promotions: `stage` only accepts PRs from `dev`; `main` only accepts PRs from `stage` (no bot sync branches to stage/main).
 12. Exact-SHA promotion merge strategy is `--merge` only; `--squash`/`--rebase` are forbidden because they rewrite commit identity.
 13. Lane-promotion PR broker concurrency is lane-scoped (`source_repo + head + base`), not SHA-scoped, to avoid stale SHA overwrite races.
 14. Source promotion PR head may advance, but it must still contain the expected SHA as an ancestor at merge time.
 15. Docker promotion PR must be blocked while any source promotion PR is not merge-ready (`mergeStateStatus != CLEAN`), including failing/pending checks or draft state.
 16. Source repos must callback docker after promotion-PR CI completion so docker PR checks are automatically rerun (no manual rerun loop).
+17. Web artifacts must be pinned-SHA correct (feature parity guarantee):
+    - `web-app/build_metadata.json.flutter_git_sha` must match the pinned `flutter-app` SHA (short/long SHA tolerated).
+18. Web artifacts must be runtime-config correct (domain/host guarantee):
+    - `web-app/index.html` must contain a valid `window.__LANDLORD_HOST__` injection.
+    - The injected `__LANDLORD_HOST__` must match the hostname derived from the pinned lane defines:
+      - `flutter-app/config/defines/dev.json` when validating docker `dev`
+      - `flutter-app/config/defines/stage.json` when validating docker `stage`
+      - `flutter-app/config/defines/main.json` when validating docker `main`
+    - `build_metadata.json.source_branch` is treated as diagnostic provenance only (not a hard gate), because the runtime behavior is determined by injected host + pinned flutter SHA.
+19. Docker gate failures must be actionable and explicit:
+    - Every failure must name the submodule, pinned SHA, required lane(s), and, when available, the source promotion PR URL to merge.
+20. CI cost control for Flutter web publish:
+    - PRs targeting `dev` must not run full web artifact build/publish validation.
+    - Pushes to `dev` may publish web artifacts, but must not duplicate the same Flutter test suite already validated in PR.
 
 ## End-to-End Flow
 
@@ -64,20 +84,14 @@ Applicable for both mappings:
    - existence on proper source lane (with no-op exceptions described above)
    - expected SHA is present on source lane (snapshot model)
    - source promotion PRs are merge-ready before docker PR is mergeable
+   - pinned SHAs are already promoted to the target lane (Rule 5) before docker PR is mergeable
 5. Docker PR becomes mergeable only if all required checks pass.
 6. If source PR checks complete after docker preflight already failed, source callback triggers docker check rerun automatically.
 
 ### C) Promotion Execution on Docker Merge
 1. Merge docker promotion PR into target lane (`stage` or `main`).
-2. Post-merge docker workflow attempts to merge source promotion PRs.
-3. Each source PR is merged only if:
-   - checks are green
-   - PR metadata lock (`Expected SHA`) matches docker pinned SHA
-   - PR head SHA still contains the expected SHA at merge time (ancestral lock; no drift away from snapshot)
-4. If the exact SHA is already present in the target or a more advanced lane branch, mark that repo as successful no-op for this promotion.
-5. If any repo is neither mergeable exact-SHA+green nor already-promoted no-op, that repo merge is blocked.
-6. Deployment runs from docker pinned SHAs on the target lane.
-7. Push preflight must not block lane promotion execution solely because pinned SHAs are still only on source lane during promotion.
+2. Deployment runs from docker pinned SHAs on the target lane.
+3. Optional safety net: post-merge automation may still attempt to merge source promotion PRs, but should be a no-op because Rule 5 guaranteed promotion before docker merge.
 
 ## Worked Examples
 
@@ -89,12 +103,12 @@ Applicable for both mappings:
 2. Open docker PR `dev -> stage`.
 3. Docker opens/updates source PRs `dev -> stage` in flutter/web/laravel.
 4. Docker checks require:
-   - `F10` exists on `dev` (or already in `stage`/`main`)
-   - `W20` exists on `dev` (or already in `stage`/`main`)
-   - `L30` exists on `dev` (or already in `stage`/`main`)
+   - preparation: `F10/W20/L30` exist on `dev` (or already in `stage|main`)
+   - merge gate: `F10/W20/L30` exist on `stage|main`
+   - web runtime-config: `W20/index.html` injects `window.__LANDLORD_HOST__` for the `stage` lane host (derived from pinned `flutter-app/config/defines/stage.json`)
    - all three SHAs have green CI for the exact commit
-5. After docker PR merge, docker attempts source PR merges for the exact `F10/W20/L30`.
-6. If `W20` is already on `web:stage`, docker marks `web` as successful no-op and continues.
+5. Operator merges the source PRs first (flutter/web/laravel).
+6. Docker PR becomes mergeable only after the source promotions land and the lane gates pass.
 
 ### Example 2: `stage -> main`
 1. `docker:stage` pins:
@@ -103,10 +117,12 @@ Applicable for both mappings:
    - `laravel = L30`
 2. Open docker PR `stage -> main`.
 3. Docker checks require:
-   - expected SHA exists on `stage`, or already exists on `main` (no-op)
+   - preparation: expected SHA exists on `stage` (or already exists on `main` as no-op)
+   - merge gate: expected SHA exists on `main` only
+   - web runtime-config: `W20/index.html` injects `window.__LANDLORD_HOST__` for the `main` lane host (derived from pinned `flutter-app/config/defines/main.json`)
    - exact SHA green checks for all required repos
-4. After docker PR merge, source PR merge automation runs only for exact `F10/W20/L30`.
-5. If `L30` is already on `laravel:main`, docker marks `laravel` as successful no-op and continues.
+4. Operator merges the source PRs first (flutter/web/laravel).
+5. Docker PR becomes mergeable only after the source promotions land and the lane gates pass.
 
 ## Explicit Non-Goals (to avoid drift)
 1. No direct autonomous lane promotion from source repo merges alone.
@@ -129,11 +145,15 @@ Applicable for both mappings:
 - [ ] 🟡 Provisional — Serialized lane-promotion broker runs per lane (`source_repo/head/base`) to prevent stale SHA lock overwrites; pending CI validation.
 - [ ] 🟡 Provisional — Added docker preflight gate that blocks docker promotion PR while any source promotion PR is not merge-ready (`mergeStateStatus=CLEAN` required); pending CI validation.
 - [ ] 🟡 Provisional — Added source-repo callback (`repository_dispatch`) to rerun docker promotion PR checks automatically when source PR CI finishes; pending CI validation.
+- [ ] 🟡 Provisional — Flutter publish workflow skips full web build on PRs targeting `dev`; pending CI validation.
+- [ ] 🟡 Provisional — Flutter publish workflow avoids duplicate Flutter tests on `push` to `dev` while keeping build+publish; pending CI validation.
+- [ ] 🟡 Provisional — Flutter publish workflow dispatches `submodule-updated` to `belluga_now_docker` for `submodule=flutter-app` on `push` to `dev`, so docker pin sync has the authoritative Flutter SHA without depending on web-app dispatch.
+- [ ] 🟡 Provisional — Docker submodule sync workflow accepts `flutter-app` as a supported submodule target for `repository_dispatch` (`submodule-updated`), while preserving `dev`-only sync PR behavior.
 
 ## Definition of Done
 1. This file is the single canonical CI/CD flow reference for lane promotion.
 2. Docker promotion PR cannot merge unless all required exact SHAs are validated and green.
-3. Source promotion PRs are prepared during docker PR phase against exact pinned SHAs, and executed only after docker merge.
+3. Source promotion PRs are prepared during docker PR phase against exact pinned SHAs, and must be merged before docker promotion PR becomes mergeable.
 4. Stage and main follow the same exact-SHA orchestration model.
 5. If an exact SHA was already promoted in a more advanced lane, execution records success as no-op (never false-fails).
 
@@ -161,10 +181,12 @@ Expected reaction: each source PR body contains `- Expected SHA: <40-char-sha>`.
 Expected reaction: source lane policy checks pass without `bot/promote-*` branch errors and without requiring lane tip freeze.
 - [ ] Confirm source PRs are not auto-merged during docker PR phase.
 Expected reaction: source PRs remain open until docker promotion merge.
+- [ ] Merge the source promotion PRs first (`flutter`, `web`, `laravel`) for the target mapping.
+Expected reaction: each pinned SHA becomes an ancestor of the target lane branch in the source repos.
 - [ ] Confirm callback-driven rerun works after source PR checks complete.
 Expected reaction: docker PR preflight reruns automatically (without manual rerun) and only turns green when all source PRs are merge-ready.
 - [ ] Merge docker PR `dev -> stage`.
-Expected reaction: docker post-merge merges only exact-SHA green source PRs (or records no-op success), then deploys stage.
+Expected reaction: docker deploys stage from lane-correct pinned SHAs.
 - [ ] Verify stage deploy starts only after `promote_source_repos` success.
 Expected reaction: `promote_source_repos` is green before `deploy_stage`.
 
@@ -173,7 +195,7 @@ Expected reaction: same exact-SHA preparation behavior for main promotion.
 - [ ] Confirm source PRs are real lane PRs (`stage -> main`) with matching `Expected SHA` lock and head containing the locked SHA.
 Expected reaction: source lane policy + snapshot SHA lock checks pass.
 - [ ] Merge docker PR `stage -> main`.
-Expected reaction: docker post-merge merges only exact-SHA green source PRs (or records no-op success), then deploys production.
+Expected reaction: docker deploys production from lane-correct pinned SHAs.
 - [ ] Verify production deploy starts only after `promote_source_repos` success.
 Expected reaction: `promote_source_repos` is green before `deploy_main`.
 

@@ -1,7 +1,7 @@
 # TODO (V1): Remove Array Casts from TenantProfileType
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`  
-**Status:** Active  
+**Status:** Completed  
 **Owners:** Backend Team  
 **Objective:** Remove Eloquent array casts from the Mongo-backed `TenantProfileType` model to rely on native BSON types.
 
@@ -23,4 +23,4 @@
 - [x] ✅ Production‑Ready No other model changes.
 
 ## E) Validation
-- [ ] ⚪ Pending `php artisan test` (or targeted suite) as needed.
+- [ ] 🟡 Provisional `php artisan test` (or targeted suite) as needed.

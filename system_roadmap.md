@@ -54,10 +54,10 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/admin/api/v1/organizations/{organization_id}` | Tenant Admin | Organization detail. | Implemented | Tenant‑scoped; landlord users only. Returns org metadata. |
 | `/admin/api/v1/organizations/{organization_id}` | Tenant Admin | Update organization. | Implemented | Tenant‑scoped; landlord users only. Patch name/description. |
 | `/admin/api/v1/organizations/{organization_id}` | Tenant Admin | Delete/restore organization. | Implemented | Soft delete + restore + force delete endpoints are live. |
-| `/admin/api/v1/accounts` | Tenant Admin | List accounts (tenant-owned, unmanaged, user-owned). | Implemented | Tenant‑scoped; landlord users only. `ownership_state` is derived in MVP. |
-| `/admin/api/v1/accounts` | Tenant Admin | Create account. | Implemented | Tenant‑scoped; landlord users only. Uses boilerplate payload (`name` + `document`). |
+| `/admin/api/v1/accounts` | Tenant Admin | List accounts (tenant-owned, unmanaged, user-owned). | Implemented | Tenant‑scoped; landlord users only. Read payload includes `ownership_state`; supports optional `ownership_state` filter. |
+| `/admin/api/v1/accounts` | Tenant Admin | Create account. | Implemented | Tenant‑scoped; landlord users only. Create payload includes explicit `ownership_state` intent (`tenant_owned` or `unmanaged`). |
 | `/admin/api/v1/accounts/{account_slug}` | Tenant Admin | Fetch/update/delete account (partial). | Implemented | Uses `account_slug`; soft delete + restore + force delete endpoints are live. |
-| `/admin/api/v1/account_profiles` | Tenant Admin | List/create account profiles. | Implemented | Tenant‑scoped; landlord users only. Paged response with profile metadata. |
+| `/admin/api/v1/account_profiles` | Tenant Admin | List/create account profiles. | Implemented | Tenant‑scoped; landlord users only. Paged response includes profile metadata + `ownership_state`. |
 | `/admin/api/v1/account_profiles/{account_profile_id}` | Tenant Admin | Fetch/update/delete account profile. | Implemented | Tenant‑scoped; landlord users only. Soft delete + restore + force delete endpoints are live. |
 | `/admin/api/v1/account_profiles/geo` | Tenant Admin | Geo search for POI-enabled profiles. | Implemented | **Removed** from tenant admin routes; superseded by `/api/v1/map/pois`. |
 | `/admin/api/v1/account_profile_types` | Tenant Admin | Profile type registry (tenant settings). | Implemented | Returns registry entries and capabilities. |
@@ -77,11 +77,12 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/admin/api/v1/static_profile_types/{profile_type}` | Tenant Admin | Update static profile type. | Tested & Ready | `profile_type` is immutable; patch label/capabilities/taxonomies. |
 | `/admin/api/v1/static_profile_types/{profile_type}` | Tenant Admin | Delete static profile type. | Tested & Ready | Removes entry from registry. |
 | `/admin/api/v1/static_assets` | Tenant Admin | Static Asset CRUD for map POIs + pages. | Tested & Ready | Tenant-admin endpoints for create/update/delete/restore of static assets. |
+| `/admin/api/v1/media/external-image` | Tenant Admin | Proxy external image URL to bytes for ingestion (URL import without CORS). | Tested & Ready | Authenticated + `CheckTenantAccess`; SSRF + size limits; returns raw bytes with `Cache-Control: no-store`. |
 | `/api/v1/static_assets/{asset_ref}` | Tenant | Static Asset public read (page). | Tested & Ready | Returns the static asset page payload by id or slug. |
 | `/admin/api/v1/events` | Tenant Admin | List events (admin). | Tested & Ready | Admin listing, page-based. |
 | `/admin/api/v1/events` | Tenant Admin | Create event. | Tested & Ready | Admin/account profile creates event. |
 | `/admin/api/v1/events/{event_id}` | Tenant Admin | Update event (partial). | Tested & Ready | Patch event metadata + schedule. |
-| `/admin/api/v1/branding/update` | Tenant Admin | Update tenant branding settings. | Implemented | Drives `/environment` payload + asset paths; route registered in `routes/api/tenant_api_v1.php`. |
+| `/admin/api/v1/branding/update` | Tenant Admin | Update tenant branding settings. | Implemented | Drives `/environment` payload + asset paths; route registered in `routes/api/tenant_api_v1.php`. Contract scope is `theme_data_settings` + `logo_settings`/`pwa_icon` (tenant name is not persisted by this endpoint). |
 
 ## 4. Risk & Mitigation Log
 

@@ -936,6 +936,7 @@
 ### `GET /api/v1/accounts`
 **Purpose:** List accounts (including unmanaged).  
 **Pagination:** Page-based (`page`, `per_page`); no cursor.
+**Query Params:** `ownership_state` (optional): `tenant_owned|unmanaged|user_owned`.
 **Response:**
 ```json
 {
@@ -948,6 +949,7 @@
         "type": "cpf|cnpj",
         "number": "string"
       },
+      "ownership_state": "tenant_owned|unmanaged|user_owned",
       "organization_id": "string?",
       "updated_at": "2025-01-01T00:00:00Z",
       "created_at": "2025-01-01T00:00:00Z",
@@ -960,7 +962,7 @@
   "total": 0
 }
 ```
-**Notes:** `ownership_state` is **derived in MVP** (not required in payload/response).
+**Notes:** `ownership_state` is derived from account ownership invariants and is required in read responses.
 
 ### `POST /api/v1/accounts`
 **Purpose:** Create account.  
@@ -971,11 +973,14 @@
   "document": {
     "type": "cpf|cnpj",
     "number": "string"
-  }
+  },
+  "ownership_state": "tenant_owned|unmanaged"
 }
 ```
 **Field Definitions**
 - `document.type`: `cpf`, `cnpj`.
+- `ownership_state` (admin create): `tenant_owned`, `unmanaged`.
+  - `user_owned` is not accepted in this admin create flow.
 
 **Response:**
 ```json
@@ -989,6 +994,7 @@
         "type": "cpf|cnpj",
         "number": "string"
       },
+      "ownership_state": "tenant_owned|unmanaged|user_owned",
       "organization_id": "string?",
       "updated_at": "2025-01-01T00:00:00Z",
       "created_at": "2025-01-01T00:00:00Z",
@@ -1003,7 +1009,6 @@
   }
 }
 ```
-**Notes:** `ownership_state` is **derived in MVP** (not required in payload/response).
 - `document.type`: `cpf`, `cnpj`.
 
 ### `GET /api/v1/accounts/{account_slug}`
@@ -1019,6 +1024,7 @@
       "type": "cpf|cnpj",
       "number": "string"
     },
+    "ownership_state": "tenant_owned|unmanaged|user_owned",
     "organization_id": "string?",
     "updated_at": "2025-01-01T00:00:00Z",
     "created_at": "2025-01-01T00:00:00Z",
@@ -1041,6 +1047,7 @@
       "type": "cpf|cnpj",
       "number": "string"
     },
+    "ownership_state": "tenant_owned|unmanaged|user_owned",
     "organization_id": "string?",
     "updated_at": "2025-01-01T00:00:00Z",
     "created_at": "2025-01-01T00:00:00Z",
@@ -1048,7 +1055,6 @@
   }
 }
 ```
-**Notes:** `ownership_state` is **derived in MVP** (not required in payload/response).
 - `document.type`: `cpf`, `cnpj`.
 
 ### `DELETE /api/v1/accounts/{account_slug}`
@@ -1095,6 +1101,7 @@
     {
       "type": "string",
       "label": "string",
+      "map_category": "string",
       "allowed_taxonomies": ["string"],
       "capabilities": {
         "is_favoritable": true,
@@ -1112,6 +1119,7 @@
 {
   "type": "string",
   "label": "string",
+  "map_category": "string?",
   "allowed_taxonomies": ["string"],
   "capabilities": {
     "is_favoritable": true,
@@ -1130,6 +1138,10 @@
 **Purpose:** Update account profile type.  
 **Request (body):** same as create (partial).  
 **Response:** same as GET item.
+**Notes:**
+- `type` is mutable on edit (slug rename).
+- When `type` changes, backend must enforce uniqueness and propagate `profile_type` to dependent `account_profiles`.
+- When `type` changes, backend must also update dependent map projection category for `ref_type=account_profile` POIs.
 
 ### `DELETE /admin/api/v1/account_profile_types/{profile_type}`
 **Purpose:** Delete account profile type.  
@@ -1185,6 +1197,12 @@
 **Purpose:** Update static profile type.  
 **Request (body):** same as create (partial).  
 **Response:** same as GET item.
+**Notes:**
+- `type` is mutable on edit (slug rename).
+- When `type` changes, backend must enforce uniqueness and propagate `profile_type` to dependent `static_assets`.
+- When `type` changes, backend must update dependent map projection category for `ref_type=static` POIs using the resolved `map_category`.
+
+**Static profile type note:** `map_category` is the source of truth for static asset map projection (`map_pois.category`).
 
 ### `DELETE /admin/api/v1/static_profile_types/{profile_type}`
 **Purpose:** Delete static profile type.  
@@ -1337,6 +1355,7 @@
 
 ### `GET /admin/api/v1/account_profiles`
 **Purpose:** List account profiles (filterable by `account_id`).  
+**Query Params:** `account_id` (optional), `ownership_state` (optional): `tenant_owned|unmanaged|user_owned`.
 **Response:**
 ```json
 {
@@ -1354,6 +1373,7 @@
         { "type": "string", "value": "string" }
       ],
       "location": { "lat": 0.0, "lng": 0.0 },
+      "ownership_state": "tenant_owned|unmanaged|user_owned",
       "updated_at": "2025-01-01T00:00:00Z",
       "created_at": "2025-01-01T00:00:00Z",
       "deleted_at": "2025-01-01T00:00:00Z"
@@ -1435,6 +1455,9 @@
 ### `PATCH /admin/api/v1/account_profiles/{account_profile_id}`
 **Purpose:** Update account profile.  
 **Request (body):** same as create (partial).  
+**Notes:**
+- `slug` is mutable on edit and must pass slug validation (`^[a-z0-9]+(?:[-_][a-z0-9]+)*$`).
+- Backend enforces slug uniqueness on update and returns field-level validation error (`slug`) on conflicts.
 **Response:**
 ```json
 {
@@ -1595,16 +1618,15 @@
   "location": { "lat": 0.0, "lng": 0.0 },
   "taxonomy_terms": [{ "type": "string", "value": "string" }],
   "tags": ["string"],
-  "categories": ["string"],
   "bio": "string?",
   "content": "string?",
-  "is_active": true,
   "avatar_url": "string?",
   "cover_url": "string?",
   "avatar": "file?",
   "cover": "file?"
 }
 ```
+**Notes:** `slug` is backend-generated and should not be sent by clients. `categories` and `is_active` are still accepted by backend validation for backward compatibility, but tenant-admin forms no longer send them.
 
 **Response:**
 ```json
@@ -1633,6 +1655,7 @@
 ### `PATCH /admin/api/v1/static_assets/{asset_id}`
 **Purpose:** Update Static Asset (tenant-admin).  
 **Request (body):** same fields as create (partial).  
+**Compatibility note:** `categories` and `is_active` remain accepted for compatibility only.
 **Response:**
 ```json
 {

@@ -3,7 +3,7 @@
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.  
 **Status:** Active  
 **Owners:** Flutter Team  
-**Objective:** Deliver the agenda browse + event detail UX aligned to backend contracts (no check‑in in MVP).
+**Objective:** Deliver the agenda browse + event detail UX aligned to backend contracts (no check‑in in MVP), and close the remaining tenant-admin events UI gap for taxonomy term editing.
 
 ---
 
@@ -38,6 +38,13 @@
 - [x] ✅ Remove manual confirm‑presence CTA; confirmation only via invite acceptance.
 - [x] ✅ Invite actions available (send/accept/decline) with credited acceptance selector.
 
+### A3) Tenant Admin Events (taxonomy picker)
+- [ ] ⚪ Implement tenant-admin event management UI beyond placeholder screen.
+- [ ] ⚪ Add event create/edit form in tenant-admin with `taxonomy_terms` picker.
+- [ ] ⚪ Ensure taxonomy options are loaded from registry with `applies_to=event`.
+- [ ] ⚪ Persist selected taxonomy terms in event create/update payloads.
+- [ ] ⚪ Add focused tests for event form taxonomy selection + persistence path.
+
 ---
 
 ## B) Acceptance Criteria
@@ -48,18 +55,20 @@
 ---
 
 ## C) Out of Scope
-- Tenant admin event CRUD UI (managed by separate tenant admin TODO).
+- Event check-in/attendance workflow beyond invite-confirmed semantics.
 
 ## D) Definition of Done
 - [ ] ⚪ Agenda list + detail flows are wired to `/api/v1/agenda` and `/api/v1/events/{event_id|slug}` with the documented filters.
 - [ ] ⚪ SSE subscription to `/api/v1/events/stream` resyncs by reloading page 1 when `Last-Event-ID` is missing.
 - [ ] ⚪ Map event panel lists only today’s events within the active location radius.
 - [ ] ⚪ Agenda zero‑state is contextual (default vs filtered/search).
+- [ ] ⚪ Tenant-admin events create/edit flow supports taxonomy term selection and persistence.
 
 ## E) Validation Steps
 - [x] ✅ `fvm flutter analyze`
 - [ ] ⚪ Manual smoke: agenda list, search, open detail, toggle past/confirmed filters, verify artists/venue rendering.
 - [ ] ⚪ Manual smoke: disconnect/reconnect SSE and confirm list refresh.
+- [ ] ⚪ Manual smoke (tenant-admin): create/edit event with taxonomy terms and verify persisted values on reload.
 
 ## Decisions (Locked)
 - Participants removed from MVP; artists only.

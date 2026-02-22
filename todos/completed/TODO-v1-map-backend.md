@@ -13,7 +13,7 @@
 - `foundation_documentation/system_roadmap.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-backend-wiring-consolidation.md`
-- `foundation_documentation/todos/active/vnext_slices/About t.md` (Route Paths Migration Guide)
+- `foundation_documentation/todos/completed/TODO-route-paths-migration-guide.md` (Route Paths Migration Guide)
 
 ---
 

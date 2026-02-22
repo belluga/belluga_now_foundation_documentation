@@ -4,8 +4,8 @@
 ## 1. Analyzed Version
 
 * **Submodule Name:** `flutter-app`
-* **Commit Hash:** `70f764f0bda38e32365df4c6410a47de725f6ea8`
-* **Analysis Date:** `2025-12-13`
+* **Commit Hash:** `cba16173e3e5c09afc605fb4cbf8f4cbf4c066c7`
+* **Analysis Date:** `2026-02-17`
 
 *Purpose: This document summarizes the key architectural aspects of the specified submodule version relevant to the main ecosystem.*
 
@@ -79,3 +79,5 @@
 * Partner detail mocks will be lifted into domain projections/services so controllers consume only domain types (no DTOs or DAL classes in presentation).
 * Partner audio playback now routes through a domain-level `AudioPlayerServiceContract`, with the mock implementation registered in `DiscoveryModule` and controllers consuming the contract (no infrastructure dependencies in presentation).
 * Integration tests updated to use domain `PoiQuery` and `PartnerProfileConfigBuilder`; device checklist shows all integration tests green after these updates.
+* Tenant-admin account sync pattern established: account list/detail/form flows consume repository-owned canonical streams; detail controllers derive account state via repository watch (stable `id` first, slug fallback only while unresolved), avoiding manual cross-controller synchronization.
+* Tenant-admin image ingestion: device file import and web URL import share the same crop UX (avatar 1:1, cover 16:9) and run through the canonical crop/normalize/upload pipeline. Flutter Web URL import relies on an authenticated backend proxy (`/admin/api/v1/media/external-image`) to avoid CORS/hotlink failures.

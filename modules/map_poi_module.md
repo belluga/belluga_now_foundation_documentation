@@ -103,6 +103,7 @@ For V1, we treat `map_pois` as a **materialized projection/read model** used by 
 
 Key properties:
 - `map_pois` is the map projection (geometry + category + tags + priority + deep-link reference).
+- For `ref_type=static`, `map_pois.category` is derived from `static_profile_types.map_category` (fallback to `static_assets.profile_type`). `static_assets.categories[]` is legacy metadata and must not drive map categorization.
 - The record may carry optional `active_window_start_at` + `active_window_end_at` (nullable). We do **not** store `visible_from`/`visible_until`. Visibility windows are computed at query time using backend-owned tenant settings and the **user timezone** stored on the user profile.
 - Account Profile/Custom Object types can enable/disable POI projection via capabilities. When disabled, the backend can keep the POI record but set `is_active=false` (soft disabled), or omit creation entirely for that type.
 

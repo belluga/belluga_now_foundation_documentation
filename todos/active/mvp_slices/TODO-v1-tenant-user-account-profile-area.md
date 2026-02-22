@@ -8,7 +8,7 @@ Deliver the MVP **frontend-only** tenant user area that allows creation of Accou
 
 ## References
 - `foundation_documentation/todos/completed/TODO-v1-account-profile-implementation.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-admin-data-layer-rebuild.md`
+- `foundation_documentation/todos/completed/TODO-v1-tenant-admin-data-layer-rebuild.md`
 
 ## Scope
 - Document the **tenant user area** flows for:

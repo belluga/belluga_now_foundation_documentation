@@ -1,7 +1,7 @@
 # TODO (V1): Tenant Admin Data Layer Rebuild (Repos + Contracts)
 **Version:** 1.0  
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production-Ready`  
-**Status:** Active  
+**Status:** Completed  
 **Owners:** Flutter Team  
 **Objective:** Replace `TenantAdminStore` with repository-driven contracts aligned to Laravel endpoints and domain definitions, ensuring Account + Account Profile creation is a single bounded flow and Organizations have their own repository.
 
@@ -63,15 +63,15 @@
 - [x] ✅ Production-Ready Replace dashboard navigation so only "Contas" is exposed as the entry point (account + profile bound flow); remove "Perfis de Conta" tile.
 - [x] ✅ Production-Ready Require location fields when `profile_type.capabilities.is_poi_enabled=true` in the bound Account/Profile create form.
 - [x] ✅ Production-Ready Add **Map Pick** action to select coordinates for POI-enabled types (map pin → returns lat/lng).
-- [ ] ⚪ Fix POI-enabled location fields visibility in **Account Create + Account Update** (lat/lng + map pick should render and reflect current values).
-- [ ] ⚪ Ensure profile type admin edit/delete URL-encodes `type` (handle spaces/accents to avoid 404 on update/delete).
-- [ ] ⚪ Backend: normalize account profile type slugs on update/delete (trim/normalize input before lookup to avoid 404s).
-- [ ] ⚪ TEMP DEBUG: add 404 logging (host + path + method) to trace which route the request is hitting, remove after diagnosis.
-- [ ] ⚪ TEMP DEBUG: return debug payload on account profile type update/delete when not found (raw/trimmed type + tenant info), remove after diagnosis.
-- [ ] ⚪ TEMP DEBUG: include full `account_profile_types` list in 404 debug payload for update/delete, remove after diagnosis.
-- [ ] ⚪ Add failing feature test for tenant admin account_profile_types update (captures tenant_domain/profile_type param mismatch).
-- [ ] ⚪ Fix controller to resolve `profile_type` from named route param (request->route('profile_type')).
-- [ ] ⚪ Remove temporary debug responses/logging after fix is verified by test.
+- [x] ✅ Production-Ready POI-enabled location fields visibility is functional in **Account Create + Account Update** (lat/lng + map pick render and reflect current values).
+- [x] ✅ Production-Ready Ensure profile type admin edit/delete URL-encodes `type` (handle spaces/accents to avoid 404 on update/delete).
+- [x] ✅ Production-Ready Backend normalizes account profile type identifiers on update/delete (`trim` before lookup) to avoid 404s from param noise.
+- [x] ✅ Production-Ready TEMP DEBUG was not required after root-cause fix; diagnostics stayed out of production code.
+- [x] ✅ Production-Ready TEMP DEBUG payload response path was not introduced (kept API surface clean).
+- [x] ✅ Production-Ready TEMP DEBUG list echo path was not introduced (kept API surface clean).
+- [x] ✅ Production-Ready Add feature test covering tenant admin account profile type update route-param behavior.
+- [x] ✅ Production-Ready Fix controller to resolve `profile_type` from named route param (`request->route('profile_type')`).
+- [x] ✅ Production-Ready No temporary debug responses/logging remain after verification.
 
 ### B7) Validation
 - [x] ✅ Production-Ready `fvm flutter analyze` clean.
@@ -79,7 +79,7 @@
 - [x] ✅ Production-Ready Unit tests for tenant-admin controllers (accounts, account profiles, profile types).
 - [x] ✅ Production-Ready Run tenant-admin integration test on device (Account + Profile + POI location).
   - Notes: Linux integration test build still fails due to missing `libsecret-1`; device run is the MVP gate.
-- [ ] ⚪ MVP Gate: ensure every controller + endpoint has wired tests covering success + auth/permission failures (landlord, tenant, account).
+- [x] ✅ Production-Ready Scope transfer: final MVP gate for broad controller+endpoint coverage moved to `TODO-v1-first-release.md` (global release gate), since it is cross-slice and not specific to this data-layer rebuild.
 
 ### B8) Pending Decisions
 - [x] ✅ Production-Ready Define Profile Type Registry CRUD (create/update/delete) endpoints + contracts (tenant admin), then implement in Laravel + update Flutter admin UI. (Tracked in `TODO-v1-profile-type-registry-crud.md`)
@@ -109,3 +109,7 @@
 - [x] ✅ Production-Ready Run tenant-admin controller unit tests.
 - [x] ✅ Production-Ready Run tenant-admin integration test on device.
   - Notes: `fvm flutter test -d linux integration_test/feature_admin_account_create_with_location_test.dart` still fails; missing `libsecret-1` for linux build.
+
+## Completion Notes (2026-02-21)
+- Map picker/location visibility is considered delivered for this slice.
+- Remaining broad “MVP-wide test coverage gate” is intentionally tracked in the release orchestrator TODO (`TODO-v1-first-release.md`) to avoid duplicating cross-slice acceptance criteria here.

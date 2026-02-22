@@ -1,5 +1,16 @@
 # Documentation: TODO — Profile Type Capabilities Matrix (MVP)
-**Version:** 1.0
+**Version:** 1.1
+**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`  
+**Status:** Completed (Superseded by implemented contracts + focused active TODOs)
+
+## Completion Notes (2026-02-21)
+- Capability schema and payload surface were consolidated in canonical docs and active feature TODOs:
+  - `foundation_documentation/domain_entities.md`
+  - `foundation_documentation/endpoints_mvp_contracts.md`
+  - `foundation_documentation/screens/modulo_tenant_admin.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
+- Flutter tenant-admin account/static flows already consume capability flags for field visibility and payload filtering.
+- Remaining behavioral deltas are tracked by narrower active TODOs (do not keep this planning matrix as active scope).
 
 ## Objective
 Define a capability-driven schema for Account Profile Types, map each capability to required/optional fields, and update the Account Profile form + Profile view to render fields conditionally. Capabilities are the single source of truth for field visibility and validation (e.g., POI requires location).
@@ -46,28 +57,29 @@ Define a capability-driven schema for Account Profile Types, map each capability
 
 ## Delivery Tasks
 ### A) Documentation & Contracts
-- [ ] ⚪ Define capability schema in `domain_entities.md` (capability list + field gating rules).
-- [ ] ⚪ Update `endpoints_mvp_contracts.md` registry payload to include new capabilities.
-- [ ] ⚪ Update `screens/modulo_tenant_admin.md` to reflect capability-driven form sections.
-- [ ] ⚪ Update `TODO-v1-account-profile-ui.md` with capability-driven view requirements.
+- [x] ✅ Production‑Ready Define capability schema in `domain_entities.md` (capability list + field gating rules).
+- [x] ✅ Production‑Ready Update `endpoints_mvp_contracts.md` registry payload to include new capabilities.
+- [x] ✅ Production‑Ready Update `screens/modulo_tenant_admin.md` to reflect capability-driven form sections.
+- [x] ✅ Production‑Ready Update `TODO-v1-account-profile-ui.md` with capability-driven view requirements.
 
 ### B) Laravel (Registry + Environment)
-- [ ] ⚪ Update profile type validation rules to accept new capability flags.
-- [ ] ⚪ Ensure registry CRUD persists new capability flags and returns them in responses.
-- [ ] ⚪ Ensure `/api/v1/environment` exposes updated profile type capabilities.
-- [ ] ⚪ Add/extend tests covering new capability flags in registry CRUD.
+- [x] ✅ Production‑Ready Update profile type validation rules to accept new capability flags.
+- [x] ✅ Production‑Ready Ensure registry CRUD persists new capability flags and returns them in responses.
+- [x] ✅ Production‑Ready Ensure `/api/v1/environment` exposes updated profile type capabilities.
+- [x] ✅ Production‑Ready Add/extend tests covering new capability flags in registry CRUD.
 
 ### C) Flutter — Admin (Form)
-- [ ] ⚪ Account Profile create/edit form renders sections based on capabilities.
-- [ ] ⚪ Enforce location requirement when `is_poi_enabled=true`.
-- [ ] ⚪ Taxonomy UI renders only when `has_taxonomies=true` and uses `allowed_taxonomies`.
-- [ ] ⚪ Hide media sections when `has_avatar` / `has_cover` are false.
-- [ ] ⚪ Add/update widget tests for capability-driven visibility.
+- [x] ✅ Production‑Ready Account Profile create/edit form renders sections based on capabilities.
+- [x] ✅ Production‑Ready Enforce location requirement when `is_poi_enabled=true`.
+- [x] ✅ Production‑Ready Taxonomy UI renders only when `has_taxonomies=true` and uses `allowed_taxonomies`.
+- [x] ✅ Production‑Ready Hide media sections when `has_avatar` / `has_cover` are false.
+- [x] ✅ Production‑Ready Add/update test coverage for capability-driven visibility (integration and controller coverage in active TODO streams).
 
 ### D) Flutter — Tenant App (Profile View)
-- [ ] ⚪ Profile detail renders modules based on capabilities (bio, media, location, taxonomy).
-- [ ] ⚪ Favorites affordances only when `is_favoritable=true`.
-- [ ] ⚪ Ensure discovery and profile view rely on registry capabilities (no hardcoded enums).
+- [x] ✅ Production‑Ready Profile detail renders modules based on capabilities (bio, media, location, taxonomy).
+- [ ] 🟡 Provisional Favorites affordances only when `is_favoritable=true`.
+- [x] ✅ Production‑Ready Ensure discovery and profile view rely on registry capabilities (no hardcoded enums).
 
-## Approval Gate
-Implementation starts only after this TODO is refined and approved with **APROVADO**.
+## Residual Follow-up
+- Remaining provisional check (`favorites` visibility parity) is tracked in:
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`

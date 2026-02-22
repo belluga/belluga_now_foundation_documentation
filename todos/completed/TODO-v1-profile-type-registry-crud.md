@@ -11,7 +11,7 @@
 - `foundation_documentation/domain_entities.md`
 - `foundation_documentation/modules/tenant_admin_module.md`
 - `foundation_documentation/system_roadmap.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-admin-data-layer-rebuild.md`
+- `foundation_documentation/todos/completed/TODO-v1-tenant-admin-data-layer-rebuild.md`
 
 ---
 

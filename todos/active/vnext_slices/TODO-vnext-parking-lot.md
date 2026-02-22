@@ -56,6 +56,14 @@
 
 ---
 
+## H) DevOps / Deploy Safety (VNext)
+
+- [ ] ⚪ Pending **Pre-migration backup/snapshot on stage/main deploy**
+  - Reason: deploy now runs landlord+tenant migrations automatically; we should capture an Atlas snapshot (or `mongodump` when self-hosted) before applying migrations, mainly for `main`.
+  - Tracking: `foundation_documentation/todos/active/vnext_slices/TODO-vnext-deploy-pre-migration-backup.md`
+
+---
+
 ## C) Favorites (Deferred Enhancements)
 
 - **Backend-persistent favorites**
