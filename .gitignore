@@ -3,3 +3,6 @@ artifacts/tmp/*
 todos/ephemeral/*
 !todos/ephemeral/.gitkeep
 !todos/ephemeral/.gitignore
+CLINE.md
+.cline
+.clinerules
