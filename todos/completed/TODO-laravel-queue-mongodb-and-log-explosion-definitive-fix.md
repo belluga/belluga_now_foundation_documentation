@@ -1,7 +1,7 @@
 # TODO (V1): Definitive Fix for Queue Misconfiguration and Log Explosion
 **Version:** 1.0
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production-Ready`
-**Status:** Active (Ready for Implementation)
+**Status:** Completed
 **Owners:** Laravel + DevOps
 **Objective:** Eliminate the root cause of production log explosion by preventing invalid queue driver combinations on MongoDB stacks and enforcing safe log rotation defaults.
 
@@ -28,20 +28,20 @@
 - Pipeline/governance redesign.
 
 ## Planned Changes (Minimal + Robust)
-- [ ] ⚪ Pending `laravel-app/config/queue.php`
+- [x] ✅ Production-Ready `laravel-app/config/queue.php`
   - Add explicit `mongodb` queue connection using package driver.
   - Harden default resolution so MongoDB deployments cannot silently keep unsafe `database` queue default.
   - Keep existing `database` connection for non-Mongo contexts.
 
-- [ ] ⚪ Pending `laravel-app/.env.example`
+- [x] ✅ Production-Ready `laravel-app/.env.example`
   - Set `QUEUE_CONNECTION=mongodb`.
   - Add explicit Mongo queue env knobs (`MONGODB_QUEUE_CONNECTION`, `MONGODB_QUEUE_COLLECTION`, `MONGODB_QUEUE_RETRY_AFTER`).
 
-- [ ] ⚪ Pending `laravel-app/config/logging.php` + `laravel-app/.env.example`
+- [x] ✅ Production-Ready `laravel-app/config/logging.php` + `laravel-app/.env.example`
   - Set safe rotation defaults (`daily`) for stacked logs to avoid unbounded single-file growth.
   - Keep configurability via env, but with production-safe defaults.
 
-- [ ] ⚪ Pending `laravel-app/tests/Unit/*` (new)
+- [x] ✅ Production-Ready `laravel-app/tests/Unit/*` (new)
   - Add regression tests that verify:
     - MongoDB deployments resolve to MongoDB queue connector.
     - Unsafe MongoDB + `database` queue combination is guarded.
@@ -72,3 +72,12 @@
 3. Runtime smoke (post-deploy):
    - Worker starts without `DatabaseQueue.php` null access error.
    - `storage/logs/laravel*.log` remains bounded/rotated.
+
+## Closure Evidence (2026-02-23)
+- Queue guardrails are implemented in `laravel-app/config/queue.php`:
+  - Mongo-aware default queue resolution.
+  - Explicit `mongodb` queue connection.
+  - fail-closed runtime exception on unsafe `DB_CONNECTION=mongodb` + `QUEUE_CONNECTION=database` without dedicated SQL `DB_QUEUE_CONNECTION`.
+- Safe logging defaults are implemented in `laravel-app/config/logging.php` (`LOG_STACK=daily`) and reflected in `laravel-app/.env.example` (`LOG_LEVEL=info`, `LOG_DAILY_DAYS=14`).
+- Mongo queue defaults are reflected in `laravel-app/.env.example` (`QUEUE_CONNECTION=mongodb`, `MONGODB_QUEUE_*`).
+- Regression tests exist in `laravel-app/tests/Unit/Config/QueueAndLoggingConfigGuardrailTest.php` covering queue resolution/guard and logging defaults.

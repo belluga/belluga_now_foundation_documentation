@@ -1,7 +1,7 @@
 # TODO (V1): Stage-Driven Source Sync Directly to `bot/next-version` (PR -> `dev`)
 **Version:** 2.2
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production-Ready`
-**Status:** Active (Implementation Applied, Awaiting Merge)
+**Status:** Completed
 **Owners:** DevOps + Platform Team
 **Objective:** Stabilize submodule sync governance with a simple, auditable flow: source repos dispatch only from `stage`, docker sync lands only in `bot/next-version -> dev` (manual merge), and non-bot PRs cannot alter source gitlinks.
 
@@ -87,3 +87,12 @@
 ## Assumptions
 - `DOCKER_SYNC_TARGET_REPO` and dispatch tokens are configured in source repos.
 - Branch protection on docker `dev` requires PR merge (no direct push bypass).
+
+## Closure Evidence (2026-02-23)
+- `flutter-app/.github/workflows/web-artifact-publish.yml` dispatches to docker only on `stage` with payload:
+  - `target_branch=bot/next-version`
+  - `base_branch=dev`
+  - `source_branch=stage`
+- `laravel-app/.github/workflows/dispatch-docker-sync.yml` dispatches only on `stage` with the same payload contract.
+- `belluga_now_docker/.github/workflows/submodule-sync-pr.yml` enforces fixed sync target `bot/next-version` and `dev` base for automatic sync.
+- `belluga_now_docker/.github/scripts/check_submodule_gitlink_guardrail.sh` is wired in orchestration preflight and blocks non-bot gitlink mutations on PRs targeting `dev`.

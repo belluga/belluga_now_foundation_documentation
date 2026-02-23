@@ -1,7 +1,7 @@
 # TODO (V1): Remove `web-app` Submodule from Docker and Enforce Runtime-Lane Web
 **Version:** 1.0
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production-Ready`
-**Status:** Active
+**Status:** Closed (Won't Do)
 **Owners:** DevOps + Platform Team
 
 ## Objective
@@ -68,3 +68,8 @@ Promotion contracts remain source-based (`flutter-app` + `laravel-app`), and web
 ## Assumptions
 - `belluga_now_web` remains authoritative source for runtime web artifacts by lane branch.
 - Existing secrets/tokens already allow remote fetch/validation for lane runtime web resolution.
+
+## Closure Decision (2026-02-23)
+- Decision: this initiative will not be implemented in V1.
+- Rationale: promotion/deploy pipelines are currently stable and validated end-to-end; removing `web-app` submodule now introduces high risk of destabilizing the lane flow.
+- Follow-up: if revisited, treat as isolated future initiative with phased rollout and dedicated validation window.
