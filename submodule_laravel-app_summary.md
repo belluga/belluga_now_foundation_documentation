@@ -60,6 +60,22 @@
 * **Media ingestion (tenant-admin):** `POST /admin/api/v1/media/external-image` (authenticated + `CheckTenantAccess`) proxies external image URLs into raw bytes with SSRF + size limits to support Flutter Web URL import without CORS/hotlink failures.
 * **Authentication Method:** Laravel Sanctum tokens with abilities; wildcard abilities are sanitized/expanded in auth services.
 
+### 6.1 Scope/Subscope Ownership Contract for Client-Facing Routes
+Canonical governance source:
+- `foundation_documentation/policies/scope_subscope_governance.md`
+- This policy is mandatory reading before changing route/module contracts consumed by Flutter/Web clients.
+
+Contract expectations exposed to Flutter/Web clients:
+- `EnvironmentType` remains binary: `landlord` or `tenant`.
+- Main scopes consumed by clients:
+  - landlord host: `site_public` (`/`), `landlord_area` (`/admin`)
+  - tenant host: `tenant_public` (`/`), `tenant_admin` (`/admin`)
+- Tenant subscope consumed by clients:
+  - `account_workspace`: `/workspace`, `/workspace/{account_slug}`
+- Tenant resolution for `tenant_admin` is host/domain based (no tenant path parameter in canonical V1 entry).
+- Landlord -> tenant admin transition is URL redirect-link based in V1; cross-domain SSO is optional and not required.
+- No new subscope may be introduced in route/module contracts without explicit governance decision and policy update.
+
 ---
 
 ## 7. Notes & Observations

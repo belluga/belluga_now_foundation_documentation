@@ -6,7 +6,7 @@
 
 ## 1. Purpose
 
-Placeholder for the Tenant Administration (landlord) interface where city governments or enterprise tenants manage account profile onboarding, plan assignments, and high-level analytics. This document will be expanded after the tenant-facing app modules are finalized, ensuring the admin capabilities align with real consumer workflows.
+Placeholder for the Tenant Administration interface (`tenant_admin` main scope) where city governments or enterprise tenants manage account profile onboarding, plan assignments, and high-level analytics. In V1, this interface is accessed on tenant domains and guarded by landlord identity principal. This document will be expanded after the tenant-facing app modules are finalized, ensuring admin capabilities align with real consumer workflows.
 
 ## 2. Intended Responsibilities
 
@@ -16,9 +16,43 @@ Placeholder for the Tenant Administration (landlord) interface where city govern
 4. **Compliance & Auditing:** View audit trails (invite Fulfillment steps, attendance confirmations) and respond to data-access requests.
 5. **Government/Institutional Reporting:** Generate reports for city stakeholders (tourism impact, local business engagement, account profile mix).
 
+### 2.1 Scope/Subscope Ownership (Authoritative)
+- Canonical governance source:
+  - `foundation_documentation/policies/scope_subscope_governance.md`
+- Primary ownership:
+  - `EnvironmentType`: `tenant`
+  - main scope: `tenant_admin`
+- Secondary touchpoint:
+  - subscope: `account_workspace` (explicit transitions only; no ownership transfer of tenant-admin routes).
+
+### 2.2 Route/Subscope Matrix
+| Route | Host Context | EnvironmentType | Main Scope | Subscope | Notes |
+|---|---|---|---|---|---|
+| `/admin` (tenant domain) | Tenant | `tenant` | `tenant_admin` | n/a | Canonical tenant-admin home. |
+| `/admin/*` child routes | Tenant | `tenant` | `tenant_admin` | n/a | Tenant-admin modules (accounts/org/catalog/assets/settings). |
+| `/workspace` | Tenant | `tenant` | `tenant_public` | `account_workspace` | Adjacent subscope; not a tenant-admin route. |
+| `/workspace/{account_slug}` | Tenant | `tenant` | `tenant_public` | `account_workspace` | Account-scoped workspace mode. |
+
 ## 3. Flutter Route Map (V1)
 
 Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with tenant selection gating before feature routes are rendered.
+
+### 3.0 Canonical Scope Boundary (Main Scopes + Subscopes)
+- `EnvironmentType` is binary (`landlord | tenant`) and is not expanded by UI subscopes.
+- `tenant_admin` belongs to tenant environment and is resolved by tenant host/subdomain.
+- Canonical main scope routes:
+  - landlord host: `/` (`site_public`), `/admin` (`landlord_area`)
+  - tenant host: `/` (`tenant_public`), `/admin` (`tenant_admin`)
+- `account_workspace` is a tenant-environment subscope outside `tenant_admin`:
+  - `/workspace`
+  - `/workspace/{account_slug}`
+- Historical host-aware paths (URL normalization policy):
+  - landlord host: `/home` and `/landlord` normalize to `/admin`
+  - tenant host: `/home` and `/landlord` normalize to `/`
+- Landlord -> tenant transition is redirect-link based in this phase:
+  - source: landlord-area tenant list (`landlord` identity principal)
+  - target: tenant-domain `/admin`
+  - cross-domain login reuse is not required; tenant-domain landlord login fallback is allowed.
 
 ### 3.1 Shell Entry
 

@@ -34,6 +34,23 @@
     * DAL split between DTOs (`lib/infrastructure/dal/dto/*`) and backend adapters (`lib/infrastructure/dal/dao/*`), with mocks as the default data source.
     * Navigation is defined via AutoRoute and assembled through modular route providers (`lib/application/router/modular_app/*`).
 
+### 3.1 Canonical Presentation Ownership Model (Governance)
+Canonical governance source:
+- `foundation_documentation/policies/scope_subscope_governance.md`
+- This policy is mandatory reading before any Flutter route/module/screen ownership change.
+
+Required ownership model for route/screen surfaces:
+- `site_public` and `landlord_area`: landlord-owned presentation surfaces.
+- `tenant_public`: tenant-owned public/home surfaces.
+- `tenant_admin`: tenant admin surfaces on tenant domains.
+- `account_workspace`: tenant subscope (`/workspace`, `/workspace/{account_slug}`) for account-user/admin workspace concerns.
+- Shared UI utilities/components are allowed only in explicit shared paths and cannot silently redefine scope ownership.
+
+Governance constraints:
+- New route/screen work must be attributed to one canonical scope/subscope from the policy.
+- Do not create new subscope folders/keys without explicit decision + policy update.
+- Legacy placement guidance (for example historical `presentation/prototypes` usage) is non-authoritative for new route/screen ownership.
+
 ---
 
 ## 4. Ecosystem Configuration Points

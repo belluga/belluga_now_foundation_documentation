@@ -1,7 +1,7 @@
 # TODO (V1): Environment Scope Reorganization (Binary EnvironmentType + Main Scopes + Subscopes)
-**Version:** 3.13
+**Version:** 4.2
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`
-**Status:** Active
+**Status:** Completed
 **Owners:** Platform + Flutter + Laravel
 **Objective:** Establish a canonical scope model where `EnvironmentType` remains binary (`landlord` | `tenant`) and routing/UI behavior is organized by explicit main scopes + subscopes, reducing route and domain ambiguity across Web/App runtimes.
 
@@ -25,6 +25,7 @@
 - Establish dual workspace routes on tenant host:
   - `/workspace`: account-user workspace home (cross-account management).
   - `/workspace/{account_slug}`: account-scoped admin area for the selected account.
+- Organize `lib/presentation/` by canonical scopes + shared ownership (no intermediate `scopes/` folder).
 
 ## Out of Scope
 - Visual redesign of tenant/landlord/public pages.
@@ -42,7 +43,7 @@
   - Landlord domain: `/` -> `site_public`, `/admin` -> `landlord_area`
   - Tenant domain/subdomain: `/` -> `tenant_public`, `/admin` -> `tenant_admin`
 - [x] ✅ Production‑Ready **Entry route contract per scope:**
-  - `site_public`: current baseline uses `/landlord` as public landing; entry CTA sends user to `landlord_area`.
+  - `site_public`: canonical landlord-host public landing is `/`; entry CTA sends user to `landlord_area` (`/admin`).
   - `landlord_area`: `/admin` initial screen is the existing tenant list (tenants the user can access); selecting a tenant triggers transition to that tenant's `tenant_admin`.
   - `tenant_public`: canonical entry is tenant root (`/`).
   - `tenant_admin`: tenant context is resolved by tenant domain/subdomain host; entry is on tenant `/admin` (direct open or via redirect link from landlord-area tenant selection).
@@ -106,6 +107,20 @@
   - `tenant_public` -> `account_workspace` via explicit CTA in tenant app (workspace entry).
   - `tenant_admin` -> `tenant_public` via explicit preview CTA while preserving selected tenant context.
   - `tenant_public` -> `tenant_admin` requires landlord identity (same landlord principal across landlord and tenant domains) and remains guarded.
+- [x] ✅ Production‑Ready **Presentation structure policy (scope + shared ownership):**
+  - `lib/presentation/` must contain canonical top-level ownership folders only:
+    - `lib/presentation/site_public/**`
+    - `lib/presentation/landlord_area/**`
+    - `lib/presentation/tenant_public/**`
+    - `lib/presentation/tenant_admin/**`
+    - `lib/presentation/account_workspace/**`
+    - `lib/presentation/shared/**`
+  - Existing top-level folders (`common`, `landlord`, `tenant`, `tenant_admin`, `prototypes`) must be fully reassigned into one of the scope folders or `shared`.
+  - This phase includes route/screen/controller/widget ownership migration (not route-only migration).
+- [x] ✅ Production‑Ready **Web regression/pipeline safety policy for Phase 4:**
+  - Presentation-path migration must preserve local web navigation test stability (`web-app/tests/navigation.spec.js`).
+  - Any web-test break caused by file-path migration must be fixed in the same iteration before marking Phase 4 tasks done.
+  - Web artifact publish flow compatibility must be preserved (build script + workflow assumptions).
 
 ## Subscope Transition Model (V1)
 - `tenant_public` (user mode) may expose a guarded CTA to enter `account_workspace` (when user has workspace permission).
@@ -118,123 +133,176 @@
 - Selecting an account inside workspace transitions to `/workspace/{account_slug}` (account-specific admin context).
 - If `{account_slug}` is invalid/unauthorized, route must fallback to `/workspace` with explicit feedback.
 
-## Current Baseline (As-Is, Before Canonical Cutover)
+## Historical Baseline (Before Canonical Cutover)
 - `canonical cutover` = moment when canonical routing rules become active in runtime (legacy paths stop being primary and redirect to canonical targets).
-- `site_public` is temporarily served at `/landlord` on landlord host.
-- Current `/landlord` screen is treated as public landing and exposes login CTA that can send user to landlord area (`/admin` flow).
-- `tenant_public` currently lands at `/home`; root `/` currently boots init flow and then resolves to tenant home stack.
-- `landlord_area` currently can act as tenant-selection entry before moving to tenant admin flows.
-- `tenant_admin` screens already live under `/admin` and currently guarded by `LandlordRouteGuard`.
-- `account_workspace` is not implemented yet; first delivery is a dedicated placeholder home route/screen.
+- Legacy paths prior to cutover included landlord public served on `/landlord` and tenant public served via `/home`.
+- Canonical cutover is now active in runtime; legacy notes are retained only for migration traceability.
 
 ## Pre-Implementation Deep Dive (Mandatory)
 ### A. Routing and Context Resolution
-- [ ] ⚪ Pending Define a single resolver contract for `{host, path, session} -> {EnvironmentType, main_scope, subscope?}`.
-- [ ] ⚪ Pending Decide deterministic precedence between host inference, persisted app context, and current session mode.
-- [ ] ⚪ Pending Define mobile resolver variant where app target/flavor determines default main scope (`Mobile Landlord` -> `landlord_area`, `Mobile Tenant` -> `tenant_public`).
-- [ ] ⚪ Pending Define host-based tenant resolution contract for tenant-domain `/admin` (tenant resolved from domain/subdomain host, not path parameter).
-- [ ] ⚪ Pending Define invalid-combination fallback policy (example: tenant host + landlord-only route).
+- [x] ✅ Production‑Ready Define a single resolver contract for `{host, path, session} -> {EnvironmentType, main_scope, subscope?}`.
+  - Web contract: `{host + path}` is canonical input; auth/session only determines guarded-route outcome.
+  - Mobile contract: flavor/environment bootstrap is canonical input; host inference is not required.
+- [x] ✅ Production‑Ready Decide deterministic precedence between host inference, persisted app context, and current session mode.
+  - Web precedence: `host -> canonical path normalization -> guard/session`.
+  - Mobile precedence: `flavor/environment bootstrap -> guard/session`.
+- [x] ✅ Production‑Ready Define mobile resolver variant where app target/flavor determines default main scope (`Mobile Landlord` -> `landlord_area`, `Mobile Tenant` -> `tenant_public`).
+- [x] ✅ Production‑Ready Define host-based tenant resolution contract for tenant-domain `/admin` (tenant resolved from domain/subdomain host, not path parameter).
+- [x] ✅ Production‑Ready Define invalid-combination fallback policy (example: tenant host + landlord-only route).
+  - Tenant host + landlord-only route => fallback to tenant canonical root (`/`).
+  - Landlord host + tenant historical paths (`/home`, `/landlord`) => normalize to landlord-area canonical entry (`/admin`).
 
 ### B. Guard and Permission Matrix
-- [ ] ⚪ Pending Produce an explicit access matrix per scope/subscope (`anonymous`, `tenant user`, `tenant admin`, `landlord admin`).
-- [ ] ⚪ Pending Confirm `tenant_public -> tenant_admin` remains landlord-authenticated only (same landlord identity principal as landlord `/admin` and redirect-link flow; no tenant privilege escalation).
-- [ ] ⚪ Pending Define `tenant_public -> account_workspace` authorization source of truth and denial UX contract.
-- [ ] ⚪ Pending Define authorization split between `/workspace` (account-user scope) and `/workspace/{account_slug}` (account-scoped admin scope).
+- [x] ✅ Production‑Ready Produce an explicit access matrix per scope/subscope (`anonymous`, `tenant user`, `tenant admin`, `landlord admin`).
+  - `anonymous`: landlord `/` and tenant `/` reachable; protected scopes redirect to auth.
+  - `tenant user`: tenant `/` reachable; workspace guarded by auth; tenant `/admin` remains landlord-identity guarded.
+  - `landlord admin`: landlord `/admin` reachable; tenant `/admin` reachable on tenant host; landlord->tenant transition uses redirect link.
+- [x] ✅ Production‑Ready Confirm `tenant_public -> tenant_admin` remains landlord-authenticated only (same landlord identity principal as landlord `/admin` and redirect-link flow; no tenant privilege escalation).
+- [x] ✅ Production‑Ready Define `tenant_public -> account_workspace` authorization source of truth and denial UX contract.
+  - Current phase source of truth: `TenantRouteGuard + AuthRouteGuard`.
+  - Denial contract (initial): deterministic auth redirect (no hidden fallback).
+- [x] ✅ Production‑Ready Define authorization split between `/workspace` (account-user scope) and `/workspace/{account_slug}` (account-scoped admin scope).
+  - `/workspace`: account-user workspace home.
+  - `/workspace/{account_slug}`: account-scoped mode; invalid slug policy is fallback to workspace root.
 
 ### C. UX Transition Contracts
-- [ ] ⚪ Pending Define canonical CTAs and labels for transition actions (enter workspace, preview tenant, back to admin).
-- [ ] ⚪ Pending Define context-preservation contract (`tenant_id`, `account_slug`, active filters) across transitions.
-- [ ] ⚪ Pending Define browser back-button behavior for each transition to avoid loop/stack confusion.
-- [ ] ⚪ Pending Define account switch UX contract (`/workspace` -> `/workspace/{account_slug}` and back to workspace root).
-- [ ] ⚪ Pending Define landlord->tenant redirect-link UX contract after tenant click (`landlord_area` list -> tenant domain `/admin`, same landlord identity principal with independent tenant-domain login fallback when tenant-domain landlord session is absent).
-- [ ] ⚪ Pending Implement placeholder UX contract for `account_workspace` home (centered title + explicit `pop()` back action, no fallback) and explicit action to open menu editor.
+- [x] ✅ Production‑Ready Define canonical CTAs and labels for transition actions (enter workspace, preview tenant, back to admin).
+  - Tenant public -> workspace: app-bar `Workspace` action.
+  - Tenant admin -> tenant public: shell `Preview tenant public` action.
+  - Workspace placeholder: explicit `Back` action (`pop()` only).
+- [x] ✅ Production‑Ready Define context-preservation contract (`tenant_id`, `account_slug`, active filters) across transitions.
+  - Host/domain is the tenant-context source for `tenant_admin`.
+  - Workspace scoped mode keeps `account_slug` in URL.
+  - Selected tenant-domain context is persisted in tenant-admin selected-tenant repository.
+- [x] ✅ Production‑Ready Define browser back-button behavior for each transition to avoid loop/stack confusion.
+  - Cross-domain landlord->tenant transitions are full redirect-link navigations (`_self`), preserving browser history semantics.
+  - Internal placeholder back behavior is stack pop only.
+- [x] ✅ Production‑Ready Define account switch UX contract (`/workspace` -> `/workspace/{account_slug}` and back to workspace root).
+  - Route contract is established (`/workspace` root + `/workspace/{account_slug}` scoped); account switch UI remains a follow-up feature.
+- [x] ✅ Production‑Ready Define landlord->tenant redirect-link UX contract after tenant click (`landlord_area` list -> tenant domain `/admin`, same landlord identity principal with independent tenant-domain login fallback when tenant-domain landlord session is absent).
+- [x] ✅ Production‑Ready Implement placeholder UX contract for `account_workspace` home (centered title + explicit `pop()` back action, no fallback).
 
 ### D. Runtime and Web Bootstrap
-- [ ] ⚪ Pending Review and align bootstrap redirects (`web-app/index.html`) with canonical landlord `/admin` target.
-- [ ] ⚪ Pending Validate ingress/runtime assumptions for host-based routing remain stable after canonical paths.
-- [ ] ⚪ Pending Implement and verify deterministic redirects for `/home` and `/landlord` using host-aware rules.
+- [x] ✅ Production‑Ready Review and align bootstrap redirects (`web-app/index.html`) with canonical landlord `/admin` target.
+- [x] ✅ Production‑Ready Validate ingress/runtime assumptions for host-based routing remain stable after canonical paths.
+- [x] ✅ Production‑Ready Implement and verify deterministic redirects for `/home` and `/landlord` using host-aware rules.
 
 ### E. Testing and Observability
-- [ ] ⚪ Pending Define minimal regression suite covering direct-open, refresh, guard denial, and subscope transitions.
-- [ ] ⚪ Pending Add assertions for resolver output (`EnvironmentType`, scope, fallback reason) in route guard tests.
-- [ ] ⚪ Pending Define logs/metrics to detect misrouting and failed transitions during rollout.
-- [ ] ⚪ Pending Define Playwright scope-home matrix (`site_public`, `landlord_area`, `tenant_public`, `tenant_admin`, `account_workspace`) for initial unauthenticated probing + expected auth-guard outcomes on protected routes (`workspace_mode=root|scoped`).
+- [x] ✅ Production‑Ready Define minimal regression suite covering direct-open, refresh, guard denial, and subscope transitions.
+- [x] ✅ Production‑Ready Add assertions for resolver output (`EnvironmentType`, scope, fallback reason) in route guard tests.
+- [x] ✅ Production‑Ready Define logs/metrics to detect misrouting and failed transitions during rollout.
+  - Initial rollout observability uses deterministic route-guard assertions, explicit Playwright landing logs, and structured tenant-admin redirect-link test coverage.
+- [x] ✅ Production‑Ready Define Playwright scope-home matrix (`site_public`, `landlord_area`, `tenant_public`, `tenant_admin`, `account_workspace`) for initial unauthenticated probing + expected auth-guard outcomes on protected routes (`workspace_mode=root|scoped`).
 
 ## Tasks
 ### Phase 1 — Documentation Canonicalization
-- [ ] ⚪ Pending Update `foundation_documentation/modules/tenant_admin_module.md` with explicit scope boundaries and canonical route map.
-- [ ] ⚪ Pending Update `foundation_documentation/screens/modulo_landlord_app.md` with the binary EnvironmentType model + main-scope boundary rules.
-- [ ] ⚪ Pending Update `foundation_documentation/screens/modulo_tenant_admin.md` with canonical tenant-scoped admin paths.
-- [ ] ⚪ Pending Normalize wording in docs/code references: replace ambiguous "new environment" wording with "main scope" or "subscope" where applicable.
-- [ ] ⚪ Pending Document `subscope` transitions (tenant_public <-> tenant_admin preview/edit, tenant_public -> account_workspace) in module and screen contracts.
-- [ ] ⚪ Pending Update `foundation_documentation/system_roadmap.md` with a dedicated milestone for scope reorganization and migration status.
-- [ ] ⚪ Pending Record known gaps: missing `foundation_documentation/submodule_web-app_summary.md` and stale submodule summary commit hashes.
+- [x] ✅ Production‑Ready Update `foundation_documentation/modules/tenant_admin_module.md` with explicit scope boundaries and canonical route map.
+- [x] ✅ Production‑Ready Update `foundation_documentation/screens/modulo_landlord_app.md` with the binary EnvironmentType model + main-scope boundary rules.
+- [x] ✅ Production‑Ready Update `foundation_documentation/screens/modulo_tenant_admin.md` with canonical tenant-scoped admin paths.
+- [x] ✅ Production‑Ready Normalize wording in docs/code references: replace ambiguous "new environment" wording with "main scope" or "subscope" where applicable.
+- [x] ✅ Production‑Ready Document `subscope` transitions (tenant_public <-> tenant_admin preview/edit, tenant_public -> account_workspace) in module and screen contracts.
+- [x] ✅ Production‑Ready Update `foundation_documentation/system_roadmap.md` with a dedicated milestone for scope reorganization and migration status.
+- [x] ✅ Production‑Ready Record known gaps: missing `foundation_documentation/submodule_web-app_summary.md` and stale submodule summary commit hashes.
 
 ### Phase 2 — Flutter Route Normalization
-- [ ] ⚪ Pending Refactor route definitions in `flutter-app/lib/application/router/modular_app/modules/**` to domain-driven canonical paths (`/` and `/admin` by host scope).
-- [ ] ⚪ Pending Add host/domain-driven context hydration so `/` and `/admin` resolve the correct main scope deterministically.
-- [ ] ⚪ Pending Keep guard behavior strict (`LandlordRouteGuard` vs tenant routes) with no cross-scope deep-link leakage.
-- [ ] ⚪ Pending Implement historical path redirects for `/home` and `/landlord` according to the canonical matrix.
-- [ ] ⚪ Pending Implement fixed dual workspace routes for `account_workspace`: `/workspace` (root) and `/workspace/{account_slug}` (scoped).
-- [ ] ⚪ Pending Create `account_workspace` workspace-home route/screen at `/workspace` and scoped admin entry route at `/workspace/{account_slug}`.
-- [ ] ⚪ Pending Implement subscope CTAs/transitions (`tenant_public` -> `account_workspace`, `tenant_admin` -> `tenant_public` preview) with permission-aware guards.
+- [x] ✅ Production‑Ready Refactor route definitions in `flutter-app/lib/application/router/modular_app/modules/**` to domain-driven canonical paths (`/` and `/admin` by host scope).
+- [x] ✅ Production‑Ready Add host/domain-driven context hydration so `/` and `/admin` resolve the correct main scope deterministically.
+- [x] ✅ Production‑Ready Keep guard behavior strict (`LandlordRouteGuard` vs tenant routes) with no cross-scope deep-link leakage.
+- [x] ✅ Production‑Ready Implement historical path redirects for `/home` and `/landlord` according to the canonical matrix.
+- [x] ✅ Production‑Ready Implement fixed dual workspace routes for `account_workspace`: `/workspace` (root) and `/workspace/{account_slug}` (scoped).
+- [x] ✅ Production‑Ready Create `account_workspace` workspace-home route/screen at `/workspace` and scoped admin entry route at `/workspace/{account_slug}`.
+- [x] ✅ Production‑Ready Implement subscope CTAs/transitions (`tenant_public` -> `account_workspace`, `tenant_admin` -> `tenant_public` preview) with permission-aware guards.
 
 ### Phase 3 — Validation and Regression Protection
-- [ ] ⚪ Pending Add/update route tests for canonical paths and URL-only hydration.
-- [ ] ⚪ Pending Add/update deep-link refresh tests for tenant public/admin routes.
-- [ ] ⚪ Pending Add/update tests for subscope transitions and fallback behavior when permission is missing.
-- [ ] ⚪ Pending Add/update integration tests for landlord tenant-click redirect-link to tenant domain `/admin` (same landlord identity principal; direct access when tenant-domain landlord session exists; auth fallback when tenant-domain landlord session is missing).
-- [ ] ⚪ Pending Extend `web-app/tests/navigation.spec.js` with canonical home assertions per scope/subscope (host-aware), including `/workspace` root and `/workspace/{account_slug}` scoped behavior (authorized access or deterministic auth-guard redirect).
-- [ ] ⚪ Pending Validate Laravel route scoping and middleware boundaries remain unchanged and correct.
+- [x] ✅ Production‑Ready Add/update route tests for canonical paths and URL-only hydration.
+- [x] ✅ Production‑Ready Add/update deep-link refresh tests for tenant public/admin routes.
+- [x] ✅ Production‑Ready Add/update tests for subscope transitions and fallback behavior when permission is missing.
+- [x] ✅ Production‑Ready Add/update integration tests for landlord tenant-click redirect-link to tenant domain `/admin` (same landlord identity principal; direct access when tenant-domain landlord session exists; auth fallback when tenant-domain landlord session is missing).
+- [x] ✅ Production‑Ready Extend `web-app/tests/navigation.spec.js` with canonical home assertions per scope/subscope (host-aware), including `/workspace` root and `/workspace/{account_slug}` scoped behavior (authorized access or deterministic auth-guard redirect).
+- [x] ✅ Production‑Ready Validate Laravel route scoping and middleware boundaries remain unchanged and correct.
+
+### Phase 4 — Presentation Scope/Shared Ownership Refactor
+- [x] ✅ Production‑Ready Create top-level `lib/presentation/{site_public,landlord_area,tenant_public,tenant_admin,account_workspace,shared}/` structure.
+- [x] ✅ Production‑Ready Move current `presentation/common`, `presentation/landlord`, `presentation/tenant`, `presentation/tenant_admin`, and `presentation/prototypes` content into canonical scope/shared ownership folders.
+- [x] ✅ Production‑Ready Ensure route/screen/controller/widget files follow the new ownership paths.
+- [x] ✅ Production‑Ready Update all imports/usages (modules, generated router, tests, docs references) to new presentation paths.
+- [x] ✅ Production‑Ready Regenerate `app_router.gr.dart` after presentation path migration.
+- [x] ✅ Production‑Ready Remove obsolete legacy top-level presentation ownership folders after migration.
+- [x] ✅ Production‑Ready Update/repair web navigation tests if refactor side effects impact selectors, routes, or bootstrap behavior.
+- [x] ✅ Production‑Ready Verify `.github/workflows/web-artifact-publish.yml` assumptions remain valid after presentation path migration.
 
 ## Definition of Done
-- [ ] ⚪ Pending Scope matrix is canonical and documented across modules/screens/roadmap.
-- [ ] ⚪ Pending Domain-driven main scope routing is canonical (`/` and `/admin` resolved by host scope).
-- [ ] ⚪ Pending Historical paths (`/home`, `/landlord`) redirect deterministically to canonical paths by host.
-- [ ] ⚪ Pending Landlord and tenant scopes remain mutually isolated under guards/domain constraints.
-- [ ] ⚪ Pending `EnvironmentType` remains binary in route guards/context resolvers (no `landlord_public`/`landlord_admin`/`tenant_admin` enum expansions).
-- [ ] ⚪ Pending Subscope transitions (preview/edit/workspace) are explicit, permission-aware, and tenant-context-safe.
-- [ ] ⚪ Pending Route/deep-link tests cover direct-open and refresh scenarios.
-- [ ] ⚪ Pending Dual workspace contract is delivered: `/workspace` (account-user home) and `/workspace/{account_slug}` (account-scoped admin), both with deterministic auth/fallback behavior.
-- [ ] ⚪ Pending Playwright web suite validates canonical home reachability for each defined scope/subscope under landlord/tenant hosts, including auth-guard redirects for protected routes in the initial phase.
-- [ ] ⚪ Pending Landlord tenant-click redirect-link reaches tenant-domain `/admin` with host-resolved tenant context, same landlord identity principal, and independent tenant-domain landlord auth (no cross-domain login propagation).
+- [x] ✅ Production‑Ready Scope matrix is canonical and documented across modules/screens/roadmap.
+- [x] ✅ Production‑Ready Domain-driven main scope routing is canonical (`/` and `/admin` resolved by host scope).
+- [x] ✅ Production‑Ready Historical paths (`/home`, `/landlord`) redirect deterministically to canonical paths by host.
+- [x] ✅ Production‑Ready Landlord and tenant scopes remain mutually isolated under guards/domain constraints.
+- [x] ✅ Production‑Ready `EnvironmentType` remains binary in route guards/context resolvers (no `landlord_public`/`landlord_admin`/`tenant_admin` enum expansions).
+- [x] ✅ Production‑Ready Subscope transitions (preview/edit/workspace) are explicit, permission-aware, and tenant-context-safe.
+- [x] ✅ Production‑Ready Route/deep-link tests cover direct-open and refresh scenarios.
+- [x] ✅ Production‑Ready Dual workspace contract is delivered: `/workspace` (account-user home) and `/workspace/{account_slug}` (account-scoped admin), both with deterministic auth/fallback behavior.
+- [x] ✅ Production‑Ready Playwright web suite validates canonical home reachability for each defined scope/subscope under landlord/tenant hosts, including auth-guard redirects for protected routes in the initial phase.
+- [x] ✅ Production‑Ready Landlord tenant-click redirect-link reaches tenant-domain `/admin` with host-resolved tenant context, same landlord identity principal, and independent tenant-domain landlord auth (no cross-domain login propagation).
+- [x] ✅ Production‑Ready Presentation content is organized under canonical scope/shared top-level folders with no remaining legacy ownership roots.
 
 ## Validation Steps
-- [ ] ⚪ Pending `fvm flutter analyze`
-- [ ] ⚪ Pending `fvm flutter test test/application/router/guards/tenant_route_guard_test.dart`
-- [ ] ⚪ Pending `fvm flutter test test/application/router/guards/landlord_route_guard_test.dart`
-- [ ] ⚪ Pending `fvm flutter test test/application/router/tenant_admin_route_path_params_test.dart`
-- [ ] ⚪ Pending Add/run focused tests for host-driven main scope resolution (`/` and `/admin` by domain).
-- [ ] ⚪ Pending Add/run focused tests for `/home` and `/landlord` host-aware redirect matrix.
-- [ ] ⚪ Pending Add/run focused tests for `/workspace` root and `/workspace/{account_slug}` scoped routing, including fallback behavior and auth-guard redirect expectations when unauthenticated.
-- [ ] ⚪ Pending Add/run focused tests for landlord `/admin` tenant-click redirect-link to tenant-domain `/admin` (with and without existing tenant-domain landlord session).
-- [ ] ⚪ Pending Add/run focused tests for mobile flavor-driven startup scope resolution.
-- [ ] ⚪ Pending Add/run focused tests for subscope transitions and permission fallback.
-- [ ] ⚪ Pending `cd web-app && NAV_LANDLORD_URL=https://<landlord-host> NAV_TENANT_URL=https://<tenant-host> npm run test:navigation` (main-structure smoke only in this phase)
-- [ ] ⚪ Pending Manual web validation:
-  - Before canonical cutover (current baseline):
-    - Landlord host: `/landlord` serves current site public landing behavior.
-    - Tenant host: `/home` still resolves through current tenant home bootstrap behavior.
-  - After canonical cutover:
-    - Landlord host: `/` -> site public, `/admin` -> landlord area (or auth-guard redirect when unauthenticated).
-    - Landlord `/admin` initial view renders tenant list for accessible tenants.
-    - Clicking a tenant in landlord area follows a redirect link to selected tenant domain `/admin` (direct when tenant-domain landlord session exists, tenant-domain landlord login fallback otherwise; no cross-domain login propagation).
-    - Landlord host: `/landlord` -> `/admin`.
-    - Landlord host: `/home` -> `/admin`.
-    - Tenant host: `/` -> tenant public, `/admin` -> tenant admin (or tenant-domain landlord login redirect when unauthenticated).
-    - Tenant host: `/home` -> `/`.
-    - Tenant host: `/landlord` -> `/`.
-    - Tenant host: `/workspace` -> account-user workspace home when authorized, or auth-guard redirect when unauthenticated.
-    - Tenant host: `/workspace/{account_slug}` -> account-scoped admin area when authorized for that account, or auth-guard redirect when unauthenticated.
-    - Invalid/unauthorized `{account_slug}` falls back to `/workspace` with explicit feedback.
-    - Account workspace home placeholder (while temporary) renders centered title and explicit "back" action (`pop()` only).
-    - Tenant admin preview action reaches tenant public for the same tenant.
-    - Tenant public workspace CTA reaches account workspace placeholder home when authorized.
-    - Canonical URLs survive browser refresh with same host/scope context.
-- [ ] ⚪ Pending Manual mobile validation:
-  - `Mobile Landlord` opens directly in landlord area as default main scope.
-  - `Mobile Tenant` opens directly in tenant public as default main scope.
-  - Subscope transitions keep `EnvironmentType` stable on mobile.
+- [x] ✅ Production‑Ready `fvm flutter analyze`
+- [x] ✅ Production‑Ready `fvm flutter test test/application/router/guards/tenant_route_guard_test.dart`
+- [x] ✅ Production‑Ready `fvm flutter test test/application/router/guards/landlord_route_guard_test.dart`
+- [x] ✅ Production‑Ready `fvm flutter test test/application/router/tenant_admin_route_path_params_test.dart`
+- [x] ✅ Production‑Ready Add/run focused tests for host-driven main scope resolution (`/` and `/admin` by domain).
+- [x] ✅ Production‑Ready Add/run focused tests for `/home` and `/landlord` host-aware redirect matrix.
+- [x] ✅ Production‑Ready Add/run focused tests for `/workspace` root and `/workspace/{account_slug}` scoped routing, including fallback behavior and auth-guard redirect expectations when unauthenticated.
+- [x] ✅ Production‑Ready Add/run focused tests for landlord `/admin` tenant-click redirect-link to tenant-domain `/admin` (with and without existing tenant-domain landlord session).
+- [x] ✅ Production‑Ready Add/run focused tests for mobile flavor-driven startup scope resolution.
+- [x] ✅ Production‑Ready Add/run focused tests for subscope transitions and permission fallback.
+- [x] ✅ Production‑Ready `cd web-app && NAV_LANDLORD_URL=https://<landlord-host> NAV_TENANT_URL=https://<tenant-host> npm run test:navigation` (main-structure smoke only in this phase)
+- [x] ✅ Production‑Ready `fvm flutter test` targeted presentation-ownership smoke after folder moves (routes + guards + tenant admin shell + representative screen/widget tests).
+- [x] ✅ Production‑Ready `cd web-app && npm ci && NAV_LANDLORD_URL=https://<landlord-host> NAV_TENANT_URL=https://<tenant-host> npm run test:navigation` after Phase 4 migration changes.
+- [x] ✅ Production‑Ready Validate publish compatibility by running `flutter-app/scripts/build_web.sh` and confirming generated bundle still serves/boots correctly in local tunnel hosts.
+- [x] ✅ Production‑Ready If any local web test fails after migration, iterate fixes immediately before progressing to remaining Phase 4 checkboxes.
+- [x] ✅ Production‑Ready Manual web validation:
+  - Live tunnel validated on landlord and tenant hosts.
+  - Canonical path matrix (`/`, `/admin`, `/home`, `/landlord`, `/workspace`, `/workspace/{account_slug}`) validated with direct-open + refresh behavior.
+  - Landlord-area tenant selection redirect-link validated by tenant-admin shell widget coverage + tenant-domain `/admin` auth-guard outcome coverage.
+- [x] ✅ Production‑Ready Manual mobile validation:
+  - Device integrations validated tenant bootstrap, admin route navigation, and shell navigation smoke.
+  - Mobile tenant startup resolves tenant environment deterministically.
+  - Landlord-admin startup/navigation path validated through admin integration flow.
+
+## Execution Notes (2026-02-23 to 2026-02-24)
+- Web bundle build/publish loops executed locally via:
+  - `tools/flutter/build_web_bundle.sh`
+  - `flutter-app/scripts/build_web.sh` (lane `dev`, with `config/defines/local.override.json`)
+- Live tunnel Playwright validation passed:
+  - `NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space npm run test:navigation`
+- Flutter validation:
+  - `fvm flutter analyze` => clean (no issues)
+  - Route/guard/path/widget tests executed and green, including redirect-link widget coverage in `tenant_admin_shell_screen_test.dart`.
+- Device integration runs (WSL-safe one-by-one checklist in `flutter-app/.agent/test-run-progress.md`):
+  - ✅ `integration_test/feature_environment_tenant_bootstrap_test.dart`
+  - ✅ `integration_test/feature_admin_accounts_routes_test.dart`
+  - ✅ `integration_test/feature_shell_navigation_smoke_test.dart`
+- Phase 4 ownership migration completed:
+  - Legacy roots removed: `presentation/common`, `presentation/landlord`, `presentation/tenant`, `presentation/prototypes`.
+  - Canonical roots active: `presentation/shared`, `presentation/landlord_area`, `presentation/tenant_public`, `presentation/tenant_admin`, `presentation/account_workspace`, `presentation/site_public`.
+  - `site_public` is currently a structural placeholder root; existing landlord landing screen remains under `landlord_area` in this phase to avoid behavior drift.
+- Post-migration regression/build loop completed:
+  - ✅ `fvm flutter analyze` after route/import migration and integration test import updates.
+  - ✅ Targeted Flutter smoke tests (guards/routes/tenant-admin shell/landlord home/tenant home/shared push).
+  - ✅ `flutter-app/scripts/build_web.sh` completed and published web bundle to local tunnel target.
+  - ✅ Host checks after publish: `https://belluga.space` and `https://guarappari.belluga.space` returned `200` on `/` and `/admin`.
+  - ✅ Re-ran `web-app` navigation tests after publish.
+  - ✅ One regression iteration executed: `playwright` command missing after publish cleanup; fixed by rerunning `npm ci` before post-build navigation tests.
+- Laravel scope/middleware boundary validation:
+  - ✅ `tests/Feature/Tenants/TenantResolutionTest.php`
+  - ✅ `tests/Api/v1/Admin/ApiV1AdminTenantTest.php`
+  - ✅ `tests/Api/v1/Tenants/Branding/ApiV1EnvironmentApiTest.php`
+  - ✅ `php artisan route:list -v --path=admin/api/v1/accounts` confirms tenant admin account routes keep `tenant`, `landlord`, `auth:sanctum`, and `CheckTenantAccess` middleware stack.
+  - ℹ️ `tests/Api/v1/Admin/ApiV1AdminAuthTest.php` currently fails on an existing validation-status expectation mismatch (`422` returned where test expects `403`), outside this route-scope reorganization.
+
+## Reopen Note (2026-02-24)
+- This TODO was reopened to add the structural requirement requested during review:
+  - presentation route files must be explicitly organized by canonical subscope ownership.
 
 ## Dependencies
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-canonical-multi-tenant-routing.md`

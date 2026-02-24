@@ -8,6 +8,24 @@
 
 The Tenant Home Composer module (MOD-301) assembles the personalized landing experience for every tenant app user. For MVP, this module is **deferred**: home composition is client-side using independent requests (invites, agenda, map, discovery), and there is **no** aggregated home endpoint. Post-MVP, this module will emit a single schema and persist lightweight snapshots so mocked clients and production clients can converge on the same payload contract.
 
+### 1.1 Scope/Subscope Ownership (Authoritative)
+- Canonical governance source:
+  - `foundation_documentation/policies/scope_subscope_governance.md`
+- Primary ownership:
+  - `EnvironmentType`: `tenant`
+  - main scope: `tenant_public`
+- Secondary touchpoints:
+  - transition target to `tenant_admin` via explicit admin actions/CTAs.
+  - transition target to `account_workspace` via explicit account-workspace CTAs.
+
+### 1.2 Route/Subscope Matrix
+| Route | Host Context | EnvironmentType | Main Scope | Subscope | Notes |
+|---|---|---|---|---|---|
+| `/` (tenant domain) | Tenant | `tenant` | `tenant_public` | n/a | Canonical tenant home/public entry. |
+| `/admin` (tenant domain) | Tenant | `tenant` | `tenant_admin` | n/a | Allowed transition target; guarded by landlord identity principal in V1. |
+| `/workspace` | Tenant | `tenant` | `tenant_public` | `account_workspace` | Allowed transition target from tenant public. |
+| `/workspace/{account_slug}` | Tenant | `tenant` | `tenant_public` | `account_workspace` | Account-scoped workspace mode. |
+
 ---
 
 ## 2. Design Principles

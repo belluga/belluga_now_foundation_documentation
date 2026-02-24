@@ -17,6 +17,26 @@
 * **External Dependencies:** AutoRoute (navigation), GetIt (DI container), StreamValue (reactive state wrapper), value_object_pattern, Firebase Cloud Messaging (future push integration), mocked HTTP + SSE backends.
 * **Service-Level Objectives:** Screen state transitions <150 ms under mock data; cold-start bootstrap <2.5 s on mid-range devices; navigation stack integrity with zero controller leaks; 100 % controller-stream parity (no orphaned state).
 
+#### 2.0 Scope/Subscope Ownership (Authoritative)
+
+Canonical governance source:
+- `foundation_documentation/policies/scope_subscope_governance.md`
+
+This module spans multiple scopes and therefore requires explicit route/scope ownership.
+
+| Route Surface | Host Context | EnvironmentType | Main Scope | Subscope | Ownership |
+|---|---|---|---|---|---|
+| `/` (landlord host) | Landlord | `landlord` | `site_public` | n/a | Public landlord landing UX. |
+| `/admin` (landlord host) | Landlord | `landlord` | `landlord_area` | n/a | Landlord admin shell and tenant selection UX. |
+| `/` (tenant host) | Tenant | `tenant` | `tenant_public` | n/a | Tenant public/home UX. |
+| `/admin` (tenant host) | Tenant | `tenant` | `tenant_admin` | n/a | Tenant-admin UX (guarded by landlord identity principal in V1). |
+| `/workspace` (tenant host) | Tenant | `tenant` | `tenant_public` | `account_workspace` | Account workspace root mode. |
+| `/workspace/{account_slug}` (tenant host) | Tenant | `tenant` | `tenant_public` | `account_workspace` | Account-scoped workspace mode. |
+
+Governance constraints:
+- No new scope/subscope may be introduced in Flutter routes/screens without an explicit prior decision and canonical policy update.
+- Route/screen docs must preserve this matrix when new feature routes are introduced.
+
 #### 2.1 Domain Rules
 
 * **Invariants:** Controllers are the sole owners of state mutations; widgets remain presentational; every domain entity surfaces as a value-object backed model; DI registrations occur before route build.

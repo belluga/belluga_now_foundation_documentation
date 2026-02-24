@@ -4,6 +4,41 @@
 ## 1. Overview
 This document defines the tenant admin UI surfaces used to manage **Contas**, **Organizações**, and **Tipos de Perfil**, and **Taxonomias** for a tenant. The UI is built on top of the `tenant_admin_module.md` contracts and must enforce the domain rules in `domain_entities.md`, especially the bound **Account + Account Profile** creation flow and the **Profile Type Registry**, and the **Taxonomy Registry**.
 
+### 1.1 Canonical Scope and Host Boundary (V1)
+- `EnvironmentType` remains binary (`landlord | tenant`).
+- Canonical governance source:
+  - `foundation_documentation/policies/scope_subscope_governance.md`
+- `tenant_admin` is a **tenant-environment main scope** resolved by tenant host/subdomain.
+- Canonical entry for `tenant_admin` is tenant-domain `/admin`.
+- The selected tenant is resolved by host/domain context (not by tenant path param).
+- Redirect-link from landlord area to tenant admin is URL-based:
+  - source: landlord-domain `/admin` tenant list;
+  - target: selected tenant-domain `/admin`;
+  - identity principal remains landlord;
+  - cross-domain session reuse is out of scope (tenant-domain login fallback is allowed).
+
+### 1.2 Canonical and Historical Paths
+- Canonical:
+  - tenant `/` => `tenant_public`
+  - tenant `/admin` => `tenant_admin`
+- Historical compatibility:
+  - tenant `/home` => `/`
+  - tenant `/landlord` => `/`
+- Workspace subscope in tenant environment:
+  - `/workspace` => account workspace root mode
+  - `/workspace/{account_slug}` => account-scoped mode
+
+### 1.3 Route/Scope Matrix
+| Route | Host Context | EnvironmentType | Main Scope | Subscope | Notes |
+|---|---|---|---|---|---|
+| `/` (tenant) | Tenant | `tenant` | `tenant_public` | n/a | Tenant public home (outside tenant-admin surface). |
+| `/admin` | Tenant | `tenant` | `tenant_admin` | n/a | Canonical tenant-admin home. |
+| `/admin/*` | Tenant | `tenant` | `tenant_admin` | n/a | Tenant-admin child routes in this document. |
+| `/workspace` | Tenant | `tenant` | `tenant_public` | `account_workspace` | Adjacent subscope, not tenant-admin ownership. |
+| `/workspace/{account_slug}` | Tenant | `tenant` | `tenant_public` | `account_workspace` | Account-scoped workspace mode. |
+| `/home` (tenant) | Tenant | `tenant` | `tenant_public` | n/a | Historical path normalized to `/`. |
+| `/landlord` (tenant) | Tenant | `tenant` | `tenant_public` | n/a | Historical path normalized to `/`. |
+
 **Material 3 mandate:** all tenant-admin screens use Material 3 components, spacing, and navigation. List views use cards + consistent empty states. Forms are grouped into cards with clear section titles.
 **Top AppBar rule:** tenant-admin list/shell app bars must stay neutral Material 3 surfaces (`surface`) with standard elevation behavior; no colored/gradient app bars.
 
@@ -222,6 +257,19 @@ This document defines the tenant admin UI surfaces used to manage **Contas**, **
 - Account/Profile creation remains a single flow (no standalone profile create).
 - Profile Type Registry UI is functional end-to-end (list/create/edit/delete).
 
+## 4.1 Subscope Transition Contract
+- `tenant_admin` -> `tenant_public`:
+  - explicit preview action from the admin shell.
+  - preserves the same tenant host context.
+- `tenant_public` -> `tenant_admin`:
+  - landlord identity required.
+  - entry allowed via direct tenant-domain `/admin` or redirect-link from landlord area.
+- `tenant_public` -> `account_workspace`:
+  - explicit CTA-driven entry from tenant UI.
+  - auth/workspace guards decide final access.
+- `account_workspace` currently delivers placeholder behavior:
+  - centered placeholder title;
+  - explicit back action via `pop()` only.
 
 
 

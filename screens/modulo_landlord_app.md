@@ -1,54 +1,71 @@
-# Documentação: Módulo Landlord App (V1)
-**Version:** 1.0
+# Documentation: Landlord App Module (V1)
+**Version:** 1.1
 
-## 1. Objetivo
-Definir a experiência base do aplicativo landlord em V1 com quatro superfícies obrigatórias:
-1. Landing page do projeto.
-2. Lista de tenants atuais.
-3. Botão de login landlord/admin.
-4. Acesso à área administrativa após login.
+## 1. Objective
+Define the canonical landlord experience in V1 with explicit scope boundaries and host-aware routing rules.
 
-## 2. Rota e Escopo
-- **Rota landlord home:** `/landlord`
-- **Guard:** `LandlordRouteGuard`
-- **Contexto permitido:** host landlord ou `EnvironmentType.landlord`.
-- **Contexto negado:** tenant app (incluindo deep links para rotas landlord/admin).
+## 2. Canonical Scope Model
+- `EnvironmentType` is binary: `landlord | tenant`.
+- Canonical governance source:
+  - `foundation_documentation/policies/scope_subscope_governance.md`
+- On **landlord host**:
+  - `/` => `site_public` (Landlord App landing surface).
+  - `/admin` => `landlord_area` (tenant selection + landlord operations).
+- On **tenant host/subdomain**:
+  - landlord routes are invalid and must not open landlord surfaces.
 
-## 3. Superfícies de UI (V1)
+### 2.1 Route/Scope Matrix
+| Route | Host Context | EnvironmentType | Main Scope | Subscope | Surface |
+|---|---|---|---|---|---|
+| `/` | Landlord | `landlord` | `site_public` | n/a | Public landing + login CTA. |
+| `/admin` | Landlord | `landlord` | `landlord_area` | n/a | Tenant list + landlord operations. |
+| `/home` | Landlord | `landlord` | `landlord_area` | n/a | Historical path normalized to `/admin`. |
+| `/landlord` | Landlord | `landlord` | `landlord_area` | n/a | Historical path normalized to `/admin`. |
 
-### 3.1 Landing
-- Hero de apresentação do Bóora! Control Center.
-- Mensagem de propósito focada em governança, multi-tenant e escala.
+## 3. Route Policy
+- Canonical landlord entry is `/` (`site_public`).
+- Historical landlord paths:
+  - `/home` => `/admin`
+  - `/landlord` => `/admin`
+- Guard rule:
+  - `LandlordRouteGuard` allows landlord surfaces only on landlord context (host or `EnvironmentType.landlord`).
+  - Tenant hosts must fallback to tenant canonical root when landlord routes are attempted.
 
-### 3.2 Lista de Tenants
-- Fonte: bootstrap já carregado no app (`AppData.domains` e fallback em `AppData.appDomains`).
-- Exibir estado vazio quando não houver tenants no payload atual.
-- Não criar endpoint novo para V1 apenas para essa listagem.
+## 4. UI Surfaces (V1)
+### 4.1 Site Public (`/`)
+- Public landing with project positioning and landlord login CTA.
+- This is public-facing and may contain one or multiple sections/screens in future slices.
 
-### 3.3 Login CTA
-- Exibir `Entrar como Admin` quando não houver sessão landlord ativa.
-- Acionar `showLandlordLoginSheet` para autenticação landlord.
+### 4.2 Landlord Area (`/admin`)
+- Initial screen: tenant list (tenants accessible to landlord identity).
+- Tenant selection action: redirect-link to selected tenant primary domain `/admin`.
+- The redirect-link does not perform cross-domain SSO in this phase.
 
-### 3.4 Admin CTA pós-login
-- Exibir `Acessar área admin` apenas quando:
-  - sessão landlord válida; e
-  - modo landlord ativo (`AdminMode.landlord`).
-- Navegação para `TenantAdminShellRoute` (`/admin`).
+### 4.3 Login/Admin CTAs
+- Show `Login as Landlord` when landlord session is not active.
+- Show `Open Admin Area` only when:
+  - landlord session is valid; and
+  - admin mode is `AdminMode.landlord`.
 
-## 4. Regras de Acesso
-- Tenant profile não deve expor entrada de admin landlord.
-- Auth compartilhado só exibe `Entrar como Admin` em contexto landlord.
-- `LandlordRouteGuard` deve permitir landlord/admin somente por contexto landlord (host/ambiente), sem bypass por estado local persistido em contexto tenant.
+## 5. Identity and Auth Boundaries
+- `landlord_area` uses landlord identity principal.
+- Redirect from landlord area to tenant domain `/admin` remains landlord-principal based.
+- Cross-domain session reuse is out of scope in this phase; tenant-domain auth may prompt again.
 
-## 5. Integrações
-- **Auth landlord:** `LandlordAuthRepositoryContract`.
-- **Modo admin:** `AdminModeRepositoryContract`.
-- **Tenant list:** `AppDataRepositoryContract`.
-- **Admin area:** `TenantAdminShellRoute`.
+## 6. Mobile Flavor Rule
+- Mobile landlord flavor boots in `EnvironmentType.landlord` and defaults to `landlord_area`.
+- No host inference is required on mobile flavor startup.
 
-## 6. Validação mínima
-- `fvm flutter analyze` sem issues.
-- Teste de landlord home cobrindo:
-  - visibilidade de `Entrar como Admin` sem sessão;
-  - visibilidade de `Acessar área admin` com sessão + modo landlord;
-  - render da lista de tenants.
+## 7. Integrations
+- `LandlordAuthRepositoryContract`
+- `AdminModeRepositoryContract`
+- `LandlordTenantsRepositoryContract`
+- `TenantAdminShellRoute` (redirect-link target on tenant domains)
+
+## 8. Minimum Validation
+- `fvm flutter analyze` with no issues.
+- Landlord home/scope tests validate:
+  - login CTA visibility without landlord session.
+  - admin CTA visibility with valid landlord session + landlord mode.
+  - tenant list rendering.
+  - tenant-host blocking for landlord routes.

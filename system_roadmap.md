@@ -16,6 +16,22 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | Flutter Client Experience | FCX-05 | Add location permission guard + permission screen for geo-dependent routes (map/nearby). | 2025-03-26 | Planned | Delphi |
 | Flutter Client Experience | FCX-06 | Eliminate Flutter architecture hard‑NO deviations (GetIt in widgets, DTOs in domain, Future/StreamBuilder in UI, direct Navigator usage, multi‑widget files). | 2025-04-01 | Planned | Delphi |
 | Platform Realtime | PRX-01 | Add SSE delta streams for app feeds (events, invites, POIs) to complement page-based pagination. | 2025-04-02 | Planned | Delphi |
+| Platform Routing & Scope | PRS-01 | Canonical environment scope reorganization (`landlord`/`tenant` + main scopes + `account_workspace` subscope), including host-aware `/home` and `/landlord` normalization and live web validation matrix. | 2026-02-24 | Tested & Ready | Delphi |
+
+## 2.1 Documentation Integrity Gaps
+- `submodule_web-app_summary.md` is still missing and must be generated.
+- Existing submodule summaries are currently stale versus checked-out commits:
+  - `submodule_flutter-app_summary.md` commit hash mismatch.
+  - `submodule_laravel-app_summary.md` commit hash mismatch.
+
+## 2.2 Scope/Subscope Governance (Mandatory)
+- Mandatory pre-read for route/module/screen work: `foundation_documentation/policies/scope_subscope_governance.md`.
+- Any route/module/screen initiative in this roadmap must declare explicit ownership using:
+  - `EnvironmentType` (`landlord` or `tenant`),
+  - main scope (`site_public`, `landlord_area`, `tenant_public`, `tenant_admin`),
+  - subscope (`account_workspace`) when applicable.
+- New subscopes are forbidden unless explicitly approved and first documented in the canonical policy.
+- Multi-scope deliveries must include an explicit route/scope matrix in their authoritative module/screen docs before implementation is considered complete.
 
 ## 3. API Endpoint Tracking
 
