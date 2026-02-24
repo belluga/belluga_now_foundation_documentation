@@ -1,9 +1,21 @@
 # TODO (V1): Canonical Multi-Tenant Routing (Tenant + Tenant Admin)
 **Version:** 1.2
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`
-**Status:** Active
+**Status:** Completed (Superseded)
 **Owners:** Flutter Team
 **Objective:** Establish canonical URL routing where tenant context is explicit in the address and every tenant/tenant-admin screen can be opened and refreshed from URL-only state (no hidden in-memory dependencies).
+
+## Completion Notes (2026-02-24)
+- This TODO is superseded by host/domain-based canonical scope routing already delivered in:
+  - `foundation_documentation/todos/completed/TODO-v1-environment-scope-reorganization.md`
+  - `foundation_documentation/policies/scope_subscope_governance.md`
+- The specific strategy in this file (`/t/:tenantSlug` canonical path migration) is no longer aligned with the approved model.
+- Remaining valid work moved to a focused active TODO:
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-route-url-only-hydration-hardening.md`
+- Decision summary:
+  - Keep tenant identity resolution by host/domain for `tenant_public` and `tenant_admin`.
+  - Keep `/workspace` and `/workspace/{account_slug}` for `account_workspace`.
+  - Continue hardening URL-only route hydration without introducing tenant slug path namespaces.
 
 ## Scope
 - Enforce route contract rule in tenant + tenant-admin:
