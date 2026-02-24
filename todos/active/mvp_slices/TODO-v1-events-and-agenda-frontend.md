@@ -1,9 +1,9 @@
-# TODO (V1): Events & Agenda — Frontend (Flutter)
+# TODO (V1): Events Delivery (Catalog + Agenda + Tenant Admin)
 
-**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.  
-**Status:** Active  
-**Owners:** Flutter Team  
-**Objective:** Deliver the agenda browse + event detail UX aligned to backend contracts (no check‑in in MVP), and close the remaining tenant-admin events UI gap for taxonomy term editing.
+**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
+**Status:** Active
+**Owners:** Backend Team + Flutter Team
+**Objective:** Deliver Events as an independent functionality covering event catalog, agenda surfaces, realtime deltas, and tenant-admin event operations.
 
 ---
 
@@ -11,74 +11,81 @@
 - `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-backend.md`
 - `foundation_documentation/endpoints_mvp_contracts.md`
 - `foundation_documentation/modules/agenda_and_action_planner_module.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
+- `foundation_documentation/system_roadmap.md`
 
 ---
 
-## A) UI + Controller Tasks
+## A) Ownership Boundary (Locked)
+- [x] ✅ Production‑Ready Events owns `/api/v1/agenda`, `/api/v1/events/{event_id|slug}`, `/api/v1/events/stream`, and tenant/admin event CRUD.
+- [x] ✅ Production‑Ready Event location derives from venue Account Profile location (no standalone event location in MVP).
+- [x] ✅ Production‑Ready Event publication lifecycle is backend-owned (`published|publish_scheduled|draft|ended`).
+- [ ] ⚪ Events must not own invite transaction state; invite data in event payloads is projection/read-only.
 
-### A1) Browse/search
+---
+
+## B) Backend Track (Events)
+
+### B1) Baseline complete (locked)
+- [x] ✅ Production‑Ready Agenda/detail/stream endpoints implemented.
+- [x] ✅ Production‑Ready Publication filtering and scheduled publish promotion job implemented.
+- [x] ✅ Production‑Ready Venue/artist profile validation implemented for CRUD.
+- [x] ✅ Production‑Ready Geo defaults and fallback behavior implemented for agenda queries.
+
+### B2) Open backend hardening
+- [ ] ⚪ Keep `confirmed_only` semantics aligned with Invite acceptance source-of-truth once Invite backend is fully live.
+- [ ] ⚪ Verify stream filter parity (`taxonomy/categories/tags`) with Flutter query encoding conventions.
+- [ ] ⚪ Keep event CRUD contract docs in sync with actual payload (`venue_id`, `artist_ids`, `date_time_start/end`, `publication`).
+
+---
+
+## C) Flutter Track (Events)
+
+### C1) Browse/search/detail
 - [ ] ⚪ Events list/search works end-to-end (paged, filters, past toggle).
 - [ ] ⚪ Search scope mirrors backend (`title`, `content`, `artists.display_name`, `venue.display_name`).
 - [ ] ⚪ Radius selector uses tenant settings bounds (`map_ui.radius.min/default/max`).
+- [ ] ⚪ Agenda/event requests include `Authorization` + `Accept: application/json`; stream includes `Authorization`.
 
-### A1.1) Endpoint usage notes (implement as acceptance requirements)
-- [ ] ⚪ Browse uses `GET /api/v1/agenda` with filters: `search`, `categories[]`, `tags[]`, `taxonomy[]`, `past_only`, `confirmed_only`, `origin_lat`, `origin_lng`, `max_distance_meters`.
-- [x] ✅ Detail uses `GET /api/v1/events/{event_id|slug}`; 24‑hex strings are treated as ObjectIds.
-- [x] ✅ Realtime uses `GET /api/v1/events/stream` (SSE). On reconnect or missing `Last-Event-ID`, refresh page 1 from `/agenda`.
-- [x] ✅ Distance rendering uses `latitude`/`longitude` from event DTO (derived from venue profile).
-- [x] ✅ Map uses schedule events for **current date only** and filters by location radius.
-- [ ] ⚪ Agenda/event requests include `Authorization: Bearer <AuthRepository.userToken>` and `Accept: application/json`; event stream includes `Authorization` header.
-- [ ] ⚪ Fix analyzer error from missing `InviteFilter` import in Home agenda empty state.
-- [x] ✅ Production‑Ready SSE query params are serialized as strings (lists via queryParametersAll, taxonomy as JSON string) to avoid `Uri` type errors.
+### C2) SSE reconciliation
+- [x] ✅ Production‑Ready SSE query params serialized defensively.
+- [ ] ⚪ On reconnect without `Last-Event-ID`, force `/agenda` page 1 reload.
+- [ ] ⚪ Manual smoke: disconnect/reconnect SSE and verify list refresh.
 
-### A2) Event detail
-- [x] ✅ Event detail renders venue + artists summaries.
-- [x] ✅ No participants section (artists only in MVP).
-- [x] ✅ Remove manual confirm‑presence CTA; confirmation only via invite acceptance.
-- [x] ✅ Invite actions available (send/accept/decline) with credited acceptance selector.
+### C3) Event detail alignment
+- [x] ✅ Production‑Ready Venue + artists rendering, participants/actions removed for MVP.
+- [ ] ⚪ Remove remaining local-only confirmation assumptions after Invite backend acceptance is live.
+- [ ] ⚪ Keep event detail actions routed through Invite endpoints for acceptance semantics.
 
-### A3) Tenant Admin Events (taxonomy picker)
-- [ ] ⚪ Implement tenant-admin event management UI beyond placeholder screen.
-- [ ] ⚪ Add event create/edit form in tenant-admin with `taxonomy_terms` picker.
-- [ ] ⚪ Ensure taxonomy options are loaded from registry with `applies_to=event`.
-- [ ] ⚪ Persist selected taxonomy terms in event create/update payloads.
-- [ ] ⚪ Add focused tests for event form taxonomy selection + persistence path.
+### C4) Tenant-admin events UI
+- [ ] ⚪ Replace placeholder events screen with management list/create/edit flow.
+- [ ] ⚪ Add taxonomy term picker (`applies_to=event`) in event form.
+- [ ] ⚪ Persist and reload `taxonomy_terms` on create/update.
+- [ ] ⚪ Add focused tests for taxonomy selection and persistence.
 
 ---
 
-## B) Acceptance Criteria
-- [ ] ⚪ Users can browse events and open event detail.
-- [ ] ⚪ Invite actions are available from event detail and do not duplicate invites.
-- [ ] ⚪ Empty agenda states render a clear zero‑state message (no crash/blank screen).
+## D) Acceptance Criteria
+- [ ] ⚪ Users can browse events and open detail with backend-aligned payloads.
+- [ ] ⚪ Event stream reconnect behavior is deterministic and rehydrates from `/agenda`.
+- [ ] ⚪ Tenant-admin can create/edit events with taxonomy terms persisted.
 
 ---
 
-## C) Out of Scope
-- Event check-in/attendance workflow beyond invite-confirmed semantics.
+## E) Out of Scope
+- `/api/v1/events/{event_id}/check-in` workflows (VNext).
+- Invite lifecycle ownership (covered by Invite TODO).
 
-## D) Definition of Done
-- [ ] ⚪ Agenda list + detail flows are wired to `/api/v1/agenda` and `/api/v1/events/{event_id|slug}` with the documented filters.
-- [ ] ⚪ SSE subscription to `/api/v1/events/stream` resyncs by reloading page 1 when `Last-Event-ID` is missing.
-- [ ] ⚪ Map event panel lists only today’s events within the active location radius.
-- [ ] ⚪ Agenda zero‑state is contextual (default vs filtered/search).
-- [ ] ⚪ Tenant-admin events create/edit flow supports taxonomy term selection and persistence.
+---
 
-## E) Validation Steps
-- [x] ✅ `fvm flutter analyze`
-- [ ] ⚪ Manual smoke: agenda list, search, open detail, toggle past/confirmed filters, verify artists/venue rendering.
-- [ ] ⚪ Manual smoke: disconnect/reconnect SSE and confirm list refresh.
-- [ ] ⚪ Manual smoke (tenant-admin): create/edit event with taxonomy terms and verify persisted values on reload.
+## F) Definition of Done
+- [ ] ⚪ Events functionality is stable independent of Invite internals.
+- [ ] ⚪ Contracts/docs/roadmap are synchronized for Events endpoints.
+- [ ] ⚪ Validation steps completed or explicitly documented as blocked.
 
-## Decisions (Locked)
-- Participants removed from MVP; artists only.
-- Actions removed from MVP.
-- Confirmed_only uses invite acceptance; no check‑in.
-- Geo defaults driven by tenant settings.
-- Search scope includes venue + artist display names.
+---
 
-## Backend constraints to respect
-- `publication` is required on event create; `publish_scheduled` requires `publish_at`.
-- `type.icon` and `type.color` must be strings if provided (omit when unknown).
-- `past_only`/`confirmed_only` should be sent as `1/0` to avoid boolean validation edge cases.
-- Event creation fails if venue profile lacks a `location` (GeoJSON); venue must be POI‑enabled and have location set.
+## G) Validation Steps
+- [x] ✅ Backend event tests exist for agenda/detail/stream + CRUD.
+- [ ] ⚪ `fvm flutter analyze`.
+- [ ] ⚪ Manual smoke: agenda filters/search/detail/SSE reconnect.
+- [ ] ⚪ Manual smoke: tenant-admin event create/edit taxonomy persistence.
