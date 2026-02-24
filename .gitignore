@@ -3,6 +3,7 @@ artifacts/tmp/*
 todos/ephemeral/*
 !todos/ephemeral/.gitkeep
 !todos/ephemeral/.gitignore
+.agent/
 CLINE.md
 .cline
 .clinerules
