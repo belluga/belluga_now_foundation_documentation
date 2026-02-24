@@ -118,7 +118,7 @@
   - Existing top-level folders (`common`, `landlord`, `tenant`, `tenant_admin`, `prototypes`) must be fully reassigned into one of the scope folders or `shared`.
   - This phase includes route/screen/controller/widget ownership migration (not route-only migration).
 - [x] ✅ Production‑Ready **Web regression/pipeline safety policy for Phase 4:**
-  - Presentation-path migration must preserve local web navigation test stability (`web-app/tests/navigation.spec.js`).
+  - Presentation-path migration must preserve source-owned navigation test stability (`tools/flutter/web_app_tests/navigation.spec.js`) and CI sync into `web-app/tests` before execution.
   - Any web-test break caused by file-path migration must be fixed in the same iteration before marking Phase 4 tasks done.
   - Web artifact publish flow compatibility must be preserved (build script + workflow assumptions).
 
@@ -293,6 +293,8 @@
   - ✅ Host checks after publish: `https://belluga.space` and `https://guarappari.belluga.space` returned `200` on `/` and `/admin`.
   - ✅ Re-ran `web-app` navigation tests after publish.
   - ✅ One regression iteration executed: `playwright` command missing after publish cleanup; fixed by rerunning `npm ci` before post-build navigation tests.
+  - ✅ CI workflow hardened to sync source-owned navigation tests (`tools/flutter/web_app_tests`) into `web-app/tests` before stage/production Playwright runs.
+  - ✅ Source-owned Playwright expectation fixed for landlord `/home` normalization (`/home` on landlord host resolves to `/admin`).
 - Laravel scope/middleware boundary validation:
   - ✅ `tests/Feature/Tenants/TenantResolutionTest.php`
   - ✅ `tests/Api/v1/Admin/ApiV1AdminTenantTest.php`
