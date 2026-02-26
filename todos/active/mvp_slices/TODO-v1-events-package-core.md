@@ -90,13 +90,13 @@
   - Transactions are mandatory; block Phase 3 rollout and fail fast with meaningful error when unavailable in target runtime.
 - [x] ✅ Production‑Ready `OD-03` Stream reconnect policy:
   - No replay buffer/retention is required; login/reconnect must rehydrate current state and start stream from now.
-- [ ] 🟡 Provisional `OD-04` Async side-effect SLO (Strict):
+- [x] ✅ Production‑Ready `OD-04` Async side-effect SLO (Strict):
   - Lag target: `p95 <= 15s`, `p99 <= 60s` for async side effects.
   - Queue staleness alert: trigger when max age is `> 60s` for 5 minutes.
   - Retry policy: 5 attempts with exponential backoff; then DLQ.
   - DLQ policy: alert on any new DLQ item.
   - Reconciliation cadence: run consistency reconciliation every 15 minutes.
-  - Implementation status: decision locked, full operational enforcement pending Phase 3 hardening closure.
+  - Implementation status: enforced via async job retry/backoff policy, queue-failure DLQ alerting hook, minute-level queue staleness monitor, and 15-minute reconciliation scheduler.
 
 ---
 

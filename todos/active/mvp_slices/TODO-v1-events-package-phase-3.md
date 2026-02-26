@@ -55,12 +55,14 @@
 - [x] ✅ Production‑Ready `D3-14` Settings API contract: backend must expose schema-driven endpoints so UI is rendered from registered settings definitions, not hardcoded forms.
 - [x] ✅ Production‑Ready `D3-15` Execution sequence: implement foundation block first including one pilot capability (`multiple_occurrences`); stop before concrete ticketing capability creation and align before final block execution.
 - [x] ✅ Production‑Ready `D3-16` Pilot capability payload semantics (`multiple_occurrences`): Tenant Admin defines tenant-scoped settings `allow_multiple` (bool) and `max_occurrences` (int|null, where client `0` is normalized to `null`); event create/update can only opt in/out of using multiple occurrences if tenant settings allow it.
+- [x] ✅ Production‑Ready `D3-17` Invite ownership boundary hardening: Events payload/model must not persist or expose invite-lifecycle fields (`confirmed_user_ids`, `received_invites`, `sent_invites`, `friends_going`); those belong to Invites feature work only.
 
 ---
 
 ## Tasks
 - [ ] ⚪ Add structured logs/metrics around event writes, stream deltas, and publication transitions.
-- [ ] ⚪ Improve retry/backoff and failure handling for async listeners.
+- [x] ✅ Production‑Ready Improve retry/backoff and failure handling for async listeners.
+- [x] ✅ Production‑Ready Enforce operational guardrails for async side effects (`OD-04`): queue staleness monitor (`>60s` for 5 minutes), DLQ alert hook, and 15-minute occurrence reconciliation cadence.
 - [ ] ⚪ Evaluate and tune Mongo indexes for agenda/filter/stream queries.
 - [ ] ⚪ Add resilience tests for stream reconnect and publication edge cases.
 - [ ] ⚪ Final cleanup of migration-era transitional wrappers.
@@ -87,6 +89,8 @@
 - [x] ✅ Production‑Ready `php artisan test tests/Feature/Events/EventCrudControllerTest.php`.
 - [x] ✅ Production‑Ready `php artisan test tests/Feature/Events/AgendaAndEventsControllerTest.php`.
 - [x] ✅ Production‑Ready `php artisan test tests/Unit/Events/EventsPackageBindingsTest.php`.
+- [x] ✅ Production‑Ready `php artisan test tests/Unit/Events/EventsAsyncOperationalPolicyTest.php`.
+- [x] ✅ Production‑Ready `php artisan test tests/Unit/Events/EventAsyncOperationsMonitorServiceTest.php`.
 - [ ] ⚪ Targeted load/perf sampling for agenda and stream paths.
 - [ ] ⚪ Manual smoke for publication transitions and SSE reconnect behavior.
 - [x] ✅ Production‑Ready Capability gate tests: disabled at tenant => non-executable/non-visible capability behavior for all events.
@@ -185,3 +189,6 @@
     - if tenant `allow_multiple=false`, Event cannot use multiple occurrences;
     - if tenant `allow_multiple=true` but event usage is disabled, Event cannot use multiple occurrences;
     - if effective usage is enabled and `max_occurrences` is non-null, it defines the maximum number of occurrences permitted per event.
+- `D3-17`: Decided. Events contract remains invite-agnostic until Invites feature implementation.
+  - Removal rule: Events/EventOccurrences do not persist `confirmed_user_ids`, `received_invites`, `sent_invites`, or `friends_going`.
+  - API rule: agenda/event payloads do not expose those fields (including `is_confirmed`/`total_confirmed` derivatives tied to invite lifecycle data).
