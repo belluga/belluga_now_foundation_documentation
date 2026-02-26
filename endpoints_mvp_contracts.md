@@ -20,6 +20,11 @@
   - `distance_meters` is returned when the backend computes distance from an origin (see Map).
   - For non-map lists (agenda/home), include `distance_meters` only when requested; otherwise omit.
 - Taxonomy terms are typed pairs: `{ "type": "string", "value": "string" }` (WordPress-style, multi-taxonomy per account profile).
+- PATCH payload convention (MVP): use direct resource-shaped payloads (object/list) with partial-update semantics by field presence.
+  - Fields omitted from payload remain unchanged.
+  - `null` is explicit clear only for fields documented as nullable; `null` for non-nullable fields returns `422`.
+  - Mixed set+clear operations in a single payload must be applied atomically.
+  - Do not use envelope wrappers (for example `paths`) unless a specific endpoint contract explicitly documents an exception.
 
 ---
 

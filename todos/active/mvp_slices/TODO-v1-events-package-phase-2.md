@@ -24,16 +24,34 @@
 
 ---
 
+## Standards/Exception Reference (Locked)
+- Standards baseline for this phase is defined in:
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-core.md` (Section `F`).
+- Approved deviations relevant to Phase 2 are defined in:
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-core.md` (Section `G`), especially `EX-01`.
+
+---
+
+## Pending Decisions (To Iterate)
+- [x] ✅ Production‑Ready `D2-01` Phase boundary for occurrences: keep Phase 2 strictly single-date Event and reserve multi-occurrence model for Phase 3.
+- [x] ✅ Production‑Ready `D2-02` Aggregate boundary now vs later: `EventOccurrence` remains a Phase 3 aggregate; Phase 2 stays Event-only at runtime model level.
+- [x] ✅ Production‑Ready `D2-03` ID strategy for cross-domain links: keep integrations as `event_id` only in Phase 2; Phase 3 occurrence-scoped contracts use explicit `occurrence_id` (no optional-ID ambiguity).
+- [x] ✅ Production‑Ready `D2-04` Publication semantics baseline: publication is Event-level only; publishing an Event publishes all of its occurrences.
+- [x] ✅ Production‑Ready `D2-05` Decoupling mechanism: enforce package contracts + app adapters/listeners as the only extension mechanism (no new direct `App\\...` dependencies).
+
+---
+
 ## Tasks
 - [ ] ⚪ Define contracts in package and replace direct `App\\...` imports in core services.
 - [ ] ⚪ Add domain events for event lifecycle changes.
 - [ ] ⚪ Implement app-layer listeners/adapters and service bindings.
 - [ ] ⚪ Route map POI sync through listener/job pipeline.
-- [ ] ⚪ Remove transitional compatibility dependencies no longer needed.
+- [ ] ⚪ Remove transitional migration wrappers/dependencies no longer needed.
 
 ---
 
 ## Validation Steps
+- [ ] ⚪ `php artisan test` (full Laravel suite; mandatory gate for Phase 2 completion).
 - [ ] ⚪ `php artisan test tests/Feature/Events/AgendaAndEventsControllerTest.php`.
 - [ ] ⚪ `php artisan test tests/Feature/Events/EventCrudControllerTest.php`.
 - [ ] ⚪ `php artisan test tests/Feature/Map/MapPoisControllerTest.php`.
@@ -45,3 +63,18 @@
 - [ ] ⚪ Package core has no direct imports from host `App\\...` for domain logic.
 - [ ] ⚪ All side effects are exercised through contracts/events/listeners.
 - [ ] ⚪ Contracts/docs/roadmap synchronized with decoupled architecture.
+
+---
+
+## Decision Log
+- `D2-01`: Decided. Phase 2 remains single-date at domain/API level; occurrence support is deferred to Phase 3.
+  - Implementation note: design new package contracts/events in an occurrence-ready way using explicit occurrence-scoped payloads in Phase 3 (without changing Phase 2 behavior).
+- `D2-02`: Decided. `EventOccurrence` is not introduced as a first-class aggregate in Phase 2 runtime/domain model.
+  - Design note: Phase 2 contracts/events may include extension-friendly payload structure, but no persistence or public API behavior change for occurrences.
+- `D2-03`: Decided. Cross-domain references remain `event_id` in Phase 2.
+  - Forward-compatibility note: Phase 3 occurrence-scoped contracts must use explicit `occurrence_id`; Phase 2 flows remain Event-only.
+- `D2-04`: Decided. Publication state remains Event-level in Phase 2.
+  - Publication note: Event remains the single publication source-of-truth in Phase 3 as well; occurrence publication fields are mirrored/derived only.
+- `D2-05`: Decided. Package core must integrate with host app only via contracts + adapters/listeners.
+  - Enforcement note: no new direct `App\\...` imports in package domain/application services.
+  - Execution note: side effects (map POI sync, projection writes) run via package domain events + queued listeners/jobs after persistence.
