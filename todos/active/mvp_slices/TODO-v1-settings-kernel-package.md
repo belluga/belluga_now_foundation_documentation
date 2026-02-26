@@ -138,9 +138,12 @@
 - Tests added:
   - `tests/Unit/Settings/SettingsPackageBindingsTest.php`
   - `tests/Unit/Settings/SettingsSchemaValidatorTest.php`
+  - `tests/Unit/Settings/SettingsNamespaceDefinitionTest.php`
+  - `tests/Unit/Settings/ConditionExpressionEvaluatorTest.php`
   - `tests/Feature/Settings/SettingsKernelControllerTest.php`
+  - `tests/Feature/Push/PushMessageFlowTest.php` (PATCH payload convergence assertions)
 - Validation gate executed:
-  - full Laravel suite in Docker passed (`771 passed`, `2833 assertions`).
+  - full Laravel suite in Docker passed (`776 passed`, `2843 assertions`).
 
 ## Tasks
 - [x] ✅ Production‑Ready Define kernel contracts:
@@ -149,13 +152,14 @@
   - `SettingsSchemaValidatorContract`
   - `SettingsMergePolicyContract`
 - [x] ✅ Production‑Ready Implement scope routing contract (`landlord|tenant`) for namespace resolution and persistence adapter selection.
-- [ ] 🟡 Provisional Define canonical schema format (field type, enum/options, ui metadata, defaults, readonly, deprecation marker).
+- [x] ✅ Production‑Ready Define canonical schema format (field type, enum/options, ui metadata, defaults, readonly, deprecation marker).
 - [x] ✅ Production‑Ready Implement host adapters for scoped persistence:
   - tenant-scope adapter (tenant DB)
   - landlord-scope adapter (landlord DB)
-- [ ] 🟡 Provisional Enforce singleton settings root per scope store:
+- [x] ✅ Production‑Ready Enforce singleton settings root per scope store:
   - fixed root `_id` contract for settings document
-  - writes currently enforce root id at model/service level; explicit collection validator/index guard is still pending
+  - migration applies strict Mongo validator (`collMod`) to enforce `_id=settings_root`
+  - migration hard-fails on multi-document legacy state per scope store
 - [x] ✅ Production‑Ready Implement patch merge policy:
   - only payload-present keys mutate
   - absent keys remain unchanged
@@ -178,23 +182,23 @@
 - [x] ✅ Production‑Ready Remove `settings` collection ownership from push package migration path (or neutralize with no-op migration) after kernel ownership handoff.
 - [x] ✅ Production‑Ready Enforce namespace uniqueness/format validation in registry (`snake_case`, immutable key, no collisions).
 - [x] ✅ Production‑Ready Add schema metadata support (`label`, `group_label`) and expose it in `settings/schema` response.
-- [ ] 🟡 Provisional Add hierarchical navigation metadata support in schema (`group`, `subgroup`, `order`, optional icon/description).
-- [ ] ⚪ Implement schema tree serializer for menu/submenu rendering (mobile-settings style UX).
-- [ ] ⚪ Implement mixed node rendering contract:
+- [x] ✅ Production‑Ready Add hierarchical navigation metadata support in schema (`group`, `subgroup`, `order`, optional icon/description).
+- [x] ✅ Production‑Ready Implement schema tree serializer for menu/submenu rendering (mobile-settings style UX).
+- [x] ✅ Production‑Ready Implement mixed node rendering contract:
   - `group` nodes may contain both direct `field` nodes and nested `group` nodes
   - rendering behavior is deterministic: `field` => render control here, `group` => render navigation entry
-- [ ] 🟡 Provisional Implement schema versioning surface:
+- [x] ✅ Production‑Ready Implement schema versioning surface:
   - include `schema_version` in schema response
-  - compatibility policy for additive vs breaking schema changes is still pending
-- [ ] 🟡 Provisional Implement stable node identifiers:
+  - expose explicit compatibility policy for additive vs breaking changes
+- [x] ✅ Production‑Ready Implement stable node identifiers:
   - require unique stable `id` per node in registry validation
-  - stable `id` is exposed in schema; dedicated stability/uniqueness hardening is still pending
-- [ ] ⚪ Implement conditional rendering metadata:
+  - stable `id` is exposed in schema output
+- [x] ✅ Production‑Ready Implement conditional rendering metadata:
   - add optional `visible_if` and `enabled_if` metadata to schema contract
   - validate condition references against registered technical node identifiers (`id`/canonical path)
 - [ ] ⚪ Execute conditional rules engine tasks in lockstep with:
   - `TODO-v1-settings-conditional-rules-engine.md` (authoritative for DSL, evaluator, validation, and tests).
-- [ ] ⚪ Implement localization metadata:
+- [x] ✅ Production‑Ready Implement localization metadata:
   - add `label_i18n_key` and optional `description_i18n_key` to schema nodes
   - keep literal labels as fallback for non-localized clients
 - [ ] ⚪ Update foundation docs and Laravel submodule summary after implementation.
@@ -203,17 +207,17 @@
 
 ## Validation Steps
 - [x] ✅ Production‑Ready `php artisan test` (full Laravel suite; mandatory gate).
-- [ ] 🟡 Provisional New unit tests:
+- [x] ✅ Production‑Ready New unit tests:
   - registry discovery
   - schema validation
   - merge policy (partial patch semantics)
   - scope routing (`landlord|tenant`) and adapter selection
-- [ ] 🟡 Provisional New feature tests:
+- [x] ✅ Production‑Ready New feature tests:
   - `GET settings/schema`
   - `GET settings/values`
   - `PATCH settings/values/{namespace}` partial updates
   - auth/ability isolation by tenant and landlord on-behalf
-- [ ] 🟡 Provisional PATCH payload shape tests:
+- [x] ✅ Production‑Ready PATCH payload shape tests:
   - direct object payload is accepted as canonical contract
   - envelope payload forms (for example `paths`) are rejected for V1 contract consistency
 - [ ] 🟡 Provisional PATCH clear semantics tests:
@@ -230,25 +234,25 @@
 - [ ] ⚪ Namespace policy tests:
   - duplicate namespace registration must fail
   - namespace rename attempts must fail after registration
-- [ ] ⚪ Schema metadata tests:
+- [x] ✅ Production‑Ready Schema metadata tests:
   - `label` and `group_label` are returned by schema endpoint and do not affect persistence key paths
-- [ ] ⚪ Navigation tests:
+- [ ] 🟡 Provisional Navigation tests:
   - schema endpoint returns stable `group/subgroup` hierarchy and ordering for registered namespaces
   - moving namespaces between groups/subgroups does not mutate persisted values
-- [ ] ⚪ Field rendering contract tests:
+- [ ] 🟡 Provisional Field rendering contract tests:
   - every registered `field` is present in schema output as a renderable node
   - `group` nodes support mixed children (`field` + nested `group`) without schema ambiguity
   - renderer contract is stable: `field` renders in-place and `group` renders as navigation entry
-- [ ] 🟡 Provisional Schema version tests:
+- [x] ✅ Production‑Ready Schema version tests:
   - schema endpoint always includes valid `schema_version`
   - additive schema changes keep compatible version policy; breaking changes require version bump
-- [ ] ⚪ Stable ID tests:
+- [ ] 🟡 Provisional Stable ID tests:
   - node `id` remains unchanged when labels/order/i18n metadata change
   - duplicate node `id` registration fails validation
-- [ ] ⚪ Conditional metadata tests:
+- [x] ✅ Production‑Ready Conditional metadata tests:
   - `visible_if`/`enabled_if` are validated against known technical node identifiers (`id`/canonical path)
   - invalid condition references fail schema registration/validation
-- [ ] ⚪ Localization metadata tests:
+- [x] ✅ Production‑Ready Localization metadata tests:
   - `label_i18n_key`/`description_i18n_key` are exposed in schema response
   - absence of i18n values preserves literal fallback labels without persistence impact
 - [ ] 🟡 Provisional Migration validation:
@@ -270,11 +274,11 @@
 - [ ] 🟡 Provisional Partial patch semantics are atomic and tested.
 - [x] ✅ Production‑Ready Existing push settings flows remain functional during kernel adoption.
 - [x] ✅ Production‑Ready Events foundation can consume tenant capabilities through settings contracts.
-- [ ] 🟡 Provisional Core + package namespaces coexist in one registry and are rendered by hierarchical schema navigation without persistence coupling.
-- [ ] ⚪ Settings schema enforces renderability of all fields and uses `group` nodes for navigation/structure only.
-- [ ] ⚪ Settings schema includes explicit versioning, stable node IDs, conditional render metadata, and localization keys with validated contracts.
+- [x] ✅ Production‑Ready Core + package namespaces coexist in one registry and are rendered by hierarchical schema navigation without persistence coupling.
+- [ ] 🟡 Provisional Settings schema enforces renderability of all fields and uses `group` nodes for navigation/structure only.
+- [x] ✅ Production‑Ready Settings schema includes explicit versioning, stable node IDs, conditional render metadata, and localization keys with validated contracts.
 - [ ] 🟡 Provisional Scope-aware settings are operational for both landlord and tenant contexts using explicit `landlord|tenant` scope flags.
-- [ ] 🟡 Provisional Singleton root settings document is enforced per scope store.
+- [x] ✅ Production‑Ready Singleton root settings document is enforced per scope store.
 - [ ] ⚪ Existing Laravel PATCH endpoints are converged to canonical PATCH semantics (or explicitly documented exceptions).
 - [ ] ⚪ PATCH convergence side job is completed with endpoint inventory + explicit exception tracking.
 
@@ -353,5 +357,5 @@
   - Rule: V1 operator set is fixed to `equals`, `not_equals`, `in`, `not_in`, `exists`, `gt`, `gte`, `lt`, `lte`.
 - `S1-20`: Execution snapshot updated after backend implementation pass.
   - Implemented kernel package, migrations, generic endpoints, core+push namespace registrations, and settings tests.
-  - Validation gate: full Laravel suite passed in Docker (`771 passed`, `2833 assertions`).
-  - Remaining stream: PATCH convergence side-job + advanced schema capabilities (hierarchy tree, conditional DSL, localization, stable-id hardening).
+  - Validation gate: full Laravel suite passed in Docker (`776 passed`, `2843 assertions`).
+  - Remaining stream: PATCH convergence side-job + conditional-rules engine lockstep TODO + docs/submodule-summary synchronization.
