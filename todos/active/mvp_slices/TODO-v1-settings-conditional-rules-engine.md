@@ -1,7 +1,7 @@
 # TODO (V1): Settings Conditional Rules Engine (ACF-Inspired)
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Active
+**Status:** Completed (engine + validation + documentation synchronization delivered)
 **Owners:** Backend Team
 **Objective:** Establish a deterministic conditional-rules engine for `belluga_settings` so schema-driven UI can render and enable fields/groups using declarative rules (`visible_if`, `enabled_if`) with stable technical references.
 
@@ -96,51 +96,82 @@
 
 ---
 
+## Execution Snapshot (2026-02-26)
+- Implemented value objects/contracts:
+  - `ConditionExpression`, `ConditionGroup`, `ConditionRule`, `ConditionOperator`
+- Implemented validator integration into settings schema normalization:
+  - unknown `field_id` rejection
+  - invalid operator/type compatibility rejection
+  - defensive limits (`10/10/50/16KB`) rejection
+- Implemented evaluator service:
+  - `ConditionExpressionEvaluator` with deterministic OR-of-AND semantics
+  - support for all V1 operators (`equals`, `not_equals`, `in`, `not_in`, `exists`, `gt`, `gte`, `lt`, `lte`)
+- Added/extended tests:
+  - `tests/Unit/Settings/SettingsNamespaceDefinitionTest.php`
+  - `tests/Unit/Settings/ConditionExpressionEvaluatorTest.php`
+  - `tests/Feature/Settings/SettingsKernelControllerTest.php` (schema conditional metadata exposure + stability across label/i18n/order changes)
+- Validation gate executed:
+  - full Laravel suite in Docker passed (`789 passed`, `2863 assertions`).
+
+---
+
+## Evaluator Behavior (V1)
+- `equals` / `not_equals`: strict comparison (`===` / `!==`) against resolved field value.
+- `in` / `not_in`: strict `in_array(..., true)` membership against array rule values.
+- `exists`: checks only field presence (`true`) or absence (`false`) in resolved state map.
+- `gt` / `gte` / `lt` / `lte`: comparable operators allowed only for `integer|number|date|datetime` fields.
+- Resolution priority:
+  - first by exact field ID key in state map
+  - fallback by `data_get` on canonical path key
+- Any missing field for non-`exists` operators evaluates to `false`.
+
+---
+
 ## Tasks
-- [ ] ⚪ Define PHP contracts/value objects for conditional rules:
+- [x] ✅ Production‑Ready Define PHP contracts/value objects for conditional rules:
   - `ConditionExpression`, `ConditionGroup`, `ConditionRule`, `ConditionOperator`.
-- [ ] ⚪ Implement schema validator integration:
+- [x] ✅ Production‑Ready Implement schema validator integration:
   - reject invalid operators
   - reject invalid/missing `field_id` targets
   - enforce operator/value compatibility by target field type
-- [ ] ⚪ Implement evaluator service:
+- [x] ✅ Production‑Ready Implement evaluator service:
   - deterministic OR-of-AND reference evaluation
   - strict boolean output for both `visible_if` and `enabled_if`
   - scope is validator/test/reference behavior (not mandatory runtime endpoint evaluation)
-- [ ] ⚪ Implement canonical normalization:
+- [x] ✅ Production‑Ready Implement canonical normalization:
   - preserve authored ordering for `groups` and `rules` (freeze policy)
   - remove ambiguous payload forms
-- [ ] ⚪ Add defensive limits:
+- [x] ✅ Production‑Ready Add defensive limits:
   - enforce `max_groups_per_expression = 10`
   - enforce `max_rules_per_group = 10`
   - enforce `max_total_rules_per_expression = 50`
   - enforce `max_condition_payload_bytes = 16384` (16 KB)
   - return explicit `422` errors on limit violations
-- [ ] ⚪ Integrate with schema endpoint contract:
+- [x] ✅ Production‑Ready Integrate with schema endpoint contract:
   - return conditional metadata in canonical format
   - ensure compatibility with `schema_version` and stable node IDs
-- [ ] ⚪ Document evaluator behavior for all operators and target types.
-- [ ] ⚪ Update foundation docs and Laravel submodule summary after delivery.
+- [x] ✅ Production‑Ready Document evaluator behavior for all operators and target types.
+- [x] ✅ Production‑Ready Update foundation docs and Laravel submodule summary after delivery.
 
 ---
 
 ## Validation Steps
-- [ ] ⚪ `php artisan test` (full Laravel suite; mandatory gate).
-- [ ] ⚪ Unit tests: DSL parser/validator/evaluator for all operators.
-- [ ] ⚪ Unit tests: OR-of-AND behavior with positive/negative/mixed scenarios.
-- [ ] ⚪ Unit tests: invalid reference/operator/value combinations fail deterministically.
-- [ ] ⚪ Feature tests: `GET settings/schema` returns canonical conditional metadata.
-- [ ] ⚪ Feature tests: conditional metadata remains stable across label/i18n/order changes.
-- [ ] ⚪ Regression tests: invalid condition payloads cannot be registered by packages.
+- [x] ✅ Production‑Ready `php artisan test` (full Laravel suite; mandatory gate).
+- [x] ✅ Production‑Ready Unit tests: DSL parser/validator/evaluator for all operators.
+- [x] ✅ Production‑Ready Unit tests: OR-of-AND behavior with positive/negative/mixed scenarios.
+- [x] ✅ Production‑Ready Unit tests: invalid reference/operator/value combinations fail deterministically.
+- [x] ✅ Production‑Ready Feature tests: `GET settings/schema` returns canonical conditional metadata.
+- [x] ✅ Production‑Ready Feature tests: conditional metadata remains stable across label/i18n/order changes.
+- [x] ✅ Production‑Ready Regression tests: invalid condition payloads cannot be registered by packages.
 
 ---
 
 ## Definition of Done
-- [ ] ⚪ Conditional rules DSL is stable, documented, and versioned under settings schema contract.
-- [ ] ⚪ Validator blocks invalid condition structures and invalid target references.
-- [ ] ⚪ Evaluator is deterministic and fully covered by unit tests.
-- [ ] ⚪ Schema endpoint exposes canonical conditional metadata compatible with stable node IDs.
-- [ ] ⚪ Full Laravel suite passes after integration.
+- [x] ✅ Production‑Ready Conditional rules DSL is stable, documented, and versioned under settings schema contract.
+- [x] ✅ Production‑Ready Validator blocks invalid condition structures and invalid target references.
+- [x] ✅ Production‑Ready Evaluator is deterministic and fully covered by unit tests.
+- [x] ✅ Production‑Ready Schema endpoint exposes canonical conditional metadata compatible with stable node IDs.
+- [x] ✅ Production‑Ready Full Laravel suite passes after integration.
 
 ---
 

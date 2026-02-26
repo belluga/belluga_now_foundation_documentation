@@ -804,6 +804,83 @@
 
 ---
 
+## 6.1) Settings Kernel (Tenant + Landlord)
+
+### `GET /api/v1/settings/schema`
+**Purpose:** Discover render-ready settings schema for tenant scope (namespaces, fields, nodes, conditional metadata).  
+**Response (minimum):**
+```json
+{
+  "data": {
+    "schema_version": "1.0.0",
+    "schema_version_policy": {
+      "additive_changes": "no_version_bump_required",
+      "breaking_changes": "version_bump_required"
+    },
+    "namespaces": [
+      {
+        "namespace": "events",
+        "scope": "tenant",
+        "label": "Events",
+        "fields": [],
+        "nodes": []
+      }
+    ]
+  }
+}
+```
+
+### `GET /api/v1/settings/values`
+**Purpose:** Fetch current tenant settings values for all authorized namespaces.  
+**Response (minimum):**
+```json
+{
+  "data": {
+    "events": {
+      "default_duration_hours": 3,
+      "mode": "basic"
+    }
+  }
+}
+```
+
+### `PATCH /api/v1/settings/values/{namespace}`
+**Purpose:** Namespace-scoped partial update using canonical field-presence semantics.  
+**Request (body):**
+```json
+{
+  "default_duration_hours": 4,
+  "stock_enabled": true
+}
+```
+**Response (minimum):**
+```json
+{
+  "data": {
+    "default_duration_hours": 4,
+    "stock_enabled": true
+  }
+}
+```
+
+**Field Definitions**
+- `namespace`: immutable technical namespace key (e.g., `events`, `map_ui`, `push`).
+- PATCH payload: must be a direct object/map (envelopes like `paths` are invalid).
+- PATCH merge rule: only payload-present keys mutate; omitted keys remain unchanged.
+- Explicit clear: `null` is allowed only for nullable fields; non-nullable `null` returns `422`.
+
+### Landlord equivalents
+- `GET /admin/api/v1/settings/schema`
+- `GET /admin/api/v1/settings/values`
+- `PATCH /admin/api/v1/settings/values/{namespace}`
+
+### Landlord on-behalf tenant equivalents
+- `GET /admin/api/v1/{tenant_slug}/settings/schema`
+- `GET /admin/api/v1/{tenant_slug}/settings/values`
+- `PATCH /admin/api/v1/{tenant_slug}/settings/values/{namespace}`
+
+---
+
 ## 7) Tenant/Admin Area (Authenticated)
 
 **Admin routing:** tenant management endpoints live under **tenant scope** (`/api/v1/*`) and are restricted to landlord users via abilities. Landlord/global routes remain under `/admin/api/v1/*`.

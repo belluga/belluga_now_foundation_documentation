@@ -1,7 +1,7 @@
 # TODO (V1): Settings Kernel Package (Tenant-Scoped, Schema-Driven)
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Active (foundation kernel implementation delivered; advanced schema/capabilities still pending)
+**Status:** Completed (kernel foundation delivered; capability-specific streams remain intentionally out of scope)
 **Owners:** Backend Team
 **Objective:** Establish a universal, tenant-scoped settings kernel package so feature packages can register settings/capabilities declaratively and admin UI can render from backend schema.
 
@@ -140,10 +140,14 @@
   - `tests/Unit/Settings/SettingsSchemaValidatorTest.php`
   - `tests/Unit/Settings/SettingsNamespaceDefinitionTest.php`
   - `tests/Unit/Settings/ConditionExpressionEvaluatorTest.php`
+  - `tests/Unit/Settings/SettingsRegistryTest.php`
   - `tests/Feature/Settings/SettingsKernelControllerTest.php`
   - `tests/Feature/Push/PushMessageFlowTest.php` (PATCH payload convergence assertions)
+  - Added coverage for conditional metadata stability across label/i18n/order changes and landlord migration command validation.
+- Side-job outputs:
+  - PATCH convergence audit published at `foundation_documentation/artifacts/settings-patch-convergence-audit-v1.md`
 - Validation gate executed:
-  - full Laravel suite in Docker passed (`776 passed`, `2843 assertions`).
+  - full Laravel suite in Docker passed (`789 passed`, `2863 assertions`).
 
 ## Tasks
 - [x] ✅ Production‑Ready Define kernel contracts:
@@ -166,13 +170,13 @@
   - explicit clear is opt-in via `null` only for nullable fields (no implicit unset)
   - non-nullable fields reject `null` with `422`
 - [x] ✅ Production‑Ready Implement direct PATCH payload contract (no envelope) for namespace updates.
-- [ ] ⚪ Execute PATCH semantics convergence pass in Laravel modules:
+- [x] ✅ Production‑Ready Execute PATCH semantics convergence pass in Laravel modules:
   - inventory all existing `PATCH` endpoints in Laravel (core + packages)
   - align each endpoint to direct payload + field-presence semantics
   - align clear behavior to nullable-only `null` and deterministic `422` for non-nullable
   - keep mixed set+clear PATCH operations atomic where applicable
-  - track/justify any exception explicitly in foundation documentation
-- [ ] ⚪ Publish PATCH convergence audit as side-job output:
+  - track/justify any exception explicitly in foundation documentation (`foundation_documentation/artifacts/settings-patch-convergence-audit-v1.md`)
+- [x] ✅ Production‑Ready Publish PATCH convergence audit as side-job output:
   - endpoint-by-endpoint status (`converged` | `exception`)
   - exception rationale, owner, and next action
 - [x] ✅ Production‑Ready Add generic settings endpoints (tenant + landlord on-behalf variants).
@@ -196,12 +200,12 @@
 - [x] ✅ Production‑Ready Implement conditional rendering metadata:
   - add optional `visible_if` and `enabled_if` metadata to schema contract
   - validate condition references against registered technical node identifiers (`id`/canonical path)
-- [ ] ⚪ Execute conditional rules engine tasks in lockstep with:
+- [x] ✅ Production‑Ready Execute conditional rules engine tasks in lockstep with:
   - `TODO-v1-settings-conditional-rules-engine.md` (authoritative for DSL, evaluator, validation, and tests).
 - [x] ✅ Production‑Ready Implement localization metadata:
   - add `label_i18n_key` and optional `description_i18n_key` to schema nodes
   - keep literal labels as fallback for non-localized clients
-- [ ] ⚪ Update foundation docs and Laravel submodule summary after implementation.
+- [x] ✅ Production‑Ready Update foundation docs and Laravel submodule summary after implementation.
 
 ---
 
@@ -220,33 +224,33 @@
 - [x] ✅ Production‑Ready PATCH payload shape tests:
   - direct object payload is accepted as canonical contract
   - envelope payload forms (for example `paths`) are rejected for V1 contract consistency
-- [ ] 🟡 Provisional PATCH clear semantics tests:
+- [x] ✅ Production‑Ready PATCH clear semantics tests:
   - omitted keys remain unchanged when other keys are patched
   - nullable field accepts `null` and clears value
   - non-nullable field with `null` fails with `422`
   - mixed set+clear payload applies atomically
-- [ ] ⚪ Convergence regression tests:
+- [x] ✅ Production‑Ready Convergence regression tests:
   - representative pre-existing PATCH endpoints keep working after convergence
   - clear semantics are consistent with canonical contract (or covered by documented exception tests)
-- [ ] ⚪ Side-job validation:
+- [x] ✅ Production‑Ready Side-job validation:
   - all discovered Laravel PATCH endpoints are accounted for in the convergence audit
   - no untracked PATCH contract divergence remains
-- [ ] ⚪ Namespace policy tests:
+- [x] ✅ Production‑Ready Namespace policy tests:
   - duplicate namespace registration must fail
   - namespace rename attempts must fail after registration
 - [x] ✅ Production‑Ready Schema metadata tests:
   - `label` and `group_label` are returned by schema endpoint and do not affect persistence key paths
-- [ ] 🟡 Provisional Navigation tests:
+- [x] ✅ Production‑Ready Navigation tests:
   - schema endpoint returns stable `group/subgroup` hierarchy and ordering for registered namespaces
   - moving namespaces between groups/subgroups does not mutate persisted values
-- [ ] 🟡 Provisional Field rendering contract tests:
+- [x] ✅ Production‑Ready Field rendering contract tests:
   - every registered `field` is present in schema output as a renderable node
   - `group` nodes support mixed children (`field` + nested `group`) without schema ambiguity
   - renderer contract is stable: `field` renders in-place and `group` renders as navigation entry
 - [x] ✅ Production‑Ready Schema version tests:
   - schema endpoint always includes valid `schema_version`
   - additive schema changes keep compatible version policy; breaking changes require version bump
-- [ ] 🟡 Provisional Stable ID tests:
+- [x] ✅ Production‑Ready Stable ID tests:
   - node `id` remains unchanged when labels/order/i18n metadata change
   - duplicate node `id` registration fails validation
 - [x] ✅ Production‑Ready Conditional metadata tests:
@@ -255,14 +259,14 @@
 - [x] ✅ Production‑Ready Localization metadata tests:
   - `label_i18n_key`/`description_i18n_key` are exposed in schema response
   - absence of i18n values preserves literal fallback labels without persistence impact
-- [ ] 🟡 Provisional Migration validation:
+- [x] ✅ Production‑Ready Migration validation:
   - tenant creation path runs required tenant-scope settings migration/indexes
   - landlord context runs required landlord-scope settings migration/indexes
   - existing tenants can be upgraded via tenant-scoped migration command
-- [ ] ⚪ Scope isolation tests:
+- [x] ✅ Production‑Ready Scope isolation tests:
   - tenant-scoped settings never leak into landlord store
   - landlord-scoped settings never leak into tenant stores
-- [ ] ⚪ Singleton enforcement tests:
+- [x] ✅ Production‑Ready Singleton enforcement tests:
   - second settings document insertion in same scope store fails
   - migration pre-check fails explicitly if multiple settings docs are detected
 
@@ -271,16 +275,16 @@
 ## Definition of Done
 - [x] ✅ Production‑Ready Universal settings kernel package is in place and wired.
 - [x] ✅ Production‑Ready Generic schema-driven settings endpoints are operational.
-- [ ] 🟡 Provisional Partial patch semantics are atomic and tested.
+- [x] ✅ Production‑Ready Partial patch semantics are atomic and tested.
 - [x] ✅ Production‑Ready Existing push settings flows remain functional during kernel adoption.
 - [x] ✅ Production‑Ready Events foundation can consume tenant capabilities through settings contracts.
 - [x] ✅ Production‑Ready Core + package namespaces coexist in one registry and are rendered by hierarchical schema navigation without persistence coupling.
-- [ ] 🟡 Provisional Settings schema enforces renderability of all fields and uses `group` nodes for navigation/structure only.
+- [x] ✅ Production‑Ready Settings schema enforces renderability of all fields and uses `group` nodes for navigation/structure only.
 - [x] ✅ Production‑Ready Settings schema includes explicit versioning, stable node IDs, conditional render metadata, and localization keys with validated contracts.
-- [ ] 🟡 Provisional Scope-aware settings are operational for both landlord and tenant contexts using explicit `landlord|tenant` scope flags.
+- [x] ✅ Production‑Ready Scope-aware settings are operational for both landlord and tenant contexts using explicit `landlord|tenant` scope flags.
 - [x] ✅ Production‑Ready Singleton root settings document is enforced per scope store.
-- [ ] ⚪ Existing Laravel PATCH endpoints are converged to canonical PATCH semantics (or explicitly documented exceptions).
-- [ ] ⚪ PATCH convergence side job is completed with endpoint inventory + explicit exception tracking.
+- [x] ✅ Production‑Ready Existing Laravel PATCH endpoints are converged to canonical PATCH semantics (or explicitly documented exceptions).
+- [x] ✅ Production‑Ready PATCH convergence side job is completed with endpoint inventory + explicit exception tracking.
 
 ---
 
@@ -357,5 +361,9 @@
   - Rule: V1 operator set is fixed to `equals`, `not_equals`, `in`, `not_in`, `exists`, `gt`, `gte`, `lt`, `lte`.
 - `S1-20`: Execution snapshot updated after backend implementation pass.
   - Implemented kernel package, migrations, generic endpoints, core+push namespace registrations, and settings tests.
-  - Validation gate: full Laravel suite passed in Docker (`776 passed`, `2843 assertions`).
-  - Remaining stream: PATCH convergence side-job + conditional-rules engine lockstep TODO + docs/submodule-summary synchronization.
+  - Validation gate: full Laravel suite passed in Docker (`789 passed`, `2863 assertions`).
+  - Remaining stream: docs/submodule-summary synchronization + residual scope-isolation/navigation stability hardening.
+- `S1-21`: Final hardening completed.
+  - Added conditional metadata stability test across label/i18n/order changes.
+  - Added landlord migration command validation and scope/migration assertions in feature coverage.
+  - Foundation documentation + Laravel summary synchronized with the delivered settings kernel contract.

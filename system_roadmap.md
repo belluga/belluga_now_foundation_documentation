@@ -22,7 +22,6 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 - `submodule_web-app_summary.md` is still missing and must be generated.
 - Existing submodule summaries are currently stale versus checked-out commits:
   - `submodule_flutter-app_summary.md` commit hash mismatch.
-  - `submodule_laravel-app_summary.md` commit hash mismatch.
 
 ## 2.2 Scope/Subscope Governance (Mandatory)
 - Mandatory pre-read for route/module/screen work: `foundation_documentation/policies/scope_subscope_governance.md`.
@@ -61,6 +60,11 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/discover/curator-content` | MOD-201 | Curator-produced content for “Veja isso…” row. | Defined | Ordered by latest published (future: most viewed); links to account profile/event. |
 | `/api/v1/contacts/import` | MOD-201 | Hashed contact import for friend suggestions and invite matching. | Planned | Accepts salted hashes only; no raw PII stored. |
 | `/api/v1/push/register` | MOD-201 | Register device token for push notifications. | Implemented | Stores per-device tokens; used for invites/reminders. |
+| `/api/v1/settings/schema` | Tenant Admin | Discover tenant settings schema (namespace metadata, nodes, conditional metadata). | Tested & Ready | Canonical settings-kernel discovery endpoint; includes `schema_version` + stable node IDs. |
+| `/api/v1/settings/values` | Tenant Admin | Fetch tenant settings values for authorized namespaces. | Tested & Ready | Scope-aware values payload filtered by namespace abilities. |
+| `/api/v1/settings/values/{namespace}` | Tenant Admin | Partial namespace PATCH (canonical contract). | Tested & Ready | Direct object payload only; field-presence merge; nullable-only `null` clear; non-nullable `null` => `422`; atomic mixed set+clear. |
+| `/admin/api/v1/settings/{schema|values}` + `/admin/api/v1/settings/values/{namespace}` | Landlord Admin | Landlord-scope settings schema/values/PATCH. | Tested & Ready | Same canonical contract in landlord scope store. |
+| `/admin/api/v1/{tenant_slug}/settings/{schema|values}` + `/admin/api/v1/{tenant_slug}/settings/values/{namespace}` | Landlord Admin (on behalf tenant) | Execute settings schema/values/PATCH against a tenant scope from landlord context. | Tested & Ready | Tenant scope resolution through adapter + canonical PATCH semantics. |
 | `/api/v1/settings/push` | Tenant Admin | Update tenant push settings (push-only). | Implemented | Split from firebase/telemetry; returns push config payload. |
 | `/api/v1/settings/firebase` | Tenant Admin | Update tenant firebase settings. | Implemented | Dedicated endpoint for firebase config. |
 | `/api/v1/settings/telemetry` | Tenant Admin | Manage telemetry integrations (list + upsert). | Implemented | Upsert by `type`; unique types enforced. |

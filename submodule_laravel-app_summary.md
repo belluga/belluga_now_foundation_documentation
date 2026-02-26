@@ -4,8 +4,8 @@
 ## 1. Analyzed Version
 
 * **Submodule Name:** `laravel-app`
-* **Commit Hash:** `7b337e792245c018c6858f8e87dc26610ecd082f`
-* **Analysis Date:** `2026-02-17`
+* **Commit Hash:** `6b22d2d05d406e1cbd92feedb10c04ecf922160c`
+* **Analysis Date:** `2026-02-26`
 
 *Purpose: This document summarizes the key architectural aspects of the specified submodule version relevant to the main ecosystem.*
 
@@ -56,7 +56,7 @@
 ## 6. Key Integration Points / API Surface (If Applicable)
 
 * **API Prefix/Base:** `/api/v1`, `/admin/api/v1`, `/api/v1/initialize`, `/api/v1/accounts/{account_slug}`.
-* **Primary Endpoints/Modules:** Tenant auth, anonymous identity, environment/branding, accounts/users/roles, **organizations**, **account profiles**, **account profile types**, **agenda + events (list/detail/stream + admin CRUD)**, **map POIs + filters + near**, **static assets (tenant-admin CRUD)**, push device registration, landlord admin routes.
+* **Primary Endpoints/Modules:** Tenant auth, anonymous identity, environment/branding, accounts/users/roles, **organizations**, **account profiles**, **account profile types**, **agenda + events (list/detail/stream + admin CRUD)**, **map POIs + filters + near**, **static assets (tenant-admin CRUD)**, **settings kernel (schema/values/namespace patch in tenant + landlord + landlord-on-behalf tenant scopes)**, push device registration, landlord admin routes.
 * **Media ingestion (tenant-admin):** `POST /admin/api/v1/media/external-image` (authenticated + `CheckTenantAccess`) proxies external image URLs into raw bytes with SSRF + size limits to support Flutter Web URL import without CORS/hotlink failures.
 * **Authentication Method:** Laravel Sanctum tokens with abilities; wildcard abilities are sanitized/expanded in auth services.
 
@@ -89,6 +89,8 @@ Contract expectations exposed to Flutter/Web clients:
 * **Geo query:** `/admin/api/v1/account_profiles/geo` removed from tenant admin routes; superseded by `/api/v1/map/pois`.
 * **Agenda + Events:** new `events` collection with agenda feed (`/api/v1/agenda`), detail (`/api/v1/events/{event_id}`), SSE stream (`/api/v1/events/stream`), and tenant CRUD (`/api/v1/events`). Event publication is managed via `publication.status` + `publication.publish_at` with an hourly job to promote scheduled events. Event payloads use native BSON arrays (no model array casts), derive geo from venue profile location (no standalone event location), and project venue/artist summaries from Account Profiles.
 * **Map POIs:** `map_pois` projection collection with exact-key stacking and time-window filters via `settings.map_ui.poi_time_window_days` (user timezone); projection Jobs sync POIs for Events, Account Profiles, and Static Assets. `/api/v1/map/pois` returns marker stacks, `/api/v1/map/near` returns rich cards, `/api/v1/map/filters` returns catalog filters; `/api/v1/map/pois/stream` is deferred (no route registered).
+* **Settings kernel package:** `belluga_settings` now owns shared settings persistence lifecycle (tenant + landlord migrations for `settings`), generic schema/value endpoints (`GET /settings/schema`, `GET /settings/values`, `PATCH /settings/values/{namespace}`), and namespace registry contracts used by core + push modules.
+* **PATCH contract convergence:** canonical settings PATCH semantics are enforced (direct object payload, field-presence merge, nullable-only clear with `null`, deterministic `422` for non-nullable `null`) with audit tracked in `foundation_documentation/artifacts/settings-patch-convergence-audit-v1.md`.
 * **Static Assets:** tenant-admin CRUD under `/admin/api/v1/static_assets`, stored in `static_assets` collection and projected into `map_pois` as `ref_type=static`.
 * **Static profile types:** new `static_profile_types` registry parallels account profile types, governing page/POI capabilities for static assets.
 * **Static asset pages:** public read endpoint returns static asset page payloads by id or slug; static assets reuse the shared profile page schema (display name, media, content, taxonomy).
