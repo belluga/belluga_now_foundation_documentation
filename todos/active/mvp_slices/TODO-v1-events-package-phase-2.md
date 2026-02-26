@@ -1,7 +1,7 @@
 # TODO (V1): Events Package Phase 2 (True Decoupling)
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Active
+**Status:** Completed
 **Owners:** Backend Team
 **Objective:** Remove app-layer coupling from `belluga_events` internals by replacing direct dependencies with contracts and app-bound adapters.
 
@@ -42,27 +42,41 @@
 ---
 
 ## Tasks
-- [ ] ⚪ Define contracts in package and replace direct `App\\...` imports in core services.
-- [ ] ⚪ Add domain events for event lifecycle changes.
-- [ ] ⚪ Implement app-layer listeners/adapters and service bindings.
-- [ ] ⚪ Route map POI sync through listener/job pipeline.
-- [ ] ⚪ Remove transitional migration wrappers/dependencies no longer needed.
+- [x] ✅ Production‑Ready Define contracts in package and replace direct `App\\...` imports in core services.
+- [x] ✅ Production‑Ready Add domain events for event lifecycle changes.
+- [x] ✅ Production‑Ready Implement app-layer listeners/adapters and service bindings.
+- [x] ✅ Production‑Ready Route map POI sync through listener/job pipeline.
+- [x] ✅ Production‑Ready Remove transitional migration wrappers/dependencies no longer needed.
 
 ---
 
 ## Validation Steps
-- [ ] ⚪ `php artisan test` (full Laravel suite; mandatory gate for Phase 2 completion).
-- [ ] ⚪ `php artisan test tests/Feature/Events/AgendaAndEventsControllerTest.php`.
-- [ ] ⚪ `php artisan test tests/Feature/Events/EventCrudControllerTest.php`.
-- [ ] ⚪ `php artisan test tests/Feature/Map/MapPoisControllerTest.php`.
-- [ ] ⚪ Add/update targeted tests for adapter binding and lifecycle side effects.
+- [x] ✅ Production‑Ready `php artisan test` (full Laravel suite; mandatory gate for Phase 2 completion).
+- [x] ✅ Production‑Ready `php artisan test tests/Feature/Events/AgendaAndEventsControllerTest.php`.
+- [x] ✅ Production‑Ready `php artisan test tests/Feature/Events/EventCrudControllerTest.php`.
+- [x] ✅ Production‑Ready `php artisan test tests/Feature/Map/MapPoisControllerTest.php`.
+- [x] ✅ Production‑Ready Add/update targeted tests for adapter binding and lifecycle side effects.
 
 ---
 
 ## Definition of Done
-- [ ] ⚪ Package core has no direct imports from host `App\\...` for domain logic.
-- [ ] ⚪ All side effects are exercised through contracts/events/listeners.
-- [ ] ⚪ Contracts/docs/roadmap synchronized with decoupled architecture.
+- [x] ✅ Production‑Ready Package core has no direct imports from host `App\\...` for domain logic.
+- [x] ✅ Production‑Ready All side effects are exercised through contracts/events/listeners.
+- [x] ✅ Production‑Ready Contracts/docs/roadmap synchronized with decoupled architecture.
+
+---
+
+## Implementation Notes (Completion)
+- Package contracts were expanded to decouple HTTP/context integrations from host app:
+  - `EventAccountResolverContract`
+  - `EventTenantContextContract`
+- Package request validators now use package-local constraints (`Belluga\\Events\\Support\\Validation\\InputConstraints`) instead of `App\\Support\\Validation\\InputConstraints`.
+- Host app binds adapters for all Events package contracts (including new account/tenant context adapters) in `AppServiceProvider`.
+- Transitional wrappers removed:
+  - app-level Event controllers, requests, model, services, and scheduled job wrappers that only extended package classes.
+  - project routes and console schedule now reference package classes directly.
+- Side-effect pipeline remains package lifecycle event -> app listener -> queued projection job (`UpsertMapPoiFromEventJob` / `DeleteMapPoiByRefJob`).
+- No API shape changes were introduced in this phase; roadmap endpoint statuses remain unchanged.
 
 ---
 
