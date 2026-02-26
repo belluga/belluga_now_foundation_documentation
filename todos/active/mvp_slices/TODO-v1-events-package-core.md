@@ -44,11 +44,11 @@
 
 ---
 
-## E) Pending Decision Registry
-- Phase 2 pending decisions are tracked in:
+## E) Decision Registry (Cross-Reference)
+- Phase 2 decisions (resolved) are tracked in:
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-2.md` (`D2-01` to `D2-05`).
-- Phase 3 pending decisions are tracked in:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md` (`D3-01` to `D3-05`).
+- Phase 3 decisions are tracked in:
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md` (`D3-01` to `D3-16`).
 
 ---
 
@@ -90,12 +90,13 @@
   - Transactions are mandatory; block Phase 3 rollout and fail fast with meaningful error when unavailable in target runtime.
 - [x] ✅ Production‑Ready `OD-03` Stream reconnect policy:
   - No replay buffer/retention is required; login/reconnect must rehydrate current state and start stream from now.
-- [x] ✅ Production‑Ready `OD-04` Async side-effect SLO (Strict):
+- [ ] 🟡 Provisional `OD-04` Async side-effect SLO (Strict):
   - Lag target: `p95 <= 15s`, `p99 <= 60s` for async side effects.
   - Queue staleness alert: trigger when max age is `> 60s` for 5 minutes.
   - Retry policy: 5 attempts with exponential backoff; then DLQ.
   - DLQ policy: alert on any new DLQ item.
   - Reconciliation cadence: run consistency reconciliation every 15 minutes.
+  - Implementation status: decision locked, full operational enforcement pending Phase 3 hardening closure.
 
 ---
 

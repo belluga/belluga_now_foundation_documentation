@@ -16,15 +16,15 @@
 - Define non-destructive capability disable/reenable semantics.
 - Define atomic partial-update semantics for capability payloads.
 - Define per-capability migration/index strategy compatible with tenant-scoped migration execution.
-- Establish universal tenant settings architecture so packages can register settings/capabilities and UI can render from schema.
-- Execute Phase 3 in two blocks: foundation first, concrete ticketing capabilities last.
+- Integrate Events capability foundation with the universal tenant settings architecture (already delivered) so capability settings are registered and resolved via schema.
+- Execute Phase 3 in two blocks: foundation first (including one pilot capability), concrete ticketing capabilities last.
 
 ---
 
 ## Out of Scope
 - Unplanned contract drift outside the approved occurrence-first hard-cutover target.
 - Non-Events domain expansion.
-- Concrete ticketing capability implementation in the first execution block (inventory, qr_checkin, combo, limits, participant/student binding, pricing fees).
+- Concrete ticketing capability implementation in the first execution block beyond one pilot capability (`multiple_occurrences`).
 
 ---
 
@@ -53,7 +53,8 @@
 - [x] ✅ Production‑Ready `D3-12` Settings architecture baseline: introduce a universal `settings` kernel package to host contracts/registry/schema validation for scoped settings (`tenant` and `landlord`).
 - [x] ✅ Production‑Ready `D3-13` Settings ownership split: settings kernel package owns canonical settings persistence lifecycle (model/migration), while host app owns scope-aware integration/adapters and package bindings.
 - [x] ✅ Production‑Ready `D3-14` Settings API contract: backend must expose schema-driven endpoints so UI is rendered from registered settings definitions, not hardcoded forms.
-- [x] ✅ Production‑Ready `D3-15` Execution sequence: implement foundation block first and stop before concrete capability creation; only then align and execute the final ticketing capability block.
+- [x] ✅ Production‑Ready `D3-15` Execution sequence: implement foundation block first including one pilot capability (`multiple_occurrences`); stop before concrete ticketing capability creation and align before final block execution.
+- [x] ✅ Production‑Ready `D3-16` Pilot capability payload semantics (`multiple_occurrences`): Tenant Admin defines tenant-scoped settings `allow_multiple` (bool) and `max_occurrences` (int|null, where client `0` is normalized to `null`); event create/update can only opt in/out of using multiple occurrences if tenant settings allow it.
 
 ---
 
@@ -63,31 +64,41 @@
 - [ ] ⚪ Evaluate and tune Mongo indexes for agenda/filter/stream queries.
 - [ ] ⚪ Add resilience tests for stream reconnect and publication edge cases.
 - [ ] ⚪ Final cleanup of migration-era transitional wrappers.
-- [ ] ⚪ Introduce capability registry/contracts (`abstract capability` + concrete capability handlers).
-- [ ] ⚪ Add tenant capability availability config and event-level capability usage config.
-- [ ] ⚪ Enforce runtime gate: `effective_capability = tenant_available && event_enabled`.
-- [ ] ⚪ Implement atomic partial capability update flow (`$set` only on payload-present paths; no implicit unset).
-- [ ] ⚪ Create `settings` kernel package (contracts + registry + schema validation + merge semantics).
-- [ ] ⚪ Implement host-app integration adapters for scope-aware settings routing (`landlord|tenant`) and wire package bindings.
-- [ ] ⚪ Register events capability/settings schema through the new settings registry.
-- [ ] ⚪ Add schema-driven settings endpoints (`schema`, `values`, partial `patch`) for tenant-admin and landlord on-behalf variants according to kernel contracts.
-- [ ] ⚪ Execute settings-foundation tasks in lockstep with `TODO-v1-settings-kernel-package.md` and use it as the authoritative tracker for settings-kernel delivery.
-- [ ] ⚪ Stop gate: finish foundation block and pause before concrete ticketing capability implementation for explicit alignment.
+- [x] ✅ Production‑Ready Deliver two-collection occurrence-first model (`events` + `event_occurrences`) with write-path sync on create/update/delete.
+- [x] ✅ Production‑Ready Enforce transaction-first consistency for Event + occurrence mirrors (including scheduled publication transitions).
+- [x] ✅ Production‑Ready Switch agenda/stream read model to `event_occurrences` (canonical query unit) and publish occurrence-first deltas (`occurrence_id` + `event_id`).
+- [x] ✅ Production‑Ready Introduce capability registry/contracts (`abstract capability` + concrete capability handlers).
+- [x] ✅ Production‑Ready Add tenant capability availability config and event-level capability usage config.
+- [x] ✅ Production‑Ready Enforce runtime gate: `effective_capability = tenant_available && event_enabled`.
+- [x] ✅ Production‑Ready Implement atomic partial capability update flow (`$set` only on payload-present paths; no implicit unset).
+- [x] ✅ Production‑Ready Implement pilot capability `multiple_occurrences` with split config: tenant settings payload `{ allow_multiple: bool, max_occurrences: int|null }` (`0` => `null`) plus event-level usage flag (`enabled`), enforcing rules during event create/update.
+- [x] ✅ Production‑Ready Integrate Events capability foundation with the existing `settings` kernel package (contracts + registry + schema validation + merge semantics already delivered).
+- [x] ✅ Production‑Ready Reuse host-app scope adapters/bindings already delivered by settings kernel (`landlord|tenant`) and consume them from Events capability flow (no duplicate adapter layer).
+- [x] ✅ Production‑Ready Register events capability/settings schema through the new settings registry.
+- [x] ✅ Production‑Ready Extend existing schema-driven settings endpoints (`schema`, `values`, partial `patch`) by registering `events` capability fields required for Phase 3 foundation.
+- [x] ✅ Production‑Ready Treat `TODO-v1-settings-kernel-package.md` as delivered baseline; this phase only adds/consumes Events namespace capability schema and values on top of kernel contracts.
+- [x] ✅ Production‑Ready Stop gate: foundation block finished and paused before concrete ticketing capability implementation.
 - [ ] ⚪ Final block (deferred): implement consolidated ticketing capabilities (inventory, qr_checkin, combo, limits, participant/student binding, pricing fees) after alignment.
 
 ---
 
 ## Validation Steps
-- [ ] ⚪ `php artisan test` (full Laravel suite; mandatory gate for important milestones/phase closure).
+- [x] ✅ Production‑Ready `php artisan test` (full Laravel suite; mandatory gate for important milestones/phase closure).
+- [x] ✅ Production‑Ready `php artisan test tests/Feature/Events/EventCrudControllerTest.php`.
+- [x] ✅ Production‑Ready `php artisan test tests/Feature/Events/AgendaAndEventsControllerTest.php`.
+- [x] ✅ Production‑Ready `php artisan test tests/Unit/Events/EventsPackageBindingsTest.php`.
 - [ ] ⚪ Targeted load/perf sampling for agenda and stream paths.
 - [ ] ⚪ Manual smoke for publication transitions and SSE reconnect behavior.
-- [ ] ⚪ Capability gate tests: disabled at tenant => non-executable/non-visible capability behavior for all events.
-- [ ] ⚪ Capability persistence tests: disable/reenable preserves and restores previously persisted capability config.
-- [ ] ⚪ Partial update tests: payload-present keys update atomically without mutating absent keys.
-- [ ] ⚪ Settings registry tests: package-registered schema is discoverable and validated.
-- [ ] ⚪ Settings API tests: schema endpoint and values endpoint return registry-driven payloads.
-- [ ] ⚪ Settings patch tests: partial patch mutates only payload-present keys for a namespace.
-- [ ] ⚪ Foundation block gate: full Laravel suite passes before starting final ticketing capability block.
+- [x] ✅ Production‑Ready Capability gate tests: disabled at tenant => non-executable/non-visible capability behavior for all events.
+- [x] ✅ Production‑Ready Capability persistence tests: disable/reenable preserves and restores previously persisted capability config.
+- [x] ✅ Production‑Ready Partial update tests: payload-present keys update atomically without mutating absent keys.
+- [x] ✅ Production‑Ready Pilot capability tests: `multiple_occurrences` follows tenant availability + event enablement + effective runtime gate.
+- [x] ✅ Production‑Ready Pilot payload normalization tests: `max_occurrences=0` persists as `null`; positive integers persist as numeric limit.
+- [x] ✅ Production‑Ready Pilot create/update rule tests: tenant disallow OR event disabled => max allowed occurrences is `1`; tenant allow + event enabled + numeric `max_occurrences` => enforce tenant max.
+- [x] ✅ Production‑Ready Settings registry tests: package-registered schema is discoverable and validated.
+- [x] ✅ Production‑Ready Settings API tests: schema endpoint and values endpoint return registry-driven payloads.
+- [x] ✅ Production‑Ready Settings patch tests: partial patch mutates only payload-present keys for a namespace.
+- [x] ✅ Production‑Ready Foundation block gate: full Laravel suite passes before starting final ticketing capability block.
 - [ ] ⚪ Final block validation (deferred): tenant-scoped migration/index validation and capability-specific integration tests for each ticketing capability.
 
 ---
@@ -96,11 +107,12 @@
 - [ ] ⚪ Events package reliability baseline is documented and measurable.
 - [ ] ⚪ Known bottlenecks and failure modes are mitigated or explicitly tracked.
 - [ ] ⚪ Architecture docs reflect final post-hardening state.
-- [ ] ⚪ Capability governance contract (tenant availability + event usage + effective runtime gating) is implemented and verified.
-- [ ] ⚪ Capability disable/reenable behavior is non-destructive and validated.
-- [ ] ⚪ Capability update semantics are atomic/partial and protected by tests.
-- [ ] ⚪ Universal settings kernel is active and events package consumes tenant settings only through settings contracts/registry.
-- [ ] ⚪ Foundation block is delivered and explicitly paused at the capability boundary before final block execution.
+- [x] ✅ Production‑Ready Capability governance contract (tenant availability + event usage + effective runtime gating) is implemented and verified.
+- [x] ✅ Production‑Ready Capability disable/reenable behavior is non-destructive and validated.
+- [x] ✅ Production‑Ready Capability update semantics are atomic/partial and protected by tests.
+- [x] ✅ Production‑Ready Pilot capability `multiple_occurrences` validates the foundation pipeline (registry/config/gating/partial update semantics, including `max_occurrences` normalization).
+- [x] ✅ Production‑Ready Universal settings kernel is active and events package consumes tenant settings only through settings contracts/registry.
+- [x] ✅ Production‑Ready Foundation block is delivered with pilot `multiple_occurrences` and explicitly paused before final ticketing capability block execution.
 
 ---
 
@@ -117,12 +129,13 @@
   - Approval note: this is an approved contract-shape change under Phase 3.
 - `D3-04`: Decided. `event_occurrences` is the canonical query unit (agenda/search/filter/stream).
   - Modeling rule: each occurrence document is equivalent to extracting one embedded occurrence item from Event, plus mirrored event fields needed for list/read performance.
-  - Canonical fields for query: `tenant_id`, `event_id`, `starts_at_utc`, `ends_at_utc`, `venue_geo`, `taxonomy_term_ids`, `is_event_published`, `updated_at`.
+  - Storage rule: occurrences are persisted in tenant-scoped databases (Spatie multitenancy tenant migration flow), so occurrence documents do not persist `tenant_id`.
+  - Canonical fields for query: `event_id`, `starts_at`, `ends_at`, `venue_geo`, `taxonomy_terms`, `is_event_published`, `updated_at`.
+  - Taxonomy filter contract: term-object matching (`type` + `value`) on `taxonomy_terms`, `venue.taxonomy_terms`, and `artists.taxonomy_terms`.
   - Canonical indexes:
-    - `{ tenant_id, is_event_published, starts_at_utc, _id }` (agenda ordering/pagination)
-    - `{ tenant_id, event_id, starts_at_utc }` (event detail timeline)
-    - `{ tenant_id, is_event_published, taxonomy_term_ids, starts_at_utc }` (taxonomy filters)
-    - `{ tenant_id, updated_at, _id }` (stream delta ordering/live cursor)
+    - `{ is_event_published, starts_at, _id }` (agenda ordering/pagination)
+    - `{ event_id, starts_at }` (event detail timeline)
+    - `{ updated_at, _id }` (stream delta ordering/live cursor)
     - `2dsphere(venue_geo)` (radius queries)
 - `D3-05`: Decided. No backward-compatibility layer is required for single-date event consumers.
   - Delivery rule: client apps must migrate to the occurrence-first contract before/with Phase 3 rollout.
@@ -159,6 +172,16 @@
     - `PATCH .../settings/values/{namespace}` (atomic partial merge; keys not in payload remain unchanged)
   - Landlord on-behalf variants must follow the same generic contract surface.
 - `D3-15`: Decided. Phase 3 execution is split into two blocks.
-  - Block 1 (execute now): package/settings/capability foundation only.
+  - Block 1 (execute now): package/settings/capability foundation plus one pilot capability (`multiple_occurrences`).
   - Mandatory pause: stop before concrete ticketing capability implementation.
   - Block 2 (final): implement concrete ticketing capabilities after explicit alignment on each one.
+- `D3-16`: Decided. Pilot capability `multiple_occurrences` payload and normalization rules.
+  - Tenant canonical payload:
+    - `allow_multiple: bool`
+    - `max_occurrences: int|null`
+  - Normalization rule: incoming `max_occurrences=0` is treated as `null` (no numeric cap configured).
+  - Event-level usage: Event can opt in/out (`enabled`) only within tenant availability rules.
+  - Interpretation rule:
+    - if tenant `allow_multiple=false`, Event cannot use multiple occurrences;
+    - if tenant `allow_multiple=true` but event usage is disabled, Event cannot use multiple occurrences;
+    - if effective usage is enabled and `max_occurrences` is non-null, it defines the maximum number of occurrences permitted per event.
