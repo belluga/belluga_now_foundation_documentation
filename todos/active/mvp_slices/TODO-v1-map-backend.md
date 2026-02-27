@@ -13,6 +13,7 @@
   - map POI projection pipeline
   - map endpoints/contracts
   - map package models/migrations/indexes
+- Absorb current Events -> Map POI integration responsibilities (listeners/jobs/signature classification/adapters) into the Map package boundary, keeping Events as contract consumer only.
 - Keep settings integration contract-first via `belluga_settings`:
   - consume `map_ui` namespace from settings kernel
   - register any new map-specific namespaces in registry (if needed)
@@ -57,6 +58,7 @@
 - [ ] ⚪ Define package contracts for POI projection ingestion and query boundaries.
 - [ ] ⚪ Implement host app adapters/bindings for external dependencies.
 - [ ] ⚪ Route Event/Profile/StaticAsset POI writes through contract/listener pipeline.
+- [ ] ⚪ Move existing Events-related Map POI operational integration from host/Events stream into `belluga_map_pois` (including async job signature ownership), leaving `belluga_events` decoupled from Map implementation details.
 - [ ] ⚪ Migrate map models/migrations/index definitions to package ownership.
 - [ ] ⚪ Integrate package services with settings kernel namespaces (`map_ui` baseline).
 - [ ] ⚪ Keep API contracts stable or document intentional contract changes in foundation docs before implementation.
@@ -85,3 +87,4 @@
 
 ## Decision Log
 - `M1-00`: Created as a dedicated backend stream by explicit product/architecture decision.
+- `M1-05`: Decided. Current Events -> Map POI integration is transitional and must be relocated to `belluga_map_pois`; Events remains contract-only for Map projection side effects.

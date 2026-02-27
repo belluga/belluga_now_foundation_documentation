@@ -12,19 +12,37 @@
 - Harden stream delta behavior and reconnect rehydrate guarantees (no replay buffer).
 - Add package-focused observability and diagnostics.
 - Review indexes/query plans and optimize expensive aggregations.
-- Establish capability governance for ticketing-style extensions (tenant-available vs event-enabled).
+- Establish capability governance for feature extensions (tenant-available vs event-enabled).
 - Define non-destructive capability disable/reenable semantics.
 - Define atomic partial-update semantics for capability payloads.
 - Define per-capability migration/index strategy compatible with tenant-scoped migration execution.
 - Integrate Events capability foundation with the universal tenant settings architecture (already delivered) so capability settings are registered and resolved via schema.
-- Execute Phase 3 in two blocks: foundation first (including one pilot capability), concrete ticketing capabilities last.
+- Execute Phase 3 in two blocks: foundation first (including one pilot capability), concrete capabilities last.
 
 ---
 
 ## Out of Scope
 - Unplanned contract drift outside the approved occurrence-first hard-cutover target.
 - Non-Events domain expansion.
-- Concrete ticketing capability implementation in the first execution block beyond one pilot capability (`multiple_occurrences`).
+- Concrete capability implementation in the first execution block beyond one pilot capability (`multiple_occurrences`).
+
+---
+
+## Final Capability TODO References (Canonical for Block 2)
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-capability-limits.md`
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-capability-pricing-fees.md`
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-capability-inventory.md`
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-capability-map-poi.md`
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-capability-qr-checkin.md`
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-capability-combo.md`
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-capability-participant-student-binding.md`
+
+---
+
+## Pre-Capability Core Gate (Canonical)
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-location-core-cutover.md`
+  - Rule: complete this core location cutover before executing Block 2 capability TODOs.
+  - Status: ✅ Completed (LOC-05/06/07 delivered; tests and full suite green).
 
 ---
 
@@ -53,7 +71,7 @@
 - [x] ✅ Production‑Ready `D3-12` Settings architecture baseline: introduce a universal `settings` kernel package to host contracts/registry/schema validation for scoped settings (`tenant` and `landlord`).
 - [x] ✅ Production‑Ready `D3-13` Settings ownership split: settings kernel package owns canonical settings persistence lifecycle (model/migration), while host app owns scope-aware integration/adapters and package bindings.
 - [x] ✅ Production‑Ready `D3-14` Settings API contract: backend must expose schema-driven endpoints so UI is rendered from registered settings definitions, not hardcoded forms.
-- [x] ✅ Production‑Ready `D3-15` Execution sequence: implement foundation block first including one pilot capability (`multiple_occurrences`); stop before concrete ticketing capability creation and align before final block execution.
+- [x] ✅ Production‑Ready `D3-15` Execution sequence: implement foundation block first including one pilot capability (`multiple_occurrences`); stop before concrete capability creation and align before final block execution.
 - [x] ✅ Production‑Ready `D3-16` Pilot capability payload semantics (`multiple_occurrences`): Tenant Admin defines tenant-scoped settings `allow_multiple` (bool) and `max_occurrences` (int|null, where client `0` is normalized to `null`); event create/update can only opt in/out of using multiple occurrences if tenant settings allow it.
 - [x] ✅ Production‑Ready `D3-17` Invite ownership boundary hardening: Events payload/model must not persist or expose invite-lifecycle fields (`confirmed_user_ids`, `received_invites`, `sent_invites`, `friends_going`); those belong to Invites feature work only.
 - [x] ✅ Production‑Ready `D3-18` Ownership model hardening: `created_by` (audit) and resource ownership/authorization are distinct concerns; creator identity does not define sole edit authority.
@@ -62,6 +80,7 @@
 - [x] ✅ Production‑Ready `D3-21` Per-party authorization granularity: each `event_party` entry can independently allow or deny edit authority by payload (`can_edit`) regardless of party type.
 - [x] ✅ Production‑Ready `D3-22` Permission simplification policy (Phase 3): use a single canonical edit flag (`can_edit`) for event-party authorization in this phase.
 - [x] ✅ Production‑Ready `D3-23` Type-level default policy: each `event_party` type defines code-level default `can_edit` in mapper/policy (not settings); each event-party row can override by payload.
+- [x] ✅ Production‑Ready `D3-24` Core location pre-capability gate: execute hard-cutover to canonical core location (`location` + typed `place_ref`, `physical|online|hybrid`) before Block 2 capabilities.
 
 ---
 
@@ -109,11 +128,11 @@
 - [x] ✅ Production‑Ready Register events capability/settings schema through the new settings registry.
 - [x] ✅ Production‑Ready Extend existing schema-driven settings endpoints (`schema`, `values`, partial `patch`) by registering `events` capability fields required for Phase 3 foundation.
 - [x] ✅ Production‑Ready Treat `TODO-v1-settings-kernel-package.md` as delivered baseline; this phase only adds/consumes Events namespace capability schema and values on top of kernel contracts.
-- [x] ✅ Production‑Ready Stop gate: foundation block finished and paused before concrete ticketing capability implementation.
+- [x] ✅ Production‑Ready Stop gate: foundation block finished and paused before concrete capability implementation.
 - [x] ✅ Production‑Ready Hard-cutover: remove legacy `account_id`/`account_profile_id` from Events payload/model/requests/query filters/indexes/tests and migrate ownership filtering away from account fields.
 - [x] ✅ Production‑Ready Implement `event_parties` ACL model with `can_edit` and default-plus-payload-override semantics.
 - [x] ✅ Production‑Ready Final consistency review: run decision-by-decision adherence scan (`core`, `phase-1`, `phase-2`, `phase-3`) and sync TODO statuses/notes with delivered code.
-- [ ] ⚪ Final block (deferred): implement consolidated ticketing capabilities (inventory, qr_checkin, combo, limits, participant/student binding, pricing fees) after alignment.
+- [ ] ⚪ Final block (deferred): execute and close all dedicated capability TODOs listed in `Final Capability TODO References (Canonical for Block 2)`.
 
 ---
 
@@ -135,9 +154,9 @@
 - [x] ✅ Production‑Ready Settings registry tests: package-registered schema is discoverable and validated.
 - [x] ✅ Production‑Ready Settings API tests: schema endpoint and values endpoint return registry-driven payloads.
 - [x] ✅ Production‑Ready Settings patch tests: partial patch mutates only payload-present keys for a namespace.
-- [x] ✅ Production‑Ready Foundation block gate: full Laravel suite passes before starting final ticketing capability block.
+- [x] ✅ Production‑Ready Foundation block gate: full Laravel suite passes before starting final capability block.
 - [x] ✅ Production‑Ready Hard-cutover validation: `rg -n "account_id|account_profile_id" laravel-app/packages/belluga/belluga_events` returns no hits, and Events tests contain no request/filter/model assertions depending on legacy `account_*` event fields.
-- [ ] ⚪ Final block validation (deferred): tenant-scoped migration/index validation and capability-specific integration tests for each ticketing capability.
+- [ ] ⚪ Final block validation (deferred): validation gates are executed and closed within each dedicated capability TODO listed in `Final Capability TODO References (Canonical for Block 2)`.
 - [x] ✅ Production‑Ready Ownership/ACL validation block: shared-principal authorization tests (account/tenant/user principals), creator-vs-owner separation tests, and event-party mapping contract tests.
 - [x] ✅ Production‑Ready Event-party permission validation block: per-party `can_edit` authorization tests plus default-plus-payload-override resolution tests.
 
@@ -152,7 +171,7 @@
 - [x] ✅ Production‑Ready Capability update semantics are atomic/partial and protected by tests.
 - [x] ✅ Production‑Ready Pilot capability `multiple_occurrences` validates the foundation pipeline (registry/config/gating/partial update semantics, including `max_occurrences` normalization).
 - [x] ✅ Production‑Ready Universal settings kernel is active and events package consumes tenant settings only through settings contracts/registry.
-- [x] ✅ Production‑Ready Foundation block is delivered with pilot `multiple_occurrences` and explicitly paused before final ticketing capability block execution.
+- [x] ✅ Production‑Ready Foundation block is delivered with pilot `multiple_occurrences` and explicitly paused before final capability block execution.
 - [x] ✅ Production‑Ready Events ACL/event-parties foundation is delivered (`created_by` audit principal, mapper registry, canonical `event_parties` payload, `can_edit` gate, owner/admin override path, and coverage tests).
 
 ---
@@ -250,8 +269,8 @@
   - Landlord on-behalf variants must follow the same generic contract surface.
 - `D3-15`: Decided. Phase 3 execution is split into two blocks.
   - Block 1 (execute now): package/settings/capability foundation plus one pilot capability (`multiple_occurrences`).
-  - Mandatory pause: stop before concrete ticketing capability implementation.
-  - Block 2 (final): implement concrete ticketing capabilities after explicit alignment on each one.
+  - Mandatory pause: stop before concrete capability implementation.
+  - Block 2 (final): execute concrete capabilities through dedicated TODOs referenced in `Final Capability TODO References (Canonical for Block 2)`.
 - `D3-16`: Decided. Pilot capability `multiple_occurrences` payload and normalization rules.
   - Tenant canonical payload:
     - `allow_multiple: bool`
@@ -287,3 +306,8 @@
   - Resolution rule: row-level payload-present `can_edit` overrides default; omitted key keeps default value.
   - Boundary rule: no settings dependency is required for event-party permission defaults.
   - Merge rule: partial updates remain atomic by payload-present keys only.
+- `D3-24`: Decided. Core location cutover is a mandatory pre-capability gate.
+  - Contract rule: event writes adopt canonical `location` + typed `place_ref`; legacy `venue_id` is removed.
+  - Mode rule: `location.mode` supports `physical|online|hybrid` with mode-specific required fields.
+  - Query rule: geo filters include only events with valid geographic basis; online-only regional projection is handled by `map_poi.discovery_scope`.
+  - Traceability: execution contract is tracked in `TODO-v1-events-location-core-cutover.md`.
