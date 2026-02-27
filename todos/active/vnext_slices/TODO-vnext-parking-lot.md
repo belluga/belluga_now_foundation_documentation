@@ -62,6 +62,12 @@
   - Reason: deploy now runs landlord+tenant migrations automatically; we should capture an Atlas snapshot (or `mongodump` when self-hosted) before applying migrations, mainly for `main`.
   - Tracking: `foundation_documentation/todos/active/vnext_slices/TODO-vnext-deploy-pre-migration-backup.md`
 
+## I) Test Reliability Hardening (VNext)
+
+- [ ] ⚪ Pending **Full test hardening program (Laravel + Flutter + Web + CI)**
+  - Reason: strengthen determinism, remove bypass patterns, and lock compatibility behavior with stricter contract and failure-path assertions.
+  - Tracking: `foundation_documentation/todos/active/vnext_slices/TODO-vnext-test-hardening-program.md`
+
 ---
 
 ## C) Favorites (Deferred Enhancements)
