@@ -31,7 +31,7 @@
 
 ## Standards/Exception Reference (Locked)
 - Settings kernel is canonical for settings schema/values:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-settings-kernel-package.md`
+  - `foundation_documentation/todos/completed/TODO-v1-settings-kernel-package.md`
 - Events program is authoritative for Event-side boundaries:
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-core.md`
 - Multitenancy execution must remain aligned with Spatie tenant migration/runtime model.

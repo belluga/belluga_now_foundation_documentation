@@ -50,7 +50,7 @@
 - Multitenancy execution requirement:
   - `config/multitenancy.php` tenant migration paths + tenant-scoped execution (`tenants:artisan` / tenant current context).
 - Conditional rules implementation stream (detailed):
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-settings-conditional-rules-engine.md`.
+  - `foundation_documentation/todos/completed/TODO-v1-settings-conditional-rules-engine.md`.
 
 ---
 

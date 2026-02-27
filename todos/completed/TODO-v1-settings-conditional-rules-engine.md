@@ -25,7 +25,7 @@
 
 ## Standards/Exception Reference (Locked)
 - Parent stream:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-settings-kernel-package.md` (`S1-14`, `S1-16`).
+  - `foundation_documentation/todos/completed/TODO-v1-settings-kernel-package.md` (`S1-14`, `S1-16`).
 - Events foundation alignment:
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md` (`D3-12`, `D3-14`, `D3-15`).
 - Multitenancy requirement:

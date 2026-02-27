@@ -73,18 +73,19 @@ Stores every user action triggered from an agenda card for observability and com
 ---
 
 ## 3.4 Client Event Payload (Agenda API)
-Agenda surfaces events as a paged list; Flutter consumes this shape for cards, invites, and chips.
+Agenda surfaces events as a paged list; Flutter consumes this shape for cards and chips.
 Event geo is derived from the venue Account Profile location; events do not carry a standalone `location` string.
 
 **Request (paged list)**
-- Query: `page` (int), `page_size` (int), `past_only` (bool), `search` (string), `categories[]`, `tags[]`, `taxonomy[]`, `origin_lat`, `origin_lng`, `max_distance_meters`, `confirmed_only` (bool).
+- Query: `page` (int), `page_size` (int), `past_only` (bool), `search` (string), `categories[]`, `tags[]`, `taxonomy[]`, `origin_lat`, `origin_lng`, `max_distance_meters`.
 
 **Response**
 ```json
 {
   "items": [
     {
-      "id": "string",
+      "event_id": "string",
+      "occurrence_id": "string?",
       "slug": "string",
       "type": {
         "id": "string",
@@ -109,15 +110,36 @@ Event geo is derived from the venue Account Profile location; events do not carr
       "thumb": { "type": "image", "data": { "url": "string" } },
       "date_time_start": "2025-01-01T00:00:00Z",
       "date_time_end": "2025-01-01T00:00:00Z?",
+      "occurrences": [
+        {
+          "date_time_start": "2025-01-01T00:00:00Z",
+          "date_time_end": "2025-01-01T00:00:00Z?"
+        }
+      ],
       "artists": [
         { "id": "string", "display_name": "string", "avatar_url": "string (optional)", "highlight": false, "genres": ["string"] }
       ],
-      "is_confirmed": false,
-      "total_confirmed": 0,
-      "received_invites": [ /* invite DTOs */ ],
-      "sent_invites": [ /* sent invite status DTOs */ ],
-      "friends_going": [ /* lightweight friend resumes */ ],
-      "tags": ["string"]
+      "created_by": {
+        "type": "string",
+        "id": "string"
+      },
+      "event_parties": [
+        {
+          "party_type": "string",
+          "party_ref_id": "string",
+          "permissions": { "can_edit": true },
+          "metadata": {}
+        }
+      ],
+      "capabilities": {
+        "multiple_occurrences": {
+          "enabled": false,
+          "allow_multiple": false,
+          "max_occurrences": null
+        }
+      },
+      "tags": ["string"],
+      "taxonomy_terms": [{ "type": "string", "value": "string" }]
     }
   ],
   "has_more": true
@@ -128,6 +150,9 @@ Event geo is derived from the venue Account Profile location; events do not carr
 
 ### Field Definitions
 - `thumb.type` ∈ {`image`}
+- `event_parties[].permissions.can_edit` ∈ {`true`, `false`}
+
+**Boundary note:** invite lifecycle fields are intentionally excluded from Events payloads in this module contract.
 
 ---
 

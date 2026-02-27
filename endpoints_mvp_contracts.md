@@ -11,8 +11,8 @@
 - All responses include `tenant_id` when the request is tenant-scoped.
 - IDs are stable string IDs (Mongo ObjectId as string).
 - Date/times are ISO 8601 (`YYYY-MM-DDTHH:mm:ssZ`).
-- Home composition is client-side only. There is **no** aggregated `/home-overview` endpoint; use independent requests (e.g., `/invites`, `/agenda` with `confirmed_only=true` for confirmed events, `/account_profiles/discovery`, `/missions`, `/discover/people`, `/discover/curator-content`, `/map/pois`).
-- Event list queries **must** treat “happening now” as part of the “upcoming” bucket. This applies to any list surfaced as “upcoming” or “my events” (confirmed).
+- Home composition is client-side only. There is **no** aggregated `/home-overview` endpoint; use independent requests (e.g., `/invites`, `/agenda`, `/account_profiles/discovery`, `/missions`, `/discover/people`, `/discover/curator-content`, `/map/pois`).
+- Event list queries **must** treat “happening now” as part of the “upcoming” bucket.
 - Pagination conventions (MVP): **all lists are page-based**.
   - Request: `page` (int, optional), `page_size` or `per_page` (int, optional).
   - Response: `has_more` (bool) for app feeds, or paginator fields for admin lists.
@@ -419,18 +419,23 @@
 ## 4) Events + Agenda
 
 ### `GET /events/stream` (SSE)
-**Purpose:** Stream event changes for active app filters (SSE).  
-**Request (query):** same filters as `/agenda` (`search`, `categories[]`, `tags[]`, `taxonomy[]`, `confirmed_only`, `origin_lat`, `origin_lng`, `max_distance_meters`).  
+**Purpose:** Stream event occurrence deltas for active app filters (SSE).  
+**Request (query):** filter set aligned with `/agenda` (`search`, `categories[]`, `tags[]`, `taxonomy[]`, `origin_lat`, `origin_lng`, `max_distance_meters`).  
 **Headers (optional):** `Last-Event-ID` to resume from the last received SSE cursor.  
 **Event types:**
-- `event.created` (new event matches filters)
-- `event.updated` (fields changed)
-- `event.deleted` (event removed)
+- `occurrence.created` (new occurrence matches filters)
+- `occurrence.updated` (occurrence data changed)
+- `occurrence.deleted` (occurrence removed, unpublished, or soft-deleted)
 **Payload (minimum):**
 ```json
-{ "event_id": "string", "type": "event.created|event.updated|event.deleted", "updated_at": "2025-01-01T00:00:00Z" }
+{
+  "event_id": "string",
+  "occurrence_id": "string",
+  "type": "occurrence.created|occurrence.updated|occurrence.deleted",
+  "updated_at": "2025-01-01T00:00:00Z"
+}
 ```
-**Resync behavior:** if the client connects without `Last-Event-ID` or the stream reconnects after an error, refresh page 1 from `/agenda` as the source of truth.
+**Resync behavior:** if the client connects without `Last-Event-ID`, or cursor is invalid/stale, refresh page 1 from `/agenda` as source of truth and continue stream from now.
 
 ### `GET /agenda`
 **Purpose:** Paged agenda feed.  
@@ -446,15 +451,13 @@
   "taxonomy": [{ "type": "string", "value": "string" }],
   "origin_lat": 0.0,
   "origin_lng": 0.0,
-  "max_distance_meters": 100000,
-  "confirmed_only": false
+  "max_distance_meters": 100000
 }
 ```
 **Notes (mock behavior):**
 - `past_only=false` returns upcoming events **plus** events happening now.
 - `past_only=true` returns events that started before now **and are not happening now**.
 - "Happening now" means `date_time_start <= now < date_time_end`. If `date_time_end` is missing, assume `date_time_start + 3h`.
-- `confirmed_only=true` returns only events confirmed by the current user (includes “happening now” using the same rule above).
 - Sort order: upcoming/now ascending by `date_time_start`, past descending by `date_time_start`.
 - Search matches `title`, `content`, any `artists[].display_name`, or `venue.display_name` (case-insensitive).
 - Categories filter matches `type.slug` or event categories when available (case-insensitive).
@@ -468,7 +471,8 @@
   "tenant_id": "string",
   "items": [
     {
-      "id": "string",
+      "event_id": "string",
+      "occurrence_id": "string?",
       "slug": "string",
       "type": {
         "id": "string",
@@ -493,39 +497,38 @@
       "thumb": { "type": "image", "data": { "url": "string" } },
       "date_time_start": "2025-01-01T00:00:00Z",
       "date_time_end": "2025-01-01T00:00:00Z?",
+      "occurrences": [
+        {
+          "date_time_start": "2025-01-01T00:00:00Z",
+          "date_time_end": "2025-01-01T00:00:00Z?"
+        }
+      ],
       "artists": [
         { "id": "string", "display_name": "string", "avatar_url": "string?", "highlight": false, "genres": ["string"] }
       ],
-      "is_confirmed": false,
-      "total_confirmed": 0,
-      "received_invites": [
+      "created_by": {
+        "type": "string",
+        "id": "string"
+      },
+      "event_parties": [
         {
-          "id": "string",
-          "event_id": "string",
-          "event_name": "string",
-          "event_date": "2025-01-01T00:00:00Z",
-          "event_image_url": "string",
-          "location": "string",
-          "host_name": "string",
-          "message": "string",
-          "tags": ["string"],
-          "inviter_name": "string?",
-          "inviter_avatar_url": "string?",
-          "additional_inviters": ["string"]
+          "party_type": "string",
+          "party_ref_id": "string",
+          "permissions": { "can_edit": true },
+          "metadata": {}
         }
       ],
-      "sent_invites": [
-        {
-          "friend": { "id": "string", "display_name": "string", "avatar_url": "string?" },
-          "status": "pending|accepted|declined|viewed",
-          "sent_at": "2025-01-01T00:00:00Z",
-          "responded_at": "2025-01-01T00:00:00Z?"
+      "capabilities": {
+        "multiple_occurrences": {
+          "enabled": false,
+          "allow_multiple": false,
+          "max_occurrences": null
         }
-      ],
-      "friends_going": [
-        { "id": "string", "display_name": "string", "avatar_url": "string?" }
-      ],
-      "tags": ["string"]
+      },
+      "tags": ["string"],
+      "taxonomy_terms": [
+        { "type": "string", "value": "string" }
+      ]
     }
   ],
   "has_more": true
@@ -533,7 +536,15 @@
 ```
 **Field Definitions**
 - `thumb.type`: `image`.
-- `sent_invites[].status`: `pending`, `accepted`, `declined`, `viewed`.
+- `event_parties[].permissions.can_edit`: `true|false`.
+
+**Important boundary:** invite lifecycle fields are intentionally absent from Events payloads.  
+Not returned by `/agenda` and `/events/{event_id}`:
+- `received_invites`
+- `sent_invites`
+- `friends_going`
+- `is_confirmed`
+- `total_confirmed`
 
 ### `GET /events/{event_id}`
 **Purpose:** Event detail.  
@@ -542,7 +553,8 @@
 {
   "tenant_id": "string",
   "data": {
-    "id": "string",
+    "event_id": "string",
+    "occurrence_id": null,
     "slug": "string",
     "type": {
       "id": "string",
@@ -567,45 +579,43 @@
     "thumb": { "type": "image", "data": { "url": "string" } },
     "date_time_start": "2025-01-01T00:00:00Z",
     "date_time_end": "2025-01-01T00:00:00Z?",
-    "tags": ["string"],
+    "occurrences": [
+      {
+        "date_time_start": "2025-01-01T00:00:00Z",
+        "date_time_end": "2025-01-01T00:00:00Z?"
+      }
+    ],
     "artists": [
       { "id": "string", "display_name": "string", "avatar_url": "string?", "highlight": false, "genres": ["string"] }
     ],
-    "is_confirmed": false,
-    "total_confirmed": 0,
-    "received_invites": [
+    "created_by": {
+      "type": "string",
+      "id": "string"
+    },
+    "event_parties": [
       {
-        "id": "string",
-        "event_id": "string",
-        "event_name": "string",
-        "event_date": "2025-01-01T00:00:00Z",
-        "event_image_url": "string",
-        "location": "string",
-        "host_name": "string",
-        "message": "string",
-        "tags": ["string"],
-        "inviter_name": "string?",
-        "inviter_avatar_url": "string?",
-        "additional_inviters": ["string"]
+        "party_type": "string",
+        "party_ref_id": "string",
+        "permissions": { "can_edit": true },
+        "metadata": {}
       }
     ],
-    "sent_invites": [
-      {
-        "friend": { "id": "string", "display_name": "string", "avatar_url": "string?" },
-        "status": "pending|accepted|declined|viewed",
-        "sent_at": "2025-01-01T00:00:00Z",
-        "responded_at": "2025-01-01T00:00:00Z?"
+    "capabilities": {
+      "multiple_occurrences": {
+        "enabled": false,
+        "allow_multiple": false,
+        "max_occurrences": null
       }
-    ],
-    "friends_going": [
-      { "id": "string", "display_name": "string", "avatar_url": "string?" }
+    },
+    "tags": ["string"],
+    "taxonomy_terms": [
+      { "type": "string", "value": "string" }
     ]
   }
 }
 ```
 **Field Definitions**
 - `thumb.type`: `image`.
-- `sent_invites[].status`: `pending`, `accepted`, `declined`, `viewed`.
 
 ### `POST /events/{event_id}/check-in`
 **Purpose:** Presence confirmation.  
@@ -1780,15 +1790,47 @@
 **Response:**
 ```json
 {
-  "tenant_id": "string",
   "data": [
     {
       "event_id": "string",
+      "occurrence_id": null,
+      "slug": "string",
       "title": "string",
-      "start_at": "2025-01-01T00:00:00Z",
-      "end_at": "2025-01-01T00:00:00Z",
-      "venue_account_id": "string",
-      "artist_account_ids": ["string"],
+      "content": "string",
+      "type": {
+        "id": "string",
+        "name": "string",
+        "slug": "string",
+        "description": "string?",
+        "icon": "string?",
+        "color": "#RRGGBB?"
+      },
+      "venue_id": "string",
+      "artist_ids": ["string"],
+      "date_time_start": "2025-01-01T00:00:00Z",
+      "date_time_end": "2025-01-01T00:00:00Z?",
+      "occurrences": [
+        { "date_time_start": "2025-01-01T00:00:00Z", "date_time_end": "2025-01-01T00:00:00Z?" }
+      ],
+      "publication": {
+        "status": "published|publish_scheduled|draft|ended",
+        "publish_at": "2025-01-01T00:00:00Z?"
+      },
+      "event_parties": [
+        {
+          "party_type": "string",
+          "party_ref_id": "string",
+          "permissions": { "can_edit": true },
+          "metadata": {}
+        }
+      ],
+      "capabilities": {
+        "multiple_occurrences": {
+          "enabled": false,
+          "allow_multiple": false,
+          "max_occurrences": null
+        }
+      },
       "updated_at": "2025-01-01T00:00:00Z",
       "created_at": "2025-01-01T00:00:00Z"
     }
@@ -1806,23 +1848,58 @@
 ```json
 {
   "title": "string",
-  "start_at": "2025-01-01T00:00:00Z",
-  "end_at": "2025-01-01T00:00:00Z",
-  "venue_account_id": "string",
-  "artist_account_ids": ["string"]
+  "content": "string",
+  "venue_id": "string",
+  "artist_ids": ["string"],
+  "type": {
+    "name": "string",
+    "slug": "string",
+    "description": "string?",
+    "icon": "string?",
+    "color": "#RRGGBB?"
+  },
+  "occurrences": [
+    { "date_time_start": "2025-01-01T00:00:00Z", "date_time_end": "2025-01-01T00:00:00Z?" }
+  ],
+  "publication": {
+    "status": "published|publish_scheduled|draft|ended",
+    "publish_at": "2025-01-01T00:00:00Z?"
+  },
+  "capabilities": {
+    "multiple_occurrences": {
+      "enabled": false
+    }
+  },
+  "event_parties": [
+    {
+      "party_type": "string",
+      "party_ref_id": "string",
+      "permissions": { "can_edit": true },
+      "metadata": {}
+    }
+  ]
 }
 ```
 **Response:**
 ```json
 {
-  "tenant_id": "string",
   "data": {
     "event_id": "string",
+    "occurrence_id": null,
+    "slug": "string",
     "title": "string",
-    "start_at": "2025-01-01T00:00:00Z",
-    "end_at": "2025-01-01T00:00:00Z",
-    "venue_account_id": "string",
-    "artist_account_ids": ["string"],
+    "content": "string",
+    "venue_id": "string",
+    "artist_ids": ["string"],
+    "date_time_start": "2025-01-01T00:00:00Z",
+    "date_time_end": "2025-01-01T00:00:00Z?",
+    "occurrences": [
+      { "date_time_start": "2025-01-01T00:00:00Z", "date_time_end": "2025-01-01T00:00:00Z?" }
+    ],
+    "publication": {
+      "status": "published|publish_scheduled|draft|ended",
+      "publish_at": "2025-01-01T00:00:00Z?"
+    },
     "updated_at": "2025-01-01T00:00:00Z",
     "created_at": "2025-01-01T00:00:00Z"
   }
@@ -1835,19 +1912,33 @@
 **Response:**
 ```json
 {
-  "tenant_id": "string",
   "data": {
     "event_id": "string",
+    "occurrence_id": null,
+    "slug": "string",
     "title": "string",
-    "start_at": "2025-01-01T00:00:00Z",
-    "end_at": "2025-01-01T00:00:00Z",
-    "venue_account_id": "string",
-    "artist_account_ids": ["string"],
+    "content": "string",
+    "venue_id": "string",
+    "artist_ids": ["string"],
+    "date_time_start": "2025-01-01T00:00:00Z",
+    "date_time_end": "2025-01-01T00:00:00Z?",
+    "occurrences": [
+      { "date_time_start": "2025-01-01T00:00:00Z", "date_time_end": "2025-01-01T00:00:00Z?" }
+    ],
+    "publication": {
+      "status": "published|publish_scheduled|draft|ended",
+      "publish_at": "2025-01-01T00:00:00Z?"
+    },
     "updated_at": "2025-01-01T00:00:00Z",
     "created_at": "2025-01-01T00:00:00Z"
   }
 }
 ```
+
+**Hard rules for write payloads:**
+- `date_time_start` and `date_time_end` are prohibited in write requests.
+- schedule must be sent via `occurrences[]`.
+- invite lifecycle fields are not part of Events payload contract.
 
 ### `POST /branding/update`
 **Purpose:** Update tenant About/logo/icon/colors.  

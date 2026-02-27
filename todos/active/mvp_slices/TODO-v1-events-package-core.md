@@ -39,8 +39,9 @@
 ## D) Program Definition of Done
 - [x] ✅ Production‑Ready Phase 1 complete and stable in production behavior.
 - [x] ✅ Production‑Ready Phase 2 complete with package internals decoupled from app-layer implementation details.
-- [ ] ⚪ Phase 3 complete with hardening/performance/observability improvements.
-- [ ] ⚪ Foundation docs + roadmap + endpoint contracts synchronized with final architecture.
+- [x] ✅ Production‑Ready Phase 3 hardening/performance/observability foundation (non-capability block) is complete and validated.
+- [ ] ⚪ Final capability block complete (inventory, qr_checkin, combo, limits, participant/student binding, pricing fees) with integration validation.
+- [x] ✅ Production‑Ready Foundation docs + roadmap + endpoint contracts synchronized with final non-capability architecture.
 
 ---
 
@@ -48,7 +49,7 @@
 - Phase 2 decisions (resolved) are tracked in:
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-2.md` (`D2-01` to `D2-05`).
 - Phase 3 decisions are tracked in:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md` (`D3-01` to `D3-16`).
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md` (`D3-01` to `D3-23`).
 
 ---
 

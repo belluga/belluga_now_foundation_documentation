@@ -23,7 +23,7 @@
 
 ## Standards/Exception Reference (Locked)
 - Settings kernel authoritative contract:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-settings-kernel-package.md`
+  - `foundation_documentation/todos/completed/TODO-v1-settings-kernel-package.md`
 - PATCH payload/clear semantics baseline (already converged):
   - direct payload
   - omitted keys unchanged
