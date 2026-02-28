@@ -41,7 +41,7 @@
 - [x] ✅ Production‑Ready Phase 2 complete with package internals decoupled from app-layer implementation details.
 - [x] ✅ Production‑Ready Phase 3 hardening/performance/observability foundation (non-capability block) is complete and validated.
 - [x] ✅ Production‑Ready Core location cutover complete (`location` + typed `place_ref`) as pre-capability gate.
-- [ ] ⚪ Final capability block complete (limits, pricing_fees, inventory, map_poi, qr_checkin, combo, participant/student binding) with integration validation.
+- [ ] ⚪ Final block complete (`map_poi` capability in Events + ticket-domain delivery via dedicated ticketing package integration) with integration validation.
 - [x] ✅ Production‑Ready Foundation docs + roadmap + endpoint contracts synchronized with final non-capability architecture.
 
 ---

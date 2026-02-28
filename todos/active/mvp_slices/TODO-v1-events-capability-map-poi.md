@@ -21,6 +21,7 @@
 - Frontend map rendering/UX changes.
 - Generic geospatial recommendation engine.
 - Non-events POI domains.
+- Ticket-domain implementation (tracked in `TODO-v1-ticketing-package-integration.md`).
 
 ---
 

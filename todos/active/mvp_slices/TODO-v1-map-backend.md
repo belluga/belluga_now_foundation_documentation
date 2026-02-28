@@ -25,7 +25,7 @@
 
 ## Out of Scope
 - Flutter map integration changes (handled in `TODO-v1-map-frontend.md`).
-- Ticketing/event capability implementation (belongs to Events Phase 3 stream).
+- Ticketing package implementation (tracked in `TODO-v1-ticketing-package-integration.md`).
 - New map product features not required for package extraction/hardening.
 
 ---

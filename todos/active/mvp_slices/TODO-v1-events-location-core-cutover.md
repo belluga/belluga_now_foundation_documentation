@@ -19,7 +19,7 @@
 ---
 
 ## Out of Scope
-- Concrete capability implementation (`limits`, `pricing_fees`, `inventory`, `map_poi`, `qr_checkin`, `combo`, `participant_student_binding`).
+- Final-block implementation streams after core cutover (`map_poi` capability in Events and ticket-domain package integration).
 - Frontend form/UX contract changes.
 - External map/recommendation engines beyond current POI projection boundaries.
 

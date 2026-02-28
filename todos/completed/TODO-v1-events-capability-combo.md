@@ -1,9 +1,12 @@
 # TODO (V1): Events Capability - Combo
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Active
+**Status:** Superseded (migrated to ticketing package stream)
 **Owners:** Backend Team
 **Objective:** Deliver the `combo` capability to support bundled items/rules in events with strict capability governance and occurrence-aware constraints.
+
+**Superseded by:** `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-package-integration.md`
+**Reason:** Ticket-domain concerns were moved from Events capabilities to a dedicated package integration stream.
 
 ---
 

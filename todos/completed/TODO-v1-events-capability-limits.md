@@ -1,9 +1,12 @@
 # TODO (V1): Events Capability - Limits
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Active
+**Status:** Superseded (migrated to ticketing package stream)
 **Owners:** Backend Team
 **Objective:** Deliver the `limits` capability to enforce quantity and eligibility constraints with occurrence-first semantics and deterministic runtime behavior.
+
+**Superseded by:** `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-package-integration.md`
+**Reason:** Ticket-domain concerns were moved from Events capabilities to a dedicated package integration stream.
 
 ---
 
