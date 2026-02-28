@@ -3,7 +3,7 @@
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
 **Status:** Active
 **Owners:** Backend Team
-**Objective:** Establish ticketing as a dedicated Laravel package integrated with Events, with occurrence-first ticket ownership (`occurrence_id`) and template-driven event creation presets, keeping Events focused on core event lifecycle and `map_poi` capability only.
+**Objective:** Establish ticketing as a dedicated Laravel package integrated with Events, with occurrence-first ticket ownership (`occurrence_id`), template-driven event creation presets, and optional assigned-seating support through provider-agnostic contracts, keeping Events focused on core event lifecycle and `map_poi` capability only.
 
 ---
 
@@ -23,6 +23,7 @@
 - Define package contracts/adapters between `belluga_events` and `belluga_ticketing`.
 - Keep settings-driven behavior via settings kernel contracts (`tenant` and, if needed, `landlord`) without direct persistence coupling.
 - Ensure tenant-scoped migrations/indexes remain compatible with Spatie multitenancy execution flow.
+- Plan assigned seating (`seat marking`) as ticketing capability with provider abstraction (seats.io adapter as one implementation, not core coupling).
 
 ---
 
@@ -42,17 +43,118 @@
 
 ---
 
-## Pending Decisions (To Iterate)
-- [ ] ⚪ `TKT-01` Canonical package boundary and bootstrap strategy (`belluga_ticketing` ownership and service-provider wiring).
-- [ ] ⚪ `TKT-02` Canonical ticket aggregate model and mandatory identity keys (`event_id`, `occurrence_id`, ticket identity).
-- [ ] ⚪ `TKT-03` Settings namespace strategy for ticketing (single namespace vs split by concern).
+## Capability TODO References (Canonical)
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-capability-map-poi.md` (Events-owned capability stream).
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-package-integration.md` (this master integration TODO).
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-capability-seating.md` (assigned seating / seat-map capability, provider-agnostic).
+
+---
+
+## Market Benchmark Inputs (Design Reference)
+- `seats.io` (https://docs.seats.io/docs/api/hold-tokens/, https://docs.seats.io/docs/api/change-object-status-in-batch/):
+  - hold-token lifecycle and temporary reservation window semantics.
+  - seat object state transitions (`free -> reservedByToken -> booked`) and explicit hold token on confirm/release paths.
+  - batch status changes with all-or-nothing transaction semantics across objects/events.
+- `pretix` (https://docs.pretix.eu/en/latest/user/events/quotas.html):
+  - quota-first inventory model with occurrence (`subevent`) scope.
+  - waiting-list mechanics integrated with quota/availability restoration.
+  - explicit warning that near-real-time availability can be stale for critical operations (do not trust read counters for final allocation decisions).
+- `Stripe` (https://docs.stripe.com/api/idempotent_requests, https://docs.stripe.com/webhooks, https://docs.stripe.com/webhooks/process-undelivered-events):
+  - strict idempotency key discipline for mutating requests.
+  - webhook retries with exponential backoff and no ordering guarantee.
+  - reconciliation pattern via list/replay of undelivered events.
+- `Attendize` (open-source baseline: https://github.com/Attendize/Attendize):
+  - practical feature baseline for event/ticket lifecycle (`discounts`, `service charges`, `refunds`, `waiting lists`, `multiple ticket types`, API integrations), useful as parity checklist.
+- `lara-reserve` (open-source reservation component: https://github.com/shayan-yousefi/lara-reserve):
+  - trait-based reservation model with max-reservation guardrails and clean reservation API surface, useful as small-scale reservation abstraction reference.
+  - identified gap for our domain: no native queue/hold orchestration for high-contention oversell prevention, so our engine must remain stronger than this baseline.
+
+Design consequence for this package: keep ticketing core provider-neutral, treat external providers as adapters, and enforce capacity/payment correctness through our own transactional invariants and idempotent state machine.
+
+---
+
+## Pending Decisions (Proposed Here, Pending Validation)
+Decision protocol for this planning cycle:
+- Every item marked `🟡 Provisional` already has a concrete proposed decision.
+- Implementation may start only after explicit validation of each provisional decision in audit loop.
+
+- [ ] 🟡 Provisional `TKT-01` Canonical package boundary and bootstrap strategy (`belluga_ticketing` ownership and service-provider wiring).
+  - Proposed decision:
+    - `belluga_ticketing` is the sole owner of ticket domain aggregates and write flows.
+    - Host app only wires adapters (settings scope resolution, account context, auth principal context, optional payment adapter, optional seating adapter).
+    - Integration contracts exposed by ticketing:
+      - `OccurrenceReadContract` (event/occurrence validation and lifecycle visibility).
+      - `OccurrencePublicationContract` (publish-state checks used in sellability rules).
+      - `EventTemplateReadContract` (template resolution metadata).
+  - Validation gate:
+    - No ticketing aggregate persistence classes in `belluga_events`.
+    - No direct dependency from ticketing core to host-app models.
+- [ ] 🟡 Provisional `TKT-02` Canonical ticket aggregate model and mandatory identity keys (`event_id`, `occurrence_id`, ticket identity).
+  - Proposed decision:
+    - Runtime keys:
+      - `event_id` (parent reference, read/reporting).
+      - `occurrence_id` (mandatory operational scope).
+      - `ticket_product_id` (sellable definition inside occurrence).
+      - `ticket_order_id` + `ticket_order_item_id` (purchase boundary).
+      - `ticket_unit_id` (issued entitlement/check-in identity).
+    - Optional seat binding key:
+      - `seat_assignment_ref` (`provider`, `provider_event_key`, `provider_object_id`, `label_snapshot`).
+  - Validation gate:
+    - Every mutable API contract for inventory/hold/checkout/check-in requires `occurrence_id`.
+    - No operation accepts only `event_id` for runtime mutation.
+- [ ] 🟡 Provisional `TKT-03` Settings namespace strategy for ticketing (single namespace vs split by concern).
+  - Proposed decision: split namespace by concern under a stable `ticketing.*` tree.
+    - `ticketing.core` (enablement, defaults).
+    - `ticketing.hold_queue` (timeouts, queue policy).
+    - `ticketing.checkout` (mode, provider routing, guarded when paid unavailable).
+    - `ticketing.checkin` (idempotency/checkpoint policy).
+    - `ticketing.seating` (seat capability toggles/provider settings).
+  - Validation gate:
+    - Schema endpoint returns these namespaces with explicit field metadata and defaults.
+    - Partial patch behavior follows settings kernel contract without custom divergence.
 - [x] ✅ Production‑Ready `TKT-04` Integration/governance contract between Events and Ticketing.
   - Rule: package integration is contract-based (`Events <-> Ticketing`), not modeled as an Events capability.
   - Rule: tenant availability/event enablement is enforced by integration contracts and ticketing settings, not by a dedicated “integration capability”.
-- [ ] ⚪ `TKT-05` Concurrency/atomicity strategy for inventory, limits, and combo under high-write scenarios.
-- [ ] ⚪ `TKT-06` Check-in idempotency and audit contract (token/proof model and replay safety).
-- [ ] ⚪ `TKT-07` Migration/index plan per ticketing concern with tenant-scoped execution guarantees.
-- [ ] ⚪ `TKT-08` Historical traceability policy for superseded Events capability TODOs.
+- [ ] 🟡 Provisional `TKT-05` Concurrency/atomicity strategy for inventory, limits, and combo under high-write scenarios.
+  - Proposed decision:
+    - Capacity-changing flows are transaction-mandatory (`TX-01..TX-05`).
+    - Allocation uses conditional atomic updates (`remaining >= requested`) inside transaction.
+    - Reservation rows carry unique idempotency keys and unique constraints to prevent double-consume.
+    - Outbox pattern for side effects (notifications/telemetry) after commit.
+  - Validation gate:
+    - Concurrency tests demonstrate no oversell under high contention.
+    - Forced mid-transaction failures rollback counters and reservations.
+- [ ] 🟡 Provisional `TKT-06` Check-in idempotency and audit contract (token/proof model and replay safety).
+  - Proposed decision:
+    - Check-in command requires `ticket_unit_id` + `checkpoint_ref` + idempotency key.
+    - Unique constraint on (`ticket_unit_id`, `checkpoint_ref`, `action_key`) for replay safety.
+    - Append-only check-in audit log captures actor, channel, timestamp, and source payload hash.
+  - Validation gate:
+    - Replayed check-in returns stable prior result without duplicate presence increments.
+    - Audit log remains append-only under retries and network retries.
+- [ ] 🟡 Provisional `TKT-07` Migration/index plan per ticketing concern with tenant-scoped execution guarantees.
+  - Proposed decision:
+    - Tenant collections:
+      - `ticket_products`
+      - `ticket_inventory_states`
+      - `ticket_holds`
+      - `ticket_queue_entries`
+      - `ticket_orders`
+      - `ticket_order_items`
+      - `ticket_units`
+      - `ticket_checkin_logs`
+      - `ticket_seat_assignments` (created only when seating capability is enabled).
+    - Indexes prioritize occurrence-first hot paths (`occurrence_id`, status, expiry timestamps, idempotency keys).
+  - Validation gate:
+    - Migration execution passes in tenant context via Spatie tenant migrator.
+    - Query plans for hold queue and inventory allocation use intended indexes.
+- [ ] 🟡 Provisional `TKT-08` Historical traceability policy for superseded Events capability TODOs.
+  - Proposed decision:
+    - Keep superseded capability TODOs archived with explicit `superseded_by` pointer to this master TODO.
+    - Each archived TODO must include closure note with decision ID cross-reference (`TKT-*`).
+  - Validation gate:
+    - No orphaned capability TODO remains in active list for ticket-domain scope.
+    - Audit review can trace each migrated concern from old TODO -> new package decision.
 - [x] ✅ Production‑Ready `TKT-09` Integration mechanism is hybrid.
   - Synchronous path: direct contract checks for hard guardrails (must block invalid writes immediately).
   - Asynchronous path: domain events/jobs for projection/reconciliation side effects.
@@ -84,26 +186,108 @@
   - Decided mode: reserve inventory on purchase (allocation antecipada).
   - Rule: selling a passport immediately allocates/reserves capacity for covered occurrences according to configured passport policy.
   - Rule: purchase must fail atomically when required occurrence capacities cannot be reserved.
-- [ ] ⚪ `TKT-17` Payments boundary strategy: embed payment integration inside ticketing vs dedicated `payments` package with contracts.
-- [ ] ⚪ `TKT-18` Payment provider strategy for V1: single PSP adapter first vs pluggable multi-provider from day one.
-- [ ] ⚪ `TKT-19` Financial snapshot contract at purchase time (`gross`, `fees`, `buyer_total`, `merchant_net`, `currency`, policy version).
-- [ ] ⚪ `TKT-20` Fee policy model: `absorbed|pass_through|mixed` and override hierarchy (system default, tenant default, template override, runtime lock).
-- [ ] ⚪ `TKT-21` Reservation/authorization flow with payments:
-  - reserve inventory before payment authorization vs after authorization
-  - timeout/release policy for unpaid reservations
-  - atomicity guarantees across reservation + payment status transitions.
-- [ ] ⚪ `TKT-22` Webhook and idempotency model:
-  - canonical event set (`authorized|captured|failed|canceled|refunded|chargeback`)
-  - idempotency keys and replay handling
-  - source-of-truth precedence between synchronous response and webhook.
-- [ ] ⚪ `TKT-23` Refund/cancel policy and side effects:
-  - full vs partial refund
-  - inventory return policy
-  - check-in reversal constraints and audit behavior.
-- [ ] ⚪ `TKT-24` Settlement and reconciliation model:
-  - asynchronous reconciliation cadence
-  - mismatch handling
-  - operational alerting thresholds.
+- [ ] 🟡 Provisional `TKT-17` Payments boundary strategy: embed payment integration inside ticketing vs dedicated `payments` package with contracts.
+  - Proposed decision:
+    - Ticketing does not embed PSP SDK logic in core.
+    - Ticketing integrates via `CheckoutOrchestratorContract` adapter, targeting ecosystem checkout/payments product as default path.
+    - Ticketing owns commerce intent/order state; provider owns authorization/capture mechanics.
+  - Validation gate:
+    - Ticketing core remains PSP-agnostic.
+    - Paid path can be enabled by adapter binding only (without core refactor).
+- [ ] 🟡 Provisional `TKT-18` Payment provider strategy for V1: single PSP adapter first vs pluggable multi-provider from day one.
+  - Proposed decision:
+    - Keep provider interface pluggable from day one, but activate only one orchestrator binding per tenant/account route.
+    - V1 delivery remains `free` mode operational; `paid` mode contract is frozen and guarded.
+  - Validation gate:
+    - `paid` mode requests return deterministic “integration unavailable” until orchestrator is bound and enabled.
+    - No hardcoded provider assumptions in ticketing domain layer.
+- [ ] 🟡 Provisional `TKT-19` Financial snapshot contract at purchase time (`gross`, `fees`, `buyer_total`, `merchant_net`, `currency`, policy version).
+  - Proposed decision:
+    - On purchase confirmation, persist immutable `financial_snapshot`:
+      - `currency`, `gross_amount`, `fee_amount`, `buyer_total`, `merchant_net`, `fee_policy_mode`, `fee_policy_version`, `pricing_version`.
+    - Snapshot is immutable post-confirmation; adjustments are append-only compensations.
+  - Validation gate:
+    - Snapshot remains stable across retries/webhook replays.
+    - Reconciliation can compute expected totals solely from persisted snapshots.
+- [ ] 🟡 Provisional `TKT-20` Fee policy model: `absorbed|pass_through|mixed` and override hierarchy (system default, tenant default, template override, runtime lock).
+  - Proposed decision:
+    - Canonical modes: `absorbed`, `pass_through`, `mixed`.
+    - Precedence:
+      - `system_default -> tenant_default -> template_override -> runtime_locked_snapshot`.
+    - Once order enters confirmation phase, policy is locked into snapshot.
+  - Validation gate:
+    - Changing tenant/template defaults does not mutate existing confirmed orders.
+    - Runtime lock is enforced before payment orchestration starts.
+- [ ] 🟡 Provisional `TKT-21` Reservation/authorization flow with payments.
+  - Proposed decision:
+    - Reserve inventory first (hold), then request payment authorization for paid flows.
+    - Confirm purchase only after success signal (sync or webhook-confirmed, per provider contract).
+    - On timeout/failure, reservation auto-releases and queue advances.
+    - Free flow uses same reservation pipeline without payment orchestration step.
+  - Validation gate:
+    - No confirmed order exists without prior successful reservation.
+    - No reservation leak after failed/expired payment attempt.
+- [ ] 🟡 Provisional `TKT-22` Webhook and idempotency model.
+  - Proposed decision:
+    - Canonical provider events mapped into internal state machine:
+      - `authorized`, `captured`, `failed`, `canceled`, `refunded`, `chargeback`.
+    - Idempotency:
+      - unique `provider_event_id` + provider source + order key.
+      - replay-safe processors with upsert/ignore semantics.
+    - Source-of-truth:
+      - webhook-final model for paid settlement states.
+      - synchronous response may create provisional state only.
+  - Validation gate:
+    - Out-of-order webhook delivery does not corrupt final order state.
+    - Replay of same provider event is no-op.
+- [ ] 🟡 Provisional `TKT-23` Refund/cancel policy and side effects.
+  - Proposed decision:
+    - Free mode:
+      - cancel releases capacity according to event policy/cutoff.
+    - Paid mode (planned):
+      - support full and partial refund paths via provider adapter.
+      - inventory return policy is explicit per ticket product (returnable vs non-returnable window).
+    - Check-in reversal:
+      - never implicit; requires explicit admin flow with audit reason.
+  - Validation gate:
+    - Refund/cancel flows preserve capacity and financial audit consistency.
+    - Check-in reversal always leaves immutable audit trace.
+- [ ] 🟡 Provisional `TKT-24` Settlement and reconciliation model.
+  - Proposed decision:
+    - Scheduled reconciliation job compares internal paid state vs provider settlements.
+    - Cadence:
+      - high-frequency recent window + daily deep scan.
+    - Mismatch policy:
+      - classify (`missing_capture`, `amount_mismatch`, `late_refund`, `orphan_event`) and alert by severity.
+  - Validation gate:
+    - Reconciliation report is reproducible from persisted snapshots and provider event log.
+    - Alert thresholds and runbooks exist for critical mismatch classes.
+- [ ] 🟡 Provisional `TKT-35` Assigned seating capability boundary and provider abstraction.
+  - Proposed decision:
+    - Assigned seating is a Ticketing capability (`ticketing.seating`), optional per occurrence.
+    - Ticketing defines provider-neutral contracts:
+      - `SeatMapProviderContract`
+      - `SeatHoldContract`
+      - `SeatCommitContract`
+    - `seats.io` is one adapter implementation, not a domain dependency.
+  - Validation gate:
+    - Disabling seating capability keeps GA flows unaffected.
+    - Switching adapter binding does not require domain-model changes.
+- [ ] 🟡 Provisional `TKT-36` Seating scope model (event vs occurrence).
+  - Proposed decision:
+    - Seat map binding is occurrence-scoped.
+    - Event may define optional seating template defaults, but effective seat inventory is resolved per occurrence.
+  - Validation gate:
+    - Distinct occurrences of the same event may have different seat maps/configs.
+    - No seat assignment operation runs without `occurrence_id`.
+- [ ] 🟡 Provisional `TKT-37` Hold synchronization between internal reservation engine and seat provider.
+  - Proposed decision:
+    - Internal hold/queue engine remains source-of-truth for sellability.
+    - Provider hold token/status is synchronized through adapter and persisted as external reference.
+    - Commit path confirms both internal reservation and external seat lock before final order confirmation.
+  - Validation gate:
+    - Drift detector identifies orphan external holds and reconciles safely.
+    - Capacity invariants remain preserved even on provider timeout/errors.
 - [x] ✅ Production‑Ready `TKT-25` Monetization modes for ticketing.
   - Canonical modes for V1 contract: `free|paid`.
   - `free` does not require checkout/payment authorization.
@@ -158,6 +342,8 @@
 ---
 
 ## Tasks
+- [ ] ⚪ Keep this file as the master ticketing integration contract and execute capability workstreams through dedicated capability TODOs.
+- [ ] ⚪ Execute capability TODOs from simpler to more complex concerns (`templates/defaults -> hold/queue/inventory -> bundles/passport -> checkin -> seating -> paid checkout`).
 - [ ] ⚪ Create package skeleton (`belluga_ticketing`) and composer wiring.
 - [ ] ⚪ Define contracts/adapters for Events <-> Ticketing integration.
 - [ ] ⚪ Implement synchronous guard contracts for write-time invariants between Events and Ticketing.
@@ -185,12 +371,16 @@
 - [ ] ⚪ Implement participant/student binding inside ticketing package.
 - [ ] ⚪ Enforce explicit boundary so attendee/student binding never reuses Events `event_parties` structures.
 - [ ] ⚪ Implement ticket limits/quotas inside ticketing package.
+- [ ] ⚪ Execute seating capability stream via `TODO-v1-ticketing-capability-seating.md` and merge back into this master TODO closure gates.
 - [ ] ⚪ Register ticketing settings schemas/values through settings kernel.
 - [ ] ⚪ Add optional `ticketing_enabled` settings toggle and enforce it in integration entrypoints.
 - [ ] ⚪ Add account-level checkout linkage schema/contracts (IDs/config references) with secure adapter boundary.
 - [ ] ⚪ Add tenant setting for hold-window default duration and event-level override contract.
 - [ ] ⚪ Implement `free` mode end-to-end flow as the only active monetization mode in this slice.
 - [ ] ⚪ Implement fail-fast behavior for `paid` mode while integration is deferred.
+- [ ] ⚪ Implement payment boundary contracts (`CheckoutOrchestratorContract`) without PSP coupling in ticketing core.
+- [ ] ⚪ Implement immutable financial snapshot persistence on purchase confirmation.
+- [ ] ⚪ Implement webhook idempotency processor and reconciliation jobs for paid path activation.
 - [ ] ⚪ Add tenant-scoped migrations/indexes required by ticketing runtime paths.
 - [ ] ⚪ Add/expand tests (unit + feature) for ticketing behavior and Events integration boundaries.
 - [ ] ⚪ Add tests validating strict separation (`event_parties` != attendee/student binding contracts).
@@ -200,6 +390,7 @@
 ---
 
 ## Validation Steps
+- [ ] ⚪ Decision adherence audit 1:1 for all `TKT-*` and `TX-*` entries before implementation closure.
 - [ ] ⚪ `php artisan test` (full Laravel suite; mandatory).
 - [ ] ⚪ `php artisan test tests/Feature/Events/EventCrudControllerTest.php`.
 - [ ] ⚪ Ticketing package feature tests for create/update/allocation/check-in flows.
@@ -219,6 +410,7 @@
 - [ ] ⚪ Template flow tests for creation from template with hidden/predefined fields applied server-side.
 - [ ] ⚪ Security tests ensuring hidden template fields cannot be overridden by regular client payload.
 - [ ] ⚪ Tests for field-state matrix (`enabled|disabled|hidden`) and default precedence behavior.
+- [ ] ⚪ Seating capability validation suite (`SEAT-*`) from `TODO-v1-ticketing-capability-seating.md`.
 - [ ] ⚪ Tenant-scoped migration/index validation for ticketing collections.
 
 ---
@@ -242,8 +434,10 @@
 - [ ] ⚪ Queue threshold policy is enforced with deterministic boundary behavior (`on_hold == available` queues).
 - [ ] ⚪ Free-mode path enforces hold/queue/anti-oversell invariants with no reservation bypass.
 - [ ] ⚪ Participant scopes remain explicit and separated: Events parties vs Ticketing attendee/student binding.
+- [ ] ⚪ Seating capability is delivered (or explicitly deferred with reason) through dedicated capability TODO and linked closure evidence.
 - [ ] ⚪ Transaction matrix is explicit and complete (`TX-01..TX-06`) with no implicit/generic critical-flow gaps.
 - [ ] ⚪ All flows marked `transaction_required = yes` are transaction-safe and fail fast when unsupported.
+- [ ] ⚪ Every `🟡 Provisional` decision is explicitly validated and promoted (or revised with rationale) before closure.
 - [ ] ⚪ Documentation is synchronized and legacy capability TODOs are archived with traceability.
 
 ---
@@ -314,3 +508,4 @@
 - `TKT-32`: Decided. Transaction requirements must be explicit per critical flow (matrix gate).
   - No critical flow can remain unspecified regarding transaction requirement.
   - `transaction_required = yes` implies mandatory transactional path + fail-fast without support.
+- `TKT-01/02/03/05/06/07/08/17/18/19/20/21/22/23/24/35/36/37`: Proposed in this planning cycle as explicit `🟡 Provisional` decisions pending validation.
