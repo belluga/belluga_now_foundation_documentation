@@ -15,8 +15,8 @@
 ---
 
 ## A) Phase Split (Canonical)
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-1.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-2.md`
+- `foundation_documentation/todos/completed/TODO-v1-events-package-phase-1.md`
+- `foundation_documentation/todos/completed/TODO-v1-events-package-phase-2.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md`
 
 ---
@@ -48,7 +48,7 @@
 
 ## E) Decision Registry (Cross-Reference)
 - Phase 2 decisions (resolved) are tracked in:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-2.md` (`D2-01` to `D2-05`).
+  - `foundation_documentation/todos/completed/TODO-v1-events-package-phase-2.md` (`D2-01` to `D2-05`).
 - Phase 3 decisions are tracked in:
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md` (`D3-01` to `D3-26`).
 
@@ -77,7 +77,7 @@
 
 ## G) Exception Register (Approved Deviations)
 - `EX-01` (Phase 2): runtime model remains Event-only (no first-class `EventOccurrence` aggregate yet).
-  - Source: `D2-02` in `TODO-v1-events-package-phase-2.md`.
+  - Source: `D2-02` in `foundation_documentation/todos/completed/TODO-v1-events-package-phase-2.md`.
 - `EX-02` (Phase 3): no backward-compatibility bridge; clients must adopt occurrence-first contracts.
   - Source: `D3-05` in `TODO-v1-events-package-phase-3.md`.
 - `EX-03` (Phase 3): publication source-of-truth is Event-level; occurrence publication flags are mirrored/derived for query performance.

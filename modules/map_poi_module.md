@@ -4,6 +4,15 @@
 
 This document outlines the architecture and data synchronization strategy for the Map and Points of Interest (POI) module. The module is responsible for displaying an interactive map to the user, populated with various points of interest such as restaurants, beaches, attractions, and time-sensitive events.
 
+### 1.1 Canonical Anchors
+
+- Events canonical module/contract:
+  - `foundation_documentation/modules/events_module.md`
+  - `laravel-app/packages/belluga/belluga_events/README.md`
+- Tactical delivery references:
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-backend.md`
+  - `foundation_documentation/todos/completed/TODO-v1-events-capability-map-poi.md`
+
 ## 2. Current Prototype Implementation
 
 The initial prototype uses a mocked data layer that simulates fetching POIs from a hardcoded list. This is being actively refactored to support a high-fidelity mock of the final architecture.
@@ -86,7 +95,7 @@ This architecture requires a REST API for on-demand queries and an SSE API for r
     "route": { "name": "poi_detail", "params": ["slug"] }
   }
   ```
-- **Lookup Flow:** Pipelines are only used upstream to produce/update normalized POI documents. Reads (agenda, map, event detail) never run pipelines; they fetch the normalized POI by `slug/id`. Events carry `venue_id` referencing that normalized POI. Route resolution uses `type` + `slug` → route map (e.g., `poi/*` → POI detail; `event` → event detail).
+- **Lookup Flow:** Pipelines are only used upstream to produce/update normalized POI documents. Reads (agenda, map, event detail) never run pipelines; they fetch the normalized POI by `slug/id`. Events carry `place_ref` (`{type,id}`) and POI lookup must use that typed reference (commonly `type=venue`). Route resolution uses `type` + `slug` → route map (e.g., `poi/*` → POI detail; `event` → event detail).
 
 ### 3.5 Custom Objects & Taxonomies
 - **Custom Object Types:** `poi`, `event`, `artist`. All share the normalized shape `{ id, slug, type }` for routing and linking; slug is the primary navigation key.

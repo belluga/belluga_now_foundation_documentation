@@ -8,6 +8,15 @@
 
 The Agenda & Action Planner module (MOD-303) tracks every upcoming experience, booking, and social action for tenant app users. It consolidates offers claimed from Map, invites accepted from the social loop, and booking/payment lifecycle events into a chronological stream delivered by `/api/v1/agenda`. Dedicated follow-up tasks and reminder payloads are authored by the Task & Reminder module and surface here only as read-only references when they represent a dated commitment.
 
+### 1.1 Canonical Anchors
+
+- Events canonical decisions/runtime contract:
+  - `foundation_documentation/modules/events_module.md`
+  - `laravel-app/packages/belluga/belluga_events/README.md`
+- Tactical delivery references:
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-and-agenda-frontend.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-core.md`
+
 ---
 
 ## 2. Architectural Tenets
@@ -74,7 +83,7 @@ Stores every user action triggered from an agenda card for observability and com
 
 ## 3.4 Client Event Payload (Agenda API)
 Agenda surfaces events as a paged list; Flutter consumes this shape for cards and chips.
-Event geo is derived from the venue Account Profile location; events do not carry a standalone `location` string.
+Events use canonical `location` + `place_ref`; venue projection is resolved from `place_ref` when `place_ref.type=venue`.
 
 **Request (paged list)**
 - Query: `page` (int), `page_size` (int), `past_only` (bool), `search` (string), `categories[]`, `tags[]`, `taxonomy[]`, `origin_lat`, `origin_lng`, `max_distance_meters`.
@@ -97,6 +106,16 @@ Event geo is derived from the venue Account Profile location; events do not carr
       },
       "title": "string",
       "content": "string",
+      "location": {
+        "mode": "physical|online|hybrid",
+        "geo": { "type": "Point", "coordinates": [0.0, 0.0] },
+        "online": { "provider": "string", "url": "string?" }
+      },
+      "place_ref": {
+        "type": "string",
+        "id": "string",
+        "metadata": {}
+      },
       "venue": {
         "id": "string",
         "display_name": "string",
@@ -150,6 +169,7 @@ Event geo is derived from the venue Account Profile location; events do not carr
 
 ### Field Definitions
 - `thumb.type` ∈ {`image`}
+- `location.mode` ∈ {`physical`, `online`, `hybrid`}
 - `event_parties[].permissions.can_edit` ∈ {`true`, `false`}
 
 **Boundary note:** invite lifecycle fields are intentionally excluded from Events payloads in this module contract.

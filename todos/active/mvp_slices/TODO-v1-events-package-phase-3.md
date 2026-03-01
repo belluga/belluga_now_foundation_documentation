@@ -35,7 +35,7 @@
 ---
 
 ## Pre-Capability Core Gate (Canonical)
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-location-core-cutover.md`
+- `foundation_documentation/todos/completed/TODO-v1-events-location-core-cutover.md`
   - Rule: complete this core location cutover before executing Block 2 capability TODOs.
   - Status: ✅ Completed (LOC-05/06/07 delivered; tests and full suite green).
 
@@ -325,7 +325,7 @@
   - Contract rule: event writes adopt canonical `location` + typed `place_ref`; legacy `venue_id` is removed.
   - Mode rule: `location.mode` supports `physical|online|hybrid` with mode-specific required fields.
   - Query rule: geo filters include only events with valid geographic basis; online-only regional projection is handled by `map_poi.discovery_scope`.
-  - Traceability: execution contract is tracked in `TODO-v1-events-location-core-cutover.md`.
+  - Traceability: execution contract is tracked in `foundation_documentation/todos/completed/TODO-v1-events-location-core-cutover.md`.
 - `D3-25`: Decided. Final-block package boundary split.
   - Keep `map_poi` in Events as a native capability.
   - Move ticket-domain implementation to dedicated package stream (`TODO-v1-ticketing-package-integration.md`).

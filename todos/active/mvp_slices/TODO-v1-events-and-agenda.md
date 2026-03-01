@@ -15,8 +15,8 @@
 
 ## Events Package Program (New)
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-core.md` (**Core program tracking**)
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-1.md` (**Phase 1: migrate to package with controlled dependencies**)
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-2.md` (**Phase 2: true decoupling via contracts/adapters/events**)
+- `foundation_documentation/todos/completed/TODO-v1-events-package-phase-1.md` (**Phase 1: migrate to package with controlled dependencies**)
+- `foundation_documentation/todos/completed/TODO-v1-events-package-phase-2.md` (**Phase 2: true decoupling via contracts/adapters/events**)
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md` (**Phase 3: hardening/improvements**)
 
 ---

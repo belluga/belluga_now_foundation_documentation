@@ -10,6 +10,7 @@
 ## References
 - `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-backend.md`
 - `foundation_documentation/endpoints_mvp_contracts.md`
+- `foundation_documentation/modules/events_module.md`
 - `foundation_documentation/modules/agenda_and_action_planner_module.md`
 - `foundation_documentation/system_roadmap.md`
 
@@ -17,7 +18,7 @@
 
 ## A) Ownership Boundary (Locked)
 - [x] ✅ Production‑Ready Events owns `/api/v1/agenda`, `/api/v1/events/{event_id|slug}`, `/api/v1/events/stream`, and tenant/admin event CRUD.
-- [x] ✅ Production‑Ready Event location derives from venue Account Profile location (no standalone event location in MVP).
+- [x] ✅ Production‑Ready Event location follows canonical `location` + typed `place_ref`; `venue` is a projection resolved from `place_ref` when applicable.
 - [x] ✅ Production‑Ready Event publication lifecycle is backend-owned (`published|publish_scheduled|draft|ended`).
 - [ ] ⚪ Events must not own invite transaction state; invite data in event payloads is projection/read-only.
 
@@ -34,7 +35,7 @@
 ### B2) Open backend hardening
 - [ ] ⚪ Keep `confirmed_only` semantics aligned with Invite acceptance source-of-truth once Invite backend is fully live.
 - [ ] ⚪ Verify stream filter parity (`taxonomy/categories/tags`) with Flutter query encoding conventions.
-- [ ] ⚪ Keep event CRUD contract docs in sync with actual payload (`venue_id`, `artist_ids`, `date_time_start/end`, `publication`).
+- [ ] ⚪ Keep event CRUD contract docs in sync with actual payload (`location`, `place_ref`, `artist_ids`, `occurrences`, `publication`; `venue_id` remains prohibited).
 
 ---
 
