@@ -9,6 +9,21 @@
 The Invite & Social Loop module (MOD-302) governs the tenant app virality engine. It manages invite issuance, referral graph analytics, friend resume projections, and gamified progression that feeds both the tenant app and the account profile workspace. The module is built to operate with mocked persistence today while remaining API-compatible with a future backend microservice.
 **MVP scope:** only **Account User** invite issuance is implemented; account-plan quotas/monetization are deferred to post‑MVP.
 
+### 1.1 Canonical Anchors
+
+- System/platform references:
+  - `foundation_documentation/system_roadmap.md`
+  - `foundation_documentation/submodule_laravel-app_summary.md`
+- Cross-module contract references:
+  - `foundation_documentation/modules/events_module.md`
+  - `foundation_documentation/modules/task_and_reminder_module.md`
+  - `foundation_documentation/modules/onboarding_flow_module.md`
+  - `foundation_documentation/modules/transaction_bridge_module.md`
+- Tactical TODO streams:
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+
 ---
 
 ## 2. Design Principles
@@ -243,3 +258,19 @@ Even on web “unauthenticated” landings, the canonical API is Sanctum-validat
 * FCX-02 wires mocked repositories to this contract.
 * Phase 9 extends the module with swipe-style carousels and WhatsApp deep links.
 * Account Profile Workspace fast-follow consumes `invite_edges` to expose referral funnels to account operators without duplicating logic. A dedicated Account Analytics module will aggregate invitation performance per plan, quota bucket, and channel to support billing and upsell strategies.
+
+## 7. Canonical Decision Baseline
+
+| Decision ID | Status | Decision | Impact | Canonical Evidence |
+| --- | --- | --- | --- | --- |
+| `INV-01` | Approved | Inviter principal is typed (`user|account_profile`) with explicit issuer audit. | Keeps attribution/audit stable across share and direct invites. | Section `2.1 A` + `3.1` |
+| `INV-02` | Approved | Duplicate invite prevention is strict by `(tenant,event,receiver,inviter_principal)` key. | Prevents spam/metric inflation. | Section `2.1 B` |
+| `INV-03` | Approved | Exactly one credited acceptance per `(receiver,event)`; explicit selection is required. | Deterministic conversion and gamification metrics. | Section `2.1 C` |
+| `INV-04` | Approved | Quotas/limits are backend-owned and enforceable via `429`. | Client cannot bypass rate/plan controls. | Section `2.1 D` |
+
+## 8. Tactical TODO Promotion Ledger
+
+| TODO | Purpose | Promotion Status | Promoted Sections | Notes |
+| --- | --- | --- | --- | --- |
+| `TODO-v1-invites-implementation.md` | Invite backend/client flow hardening | In progress | `2.1`, `3`, `4` | Canonical stream for invite delivery decisions. |
+| `TODO-v1-web-to-app-policy.md` | Web/share acceptance boundary policy | In progress | `4.3`, `4.4` | Governs web exception and attribution path. |

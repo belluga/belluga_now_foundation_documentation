@@ -8,6 +8,21 @@
 
 Captures the intent to deliver an Account Profile Admin/Workspace experience where landlords and account operators can manage invites, offers, media, and analytics. This module will be defined once the tenant-facing experience is fully specified so requirements flow from actual consumer workflows.
 
+### 1.1 Canonical Anchors
+
+- System/platform references:
+  - `foundation_documentation/system_roadmap.md`
+  - `foundation_documentation/submodule_laravel-app_summary.md`
+  - `foundation_documentation/submodule_flutter-app_summary.md`
+- Cross-module references:
+  - `foundation_documentation/modules/partner_catalog_and_offer_module.md`
+  - `foundation_documentation/modules/partner_analytics_module.md`
+  - `foundation_documentation/modules/invite_and_social_loop_module.md`
+  - `foundation_documentation/modules/tenant_admin_module.md`
+- Tactical TODO streams:
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
+
 ## 2. Planned Scope (to be detailed later)
 
 1. **Invite Campaign Management:** Create/share invites, monitor quotas, handle suppression lists.
@@ -85,3 +100,18 @@ Even in V1, we must support operational reality:
 ## 3. Next Action
 
 Defer detailed documentation until the tenant modules (Map, Invite, Agenda, Transaction Bridge) stabilize. Account workspace requirements will be inferred directly from the data contracts and events defined there.
+
+## 4. Canonical Decision Baseline
+
+| Decision ID | Status | Decision | Impact | Canonical Evidence |
+| --- | --- | --- | --- | --- |
+| `PAD-01` | Approved | Workspace is scoped by `account_profile_id` and role/permission maps, not by invite sender alone. | Enforces tenant-safe operational boundaries. | Section `2.1 A` |
+| `PAD-02` | Approved | Membership model exists as post-MVP target; MVP keeps landlord/admin-assigned operations. | Avoids fake permissions while preserving auditability. | Sections `2.1 A`, `2.1 C` |
+| `PAD-03` | Approved | Invite metrics for workspace are host/account-profile scoped. | Supports gamification/challenges without cross-account leakage. | Section `2.1 B` |
+
+## 5. Tactical TODO Promotion Ledger
+
+| TODO | Purpose | Promotion Status | Promoted Sections | Notes |
+| --- | --- | --- | --- | --- |
+| `TODO-v1-tenant-user-account-profile-area.md` | Workspace scope and ownership model | In progress | `1.1`, `2.1`, `4` | Canonical stream for workspace boundary decisions. |
+| `TODO-v1-account-profile-ui.md` | Account profile management UX contract | In progress | `2`, `2.1 C` | UI flow authority for workspace minimum. |

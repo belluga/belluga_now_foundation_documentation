@@ -7,6 +7,23 @@
 |-----------|-------------|------------------------|--------|-------|
 | MOD-201 | Flutter Client Experience Module | Deliver the multi-tenant mobile client with mocked backends and full-layer architecture (controllers, repositories, services). | Defined | Delphi |
 
+### 1.1 Canonical Anchors
+
+- System/platform references:
+  - `foundation_documentation/system_roadmap.md`
+  - `foundation_documentation/submodule_flutter-app_summary.md`
+- Cross-module contract references:
+  - `foundation_documentation/modules/events_module.md`
+  - `foundation_documentation/modules/invite_and_social_loop_module.md`
+  - `foundation_documentation/modules/map_poi_module.md`
+  - `foundation_documentation/modules/tenant_admin_module.md`
+- Tactical TODO streams:
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-and-agenda-frontend.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-frontend.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
+
 ## 2. Module Specification
 
 ### MOD-201: Flutter Client Experience Module
@@ -223,3 +240,20 @@ Governance constraints:
 * **Reference APIs:** Laravel backend contracts defined in MOD-101 (pending).
 * **Security Review Checklist:** Enforce HTTPS-only asset loading; sanitize invite codes before display; gate account workspace dashboards behind role checks.
 * **Operational Runbooks:** `docs/runbooks/flutter_bootstrap.md` (to be authored) will outline cold-start troubleshooting, mock backend rotation, and DI registration audits.
+
+## 7. Canonical Decision Baseline
+
+| Decision ID | Status | Decision | Impact | Canonical Evidence |
+| --- | --- | --- | --- | --- |
+| `FCX-01` | Approved | Controller-owned state is mandatory; widgets remain presentational. | Prevents state duplication and architecture drift. | Section `2.1 Domain Rules` + `DEC-201-001` |
+| `FCX-02` | Approved | Scope/subscope route ownership must follow governance matrix. | Blocks route ambiguity across landlord/tenant/account-workspace. | Section `2.0 Scope/Subscope Ownership` |
+| `FCX-03` | Approved | Flutter consumes backend contracts via domain repositories and contract-tested adapters. | Keeps UI resilient during mock→real backend transition. | Sections `2.2`, `2.7`, `3` |
+
+## 8. Tactical TODO Promotion Ledger
+
+| TODO | Purpose | Promotion Status | Promoted Sections | Notes |
+| --- | --- | --- | --- | --- |
+| `TODO-v1-events-and-agenda-frontend.md` | Events/agenda client contracts and UX integration | In progress | `2.2`, `2.3`, `3` | Maintains occurrence-first event consumption. |
+| `TODO-v1-invites-implementation.md` | Invite/social flow delivery in client | In progress | `2.2`, `2.4`, `2.5` | Share acceptance + contacts import paths. |
+| `TODO-v1-map-frontend.md` | Map rendering/filter/stacking contracts | In progress | `2.2`, `2.3`, `2.4` | Aligns with projection-backed map APIs. |
+| `TODO-v1-tenant-user-account-profile-area.md` | Workspace scope and route ownership | In progress | `2.0`, `3` | Account workspace/subscope integrity. |

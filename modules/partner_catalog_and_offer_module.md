@@ -8,6 +8,21 @@
 
 The Account Profile Catalog & Offer module (MOD-304) maintains the canonical representation of **account profiles** (restaurants, artists, guides, merchants) that operate within a tenant. It exposes the offer graph consumed by the Map & POI module, Tenant Home Composer, and Agenda Planner. The module sits between account-facing tooling (future Account Profile Workspace) and consumer experiences, enforcing validation, media standards, and availability lifecycles.
 
+### 1.1 Canonical Anchors
+
+- System/platform references:
+  - `foundation_documentation/system_roadmap.md`
+  - `foundation_documentation/submodule_laravel-app_summary.md`
+- Cross-module references:
+  - `foundation_documentation/modules/map_poi_module.md`
+  - `foundation_documentation/modules/tenant_home_composer_module.md`
+  - `foundation_documentation/modules/partner_admin_module.md`
+  - `foundation_documentation/modules/events_module.md`
+- Tactical TODO streams:
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-static-assets-media-parity-with-account-profiles.md`
+
 ---
 
 ## 2. Principles
@@ -113,3 +128,18 @@ Aggregated data served to authenticated account operators once the workspace lau
 * **Phase 5:** Aligns with Flutter FCX-02 to serve mocked account profile feeds.
 * **Phase 10:** Provides account-profile-driven home compositions and aggregated insights to Tenant Home Composer.
 * **Phase 12:** Powers the Account Profile Workspace module, reusing the same schema for account profile CRUD operations.
+
+## 7. Canonical Decision Baseline
+
+| Decision ID | Status | Decision | Impact | Canonical Evidence |
+| --- | --- | --- | --- | --- |
+| `PCO-01` | Approved | Account Profile is the canonical public identity layer for account-managed entities. | Keeps consumer and admin views aligned on one source. | Sections `1`, `3.1` |
+| `PCO-02` | Approved | Offer availability uses explicit windows; map/agenda must consume those windows. | Enables deterministic time-based discovery behavior. | Sections `2`, `3.2` |
+| `PCO-03` | Approved | Media metadata remains in catalog domain while binary storage is externalized. | Avoids tight infra coupling in domain contracts. | Section `2` |
+
+## 8. Tactical TODO Promotion Ledger
+
+| TODO | Purpose | Promotion Status | Promoted Sections | Notes |
+| --- | --- | --- | --- | --- |
+| `TODO-v1-tenant-user-account-profile-area.md` | Account/profile scope and contracts | In progress | `1.1`, `3`, `7` | Main stream for account profile domain hardening. |
+| `TODO-v1-account-profile-ui.md` | CRUD/form contract parity with backend | In progress | `4`, `7` | Ensures UI flows follow canonical catalog payloads. |

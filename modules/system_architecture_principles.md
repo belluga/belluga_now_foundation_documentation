@@ -59,3 +59,25 @@ Bóora! is the platform. Guar[APP]ari is a **tenant** hosted on the platform and
 1. **Naming:** Bóora! is the platform; Guar[APP]ari is a tenant.
 2. **Module Docs:** Use tenant-accurate wording (e.g., “tenant app users”) unless describing tenant-specific UI or copy.
 3. **Tenant-Specific Assets:** Marketing collateral and screen copy may remain tenant-specific.
+
+---
+
+## 7. Canonical Anchors
+
+- Agnostic core architecture baseline:
+  - `delphi-ai/system_architecture_principles.md`
+- System-level project docs:
+  - `foundation_documentation/project_mandate.md`
+  - `foundation_documentation/system_roadmap.md`
+  - `foundation_documentation/policies/scope_subscope_governance.md`
+- Module-level consumers (non-exhaustive):
+  - `foundation_documentation/modules/tenant_admin_module.md`
+  - `foundation_documentation/modules/flutter_client_experience_module.md`
+  - `foundation_documentation/modules/events_module.md`
+
+## 8. Tactical TODO Promotion Ledger
+
+| TODO | Purpose | Promotion Status | Promoted Sections | Notes |
+| --- | --- | --- | --- | --- |
+| `TODO-v1-first-release.md` | Cross-module MVP architecture convergence | In progress | `3`, `4`, `5` | Ensures release decisions remain principle-aligned. |
+| `TODO-v1-module-doc-consolidation-all-modules.md` | Module-first canonicalization program | Promoted | `6`, `7`, `8` | Completed in `foundation_documentation/todos/completed/`. |

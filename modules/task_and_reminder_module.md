@@ -8,6 +8,19 @@
 
 The Task & Reminder Orchestration module (MOD-306) governs every follow-up obligation a tenant app user must complete after interacting with account profiles (partner label), invites, or bookings. It centralizes reminder authoring, schedules push notifications, and emits dated references so downstream modules—such as Agenda & Action Planner or analytics pipelines—stay in sync without duplicating logic. The module serves both mocked flows (local JSON + simulated push) and the future multi-tenant backend.
 
+### 1.1 Canonical Anchors
+
+- System/platform references:
+  - `foundation_documentation/system_roadmap.md`
+  - `foundation_documentation/submodule_laravel-app_summary.md`
+- Cross-module references:
+  - `foundation_documentation/modules/agenda_and_action_planner_module.md`
+  - `foundation_documentation/modules/invite_and_social_loop_module.md`
+  - `foundation_documentation/modules/transaction_bridge_module.md`
+- Tactical TODO streams:
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
+
 ---
 
 ## 2. Design Principles
@@ -98,3 +111,18 @@ Appends events (creation, acknowledgement, completion) for auditability.
 2. **Phase 6:** Tie personalization rules into reminder scheduling (e.g., only remind users who favorited the account profile).
 3. **Phase 8:** Emit gamification events (streaks, points) when tasks are completed on time.
 4. **Phase 13:** Extend to notification multiplexing (email/SMS) while keeping the same task schema.
+
+## 8. Canonical Decision Baseline
+
+| Decision ID | Status | Decision | Impact | Canonical Evidence |
+| --- | --- | --- | --- | --- |
+| `TSK-01` | Approved | Producers send semantic task intents; Task module owns scheduling and reminder lifecycle. | Prevents reminder logic duplication across domains. | Sections `2`, `4`, `5` |
+| `TSK-02` | Approved | Scheduling is idempotent by `(source_reference, reminder_type)`. | Stabilizes retries/replays and downstream analytics. | Section `2` |
+| `TSK-03` | Approved | Task events are integration contracts for agenda/invite/account flows. | Keeps orchestration decoupled and auditable. | Sections `5`, `6` |
+
+## 9. Tactical TODO Promotion Ledger
+
+| TODO | Purpose | Promotion Status | Promoted Sections | Notes |
+| --- | --- | --- | --- | --- |
+| `TODO-v1-invites-implementation.md` | Invite reminder/check-in integration and follow-up intents | In progress | `2`, `5`, `8` | Invite/task boundary remains contract-driven. |
+| `TODO-v1-first-release.md` | MVP orchestration priorities and hardening sequence | In progress | `4`, `7` | Tracks release-level readiness for reminders. |

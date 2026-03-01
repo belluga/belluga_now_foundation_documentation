@@ -8,6 +8,24 @@
 
 Placeholder for the Tenant Administration interface (`tenant_admin` main scope) where city governments or enterprise tenants manage account profile onboarding, plan assignments, and high-level analytics. In V1, this interface is accessed on tenant domains and guarded by landlord identity principal. This document will be expanded after the tenant-facing app modules are finalized, ensuring admin capabilities align with real consumer workflows.
 
+### 1.1 Canonical Anchors
+
+- System/platform references:
+  - `foundation_documentation/system_roadmap.md`
+  - `foundation_documentation/submodule_laravel-app_summary.md`
+  - `foundation_documentation/submodule_flutter-app_summary.md`
+  - `foundation_documentation/policies/scope_subscope_governance.md`
+- Cross-module references:
+  - `foundation_documentation/modules/partner_catalog_and_offer_module.md`
+  - `foundation_documentation/modules/partner_admin_module.md`
+  - `foundation_documentation/modules/invite_and_social_loop_module.md`
+  - `foundation_documentation/modules/map_poi_module.md`
+  - `foundation_documentation/modules/events_module.md`
+- Tactical TODO streams:
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-admin-navigation-ia-events-priority.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-static-assets-media-parity-with-account-profiles.md`
+
 ## 2. Intended Responsibilities
 
 1. **Account Profile Lifecycle Management:** Approve/reject account profile applications, assign plan tiers, manage verification flags.
@@ -1365,3 +1383,19 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 - Invite & Social Loop module (quota management, attendance metrics).
 - Task & Reminder module (outstanding compliance tasks).
 - Web-to-App policy constraints (e.g., what channels tenants can enable).
+
+## 5. Canonical Decision Baseline
+
+| Decision ID | Status | Decision | Impact | Canonical Evidence |
+| --- | --- | --- | --- | --- |
+| `TAD-01` | Approved | Tenant-admin scope is tenant-domain `/admin` with landlord principal guard in V1. | Keeps host/scope behavior deterministic across app and API. | Sections `2.1`, `2.2`, `3` |
+| `TAD-02` | Approved | Scope/subscope governance is mandatory and route ownership cannot be inferred ad hoc. | Prevents route drift and admin/workspace overlap. | Sections `2.1`, `3.0` |
+| `TAD-03` | Approved | Settings screens follow canonical hub + dedicated flows with controller-owned state. | Provides consistent admin UX architecture baseline. | Sections `3.5`, `3.6`, `3.7` |
+
+## 6. Tactical TODO Promotion Ledger
+
+| TODO | Purpose | Promotion Status | Promoted Sections | Notes |
+| --- | --- | --- | --- | --- |
+| `TODO-v1-tenant-admin-navigation-ia-events-priority.md` | Tenant-admin IA and route priorities | In progress | `3`, `5` | Governs admin navigation sequence and events/admin touchpoints. |
+| `TODO-v1-tenant-user-account-profile-area.md` | Account/profile admin boundaries | In progress | `2`, `4`, `5` | Aligns account/profile CRUD contracts and scope. |
+| `TODO-v1-static-assets-media-parity-with-account-profiles.md` | Media parity and static assets admin flows | In progress | `4`, `5` | Syncs media endpoints and UX behavior. |

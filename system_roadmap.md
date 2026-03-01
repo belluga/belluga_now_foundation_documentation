@@ -20,8 +20,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 
 ## 2.1 Documentation Integrity Gaps
 - `submodule_web-app_summary.md` is still missing and must be generated.
-- Existing submodule summaries are currently stale versus checked-out commits:
-  - `submodule_flutter-app_summary.md` commit hash mismatch.
+- Existing submodule summaries must be kept synchronized with checked-out submodule commits at each documentation consolidation checkpoint.
 
 ## 2.2 Scope/Subscope Governance (Mandatory)
 - Mandatory pre-read for route/module/screen work: `foundation_documentation/policies/scope_subscope_governance.md`.

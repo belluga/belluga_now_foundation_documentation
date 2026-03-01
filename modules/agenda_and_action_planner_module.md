@@ -204,3 +204,18 @@ Events use canonical `location` + `place_ref`; venue projection is resolved from
 1. **FCX-02:** Mocked agenda repository feeding Flutter controllers using static JSON snapshots.
 2. **Phase 6:** Introduce favorites/personalization, linking timeline nodes to saved POIs.
 3. **Phase 11:** Attach privacy and invite-status halos, reusing derived state to toggle exposure levels.
+
+## 7. Canonical Decision Baseline
+
+| Decision ID | Status | Decision | Impact | Canonical Evidence |
+| --- | --- | --- | --- | --- |
+| `AGD-01` | Approved | Agenda consumes occurrence-first Events contract with invite lifecycle excluded from event payloads. | Keeps Agenda read model aligned with Events ownership boundaries. | Sections `1.1`, `3.4`, `4` |
+| `AGD-02` | Approved | Event location contract is canonical `location + place_ref` with optional venue projection. | Prevents legacy venue-only coupling in agenda consumers. | Section `3.4` |
+| `AGD-03` | Approved | Actions are standardized descriptors, not hardcoded screen logic. | Enables backend-driven card/action evolution. | Section `2` |
+
+## 8. Tactical TODO Promotion Ledger
+
+| TODO | Purpose | Promotion Status | Promoted Sections | Notes |
+| --- | --- | --- | --- | --- |
+| `TODO-v1-events-and-agenda-frontend.md` | Agenda/event client contract delivery | In progress | `3.4`, `4`, `7` | Canonical stream for agenda payload usage. |
+| `TODO-v1-events-package-core.md` | Events package authority for agenda contracts | In progress | `1.1`, `3.4`, `7` | Tracks backend contract drift and hardening. |
