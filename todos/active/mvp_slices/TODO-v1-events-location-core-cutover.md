@@ -28,7 +28,7 @@
 ## Standards/Exception Reference (Locked)
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-core.md` (Sections `F`, `G`).
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md`.
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-capability-map-poi.md`.
+- `foundation_documentation/todos/completed/TODO-v1-events-capability-map-poi.md`.
 
 ---
 

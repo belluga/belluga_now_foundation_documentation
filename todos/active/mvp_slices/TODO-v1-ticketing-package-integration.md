@@ -44,7 +44,7 @@
 ---
 
 ## Capability TODO References (Canonical)
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-capability-map-poi.md` (Events-owned capability stream).
+- `foundation_documentation/todos/completed/TODO-v1-events-capability-map-poi.md` (Events-owned capability stream).
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-package-integration.md` (this master integration TODO).
 - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-ticketing-capability-seating.md` (assigned seating / seat-map capability, provider-agnostic; deferred from MVP).
 - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-ticketing-capability-waitlist-presales.md` (sold-out waitlist + presales, deferred from MVP).
