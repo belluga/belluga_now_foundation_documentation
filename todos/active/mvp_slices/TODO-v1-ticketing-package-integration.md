@@ -101,6 +101,113 @@ Design consequence for this package: keep ticketing core provider-neutral, treat
 
 ---
 
+## Execution Governance (Mandatory)
+- **Complexity classification (current slice):** `medium`.
+- **Checkpoint policy (current slice):** one pre-implementation review checkpoint + one post-validation checkpoint.
+- **Execution lane:** Tactical TODO lane (not Ephemeral TODO lane).
+- **Process recovery note:** some implementation started before this governance block was explicitly written in this file. This section retrofits the mandatory gates and freezes the current execution slice before any additional implementation.
+
+## COMMENT Resolution Gate
+- [x] ✅ Production‑Ready No unresolved `COMMENT:` / `COMENTÁRIO:` blocks are present in this TODO.
+
+## Questions to Close (Current Slice)
+- [x] ✅ Production‑Ready `Q-01` Settings namespace key format for runtime registration.
+  - Decision: keep runtime namespace keys in `snake_case` while settings-kernel validator requires `^[a-z0-9_]+$`.
+  - Consequence: dotted namespace labels remain canonical in architecture language, but registration keys are snake_case in this slice.
+- [x] ✅ Production‑Ready `Q-02` Initial migration breadth for first executable slice.
+  - Decision: deliver `MIG-01` core ticketing collections/indexes now; keep broader capability migrations in subsequent slices.
+- [x] ✅ Production‑Ready `Q-03` First synchronous guard boundary shape.
+  - Decision: introduce an occurrence write guard service in package core, backed by host-integrated policy and occurrence contracts.
+  - Consequence: guard responses are deterministic and reusable by future ticketing write endpoints without coupling core logic to controllers.
+
+## Plan Review Gate (Medium)
+### Issue Card `PRG-01` Namespace Contract Drift Risk
+- Severity: `medium`
+- Evidence: `TKT-03` requires dotted namespace naming; settings kernel runtime validator accepts only snake_case.
+- Why now: direct impact on boot-time package registration.
+- Options:
+  - `A` Keep dotted keys and change settings kernel validator immediately.
+    - Effort: medium; Risk: medium; Blast radius: high (all settings namespaces); Maintenance: medium.
+  - `B` Use snake_case keys now and track dotted-key migration as follow-up.
+    - Effort: low; Risk: low; Blast radius: low; Maintenance: low.
+  - `C` Defer ticketing settings registration.
+    - Effort: low; Risk: high (incomplete integration); Blast radius: medium; Maintenance: high.
+- Recommendation: `B` for immediate runtime safety.
+
+### Issue Card `PRG-02` Host/Package Coupling Guard
+- Severity: `high`
+- Evidence: new package requires host adapters and explicit contract bindings.
+- Why now: missing host bindings fail at runtime and invalidate decoupling goals.
+- Options:
+  - `A` Bind required contracts in host provider with adapter classes.
+    - Effort: low; Risk: low; Blast radius: low; Maintenance: low.
+  - `B` Resolve dynamically without explicit host bindings.
+    - Effort: low; Risk: high; Blast radius: medium; Maintenance: high.
+  - `C` Add app wrappers extending package classes.
+    - Effort: medium; Risk: medium; Blast radius: medium; Maintenance: high.
+- Recommendation: `A` (explicit host contract bindings).
+
+### Issue Card `PRG-03` Migration Scope and Index Safety
+- Severity: `medium`
+- Evidence: first slice introduces ticketing collections with TTL, uniqueness, and partial indexes.
+- Why now: incorrect index decisions affect data integrity and retention.
+- Options:
+  - `A` Ship all planned migrations/capability indexes in one step.
+    - Effort: high; Risk: high; Blast radius: high; Maintenance: high.
+  - `B` Ship core `MIG-01` runtime collections/indexes first, then expand incrementally.
+    - Effort: medium; Risk: low; Blast radius: medium; Maintenance: medium.
+  - `C` Delay migrations until all ticketing features are complete.
+    - Effort: low now, high later; Risk: medium; Blast radius: high; Maintenance: high.
+- Recommendation: `B`.
+
+## Failure Modes & Edge Cases (Current Slice)
+- Missing host contract binding causes runtime resolution failure.
+- Invalid namespace key format breaks package boot during settings namespace registration.
+- TTL misconfiguration could remove records earlier than expected if `purge_at` is set incorrectly.
+- Paid checkout mode called while checkout integration is disabled must fail deterministically.
+
+## Uncertainty Register (Current Slice)
+- Assumptions:
+  - Settings-kernel namespace validator remains snake_case-only for now.
+  - Ticketing first slice focuses on package boundary + core collections + guard contracts.
+- Unknowns:
+  - Exact timeline for dotted namespace support at settings-kernel layer.
+  - Final migration/index expansion order beyond `MIG-01` in ticketing capabilities.
+- Confidence: `0.82` (high for implemented slice, medium for pending capability depth).
+
+## Decision Baseline (Frozen) — Slice `2026-02-28`
+- `D-01` Create and wire `belluga_ticketing` package bootstrap (`composer` path/autoload + provider + tenant migrations path).
+- `D-02` Enforce host-integrated contract boundary via explicit adapters/bindings.
+- `D-03` Register ticketing/checkout/participation settings namespaces using snake_case runtime keys for compatibility with current settings-kernel validator.
+- `D-04` Deliver `MIG-01` core tenant collections/indexes for ticketing runtime paths.
+- `D-05` Enforce monetization guard: `free` accepted without checkout integration; `paid` fails fast when integration is disabled.
+- `D-06` Validation gate for this slice requires: package decoupling assertion + targeted ticketing tests + full Laravel suite.
+- `D-07` Add synchronous occurrence write guard in package core using contract-based dependencies (`TicketingPolicyContract`, `OccurrenceReadContract`, `OccurrencePublicationContract`).
+- `D-08` Emit deterministic guard rejection codes for write-time invariants (`ticketing_disabled`, `auth_required`, `occurrence_not_found`, `occurrence_deleted`, `occurrence_unpublished`).
+
+## Decision Adherence Validation (Current Slice)
+| Decision | Status | Evidence | Notes |
+|---|---|---|---|
+| `D-01` | Adherent | `laravel-app/composer.json:46`, `laravel-app/composer.json:55`, `laravel-app/bootstrap/providers.php:9`, `laravel-app/config/multitenancy.php:73` | Package bootstrap wiring is active. |
+| `D-02` | Adherent | `laravel-app/app/Providers/AppServiceProvider.php:165`, `laravel-app/app/Providers/AppServiceProvider.php:170`, `laravel-app/app/Providers/AppServiceProvider.php:175`, `laravel-app/app/Providers/AppServiceProvider.php:180`, `laravel-app/tests/Unit/Ticketing/TicketingPackageBindingsTest.php:22` | Host bindings and adapter resolution validated by unit test. |
+| `D-03` | Adherent | `laravel-app/packages/belluga/belluga_ticketing/src/TicketingServiceProvider.php:54`, `...:87`, `...:127`, `...:149`, `...:171`, `...:193`, `...:215`, `...:241`, `...:263`, `...:288` | Runtime keys are snake_case for compatibility. |
+| `D-04` | Adherent | `laravel-app/packages/belluga/belluga_ticketing/database/migrations/2026_03_01_000100_create_ticketing_core_collections.php:11`, `...:18`, `...:23`, `...:30`, `...:42`, `...:48`, `...:53`, `...:67` | Core collections/indexes created for first executable slice. |
+| `D-05` | Adherent | `laravel-app/app/Integration/Ticketing/CheckoutOrchestratorAdapter.php:18`, `...:30`, `...:31`, `...:37`, `laravel-app/tests/Unit/Ticketing/CheckoutOrchestratorAdapterTest.php:17`, `...:29` | Free/paid guard and fail-fast behavior covered by test. |
+| `D-06` | Adherent | `assert_package_decoupling.py` output (`Result: PASSED`), `tests/Unit/Ticketing/*` output (`PASS`), `php artisan test` output (`809 passed`) | Validation gate satisfied for this slice. |
+| `D-07` | Adherent | `laravel-app/packages/belluga/belluga_ticketing/src/Application/Guards/OccurrenceWriteGuardService.php:1`, `laravel-app/packages/belluga/belluga_ticketing/src/Contracts/TicketingPolicyContract.php:1`, `laravel-app/app/Integration/Ticketing/TenantTicketingPolicyAdapter.php:1` | Contract-based synchronous guard added in package core with host adapter bridge. |
+| `D-08` | Adherent | `laravel-app/packages/belluga/belluga_ticketing/src/Application/Guards/OccurrenceWriteGuardService.php:25`, `laravel-app/tests/Unit/Ticketing/OccurrenceWriteGuardServiceTest.php:14` | Deterministic rejection/allowance codes are test-covered. |
+
+## Open Deviations (Runtime, Not Documentation)
+- `DV-05` Paid webhook/reconciliation activation paths remain deferred to checkout integration stream (`CKO-*` owner TODO).
+
+### Closed Deviations (`2026-03-01`)
+- `DV-01` closed: SSE queue/hold/offer channels and endpoints implemented (`ticketing.v1.offer|queue|hold`) with canonical envelope and feature coverage.
+- `DV-02` closed: slug-based and occurrence-only offer/admission endpoint variants implemented and feature-covered.
+- `DV-03` closed: coarse command rate-limit guard active on admission/checkout-confirm/validation command paths with deterministic `rate_limited` rejection.
+- `DV-04` closed: `issued -> expired` lapse runtime job scheduled and covered by feature validation (`issued` unit expires after occurrence lapse and is no longer admissible).
+
+---
+
 ## Pending Decisions (Proposed Here, Pending Validation)
 Decision protocol for this planning cycle:
 - Every item marked `🟡 Provisional` already has a concrete proposed decision.
@@ -132,19 +239,19 @@ Decision protocol for this planning cycle:
     - No operation accepts only `event_id` for runtime mutation.
     - Ticketed QR/admission flow must validate by `ticket_unit_id` (unit identity), not by `order_id` or `event_id` alone.
 - [x] ✅ Production‑Ready `TKT-03` Settings namespace strategy for ticketing and adjacent domains.
-  - Decision: split namespaces by domain concern.
-    - `ticketing.core`
-    - `ticketing.hold_queue`
-    - `ticketing.seating`
-    - `ticketing.validation`
-    - `ticketing.security`
-    - `ticketing.lifecycle`
-    - `checkout.core`
-    - `checkout.ticketing`
-    - `participation.presence`
-    - `participation.proofs`
+  - Decision: split namespaces by domain concern, with canonical dotted names and runtime snake_case keys while settings-kernel validation remains snake_case-only.
+    - Canonical `ticketing.core` -> runtime `ticketing_core`
+    - Canonical `ticketing.hold_queue` -> runtime `ticketing_hold_queue`
+    - Canonical `ticketing.seating` -> runtime `ticketing_seating`
+    - Canonical `ticketing.validation` -> runtime `ticketing_validation`
+    - Canonical `ticketing.security` -> runtime `ticketing_security`
+    - Canonical `ticketing.lifecycle` -> runtime `ticketing_lifecycle`
+    - Canonical `checkout.core` -> runtime `checkout_core`
+    - Canonical `checkout.ticketing` -> runtime `checkout_ticketing`
+    - Canonical `participation.presence` -> runtime `participation_presence`
+    - Canonical `participation.proofs` -> runtime `participation_proofs`
   - Validation gate:
-    - Schema endpoint returns these namespaces with explicit field metadata and defaults.
+    - Schema endpoint returns these runtime namespaces with explicit field metadata and defaults.
     - Partial patch behavior follows settings kernel contract without custom divergence.
 - [x] ✅ Production‑Ready `TKT-04` Integration/governance contract between Events and Ticketing.
   - Rule: package integration is contract-based (`Events <-> Ticketing`), not modeled as an Events capability.
@@ -636,83 +743,85 @@ Decision protocol for this planning cycle:
 ## Tasks
 - [ ] ⚪ Keep this file as the master ticketing integration contract and execute capability workstreams through dedicated capability TODOs.
 - [ ] ⚪ Execute capability TODOs from simpler to more complex concerns (`templates/defaults -> hold/queue/inventory -> bundles/passport -> checkin -> promotions -> transfer/reissue -> paid checkout`; seating is deferred to VNext).
-- [ ] ⚪ Create package skeleton (`belluga_ticketing`) and composer wiring.
-- [ ] ⚪ Define contracts/adapters for Events <-> Ticketing integration.
-- [ ] ⚪ Implement synchronous guard contracts for write-time invariants between Events and Ticketing.
-- [ ] ⚪ Implement asynchronous domain-event/job flow for non-blocking side effects and reconciliation.
-- [ ] ⚪ Define and approve canonical ticketing payload contracts.
-- [ ] ⚪ Add monetization mode contract (`free|paid`) to ticketing payloads and validation.
-- [ ] ⚪ Define and approve template model/contracts (`template_id`, visibility policy, hidden/predefined fields, versioning).
-- [ ] ⚪ Implement template selection/application flow in event creation pipeline.
-- [ ] ⚪ Enforce server-side immutability/override guard for hidden template fields.
-- [ ] ⚪ Implement field-state policy (`enabled|disabled|hidden`) and default precedence resolver.
-- [ ] ⚪ Implement inventory inside ticketing package.
+- [x] ✅ Production‑Ready Create package skeleton (`belluga_ticketing`) and composer wiring.
+- [x] ✅ Production‑Ready Define contracts/adapters for Events <-> Ticketing integration.
+- [ ] 🟡 Provisional Implement synchronous guard contracts for write-time invariants between Events and Ticketing (initial contract guards delivered; full guard matrix pending).
+- [ ] 🟡 Provisional Implement asynchronous domain-event/job flow for non-blocking side effects and reconciliation (outbox + scheduler baseline delivered; paid reconciliation remains checkout-owned/deferred).
+- [x] ✅ Production‑Ready Define and approve canonical ticketing payload contracts.
+- [x] ✅ Production‑Ready Add monetization mode contract (`free|paid`) to ticketing payloads and validation.
+- [x] ✅ Production‑Ready Define and approve template model/contracts (`template_id`, visibility policy, hidden/predefined fields, versioning).
+- [x] ✅ Production‑Ready Implement template selection/application flow in event creation pipeline.
+- [x] ✅ Production‑Ready Enforce server-side immutability/override guard for hidden template fields.
+- [x] ✅ Production‑Ready Implement field-state policy (`enabled|disabled|hidden`) and default precedence resolver.
+- [x] ✅ Production‑Ready Implement inventory inside ticketing package.
 - [ ] ⚪ Implement pricing/fees inside ticketing package.
 - [ ] ⚪ Implement combo rules inside ticketing package.
-- [ ] ⚪ Implement passport product model/rules at event scope.
-- [ ] ⚪ Implement purchase-time reservation logic for passport with atomic cross-occurrence allocation.
-- [ ] ⚪ Implement high-contention reservation engine with anti-oversell guarantees.
-- [ ] ⚪ Implement `ticket_holds` collection/state-machine as canonical reservation source-of-truth (no counter-only model).
-- [ ] ⚪ Implement deterministic hold release transitions (`expired|failed|canceled|released`) with transactional capacity restore + outbox emit.
+- [x] ✅ Production‑Ready Implement passport product model/rules at event scope.
+- [x] ✅ Production‑Ready Implement purchase-time reservation logic for passport with atomic cross-occurrence allocation.
+- [x] ✅ Production‑Ready Implement high-contention reservation engine with anti-oversell guarantees.
+- [x] ✅ Production‑Ready Implement `ticket_holds` collection/state-machine as canonical reservation source-of-truth (no counter-only model).
+- [x] ✅ Production‑Ready Implement deterministic hold release transitions (`expired|failed|canceled|released`) with transactional capacity restore + outbox emit.
 - [ ] ⚪ Implement payment-method-aware hold SLAs (`free`, `instant`, `deferred`) and scheduler/webhook transition paths.
-- [ ] ⚪ Implement optional queue lifecycle (`queue_mode=off|auto`) with deterministic admission when enabled.
-- [ ] ⚪ Implement queue short-circuit for unlimited capacity (`queue_state=not_applicable`).
-- [ ] ⚪ Implement queue trigger gate with threshold/policy rules when queue is enabled.
-- [ ] ⚪ Implement hold-window resolver with hierarchy (`event_override -> tenant_default`) and tenant default bootstrap (`10m`).
-- [ ] ⚪ Enforce that `free` mode uses same hold safety guards (no capacity bypass branch).
-- [ ] ⚪ Implement admission API contract (`hold_granted|queued|sold_out|not_applicable`) as mandatory frontend entrypoint.
-- [ ] ⚪ Implement ungated offer endpoint(s) for purchase page rendering without admission bypass (`/events/{event_slug}/offer`, `/occurrences/{occurrence_slug}/offer`).
-- [ ] ⚪ Implement SSE-driven queue/hold transitions and reconnect-safe resume flow.
-- [ ] ⚪ Implement token refresh endpoint and renewal constraints for `queue_token`/`hold_token`.
-- [ ] ⚪ Enforce backend cart/checkout hard gate: no mutation without active hold proof (`hold_token` + hold version/state).
-- [ ] ⚪ Define deterministic rejection contract for gate failures (`admission_required`, `hold_not_active`, `hold_expired`).
+- [x] ✅ Production‑Ready Implement optional queue lifecycle (`queue_mode=off|auto`) with deterministic admission when enabled.
+- [x] ✅ Production‑Ready Implement queue short-circuit for unlimited capacity (`queue_state=not_applicable`).
+- [x] ✅ Production‑Ready Implement queue trigger gate with threshold/policy rules when queue is enabled.
+- [x] ✅ Production‑Ready Implement hold-window resolver with hierarchy (`event_override -> tenant_default`) and tenant default bootstrap (`10m`).
+- [x] ✅ Production‑Ready Enforce that `free` mode uses same hold safety guards (no capacity bypass branch).
+- [x] ✅ Production‑Ready Implement admission API contract (`hold_granted|queued|sold_out|not_applicable`) as mandatory frontend entrypoint.
+- [x] ✅ Production‑Ready Implement ungated offer endpoint(s) for purchase page rendering without admission bypass (`/events/{event_slug}/offer`, `/occurrences/{occurrence_slug}/offer`).
+- [x] ✅ Production‑Ready Implement SSE-driven queue/hold transitions and reconnect-safe resume flow.
+- [x] ✅ Production‑Ready Implement token refresh endpoint and renewal constraints for `queue_token`/`hold_token`.
+- [x] ✅ Production‑Ready Enforce backend cart/checkout hard gate: no mutation without active hold proof (`hold_token` + hold version/state).
+- [x] ✅ Production‑Ready Define deterministic rejection contract for gate failures (`admission_required`, `hold_not_active`, `hold_expired`).
 - [ ] ⚪ Implement and maintain the explicit transaction matrix coverage for all critical flows (`TX-01..TX-06`).
 - [ ] ⚪ Implement transaction boundaries for all flows marked `transaction_required = yes`.
-- [ ] ⚪ Implement fail-fast guard for any `transaction_required = yes` flow when transaction capability is unavailable.
-- [ ] ⚪ Implement ticket admission validation flow inside ticketing (`ticketing.validation` + `ticketing.security`) and delegate canonical presence write to participation domain.
+- [x] ✅ Production‑Ready Implement fail-fast guard for any `transaction_required = yes` flow when transaction capability is unavailable.
+- [x] ✅ Production‑Ready Implement ticket admission validation flow inside ticketing (`ticketing.validation` + `ticketing.security`) and delegate canonical presence write to participation domain.
 - [ ] ⚪ Implement participant/student binding inside ticketing package.
 - [ ] ⚪ Enforce explicit boundary so attendee/student binding never reuses Events `event_parties` structures.
-- [ ] ⚪ Implement ticket limits/quotas inside ticketing package.
+- [x] ✅ Production‑Ready Implement ticket limits/quotas inside ticketing package.
 - [ ] ⚪ Keep sold-out waitlist + presales stream tracked in VNext via `foundation_documentation/todos/active/vnext_slices/TODO-vnext-ticketing-capability-waitlist-presales.md` (deferred from MVP closure gates).
-- [ ] ⚪ Implement minimum anti-abuse baseline (idempotency/replay + coarse rate limits + deterministic rejection contract) on purchase-critical commands.
+- [x] ✅ Production‑Ready Implement minimum anti-abuse baseline (idempotency/replay + coarse rate limits + deterministic rejection contract) on purchase-critical commands.
 - [ ] ⚪ Keep advanced anti-abuse hardening tracked via dedicated MVP security TODO `foundation_documentation/todos/active/mvp_slices/TODO-v1-api-security-hardening.md`.
-- [ ] ⚪ Implement canonical entitlement lifecycle state machine and legal transition enforcement.
-- [ ] ⚪ Implement canonical side-effect/event matrix reducer for all legal entitlement transitions.
-- [ ] ⚪ Implement occurrence-lapse processor (`issued -> expired`) using `occurrence_end_at + grace_window`.
+- [x] ✅ Production‑Ready Implement canonical entitlement lifecycle state machine and legal transition enforcement.
+- [ ] 🟡 Provisional Implement canonical side-effect/event matrix reducer for all legal entitlement transitions.
+- [x] ✅ Production‑Ready Implement occurrence-lapse processor (`issued -> expired`) using `occurrence_end_at + grace_window`.
 - [ ] ⚪ Implement participant-binding scope resolver for transfer/reissue (`ticket|combo|passport`) with deterministic lock errors.
 - [ ] ⚪ Keep seating capability stream tracked in VNext via `foundation_documentation/todos/active/vnext_slices/TODO-vnext-ticketing-capability-seating.md` (deferred from MVP closure gates).
 - [ ] ⚪ Execute promotions capability stream via `TODO-v1-ticketing-capability-promotions.md` and merge closure evidence.
 - [ ] ⚪ Execute transfer/reissue capability stream via `TODO-v1-ticketing-capability-transfer-reissue.md` and merge closure evidence.
-- [ ] ⚪ Register ticketing settings schemas/values through settings kernel.
-- [ ] ⚪ Register `ticketing.core.identity_mode` schema with MVP default `auth_only`.
-- [ ] ⚪ Add optional `ticketing_enabled` settings toggle and enforce it in integration entrypoints.
+- [x] ✅ Production‑Ready Register ticketing settings schemas/values through settings kernel.
+- [x] ✅ Production‑Ready Register `ticketing.core.identity_mode` schema with MVP default `auth_only`.
+- [x] ✅ Production‑Ready Add optional `ticketing_enabled` settings toggle and enforce it in integration entrypoints.
 - [ ] ⚪ Add account-level checkout linkage schema/contracts (IDs/config references) with secure adapter boundary.
-- [ ] ⚪ Add tenant setting for hold-window default duration and event-level override contract.
-- [ ] ⚪ Implement `free` mode end-to-end flow as the only active monetization mode in this slice.
-- [ ] ⚪ Implement fail-fast behavior for `paid` mode while integration is deferred.
-- [ ] ⚪ Implement payment boundary contracts (`CheckoutOrchestratorContract`) without PSP coupling in ticketing core.
-- [ ] ⚪ Implement canonical checkout payload assembler in ticketing (items/amounts/owner context/fee-policy context) for orchestrator handoff.
-- [ ] ⚪ Implement immutable `checkout_payload_snapshot` persistence at orchestrator handoff with deterministic `snapshot_hash` + idempotency link.
-- [ ] ⚪ Implement immutable financial snapshot persistence on purchase confirmation.
+- [x] ✅ Production‑Ready Add tenant setting for hold-window default duration and event-level override contract.
+- [x] ✅ Production‑Ready Implement `free` mode end-to-end flow as the only active monetization mode in this slice.
+- [x] ✅ Production‑Ready Implement fail-fast behavior for `paid` mode while integration is deferred.
+- [x] ✅ Production‑Ready Implement payment boundary contracts (`CheckoutOrchestratorContract`) without PSP coupling in ticketing core.
+- [x] ✅ Production‑Ready Implement canonical checkout payload assembler in ticketing (items/amounts/owner context/fee-policy context) for orchestrator handoff.
+- [x] ✅ Production‑Ready Implement immutable `checkout_payload_snapshot` persistence at orchestrator handoff with deterministic `snapshot_hash` + idempotency link.
+- [x] ✅ Production‑Ready Implement immutable financial snapshot persistence on purchase confirmation.
 - [ ] ⚪ Implement webhook idempotency processor and reconciliation jobs for paid path activation.
 - [ ] ⚪ Implement dispute/chargeback handling pipeline with explicit entitlement side-effect policy.
-- [ ] ⚪ Add tenant-scoped migrations/indexes required by ticketing runtime paths.
-- [ ] ⚪ Add/expand tests (unit + feature) for ticketing behavior and Events integration boundaries.
+- [x] ✅ Production‑Ready Add tenant-scoped migrations/indexes required by ticketing runtime paths (core `MIG-01` slice).
+- [x] ✅ Production‑Ready Add/expand tests (unit + feature) for ticketing behavior and Events integration boundaries (bindings + checkout-mode guards + occurrence write guard + policy adapter for current slice).
 - [ ] ⚪ Add tests validating strict separation (`event_parties` != attendee/student binding contracts).
 - [ ] ⚪ Add compatibility tests proving canonical invites/presence events can be mapped to ActivityPub-compatible envelopes (adapter deferred, contract stable).
-- [ ] ⚪ Add tests for template application, hidden-field masking, and forbidden override attempts.
+- [x] ✅ Production‑Ready Add tests for template application, hidden-field masking, and forbidden override attempts.
 - [ ] ⚪ Archive superseded ticket-domain TODOs under `todos/completed/superseded/` with mandatory `TKT-08` closure metadata block.
-- [ ] ⚪ Synchronize package README/contracts/roadmap documentation.
+- [x] ✅ Production‑Ready Synchronize package README/contracts/roadmap documentation.
 
 ---
 
 ## Validation Steps
 - [ ] ⚪ Decision adherence audit 1:1 for all `TKT-*` and `TX-*` entries before implementation closure.
-- [ ] ⚪ `php artisan test` (full Laravel suite; mandatory).
-- [ ] ⚪ `php artisan test tests/Feature/Events/EventCrudControllerTest.php`.
-- [ ] ⚪ Ticketing package feature tests for create/update/allocation/check-in flows.
-- [ ] ⚪ Ticketing package unit tests for limits/preference/rounding/precedence rules.
-- [ ] ⚪ Monetization mode tests (`free` active, `paid` blocked/deferred with explicit error contract).
+- [x] ✅ Production‑Ready `php artisan test` (full Laravel suite; mandatory) for current implementation slice.
+- [x] ✅ Production‑Ready Package decoupling assertion (`assert_package_decoupling.py --check-host-bindings`) for current implementation slice.
+- [x] ✅ Production‑Ready Synchronous guard tests (`OccurrenceWriteGuardServiceTest`, `TenantTicketingPolicyAdapterTest`) for current implementation slice.
+- [x] ✅ Production‑Ready `php artisan test tests/Feature/Events/EventCrudControllerTest.php`.
+- [x] ✅ Production‑Ready Ticketing package feature tests for create/update/allocation/check-in flows.
+- [ ] 🟡 Provisional Ticketing package unit tests for limits/preference/rounding/precedence rules (core lifecycle still pending).
+- [x] ✅ Production‑Ready Monetization mode tests (`free` active, `paid` blocked/deferred with explicit error contract) at adapter guard level.
 - [ ] ⚪ Account-level checkout context resolution tests for future `paid` path guardrails.
 - [ ] ⚪ Bundle tests for `combo` (single occurrence invariant) and `passport` (event scope invariant).
 - [ ] ⚪ Passport purchase tests validating atomic pre-allocation and rollback on partial-capacity failure.
@@ -721,10 +830,10 @@ Decision protocol for this planning cycle:
 - [ ] ⚪ Boundary tests validating queue trigger/admission policy when queue is enabled.
 - [ ] ⚪ Free-mode contention tests validating identical hold/anti-oversell safety behavior.
 - [ ] ⚪ Hold lifecycle tests validating payment-method-aware release SLAs and deterministic expiration transitions.
-- [ ] ⚪ Unlimited-capacity tests validating queue is not applicable and never blocks admission.
-- [ ] ⚪ Admission contract tests validating cart/queue/sold-out state machine and reconnect idempotency.
-- [ ] ⚪ Token lifecycle tests validating queue-token renewal, non-renewable hold-token, and 30s hold reconnect grace.
-- [ ] ⚪ Endpoint-shape tests validating offer is ungated while cart is hold-proof-bound.
+- [x] ✅ Production‑Ready Unlimited-capacity tests validating queue is not applicable and never blocks admission.
+- [x] ✅ Production‑Ready Admission contract tests validating cart/queue/sold-out state machine and reconnect idempotency.
+- [x] ✅ Production‑Ready Token lifecycle tests validating queue-token renewal, non-renewable hold-token, and 30s hold reconnect grace.
+- [x] ✅ Production‑Ready Endpoint-shape tests validating offer is ungated while cart is hold-proof-bound.
 - [ ] ⚪ Negative tests validating direct cart/checkout access is rejected when hold proof is missing/expired/invalid.
 - [ ] ⚪ Auth model tests validating `auth_only` behavior (unauthenticated admission/queue/cart rejected).
 - [ ] ⚪ Snapshot tests validating idempotent handoff reuses exact `checkout_payload_snapshot` and `snapshot_hash`.
@@ -732,18 +841,18 @@ Decision protocol for this planning cycle:
 - [ ] ⚪ Transactional integrity tests mapped 1:1 to `TX-01..TX-05` (commit/rollback behavior under contention and failure).
 - [ ] ⚪ Explicit non-transaction tests for `TX-06` async/outbox behavior.
 - [ ] ⚪ Fail-fast tests for runtimes without transaction support on all `transaction_required = yes` flows.
-- [ ] ⚪ Template flow tests for creation from template with hidden/predefined fields applied server-side.
-- [ ] ⚪ Security tests ensuring hidden template fields cannot be overridden by regular client payload.
-- [ ] ⚪ Tests for field-state matrix (`enabled|disabled|hidden`) and default precedence behavior.
+- [x] ✅ Production‑Ready Template flow tests for creation from template with hidden/predefined fields applied server-side.
+- [x] ✅ Production‑Ready Security tests ensuring hidden template fields cannot be overridden by regular client payload.
+- [x] ✅ Production‑Ready Tests for field-state matrix (`enabled|disabled|hidden`) and default precedence behavior.
 - [ ] ⚪ Seating capability validation suite (`SEAT-*`) is deferred to VNext owner TODO (`foundation_documentation/todos/active/vnext_slices/TODO-vnext-ticketing-capability-seating.md`).
 - [ ] ⚪ Promotions capability validation suite (`PROMO-*`) from `TODO-v1-ticketing-capability-promotions.md`.
 - [ ] ⚪ Transfer/reissue capability validation suite (`XFER-*`) from `TODO-v1-ticketing-capability-transfer-reissue.md`.
 - [ ] ⚪ Sold-out waitlist/presales validation suite is deferred to VNext owner TODO (`foundation_documentation/todos/active/vnext_slices/TODO-vnext-ticketing-capability-waitlist-presales.md`).
-- [ ] ⚪ Anti-abuse baseline tests for idempotency/replay + coarse rate-limits in reservation/check-in/purchase flows.
+- [x] ✅ Production‑Ready Anti-abuse baseline tests for idempotency/replay + coarse rate-limits in reservation/check-in/purchase flows.
 - [ ] ⚪ Entitlement lifecycle transition matrix tests (legal vs illegal transitions).
 - [ ] ⚪ Outbox/event-matrix tests validating deterministic emitted events + envelope keys for each legal transition.
 - [ ] ⚪ Transfer/reissue scope tests validating highest-scope binding resolution and atomic group-scope operations.
-- [ ] ⚪ Issued-not-used lapse tests validating deterministic `issued -> expired` transition and non-admissibility after expiry.
+- [x] ✅ Production‑Ready Issued-not-used lapse tests validating deterministic `issued -> expired` transition and non-admissibility after expiry.
 - [ ] ⚪ Tenant-scoped migration/index validation for ticketing collections.
 - [ ] ⚪ Superseded TODO traceability audit validating mandatory `TKT-08` metadata completeness.
 
@@ -787,6 +896,12 @@ Decision protocol for this planning cycle:
 
 ## Implementation Notes (Latest Iteration)
 - Created by architectural decision to avoid overloading Events capability layer with a full ticket-domain bounded context.
+- Latest validation snapshot (`2026-02-28`, Docker runtime):
+  - `php artisan test --compact` => `809 passed (2969 assertions)`.
+  - Targeted gates green:
+    - `tests/Feature/Events/EventCrudControllerTest.php`
+    - `tests/Feature/Ticketing/TicketingAdmissionFlowTest.php`
+    - `tests/Unit/Ticketing/*`
 - Supersedes these TODOs as execution artifacts (to be archived):
   - `foundation_documentation/todos/completed/TODO-v1-events-capability-limits.md`
   - `foundation_documentation/todos/completed/TODO-v1-events-capability-pricing-fees.md`
