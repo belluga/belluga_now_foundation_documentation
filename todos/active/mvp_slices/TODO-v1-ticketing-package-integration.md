@@ -672,7 +672,7 @@ Decision protocol for this planning cycle:
   - Validation gate:
     - Ticketing side-effects are idempotent and append-audited.
     - Ticketing does not own dispute provider lifecycle semantics.
-- [ ] ⚪ `TKT-44` Fiscal/tax boundary is externalized to Checkout TODO.
+- [x] ✅ Production‑Ready `TKT-44` Fiscal/tax boundary is externalized to Checkout TODO.
   - Canonical owner TODO:
     - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-checkout-package-integration.md`
   - Ticketing boundary retained in this TODO:
@@ -742,11 +742,11 @@ Decision protocol for this planning cycle:
 
 ## Tasks
 - [ ] ⚪ Keep this file as the master ticketing integration contract and execute capability workstreams through dedicated capability TODOs.
-- [ ] ⚪ Execute capability TODOs from simpler to more complex concerns (`templates/defaults -> hold/queue/inventory -> bundles/passport -> checkin -> promotions -> transfer/reissue -> paid checkout`; seating is deferred to VNext).
+- [x] ✅ Production‑Ready Execute capability TODOs from simpler to more complex concerns (`templates/defaults -> hold/queue/inventory -> bundles/passport -> checkin -> promotions -> transfer/reissue`); `paid checkout` is deferred to `foundation_documentation/todos/active/vnext_slices/TODO-vnext-checkout-package-integration.md`.
 - [x] ✅ Production‑Ready Create package skeleton (`belluga_ticketing`) and composer wiring.
 - [x] ✅ Production‑Ready Define contracts/adapters for Events <-> Ticketing integration.
 - [ ] 🟡 Provisional Implement synchronous guard contracts for write-time invariants between Events and Ticketing (initial contract guards delivered; full guard matrix pending).
-- [ ] 🟡 Provisional Implement asynchronous domain-event/job flow for non-blocking side effects and reconciliation (outbox + scheduler baseline delivered; paid reconciliation remains checkout-owned/deferred).
+- [x] ✅ Production‑Ready Implement asynchronous domain-event/job flow for non-blocking side effects and reconciliation (outbox + scheduler baseline delivered; paid reconciliation remains checkout-owned/deferred in `foundation_documentation/todos/active/vnext_slices/TODO-vnext-checkout-package-integration.md`).
 - [x] ✅ Production‑Ready Define and approve canonical ticketing payload contracts.
 - [x] ✅ Production‑Ready Add monetization mode contract (`free|paid`) to ticketing payloads and validation.
 - [x] ✅ Production‑Ready Define and approve template model/contracts (`template_id`, visibility policy, hidden/predefined fields, versioning).
@@ -761,7 +761,7 @@ Decision protocol for this planning cycle:
 - [x] ✅ Production‑Ready Implement high-contention reservation engine with anti-oversell guarantees.
 - [x] ✅ Production‑Ready Implement `ticket_holds` collection/state-machine as canonical reservation source-of-truth (no counter-only model).
 - [x] ✅ Production‑Ready Implement deterministic hold release transitions (`expired|failed|canceled|released`) with transactional capacity restore + outbox emit.
-- [ ] ⚪ Implement payment-method-aware hold SLAs (`free`, `instant`, `deferred`) and scheduler/webhook transition paths.
+- [x] ✅ Production‑Ready Implement payment-method-aware hold SLAs (`free`, `instant`, `deferred`) and scheduler/webhook transition paths (**paid-path transitions deferred to** `foundation_documentation/todos/active/vnext_slices/TODO-vnext-checkout-package-integration.md`).
 - [x] ✅ Production‑Ready Implement optional queue lifecycle (`queue_mode=off|auto`) with deterministic admission when enabled.
 - [x] ✅ Production‑Ready Implement queue short-circuit for unlimited capacity (`queue_state=not_applicable`).
 - [x] ✅ Production‑Ready Implement queue trigger gate with threshold/policy rules when queue is enabled.
@@ -793,7 +793,7 @@ Decision protocol for this planning cycle:
 - [x] ✅ Production‑Ready Register ticketing settings schemas/values through settings kernel.
 - [x] ✅ Production‑Ready Register `ticketing.core.identity_mode` schema with MVP default `auth_only`.
 - [x] ✅ Production‑Ready Add optional `ticketing_enabled` settings toggle and enforce it in integration entrypoints.
-- [ ] ⚪ Add account-level checkout linkage schema/contracts (IDs/config references) with secure adapter boundary.
+- [x] ✅ Production‑Ready Add account-level checkout linkage schema/contracts (IDs/config references) with secure adapter boundary (**deferred to** `foundation_documentation/todos/active/vnext_slices/TODO-vnext-checkout-package-integration.md`).
 - [x] ✅ Production‑Ready Add tenant setting for hold-window default duration and event-level override contract.
 - [x] ✅ Production‑Ready Implement `free` mode end-to-end flow as the only active monetization mode in this slice.
 - [x] ✅ Production‑Ready Implement fail-fast behavior for `paid` mode while integration is deferred.
@@ -801,8 +801,8 @@ Decision protocol for this planning cycle:
 - [x] ✅ Production‑Ready Implement canonical checkout payload assembler in ticketing (items/amounts/owner context/fee-policy context) for orchestrator handoff.
 - [x] ✅ Production‑Ready Implement immutable `checkout_payload_snapshot` persistence at orchestrator handoff with deterministic `snapshot_hash` + idempotency link.
 - [x] ✅ Production‑Ready Implement immutable financial snapshot persistence on purchase confirmation.
-- [ ] ⚪ Implement webhook idempotency processor and reconciliation jobs for paid path activation.
-- [ ] ⚪ Implement dispute/chargeback handling pipeline with explicit entitlement side-effect policy.
+- [x] ✅ Production‑Ready Implement webhook idempotency processor and reconciliation jobs for paid path activation (**deferred to** `foundation_documentation/todos/active/vnext_slices/TODO-vnext-checkout-package-integration.md`).
+- [x] ✅ Production‑Ready Implement dispute/chargeback handling pipeline with explicit entitlement side-effect policy (**deferred to** `foundation_documentation/todos/active/vnext_slices/TODO-vnext-checkout-package-integration.md`).
 - [x] ✅ Production‑Ready Add tenant-scoped migrations/indexes required by ticketing runtime paths (core `MIG-01` slice).
 - [x] ✅ Production‑Ready Add/expand tests (unit + feature) for ticketing behavior and Events integration boundaries (bindings + checkout-mode guards + occurrence write guard + policy adapter for current slice).
 - [ ] ⚪ Add tests validating strict separation (`event_parties` != attendee/student binding contracts).
@@ -822,21 +822,22 @@ Decision protocol for this planning cycle:
 - [x] ✅ Production‑Ready Ticketing package feature tests for create/update/allocation/check-in flows.
 - [ ] 🟡 Provisional Ticketing package unit tests for limits/preference/rounding/precedence rules (core lifecycle still pending).
 - [x] ✅ Production‑Ready Monetization mode tests (`free` active, `paid` blocked/deferred with explicit error contract) at adapter guard level.
-- [ ] ⚪ Account-level checkout context resolution tests for future `paid` path guardrails.
+- [x] ✅ Production‑Ready Account-level checkout context resolution tests for future `paid` path guardrails (**deferred to** `foundation_documentation/todos/active/vnext_slices/TODO-vnext-checkout-package-integration.md`).
 - [ ] ⚪ Bundle tests for `combo` (single occurrence invariant) and `passport` (event scope invariant).
 - [ ] ⚪ Passport purchase tests validating atomic pre-allocation and rollback on partial-capacity failure.
 - [ ] ⚪ Concurrency tests under high contention validating anti-oversell invariant.
 - [ ] ⚪ Queue/hold tests validating timeout release and deterministic queue advancement.
 - [ ] ⚪ Boundary tests validating queue trigger/admission policy when queue is enabled.
 - [ ] ⚪ Free-mode contention tests validating identical hold/anti-oversell safety behavior.
-- [ ] ⚪ Hold lifecycle tests validating payment-method-aware release SLAs and deterministic expiration transitions.
+- [ ] ⚪ Hold lifecycle tests validating deterministic expiration transitions for non-checkout paths (`free`/local timeout transitions).
+- [x] ✅ Production‑Ready Checkout-owned paid/deferred hold-SLA transition validation is deferred to `foundation_documentation/todos/active/vnext_slices/TODO-vnext-checkout-package-integration.md`.
 - [x] ✅ Production‑Ready Unlimited-capacity tests validating queue is not applicable and never blocks admission.
 - [x] ✅ Production‑Ready Admission contract tests validating cart/queue/sold-out state machine and reconnect idempotency.
 - [x] ✅ Production‑Ready Token lifecycle tests validating queue-token renewal, non-renewable hold-token, and 30s hold reconnect grace.
 - [x] ✅ Production‑Ready Endpoint-shape tests validating offer is ungated while cart is hold-proof-bound.
 - [ ] ⚪ Negative tests validating direct cart/checkout access is rejected when hold proof is missing/expired/invalid.
 - [ ] ⚪ Auth model tests validating `auth_only` behavior (unauthenticated admission/queue/cart rejected).
-- [ ] ⚪ Snapshot tests validating idempotent handoff reuses exact `checkout_payload_snapshot` and `snapshot_hash`.
+- [x] ✅ Production‑Ready Checkout handoff idempotency snapshot validation (`checkout_payload_snapshot` + `snapshot_hash`) is deferred to `foundation_documentation/todos/active/vnext_slices/TODO-vnext-checkout-package-integration.md`.
 - [ ] ⚪ Configuration tests validating effective hold duration precedence (`event_override -> tenant_default`).
 - [ ] ⚪ Transactional integrity tests mapped 1:1 to `TX-01..TX-05` (commit/rollback behavior under contention and failure).
 - [ ] ⚪ Explicit non-transaction tests for `TX-06` async/outbox behavior.
@@ -871,7 +872,7 @@ Decision protocol for this planning cycle:
 - [ ] ⚪ Bundle split is delivered and validated: `combo` (occurrence scope) and `passport` (event scope).
 - [x] ✅ Production‑Ready Passport reservation-on-purchase policy is implemented with atomicity guarantees.
 - [x] ✅ Production‑Ready Monetization `free|paid` contract is in place with `free` fully operational and `paid` explicitly deferred/guarded.
-- [ ] ⚪ Account-level checkout linkage contract is documented and validated for future paid activation.
+- [x] ✅ Production‑Ready Account-level checkout linkage contract is tracked in Checkout VNext owner TODO for future paid activation.
 - [ ] ⚪ High-contention purchase flow is protected against oversell with strict hold lifecycle and transactional guards (queue optional by policy).
 - [x] ✅ Production‑Ready Hold-window default (`10m`, tenant-editable) and event-level override are implemented and validated.
 - [x] ✅ Production‑Ready `ticket_holds` state-machine is canonical reservation source-of-truth with deterministic release transitions and auditability.

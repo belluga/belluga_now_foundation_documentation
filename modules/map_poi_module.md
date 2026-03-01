@@ -10,7 +10,7 @@ This document outlines the architecture and data synchronization strategy for th
   - `foundation_documentation/modules/events_module.md`
   - `laravel-app/packages/belluga/belluga_events/README.md`
 - Tactical delivery references:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-backend.md`
+  - `foundation_documentation/todos/completed/TODO-v1-map-backend.md`
   - `foundation_documentation/todos/completed/TODO-v1-events-capability-map-poi.md`
 
 ## 2. Current Prototype Implementation
@@ -301,6 +301,6 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
-| `TODO-v1-map-backend.md` | Map package extraction and backend contract ownership | In progress | `3.6`, `4`, `6` | Canonical stream for backend map ownership. |
+| `TODO-v1-map-backend.md` | Map package extraction and backend contract ownership | Production-Ready | `1.1`, `3.6`, `4`, `6` | Package ownership complete (`belluga_map_pois`), including internal rebuild command. |
 | `TODO-v1-map-frontend.md` | Flutter map UX + filter/stacking consumption | In progress | `3.3`, `4.1`, `5` | Client contract alignment stream. |
 | `TODO-v1-events-capability-map-poi.md` | Events capability decisions for POI projection | Promoted | `1.1`, `3.6`, `6` | Completed and promoted into module baseline. |

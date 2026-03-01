@@ -145,6 +145,10 @@
 - [ ] ⚪ Keep one-way ownership clear: Checkout decides payment-event semantics; Ticketing consumes through stable contract.
 - [ ] ⚪ Ensure no mutation of frozen snapshot values after confirmation.
 
+## Deferred From MVP Ticketing (Checkout-Owned Validation)
+- [ ] ⚪ Validate paid/deferred hold-SLA transitions end-to-end (checkout/webhook/reconciliation driven) and ensure deterministic hold state outcomes.
+- [ ] ⚪ Validate idempotent checkout handoff snapshot reuse (`checkout_payload_snapshot` + `snapshot_hash`) under duplicate/out-of-order checkout callbacks.
+
 ### Applied Mapping Notes
 - `CKO-01 -> TKT-22`:
   - Ticketing must consume Checkout canonical reducer states only.

@@ -8,7 +8,7 @@
 ---
 
 ## References
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-backend.md`
+- `foundation_documentation/todos/completed/TODO-v1-map-backend.md`
 - `foundation_documentation/modules/map_poi_module.md`
 - `foundation_documentation/endpoints_mvp_contracts.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`

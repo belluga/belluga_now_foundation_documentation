@@ -8,11 +8,11 @@
 ---
 
 ## References (Split TODOs)
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-backend.md`
+- `foundation_documentation/todos/completed/TODO-v1-map-backend.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-frontend.md`
 
 ---
 
 ## Status
-- Backend work tracked in `TODO-v1-map-backend.md`
-- Frontend work tracked in `TODO-v1-map-frontend.md`
+- Backend work completed in `TODO-v1-map-backend.md` (completed folder).
+- Frontend work tracked in `TODO-v1-map-frontend.md`.
