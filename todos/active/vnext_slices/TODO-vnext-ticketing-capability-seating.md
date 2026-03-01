@@ -1,9 +1,11 @@
-# TODO (V1): Ticketing Capability - Seating (Seat Map / Assigned Seats)
+# TODO (VNext): Ticketing Capability - Seating (Seat Map / Assigned Seats)
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
 **Status:** Active
 **Owners:** Backend Team
-**Objective:** Define and deliver assigned seating as a Ticketing capability with occurrence-level control and provider-agnostic contracts, keeping ticketing core decoupled from any specific seating vendor.
+**Objective:** Define and deliver assigned seating in VNext as a Ticketing capability with occurrence-level control and provider-agnostic contracts, keeping ticketing core decoupled from any specific seating vendor.
+
+> Origin: deferred from MVP (`PACK-B` in ticketing master TODO) and moved to VNext planning.
 
 ---
 

@@ -19,6 +19,9 @@
 - [x] ✅ Production‑Ready Invites references Event via `event_id` only.
 - [ ] ⚪ Invite lifecycle, attribution, quotas, and acceptance are Invite-domain source-of-truth.
 - [ ] ⚪ Events may expose invite-related projections for UX, but must not own invite transaction state.
+- [x] ✅ Production‑Ready Federation compatibility requirement: invite user-interaction events must remain ActivityPub-compatible by contract shape (adapter delivery deferred).
+  - Rule: keep stable canonical IDs and append-only event semantics for invite lifecycle events.
+  - Rule: do not federate raw secrets/tokens/private anti-abuse payloads.
 
 ---
 

@@ -50,7 +50,7 @@
 - Phase 2 decisions (resolved) are tracked in:
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-2.md` (`D2-01` to `D2-05`).
 - Phase 3 decisions are tracked in:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md` (`D3-01` to `D3-23`).
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md` (`D3-01` to `D3-26`).
 
 ---
 
