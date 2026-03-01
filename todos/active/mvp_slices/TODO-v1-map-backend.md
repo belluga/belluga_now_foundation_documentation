@@ -41,14 +41,14 @@
 ---
 
 ## Pending Decisions (To Iterate)
-- [ ] ⚪ `M1-01` Package route ownership:
-  - keep host route files as wrappers vs package-owned route loading for map endpoints.
-- [ ] ⚪ `M1-02` Projection contract granularity:
-  - single generic POI projection contract vs source-specific contracts (`events`, `account_profiles`, `static_assets`).
-- [ ] ⚪ `M1-03` Namespace strategy in settings:
-  - continue with `map_ui` only vs split operational settings (`map_ui`, `map_ingest`, etc.).
-- [ ] ⚪ `M1-04` Rebuild/reconciliation operations:
-  - define if package exposes explicit rebuild command/API for map projection repair.
+- [x] ✅ Production-Ready `M1-01` Package route ownership.
+  - Decided: package-owned route loading in S1 (host wrappers removed as target state in this slice).
+- [x] ✅ Production-Ready `M1-02` Projection contract granularity.
+  - Decided: hybrid model (generic base contract/DTO plus source-specific extensions for `events`, `account_profiles`, `static_assets`).
+- [x] ✅ Production-Ready `M1-03` Namespace strategy in settings.
+  - Decided: split namespaces in MVP (`map_ui`, `map_ingest`, `map_security`).
+- [x] ✅ Production-Ready `M1-04` Rebuild/reconciliation operations.
+  - Decided: internal rebuild command only in MVP (no public rebuild API endpoint).
 
 ---
 
@@ -152,11 +152,11 @@
 
 ## Decision Baseline (Frozen for S1, Pending Approval)
 - `MAP-D01` Route ownership in S1:
-  - Keep host route/controller wrappers; package provides internal services/contracts only.
+  - Use package-owned route loading in S1; host wrappers are removed from target runtime path.
 - `MAP-D02` Projection contract granularity:
-  - Use source-specific ingestion contracts (`events`, `account_profiles`, `static_assets`) under a shared package boundary.
+  - Use hybrid ingestion contracts: shared generic base + source-specific extensions (`events`, `account_profiles`, `static_assets`).
 - `MAP-D03` Settings namespace:
-  - Keep `map_ui` only in MVP; no `map_ingest` split in S1.
+  - Split in MVP: `map_ui`, `map_ingest`, `map_security`.
 - `MAP-D04` Multitenancy classification:
   - `belluga_map_pois` data is `tenant` scope.
   - Tenant migrations live in package path and are wired via `config/multitenancy.php` tenant migration paths.
@@ -165,6 +165,8 @@
   - Full internal code migration proceeds in subsequent slices.
 - `MAP-D06` Decoupling rule:
   - No direct `App\\...` references inside package `src/**`; host integration must be adapter-bound.
+- `MAP-D07` Rebuild/reconciliation operation:
+  - Provide internal rebuild command for projection repair (per-source and full), without public API endpoint in MVP.
 
 ---
 
