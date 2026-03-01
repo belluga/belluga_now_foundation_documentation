@@ -49,8 +49,8 @@
 - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-ticketing-capability-seating.md` (assigned seating / seat-map capability, provider-agnostic; deferred from MVP).
 - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-ticketing-capability-waitlist-presales.md` (sold-out waitlist + presales, deferred from MVP).
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-api-security-hardening.md` (platform-wide API security hardening baseline; ticketing anti-abuse hardening derives from this source).
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-capability-promotions.md` (discounts/coupons/service-charge rules).
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-capability-transfer-reissue.md` (ticket transfer and reissue lifecycle).
+- `foundation_documentation/todos/completed/TODO-v1-ticketing-capability-promotions.md` (discounts/coupons/service-charge rules).
+- `foundation_documentation/todos/completed/TODO-v1-ticketing-capability-transfer-reissue.md` (ticket transfer and reissue lifecycle).
 
 ---
 
@@ -532,11 +532,11 @@ Decision protocol for this planning cycle:
     - Unauthenticated admission/cart/queue requests are rejected deterministically in MVP mode.
     - Queue token refresh never alters queue ordering/priority.
     - Hold token cannot be extended beyond `hold_expires_at` through refresh flow.
-- [ ] 🟡 Provisional `TKT-39` Promotions boundary and discount stacking policy.
-  - Proposed decision:
+- [x] ✅ Production‑Ready `TKT-39` Promotions boundary and discount stacking policy.
+  - Decided:
     - Promotions are an optional capability (`ticketing.promotions`) with dedicated rules engine.
     - Scope: event, occurrence, and ticket product.
-    - Stacking model is explicit (`exclusive`, `stackable`, `non-combinable-group`) and persisted in pricing snapshot.
+    - Stacking model is explicit (`exclusive`, `stackable`) and persisted in pricing snapshot.
     - Precedence/ordering contract:
       - base ticket price computed first,
       - apply promotions second:
@@ -562,12 +562,12 @@ Decision protocol for this planning cycle:
     - Re-evaluating same context yields identical promo ordering and totals.
     - Quota checks are deterministic and idempotent under concurrent attempts.
     - Promo edits after hold creation do not mutate frozen active-hold totals.
-- [ ] 🟡 Provisional `TKT-40` Ticket transfer/reissue boundary and safeguards.
-  - Proposed decision:
+- [x] ✅ Production‑Ready `TKT-40` Ticket transfer/reissue boundary and safeguards.
+  - Decided:
     - Transfer/reissue is optional capability (`ticketing.transfer_reissue`), built on core entitlement state machine.
     - Transfer/reissue are manual operations only (no automatic cutoff-window policy in this phase).
-    - Authorization boundary is tenant-admin-only (account-admin is not allowed).
-    - Operations require explicit tenant-admin permissions:
+    - Authorization boundary is admin-only (`tenant-admin|account-admin`).
+    - Operations require explicit admin permissions:
       - `ticketing.transfer_manage`
       - `ticketing.reissue_manage`
       - optional exceptional override permission (for consumed/finalized edge cases): `ticketing.reissue_override`
@@ -590,7 +590,7 @@ Decision protocol for this planning cycle:
   - Validation gate:
     - No duplicate active entitlement exists after reissue.
     - Prior QR/token becomes unusable immediately after successful reissue.
-    - Requests from account-admin (without tenant-admin context) are rejected deterministically.
+    - Requests from non-admin principals are rejected deterministically.
     - Missing reason/audit payload rejects operation deterministically.
     - Transfer/reissue commands do not alter payable totals in current MVP scope.
     - Scope resolver always selects highest participant-binding scope and blocks invalid lower-scope operations.
@@ -722,8 +722,8 @@ Decision protocol for this planning cycle:
   - Rule: queue behavior in `free` mode follows the same `queue_mode` policy (`off|auto`) as paid paths.
   - Rule: `free` mode is subject to identical anti-oversell invariants.
 - [x] ✅ Production‑Ready `TKT-34` Scope separation for participants vs attendees.
-  - `event_parties` (`artists`, `venues`) belongs to Events domain (content/ownership context).
-  - attendee/student binding belongs to Ticketing domain (eligibility/identity context for access flows).
+  - `event_parties` are entities that compose the event (e.g., artists, artisans, hosts, venues, organizers) and belong to Events domain (content/ownership context).
+  - attendee/student binding represents audience who will attend/consume access and belongs to Ticketing domain (eligibility/identity context for access flows).
   - Rule: no schema/payload/contract conflation between these scopes.
 - [x] ✅ Production‑Ready `TKT-32` Transaction explicitness matrix (anti-gap gate).
   - Rule: for each critical flow, the TODO must explicitly state `transaction_required: yes|no` with rationale.
@@ -786,10 +786,10 @@ Decision protocol for this planning cycle:
 - [x] ✅ Production‑Ready Implement canonical entitlement lifecycle state machine and legal transition enforcement.
 - [ ] 🟡 Provisional Implement canonical side-effect/event matrix reducer for all legal entitlement transitions.
 - [x] ✅ Production‑Ready Implement occurrence-lapse processor (`issued -> expired`) using `occurrence_end_at + grace_window`.
-- [ ] ⚪ Implement participant-binding scope resolver for transfer/reissue (`ticket|combo|passport`) with deterministic lock errors.
+- [x] ✅ Production‑Ready Implement participant-binding scope resolver for transfer/reissue (`ticket|combo|passport`) with deterministic lock errors.
 - [ ] ⚪ Keep seating capability stream tracked in VNext via `foundation_documentation/todos/active/vnext_slices/TODO-vnext-ticketing-capability-seating.md` (deferred from MVP closure gates).
-- [ ] ⚪ Execute promotions capability stream via `TODO-v1-ticketing-capability-promotions.md` and merge closure evidence.
-- [ ] ⚪ Execute transfer/reissue capability stream via `TODO-v1-ticketing-capability-transfer-reissue.md` and merge closure evidence.
+- [x] ✅ Production‑Ready Execute promotions capability stream via `TODO-v1-ticketing-capability-promotions.md` and merge closure evidence.
+- [x] ✅ Production‑Ready Execute transfer/reissue capability stream via `TODO-v1-ticketing-capability-transfer-reissue.md` and merge closure evidence.
 - [x] ✅ Production‑Ready Register ticketing settings schemas/values through settings kernel.
 - [x] ✅ Production‑Ready Register `ticketing.core.identity_mode` schema with MVP default `auth_only`.
 - [x] ✅ Production‑Ready Add optional `ticketing_enabled` settings toggle and enforce it in integration entrypoints.
@@ -845,8 +845,8 @@ Decision protocol for this planning cycle:
 - [x] ✅ Production‑Ready Security tests ensuring hidden template fields cannot be overridden by regular client payload.
 - [x] ✅ Production‑Ready Tests for field-state matrix (`enabled|disabled|hidden`) and default precedence behavior.
 - [ ] ⚪ Seating capability validation suite (`SEAT-*`) is deferred to VNext owner TODO (`foundation_documentation/todos/active/vnext_slices/TODO-vnext-ticketing-capability-seating.md`).
-- [ ] ⚪ Promotions capability validation suite (`PROMO-*`) from `TODO-v1-ticketing-capability-promotions.md`.
-- [ ] ⚪ Transfer/reissue capability validation suite (`XFER-*`) from `TODO-v1-ticketing-capability-transfer-reissue.md`.
+- [x] ✅ Production‑Ready Promotions capability validation suite (`PROMO-*`) from `TODO-v1-ticketing-capability-promotions.md`.
+- [x] ✅ Production‑Ready Transfer/reissue capability validation suite (`XFER-*`) from `TODO-v1-ticketing-capability-transfer-reissue.md`.
 - [ ] ⚪ Sold-out waitlist/presales validation suite is deferred to VNext owner TODO (`foundation_documentation/todos/active/vnext_slices/TODO-vnext-ticketing-capability-waitlist-presales.md`).
 - [x] ✅ Production‑Ready Anti-abuse baseline tests for idempotency/replay + coarse rate-limits in reservation/check-in/purchase flows.
 - [ ] ⚪ Entitlement lifecycle transition matrix tests (legal vs illegal transitions).
@@ -859,35 +859,35 @@ Decision protocol for this planning cycle:
 ---
 
 ## Definition of Done
-- [ ] ⚪ Ticketing domain is package-owned and no longer represented as fragmented Events capabilities.
-- [ ] ⚪ Events package remains focused on core lifecycle + `map_poi` capability.
-- [ ] ⚪ Ticketing runtime behavior is deterministic and validated under tenant-scoped execution.
-- [ ] ⚪ Events/Ticketing integration contracts are explicit and test-covered.
-- [ ] ⚪ Hybrid integration mechanism is delivered and test-covered (sync guardrails + async side effects).
-- [ ] ⚪ Optional integration toggle (`ticketing_enabled`) is implemented as operational switch (non-capability).
-- [ ] ⚪ Occurrence-first ticket runtime is fully enforced (`occurrence_id` required in ticket lifecycle operations).
-- [ ] ⚪ Template-based event creation is delivered with auditable hidden/predefined field application.
-- [ ] ⚪ Template field-state policy (`enabled|disabled|hidden`) and default precedence are deterministic and test-covered.
+- [x] ✅ Production‑Ready Ticketing domain is package-owned and no longer represented as fragmented Events capabilities.
+- [x] ✅ Production‑Ready Events package remains focused on core lifecycle + `map_poi` capability.
+- [x] ✅ Production‑Ready Ticketing runtime behavior is deterministic and validated under tenant-scoped execution.
+- [x] ✅ Production‑Ready Events/Ticketing integration contracts are explicit and test-covered.
+- [x] ✅ Production‑Ready Hybrid integration mechanism is delivered and test-covered (sync guardrails + async side effects).
+- [x] ✅ Production‑Ready Optional integration toggle (`ticketing_enabled`) is implemented as operational switch (non-capability).
+- [x] ✅ Production‑Ready Occurrence-first ticket runtime is fully enforced (`occurrence_id` required in ticket lifecycle operations).
+- [x] ✅ Production‑Ready Template-based event creation is delivered with auditable hidden/predefined field application.
+- [x] ✅ Production‑Ready Template field-state policy (`enabled|disabled|hidden`) and default precedence are deterministic and test-covered.
 - [ ] ⚪ Bundle split is delivered and validated: `combo` (occurrence scope) and `passport` (event scope).
-- [ ] ⚪ Passport reservation-on-purchase policy is implemented with atomicity guarantees.
-- [ ] ⚪ Monetization `free|paid` contract is in place with `free` fully operational and `paid` explicitly deferred/guarded.
+- [x] ✅ Production‑Ready Passport reservation-on-purchase policy is implemented with atomicity guarantees.
+- [x] ✅ Production‑Ready Monetization `free|paid` contract is in place with `free` fully operational and `paid` explicitly deferred/guarded.
 - [ ] ⚪ Account-level checkout linkage contract is documented and validated for future paid activation.
 - [ ] ⚪ High-contention purchase flow is protected against oversell with strict hold lifecycle and transactional guards (queue optional by policy).
-- [ ] ⚪ Hold-window default (`10m`, tenant-editable) and event-level override are implemented and validated.
-- [ ] ⚪ `ticket_holds` state-machine is canonical reservation source-of-truth with deterministic release transitions and auditability.
-- [ ] ⚪ Queue policy is configurable (`off|auto`), deterministic when enabled, and bypassed for unlimited-capacity scopes.
-- [ ] ⚪ Frontend admission decision is backend-driven via queue/hold-derived admission contract (no client-side queue/cart inference).
-- [ ] ⚪ Backend prevents cart/checkout progression without active hold proof, even if frontend is bypassed or stale.
-- [ ] ⚪ Free-mode path enforces hold/anti-oversell invariants with no reservation bypass.
+- [x] ✅ Production‑Ready Hold-window default (`10m`, tenant-editable) and event-level override are implemented and validated.
+- [x] ✅ Production‑Ready `ticket_holds` state-machine is canonical reservation source-of-truth with deterministic release transitions and auditability.
+- [x] ✅ Production‑Ready Queue policy is configurable (`off|auto`), deterministic when enabled, and bypassed for unlimited-capacity scopes.
+- [x] ✅ Production‑Ready Frontend admission decision is backend-driven via queue/hold-derived admission contract (no client-side queue/cart inference).
+- [x] ✅ Production‑Ready Backend prevents cart/checkout progression without active hold proof, even if frontend is bypassed or stale.
+- [x] ✅ Production‑Ready Free-mode path enforces hold/anti-oversell invariants with no reservation bypass.
 - [ ] ⚪ Participant scopes remain explicit and separated: Events parties vs Ticketing attendee/student binding.
 - [ ] ⚪ Seating capability is explicitly deferred to VNext through dedicated capability TODO and linked traceability evidence.
 - [ ] ⚪ Promotions capability is delivered (or explicitly deferred with reason) through dedicated capability TODO and linked closure evidence.
 - [ ] ⚪ Transfer/reissue capability is delivered (or explicitly deferred with reason) through dedicated capability TODO and linked closure evidence.
-- [ ] ⚪ Sold-out waitlist/presales capabilities are explicitly deferred to VNext through dedicated TODO and linked traceability evidence.
-- [ ] ⚪ Minimum anti-abuse baseline is active and validated without harming legitimate retries; advanced hardening is tracked in dedicated MVP security TODO.
+- [x] ✅ Production‑Ready Sold-out waitlist/presales capabilities are explicitly deferred to VNext through dedicated TODO and linked traceability evidence.
+- [x] ✅ Production‑Ready Minimum anti-abuse baseline is active and validated without harming legitimate retries; advanced hardening is tracked in dedicated MVP security TODO.
 - [ ] ⚪ Entitlement lifecycle state machine is canonical, enforced, and audit-reconstructible.
-- [ ] ⚪ Chargeback/dispute policy is explicit and reconciled with entitlement behavior.
-- [ ] ⚪ Transaction matrix is explicit and complete (`TX-01..TX-06`) with no implicit/generic critical-flow gaps.
+- [x] ✅ Production‑Ready Chargeback/dispute policy is explicit and reconciled with entitlement behavior.
+- [x] ✅ Production‑Ready Transaction matrix is explicit and complete (`TX-01..TX-06`) with no implicit/generic critical-flow gaps.
 - [ ] ⚪ All flows marked `transaction_required = yes` are transaction-safe and fail fast when unsupported.
 - [ ] ⚪ Every `🟡 Provisional` decision is explicitly validated and promoted (or revised with rationale) before closure.
 - [ ] ⚪ Documentation is synchronized and legacy capability TODOs are archived with traceability.
@@ -896,7 +896,7 @@ Decision protocol for this planning cycle:
 
 ## Implementation Notes (Latest Iteration)
 - Created by architectural decision to avoid overloading Events capability layer with a full ticket-domain bounded context.
-- Latest validation snapshot (`2026-02-28`, Docker runtime):
+- Latest validation snapshot (`2026-03-01`, Docker runtime):
   - `php artisan test --compact` => `809 passed (2969 assertions)`.
   - Targeted gates green:
     - `tests/Feature/Events/EventCrudControllerTest.php`
@@ -1091,9 +1091,9 @@ Decide by pack, but keep individual `TKT-*` evidence and closure notes for audit
 - `TKT-39` Promotions:
   - No unresolved gap in current MVP scope (precedence, fee interaction, quota model, and active-hold recalculation behavior decided).
 - `TKT-40` Transfer/reissue:
-  - Eligibility policy decided: manual tenant-admin-only operation, no automatic cutoff windows in this phase.
+  - Eligibility policy decided: manual admin-only operation (`tenant-admin|account-admin`), no automatic cutoff windows in this phase.
   - Fee model decided for current scope: fixed `0`; any future fee policy belongs to Checkout stream.
-  - No unresolved gap in current MVP scope (manual tenant-admin boundary, fee model, and participant-binding scope compatibility decided).
+  - No unresolved gap in current MVP scope (manual admin boundary, fee model, and participant-binding scope compatibility decided).
 - `TKT-41` Anti-abuse guardrails:
   - Externalized to dedicated MVP owner TODO (`foundation_documentation/todos/active/mvp_slices/TODO-v1-api-security-hardening.md`).
   - Not a blocker for this specific integration TODO beyond baseline anti-abuse controls.
@@ -1103,4 +1103,4 @@ Decide by pack, but keep individual `TKT-*` evidence and closure notes for audit
   - Externalized to Checkout owner TODO (`foundation_documentation/todos/active/vnext_slices/TODO-vnext-checkout-package-integration.md`).
   - Not a blocker for this integration TODO beyond ticketing fiscal-reference linkage contract.
 
-- `TKT-07/08/39/40/42/46`: Decision details are defined and currently marked `🟡 Provisional`; promote to `✅` after implementation + validation gates are completed.
+- `TKT-07/08/42/46`: Decision details are defined and currently marked `🟡 Provisional`; promote to `✅` after implementation + validation gates are completed.
