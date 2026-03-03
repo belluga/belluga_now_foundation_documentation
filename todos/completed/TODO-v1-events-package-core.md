@@ -1,14 +1,14 @@
 # TODO (V1): Events Package Program (Core)
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Active
+**Status:** Completed
 **Owners:** Backend Team
 **Objective:** Deliver Events as a first-class Laravel package with phased execution: migration-first, decoupling, then hardening.
 
 ---
 
 ## References
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-and-agenda-frontend.md`
+- `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-frontend.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
 - `laravel-app/packages/belluga/belluga_push_handler`
 
@@ -17,7 +17,7 @@
 ## A) Phase Split (Canonical)
 - `foundation_documentation/todos/completed/TODO-v1-events-package-phase-1.md`
 - `foundation_documentation/todos/completed/TODO-v1-events-package-phase-2.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md`
+- `foundation_documentation/todos/completed/TODO-v1-events-package-phase-3.md`
 
 ---
 
@@ -41,7 +41,7 @@
 - [x] ✅ Production‑Ready Phase 2 complete with package internals decoupled from app-layer implementation details.
 - [x] ✅ Production‑Ready Phase 3 hardening/performance/observability foundation (non-capability block) is complete and validated.
 - [x] ✅ Production‑Ready Core location cutover complete (`location` + typed `place_ref`) as pre-capability gate.
-- [ ] ⚪ Final block complete (`map_poi` capability in Events + ticket-domain delivery via dedicated ticketing package integration) with integration validation.
+- [x] ✅ Production‑Ready Events-owned final block complete (`map_poi` capability delivered in Events). Ticket-domain delivery remains tracked in `TODO-v1-ticketing-package-integration.md` and does not block Events closure.
 - [x] ✅ Production‑Ready Foundation docs + roadmap + endpoint contracts synchronized with final non-capability architecture.
 
 ---
@@ -50,7 +50,7 @@
 - Phase 2 decisions (resolved) are tracked in:
   - `foundation_documentation/todos/completed/TODO-v1-events-package-phase-2.md` (`D2-01` to `D2-05`).
 - Phase 3 decisions are tracked in:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md` (`D3-01` to `D3-26`).
+  - `foundation_documentation/todos/completed/TODO-v1-events-package-phase-3.md` (`D3-01` to `D3-26`).
 
 ---
 

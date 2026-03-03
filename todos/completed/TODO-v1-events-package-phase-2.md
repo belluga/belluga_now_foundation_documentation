@@ -26,9 +26,9 @@
 
 ## Standards/Exception Reference (Locked)
 - Standards baseline for this phase is defined in:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-core.md` (Section `F`).
+  - `foundation_documentation/todos/completed/TODO-v1-events-package-core.md` (Section `F`).
 - Approved deviations relevant to Phase 2 are defined in:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-core.md` (Section `G`), especially `EX-01`.
+  - `foundation_documentation/todos/completed/TODO-v1-events-package-core.md` (Section `G`), especially `EX-01`.
 
 ---
 

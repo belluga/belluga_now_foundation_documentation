@@ -35,8 +35,8 @@
 ---
 
 ## Standards/Exception Reference (Locked)
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-core.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md`
+- `foundation_documentation/todos/completed/TODO-v1-events-package-core.md`
+- `foundation_documentation/todos/completed/TODO-v1-events-package-phase-3.md`
 - `foundation_documentation/todos/completed/TODO-v1-settings-kernel-package.md`
 - Multitenancy execution must remain aligned with Spatie tenant migration/runtime model.
 - Full Laravel suite is mandatory for important milestones and closure.

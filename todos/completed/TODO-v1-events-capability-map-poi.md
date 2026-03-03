@@ -27,8 +27,8 @@
 ---
 
 ## Standards/Exception Reference (Locked)
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-core.md` (Sections `F`, `G`).
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md` (capability governance baseline).
+- `foundation_documentation/todos/completed/TODO-v1-events-package-core.md` (Sections `F`, `G`).
+- `foundation_documentation/todos/completed/TODO-v1-events-package-phase-3.md` (capability governance baseline).
 - `foundation_documentation/todos/completed/TODO-v1-settings-kernel-package.md` (settings kernel baseline).
 
 ---

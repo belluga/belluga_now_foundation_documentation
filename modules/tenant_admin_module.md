@@ -22,7 +22,7 @@ Placeholder for the Tenant Administration interface (`tenant_admin` main scope) 
   - `foundation_documentation/modules/map_poi_module.md`
   - `foundation_documentation/modules/events_module.md`
 - Tactical TODO streams:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-admin-navigation-ia-events-priority.md`
+  - `foundation_documentation/todos/completed/TODO-v1-tenant-admin-navigation-ia-events-priority.md`
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-static-assets-media-parity-with-account-profiles.md`
 
@@ -136,7 +136,7 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with 
 
 - `/admin/settings` is the **Settings Hub** entrypoint.
 - Dedicated settings routes:
-  - `/admin/settings/local-preferences` → local device preferences (theme + map radius)
+  - `/admin/settings/local-preferences` → local preferences (`map_ui.radius` bounds + `map_ui.default_origin` fallback seed + theme)
   - `/admin/settings/visual-identity` → branding/visual identity
   - `/admin/settings/technical-integrations` → firebase/push/telemetry
   - `/admin/settings/environment-snapshot` → read-only environment diagnostics
@@ -1305,6 +1305,43 @@ Update firebase settings.
 }
 ```
 
+### `PATCH /admin/api/v1/settings/values/map_ui`
+Update tenant `map_ui` settings used by map + agenda contracts.
+
+**Request Schema**
+```json
+{
+  "default_origin": {
+    "lat": -20.0,
+    "lng": -40.0,
+    "label": "string?"
+  },
+  "radius": {
+    "min_km": 1,
+    "default_km": 5,
+    "max_km": 50
+  }
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "default_origin": {
+      "lat": -20.0,
+      "lng": -40.0,
+      "label": "string?"
+    },
+    "radius": {
+      "min_km": 1,
+      "default_km": 5,
+      "max_km": 50
+    }
+  }
+}
+```
+
 ### `GET /admin/api/v1/settings/telemetry`
 List telemetry integrations.
 
@@ -1391,11 +1428,13 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TAD-01` | Approved | Tenant-admin scope is tenant-domain `/admin` with landlord principal guard in V1. | Keeps host/scope behavior deterministic across app and API. | Sections `2.1`, `2.2`, `3` |
 | `TAD-02` | Approved | Scope/subscope governance is mandatory and route ownership cannot be inferred ad hoc. | Prevents route drift and admin/workspace overlap. | Sections `2.1`, `3.0` |
 | `TAD-03` | Approved | Settings screens follow canonical hub + dedicated flows with controller-owned state. | Provides consistent admin UX architecture baseline. | Sections `3.5`, `3.6`, `3.7` |
+| `TAD-04` | Approved | Tenant map/agenda fallback origin is tenant-owned configuration under `settings.map_ui.default_origin`. | Guarantees deterministic origin fallback for agenda/search when user location is unavailable. | Sections `3.6`, `4` (`PATCH /admin/api/v1/settings/values/map_ui`) |
 
 ## 6. Tactical TODO Promotion Ledger
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
-| `TODO-v1-tenant-admin-navigation-ia-events-priority.md` | Tenant-admin IA and route priorities | In progress | `3`, `5` | Governs admin navigation sequence and events/admin touchpoints. |
+| `TODO-v1-tenant-admin-navigation-ia-events-priority.md` | Tenant-admin IA and route priorities | Completed | `3`, `5` | Completed and archived; route/navigation priorities promoted. |
+| `TODO-v1-events-location-gating-and-tenant-default-origin.md` | Map/agenda default-origin tenant settings contract | Promoted | `3.6`, `4`, `5` | Contract is canonical; TODO reopened to deliver missing local-preferences editor implementation in Flutter. |
 | `TODO-v1-tenant-user-account-profile-area.md` | Account/profile admin boundaries | In progress | `2`, `4`, `5` | Aligns account/profile CRUD contracts and scope. |
 | `TODO-v1-static-assets-media-parity-with-account-profiles.md` | Media parity and static assets admin flows | In progress | `4`, `5` | Syncs media endpoints and UX behavior. |

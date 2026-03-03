@@ -11,7 +11,7 @@
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
 - `foundation_documentation/endpoints_mvp_contracts.md`
 - `foundation_documentation/system_roadmap.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-and-agenda-frontend.md`
+- `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-frontend.md`
 
 ---
 
@@ -76,6 +76,10 @@
 - [ ] ⚪ `confirmed_only` in Events reads from Invite acceptance source-of-truth.
 - [ ] ⚪ Invite acceptance updates are reflected in event projections without duplicating business ownership.
 - [ ] ⚪ No local-only confirmation state remains authoritative in Flutter once Invite backend is live.
+
+Moved-from-Events ownership anchors:
+- [ ] ⚪ Event detail invite actions (`accept/decline`) remain routed through Invite endpoints and become authoritative from Invite backend state.
+- [ ] ⚪ Remove/replace any residual local-only confirmation assumptions in Flutter event detail once Invite backend acceptance flows are active.
 
 ---
 

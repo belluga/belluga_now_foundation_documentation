@@ -19,7 +19,7 @@ The Tenant Home Composer module (MOD-301) assembles the personalized landing exp
   - `foundation_documentation/modules/map_poi_module.md`
 - Tactical TODO streams:
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-and-agenda-frontend.md`
+  - `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-frontend.md`
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-frontend.md`
 
 ### 1.1 Scope/Subscope Ownership (Authoritative)
@@ -160,4 +160,4 @@ Captures user actions taken from the home screen so ranking logic can adapt.
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
 | `TODO-v1-first-release.md` | MVP release posture for home composition | In progress | `1`, `4`, `7` | Keeps no-aggregator policy explicit for MVP. |
-| `TODO-v1-events-and-agenda-frontend.md` | Home consumption of agenda/event contracts | In progress | `2`, `7` | Ensures home cards align with occurrence-first contracts. |
+| `TODO-v1-events-and-agenda-frontend.md` | Home consumption of agenda/event contracts | Completed | `2`, `7` | Ensures home cards align with occurrence-first contracts. |

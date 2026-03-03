@@ -8,7 +8,7 @@
 ---
 
 ## References
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-and-agenda-frontend.md`
+- `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-frontend.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
 
 ---

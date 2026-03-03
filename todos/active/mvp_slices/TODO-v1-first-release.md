@@ -18,7 +18,7 @@
 - Invites implementation slice: `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
 - Telemetry + push slice: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-and-push.md`
 - Map slice: `foundation_documentation/todos/active/mvp_slices/TODO-v1-map.md`
-- Events/Agenda slice: `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-and-agenda.md`
+- Events/Agenda slice: `foundation_documentation/todos/completed/TODO-v1-events-and-agenda.md`
 - Account Profile UI slice: `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
 - Tenant/admin area slice: `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
 - Web-to-app policy slice: `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md`
@@ -69,7 +69,7 @@ These are scope descriptors (not tasks).
 - Manual: compile and run app; smoke routes still open without crashes
 
 ### M1 — Core loop contracts + mock fidelity
-- TODOs: `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`, `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-and-agenda.md` (refinement + mock-first)
+- TODOs: `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`, `foundation_documentation/todos/completed/TODO-v1-events-and-agenda.md` (refinement + mock-first)
 - Gate: DTO/fixture contract tests updated; no mock drift from docs
 - Manual: browse events → open event detail → start invite flow (mock-backed)
 

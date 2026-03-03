@@ -85,7 +85,7 @@ Governance constraints:
 
 ## 7. Notes & Observations
 
-* Environment/bootstrap is implemented via a Laravel-backed adapter (`/api/v1/environment?app_domain=…`) and must remain aligned with the backend payload keys used for branding (e.g., `main_logo_light_url`, `main_icon_dark_url`, `theme_data_settings`).
+* Environment/bootstrap is implemented via a Laravel-backed adapter (`GET /api/v1/environment` + `X-App-Domain` header for mobile resolution) and must remain aligned with the backend payload keys used for branding (e.g., `main_logo_light_url`, `main_icon_dark_url`, `theme_data_settings`).
 * Account profiles/discovery continues to rely on local mock databases that embed subtype and engagement expectations; these should be treated as prototype contracts and mirrored in foundation documentation to prevent Flutter ↔ Laravel drift.
 * `ModuleSettings` supports test-time backend builders, enabling targeted tests to swap mock/real adapters without changing production wiring.
 * Architecture adherence refactor in progress: move repository/infrastructure usage out of screens/widgets into controllers, remove DTO types from UI, and ensure presentation logic remains controller-owned (no API contract changes intended).

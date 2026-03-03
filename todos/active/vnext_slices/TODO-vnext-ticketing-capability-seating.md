@@ -29,7 +29,7 @@
 
 ## Standards/Exception Reference (Locked)
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-package-integration.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md`
+- `foundation_documentation/todos/completed/TODO-v1-events-package-phase-3.md`
 - `foundation_documentation/todos/completed/TODO-v1-events-capability-map-poi.md`
 - Multitenancy execution remains aligned with Spatie tenant migration/runtime model.
 

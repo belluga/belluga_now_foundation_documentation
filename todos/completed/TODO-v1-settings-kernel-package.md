@@ -46,7 +46,7 @@
 
 ## Standards/Exception Reference (Locked)
 - Architectural decision source:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md` (`D3-12`, `D3-13`, `D3-14`, `D3-15`).
+  - `foundation_documentation/todos/completed/TODO-v1-events-package-phase-3.md` (`D3-12`, `D3-13`, `D3-14`, `D3-15`).
 - Multitenancy execution requirement:
   - `config/multitenancy.php` tenant migration paths + tenant-scoped execution (`tenants:artisan` / tenant current context).
 - Conditional rules implementation stream (detailed):

@@ -117,7 +117,7 @@
 ## Frontend Tasks (Flutter/Web)
 - [ ] ⚪ Orchestrator: `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
 - [ ] ⚪ Test foundation: `foundation_documentation/todos/completed/TODO-v1-flutter-test-foundation.md`
-- [ ] ⚪ Events & Agenda: `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-and-agenda.md`
+- [ ] ⚪ Events & Agenda: `foundation_documentation/todos/completed/TODO-v1-events-and-agenda.md`
 - [ ] ⚪ Invites (Flutter): `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
 - [ ] ⚪ Map: `foundation_documentation/todos/active/mvp_slices/TODO-v1-map.md`
 - [ ] ⚪ Account Profile UI (type-driven): `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
@@ -131,7 +131,7 @@
 ## Backend Tasks
 - [ ] ⚪ Orchestrator: `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
 - [ ] ⚪ Invites (API): `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
-- [ ] ⚪ Events & Agenda (API): `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-and-agenda.md`
+- [ ] ⚪ Events & Agenda (API): `foundation_documentation/todos/completed/TODO-v1-events-and-agenda.md`
 - [ ] ⚪ Map/POI projection: `foundation_documentation/todos/active/mvp_slices/TODO-v1-map.md`
 - [ ] ⚪ Telemetry + push: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-and-push.md`
 - [ ] ⚪ Tenant/Admin area (accounts/assets/branding): `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`

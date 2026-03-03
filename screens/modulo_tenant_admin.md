@@ -226,6 +226,12 @@ This document defines the tenant admin UI surfaces used to manage **Contas**, **
 **Route strategy (multi-screen):**
 - `/admin/settings` → Hub de Configurações (navegação + resumo).
 - `/admin/settings/local-preferences` → Preferências locais.
+  - Must expose tenant map fallback origin editor backed by settings-kernel `map_ui`:
+    - `default_origin.lat`
+    - `default_origin.lng`
+    - `default_origin.label` (optional)
+  - Save operation must patch `/admin/api/v1/settings/values/map_ui` and preserve existing map_ui keys.
+  - Location selection must reuse the same canonical tenant-admin POI/location picker pattern used by account/profile/event flows (`TenantAdminLocationPickerRoute` + `TenantAdminLocationSelectionContract` confirmed stream).
 - `/admin/settings/visual-identity` → Identidade visual (branding).
 - `/admin/settings/technical-integrations` → Integrações técnicas.
 - `/admin/settings/environment-snapshot` → Snapshot do environment (somente leitura).

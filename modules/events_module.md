@@ -14,9 +14,9 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 
 - Runtime/package truth:
   - `laravel-app/packages/belluga/belluga_events/README.md`
-- Active tactical programs:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-core.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md`
+- Program streams:
+  - `foundation_documentation/todos/completed/TODO-v1-events-package-core.md`
+  - `foundation_documentation/todos/completed/TODO-v1-events-package-phase-3.md`
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-package-integration.md`
 - Completed tactical decisions promoted here:
   - `foundation_documentation/todos/completed/TODO-v1-events-package-phase-1.md`
@@ -54,7 +54,11 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 | `D3-17` | Approved | Invite lifecycle fields are excluded from Events payloads. | Invite ownership stays outside Events; avoid payload coupling. | `belluga_events/README.md` (`Invite lifecycle data is out of Events scope`) |
 | `LOC-01..LOC-07` | Approved | Core location is mandatory with `location` + typed `place_ref`; `venue_id` write input removed. | Unified location semantics for `physical|online|hybrid`; map projection remains capability-level. | `foundation_documentation/todos/completed/TODO-v1-events-location-core-cutover.md` + package requests/tests |
 | `D3-18..D3-23` | Approved | `event_parties` represent event composition + ACL (`can_edit`), not attendees. | Clear separation from participation/ticketing domains. | `belluga_events/README.md` (`Terminology Boundary`) |
-| `D3-25` | Approved | Ticket-domain capabilities moved to ticketing package integration stream. | Keeps Events generic and decoupled while enabling dedicated ticketing evolution. | `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-phase-3.md` + `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-package-integration.md` |
+| `D3-25` | Approved | Ticket-domain capabilities moved to ticketing package integration stream. | Keeps Events generic and decoupled while enabling dedicated ticketing evolution. | `foundation_documentation/todos/completed/TODO-v1-events-package-phase-3.md` + `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-package-integration.md` |
+| `EVS-SEARCH-01` | Approved | Agenda search runtime path is Atlas Search (`$search`) on `event_occurrences`, covering `title`, `content`, `artists.display_name`, and `venue.display_name`. | Deterministic full-text performance and predictable multi-field relevance. | `laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php` + `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-location-gating-and-tenant-default-origin.md` |
+| `EVS-SEARCH-02` | Approved | There is no regex/text runtime fallback for agenda search. | Prevents split behavior and hidden degradation paths. | `laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php` |
+| `EVS-SEARCH-03` | Approved | Combined text + geo filters must run with `$search` first-stage (`compound` + geo clause), not post-filter/local filtering. | Keeps query plan consistent and index-accelerated. | `laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php` |
+| `EVS-OPS-01` | Approved | Query runtime must not create indexes; Mongo and Atlas Search indexes are provisioned deterministically via tenant migration flow (Spatie `tenant_migration_paths`). | Avoids request-path index creation latency/failures and centralizes ops lifecycle in migrations. | `laravel-app/packages/belluga/belluga_events/database/migrations/2026_03_03_000400_provision_event_occurrences_atlas_search_index.php` |
 
 ## 5. Contract Summary for Clients
 
@@ -78,15 +82,25 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 - `GET /events/stream` emits occurrence deltas only.
 - On reconnect without valid cursor: rehydrate from `/agenda`, then resume stream from now.
 
+### 5.4 Search and index lifecycle model
+
+- Agenda search on `event_occurrences` is Atlas Search-first and uses index `events_occurrences_agenda_search_v1`.
+- Atlas field coverage baseline: `title`, `content`, `artists.display_name`, `venue.display_name` with Portuguese-oriented analyzer strategy.
+- Geo + text requests are planned as one `$search` stage (compound with geo clause) before sort/pagination.
+- Runtime query services do not create indexes.
+- Required Mongo + Atlas indexes are application-owned and provisioned through tenant migrations in the Spatie multitenancy flow.
+
 ## 6. Tactical TODO Promotion Ledger
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
 | `TODO-v1-events-package-phase-1.md` | Package migration baseline | Promoted | Sections 3, 4 | Completed and archived. |
 | `TODO-v1-events-package-phase-2.md` | Decoupling via contracts/adapters | Promoted | Sections 3, 4 | Completed and archived. |
+| `TODO-v1-events-package-core.md` | Program closure, invariants, and standards baseline | Promoted | Sections 2, 3, 4, 6 | Completed and archived. |
 | `TODO-v1-events-location-core-cutover.md` | Core location cutover | Promoted | Sections 4, 5 | Completed and archived. |
 | `TODO-v1-events-capability-map-poi.md` | Map POI capability decisions | Promoted | Sections 3, 4 | Completed and archived. |
-| `TODO-v1-events-package-phase-3.md` | Remaining hardening/capability governance | In progress | Sections 3, 4 | Active for final closure checkpoints. |
+| `TODO-v1-events-package-phase-3.md` | Hardening/capability governance finalization | Promoted | Sections 3, 4 | Completed and archived. |
+| `TODO-v1-events-location-gating-and-tenant-default-origin.md` | Origin gating + Atlas search/index lifecycle for agenda flows | Promoted | Sections 4, 5 | Reopened stream: canonical search/index decisions already promoted; pending tenant-admin local-preferences editor delta. |
 | `TODO-v1-ticketing-package-integration.md` | Ticketing package integration stream | In progress | Sections 3, 4 | Active; ticket domain boundaries remain external to Events core. |
 
 ## 7. Relationship to Adjacent Modules

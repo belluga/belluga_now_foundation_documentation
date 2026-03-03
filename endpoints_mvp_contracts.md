@@ -139,6 +139,11 @@
   ],
   "settings": {
     "map_ui": {
+      "default_origin": {
+        "lat": -20.0,
+        "lng": -40.0,
+        "label": "string?"
+      },
       "radius": {
         "min_km": 1,
         "default_km": 5,
@@ -153,6 +158,9 @@
 - `theme_data_settings.brightness_default`: `light`, `dark`.
 - `telemetry.trackers[].type`: `mixpanel`, `firebase`, `webhook`.
 - `telemetry.location_freshness_minutes`: Integer minutes; defaults to 5 when omitted.
+- `settings.map_ui.default_origin.lat`: Tenant default origin latitude used when user location is unavailable.
+- `settings.map_ui.default_origin.lng`: Tenant default origin longitude used when user location is unavailable.
+- `settings.map_ui.default_origin.label`: Optional human-friendly label for the default origin.
 - `settings.map_ui.radius.min_km`: Minimum radius bound for map/agenda filters (km).
 - `profile_types`: Tenant profile type registry entries used to drive profile UI + favorites.
 - `settings.map_ui.radius.default_km`: Default radius for map/agenda filters (km).
@@ -422,6 +430,7 @@
 **Purpose:** Stream event occurrence deltas for active app filters (SSE).  
 **Request (query):** filter set aligned with `/agenda` (`search`, `categories[]`, `tags[]`, `taxonomy[]`, `origin_lat`, `origin_lng`, `max_distance_meters`).  
 **Headers (optional):** `Last-Event-ID` to resume from the last received SSE cursor.  
+**Search execution:** backend Atlas Search (`$search`) is the only supported runtime path for `search` (no regex/text fallback).
 **Event types:**
 - `occurrence.created` (new occurrence matches filters)
 - `occurrence.updated` (occurrence data changed)
@@ -459,11 +468,13 @@
 - `past_only=true` returns events that started before now **and are not happening now**.
 - "Happening now" means `date_time_start <= now < date_time_end`. If `date_time_end` is missing, assume `date_time_start + 3h`.
 - Sort order: upcoming/now ascending by `date_time_start`, past descending by `date_time_start`.
-- Search matches `title`, `content`, any `artists[].display_name`, or `venue.display_name` (case-insensitive).
+- Search is backend-owned and matches `title`, `content`, `artists[].display_name`, and `venue.display_name` via Atlas Search (`$search`) without regex/text fallback.
 - Categories filter matches `type.slug` or event categories when available (case-insensitive).
 - Tags filter matches any `tags[]` on the event (case-insensitive).
 - Taxonomy filter matches any `taxonomy_terms` attached to the venue or artists (case-insensitive).
-- If `origin_lat`/`origin_lng` are provided, filter within `max_distance_meters` using **tenant settings defaults** (`map_ui.radius.default_km`, bounded by `min_km`/`max_km`). If no matches, fall back to the unfiltered list.
+- Client flows for agenda/search must resolve origin before requesting this endpoint (`user location` -> `settings.map_ui.default_origin`).
+- Backend applies geo filtering using `origin_lat`/`origin_lng` + `max_distance_meters` bounded by tenant `map_ui.radius` limits.
+- No unfiltered fallback list is applied when geo filters produce zero matches.
 
 **Response (minimum):**
 ```json
@@ -816,8 +827,8 @@ Not returned by `/agenda` and `/events/{event_id}`:
 
 ## 6.1) Settings Kernel (Tenant + Landlord)
 
-### `GET /api/v1/settings/schema`
-**Purpose:** Discover render-ready settings schema for tenant scope (namespaces, fields, nodes, conditional metadata).  
+### `GET /admin/api/v1/settings/schema`
+**Purpose:** Discover render-ready settings schema for tenant-admin scope on tenant domains (namespaces, fields, nodes, conditional metadata).  
 **Response (minimum):**
 ```json
 {
@@ -840,7 +851,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 }
 ```
 
-### `GET /api/v1/settings/values`
+### `GET /admin/api/v1/settings/values`
 **Purpose:** Fetch current tenant settings values for all authorized namespaces.  
 **Response (minimum):**
 ```json
@@ -854,7 +865,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 }
 ```
 
-### `PATCH /api/v1/settings/values/{namespace}`
+### `PATCH /admin/api/v1/settings/values/{namespace}`
 **Purpose:** Namespace-scoped partial update using canonical field-presence semantics.  
 **Request (body):**
 ```json
@@ -879,7 +890,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 - PATCH merge rule: only payload-present keys mutate; omitted keys remain unchanged.
 - Explicit clear: `null` is allowed only for nullable fields; non-nullable `null` returns `422`.
 
-### Landlord equivalents
+### Landlord equivalents (landlord host context)
 - `GET /admin/api/v1/settings/schema`
 - `GET /admin/api/v1/settings/values`
 - `PATCH /admin/api/v1/settings/values/{namespace}`
@@ -893,7 +904,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 
 ## 7) Tenant/Admin Area (Authenticated)
 
-**Admin routing:** tenant management endpoints live under **tenant scope** (`/api/v1/*`) and are restricted to landlord users via abilities. Landlord/global routes remain under `/admin/api/v1/*`.
+**Admin routing:** tenant-admin management endpoints live under `/admin/api/v1/*` on tenant domains and are restricted to landlord users via abilities. Landlord/global routes also live under `/admin/api/v1/*` on the landlord host.
 
 ### Account + Account Profile Data Strategy (MVP Decision)
 - **Account** stays generic (core boilerplate model) and is the permission boundary.
@@ -1786,7 +1797,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 
 ### `GET /events`
 **Purpose:** List events (tenant scope).  
-**Note:** Event geo is derived from the venue profile location; events do not carry a standalone `location` field.  
+**Note:** Event payload uses canonical `location` + typed `place_ref`; `venue` is a projection resolved from `place_ref` when applicable.  
 **Response:**
 ```json
 {
@@ -1805,8 +1816,40 @@ Not returned by `/agenda` and `/events/{event_id}`:
         "icon": "string?",
         "color": "#RRGGBB?"
       },
-      "venue_id": "string",
+      "location": {
+        "mode": "physical|online|hybrid",
+        "geo": { "type": "Point", "coordinates": [0.0, 0.0] },
+        "online": {
+          "url": "string",
+          "platform": "string?",
+          "label": "string?"
+        }
+      },
+      "place_ref": {
+        "type": "string",
+        "id": "string",
+        "metadata": {}
+      },
+      "venue": {
+        "id": "string",
+        "display_name": "string",
+        "tagline": "string?",
+        "hero_image_url": "string?",
+        "logo_url": "string?",
+        "taxonomy_terms": [{ "type": "string", "value": "string" }]
+      },
       "artist_ids": ["string"],
+      "artists": [
+        {
+          "id": "string",
+          "display_name": "string",
+          "avatar_url": "string?",
+          "highlight": false,
+          "genres": ["string"]
+        }
+      ],
+      "latitude": 0.0,
+      "longitude": 0.0,
       "date_time_start": "2025-01-01T00:00:00Z",
       "date_time_end": "2025-01-01T00:00:00Z?",
       "occurrences": [
@@ -1829,8 +1872,14 @@ Not returned by `/agenda` and `/events/{event_id}`:
           "enabled": false,
           "allow_multiple": false,
           "max_occurrences": null
+        },
+        "map_poi": {
+          "enabled": true,
+          "discovery_scope": null
         }
       },
+      "tags": ["string"],
+      "taxonomy_terms": [{ "type": "string", "value": "string" }],
       "updated_at": "2025-01-01T00:00:00Z",
       "created_at": "2025-01-01T00:00:00Z"
     }
@@ -1849,7 +1898,20 @@ Not returned by `/agenda` and `/events/{event_id}`:
 {
   "title": "string",
   "content": "string",
-  "venue_id": "string",
+  "location": {
+    "mode": "physical|online|hybrid",
+    "geo": { "type": "Point", "coordinates": [0.0, 0.0] },
+    "online": {
+      "url": "https://example.com/meet",
+      "platform": "string?",
+      "label": "string?"
+    }
+  },
+  "place_ref": {
+    "type": "string",
+    "id": "string",
+    "metadata": {}
+  },
   "artist_ids": ["string"],
   "type": {
     "name": "string",
@@ -1889,8 +1951,40 @@ Not returned by `/agenda` and `/events/{event_id}`:
     "slug": "string",
     "title": "string",
     "content": "string",
-    "venue_id": "string",
+    "location": {
+      "mode": "physical|online|hybrid",
+      "geo": { "type": "Point", "coordinates": [0.0, 0.0] },
+      "online": {
+        "url": "string",
+        "platform": "string?",
+        "label": "string?"
+      }
+    },
+    "place_ref": {
+      "type": "string",
+      "id": "string",
+      "metadata": {}
+    },
+    "venue": {
+      "id": "string",
+      "display_name": "string",
+      "tagline": "string?",
+      "hero_image_url": "string?",
+      "logo_url": "string?",
+      "taxonomy_terms": [{ "type": "string", "value": "string" }]
+    },
     "artist_ids": ["string"],
+    "artists": [
+      {
+        "id": "string",
+        "display_name": "string",
+        "avatar_url": "string?",
+        "highlight": false,
+        "genres": ["string"]
+      }
+    ],
+    "latitude": 0.0,
+    "longitude": 0.0,
     "date_time_start": "2025-01-01T00:00:00Z",
     "date_time_end": "2025-01-01T00:00:00Z?",
     "occurrences": [
@@ -1900,6 +1994,27 @@ Not returned by `/agenda` and `/events/{event_id}`:
       "status": "published|publish_scheduled|draft|ended",
       "publish_at": "2025-01-01T00:00:00Z?"
     },
+    "event_parties": [
+      {
+        "party_type": "string",
+        "party_ref_id": "string",
+        "permissions": { "can_edit": true },
+        "metadata": {}
+      }
+    ],
+    "capabilities": {
+      "multiple_occurrences": {
+        "enabled": false,
+        "allow_multiple": false,
+        "max_occurrences": null
+      },
+      "map_poi": {
+        "enabled": true,
+        "discovery_scope": null
+      }
+    },
+    "tags": ["string"],
+    "taxonomy_terms": [{ "type": "string", "value": "string" }],
     "updated_at": "2025-01-01T00:00:00Z",
     "created_at": "2025-01-01T00:00:00Z"
   }
@@ -1918,8 +2033,40 @@ Not returned by `/agenda` and `/events/{event_id}`:
     "slug": "string",
     "title": "string",
     "content": "string",
-    "venue_id": "string",
+    "location": {
+      "mode": "physical|online|hybrid",
+      "geo": { "type": "Point", "coordinates": [0.0, 0.0] },
+      "online": {
+        "url": "string",
+        "platform": "string?",
+        "label": "string?"
+      }
+    },
+    "place_ref": {
+      "type": "string",
+      "id": "string",
+      "metadata": {}
+    },
+    "venue": {
+      "id": "string",
+      "display_name": "string",
+      "tagline": "string?",
+      "hero_image_url": "string?",
+      "logo_url": "string?",
+      "taxonomy_terms": [{ "type": "string", "value": "string" }]
+    },
     "artist_ids": ["string"],
+    "artists": [
+      {
+        "id": "string",
+        "display_name": "string",
+        "avatar_url": "string?",
+        "highlight": false,
+        "genres": ["string"]
+      }
+    ],
+    "latitude": 0.0,
+    "longitude": 0.0,
     "date_time_start": "2025-01-01T00:00:00Z",
     "date_time_end": "2025-01-01T00:00:00Z?",
     "occurrences": [
@@ -1929,6 +2076,27 @@ Not returned by `/agenda` and `/events/{event_id}`:
       "status": "published|publish_scheduled|draft|ended",
       "publish_at": "2025-01-01T00:00:00Z?"
     },
+    "event_parties": [
+      {
+        "party_type": "string",
+        "party_ref_id": "string",
+        "permissions": { "can_edit": true },
+        "metadata": {}
+      }
+    ],
+    "capabilities": {
+      "multiple_occurrences": {
+        "enabled": false,
+        "allow_multiple": false,
+        "max_occurrences": null
+      },
+      "map_poi": {
+        "enabled": true,
+        "discovery_scope": null
+      }
+    },
+    "tags": ["string"],
+    "taxonomy_terms": [{ "type": "string", "value": "string" }],
     "updated_at": "2025-01-01T00:00:00Z",
     "created_at": "2025-01-01T00:00:00Z"
   }
@@ -1938,6 +2106,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 **Hard rules for write payloads:**
 - `date_time_start` and `date_time_end` are prohibited in write requests.
 - schedule must be sent via `occurrences[]`.
+- `venue_id` is prohibited; use canonical `location` + typed `place_ref`.
 - invite lifecycle fields are not part of Events payload contract.
 
 ### `POST /branding/update`

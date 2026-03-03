@@ -14,8 +14,8 @@ The Agenda & Action Planner module (MOD-303) tracks every upcoming experience, b
   - `foundation_documentation/modules/events_module.md`
   - `laravel-app/packages/belluga/belluga_events/README.md`
 - Tactical delivery references:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-and-agenda-frontend.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-package-core.md`
+  - `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-frontend.md`
+  - `foundation_documentation/todos/completed/TODO-v1-events-package-core.md`
 
 ---
 
@@ -87,6 +87,8 @@ Events use canonical `location` + `place_ref`; venue projection is resolved from
 
 **Request (paged list)**
 - Query: `page` (int), `page_size` (int), `past_only` (bool), `search` (string), `categories[]`, `tags[]`, `taxonomy[]`, `origin_lat`, `origin_lng`, `max_distance_meters`.
+- Client orchestration rule: resolve effective origin before first fetch (`user location` -> tenant `settings.map_ui.default_origin`).
+- Filter execution rule: search + geo filters are backend-owned; agenda clients do not apply local radius filtering after fetch.
 
 **Response**
 ```json
@@ -212,10 +214,13 @@ Events use canonical `location` + `place_ref`; venue projection is resolved from
 | `AGD-01` | Approved | Agenda consumes occurrence-first Events contract with invite lifecycle excluded from event payloads. | Keeps Agenda read model aligned with Events ownership boundaries. | Sections `1.1`, `3.4`, `4` |
 | `AGD-02` | Approved | Event location contract is canonical `location + place_ref` with optional venue projection. | Prevents legacy venue-only coupling in agenda consumers. | Section `3.4` |
 | `AGD-03` | Approved | Actions are standardized descriptors, not hardcoded screen logic. | Enables backend-driven card/action evolution. | Section `2` |
+| `AGD-04` | Approved | Agenda/search controllers gate first fetch by effective origin (`user location` first, tenant default origin fallback). | Removes pre-origin fetch stalls and keeps loading deterministic. | Section `3.4` + `foundation_documentation/endpoints_mvp_contracts.md` (`GET /agenda`) |
+| `AGD-05` | Approved | Local distance/radius filtering is forbidden in agenda/search render paths; backend geo filtering is authoritative. | Prevents divergent client/backend filtering behavior. | Section `3.4` + `foundation_documentation/endpoints_mvp_contracts.md` (`GET /agenda`, `GET /events/stream`) |
 
 ## 8. Tactical TODO Promotion Ledger
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
-| `TODO-v1-events-and-agenda-frontend.md` | Agenda/event client contract delivery | In progress | `3.4`, `4`, `7` | Canonical stream for agenda payload usage. |
-| `TODO-v1-events-package-core.md` | Events package authority for agenda contracts | In progress | `1.1`, `3.4`, `7` | Tracks backend contract drift and hardening. |
+| `TODO-v1-events-and-agenda-frontend.md` | Agenda/event client contract delivery | Completed | `3.4`, `4`, `7` | Canonical stream for agenda payload usage. |
+| `TODO-v1-events-package-core.md` | Events package authority for agenda contracts | Completed | `1.1`, `3.4`, `7` | Completed and archived; contract baseline promoted to Events module. |
+| `TODO-v1-events-location-gating-and-tenant-default-origin.md` | Origin gating + backend-only geo filtering | Promoted | `3.4`, `7` | Establishes effective-origin-first fetch and no local radius filtering in agenda/search clients. |

@@ -19,7 +19,7 @@
   - `foundation_documentation/modules/tenant_admin_module.md`
 - Tactical TODO streams:
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-and-agenda-frontend.md`
+  - `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-frontend.md`
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-frontend.md`
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
@@ -253,7 +253,7 @@ Governance constraints:
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
-| `TODO-v1-events-and-agenda-frontend.md` | Events/agenda client contracts and UX integration | In progress | `2.2`, `2.3`, `3` | Maintains occurrence-first event consumption. |
+| `TODO-v1-events-and-agenda-frontend.md` | Events/agenda client contracts and UX integration | Completed | `2.2`, `2.3`, `3` | Maintains occurrence-first event consumption. |
 | `TODO-v1-invites-implementation.md` | Invite/social flow delivery in client | In progress | `2.2`, `2.4`, `2.5` | Share acceptance + contacts import paths. |
 | `TODO-v1-map-frontend.md` | Map rendering/filter/stacking contracts | In progress | `2.2`, `2.3`, `2.4` | Aligns with projection-backed map APIs. |
 | `TODO-v1-tenant-user-account-profile-area.md` | Workspace scope and route ownership | In progress | `2.0`, `3` | Account workspace/subscope integrity. |
