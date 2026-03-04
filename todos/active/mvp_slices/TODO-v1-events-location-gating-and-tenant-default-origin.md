@@ -11,7 +11,8 @@
 ## Goal
 Establish a deterministic, backend-aligned event loading flow where agenda/events requests never run without a resolved origin coordinate: first user location when available, otherwise tenant-configured default location.
 
-**Reopen reason (2026-03-03):** Tenant Admin local-preferences UI still does not expose editing for `settings.map_ui.default_origin`.
+**Reopen reason (2026-03-03, TD-001):** Tenant public Home still emits the first `/api/v1/agenda` request without `origin_lat`/`origin_lng` in real web flow (`https://guarappari.belluga.space`), violating origin-first gating.
+**Resolution note (2026-03-03):** Root cause was `ScheduleRepository.fetchUpcomingEvents()` delegating to `getAllEvents()` (`_backend.fetchEvents()`), which paged `/api/v1/agenda` without origin parameters. Flow was updated to resolve effective origin (`user` -> `tenant default`) before paged fetch.
 
 ---
 
@@ -49,6 +50,7 @@ Establish a deterministic, backend-aligned event loading flow where agenda/event
    - Atlas Search index provisioning for `event_occurrences` as versioned/idempotent app-owned migration/provisioning step executed through Spatie tenant migration flow (`tenant_migration_paths` + tenant context), not ad-hoc infra bootstrap.
 11. Add Tenant Admin local-preferences editing flow for `settings.map_ui.default_origin` (`lat`, `lng`, optional `label`) using settings-kernel `map_ui` namespace read/patch path, with controller/repository ownership and tests.
 12. Tenant Admin default-origin selection must use the same canonical POI/location-picker interaction pattern already used in tenant-admin account/profile/event flows (`TenantAdminLocationPickerRoute` + `TenantAdminLocationSelectionContract` confirmation stream), not a divergent local implementation.
+13. Fix tenant public Home agenda first-fetch flow so the first `/api/v1/agenda` request includes resolved origin query params (`origin_lat` + `origin_lng`) when user location or tenant default origin exists.
 
 ---
 
@@ -67,6 +69,8 @@ Establish a deterministic, backend-aligned event loading flow where agenda/event
 - `/api/v1/environment` contract includes tenant default origin in `settings.map_ui`.
 - Settings schema exposes tenant default origin fields for `map_ui` namespace.
 - Tenant Admin local-preferences screen supports editing and saving `settings.map_ui.default_origin`.
+- Tenant public Home first `/api/v1/agenda` request includes `origin_lat` and `origin_lng` in the real web journey (`guarappari.belluga.space`) whenever effective origin exists.
+- Canonical web tests are split into `readonly` navigation and `mutation` create/destroy suites; mutation execution is stage-only, main runs readonly-only, `dev` is blocked for canonical web CI validation, and production CI includes a redundant hard-block assertion that `main + mutation` is always denied.
 - Regression + contract tests pass in both stacks.
 - Analyzer remains clean for touched Flutter scope.
 - Every frozen decision has explicit module coherence status with evidence; conflicts are explicitly approved as `Supersede` before implementation.
@@ -83,6 +87,11 @@ Establish a deterministic, backend-aligned event loading flow where agenda/event
   - `php artisan test tests/Api/v1/Tenants/Branding/ApiV1EnvironmentApiTest.php`
   - `php artisan test tests/Feature/Settings/SettingsKernelControllerTest.php`
   - `php artisan test tests/Feature/Events/AgendaAndEventsControllerTest.php`
+- Web:
+  - `cd web-app && NAV_DEPLOY_LANE=local NAV_WEB_TEST_TYPE=readonly NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true node tests/guard_web_navigation_policy.cjs && npx playwright test --grep @readonly --reporter=line --workers=1`
+  - `cd web-app && NAV_DEPLOY_LANE=stage NAV_WEB_TEST_TYPE=mutation NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true node tests/guard_web_navigation_policy.cjs && npx playwright test --grep @mutation --reporter=line --workers=1`
+  - `cd web-app && NAV_DEPLOY_LANE=main NAV_WEB_TEST_TYPE=mutation node tests/guard_web_navigation_policy.cjs` (expected blocked by policy)
+  - `cd web-app && NAV_DEPLOY_LANE=dev NAV_WEB_TEST_TYPE=mutation node tests/guard_web_navigation_policy.cjs` (expected blocked by policy)
 
 ---
 
@@ -271,6 +280,8 @@ Before requesting **APROVADO** and again before closing this TODO:
 - `D-11`: Index lifecycle is deterministic and app-owned under Spatie multitenancy: required Mongo query indexes + Atlas Search index must be provisioned via tenant migration flow (`tenant_migration_paths`), and query runtime must not create indexes.
 - `D-12`: Tenant Admin local-preferences must expose and persist `settings.map_ui.default_origin` through settings-kernel (`map_ui`) endpoints, with controller-owned state and no widget-level backend access.
 - `D-13`: Tenant Admin local-preferences default-origin selection must reuse the same POI/location-picker pattern used by tenant-admin account/profile/event location flows (shared picker route + shared confirmation stream contract).
+- `D-14`: Tenant public Home first agenda request must include effective origin query params (`origin_lat`, `origin_lng`) before page-1 fetch in real web flow; missing origin is a blocking defect.
+- `D-15`: Web test governance is split into two suites: `readonly` (navigation parity, allowed on `local|stage|main`) and `mutation` (create/destroy, stage-only); `main` must not run mutation, `dev` is blocked for canonical web validation, and an explicit hard-block assertion on production CI validates that `main + mutation` remains denied.
 
 ---
 
@@ -292,6 +303,8 @@ _Post-implementation adherence validation._
 | D-11 | Adherent | Aligned | Supersede (promoted) | `laravel-app/packages/belluga/belluga_events/database/migrations/2026_03_03_000400_provision_event_occurrences_atlas_search_index.php`, `laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php`, `foundation_documentation/modules/events_module.md` | Index lifecycle moved to deterministic tenant migration flow; runtime index creation removed. |
 | D-12 | Adherent | Aligned | Preserve | `laravel-app/config/belluga_settings.php`, `laravel-app/tests/Feature/Settings/SettingsKernelControllerTest.php`, `flutter-app/lib/infrastructure/repositories/tenant_admin/tenant_admin_settings_repository.dart`, `flutter-app/lib/presentation/tenant_admin/settings/controllers/tenant_admin_settings_controller.dart`, `flutter-app/lib/presentation/tenant_admin/settings/widgets/tenant_admin_settings_local_preferences_section.dart`, `flutter-app/lib/presentation/tenant_admin/settings/screens/tenant_admin_settings_local_preferences_screen.dart`, `flutter-app/test/infrastructure/repositories/tenant_admin_settings_repository_test.dart`, `flutter-app/test/presentation/tenant_admin/settings/tenant_admin_settings_screen_test.dart` | Local-preferences now loads/saves `settings.map_ui.default_origin` through `/admin/api/v1/settings/values/map_ui` via repository/controller flow with explicit tests. |
 | D-13 | Adherent | Aligned | Preserve | `flutter-app/lib/presentation/tenant_admin/settings/controllers/tenant_admin_settings_controller.dart`, `flutter-app/lib/presentation/tenant_admin/settings/screens/tenant_admin_settings_local_preferences_screen.dart`, `foundation_documentation/screens/modulo_tenant_admin.md` | Default-origin selection now reuses shared tenant-admin location picker contract (`TenantAdminLocationPickerRoute` + confirmed stream). |
+| D-14 | Adherent | Aligned | Preserve | `flutter-app/lib/infrastructure/repositories/schedule_repository.dart`, `flutter-app/test/infrastructure/repositories/schedule_repository_test.dart`, `tools/flutter/web_app_tests/navigation.spec.js` (`NAV_DEPLOY_LANE=stage NAV_WEB_TEST_TYPE=mutation ... node tests/guard_web_navigation_policy.cjs && npx playwright test --grep @mutation --grep "tenant agenda UI state matches tenant agenda API payload"` passed on 2026-03-04). | Home startup paths that call `fetchUpcomingEvents()` now resolve effective origin before first `/api/v1/agenda` page-1 fetch. |
+| D-15 | Adherent | Aligned | Preserve | `tools/flutter/web_app_tests/guard_web_navigation_policy.cjs`, `tools/flutter/web_app_tests/navigation.spec.js`, `tools/flutter/web_app_tests/navigation.mutation.stage.spec.js`, `.github/workflows/orchestration-ci-cd.yml` | Policy guard enforces hard block for `main + mutation`, plus stage-only mutation + `dev` block; stage CI runs both readonly and mutation suites, and production CI asserts mutation denial explicitly. |
 
 ---
 
@@ -300,10 +313,10 @@ _Post-implementation adherence validation._
 - **Migration/index status:** Atlas Search provisioning migration added for tenant flow (`2026_03_03_000400_provision_event_occurrences_atlas_search_index.php`).
 - **Queue/scheduler/worker health:** N/A for this TODO scope (no queue topology or scheduler contract changes introduced).
 - **Targeted perf/load sampling:** N/A in current execution lane; baseline safeguarded by Atlas Search-first query plan and deterministic index provisioning.
-- **Smoke flow:** validated through targeted controller/repository tests and feature/API tests in Flutter + Laravel.
-- **Confidence:** `medium-high`.
+- **Smoke flow:** targeted controller/repository tests + real web navigation smoke are green, including tenant agenda parity assertion against `https://guarappari.belluga.space` with origin param checks.
+- **Confidence:** `high`.
 - **Residual risks:** environments without Atlas command support can skip specific search assertions in test lanes; production must keep index provisioning active.
-- **Readiness outcome:** `ready_with_waiver` (awaiting manual tenant smoke by operator after changing `default_origin` in admin settings).
+- **Readiness outcome:** `ready`.
 
 ---
 
@@ -314,4 +327,4 @@ _Post-implementation adherence validation._
   - `foundation_documentation/modules/tenant_admin_module.md`
 - Promoted endpoint contract updates:
   - `foundation_documentation/endpoints_mvp_contracts.md`
-- Result: reopened delta (`D-12` + `D-13`) is now implemented and marked `Adherent`; final close is pending manual tenant smoke in this execution lane.
+- Result: reopened deltas (`D-12`, `D-13`, `D-14`) are implemented and `Adherent`; TODO is eligible for closure after user acceptance.
