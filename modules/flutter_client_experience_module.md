@@ -62,6 +62,18 @@ Governance constraints:
 * **Shared Services:** `UserLocationService` + `LocationRepository` live in the domain layer. Controllers (Map, Search, Invite Check-in) inject the service to request permission, seed initial filters, and pass coordinates to repositories. Repositories never call each other; services wrap a single repository per architecture principle §2.5.
 * **Task & Invite Hooks:** TaskStream integration is deferred post-MVP. Invite controllers must respect `Web-to-App Promotion Policy` by deep-linking to `/invites/share/{code}/accept` and using `POST /contacts/import` instead of handling critical actions purely on the web.
 
+#### 2.1.1 Presentation DI Matrix (Canonical)
+
+This section is the canonical Flutter presentation DI/ownership contract. Rules/skills/lint docs must reference this matrix instead of duplicating full prose.
+
+| Context | Allowed | Forbidden |
+|---|---|---|
+| Screen (`presentation/**/screens/**`) | Resolve same-feature controller via `GetIt` and consume controller-owned state/keys/controllers. | Resolve repository/service/DAO/backend/DTO; resolve cross-feature controller; own UI controllers/keys locally. |
+| Auxiliary widget (`presentation/**/widgets/**`) isolated | Local UI controllers/keys only when fully local and not bridged into feature controller APIs. | Non-controller DI and cross-feature controller DI. |
+| Auxiliary widget interacting with feature controller | Use feature-controller-owned UI controllers/keys and trigger controller intents only. | Keep local UI controller/key and pass/bridge it into feature controller methods. |
+| Module class (`ModuleContract`) | `registerLazySingleton`, `registerFactory`, `registerRouteResolver`. | Direct `GetIt.I.register*`/`GetIt.instance.register*`. |
+| Global bootstrap (`main.dart`, `ModuleSettings`, app bootstrap repository) | App-lifecycle non-UI services/contracts/gates/coordinators. | Global registrations using `*Controller` or `*ControllerContract` naming. |
+
 #### 2.2 API Endpoint Definitions
 
 | Endpoint | Method | Description | Required Role | Request Schema | Response Schema |

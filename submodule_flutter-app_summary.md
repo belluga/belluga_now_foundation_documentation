@@ -90,7 +90,7 @@ Governance constraints:
 * `ModuleSettings` supports test-time backend builders, enabling targeted tests to swap mock/real adapters without changing production wiring.
 * Architecture adherence refactor in progress: move repository/infrastructure usage out of screens/widgets into controllers, remove DTO types from UI, and ensure presentation logic remains controller-owned (no API contract changes intended).
 * DTO factories removed from Flutter domain models; mapping is centralized in infrastructure DTO mappers (invites, schedule, user, thumb, partner).
-* Hard‑NO cleanup queued (FCX‑06): remove GetIt usage from widgets/screens, eliminate Future/StreamBuilder usage in presentation, replace direct Navigator calls with router/controller-driven navigation, split multi‑widget files, and purge DTO dependencies from the domain layer.
+* Hard‑NO cleanup queued (FCX‑06): remove non-controller/cross-feature GetIt resolution from widgets/screens, eliminate Future/StreamBuilder usage in presentation, replace direct Navigator calls with router/controller-driven navigation, split multi‑widget files, and purge DTO dependencies from the domain layer.
 * Profile module dependency wiring will be tightened to ensure `LandlordLoginController` is always registered when Profile routes are loaded (prevents GetIt resolution failures in device tests).
 * Architecture cleanup will introduce domain-level contracts for `AppDataRepository`, `PoiRepository`, `PushPresentationGate`, and `TelemetryQueue`, plus domain-owned `PoiQuery` to remove infrastructure/DAL dependencies from controllers.
 * Partner detail mocks will be lifted into domain projections/services so controllers consume only domain types (no DTOs or DAL classes in presentation).
