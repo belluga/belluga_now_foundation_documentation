@@ -86,9 +86,9 @@ Agenda surfaces events as a paged list; Flutter consumes this shape for cards an
 Events use canonical `location` + `place_ref`; venue projection is resolved from `place_ref` when `place_ref.type=venue`.
 
 **Request (paged list)**
-- Query: `page` (int), `page_size` (int), `past_only` (bool), `search` (string), `categories[]`, `tags[]`, `taxonomy[]`, `origin_lat`, `origin_lng`, `max_distance_meters`.
+- Query: `page` (int), `page_size` (int), `past_only` (bool), `categories[]`, `tags[]`, `taxonomy[]`, `origin_lat`, `origin_lng`, `max_distance_meters`.
 - Client orchestration rule: resolve effective origin before first fetch (`user location` -> tenant `settings.map_ui.default_origin`).
-- Filter execution rule: search + geo filters are backend-owned; agenda clients do not apply local radius filtering after fetch.
+- Filter execution rule: taxonomy/category/tag + geo filters are backend-owned; agenda clients do not apply local radius filtering after fetch.
 
 **Response**
 ```json

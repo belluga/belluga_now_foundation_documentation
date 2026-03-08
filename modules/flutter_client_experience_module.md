@@ -94,7 +94,7 @@ This section is the canonical Flutter presentation DI/ownership contract. Rules/
 | `/map/pois/stream` | GET | Streams POI deltas for active filters. | Tenant | `MapPoisStreamRequest` | SSE delta events |
 | `/map/filters` | GET | Returns server-defined categories/tags for map filters. | Tenant | `MapFiltersRequest` | `MapFiltersResponse` |
 
-*Success/Failure Handling:* All endpoints return `metadata.request_id` for tracing, success payloads encapsulated in `data`, and standardized error envelopes with `error.code`, `error.message`, `error.hints[]`. Mock implementations must reproduce this contract exactly.
+*Success/Failure Handling:* All endpoints return `metadata.request_id` for tracing, success payloads encapsulated in `data`, and standardized error envelopes with `error.code`, `error.message`, `error.hints[]`. Security-hardening responses are also valid when emitted as top-level machine-readable fields (`code`, `message`, optional `retry_after`, `correlation_id`, `cf_ray_id`). Flutter clients must parse both forms without UX regression.
 *Rate Limiting:* Soft limit of 5 req/min per endpoint during mock stage to mirror production throttles; burst handling delegated to controller retry strategies.
 
 #### 2.3 Data Schemas
@@ -231,15 +231,50 @@ This section is the canonical Flutter presentation DI/ownership contract. Rules/
 ## 3. Cross-Module Considerations
 
 * **Partner Naming (Tenant Labels):** “Partner” is a tenant-facing label applied to Account Profiles. The label system is a future capability (post‑MVP) that lets tenants rename or group profile types without changing the underlying Account Profile model.
-* **Shared Libraries:** `lib/application` hosts theming and localization contracts; `lib/presentation/shared/widgets` houses reusable components (e.g., `MainLogo`, `BellugaBottomNavigationBar`); `lib/domain/value_objects` encapsulates validation logic shared across modules.
+* **Shared Libraries:** `lib/application` hosts theming and localization contracts; `lib/presentation/shared/widgets` houses reusable components (e.g., `MainLogo`, `BellugaBottomNavigationBar`); `lib/domain/value_objects` encapsulates validation logic shared across modules; `packages/` hosts internal reusable Flutter packages whose public APIs remain transport-agnostic and module-aligned.
 * **Data Ownership Boundaries:** Mock repositories remain the single source of truth for state; cached DTOs never overwrite domain models without controller orchestration.
 * **Failure & Degradation Modes:** When SSE streams disconnect, controllers downgrade to polling (`/map/pois`) and surface passive UI states; offline mode caches last successful responses and displays timestamped banners.
 
+### 3.1 Reusable Form Validation Package Baseline
+
+* `packages/belluga_form_validation/` is the canonical reusable Flutter package for package-scoped form validation concerns in V1.
+* The package boundary is transport-agnostic:
+  * infrastructure/repositories parse backend `422` envelopes and construct typed validation failures;
+  * the package resolves those failures into UI validation state;
+  * screens/controllers never parse transport objects directly.
+* Validation target kinds are fixed to `field`, `group`, and `global`.
+* Matching baseline for V1:
+  * exact key matching,
+  * wildcard/glob matching,
+  * narrow key normalization for matching,
+  * unmapped keys fall back to `global` and emit developer diagnostics in non-production modes.
+* State ownership baseline:
+  * each form owns one controller-held validation `StreamValue`;
+  * screens consume that stream through granular builders/widgets;
+  * per-field/per-group streams are not part of the baseline.
+* Rendering hierarchy baseline:
+  * `field` -> `InputDecoration.errorText`
+  * `group` -> inline group validation widget
+  * `global` -> inline form-level validation summary/banner
+* Multi-message behavior baseline:
+  * field surfaces show the first message only;
+  * group/global surfaces show a collapsed summary and support inline expand/collapse.
+* Navigation/visibility baseline:
+  * ordered binding declaration defines first-invalid-target priority;
+  * the package provides anchor + scroll helpers;
+  * screens trigger scroll-to-first-invalid-target;
+  * focus remains feature-owned and optional.
+* Validation source baseline:
+  * local pre-submit validation remains feature-owned;
+  * backend `422` validation remains repository-originated;
+  * both sources must feed the same package validation state and render through the same surfaces.
+
 ## 4. Implementation Notes
 
-* **Code Structure:** Four-layer directory layout (`application/`, `domain/`, `infrastructure/`, `presentation/`) with feature-first organization under `presentation/tenant/screens/**`. Each screen owns a controller in `controllers/` and a repository contract in `domain/repositories/`.
+* **Code Structure:** Four-layer directory layout (`application/`, `domain/`, `infrastructure/`, `presentation/`) with feature-first organization under `presentation/tenant/screens/**`. Each screen owns a controller in `controllers/` and a repository contract in `domain/repositories/`. Internal reusable packages live under `packages/` when the concern must be shared across multiple forms/features without collapsing domain/infrastructure boundaries.
 * **Configuration Management:** `.env.dart` defines environment toggles; `MockEnvironmentConfig` provides endpoints, feature flags, and asset URLs; secrets never hardcoded.
 * **Deployment Pipeline:** CI runs `flutter analyze`, `flutter test`, golden diffs, and build_runner. Artifacts published as APK/IPA for internal distribution with mock flag enabled.
+* **Validation Regression Gate:** Any reusable validation package adoption must carry package tests plus first-adopter regression tests for success paths, non-validation failures, and capability-driven sections before it can be promoted as canonical.
 
 ## 5. Decision Log
 
@@ -260,6 +295,7 @@ This section is the canonical Flutter presentation DI/ownership contract. Rules/
 | `FCX-01` | Approved | Controller-owned state is mandatory; widgets remain presentational. | Prevents state duplication and architecture drift. | Section `2.1 Domain Rules` + `DEC-201-001` |
 | `FCX-02` | Approved | Scope/subscope route ownership must follow governance matrix. | Blocks route ambiguity across landlord/tenant/account-workspace. | Section `2.0 Scope/Subscope Ownership` |
 | `FCX-03` | Approved | Flutter consumes backend contracts via domain repositories and contract-tested adapters. | Keeps UI resilient during mock→real backend transition. | Sections `2.2`, `2.7`, `3` |
+| `FCX-04` | Approved | Reusable form validation is package-scoped, transport-agnostic, and controller-owned via one validation stream per form. | Standardizes `422` handling and inline validation rendering without breaking presentation/infrastructure boundaries. | Section `3.1` + `4` |
 
 ## 8. Tactical TODO Promotion Ledger
 

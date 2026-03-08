@@ -4,8 +4,8 @@
 ## 1. Analyzed Version
 
 * **Submodule Name:** `laravel-app`
-* **Commit Hash:** `c48025640dce3b6edb5376de88d523e25f3ef2b5`
-* **Analysis Date:** `2026-03-01`
+* **Commit Hash:** `0043e3aefa0872d4a8f1f88e4622acf9b97dc1c0`
+* **Analysis Date:** `2026-03-07`
 
 *Purpose: This document summarizes the key architectural aspects of the specified submodule version relevant to the main ecosystem.*
 
@@ -27,7 +27,7 @@
 * **Overall Structure:** MVC with app services and domain helpers; API controllers under `app/Http/Api/v1/Controllers`.
 * **Key Patterns:** Multi-tenant middleware groups (`landlord`, `tenant`, `tenant-maybe`, `account`), service layer in `app/Application`, domain utilities in `app/Domain`.
 * **Routing:** API routes are registered in `bootstrap/app.php` with explicit prefixes for `initialize`, `tenant`, `tenant-maybe`, `landlord`, and `accounts/{account_slug}`.
-* **Project Extension:** Optional project route files (`routes/api/project_*.php`) are additive; boilerplate routes remain exposed.
+* **Project Extension:** Optional project route files (`routes/api/project_*.php`) are loaded after base route files and can supersede matching method+domain+URI registrations for project-specific contract overrides.
 
 ---
 
@@ -58,6 +58,7 @@
 * **API Prefix/Base:** `/api/v1`, `/admin/api/v1`, `/api/v1/initialize`, `/api/v1/accounts/{account_slug}`.
 * **Primary Endpoints/Modules:** Tenant auth, anonymous identity, environment/branding, accounts/users/roles, **organizations**, **account profiles**, **account profile types**, **agenda + events (list/detail/stream + admin CRUD)**, **map POIs + filters + near**, **static assets (tenant-admin CRUD)**, **settings kernel (schema/values/namespace patch in tenant + landlord + landlord-on-behalf tenant scopes)**, push device registration, landlord admin routes.
 * **Media ingestion (tenant-admin):** `POST /admin/api/v1/media/external-image` (authenticated + `CheckTenantAccess`) proxies external image URLs into raw bytes with SSRF + size limits to support Flutter Web URL import without CORS/hotlink failures.
+* **Tenant-admin onboarding-only create contract:** `POST /admin/api/v1/account_onboardings` is the canonical manual create path (account + default role template + account_profile). Legacy `POST /admin/api/v1/accounts` and `POST /admin/api/v1/account_profiles` are project-policy rejections (`409`, `error_code=tenant_admin_onboarding_required`, `meta.use_endpoint=/admin/api/v1/account_onboardings`).
 * **Authentication Method:** Laravel Sanctum tokens with abilities; wildcard abilities are sanitized/expanded in auth services.
 
 ### 6.1 Scope/Subscope Ownership Contract for Client-Facing Routes
@@ -96,5 +97,7 @@ Contract expectations exposed to Flutter/Web clients:
 * **Static asset pages:** public read endpoint returns static asset page payloads by id or slug; static assets reuse the shared profile page schema (display name, media, content, taxonomy).
 * **Account Profile BSON:** `AccountProfile` no longer casts `location` or `taxonomy_terms` to arrays, preserving MongoDB BSON for geo indexes and taxonomy payloads.
 * **Bootstrap on register:** password registration now ensures a personal account + profile via `AccountProfileBootstrapService`.
+* **Onboarding orchestration:** `AccountOnboardingService` composes account + profile + optional media inside one backend orchestration boundary with rollback/compensation on validation/media/runtime failure to prevent partial persistence.
+* **Legacy-data repair path:** `tenant:accounts:profiles:repair {tenant_slug} {--execute} {--profile_type=personal}` audits/repairs missing tenant account profiles for strict onboarding-only UI policy.
 * Tenant push credentials are now single-credential only (upsert via `PUT /api/v1/settings/push/credentials`); multiple credentials return 409 until cleaned up.
 * Tenant push settings no longer accept or return `firebase_credentials_id`; configuration relies on a single stored credential plus `firebase` public config.

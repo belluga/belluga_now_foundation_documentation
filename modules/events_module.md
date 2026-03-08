@@ -55,10 +55,9 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 | `LOC-01..LOC-07` | Approved | Core location is mandatory with `location` + typed `place_ref`; `venue_id` write input removed. | Unified location semantics for `physical|online|hybrid`; map projection remains capability-level. | `foundation_documentation/todos/completed/TODO-v1-events-location-core-cutover.md` + package requests/tests |
 | `D3-18..D3-23` | Approved | `event_parties` represent event composition + ACL (`can_edit`), not attendees. | Clear separation from participation/ticketing domains. | `belluga_events/README.md` (`Terminology Boundary`) |
 | `D3-25` | Approved | Ticket-domain capabilities moved to ticketing package integration stream. | Keeps Events generic and decoupled while enabling dedicated ticketing evolution. | `foundation_documentation/todos/completed/TODO-v1-events-package-phase-3.md` + `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-package-integration.md` |
-| `EVS-SEARCH-01` | Approved | Agenda search runtime path is Atlas Search (`$search`) on `event_occurrences`, covering `title`, `content`, `artists.display_name`, and `venue.display_name`. | Deterministic full-text performance and predictable multi-field relevance. | `laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php` + `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-location-gating-and-tenant-default-origin.md` |
-| `EVS-SEARCH-02` | Approved | There is no regex/text runtime fallback for agenda search. | Prevents split behavior and hidden degradation paths. | `laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php` |
-| `EVS-SEARCH-03` | Approved | Combined text + geo filters must run with `$search` first-stage (`compound` + geo clause), not post-filter/local filtering. | Keeps query plan consistent and index-accelerated. | `laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php` |
-| `EVS-OPS-01` | Approved | Query runtime must not create indexes; Mongo and Atlas Search indexes are provisioned deterministically via tenant migration flow (Spatie `tenant_migration_paths`). | Avoids request-path index creation latency/failures and centralizes ops lifecycle in migrations. | `laravel-app/packages/belluga/belluga_events/database/migrations/2026_03_03_000400_provision_event_occurrences_atlas_search_index.php` |
+| `EVS-FILTER-01` | Approved | MVP agenda/events listing does not accept text search (`search` query parameter is prohibited). | Avoids unsupported Atlas/text runtime paths during MVP and keeps filtering deterministic. | `laravel-app/packages/belluga/belluga_events/src/Http/Api/v1/Requests/AgendaIndexRequest.php`, `.../EventIndexRequest.php` |
+| `EVS-FILTER-02` | Approved | Agenda filtering is taxonomy/category/tag + geo only, with taxonomy matching by slug pairs (`type`, `value`). | Aligns query path with tenant taxonomy registry and term slugs. | `laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php`, `laravel-app/app/Application/Taxonomies/TaxonomyValidationService.php` |
+| `EVS-OPS-01` | Approved | Query runtime must not create indexes; required Mongo indexes are provisioned deterministically via tenant migration flow (Spatie `tenant_migration_paths`). | Avoids request-path index creation latency/failures and centralizes ops lifecycle in migrations. | `laravel-app/packages/belluga/belluga_events/database/migrations/2026_02_26_000300_create_event_occurrences_collection.php`, `.../2026_03_06_000500_add_event_occurrences_artists_taxonomy_terms_index.php` |
 
 ## 5. Contract Summary for Clients
 
@@ -84,11 +83,11 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 
 ### 5.4 Search and index lifecycle model
 
-- Agenda search on `event_occurrences` is Atlas Search-first and uses index `events_occurrences_agenda_search_v1`.
-- Atlas field coverage baseline: `title`, `content`, `artists.display_name`, `venue.display_name` with Portuguese-oriented analyzer strategy.
-- Geo + text requests are planned as one `$search` stage (compound with geo clause) before sort/pagination.
+- Text search is disabled for MVP agenda/events listing (`search` is prohibited).
+- Filtering baseline is categorical + taxonomy + geo (`categories`, `tags`, `taxonomy`, origin/radius).
+- Taxonomy filters use typed slug pairs (`taxonomy[].type`, `taxonomy[].value`) across `taxonomy_terms`, `venue.taxonomy_terms`, and `artists.taxonomy_terms`.
 - Runtime query services do not create indexes.
-- Required Mongo + Atlas indexes are application-owned and provisioned through tenant migrations in the Spatie multitenancy flow.
+- Required Mongo indexes are application-owned and provisioned through tenant migrations in the Spatie multitenancy flow.
 
 ## 6. Tactical TODO Promotion Ledger
 
@@ -100,7 +99,7 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 | `TODO-v1-events-location-core-cutover.md` | Core location cutover | Promoted | Sections 4, 5 | Completed and archived. |
 | `TODO-v1-events-capability-map-poi.md` | Map POI capability decisions | Promoted | Sections 3, 4 | Completed and archived. |
 | `TODO-v1-events-package-phase-3.md` | Hardening/capability governance finalization | Promoted | Sections 3, 4 | Completed and archived. |
-| `TODO-v1-events-location-gating-and-tenant-default-origin.md` | Origin gating + Atlas search/index lifecycle for agenda flows | Promoted | Sections 4, 5 | Reopened stream: canonical search/index decisions already promoted; pending tenant-admin local-preferences editor delta. |
+| `TODO-v1-events-location-gating-and-tenant-default-origin.md` | Origin gating + agenda filter contract stabilization | Promoted | Sections 4, 5 | Current baseline: taxonomy/category/tag + geo filtering; text search removed for MVP. |
 | `TODO-v1-ticketing-package-integration.md` | Ticketing package integration stream | In progress | Sections 3, 4 | Active; ticket domain boundaries remain external to Events core. |
 
 ## 7. Relationship to Adjacent Modules

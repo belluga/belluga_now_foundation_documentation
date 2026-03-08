@@ -25,6 +25,27 @@
   - `null` is explicit clear only for fields documented as nullable; `null` for non-nullable fields returns `422`.
   - Mixed set+clear operations in a single payload must be applied atomically.
   - Do not use envelope wrappers (for example `paths`) unless a specific endpoint contract explicitly documents an exception.
+- API security hardening convention (MVP baseline):
+  - Endpoints must be classified by protection level in implementation/docs:
+    - `L1 Core`: low-risk/public/read-heavy routes.
+    - `L2 Balanced`: default for most authenticated APIs and non-financial writes.
+    - `L3 High Protection`: critical mutations (`purchase|reservation|check-in|auth recovery|admin-sensitive writes`).
+  - Cloudflare is the edge protection layer (DDoS/WAF/bot/challenge/coarse IP throttling); Laravel is the source-of-truth layer for principal/account controls and mutation-safety guarantees.
+  - `L3` mutation endpoints require `Idempotency-Key` + replay-window validation.
+  - `L2` mutation endpoints require idempotency when duplicate side effects are possible.
+  - Security rejections must be machine-readable and deterministic (`rate_limited|soft_blocked|hard_blocked|idempotency_missing|idempotency_replayed|idempotency_expired|idempotency_malformed`).
+  - Rejection responses should include `retry_after` (when applicable), `correlation_id`, and `cf_ray_id` when Cloudflare provides one.
+  - Response headers should include:
+    - `X-Correlation-Id`
+    - `X-Api-Security-Level`
+    - `X-Api-Security-Label`
+    - `X-Api-Security-Observe-Mode`
+    - `X-CF-Ray-Id` when available
+  - Requests must trust Cloudflare forwarding headers only through configured trusted proxy chain; direct-origin paths must be blocked in production.
+  - Rollout control:
+    - `observe_mode=true` logs violations without blocking requests.
+    - enforce mode blocks according to level policy once observe metrics are acceptable.
+  - Route/tenant/endpoint overrides may strengthen controls but must not weaken below global minimum policy.
 
 ---
 
@@ -428,9 +449,8 @@
 
 ### `GET /events/stream` (SSE)
 **Purpose:** Stream event occurrence deltas for active app filters (SSE).  
-**Request (query):** filter set aligned with `/agenda` (`search`, `categories[]`, `tags[]`, `taxonomy[]`, `origin_lat`, `origin_lng`, `max_distance_meters`).  
+**Request (query):** filter set aligned with `/agenda` (`categories[]`, `tags[]`, `taxonomy[]`, `origin_lat`, `origin_lng`, `max_distance_meters`).  
 **Headers (optional):** `Last-Event-ID` to resume from the last received SSE cursor.  
-**Search execution:** backend Atlas Search (`$search`) is the only supported runtime path for `search` (no regex/text fallback).
 **Event types:**
 - `occurrence.created` (new occurrence matches filters)
 - `occurrence.updated` (occurrence data changed)
@@ -454,7 +474,6 @@
   "page": 1,
   "page_size": 10,
   "past_only": false,
-  "search": "string?",
   "categories": ["string"],
   "tags": ["string"],
   "taxonomy": [{ "type": "string", "value": "string" }],
@@ -468,10 +487,10 @@
 - `past_only=true` returns events that started before now **and are not happening now**.
 - "Happening now" means `date_time_start <= now < date_time_end`. If `date_time_end` is missing, assume `date_time_start + 3h`.
 - Sort order: upcoming/now ascending by `date_time_start`, past descending by `date_time_start`.
-- Search is backend-owned and matches `title`, `content`, `artists[].display_name`, and `venue.display_name` via Atlas Search (`$search`) without regex/text fallback.
+- Text search is not supported in MVP (`search` query parameter is rejected).
 - Categories filter matches `type.slug` or event categories when available (case-insensitive).
 - Tags filter matches any `tags[]` on the event (case-insensitive).
-- Taxonomy filter matches any `taxonomy_terms` attached to the venue or artists (case-insensitive).
+- Taxonomy filter matches slug pairs (`type`, `value`) against event/venue/artist taxonomy terms.
 - Client flows for agenda/search must resolve origin before requesting this endpoint (`user location` -> `settings.map_ui.default_origin`).
 - Backend applies geo filtering using `origin_lat`/`origin_lng` + `max_distance_meters` bounded by tenant `map_ui.radius` limits.
 - No unfiltered fallback list is applied when geo filters produce zero matches.

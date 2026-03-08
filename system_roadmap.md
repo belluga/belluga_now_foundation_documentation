@@ -74,9 +74,11 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/admin/api/v1/organizations/{organization_id}` | Tenant Admin | Update organization. | Implemented | Tenant‑scoped; landlord users only. Patch name/description. |
 | `/admin/api/v1/organizations/{organization_id}` | Tenant Admin | Delete/restore organization. | Implemented | Soft delete + restore + force delete endpoints are live. |
 | `/admin/api/v1/accounts` | Tenant Admin | List accounts (tenant-owned, unmanaged, user-owned). | Implemented | Tenant‑scoped; landlord users only. Read payload includes `ownership_state`; supports optional `ownership_state` filter. |
-| `/admin/api/v1/accounts` | Tenant Admin | Create account. | Implemented | Tenant‑scoped; landlord users only. Create payload includes explicit `ownership_state` intent (`tenant_owned` or `unmanaged`). |
+| `/admin/api/v1/accounts` | Tenant Admin | Manual create account (legacy). | Implemented | Project route override rejects with deterministic `409` and `meta.use_endpoint=/admin/api/v1/account_onboardings`. |
+| `/admin/api/v1/account_onboardings` | Tenant Admin | Canonical manual onboarding create (account + role + account_profile). | Implemented | Tenant‑scoped; landlord users only. Required payload: `name`, `ownership_state`, `profile_type`; optional media (`avatar`/`cover`) + profile fields. |
 | `/admin/api/v1/accounts/{account_slug}` | Tenant Admin | Fetch/update/delete account (partial). | Implemented | Uses `account_slug`; soft delete + restore + force delete endpoints are live. |
-| `/admin/api/v1/account_profiles` | Tenant Admin | List/create account profiles. | Implemented | Tenant‑scoped; landlord users only. Paged response includes profile metadata + `ownership_state`. |
+| `/admin/api/v1/account_profiles` | Tenant Admin | List account profiles. | Implemented | Tenant‑scoped; landlord users only. Paged response includes profile metadata + `ownership_state`. |
+| `/admin/api/v1/account_profiles` | Tenant Admin | Manual create account profile (legacy). | Implemented | Project route override rejects with deterministic `409` and `meta.use_endpoint=/admin/api/v1/account_onboardings`. |
 | `/admin/api/v1/account_profiles/{account_profile_id}` | Tenant Admin | Fetch/update/delete account profile. | Implemented | Tenant‑scoped; landlord users only. Soft delete + restore + force delete endpoints are live. |
 | `/admin/api/v1/account_profiles/geo` | Tenant Admin | Geo search for POI-enabled profiles. | Implemented | **Removed** from tenant admin routes; superseded by `/api/v1/map/pois`. |
 | `/admin/api/v1/account_profile_types` | Tenant Admin | Profile type registry (tenant settings). | Implemented | Returns registry entries and capabilities. |
