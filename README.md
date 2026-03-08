@@ -43,4 +43,31 @@ completion_metadata: branch=feature/x, commit=abc1234
 
 - Treat this repo as project-specific context; do not move content into `delphi-ai/`.
 - Follow the TODO-driven execution method before any changes.
+- `✅ Production‑Ready` TODO status requires Delivery Confidence Gate evidence (or explicit waiver rationale), with artifacts under `foundation_documentation/artifacts/tmp/<run-id>/...`.
 - Record branch + commit hash in TODOs when tasks are completed.
+
+## Default TODO Closure Gate (Cloudflare + Local)
+
+For backend/security TODOs on Cloudflare-fronted APIs, the default closure gate is:
+
+```bash
+cd laravel-app
+RUN_ID=<run-id> ./scripts/security_confidence_pack.sh
+```
+
+Required evidence (under `foundation_documentation/artifacts/tmp/<run-id>/`):
+
+- Local Laravel checks:
+  - `laravel_pint_security.log`
+  - `laravel_security_suite.log`
+  - `laravel_guardrails.log`
+- Cloudflare runtime checks:
+  - `belluga_root_head.log` (must show `server: cloudflare` + `cf-ray`)
+  - `belluga_security_noauth_headers.log`
+  - `belluga_security_spoof_cf_headers.log`
+  - `belluga_security_spoof_xff_headers.log`
+- Gate status:
+  - `summary.txt` with `gate_result=PASS`
+  - `assertions.log` with all assertions passing
+
+If any assertion fails, TODO closure must remain provisional until resolved or explicitly waived.
