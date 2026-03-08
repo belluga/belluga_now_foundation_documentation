@@ -1,6 +1,6 @@
 # TODO (V1): Events Location Gating + Tenant Default Origin
 
-**Status:** Active (`Validation`)  
+**Status:** Completed (`Delivered and validated across Flutter, Laravel, and web lane policy`)  
 **Owners:** Flutter Team + Laravel Team  
 **Created:** 2026-03-03  
 **Complexity:** `medium`  
@@ -13,6 +13,11 @@ Establish a deterministic, backend-aligned event loading flow where agenda/event
 
 **Reopen reason (2026-03-03, TD-001):** Tenant public Home still emits the first `/api/v1/agenda` request without `origin_lat`/`origin_lng` in real web flow (`https://guarappari.belluga.space`), violating origin-first gating.
 **Resolution note (2026-03-03):** Root cause was `ScheduleRepository.fetchUpcomingEvents()` delegating to `getAllEvents()` (`_backend.fetchEvents()`), which paged `/api/v1/agenda` without origin parameters. Flow was updated to resolve effective origin (`user` -> `tenant default`) before paged fetch.
+**MVP amendment (2026-03-06, TD-002):** Text search for agenda/events is removed from MVP. Canonical filter model is taxonomy/category/tag + geo only.
+**Resolution note (2026-03-06, TD-003):** Flutter parity delivered: agenda/events clients no longer emit `search`; tenant public agenda search affordance is disabled; tenant admin events list search field removed. Validation: `fvm flutter analyze`, `fvm dart run custom_lint`, `fvm flutter test test/infrastructure/repositories/schedule_repository_test.dart`, `fvm flutter test test/infrastructure/repositories/tenant_admin_events_repository_test.dart`, `fvm flutter test test/presentation/tenant_admin/events/tenant_admin_events_screen_test.dart`, `fvm flutter test test/presentation/tenant/home/screens/tenant_home_screen/tenant_home_screen_test.dart`.
+**Resolution note (2026-03-06, TD-004):** Flutter cleanup completed after review: removed dead `EventSearchRoute`/`EventSearchScreen` search-init parameters, regenerated `app_router.gr.dart`, and removed orphan tenant-admin events search controller/state. Validation: `fvm flutter analyze`, `fvm dart run custom_lint`, `fvm flutter test test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/favorites_section_builder_test.dart`, `fvm flutter test test/presentation/tenant_admin/events/tenant_admin_events_screen_test.dart`.
+**Resolution note (2026-03-06, TD-005):** Automated-test alignment completed for MVP search removal: `integration_test/feature_agenda_filters_regression_test.dart` no longer asserts text-search behavior and now proves the search affordance is hidden in Home Agenda and Agenda Screen; `integration_test/feature_admin_events_soft_delete_visibility_test.dart` no longer depends on the removed `Buscar eventos` field. Validation: `fvm flutter test integration_test/feature_agenda_filters_regression_test.dart -d 192.168.15.5:5555 --flavor belluga`, `fvm flutter test integration_test/feature_admin_events_soft_delete_visibility_test.dart -d 192.168.15.5:5555 --flavor belluga`, `fvm flutter analyze`.
+**Reopen reason (2026-03-06, TD-006):** Tenant Admin local-preferences `PATCH /admin/api/v1/settings/values/map_ui` fails because `fetchMapUiSettings()` interprets `data.map_ui = []` as "fallback to full payload", contaminating `TenantAdminMapUiSettings.rawMapUi` with sibling namespaces (`events`, `telemetry`, `push`, `firebase`). Subsequent save sends invalid field paths for namespace `map_ui`, producing `422 Envelope payload is not supported / Unknown field path ...`.
 
 ---
 
@@ -36,18 +41,13 @@ Establish a deterministic, backend-aligned event loading flow where agenda/event
 4. Refactor event-loading controllers to resolve origin before first fetch:
    - prefer user location (non-interactive warm-up)
    - fallback to tenant default origin when user location is unavailable.
-5. Remove local distance/radius filtering from event list rendering path (server-side geo filtering only). Search remains backend-driven.
+5. Remove local distance/radius filtering from event list rendering path (server-side geo filtering only).
 6. Add/adjust tests in Flutter and Laravel for the new contract and flow ordering.
-7. Adopt Atlas Search index strategy for agenda search performance on `event_occurrences` covering:
-   - `artists.display_name`
-   - `venue.display_name`
-   - `content`
-   - (`title` remains included for parity and relevance)
-8. Route agenda search through Atlas Search (`$search`) as the only runtime search path for this flow (no regex/text fallback).
+7. Remove `search` query parameter from agenda/events listing contract for MVP (parameter prohibited).
+8. Keep filtering restricted to `categories[]`, `tags[]`, `taxonomy[]` (`{type, value}` slug pairs), plus geo params.
 9. Validate each frozen decision against canonical module docs before implementation and before TODO closure; any conflict must be explicitly classified as `Preserve` or `Supersede`.
 10. Add deterministic backend index provisioning for planned query paths:
-   - Mongo query indexes via tenant-aware migration on `event_occurrences` (when new supporting indexes are required).
-   - Atlas Search index provisioning for `event_occurrences` as versioned/idempotent app-owned migration/provisioning step executed through Spatie tenant migration flow (`tenant_migration_paths` + tenant context), not ad-hoc infra bootstrap.
+   - Mongo query indexes via tenant-aware migration on `event_occurrences` (including taxonomy term indexes on event/venue/artists).
 11. Add Tenant Admin local-preferences editing flow for `settings.map_ui.default_origin` (`lat`, `lng`, optional `label`) using settings-kernel `map_ui` namespace read/patch path, with controller/repository ownership and tests.
 12. Tenant Admin default-origin selection must use the same canonical POI/location-picker interaction pattern already used in tenant-admin account/profile/event flows (`TenantAdminLocationPickerRoute` + `TenantAdminLocationSelectionContract` confirmation stream), not a divergent local implementation.
 13. Fix tenant public Home agenda first-fetch flow so the first `/api/v1/agenda` request includes resolved origin query params (`origin_lat` + `origin_lng`) when user location or tenant default origin exists.
@@ -64,8 +64,8 @@ Establish a deterministic, backend-aligned event loading flow where agenda/event
 ## Definition of Done
 - Agenda/event loading in Flutter no longer fetches before origin is resolved (user or tenant fallback).
 - No local distance/radius filter is applied after payload fetch in the touched event-loading controllers/repository paths.
-- Search remains backend-filtered and uses Atlas Search in production for performance (`artists.display_name`, `venue.display_name`, `content`, `title`), without regex/text fallback path.
-- Required Mongo/Atlas indexes for agenda query/search path are provisioned by app tenant migration flow (Spatie), and validated in backend tests.
+- `search` is prohibited for agenda/events listing endpoints in MVP.
+- Required Mongo indexes for agenda query path (including taxonomy-term paths) are provisioned by app tenant migration flow (Spatie), and validated in backend tests.
 - `/api/v1/environment` contract includes tenant default origin in `settings.map_ui`.
 - Settings schema exposes tenant default origin fields for `map_ui` namespace.
 - Tenant Admin local-preferences screen supports editing and saving `settings.map_ui.default_origin`.
@@ -88,10 +88,10 @@ Establish a deterministic, backend-aligned event loading flow where agenda/event
   - `php artisan test tests/Feature/Settings/SettingsKernelControllerTest.php`
   - `php artisan test tests/Feature/Events/AgendaAndEventsControllerTest.php`
 - Web:
-  - `cd web-app && NAV_DEPLOY_LANE=local NAV_WEB_TEST_TYPE=readonly NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true node tests/guard_web_navigation_policy.cjs && npx playwright test --grep @readonly --reporter=line --workers=1`
-  - `cd web-app && NAV_DEPLOY_LANE=stage NAV_WEB_TEST_TYPE=mutation NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true node tests/guard_web_navigation_policy.cjs && npx playwright test --grep @mutation --reporter=line --workers=1`
-  - `cd web-app && NAV_DEPLOY_LANE=main NAV_WEB_TEST_TYPE=mutation node tests/guard_web_navigation_policy.cjs` (expected blocked by policy)
-  - `cd web-app && NAV_DEPLOY_LANE=dev NAV_WEB_TEST_TYPE=mutation node tests/guard_web_navigation_policy.cjs` (expected blocked by policy)
+  - `NAV_DEPLOY_LANE=local NAV_WEB_TEST_TYPE=readonly NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true bash tools/flutter/run_web_navigation_smoke.sh readonly`
+  - `NAV_DEPLOY_LANE=stage NAV_WEB_TEST_TYPE=mutation NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true bash tools/flutter/run_web_navigation_smoke.sh mutation`
+  - `NAV_DEPLOY_LANE=main NAV_WEB_TEST_TYPE=mutation bash tools/flutter/run_web_navigation_smoke.sh mutation` (expected blocked by policy)
+  - `NAV_DEPLOY_LANE=dev NAV_WEB_TEST_TYPE=mutation bash tools/flutter/run_web_navigation_smoke.sh mutation` (expected blocked by policy)
 
 ---
 
@@ -303,7 +303,7 @@ _Post-implementation adherence validation._
 | D-11 | Adherent | Aligned | Supersede (promoted) | `laravel-app/packages/belluga/belluga_events/database/migrations/2026_03_03_000400_provision_event_occurrences_atlas_search_index.php`, `laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php`, `foundation_documentation/modules/events_module.md` | Index lifecycle moved to deterministic tenant migration flow; runtime index creation removed. |
 | D-12 | Adherent | Aligned | Preserve | `laravel-app/config/belluga_settings.php`, `laravel-app/tests/Feature/Settings/SettingsKernelControllerTest.php`, `flutter-app/lib/infrastructure/repositories/tenant_admin/tenant_admin_settings_repository.dart`, `flutter-app/lib/presentation/tenant_admin/settings/controllers/tenant_admin_settings_controller.dart`, `flutter-app/lib/presentation/tenant_admin/settings/widgets/tenant_admin_settings_local_preferences_section.dart`, `flutter-app/lib/presentation/tenant_admin/settings/screens/tenant_admin_settings_local_preferences_screen.dart`, `flutter-app/test/infrastructure/repositories/tenant_admin_settings_repository_test.dart`, `flutter-app/test/presentation/tenant_admin/settings/tenant_admin_settings_screen_test.dart` | Local-preferences now loads/saves `settings.map_ui.default_origin` through `/admin/api/v1/settings/values/map_ui` via repository/controller flow with explicit tests. |
 | D-13 | Adherent | Aligned | Preserve | `flutter-app/lib/presentation/tenant_admin/settings/controllers/tenant_admin_settings_controller.dart`, `flutter-app/lib/presentation/tenant_admin/settings/screens/tenant_admin_settings_local_preferences_screen.dart`, `foundation_documentation/screens/modulo_tenant_admin.md` | Default-origin selection now reuses shared tenant-admin location picker contract (`TenantAdminLocationPickerRoute` + confirmed stream). |
-| D-14 | Adherent | Aligned | Preserve | `flutter-app/lib/infrastructure/repositories/schedule_repository.dart`, `flutter-app/test/infrastructure/repositories/schedule_repository_test.dart`, `tools/flutter/web_app_tests/navigation.spec.js` (`NAV_DEPLOY_LANE=stage NAV_WEB_TEST_TYPE=mutation ... node tests/guard_web_navigation_policy.cjs && npx playwright test --grep @mutation --grep "tenant agenda UI state matches tenant agenda API payload"` passed on 2026-03-04). | Home startup paths that call `fetchUpcomingEvents()` now resolve effective origin before first `/api/v1/agenda` page-1 fetch. |
+| D-14 | Adherent | Aligned | Preserve | `flutter-app/lib/infrastructure/repositories/schedule_repository.dart`, `flutter-app/test/infrastructure/repositories/schedule_repository_test.dart`, `tools/flutter/web_app_tests/navigation.spec.js` (`NAV_DEPLOY_LANE=stage NAV_WEB_TEST_TYPE=mutation ... bash tools/flutter/run_web_navigation_smoke.sh mutation` passed for `tenant agenda UI state matches tenant agenda API payload`). | Home startup paths that call `fetchUpcomingEvents()` now resolve effective origin before first `/api/v1/agenda` page-1 fetch. |
 | D-15 | Adherent | Aligned | Preserve | `tools/flutter/web_app_tests/guard_web_navigation_policy.cjs`, `tools/flutter/web_app_tests/navigation.spec.js`, `tools/flutter/web_app_tests/navigation.mutation.stage.spec.js`, `.github/workflows/orchestration-ci-cd.yml` | Policy guard enforces hard block for `main + mutation`, plus stage-only mutation + `dev` block; stage CI runs both readonly and mutation suites, and production CI asserts mutation denial explicitly. |
 
 ---
@@ -328,3 +328,6 @@ _Post-implementation adherence validation._
 - Promoted endpoint contract updates:
   - `foundation_documentation/endpoints_mvp_contracts.md`
 - Result: reopened deltas (`D-12`, `D-13`, `D-14`) are implemented and `Adherent`; TODO is eligible for closure after user acceptance.
+
+## Completion Note
+- `2026-03-07`: The reopened `map_ui` namespace persistence defect was fixed in Flutter (`map_ui: []` now resolves to an empty namespace instead of contaminating sibling settings), covered by repository + integration tests, and promoted through Flutter `stage` and Docker `stage`.

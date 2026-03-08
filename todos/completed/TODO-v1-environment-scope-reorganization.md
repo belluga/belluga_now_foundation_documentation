@@ -278,7 +278,7 @@
 - Flutter validation:
   - `fvm flutter analyze` => clean (no issues)
   - Route/guard/path/widget tests executed and green, including redirect-link widget coverage in `tenant_admin_shell_screen_test.dart`.
-- Device integration runs (WSL-safe one-by-one checklist in `flutter-app/.agent/test-run-progress.md`):
+- Device integration runs (WSL-safe one-by-one checklist in `foundation_documentation/artifacts/tmp/flutter-device-runner/test-run-progress.md`):
   - ✅ `integration_test/feature_environment_tenant_bootstrap_test.dart`
   - ✅ `integration_test/feature_admin_accounts_routes_test.dart`
   - ✅ `integration_test/feature_shell_navigation_smoke_test.dart`

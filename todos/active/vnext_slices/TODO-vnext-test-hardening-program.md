@@ -30,7 +30,7 @@ Establish a strict automated test baseline where critical regressions are caught
 
 ## References
 - `foundation_documentation/todos/completed/TODO-v1-flutter-test-foundation.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-location-gating-and-tenant-default-origin.md`
+- `foundation_documentation/todos/completed/TODO-v1-events-location-gating-and-tenant-default-origin.md`
 - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-test-hardening-defect-backlog.md`
 - Skill baseline:
   - `/home/elton/.codex/skills/public/test-creation-standard/SKILL.md`
@@ -213,9 +213,9 @@ _Post-implementation adherence validation._
 
 | Decision | Status | Module Coherence | Change Intent | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- |
-| D-T01 | Exception | Aligned | Preserve | `web-app/tests/navigation.spec.js` run (2026-03-03), `tests/Feature/Events/AgendaAndEventsControllerTest.php`, `test/infrastructure/repositories/tenant_admin_events_repository_test.dart` | Layered evidence run is in progress; remaining blocker is cross-platform completeness (`D-T02`, mobile evidence). |
+| D-T01 | Exception | Aligned | Preserve | `tools/flutter/web_app_tests/navigation.spec.js` via `bash tools/flutter/run_web_navigation_smoke.sh`, `tests/Feature/Events/AgendaAndEventsControllerTest.php`, `test/infrastructure/repositories/tenant_admin_events_repository_test.dart` | Layered evidence run is in progress; remaining blocker is cross-platform completeness (`D-T02`, mobile evidence). |
 | D-T02 | Exception | Aligned | Preserve | No mobile execution evidence captured in this checkpoint. | Compatibility cannot be declared complete without web+mobile (or explicit approved exclusion). |
-| D-T03 | Adherent | Aligned | Preserve | `tools/flutter/web_app_tests/navigation.spec.js` + `web-app/tests/navigation.spec.js` (`npm run test:navigation -- --grep "tenant agenda UI state matches tenant agenda API payload"` passed on 2026-03-03). | Origin query semantics (`origin_lat`/`origin_lng`) are now asserted and passing in real tenant navigation flow. |
+| D-T03 | Adherent | Aligned | Preserve | `tools/flutter/web_app_tests/navigation.spec.js` via `bash tools/flutter/run_web_navigation_smoke.sh mutation` (`tenant agenda UI state matches tenant agenda API payload` passed). | Origin query semantics (`origin_lat`/`origin_lng`) are now asserted and passing in real tenant navigation flow. |
 | D-T04 | Adherent | Aligned | Preserve | `flutter-app/test/infrastructure/repositories/tenant_admin_events_repository_test.dart` (`fetchEventTypes` token path + mapping assertions). | Repository contract coverage added and passing. |
 | D-T05 | Adherent | Aligned | Preserve | `laravel-app/tests/Feature/Events/AgendaAndEventsControllerTest.php::testAgendaSearchFailsFastWhenAtlasSearchIsUnavailable`. | Fail-fast semantics verified in non-Atlas environment. |
 | D-T06 | Adherent | Aligned | Preserve | Changed test files audited: no `skip/only` bypasses or status-only-only assertions in touched paths. | Gate remains active for future changes. |
@@ -260,8 +260,8 @@ _Post-implementation adherence validation._
 - Laravel:
   - `cd laravel-app && php artisan test tests/Feature/Events/AgendaAndEventsControllerTest.php`
 - Web:
-  - `cd web-app && npx playwright test tests/navigation.spec.js --reporter=line`
-  - (source-of-truth sync check) `diff -u tools/flutter/web_app_tests/navigation.spec.js web-app/tests/navigation.spec.js`
+  - `NAV_DEPLOY_LANE=stage NAV_WEB_TEST_TYPE=readonly NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true bash tools/flutter/run_web_navigation_smoke.sh readonly`
+  - `NAV_DEPLOY_LANE=stage NAV_WEB_TEST_TYPE=mutation NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true bash tools/flutter/run_web_navigation_smoke.sh mutation`
 
 ---
 

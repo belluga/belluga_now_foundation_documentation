@@ -90,7 +90,7 @@
   - `flutter-app/lib/presentation/tenant/profile/screens/profile_screen/controllers/profile_screen_controller.dart` (AuthRepository/AppDataRepository)
 - [x] ✅ Production‑Ready — Integration test failures reported on device (red screen). Re-run & fix until green:
   - `integration_test/feature_shell_navigation_smoke_test.dart` (GetIt registration / profile navigation)
-  - Re-run full checklist in `.agent/test-run-progress.md` after fixes.
+  - Re-run full checklist in `foundation_documentation/artifacts/tmp/flutter-device-runner/test-run-progress.md` after fixes.
 - [x] ✅ Production‑Ready — Run tests after significant changes; re-run if regressions appear.
 - [x] ✅ Production‑Ready — Remove **non‑ephemeral** `setState` usage in presentation (controller‑driven where required).
   - Remaining `setState` occurrences are UI‑only/ephemeral per heuristics:

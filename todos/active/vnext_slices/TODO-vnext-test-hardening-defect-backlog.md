@@ -17,7 +17,7 @@
 
 | Defect ID | Severity | Source Test / Gate | Symptom | Root Cause Hypothesis | Linked Fix TODO | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| TD-001 | High | `web-app/tests/navigation.spec.js` (`tenant agenda UI state matches tenant agenda API payload`) | First tenant public Home agenda request was emitted without `origin_lat`/`origin_lng`. | `ScheduleRepository.fetchUpcomingEvents()` used `getAllEvents()` (`_backend.fetchEvents`) path without origin params on startup. | `foundation_documentation/todos/active/mvp_slices/TODO-v1-events-location-gating-and-tenant-default-origin.md` (`D-14`) | Resolved |
+| TD-001 | High | `tools/flutter/web_app_tests/navigation.spec.js` via `bash tools/flutter/run_web_navigation_smoke.sh mutation` (`tenant agenda UI state matches tenant agenda API payload`) | First tenant public Home agenda request was emitted without `origin_lat`/`origin_lng`. | `ScheduleRepository.fetchUpcomingEvents()` used `getAllEvents()` (`_backend.fetchEvents`) path without origin params on startup. | `foundation_documentation/todos/completed/TODO-v1-events-location-gating-and-tenant-default-origin.md` (`D-14`) | Resolved |
 
 ---
 
