@@ -1,7 +1,7 @@
 # TODO (V1): Landlord-Scope Admin Access (Tenant Lockout + Landlord Entry)
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`
-**Status:** Active
+**Status:** Completed (`Validated manually across environments and reinforced by web smoke coverage`)
 **Owner:** Flutter Team
 **Date:** 2026-02-14
 
@@ -82,13 +82,13 @@ Establish and preserve a strict access model where the admin area is available o
 - [x] ✅ Production‑Ready Tenant admin shell: list tenants by tenant identity (single card), showing `name` + `mainDomain`.
 - [x] ✅ Production‑Ready Tenant admin shell: expose selected tenant context in controller/service state and allow re-selection flow.
 - [x] ✅ Production‑Ready Tenant admin repositories: resolve request base URL from selected tenant domain for admin item requests.
-- [ ] ⚪ Pending Tenant admin repositories: add automated test proving tenant switch changes subsequent request host/base URL (`tenant A` -> `tenant B`).
+- [x] ✅ Production‑Ready Tenant admin repositories: add automated test proving tenant switch changes subsequent request host/base URL (`tenant A` -> `tenant B`).
 - [x] ✅ Production‑Ready Validation: ensure admin screens do not render menu/content while no tenant is selected.
 - [x] ✅ Production‑Ready Tenant route guard: in landlord context, choose `TenantAdminShellRoute` as initial landlord destination when session+mode are active.
 - [x] ✅ Production‑Ready Tenant admin shell: render change-tenant CTA label with selected tenant `name` instead of selected domain.
 - [x] ✅ Production‑Ready Tenant admin shell: when exactly one tenant is available, auto-select it and hide tenant-switch controls.
 - [x] ✅ Production‑Ready Tenant admin shell: while tenant scope is unresolved, show loading state (not tenant picker) until backend resolution completes.
-- [ ] ⚪ Pending Add/refresh foundation module notes (tenant-admin + flutter submodule summary) in the next documentation synchronization cycle.
+- [x] ✅ Production‑Ready Add/refresh foundation module notes (tenant-admin + flutter submodule summary) in the documentation synchronization cycle.
 
 ## Definition of Done
 - [x] ✅ Production‑Ready Tenant profile does not expose admin mode controls.
@@ -113,13 +113,13 @@ Establish and preserve a strict access model where the admin area is available o
 - [x] ✅ Production‑Ready `fvm flutter test test/presentation/tenant_admin/shell/controllers/tenant_admin_shell_controller_test.dart`
 - [x] ✅ Production‑Ready `fvm flutter test test/presentation/tenant_admin/shell/tenant_admin_shell_screen_test.dart`
 - [x] ✅ Production‑Ready `fvm flutter analyze` after tenant-scope gate + tenant-domain request routing.
-- [ ] ⚪ Pending `fvm flutter test test/infrastructure/repositories/tenant_admin_account_profiles_repository_test.dart` (assert request URL changes after tenant switch).
-- [ ] ⚪ Pending Manual verification:
+- [x] ✅ Production‑Ready `fvm flutter test test/infrastructure/repositories/tenant_admin_account_profiles_repository_test.dart` (assert request URL changes after tenant switch).
+- [x] ✅ Production‑Ready Manual verification:
   - entering `/admin` first shows tenant selection gate,
   - selecting a tenant unlocks admin menu,
   - switching/clearing tenant returns to gate,
   - admin item requests target selected tenant domain (`{tenant-domain}/admin/api/...`).
-- [ ] ⚪ Pending Visual/manual verification on landlord route (`/landlord`) for:
+- [x] ✅ Production‑Ready Visual/manual verification on landlord route (`/landlord`) for:
   - landing section visible,
   - tenant list visible,
   - login CTA before session,
@@ -149,3 +149,6 @@ Establish and preserve a strict access model where the admin area is available o
   - `test/presentation/landlord/home/screens/landlord_home_screen_test.dart`
   - `test/application/router/guards/tenant_route_guard_test.dart`
   - `test/presentation/tenant_admin/shell/tenant_admin_shell_screen_test.dart`
+
+## Completion Note
+- `2026-03-07`: Manual validation across environments was completed, and the guarded `/admin` / `/landlord` flows also remained covered by the later web smoke hardening. The landlord-only admin entry contract is now treated as settled baseline behavior.

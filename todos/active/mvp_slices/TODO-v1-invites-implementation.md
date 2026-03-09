@@ -1,171 +1,110 @@
-# TODO (V1): Invites Implementation (Backend + Flutter)
+# TODO (V1): Invites Delivery (Attribution + Quotas + Acceptance)
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Active  
-**Owners:** Backend Team (source of truth) + Delphi (Flutter)  
-**Objective:** Deliver invites that are quota-safe, audit-safe, and metrics-ready for account-profile gamification.
+**Status:** Active
+**Owners:** Backend Team + Flutter Team + Web Team
+**Objective:** Deliver Invites as an independent social transaction functionality, with Event as referenced invite object (`event_id`) and backend-owned acceptance attribution semantics.
 
 ---
 
 ## References
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
-- `foundation_documentation/modules/partner_admin_module.md`
-- Deferred items: `foundation_documentation/todos/active/TODO-vnext-parking-lot.md`
-
-## Invite Flow Summary (MVP)
-- User confirms presence on an event (enables invite context + metrics).
-- To invite:
-  - **Matched user**: app uses `POST /api/v1/contacts/import` (hashed contacts). If a match exists, backend creates invite and sends push.
-  - **No match**: app generates a share link via `POST /api/v1/invites/share` and sends externally (e.g., WhatsApp).
-- **Audience eligibility:** users can invite only their imported contacts or existing app users; account profiles can invite followers/favorites for broader reach (admin-assigned in MVP).
-- Acceptance:
-  - `POST /api/v1/invites/share/{code}/accept` binds attribution to `inviter_principal`.
-  - Acceptance counts as `invite_accepted` with `source = share_url`.
-  - Only one accepted invite per `(tenant_id, event_id, receiver_user_id)`; others become `closed_duplicate`.
-- Tracking:
-  - `share_visit` is analytics only (not an accepted invite).
-  - No raw PII stored; only contact hashes are persisted.
-
-## A) Backend Work
-
-### A1) Data model requirements
-- [ ] ⚪ Persist invites with:
-  - `event_id`, `tenant_id`
-  - `receiver_user_id`
-  - `inviter_principal { kind:user|account_profile, id }`
-- `account_profile_id` (required when inviter is account_profile)
-  - `issued_by_user_id` (nullable; required when inviter is account_profile)
-  - `status` includes `closed_duplicate`
-  - `credited_acceptance` boolean
-  - timestamps: `created_at`, `viewed_at?`, `responded_at?`, `updated_at`
-
-### A1.1) External share codes (new users attribution)
-- [ ] ⚪ Implement share code storage:
-  - [ ] ⚪ `code` → resolves to `{ tenant_id, event_id, inviter_principal, issued_by_user_id? }`
-  - [ ] ⚪ record opens on resolve
-  - [ ] ⚪ record consumption post-install/post-signup (binds attribution to user)
-- [ ] ⚪ Ensure eligibility: anyone who can invite can generate a share code
-- [ ] ⚪ Ensure share code does not bypass invite uniqueness (no duplicate invite spam)
-
-### A1.2) Web acceptance (invite landing only) + same-event re-share
-- [ ] ⚪ Implement `POST /api/v1/invites/share/{code}/accept` (or equivalent) for web landing acceptance
-- [ ] ⚪ Acceptance credits the inviter principal bound to `code` (no multi-inviter selection on web)
-- [ ] ⚪ Require Sanctum (`auth:sanctum`) even on web landing acceptance; web obtains an anonymous token first via `POST /api/v1/anonymous/identities`
-- [ ] ⚪ Create/bind an anonymous identity on web acceptance so the backend can persist acceptance + attribution (anonymous user + Sanctum token is sufficient)
-- [ ] ⚪ Allow external re-share only for the same `event_id` after acceptance, with strict backend limits
-- [ ] ⚪ Invite share links must carry the `code` as a GET parameter in the URL
-
-### A1.3) Contacts + realtime deltas
-- [ ] ⚪ Implement `POST /api/v1/contacts/import` (hashed contact matching for friend suggestions)
-- [ ] ⚪ Expose `/api/v1/invites/stream` SSE for invite deltas (created/updated/deleted)
-
-### A2) Uniqueness + responses
-- [ ] ⚪ Enforce uniqueness key:
-  - `(tenant_id, event_id, receiver_user_id, inviter_principal.kind, inviter_principal.id)`
-- [ ] ⚪ On duplicate: respond `already_invited` (include the existing invite id/code for idempotency if desired)
-
-### A3) Credited acceptance transaction
-- [ ] ⚪ On accept:
-  - [ ] ⚪ Set selected invite: `status=accepted`, `credited_acceptance=true`, `responded_at=now`
-  - [ ] ⚪ For all other invites for `(tenant_id, event_id, receiver_user_id)`:
-    - [ ] ⚪ set `status=closed_duplicate`, `credited_acceptance=false` (idempotent)
-- [ ] ⚪ Make this transactional (single source of truth for accepted conversions)
-
-### A4) Limits (tenant settings)
-- [ ] ⚪ Implement `GET /api/v1/invites/settings` and enforce:
-  - [ ] ⚪ per-event per-inviter limits
-  - [ ] ⚪ per-day limits (account_profile + user actor)
-  - [ ] ⚪ pending invites cap per receiver
-  - [ ] ⚪ suppression lists and opt-out
-- [ ] ⚪ On limit hit: return `429` with payload `{ limit_key, resets_at, remaining?, allowed?, scope }`
-
-### A5) Account Profile invites authorization (MVP)
-- [ ] ⚪ Validate `issued_by_user_id` is an admin-assigned account operator for the inviter `account_profile_id` (memberships deferred in MVP).
-
-### A6) Account Profile event metrics
-- [ ] ⚪ Provide aggregates for event host/managing account profile:
-  - per inviter principal: sent/viewed/accepted(credited)/declined/closed_duplicate
-  - per issuer user: same breakdown
-  - totals
-
-### A7) Telemetry emission (backend-owned)
-- [ ] ⚪ Emit state-changing invite/presence events from backend services (not from UI).
-- [ ] ⚪ Use `user_id` as `distinct_id` for all telemetry events.
-- [ ] ⚪ Use an idempotency key per event + entity + user (e.g., `${event}:${invite_id}:${user_id}`).
-- [ ] ⚪ Mixpanel: send `$insert_id` with the idempotency key.
-- [ ] ⚪ Webhook: send unified envelope `{type, timestamp, context, payload}` with `tenant.id` + `user.id`.
-- [ ] ⚪ Events + required properties:
-  - `invite_accept_selected_inviter` (on persisted inviter selection):
-    - `event_id`, `invite_id`, `inviter_kind`, `inviter_id`, `source=invite_accept`
-    - Optional: `account_profile_id` when `inviter_kind=account_profile`
-  - `invite_accepted` (on acceptance commit):
-    - `event_id`, `invite_id`, `inviter_kind`, `inviter_id`, `source=invite_accept`
-    - Optional: `account_profile_id`, `credited_acceptance=true`
-  - `invite_declined` (on decline commit):
-    - `event_id`, `invite_id`, `inviter_kind`, `inviter_id`, `source=invite_decline`
-    - Optional: `account_profile_id`
-  - `event_confirmed_presence` (on attendance commit):
-    - `event_id`, `source=event_attendance`
-
-### A8) Map invite filter (invited_only)
-- [ ] ⚪ Add an `invited_only` map filter for event POIs (map shows events the user was invited to).
-- [ ] ⚪ Decide invite status inclusion + icon behavior during implementation (pending/accepted/declined, share-code attribution, etc.).
+- `foundation_documentation/endpoints_mvp_contracts.md`
+- `foundation_documentation/system_roadmap.md`
+- `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-frontend.md`
 
 ---
 
-## B) Flutter Work
-
-### B0) Telemetry ownership (frontend)
-- [x] ✅ Do not emit `invite_accept_selected_inviter`, `invite_accepted`, `invite_declined`, or `event_confirmed_presence` from Flutter. These are backend-owned.
-
-### B1) “Accept invite from…” UX (no default)
-- [ ] ⚪ Invite card shows:
-  - [ ] ⚪ “Escolher convite para aceitar”
-  - [ ] ⚪ “+N convites para esse evento”
-- [ ] ⚪ Tap opens selector list of inviters (tiles), user must select one
-- [ ] ⚪ Accept CTA disabled until selection exists
-- [ ] ⚪ Invite flow close/back exits to Home when the invite screen is the root route (avoid freeze).
-
-### B2) Handling `already_invited`
-- [ ] ⚪ When sending invite returns `already_invited`, show state “Já convidado” and avoid duplicate UI entries
-
-### B3) Client settings fetch
-- [ ] ⚪ Add a repository call for `/api/v1/invites/settings` (cache briefly)
-- [ ] ⚪ Use settings only for UX messaging; do not assume limits client-side as authoritative
-
-### B3.1) External share deep links (new users attribution)
-- [ ] ⚪ Support opening share links (WhatsApp/Instagram/etc.) that include a `code`
-- [ ] ⚪ Persist pending share `code` through onboarding/auth until user is available
-- [ ] ⚪ Call backend `consume` endpoint once the user is known to bind attribution
-- [ ] ⚪ Route user into the event context after consuming (or show a safe landing if event is not available)
-
-### B3.2) Web acceptance UX constraints (for Web Team)
-- [ ] ⚪ Web invite landing can show “Aceitar” only when reached via a single `code`
-- [ ] ⚪ Do not expose agenda-based acceptance on web; agenda-first acceptance remains app-only
-- [ ] ⚪ On web landing, mint/resume anonymous identity via `POST /api/v1/anonymous/identities` and use the returned Sanctum token for accept + same-event re-share calls
-
-### B4) Metrics surfacing
-- [ ] ⚪ Bind invite-related metrics pills (Profile + Menu hero) to repository streams:
-  - sent invites count
-  - accepted invites count (credited only)
-  - presence confirmations
+## A) Ownership Boundary (Locked)
+- [x] ✅ Production‑Ready Invites references Event via `event_id` only.
+- [ ] ⚪ Invite lifecycle, attribution, quotas, and acceptance are Invite-domain source-of-truth.
+- [ ] ⚪ Events may expose invite-related projections for UX, but must not own invite transaction state.
+- [x] ✅ Production‑Ready Federation compatibility requirement: invite user-interaction events must remain ActivityPub-compatible by contract shape (adapter delivery deferred).
+  - Rule: keep stable canonical IDs and append-only event semantics for invite lifecycle events.
+  - Rule: do not federate raw secrets/tokens/private anti-abuse payloads.
 
 ---
 
-## C) Telemetry + Push (Invite-specific)
-- [ ] ⚪ Define source of truth + trigger moments for invite telemetry events (backend vs client).
-- [ ] ⚪ Specify push payload contract for invite detection (payload must include `invite` or `invites` root keys so Flutter can upsert).
-- [ ] ⚪ Track `invite_received` when invite is first delivered (push payload applied or invite list fetch).
-- [x] ✅ Production‑Ready — Track `invite_opened` when invite card is first surfaced (Flutter invite flow).
-- [ ] ⚪ Track `invite_accept_selected_inviter` when user selects the inviter to accept.
-- [ ] ⚪ Track `invite_accepted` after accept succeeds.
-- [ ] ⚪ Track `invite_declined` after decline succeeds.
-- [ ] ⚪ Include invite telemetry properties: `tenant_id`, `event_id`, `invite_id` or `invite_code`, `inviter_kind`, `inviter_id`, `source`.
-- [ ] ⚪ Invite received push arrives and routes correctly into the app.
-- [ ] ⚪ Telemetry shows end-to-end invite funnel with consistent identifiers.
+## B) Backend Track (Invites)
+
+### B1) Core endpoints and model
+- [ ] ⚪ Implement invite persistence with:
+  - `tenant_id`, `event_id`, `receiver_user_id`
+  - `inviter_principal {kind:user|account_profile,id}`
+  - `issued_by_user_id`, `account_profile_id` (when applicable)
+  - `status` incl. `closed_duplicate`, `credited_acceptance`, timestamps
+- [ ] ⚪ Implement `GET /api/v1/invites`.
+- [ ] ⚪ Implement `GET /api/v1/invites/stream` (SSE deltas).
+- [ ] ⚪ Implement `GET /api/v1/invites/settings`.
+- [ ] ⚪ Implement `POST /api/v1/contacts/import` (hashed contacts only).
+
+### B2) Share code and web acceptance
+- [ ] ⚪ Implement `POST /api/v1/invites/share`.
+- [ ] ⚪ Implement `POST /api/v1/invites/share/{code}/accept` using Sanctum token (anonymous identity allowed).
+- [ ] ⚪ Enforce same-event re-share constraints and anti-spam limits.
+- [ ] ⚪ Ensure share codes do not bypass duplicate invite protections.
+
+### B3) Attribution and anti-gaming transaction
+- [ ] ⚪ Enforce uniqueness key `(tenant_id, event_id, receiver_user_id, inviter_principal.kind, inviter_principal.id)`.
+- [ ] ⚪ On duplicate invite creation, return `already_invited`.
+- [ ] ⚪ On acceptance, set selected invite as `accepted + credited_acceptance=true` and close others as `closed_duplicate` transactionally.
+
+### B4) Limits, permissions, and telemetry
+- [ ] ⚪ Enforce quota/suppression limits server-side with structured `429` payload.
+- [ ] ⚪ Validate account-profile invite issuance permissions for admin-assigned operators in MVP.
+- [ ] ⚪ Emit backend-owned invite telemetry with idempotency keys and canonical identifiers.
 
 ---
 
-## C) VNext Notes (do not implement now)
-- Offline persistence of invite state
-- Rich suppression management UI
+## C) Flutter/Web Track (Invites)
+
+### C1) Flutter invite UX
+- [ ] ⚪ Implement explicit inviter selection for acceptance (no default inviter).
+- [ ] ⚪ Handle `already_invited` responses gracefully in UI.
+- [ ] ⚪ Use `/api/v1/invites/settings` for UX messaging only; backend remains source-of-truth.
+- [ ] ⚪ Replace invite accept/decline TODO stubs in event detail with real API calls.
+- [ ] ⚪ Keep invite flow close/back behavior stable when route is root.
+
+### C2) Web invite acceptance path
+- [ ] ⚪ Keep web acceptance restricted to invite landing with single `code`.
+- [ ] ⚪ Mint/resume anonymous identity via `/api/v1/anonymous/identities` and use Sanctum token for invite accept/re-share calls.
+- [ ] ⚪ Preserve invite `code` through onboarding/install attribution flows.
+
+---
+
+## D) Integration Criteria (Invites <-> Events)
+- [ ] ⚪ `confirmed_only` in Events reads from Invite acceptance source-of-truth.
+- [ ] ⚪ Invite acceptance updates are reflected in event projections without duplicating business ownership.
+- [ ] ⚪ No local-only confirmation state remains authoritative in Flutter once Invite backend is live.
+
+Moved-from-Events ownership anchors:
+- [ ] ⚪ Event detail invite actions (`accept/decline`) remain routed through Invite endpoints and become authoritative from Invite backend state.
+- [ ] ⚪ Remove/replace any residual local-only confirmation assumptions in Flutter event detail once Invite backend acceptance flows are active.
+
+---
+
+## E) Acceptance Criteria
+- [ ] ⚪ Invites can be issued, accepted, and declined with backend-owned attribution semantics.
+- [ ] ⚪ Duplicate invite abuse is blocked by uniqueness + transactional closure logic.
+- [ ] ⚪ Quota and suppression enforcement works with clear API errors and reset metadata.
+- [ ] ⚪ Invite telemetry/push lifecycle is emitted with stable identifiers.
+
+---
+
+## F) Out of Scope
+- Rich account-profile invite analytics dashboards (data capture only in MVP).
+- Event check-in workflows.
+
+---
+
+## G) Definition of Done
+- [ ] ⚪ Invite functionality is independently deliverable from Event catalog internals.
+- [ ] ⚪ Contracts/docs/roadmap are synchronized for Invite endpoints.
+- [ ] ⚪ Validation steps completed or blocked with explicit notes.
+
+---
+
+## H) Validation Steps
+- [ ] ⚪ Add/refresh backend tests: success, auth, validation, duplicate, quota, and share-code acceptance flows.
+- [ ] ⚪ `fvm flutter analyze`.
+- [ ] ⚪ Manual smoke: invite send/accept/decline, duplicate handling, web code accept.

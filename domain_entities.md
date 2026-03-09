@@ -116,7 +116,7 @@ This list serves as the domain source of truth referenced by the `system_archite
 ### Account Ownership Field Definitions
 
 - `ownership_state` (enum): `tenant_owned`, `unmanaged`, `user_owned`.
-  - **MVP note:** `ownership_state` is derived (not required in payload/response); stored field can be added post‑MVP.
+  - **MVP note:** tenant-admin manual onboarding (`POST /admin/api/v1/account_onboardings`) requires explicit create intent (`tenant_owned|unmanaged`); read payloads still expose the derived effective ownership state.
 
 **Field Definitions**
 - `ownership_state`

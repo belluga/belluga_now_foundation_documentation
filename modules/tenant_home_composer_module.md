@@ -8,6 +8,20 @@
 
 The Tenant Home Composer module (MOD-301) assembles the personalized landing experience for every tenant app user. For MVP, this module is **deferred**: home composition is client-side using independent requests (invites, agenda, map, discovery), and there is **no** aggregated home endpoint. Post-MVP, this module will emit a single schema and persist lightweight snapshots so mocked clients and production clients can converge on the same payload contract.
 
+### 1.0 Canonical Anchors
+
+- System/platform references:
+  - `foundation_documentation/system_roadmap.md`
+  - `foundation_documentation/submodule_flutter-app_summary.md`
+- Cross-module references:
+  - `foundation_documentation/modules/agenda_and_action_planner_module.md`
+  - `foundation_documentation/modules/invite_and_social_loop_module.md`
+  - `foundation_documentation/modules/map_poi_module.md`
+- Tactical TODO streams:
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+  - `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-frontend.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-frontend.md`
+
 ### 1.1 Scope/Subscope Ownership (Authoritative)
 - Canonical governance source:
   - `foundation_documentation/policies/scope_subscope_governance.md`
@@ -132,3 +146,18 @@ Captures user actions taken from the home screen so ranking logic can adapt.
 1. **MVP (FCX-01/02):** Deferred; client composes home from independent endpoints (invites, agenda, map, discovery).
 2. **Phase 8 Dependency:** Integrate Multidimensional Insights snapshots to surface gamified leaderboards.
 3. **Phase 10 Alignment:** Receive backend-driven aggregation payloads to fully replace mock data while preserving the same schema.
+
+## 7. Canonical Decision Baseline
+
+| Decision ID | Status | Decision | Impact | Canonical Evidence |
+| --- | --- | --- | --- | --- |
+| `HOM-01` | Approved | MVP home remains client-composed with no aggregated home endpoint. | Prevents premature backend coupling before contract maturity. | Sections `1`, `4` |
+| `HOM-02` | Approved | Post-MVP composer uses immutable snapshot model + rulesets. | Enables experimentation/audit without live mutation side effects. | Sections `2`, `3` |
+| `HOM-03` | Approved | Scope ownership remains `tenant_public` with explicit transitions only. | Preserves route governance clarity for home/admin/workspace. | Sections `1.1`, `1.2` |
+
+## 8. Tactical TODO Promotion Ledger
+
+| TODO | Purpose | Promotion Status | Promoted Sections | Notes |
+| --- | --- | --- | --- | --- |
+| `TODO-v1-first-release.md` | MVP release posture for home composition | In progress | `1`, `4`, `7` | Keeps no-aggregator policy explicit for MVP. |
+| `TODO-v1-events-and-agenda-frontend.md` | Home consumption of agenda/event contracts | Completed | `2`, `7` | Ensures home cards align with occurrence-first contracts. |

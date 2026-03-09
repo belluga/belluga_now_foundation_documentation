@@ -4,8 +4,8 @@
 ## 1. Analyzed Version
 
 * **Submodule Name:** `flutter-app`
-* **Commit Hash:** `cba16173e3e5c09afc605fb4cbf8f4cbf4c066c7`
-* **Analysis Date:** `2026-02-17`
+* **Commit Hash:** `9cfc7fb266b786ebe1de7a50439d12c3dbd100cf`
+* **Analysis Date:** `2026-03-07`
 
 *Purpose: This document summarizes the key architectural aspects of the specified submodule version relevant to the main ecosystem.*
 
@@ -85,16 +85,24 @@ Governance constraints:
 
 ## 7. Notes & Observations
 
-* Environment/bootstrap is implemented via a Laravel-backed adapter (`/api/v1/environment?app_domain=…`) and must remain aligned with the backend payload keys used for branding (e.g., `main_logo_light_url`, `main_icon_dark_url`, `theme_data_settings`).
+* Environment/bootstrap is implemented via a Laravel-backed adapter (`GET /api/v1/environment` + `X-App-Domain` header for mobile resolution) and must remain aligned with the backend payload keys used for branding (e.g., `main_logo_light_url`, `main_icon_dark_url`, `theme_data_settings`).
 * Account profiles/discovery continues to rely on local mock databases that embed subtype and engagement expectations; these should be treated as prototype contracts and mirrored in foundation documentation to prevent Flutter ↔ Laravel drift.
 * `ModuleSettings` supports test-time backend builders, enabling targeted tests to swap mock/real adapters without changing production wiring.
 * Architecture adherence refactor in progress: move repository/infrastructure usage out of screens/widgets into controllers, remove DTO types from UI, and ensure presentation logic remains controller-owned (no API contract changes intended).
 * DTO factories removed from Flutter domain models; mapping is centralized in infrastructure DTO mappers (invites, schedule, user, thumb, partner).
-* Hard‑NO cleanup queued (FCX‑06): remove GetIt usage from widgets/screens, eliminate Future/StreamBuilder usage in presentation, replace direct Navigator calls with router/controller-driven navigation, split multi‑widget files, and purge DTO dependencies from the domain layer.
+* Hard‑NO cleanup queued (FCX‑06): remove non-controller/cross-feature GetIt resolution from widgets/screens, eliminate Future/StreamBuilder usage in presentation, replace direct Navigator calls with router/controller-driven navigation, split multi‑widget files, and purge DTO dependencies from the domain layer.
 * Profile module dependency wiring will be tightened to ensure `LandlordLoginController` is always registered when Profile routes are loaded (prevents GetIt resolution failures in device tests).
 * Architecture cleanup will introduce domain-level contracts for `AppDataRepository`, `PoiRepository`, `PushPresentationGate`, and `TelemetryQueue`, plus domain-owned `PoiQuery` to remove infrastructure/DAL dependencies from controllers.
 * Partner detail mocks will be lifted into domain projections/services so controllers consume only domain types (no DTOs or DAL classes in presentation).
 * Partner audio playback now routes through a domain-level `AudioPlayerServiceContract`, with the mock implementation registered in `DiscoveryModule` and controllers consuming the contract (no infrastructure dependencies in presentation).
 * Integration tests updated to use domain `PoiQuery` and `PartnerProfileConfigBuilder`; device checklist shows all integration tests green after these updates.
+* `packages/belluga_form_validation/` is now the canonical internal Flutter package for reusable form-validation behavior: transport-agnostic `422` failure modeling, `field|group|global` target resolution, theme-dependent default widgets, and anchor/scroll helpers.
 * Tenant-admin account sync pattern established: account list/detail/form flows consume repository-owned canonical streams; detail controllers derive account state via repository watch (stable `id` first, slug fallback only while unresolved), avoiding manual cross-controller synchronization.
+* Tenant-admin account creation now uses a dedicated `TenantAdminAccountCreateController`, while `TenantAdminAccountsController` is list-only; both are registered as route-local factories so list/create no longer share controller state.
+* Tenant-admin manual create now uses a unified onboarding request (`POST /admin/api/v1/account_onboardings`) and consumes a composite onboarding result object (`account + account_profile`) in one success flow.
+* Tenant-admin standalone profile create route is no longer a remediation path; account-detail missing-profile state is rendered as invariant-broken data requiring backend repair/audit.
 * Tenant-admin image ingestion: device file import and web URL import share the same crop UX (avatar 1:1, cover 16:9) and run through the canonical crop/normalize/upload pipeline. Flutter Web URL import relies on an authenticated backend proxy (`/admin/api/v1/media/external-image`) to avoid CORS/hotlink failures.
+* Tenant-admin web origin rule tightened: canonical tenant host must come from the selected tenant/main domain, while local browser-facing web validation must use the actual public/browser origin (`belluga.space` / tenant subdomain) rather than leaking internal ingress ports like `:8043` into tenant-admin URLs.
+* Landlord/admin access is now strictly landlord-context owned: tenant scope cannot reach landlord routes, `Entrar como Admin` is landlord-only, and `TenantAdminShellRoute` stays tenant-gated until an accessible tenant is resolved/selected.
+* Home agenda regression bundle delivered: nullable artist/friend avatars no longer collapse the visible agenda feed, eager auto-pagination was removed from the visible Home path, and tenant-admin archived filter serialization was corrected.
+* Tenant-admin settings parsing now treats empty `map_ui` namespace payloads as an empty namespace instead of leaking sibling settings into `PATCH /admin/api/v1/settings/values/map_ui`; the persistence path is covered by repository + integration tests.

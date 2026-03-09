@@ -8,6 +8,24 @@
 
 Placeholder for the Tenant Administration interface (`tenant_admin` main scope) where city governments or enterprise tenants manage account profile onboarding, plan assignments, and high-level analytics. In V1, this interface is accessed on tenant domains and guarded by landlord identity principal. This document will be expanded after the tenant-facing app modules are finalized, ensuring admin capabilities align with real consumer workflows.
 
+### 1.1 Canonical Anchors
+
+- System/platform references:
+  - `foundation_documentation/system_roadmap.md`
+  - `foundation_documentation/submodule_laravel-app_summary.md`
+  - `foundation_documentation/submodule_flutter-app_summary.md`
+  - `foundation_documentation/policies/scope_subscope_governance.md`
+- Cross-module references:
+  - `foundation_documentation/modules/partner_catalog_and_offer_module.md`
+  - `foundation_documentation/modules/partner_admin_module.md`
+  - `foundation_documentation/modules/invite_and_social_loop_module.md`
+  - `foundation_documentation/modules/map_poi_module.md`
+  - `foundation_documentation/modules/events_module.md`
+- Tactical TODO streams:
+  - `foundation_documentation/todos/completed/TODO-v1-tenant-admin-navigation-ia-events-priority.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-static-assets-media-parity-with-account-profiles.md`
+
 ## 2. Intended Responsibilities
 
 1. **Account Profile Lifecycle Management:** Approve/reject account profile applications, assign plan tiers, manage verification flags.
@@ -114,11 +132,50 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with 
   - Form interactions use field-edit sheets or full-screen forms; widgets/screens do not own operational business state.
 - **Adoption policy:** `/admin/settings` is the canonical first implementation of this pattern, and all admin modules (Accounts, Ativos, Taxonomias, Tipos, Organizações) must adopt the same structure in subsequent slices while keeping existing contracts stable.
 
+### 3.5.1 Admin Form Validation Baseline
+
+- Tenant-admin forms must use the reusable Flutter package `packages/belluga_form_validation/` as the canonical validation rendering pipeline when the feature has adopted the shared pattern.
+- Validation ownership is controller-first:
+  - controllers own one validation `StreamValue` per form;
+  - local pre-submit validation remains feature-owned but writes into that same validation state;
+  - backend `422` validation is parsed by repositories and resolved into that same validation state.
+- Validation target kinds are fixed to:
+  - `field`
+  - `group`
+  - `global`
+- Rendering hierarchy:
+  - `field` -> decorated input error (`InputDecoration.errorText`)
+  - `group` -> inline validation block rendered under the logical control section
+  - `global` -> inline form-level validation banner/summary
+- Tenant-admin validation feedback rules:
+  - backend `422` validation must not use snackbars;
+  - global operational failures that are not validation may keep the existing non-validation feedback path;
+  - new validation snapshots replace previous validation state;
+  - edited targets clear only their own validation errors after semantically meaningful value changes.
+- Scroll/navigation rule:
+  - ordered target declaration defines first-invalid-target priority;
+  - screens trigger scroll-to-first-invalid-target after applying a validation snapshot;
+  - focus remains feature-owned and optional.
+- First adopter:
+  - `Contas -> Criar Conta` is the first tenant-admin adopter of this reusable validation pipeline in V1.
+  - `Contas -> Listar Contas` and `Contas -> Criar Conta` must not share the same presentation controller instance or class.
+  - Canonical shared account list state remains repository-owned; create-form draft state, validation state, media busy state, and submit lifecycle remain create-controller-owned only.
+  - The first-adopter binding baseline is:
+    1. `account`, `account_profile` -> `global`
+    2. `profile_type` -> `field`
+    3. `name` -> `field`
+    4. `ownership_state` -> `group` (`ownership`)
+    5. `location`, `location.lat`, `location.lng` -> `group` (`location`)
+    6. `taxonomy_terms.*.*` -> `group` (`taxonomies`)
+    7. `bio` -> `field`
+    8. `content` -> `field`
+    9. `avatar`, `cover` -> `group` (`media`)
+
 ### 3.6 Settings Multi-Screen Strategy (Hub + Dedicated Flows)
 
 - `/admin/settings` is the **Settings Hub** entrypoint.
 - Dedicated settings routes:
-  - `/admin/settings/local-preferences` → local device preferences (theme + map radius)
+  - `/admin/settings/local-preferences` → local preferences (`map_ui.radius` bounds + `map_ui.default_origin` fallback seed + theme)
   - `/admin/settings/visual-identity` → branding/visual identity
   - `/admin/settings/technical-integrations` → firebase/push/telemetry
   - `/admin/settings/environment-snapshot` → read-only environment diagnostics
@@ -306,20 +363,42 @@ List accounts (tenant-owned + unmanaged + user-owned visibility per admin rules)
 **Notes:** `ownership_state` is derived from account ownership invariants and is required in read responses.
 
 ### `POST /admin/api/v1/accounts`
-Create an account (tenant admin).
+Manual tenant-admin create via this legacy endpoint is forbidden in this project.
+
+**Response Schema**
+```json
+{
+  "message": "Manual tenant-admin account creation must use onboarding endpoint.",
+  "error_code": "tenant_admin_onboarding_required",
+  "meta": {
+    "use_endpoint": "/admin/api/v1/account_onboardings"
+  }
+}
+```
+
+### `POST /admin/api/v1/account_onboardings`
+Canonical tenant-admin manual onboarding create (account + default admin role + 1:1 account profile).
 
 **Request Schema**
 ```json
 {
   "name": "string",
-  "document": {
-    "type": "cpf|cnpj",
-    "number": "string"
-  },
-  "ownership_state": "tenant_owned|unmanaged"
+  "ownership_state": "tenant_owned|unmanaged",
+  "profile_type": "string",
+  "location": { "lat": 0.0, "lng": 0.0 },
+  "taxonomy_terms": [{ "type": "string", "value": "string" }],
+  "bio": "string?",
+  "content": "string?",
+  "avatar": "file?",
+  "cover": "file?"
 }
 ```
-`user_owned` is not allowed in this admin create flow.
+**Notes**
+- `name`, `ownership_state`, and `profile_type` are required.
+- `account_profile.display_name` is derived from onboarding `name`.
+- `location` is required when the selected `profile_type` has `capabilities.is_poi_enabled=true`.
+- `avatar` and `cover` are optional multipart uploads.
+- Validation failures must preserve structured `422.errors` keyed by onboarding fields.
 
 **Response Schema**
 ```json
@@ -335,6 +414,25 @@ Create an account (tenant admin).
       },
       "ownership_state": "tenant_owned|unmanaged|user_owned",
       "organization_id": "string?",
+      "created_at": "2025-01-01T00:00:00Z",
+      "updated_at": "2025-01-01T00:00:00Z",
+      "deleted_at": "2025-01-01T00:00:00Z"
+    },
+    "account_profile": {
+      "id": "string",
+      "account_id": "string",
+      "profile_type": "string",
+      "display_name": "string",
+      "slug": "string",
+      "avatar_url": "string?",
+      "cover_url": "string?",
+      "bio": "string?",
+      "content": "string?",
+      "taxonomy_terms": [
+        { "type": "string", "value": "string" }
+      ],
+      "location": { "lat": 0.0, "lng": 0.0 },
+      "ownership_state": "tenant_owned|unmanaged|user_owned",
       "created_at": "2025-01-01T00:00:00Z",
       "updated_at": "2025-01-01T00:00:00Z",
       "deleted_at": "2025-01-01T00:00:00Z"
@@ -855,47 +953,15 @@ List account profiles (optionally filter by `account_id`).
 ```
 
 ### `POST /admin/api/v1/account_profiles`
-Create account profile (requires `account_id`).
-
-**Request Schema**
-```json
-{
-  "account_id": "string",
-  "profile_type": "string",
-  "display_name": "string",
-  "location": { "lat": 0.0, "lng": 0.0 },
-  "taxonomy_terms": [{ "type": "string", "value": "string" }],
-  "bio": "string?",
-  "avatar_url": "string?",
-  "cover_url": "string?",
-  "avatar": "file?",
-  "cover": "file?"
-}
-```
-**Upload notes:** When sending `avatar`/`cover`, use `multipart/form-data`. The backend stores files and persists the resulting public URLs in `avatar_url`/`cover_url`.
-**Notes:** `location` is **required** when the registry marks `profile_type` as `is_poi_enabled=true`.
-**Tenant Admin UX:** The bound Account + Profile creation flow must enforce the location requirement for POI-enabled profile types and offer a **Map Pick** action to populate `location.lat`/`location.lng`.
+Manual tenant-admin profile create via this legacy endpoint is forbidden in this project.
 
 **Response Schema**
 ```json
 {
-  "data": {
-    "id": "string",
-    "account_id": "string",
-    "profile_type": "string",
-    "display_name": "string",
-    "slug": "string",
-    "avatar_url": "string?",
-    "cover_url": "string?",
-    "bio": "string?",
-    "taxonomy_terms": [
-      { "type": "string", "value": "string" }
-    ],
-    "location": { "lat": 0.0, "lng": 0.0 },
-    "ownership_state": "tenant_owned|unmanaged|user_owned",
-    "created_at": "2025-01-01T00:00:00Z",
-    "updated_at": "2025-01-01T00:00:00Z",
-    "deleted_at": "2025-01-01T00:00:00Z"
+  "message": "Manual tenant-admin profile creation must use onboarding endpoint.",
+  "error_code": "tenant_admin_onboarding_required",
+  "meta": {
+    "use_endpoint": "/admin/api/v1/account_onboardings"
   }
 }
 ```
@@ -1287,6 +1353,43 @@ Update firebase settings.
 }
 ```
 
+### `PATCH /admin/api/v1/settings/values/map_ui`
+Update tenant `map_ui` settings used by map + agenda contracts.
+
+**Request Schema**
+```json
+{
+  "default_origin": {
+    "lat": -20.0,
+    "lng": -40.0,
+    "label": "string?"
+  },
+  "radius": {
+    "min_km": 1,
+    "default_km": 5,
+    "max_km": 50
+  }
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "default_origin": {
+      "lat": -20.0,
+      "lng": -40.0,
+      "label": "string?"
+    },
+    "radius": {
+      "min_km": 1,
+      "default_km": 5,
+      "max_km": 50
+    }
+  }
+}
+```
+
 ### `GET /admin/api/v1/settings/telemetry`
 List telemetry integrations.
 
@@ -1365,3 +1468,21 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 - Invite & Social Loop module (quota management, attendance metrics).
 - Task & Reminder module (outstanding compliance tasks).
 - Web-to-App policy constraints (e.g., what channels tenants can enable).
+
+## 5. Canonical Decision Baseline
+
+| Decision ID | Status | Decision | Impact | Canonical Evidence |
+| --- | --- | --- | --- | --- |
+| `TAD-01` | Approved | Tenant-admin scope is tenant-domain `/admin` with landlord principal guard in V1. | Keeps host/scope behavior deterministic across app and API. | Sections `2.1`, `2.2`, `3` |
+| `TAD-02` | Approved | Scope/subscope governance is mandatory and route ownership cannot be inferred ad hoc. | Prevents route drift and admin/workspace overlap. | Sections `2.1`, `3.0` |
+| `TAD-03` | Approved | Settings screens follow canonical hub + dedicated flows with controller-owned state. | Provides consistent admin UX architecture baseline. | Sections `3.5`, `3.6`, `3.7` |
+| `TAD-04` | Approved | Tenant map/agenda fallback origin is tenant-owned configuration under `settings.map_ui.default_origin`. | Guarantees deterministic origin fallback for agenda/search when user location is unavailable. | Sections `3.6`, `4` (`PATCH /admin/api/v1/settings/values/map_ui`) |
+
+## 6. Tactical TODO Promotion Ledger
+
+| TODO | Purpose | Promotion Status | Promoted Sections | Notes |
+| --- | --- | --- | --- | --- |
+| `TODO-v1-tenant-admin-navigation-ia-events-priority.md` | Tenant-admin IA and route priorities | Completed | `3`, `5` | Completed and archived; route/navigation priorities promoted. |
+| `TODO-v1-events-location-gating-and-tenant-default-origin.md` | Map/agenda default-origin tenant settings contract | Promoted | `3.6`, `4`, `5` | Contract and Flutter local-preferences editor are both delivered; canonical baseline is now fully implemented. |
+| `TODO-v1-tenant-user-account-profile-area.md` | Account/profile admin boundaries | In progress | `2`, `4`, `5` | Aligns account/profile CRUD contracts and scope. |
+| `TODO-v1-static-assets-media-parity-with-account-profiles.md` | Media parity and static assets admin flows | In progress | `4`, `5` | Syncs media endpoints and UX behavior. |

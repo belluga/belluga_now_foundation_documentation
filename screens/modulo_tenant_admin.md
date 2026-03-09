@@ -51,6 +51,7 @@ This document defines the tenant admin UI surfaces used to manage **Contas**, **
 - Screens compose layout/sections/navigation only.
 - Controllers own mutable state, validation, async orchestration, and operation-busy `StreamValue`s.
 - Field edits happen via bottom sheets or full-screen forms; API contracts remain unchanged.
+- Shared validation rendering for adopted tenant-admin forms is package-driven through `packages/belluga_form_validation/`; screens consume controller-owned validation state and do not own an alternate `422` rendering path.
 
 ---
 
@@ -79,6 +80,7 @@ This document defines the tenant admin UI surfaces used to manage **Contas**, **
 - M3 segmented filter by ownership.
 - Card list with leading avatar icon.
 - FAB for creation.
+- This screen owns its own list controller and must not reuse the create-form controller.
 
 ---
 
@@ -115,6 +117,18 @@ This document defines the tenant admin UI surfaces used to manage **Contas**, **
 - Block submission if POI-enabled and location is missing.
 - Surface inline validation near the location fields.
 - Accept image uploads for avatar/cover with size + mime limits defined in the backend.
+
+**Reusable validation rendering baseline (first adopter):**
+- `Contas -> Criar Conta` is the first tenant-admin screen that must adopt the shared `422` validation package baseline.
+- Validation surfaces must be unified:
+  - local pre-submit validation and backend `422` validation render through the same controller-owned validation state,
+  - decorated inputs show field errors,
+  - grouped controls/sections (`ownership`, `location`, `taxonomies`, `media`) show inline group errors under the relevant section,
+  - form-level validation uses an inline summary/banner near the top of the form.
+- `422` validation must not use snackbar feedback on this screen.
+- When multiple group/global messages exist, the default UI shows a collapsed summary and allows inline expansion for the full list.
+- After applying a validation snapshot, the screen must scroll to the first invalid target according to the declared binding order.
+- This screen owns a dedicated create controller; it must not share a controller instance/class with `Contas -> List`.
 
 ---
 
@@ -226,6 +240,12 @@ This document defines the tenant admin UI surfaces used to manage **Contas**, **
 **Route strategy (multi-screen):**
 - `/admin/settings` → Hub de Configurações (navegação + resumo).
 - `/admin/settings/local-preferences` → Preferências locais.
+  - Must expose tenant map fallback origin editor backed by settings-kernel `map_ui`:
+    - `default_origin.lat`
+    - `default_origin.lng`
+    - `default_origin.label` (optional)
+  - Save operation must patch `/admin/api/v1/settings/values/map_ui` and preserve existing map_ui keys.
+  - Location selection must reuse the same canonical tenant-admin POI/location picker pattern used by account/profile/event flows (`TenantAdminLocationPickerRoute` + `TenantAdminLocationSelectionContract` confirmed stream).
 - `/admin/settings/visual-identity` → Identidade visual (branding).
 - `/admin/settings/technical-integrations` → Integrações técnicas.
 - `/admin/settings/environment-snapshot` → Snapshot do environment (somente leitura).

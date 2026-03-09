@@ -8,6 +8,15 @@
 
 The Agenda & Action Planner module (MOD-303) tracks every upcoming experience, booking, and social action for tenant app users. It consolidates offers claimed from Map, invites accepted from the social loop, and booking/payment lifecycle events into a chronological stream delivered by `/api/v1/agenda`. Dedicated follow-up tasks and reminder payloads are authored by the Task & Reminder module and surface here only as read-only references when they represent a dated commitment.
 
+### 1.1 Canonical Anchors
+
+- Events canonical decisions/runtime contract:
+  - `foundation_documentation/modules/events_module.md`
+  - `laravel-app/packages/belluga/belluga_events/README.md`
+- Tactical delivery references:
+  - `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-frontend.md`
+  - `foundation_documentation/todos/completed/TODO-v1-events-package-core.md`
+
 ---
 
 ## 2. Architectural Tenets
@@ -73,18 +82,21 @@ Stores every user action triggered from an agenda card for observability and com
 ---
 
 ## 3.4 Client Event Payload (Agenda API)
-Agenda surfaces events as a paged list; Flutter consumes this shape for cards, invites, and chips.
-Event geo is derived from the venue Account Profile location; events do not carry a standalone `location` string.
+Agenda surfaces events as a paged list; Flutter consumes this shape for cards and chips.
+Events use canonical `location` + `place_ref`; venue projection is resolved from `place_ref` when `place_ref.type=venue`.
 
 **Request (paged list)**
-- Query: `page` (int), `page_size` (int), `past_only` (bool), `search` (string), `categories[]`, `tags[]`, `taxonomy[]`, `origin_lat`, `origin_lng`, `max_distance_meters`, `confirmed_only` (bool).
+- Query: `page` (int), `page_size` (int), `past_only` (bool), `categories[]`, `tags[]`, `taxonomy[]`, `origin_lat`, `origin_lng`, `max_distance_meters`.
+- Client orchestration rule: resolve effective origin before first fetch (`user location` -> tenant `settings.map_ui.default_origin`).
+- Filter execution rule: taxonomy/category/tag + geo filters are backend-owned; agenda clients do not apply local radius filtering after fetch.
 
 **Response**
 ```json
 {
   "items": [
     {
-      "id": "string",
+      "event_id": "string",
+      "occurrence_id": "string?",
       "slug": "string",
       "type": {
         "id": "string",
@@ -96,6 +108,16 @@ Event geo is derived from the venue Account Profile location; events do not carr
       },
       "title": "string",
       "content": "string",
+      "location": {
+        "mode": "physical|online|hybrid",
+        "geo": { "type": "Point", "coordinates": [0.0, 0.0] },
+        "online": { "provider": "string", "url": "string?" }
+      },
+      "place_ref": {
+        "type": "string",
+        "id": "string",
+        "metadata": {}
+      },
       "venue": {
         "id": "string",
         "display_name": "string",
@@ -109,15 +131,36 @@ Event geo is derived from the venue Account Profile location; events do not carr
       "thumb": { "type": "image", "data": { "url": "string" } },
       "date_time_start": "2025-01-01T00:00:00Z",
       "date_time_end": "2025-01-01T00:00:00Z?",
+      "occurrences": [
+        {
+          "date_time_start": "2025-01-01T00:00:00Z",
+          "date_time_end": "2025-01-01T00:00:00Z?"
+        }
+      ],
       "artists": [
         { "id": "string", "display_name": "string", "avatar_url": "string (optional)", "highlight": false, "genres": ["string"] }
       ],
-      "is_confirmed": false,
-      "total_confirmed": 0,
-      "received_invites": [ /* invite DTOs */ ],
-      "sent_invites": [ /* sent invite status DTOs */ ],
-      "friends_going": [ /* lightweight friend resumes */ ],
-      "tags": ["string"]
+      "created_by": {
+        "type": "string",
+        "id": "string"
+      },
+      "event_parties": [
+        {
+          "party_type": "string",
+          "party_ref_id": "string",
+          "permissions": { "can_edit": true },
+          "metadata": {}
+        }
+      ],
+      "capabilities": {
+        "multiple_occurrences": {
+          "enabled": false,
+          "allow_multiple": false,
+          "max_occurrences": null
+        }
+      },
+      "tags": ["string"],
+      "taxonomy_terms": [{ "type": "string", "value": "string" }]
     }
   ],
   "has_more": true
@@ -128,6 +171,10 @@ Event geo is derived from the venue Account Profile location; events do not carr
 
 ### Field Definitions
 - `thumb.type` ∈ {`image`}
+- `location.mode` ∈ {`physical`, `online`, `hybrid`}
+- `event_parties[].permissions.can_edit` ∈ {`true`, `false`}
+
+**Boundary note:** invite lifecycle fields are intentionally excluded from Events payloads in this module contract.
 
 ---
 
@@ -159,3 +206,21 @@ Event geo is derived from the venue Account Profile location; events do not carr
 1. **FCX-02:** Mocked agenda repository feeding Flutter controllers using static JSON snapshots.
 2. **Phase 6:** Introduce favorites/personalization, linking timeline nodes to saved POIs.
 3. **Phase 11:** Attach privacy and invite-status halos, reusing derived state to toggle exposure levels.
+
+## 7. Canonical Decision Baseline
+
+| Decision ID | Status | Decision | Impact | Canonical Evidence |
+| --- | --- | --- | --- | --- |
+| `AGD-01` | Approved | Agenda consumes occurrence-first Events contract with invite lifecycle excluded from event payloads. | Keeps Agenda read model aligned with Events ownership boundaries. | Sections `1.1`, `3.4`, `4` |
+| `AGD-02` | Approved | Event location contract is canonical `location + place_ref` with optional venue projection. | Prevents legacy venue-only coupling in agenda consumers. | Section `3.4` |
+| `AGD-03` | Approved | Actions are standardized descriptors, not hardcoded screen logic. | Enables backend-driven card/action evolution. | Section `2` |
+| `AGD-04` | Approved | Agenda/search controllers gate first fetch by effective origin (`user location` first, tenant default origin fallback). | Removes pre-origin fetch stalls and keeps loading deterministic. | Section `3.4` + `foundation_documentation/endpoints_mvp_contracts.md` (`GET /agenda`) |
+| `AGD-05` | Approved | Local distance/radius filtering is forbidden in agenda/search render paths; backend geo filtering is authoritative. | Prevents divergent client/backend filtering behavior. | Section `3.4` + `foundation_documentation/endpoints_mvp_contracts.md` (`GET /agenda`, `GET /events/stream`) |
+
+## 8. Tactical TODO Promotion Ledger
+
+| TODO | Purpose | Promotion Status | Promoted Sections | Notes |
+| --- | --- | --- | --- | --- |
+| `TODO-v1-events-and-agenda-frontend.md` | Agenda/event client contract delivery | Completed | `3.4`, `4`, `7` | Canonical stream for agenda payload usage. |
+| `TODO-v1-events-package-core.md` | Events package authority for agenda contracts | Completed | `1.1`, `3.4`, `7` | Completed and archived; contract baseline promoted to Events module. |
+| `TODO-v1-events-location-gating-and-tenant-default-origin.md` | Origin gating + backend-only geo filtering | Promoted | `3.4`, `7` | Establishes effective-origin-first fetch and no local radius filtering in agenda/search clients. |

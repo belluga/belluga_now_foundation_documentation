@@ -4,6 +4,15 @@
 
 This document outlines the architecture and data synchronization strategy for the Map and Points of Interest (POI) module. The module is responsible for displaying an interactive map to the user, populated with various points of interest such as restaurants, beaches, attractions, and time-sensitive events.
 
+### 1.1 Canonical Anchors
+
+- Events canonical module/contract:
+  - `foundation_documentation/modules/events_module.md`
+  - `laravel-app/packages/belluga/belluga_events/README.md`
+- Tactical delivery references:
+  - `foundation_documentation/todos/completed/TODO-v1-map-backend.md`
+  - `foundation_documentation/todos/completed/TODO-v1-events-capability-map-poi.md`
+
 ## 2. Current Prototype Implementation
 
 The initial prototype uses a mocked data layer that simulates fetching POIs from a hardcoded list. This is being actively refactored to support a high-fidelity mock of the final architecture.
@@ -86,7 +95,7 @@ This architecture requires a REST API for on-demand queries and an SSE API for r
     "route": { "name": "poi_detail", "params": ["slug"] }
   }
   ```
-- **Lookup Flow:** Pipelines are only used upstream to produce/update normalized POI documents. Reads (agenda, map, event detail) never run pipelines; they fetch the normalized POI by `slug/id`. Events carry `venue_id` referencing that normalized POI. Route resolution uses `type` + `slug` → route map (e.g., `poi/*` → POI detail; `event` → event detail).
+- **Lookup Flow:** Pipelines are only used upstream to produce/update normalized POI documents. Reads (agenda, map, event detail) never run pipelines; they fetch the normalized POI by `slug/id`. Events carry `place_ref` (`{type,id}`) and POI lookup must use that typed reference (commonly `type=venue`). Route resolution uses `type` + `slug` → route map (e.g., `poi/*` → POI detail; `event` → event detail).
 
 ### 3.5 Custom Objects & Taxonomies
 - **Custom Object Types:** `poi`, `event`, `artist`. All share the normalized shape `{ id, slug, type }` for routing and linking; slug is the primary navigation key.
@@ -278,3 +287,20 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 -   **Phase 2.1 (Queued):** Implement Core Visual Logic (Visual Stacking Order using the `priority` field).
 -   **Phase 3 (Queued):** Implement Feature UI (Filtering Panel, POI Details Card with Deselection Logic).
 -   **Phase 4 (Queued):** Final Polish (Web-specific mouseover effects, etc.).
+
+## 6. Canonical Decision Baseline
+
+| Decision ID | Status | Decision | Impact | Canonical Evidence |
+| --- | --- | --- | --- | --- |
+| `MAP-01` | Approved | `map_pois` is a materialized projection/read model; source domains publish projection updates. | Keeps map queries fast and decoupled from source collections. | Section `3.6` |
+| `MAP-02` | Approved | Event linkage uses typed reference (`place_ref`/`ref_type+ref_id`), not legacy direct venue ownership assumptions. | Aligns map integration with current Events contract. | Sections `1.1`, `3.4`, `3.6` |
+| `MAP-03` | Approved | Same-spot POIs are deterministic via normalized coordinates and stack grouping. | Avoids marker jitter and duplicate-point instability. | Section `3.7` |
+| `MAP-04` | Approved | Visibility windows are backend-owned and timezone-aware; clients do not hardcode time windows. | Consistent POI visibility and lower client drift risk. | Sections `3.6`, `4.1` |
+
+## 7. Tactical TODO Promotion Ledger
+
+| TODO | Purpose | Promotion Status | Promoted Sections | Notes |
+| --- | --- | --- | --- | --- |
+| `TODO-v1-map-backend.md` | Map package extraction and backend contract ownership | Production-Ready | `1.1`, `3.6`, `4`, `6` | Package ownership complete (`belluga_map_pois`), including internal rebuild command. |
+| `TODO-v1-map-frontend.md` | Flutter map UX + filter/stacking consumption | In progress | `3.3`, `4.1`, `5` | Client contract alignment stream. |
+| `TODO-v1-events-capability-map-poi.md` | Events capability decisions for POI projection | Promoted | `1.1`, `3.6`, `6` | Completed and promoted into module baseline. |

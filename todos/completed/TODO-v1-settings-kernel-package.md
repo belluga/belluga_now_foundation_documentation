@@ -1,0 +1,369 @@
+# TODO (V1): Settings Kernel Package (Tenant-Scoped, Schema-Driven)
+
+**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
+**Status:** Completed (kernel foundation delivered; capability-specific streams remain intentionally out of scope)
+**Owners:** Backend Team
+**Objective:** Establish a universal, tenant-scoped settings kernel package so feature packages can register settings/capabilities declaratively and admin UI can render from backend schema.
+
+---
+
+## Scope
+- Create a new package baseline (`belluga_settings`) with contracts, registry, schema validation, patch/merge semantics, and settings storage ownership (model/migration).
+- Keep host app as integration owner via scope-aware adapter bindings/routing (`landlord|tenant`) without direct package-to-app persistence coupling.
+- Provide generic settings endpoints for schema discovery and values CRUD (partial patch).
+- Integrate Events capability availability with the settings kernel contracts (foundation only; no concrete ticketing capabilities yet).
+- Preserve compatibility with existing push settings flows during migration to kernel.
+- Run a mandatory side job inside this TODO to converge PATCH semantics across other Laravel areas (core routes + packages) that do not yet follow the canonical contract.
+
+---
+
+## Out of Scope
+- Concrete ticketing capability implementation (`inventory`, `qr_checkin`, `combo`, `limits`, `bind_*`, `pricing fees`).
+- Flutter integration work (deferred until Events Phase #3 completion).
+- Rewriting unrelated branding endpoints.
+
+---
+
+## Current State Scan (As-Is)
+- Settings storage is currently tenant-scoped in Mongo collection `settings`, but created by push package migration:
+  - `packages/belluga/belluga_push_handler/database/migrations/2025_01_01_000000_create_push_collections.php`
+- Two models point to the same collection:
+  - `App\Models\Tenants\TenantSettings` (`map_ui`, `events`)
+  - `Belluga\PushHandler\Models\Tenants\TenantPushSettings` (`push`, `firebase`, `telemetry`)
+- Settings endpoints currently exposed are push-focused only:
+  - Tenant: `api/v1/settings/push|firebase|telemetry|push/*`
+  - Landlord admin (on behalf): `admin/api/v1/{tenant_slug}/settings/push|firebase|telemetry`
+- No generic schema/values settings endpoint exists today.
+- Existing consumers of tenant settings:
+  - `EnvironmentResolverService` (reads `TenantSettings` + `TenantPushSettings`)
+  - `MapPoiQueryService` (`map_ui.poi_time_window_days`)
+  - `MapPoiProjectionService` (`events.default_duration_hours`)
+  - `TenantRadiusSettingsAdapter` for Events (`map_ui.radius`)
+- Noted gap:
+  - `EnvironmentResolverService` assembles `settings.map_ui`, but `EnvironmentController` does not currently expose `settings` in response payload.
+
+---
+
+## Standards/Exception Reference (Locked)
+- Architectural decision source:
+  - `foundation_documentation/todos/completed/TODO-v1-events-package-phase-3.md` (`D3-12`, `D3-13`, `D3-14`, `D3-15`).
+- Multitenancy execution requirement:
+  - `config/multitenancy.php` tenant migration paths + tenant-scoped execution (`tenants:artisan` / tenant current context).
+- Conditional rules implementation stream (detailed):
+  - `foundation_documentation/todos/completed/TODO-v1-settings-conditional-rules-engine.md`.
+
+---
+
+## Pending Decisions (Design Inputs)
+- [x] ✅ Production‑Ready `S1-01` Package boundaries:
+  - `belluga_settings` owns contracts/registry/validation and also settings model/migration ownership.
+- [x] ✅ Production‑Ready `S1-02` Scope-aware storage execution:
+  - Settings must support both scopes: `landlord` and `tenant`.
+  - Each registered namespace/settings schema declares explicit target scope flag (`landlord|tenant`).
+  - Tenant scope persists in tenant database following Spatie multitenancy migration rules.
+  - Landlord scope persists in landlord database context.
+- [x] ✅ Production‑Ready `S1-17` Logical document topology per scope database:
+  - Single singleton document per scope context (`landlord` store, each `tenant` store), with namespace map.
+  - Enforce singleton with fixed root `_id` (for example `settings_root`) and scope-aware store routing.
+  - Migration must fail with explicit error when more than one settings document exists in the same scope store.
+- [x] ✅ Production‑Ready `S1-03` Endpoint surface:
+  - Canonical generic settings API:
+    - `GET /api/v1/settings/schema`
+    - `GET /api/v1/settings/values`
+    - `PATCH /api/v1/settings/values/{namespace}`
+  - `PATCH` is namespace-scoped with partial payload semantics (only payload-present keys mutate).
+  - Namespace-specific endpoints are optional wrappers only and are not the canonical settings contract.
+- [x] ✅ Production‑Ready `S1-18` PATCH payload shape:
+  - Canonical `PATCH /settings/values/{namespace}` payload is direct map/object (no `paths` envelope).
+  - Example:
+    - `{ "events.mode": "advanced", "events.stock_enabled": true }`
+  - Contract remains partial/atomic for payload-present keys only.
+- [x] ✅ Production‑Ready `S1-19` PATCH clear semantics + convergence rule:
+  - Omitted keys remain unchanged (field-presence semantics).
+  - `null` is accepted only for fields declared nullable in schema/validation and means explicit clear.
+  - `null` for non-nullable fields must return deterministic `422`.
+  - Mixed set+clear in one PATCH is allowed and must be atomic.
+  - During implementation, existing PATCH endpoints must be aligned to this pattern, or documented as explicit exceptions.
+- [x] ✅ Production‑Ready `S1-04` Authorization contract:
+  - Reuse per-module abilities (no new generic `settings:*` ability family in V1).
+  - Settings kernel remains ability-agnostic; host app maps namespace/actions to module abilities.
+- [x] ✅ Production‑Ready `S1-05` Migration ownership of `settings` collection:
+  - Move creation/index ownership to settings kernel package.
+  - `belluga_push_handler` becomes a consumer via settings namespace registration.
+- [x] ✅ Production‑Ready `S1-06` Namespace policy:
+  - Settings namespace must be the plugin/module technical name (immutable key), used for read/write/versioning and conflict avoidance.
+- [x] ✅ Production‑Ready `S1-07` UI metadata policy:
+  - Registry entries must support presentation metadata (`label`, optional `group_label`) for UI grouping without changing technical namespace semantics.
+- [x] ✅ Production‑Ready `S1-08` Registry ownership model:
+  - The host system (`core`) can register settings namespaces directly, in addition to package/plugin namespaces.
+- [x] ✅ Production‑Ready `S1-09` Navigation model:
+  - Settings schema must support hierarchical navigation (`group` and `subgroup`) to enable menu/submenu UX flows.
+- [x] ✅ Production‑Ready `S1-10` Navigation/persistence separation:
+  - Navigation metadata (`group`, `subgroup`, labels, order, icons) must be independent from persistence keys (`namespace` + field path).
+- [x] ✅ Production‑Ready `S1-11` Field rendering contract:
+  - Every registered `field` must be renderable by UI schema consumers.
+  - If something should not be represented as a direct field, it must be represented as a `group`.
+  - Schema is render-native: `field` renders at current level; `group` renders as navigation entry/button.
+- [x] ✅ Production‑Ready `S1-12` Schema version contract:
+  - Schema payload must expose an explicit `schema_version` for client compatibility control.
+  - Backend can evolve schema safely while clients branch behavior by declared version.
+- [x] ✅ Production‑Ready `S1-13` Stable node identity:
+  - Every schema node (`group`/`field`) must expose a stable technical `id` independent from display label.
+  - Client rendering/state caching must not depend on mutable labels or translated text.
+- [x] ✅ Production‑Ready `S1-14` Conditional rendering contract:
+  - Schema supports declarative conditional metadata (`visible_if`, `enabled_if`) for progressive/advanced settings.
+  - Condition evaluation must be deterministic and reference stable technical node identifiers (canonical `id`, optionally canonical technical path).
+- [x] ✅ Production‑Ready `S1-15` Localization contract:
+  - Schema supports i18n keys (`label_i18n_key`, optional `description_i18n_key`) in addition to fallback literal labels.
+  - Technical persistence keys remain unchanged by localization.
+- [x] ✅ Production‑Ready `S1-16` Conditional DSL baseline (ACF-inspired):
+  - `visible_if` and `enabled_if` use declarative `groups` (OR) containing `rules` (AND).
+  - Rule operand references stable technical node IDs/paths (never labels).
+  - V1 operators: `equals`, `not_equals`, `in`, `not_in`, `exists`, `gt`, `gte`, `lt`, `lte`.
+
+---
+
+## Execution Snapshot (2026-02-26)
+- Implemented `belluga_settings` package with:
+  - contracts (`SettingsRegistryContract`, `SettingsStoreContract`, `SettingsSchemaValidatorContract`, `SettingsMergePolicyContract`, `TenantScopeContextContract`)
+  - in-memory registry, schema validator, merge policy, Mongo store
+  - tenant + landlord models, service provider, generic settings routes/controllers
+  - tenant + landlord settings migrations owned by settings package
+- Integrated host app bindings + namespace registration:
+  - core namespaces: `map_ui`, `events`
+  - push namespace registration moved to push package service provider
+  - tenant context adapter for landlord on-behalf tenant scope execution
+- Migration ownership handoff:
+  - push package no longer creates/drops shared `settings` collection
+- Tests added:
+  - `tests/Unit/Settings/SettingsPackageBindingsTest.php`
+  - `tests/Unit/Settings/SettingsSchemaValidatorTest.php`
+  - `tests/Unit/Settings/SettingsNamespaceDefinitionTest.php`
+  - `tests/Unit/Settings/ConditionExpressionEvaluatorTest.php`
+  - `tests/Unit/Settings/SettingsRegistryTest.php`
+  - `tests/Feature/Settings/SettingsKernelControllerTest.php`
+  - `tests/Feature/Push/PushMessageFlowTest.php` (PATCH payload convergence assertions)
+  - Added coverage for conditional metadata stability across label/i18n/order changes and landlord migration command validation.
+- Side-job outputs:
+  - PATCH convergence audit published at `foundation_documentation/artifacts/settings-patch-convergence-audit-v1.md`
+- Validation gate executed:
+  - full Laravel suite in Docker passed (`789 passed`, `2863 assertions`).
+
+## Tasks
+- [x] ✅ Production‑Ready Define kernel contracts:
+  - `SettingsRegistryContract`
+  - `SettingsStoreContract` (scope-aware)
+  - `SettingsSchemaValidatorContract`
+  - `SettingsMergePolicyContract`
+- [x] ✅ Production‑Ready Implement scope routing contract (`landlord|tenant`) for namespace resolution and persistence adapter selection.
+- [x] ✅ Production‑Ready Define canonical schema format (field type, enum/options, ui metadata, defaults, readonly, deprecation marker).
+- [x] ✅ Production‑Ready Implement host adapters for scoped persistence:
+  - tenant-scope adapter (tenant DB)
+  - landlord-scope adapter (landlord DB)
+- [x] ✅ Production‑Ready Enforce singleton settings root per scope store:
+  - fixed root `_id` contract for settings document
+  - migration applies strict Mongo validator (`collMod`) to enforce `_id=settings_root`
+  - migration hard-fails on multi-document legacy state per scope store
+- [x] ✅ Production‑Ready Implement patch merge policy:
+  - only payload-present keys mutate
+  - absent keys remain unchanged
+  - explicit clear is opt-in via `null` only for nullable fields (no implicit unset)
+  - non-nullable fields reject `null` with `422`
+- [x] ✅ Production‑Ready Implement direct PATCH payload contract (no envelope) for namespace updates.
+- [x] ✅ Production‑Ready Execute PATCH semantics convergence pass in Laravel modules:
+  - inventory all existing `PATCH` endpoints in Laravel (core + packages)
+  - align each endpoint to direct payload + field-presence semantics
+  - align clear behavior to nullable-only `null` and deterministic `422` for non-nullable
+  - keep mixed set+clear PATCH operations atomic where applicable
+  - track/justify any exception explicitly in foundation documentation (`foundation_documentation/artifacts/settings-patch-convergence-audit-v1.md`)
+- [x] ✅ Production‑Ready Publish PATCH convergence audit as side-job output:
+  - endpoint-by-endpoint status (`converged` | `exception`)
+  - exception rationale, owner, and next action
+- [x] ✅ Production‑Ready Add generic settings endpoints (tenant + landlord on-behalf variants).
+- [x] ✅ Production‑Ready Register existing push settings namespace into registry (bridge mode).
+- [x] ✅ Production‑Ready Register events namespace baseline for capability availability foundation.
+- [x] ✅ Production‑Ready Add migration/index plan for `settings` ownership transition to kernel package.
+- [x] ✅ Production‑Ready Remove `settings` collection ownership from push package migration path (or neutralize with no-op migration) after kernel ownership handoff.
+- [x] ✅ Production‑Ready Enforce namespace uniqueness/format validation in registry (`snake_case`, immutable key, no collisions).
+- [x] ✅ Production‑Ready Add schema metadata support (`label`, `group_label`) and expose it in `settings/schema` response.
+- [x] ✅ Production‑Ready Add hierarchical navigation metadata support in schema (`group`, `subgroup`, `order`, optional icon/description).
+- [x] ✅ Production‑Ready Implement schema tree serializer for menu/submenu rendering (mobile-settings style UX).
+- [x] ✅ Production‑Ready Implement mixed node rendering contract:
+  - `group` nodes may contain both direct `field` nodes and nested `group` nodes
+  - rendering behavior is deterministic: `field` => render control here, `group` => render navigation entry
+- [x] ✅ Production‑Ready Implement schema versioning surface:
+  - include `schema_version` in schema response
+  - expose explicit compatibility policy for additive vs breaking changes
+- [x] ✅ Production‑Ready Implement stable node identifiers:
+  - require unique stable `id` per node in registry validation
+  - stable `id` is exposed in schema output
+- [x] ✅ Production‑Ready Implement conditional rendering metadata:
+  - add optional `visible_if` and `enabled_if` metadata to schema contract
+  - validate condition references against registered technical node identifiers (`id`/canonical path)
+- [x] ✅ Production‑Ready Execute conditional rules engine tasks in lockstep with:
+  - `TODO-v1-settings-conditional-rules-engine.md` (authoritative for DSL, evaluator, validation, and tests).
+- [x] ✅ Production‑Ready Implement localization metadata:
+  - add `label_i18n_key` and optional `description_i18n_key` to schema nodes
+  - keep literal labels as fallback for non-localized clients
+- [x] ✅ Production‑Ready Update foundation docs and Laravel submodule summary after implementation.
+
+---
+
+## Validation Steps
+- [x] ✅ Production‑Ready `php artisan test` (full Laravel suite; mandatory gate).
+- [x] ✅ Production‑Ready New unit tests:
+  - registry discovery
+  - schema validation
+  - merge policy (partial patch semantics)
+  - scope routing (`landlord|tenant`) and adapter selection
+- [x] ✅ Production‑Ready New feature tests:
+  - `GET settings/schema`
+  - `GET settings/values`
+  - `PATCH settings/values/{namespace}` partial updates
+  - auth/ability isolation by tenant and landlord on-behalf
+- [x] ✅ Production‑Ready PATCH payload shape tests:
+  - direct object payload is accepted as canonical contract
+  - envelope payload forms (for example `paths`) are rejected for V1 contract consistency
+- [x] ✅ Production‑Ready PATCH clear semantics tests:
+  - omitted keys remain unchanged when other keys are patched
+  - nullable field accepts `null` and clears value
+  - non-nullable field with `null` fails with `422`
+  - mixed set+clear payload applies atomically
+- [x] ✅ Production‑Ready Convergence regression tests:
+  - representative pre-existing PATCH endpoints keep working after convergence
+  - clear semantics are consistent with canonical contract (or covered by documented exception tests)
+- [x] ✅ Production‑Ready Side-job validation:
+  - all discovered Laravel PATCH endpoints are accounted for in the convergence audit
+  - no untracked PATCH contract divergence remains
+- [x] ✅ Production‑Ready Namespace policy tests:
+  - duplicate namespace registration must fail
+  - namespace rename attempts must fail after registration
+- [x] ✅ Production‑Ready Schema metadata tests:
+  - `label` and `group_label` are returned by schema endpoint and do not affect persistence key paths
+- [x] ✅ Production‑Ready Navigation tests:
+  - schema endpoint returns stable `group/subgroup` hierarchy and ordering for registered namespaces
+  - moving namespaces between groups/subgroups does not mutate persisted values
+- [x] ✅ Production‑Ready Field rendering contract tests:
+  - every registered `field` is present in schema output as a renderable node
+  - `group` nodes support mixed children (`field` + nested `group`) without schema ambiguity
+  - renderer contract is stable: `field` renders in-place and `group` renders as navigation entry
+- [x] ✅ Production‑Ready Schema version tests:
+  - schema endpoint always includes valid `schema_version`
+  - additive schema changes keep compatible version policy; breaking changes require version bump
+- [x] ✅ Production‑Ready Stable ID tests:
+  - node `id` remains unchanged when labels/order/i18n metadata change
+  - duplicate node `id` registration fails validation
+- [x] ✅ Production‑Ready Conditional metadata tests:
+  - `visible_if`/`enabled_if` are validated against known technical node identifiers (`id`/canonical path)
+  - invalid condition references fail schema registration/validation
+- [x] ✅ Production‑Ready Localization metadata tests:
+  - `label_i18n_key`/`description_i18n_key` are exposed in schema response
+  - absence of i18n values preserves literal fallback labels without persistence impact
+- [x] ✅ Production‑Ready Migration validation:
+  - tenant creation path runs required tenant-scope settings migration/indexes
+  - landlord context runs required landlord-scope settings migration/indexes
+  - existing tenants can be upgraded via tenant-scoped migration command
+- [x] ✅ Production‑Ready Scope isolation tests:
+  - tenant-scoped settings never leak into landlord store
+  - landlord-scoped settings never leak into tenant stores
+- [x] ✅ Production‑Ready Singleton enforcement tests:
+  - second settings document insertion in same scope store fails
+  - migration pre-check fails explicitly if multiple settings docs are detected
+
+---
+
+## Definition of Done
+- [x] ✅ Production‑Ready Universal settings kernel package is in place and wired.
+- [x] ✅ Production‑Ready Generic schema-driven settings endpoints are operational.
+- [x] ✅ Production‑Ready Partial patch semantics are atomic and tested.
+- [x] ✅ Production‑Ready Existing push settings flows remain functional during kernel adoption.
+- [x] ✅ Production‑Ready Events foundation can consume tenant capabilities through settings contracts.
+- [x] ✅ Production‑Ready Core + package namespaces coexist in one registry and are rendered by hierarchical schema navigation without persistence coupling.
+- [x] ✅ Production‑Ready Settings schema enforces renderability of all fields and uses `group` nodes for navigation/structure only.
+- [x] ✅ Production‑Ready Settings schema includes explicit versioning, stable node IDs, conditional render metadata, and localization keys with validated contracts.
+- [x] ✅ Production‑Ready Scope-aware settings are operational for both landlord and tenant contexts using explicit `landlord|tenant` scope flags.
+- [x] ✅ Production‑Ready Singleton root settings document is enforced per scope store.
+- [x] ✅ Production‑Ready Existing Laravel PATCH endpoints are converged to canonical PATCH semantics (or explicitly documented exceptions).
+- [x] ✅ Production‑Ready PATCH convergence side job is completed with endpoint inventory + explicit exception tracking.
+
+---
+
+## Decision Log
+- `S1-00`: Created. Settings kernel package is split from Events Phase #3 to execute as a dedicated foundation stream.
+  - Coordination rule: this TODO is a prerequisite stream for the Events Phase #3 foundation block.
+  - Execution rule: after this TODO reaches production-ready foundation state, resume Events Phase #3 until the stop gate before concrete ticketing capabilities.
+- `S1-05`: Decided. Settings collection ownership moves to kernel package.
+  - Rule: push package must not own shared settings storage lifecycle.
+  - Rule: push package reads/writes only through registered namespace contracts in settings kernel.
+- `S1-01`: Decided. Settings kernel owns model/migration lifecycle in addition to contracts/registry/validation.
+  - Rule: shared settings persistence lifecycle belongs to `belluga_settings`, not feature packages.
+- `S1-02`: Decided. Settings persistence is scope-aware (`landlord|tenant`) with tenant flow under Spatie multitenancy.
+  - Rule: settings support both `landlord` and `tenant` scopes.
+  - Rule: namespace/settings registration must declare target scope via explicit flag (`landlord|tenant`).
+  - Rule: tenant-scope migrations/indexes execute in tenant DB context (Spatie multitenancy flow).
+  - Rule: landlord-scope settings persist in landlord DB context.
+- `S1-03`: Decided. Endpoint surface is generic and schema-driven.
+  - Rule: canonical routes are `GET settings/schema`, `GET settings/values`, and `PATCH settings/values/{namespace}`.
+  - Rule: partial update contract is namespace-scoped and atomic for payload-present keys.
+  - Rule: namespace-specific routes (if any) are compatibility wrappers and cannot replace canonical generic endpoints.
+- `S1-18`: Decided. PATCH payload shape follows existing project style.
+  - Rule: `PATCH settings/values/{namespace}` uses direct object payload keyed by field path.
+  - Rule: no `paths` envelope in V1 canonical contract.
+  - Rationale: aligns with current Laravel/Flutter PATCH style already used across modules and push settings.
+  - Consolidation: documented in `foundation_documentation/endpoints_mvp_contracts.md` conventions and propagated to Laravel API endpoint workflow/rules for Cline, Codex, and Antigravity.
+- `S1-19`: Decided. PATCH clear semantics and convergence are canonical.
+  - Rule: omitted keys remain unchanged; PATCH mutates only payload-present fields.
+  - Rule: `null` clears only nullable fields; non-nullable + `null` returns `422`.
+  - Rule: multi-field PATCH (set + clear) is atomic.
+  - Rule: when implementing this stream, align pre-existing PATCH endpoints to the same semantics (or register explicit documented exceptions).
+  - Consolidation: must be propagated using `wf-docker-update-skill-method` across `Cline | Codex | Antigravity`.
+- `S1-04`: Decided. Authorization reuses per-module abilities.
+  - Rule: kernel contract does not hardcode permission names.
+  - Rule: host application resolves namespace/action authorization through existing module ability policies.
+- `S1-17`: Decided. Use singleton settings document per scope store.
+  - Rule: each scope store (`landlord`, each `tenant`) has exactly one settings root document.
+  - Rule: root document uses fixed `_id` and namespace map payload.
+  - Rule: migration must hard-fail when legacy data violates singleton invariant.
+- `S1-06`: Decided. Namespace key is technical and plugin-scoped.
+  - Rule: each plugin/module registers one or more immutable namespace keys (recommended: plugin technical name).
+  - Rule: namespace key is the canonical storage key and must not depend on UI labels.
+- `S1-07`: Decided. UI grouping is metadata-only.
+  - Rule: registry supports `label` (required for display) and `group_label` (optional grouping).
+  - Rule: changing `label`/`group_label` must not trigger data migration or namespace key change.
+- `S1-08`: Decided. Registry accepts both core and package providers.
+  - Rule: host system may register native settings namespaces using the same registry contract as packages.
+  - Rule: provider origin (`core` vs package) is metadata; behavior contract remains uniform.
+- `S1-09`: Decided. Settings schema must represent navigation hierarchy.
+  - Rule: schema supports `group` and `subgroup` to render menu/submenu UX patterns.
+  - Rule: hierarchy is declarative and can evolve without storage key changes.
+- `S1-10`: Decided. Navigation metadata is not storage contract.
+  - Rule: persistence keys remain `namespace` + field path.
+  - Rule: navigation changes (`group/subgroup/order/label/icon`) must not alter or migrate persisted tenant values.
+- `S1-11`: Decided. Every field is renderable; structure belongs to groups.
+  - Rule: every registered `field` must be available in schema output as a UI-renderable node.
+  - Rule: structural hierarchy is modeled through `group` nodes, which may include both direct fields and nested groups.
+  - Rule: schema is the render contract itself (`field` renders in current level; `group` renders navigation).
+- `S1-12`: Decided. Schema versioning is mandatory.
+  - Rule: `GET settings/schema` must return `schema_version`.
+  - Rule: breaking schema contract changes require explicit version bump.
+- `S1-13`: Decided. Schema node identity is technical and stable.
+  - Rule: each `field`/`group` has immutable `id` for UI state, deep-link, and compatibility semantics.
+  - Rule: labels/i18n/order are mutable metadata and cannot be used as node identity.
+- `S1-14`: Decided. Conditional rendering is declarative.
+  - Rule: optional `visible_if`/`enabled_if` metadata can gate render/enabled behavior.
+  - Rule: conditions must target valid registered technical node identifiers (`id`/canonical path) and be validator-enforced.
+- `S1-15`: Decided. Localization metadata is first-class.
+  - Rule: schema exposes i18n keys (`label_i18n_key`, optional `description_i18n_key`) with literal label fallback.
+  - Rule: localization metadata never changes namespace/field persistence paths.
+- `S1-16`: Decided. Conditional rules DSL follows an ACF-inspired declarative structure.
+  - Rule: conditions are modeled as OR-of-AND groups (`groups[]` with nested `rules[]`).
+  - Rule: operands must target technical node IDs/paths, not display labels.
+  - Rule: V1 operator set is fixed to `equals`, `not_equals`, `in`, `not_in`, `exists`, `gt`, `gte`, `lt`, `lte`.
+- `S1-20`: Execution snapshot updated after backend implementation pass.
+  - Implemented kernel package, migrations, generic endpoints, core+push namespace registrations, and settings tests.
+  - Validation gate: full Laravel suite passed in Docker (`789 passed`, `2863 assertions`).
+  - Remaining stream: docs/submodule-summary synchronization + residual scope-isolation/navigation stability hardening.
+- `S1-21`: Final hardening completed.
+  - Added conditional metadata stability test across label/i18n/order changes.
+  - Added landlord migration command validation and scope/migration assertions in feature coverage.
+  - Foundation documentation + Laravel summary synchronized with the delivered settings kernel contract.

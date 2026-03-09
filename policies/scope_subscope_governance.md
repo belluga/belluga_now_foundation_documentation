@@ -97,7 +97,7 @@ New subscopes are forbidden unless explicitly approved and documented in:
 
 ### 7.3 Derived `web-app` Boundary
 - `web-app` is a derived/compiled repository surface in this ecosystem context.
-- Route/navigation test source files must be authored in source-owned locations (for example `tools/flutter/web_app_tests/`) and synchronized to `web-app` through build tooling.
+- Route/navigation test source files must be authored in source-owned locations (for example `tools/flutter/web_app_tests/`) and executed through a dedicated runner outside `web-app`.
 - Direct `web-app` test authoring is prohibited for canonical route-governance changes.
 
 ## 8. Compliance Checklist (Minimum)

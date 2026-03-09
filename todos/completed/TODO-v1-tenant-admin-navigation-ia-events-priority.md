@@ -1,7 +1,7 @@
 # TODO (V1): Tenant Admin Navigation IA — Events Priority + Type Management Access
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`
-**Status:** Active
+**Status:** Completed
 **Owner:** Flutter Team
 **Date:** 2026-02-15
 
@@ -46,16 +46,19 @@ Refine Tenant Admin information architecture to align with Material 3: prioritiz
 
 ### Phase 3 — Validation
 - [x] ✅ Production‑Ready `fvm flutter analyze`
-- [ ] 🟡 Provisional Run focused tests for shell navigation + affected list screens.
+- [x] ✅ Production‑Ready Run focused tests for shell navigation + affected list screens.
 - [x] ✅ Production‑Ready Run `flutter-architecture-adherence` + recursive `flutter-clean-code-audit` until clean or explicit approved exceptions.
 
-Provisional Notes:
-- `test/presentation/tenant_admin/shell/tenant_admin_shell_screen_test.dart` passou.
-- `integration_test/feature_admin_dashboard_events_hidden_test.dart` foi atualizado para o novo comportamento, porém a execução no ambiente atual falhou por infraestrutura Android (`Gradle build failed to produce an .apk file`), não por assert de regra de negócio.
+Validation Notes:
+- `test/presentation/tenant_admin/shell/tenant_admin_shell_screen_test.dart` passed.
+- `test/application/router/guards/landlord_route_guard_test.dart` passed.
+- Device integration re-run passed on ADB (`192.168.15.5:5555`):
+  - `integration_test/feature_admin_dashboard_events_hidden_test.dart`
+  - `integration_test/admin_login_real_test.dart`
 
 ## Definition of Done
 - [x] ✅ Production‑Ready Bottom navigation reflects `Início / Eventos / Contas / Ativos / Configurações`.
 - [x] ✅ Production‑Ready `Catálogo` is no longer a bottom-level destination.
 - [x] ✅ Production‑Ready `Contas` and `Ativos` expose direct, discoverable access to their respective type-management screens.
 - [x] ✅ Production‑Ready Existing create shortcuts continue to work.
-- [ ] 🟡 Provisional Analyze and focused tests pass.
+- [x] ✅ Production‑Ready Analyze and focused tests pass.

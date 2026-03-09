@@ -1,200 +1,101 @@
-# TODO (V1): Map — Backend (POIs + Projection + Static Assets)
+# TODO (V1): Map + POIs Backend Package (Post-Events)
 
-**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready` · `- [>] Deferred` · `- [-] Implementation Canceled`.  
-**Status:** Active  
-**Owners:** Backend Team  
-**Objective:** Deliver the projection-backed Map POIs APIs, SSE deltas, and tenant-admin Static Asset CRUD.
-
----
-
-## References
-- `foundation_documentation/modules/map_poi_module.md`
-- `foundation_documentation/endpoints_mvp_contracts.md`
-- `foundation_documentation/system_roadmap.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-backend-wiring-consolidation.md`
-- `foundation_documentation/todos/completed/TODO-route-paths-migration-guide.md` (Route Paths Migration Guide)
+**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production-Ready`.
+**Status:** ✅ Production-Ready (Completed)
+**Owners:** Backend Team
+**Objective:** Establish Map + POIs as a first-class Laravel package, with settings-driven behavior and contract-based projection ingestion from other domains.
 
 ---
 
-## A) Backend Tasks
-
-### A0) Decision Notes (Contracts + Access)
-- [x] ✅ Production‑Ready Confirm canonical paths per route migration guide: `/api/v1/map/pois`, `/api/v1/map/filters`, `/api/v1/map/pois/stream` (tenant domain only; no `/api/v1/app/*`).
-- [x] ✅ Production‑Ready Define `map_pois` schema contract (fields + enums) in `foundation_documentation/modules/map_poi_module.md` and `endpoints_mvp_contracts.md`.
-- [x] ✅ Production‑Ready Document `/map/pois`, `/map/filters`, and `/map/pois/stream` request/response contracts (query params, **taxonomy filters**, response shape, SSE payload).
-- [x] ✅ Production‑Ready Remove `movement_radius_meters` from POI contracts/mocks (moving POIs deferred; keep V1 static/event focus).
-- [x] ✅ Production‑Ready Define POI source rules by `account_profile.profile_type` (which types are POI-enabled) and where the toggle lives.
-- [x] ✅ Production‑Ready Make the projection rule explicit: **no location → no POI projection** for account profiles.
-- [x] ✅ Production‑Ready Set priority policy defaults (numeric scale + initial ordering) for POI stacking.
-- [x] ✅ Production‑Ready Document access/scoping (tenant vs admin) for map endpoints:
-  - [x] ✅ Production‑Ready `/api/v1/map/*` = tenant domain + `auth:sanctum` + account-accessible (account user tokens allowed), not main domain.
-  - [x] ✅ Production‑Ready Admin CRUD (Static Assets) = tenant-admin scope under `/admin/api/v1/*`.
-- [x] ✅ Production‑Ready MVP: map queries **must** filter by `is_active` only (manual toggle in MVP).
-- [x] ✅ Production‑Ready Map filters must include **taxonomy terms** (type + values) when the registry exposes them.
-
-### A1) `map_pois` projection persistence (Jobs)
-- [x] ✅ Production‑Ready On create/update/delete/restore of Account Profile, StaticAsset, or Event (and POI-enabled custom objects), enqueue Jobs to upsert/remove linked `map_pois` record (no inline projection writes). Account is not a POI source.
-- [x] ✅ Production‑Ready Support `active_window_start_at` + `active_window_end_at` nullable on `map_pois` (no stored `visible_from/visible_until`).
-- [x] ✅ Production‑Ready Implement tenant settings for time-window filtering (day-based):
-  - [x] ✅ Production‑Ready `settings.map_ui.poi_time_window_days.future` (default: 30)
-  - [x] ✅ Production‑Ready `settings.map_ui.poi_time_window_days.past` (default: 1)
-  - [x] ✅ Production‑Ready `settings.events.default_duration_hours` (default: 3) for events missing `date_time_end`
-
-### A2) Time-window filtering (query-time)
-- [x] ✅ Production‑Ready When fetching POIs, include time-windowed POIs only when:
-- [x] ✅ Production‑Ready `active_window_start_at <= endOfDay(now + future_window_days)` (user timezone from user profile)
-- [x] ✅ Production‑Ready `active_window_end_at >= startOfDay(now - past_window_days)` (user timezone from user profile)
-- [x] ✅ Production‑Ready POIs without `active_window_*` remain eligible (subject to `is_active`, viewport, and filters).
-
-### A2.1) Realtime deltas (SSE)
-- [>] Deferred Expose `/api/v1/map/pois/stream` with delta events (created/updated/deleted).
-- [>] Deferred Stream filters match `/api/v1/map/pois` (viewport, categories, **taxonomy**, tags, search, geo).
-
-### A3) Same-spot stacking (V1 exact-key)
-- [x] ✅ Production‑Ready Normalize coordinates on write (fixed precision: 5 decimals).
-- [x] ✅ Production‑Ready Derive/store an `exact_key` from normalized coordinates (e.g., `"lat,lng"`).
-- [x] ✅ Production‑Ready Map endpoint returns stacks grouped by `exact_key`:
-  - [x] ✅ Production‑Ready `stack_key`, `center`, `top_poi`, `stack_count`, `items[]`
-- [x] ✅ Production‑Ready Ensure deterministic ordering within stack:
-  - [x] ✅ Production‑Ready sort by `priority`, then stable tiebreaker (`ref_type` precedence + `ref_id`).
-
-### A4) Performance/indexing
-- [x] ✅ Production‑Ready 2dsphere index on `map_pois.location`.
-- [x] ✅ Production‑Ready Index strategy supports `is_active`, `category`, and active window filters used by the map endpoint (tenant DB isolation).
-
-### A5) Static Assets (Admin CRUD)
-- [x] ✅ Production‑Ready Add `static_assets` collection + model + migration + indexes (2dsphere on location; category/is_active index).
-- [x] ✅ Production‑Ready Admin CRUD endpoints under `/admin/api/v1/static_assets` (tenant domain).
-- [x] ✅ Production‑Ready Validation rules: name required; category required; location required; tags/taxonomy_terms optional; priority + is_active defaulted.
-- [x] ✅ Production‑Ready Enforce tenant-admin abilities (`assets:*`) for create/update/delete/restore.
-- [x] ✅ Production‑Ready Ensure Static Asset CRUD triggers `map_pois` projection Jobs (including `is_active` toggles).
-- [x] ✅ Production‑Ready Tests: CRUD, validation, ability denial, projection side effects.
-
-### A6) Map endpoints (implementation)
-- [x] ✅ Production‑Ready `GET /api/v1/map/pois`: projection-backed POI feed with viewport/geo filters, time window enforcement, and stack grouping.
-- [x] ✅ Production‑Ready `GET /api/v1/map/near`: distance-ordered card list with pagination (10/page) and richer payload.
-- [x] ✅ Production‑Ready `GET /api/v1/map/filters`: return category/tag/taxonomy catalogs using the same filter constraints.
-- [>] Deferred `GET /api/v1/map/pois/stream`: SSE delta stream aligned to `/map/pois` filters.
-- [x] ✅ Production‑Ready Validation enforces bounded inputs (P-14) for search, tags, taxonomy, and viewport params.
-- [x] ✅ Production‑Ready Ensure tenant access guardrails (`auth:sanctum` + `CheckTenantAccess`) apply to `/api/v1/map/*` routes.
-- [x] ✅ Production‑Ready Remove `/admin/api/v1/account_profiles/geo` (deprecated by `/api/v1/map/pois` + `ref_type=account_profile`) and delete its controller usage/tests.
+## Scope
+- Create `belluga_map_pois` package as authoritative backend location for:
+  - map query/read services
+  - map POI projection pipeline
+  - map endpoints/contracts
+  - map package models/migrations/indexes
+- Absorb current Events -> Map POI integration responsibilities into the Map package boundary, keeping Events contract-only.
+- Keep settings integration contract-first via `belluga_settings`.
+- Preserve tenant/domain security and access guardrails.
 
 ---
 
-## B) Acceptance Criteria
-- [x] ✅ Production‑Ready Map POIs return stack groups with deterministic ordering and `+N` stack counts.
-- [x] ✅ Production‑Ready Event POIs appear only within backend-defined time windows.
-- [x] ✅ Production‑Ready Static Asset CRUD updates `map_pois` (upsert/remove via Jobs).
-- [>] Deferred SSE emits `poi.created`, `poi.updated`, and `poi.deleted` events for active filters.
+## Decision Baseline (Frozen)
+- `MAP-D01` Route ownership in S1:
+  - package-owned route loading in S1; host wrappers removed.
+- `MAP-D02` Projection contract granularity:
+  - shared generic base + source-specific contract methods (`events`, `account_profiles`, `static_assets`).
+- `MAP-D03` Settings namespace:
+  - split in MVP: `map_ui`, `map_ingest`, `map_security`.
+- `MAP-D04` Multitenancy classification:
+  - tenant-scoped package data + package migration path in Spatie tenant migration paths.
+- `MAP-D05` Migration strategy:
+  - package skeleton + full map runtime migration (query/projection/jobs/listeners/model/routes) with behavior parity.
+- `MAP-D06` Decoupling rule:
+  - no `App\\...` references inside package `src/**`; host integration via adapters/bindings.
+- `MAP-D07` Rebuild/reconciliation operation:
+  - internal rebuild command only (no public rebuild API endpoint).
 
 ---
 
-## C) Out of Scope
-- Flutter map UI/UX changes.
-- VNext clustering (geohash/H3) beyond exact-key stacks.
-- Moving POIs / live offers beyond SSE deltas.
-- SSE stream for POI deltas (Deferred).
+## Decision Adherence Validation
+| Decision ID | Status | Evidence |
+| --- | --- | --- |
+| `MAP-D01` | Adherent | Package routes at `laravel-app/packages/belluga/belluga_map_pois/routes/map_pois.php`; legacy host map routes removed from `laravel-app/routes/api/project_tenant_public_api_v1.php`. |
+| `MAP-D02` | Adherent | Source/query/settings contracts in `laravel-app/packages/belluga/belluga_map_pois/src/Contracts/*`; host adapters in `laravel-app/app/Integration/MapPois/*`. |
+| `MAP-D03` | Adherent | Namespaces registered in `laravel-app/packages/belluga/belluga_map_pois/src/MapPoisServiceProvider.php` (`map_ui`, `map_ingest`, `map_security`); tenant model supports persisted keys in `laravel-app/app/Models/Tenants/TenantSettings.php`. |
+| `MAP-D04` | Adherent | Tenant migration lives in package: `laravel-app/packages/belluga/belluga_map_pois/database/migrations/2026_02_02_000500_create_map_pois_collection.php`; path wired in `laravel-app/config/multitenancy.php`. |
+| `MAP-D05` | Adherent | Runtime ownership moved to package (`src/Application`, `src/Jobs`, `src/Listeners`, `src/Http`, `src/Models`); host duplicates removed from `laravel-app/app/Application/MapPois`, `app/Jobs/MapPois`, `app/Listeners/EventsPackage`, `app/Http/Api/v1/Map*`, `app/Models/Tenants/MapPoi.php`. |
+| `MAP-D06` | Adherent | Decoupling assertion passed via `assert_package_decoupling.py` (`no App refs in src`, `no wrappers`, `host bindings present`). |
+| `MAP-D07` | Adherent | Internal command delivered: `laravel-app/packages/belluga/belluga_map_pois/src/Console/Commands/RebuildMapPoisCommand.php`; coverage in `laravel-app/tests/Feature/Map/MapPoiRebuildCommandTest.php`. |
 
 ---
 
-## D) Definition of Done
-- [x] ✅ Production‑Ready `/map/pois` and `/map/filters` implemented with Sanctum auth and tenant guardrails.
-- [x] ✅ Production‑Ready `map_pois` projection Jobs handle create/update/delete/restore for all POI-enabled sources.
-- [x] ✅ Production‑Ready Static Assets CRUD is live under tenant-admin scope and wired to projection jobs.
-- [x] ✅ Production‑Ready Time-window filtering uses tenant settings and keeps `is_active` as the only hard visibility toggle.
-- [x] ✅ Production‑Ready Tests cover routing, validation, and projection integrity.
+## Tasks
+- [x] ✅ Production-Ready Create package skeleton (`belluga_map_pois`) and composer wiring.
+- [x] ✅ Production-Ready Move map domain/application code into package namespaces.
+- [x] ✅ Production-Ready Define package contracts for POI projection ingestion and query boundaries.
+- [x] ✅ Production-Ready Implement host app adapters/bindings for external dependencies.
+- [x] ✅ Production-Ready Route Event/Profile/StaticAsset POI writes through contract/listener pipeline.
+- [x] ✅ Production-Ready Move Events-related Map POI operational integration into `belluga_map_pois`.
+- [x] ✅ Production-Ready Migrate map models/migrations/index definitions to package ownership.
+- [x] ✅ Production-Ready Integrate package services with settings kernel namespaces.
+- [x] ✅ Production-Ready Keep API contracts stable.
+- [x] ✅ Production-Ready Add/refresh tests for package bindings, projection side effects, and map query behavior.
+- [x] ✅ Production-Ready Module documentation synchronized.
 
 ---
 
-## E) Validation Steps
-- [x] ✅ Production‑Ready `php artisan test --filter=MapPoi` (or targeted map/asset tests once created).
-- [ ] ⚪ Manual smoke: fetch `/api/v1/map/pois` with viewport + origin to verify distance/stack payloads.
-- [ ] ⚪ Manual smoke: create/update/delete static asset and confirm map POI update.
+## Validation Steps
+- [x] ✅ Production-Ready `python3 .../assert_package_decoupling.py --package-dir .../belluga_map_pois --app-dir .../app --app-provider .../AppServiceProvider.php --check-host-bindings`.
+- [x] ✅ Production-Ready `php artisan test tests/Feature/Map/MapPoiRebuildCommandTest.php tests/Feature/Map/MapPoisControllerTest.php tests/Unit/Events/EventsPackageBindingsTest.php tests/Unit/Events/EventsAsyncOperationalPolicyTest.php tests/Feature/Events/EventCrudControllerTest.php`.
+- [x] ✅ Production-Ready `php artisan test` full Laravel suite (post-change): **813 passed**, **2985 assertions**, **277.86s**.
+- [x] ✅ Production-Ready Stress pass (map suite repeated 3x):
+  - Run 1: `Duration 17.87s`
+  - Run 2: `Duration 9.96s`
+  - Run 3: `Duration 9.20s`
+  - Total elapsed: `42s`
 
 ---
 
-## F) Decisions to Close (Proposals)
+## Delivery Confidence Gate
+- Runtime impact: `medium` (route/model/job/service provider ownership migration).
+- Migration/index status: `map_pois` migration owned by package + tenant path wired.
+- Queue/worker/scheduler health: docker services healthy during run (`app`, `worker`, `scheduler`, `mongo`, `nginx`).
+- Targeted load/perf sampling: completed via repeated map feature stress pass.
+- Confidence: `high` for MVP staging/pre-production.
+- Release readiness: `ready`.
 
-### D1) `map_pois` schema minimum (proposed)
-- Required (storage): `_id`, `tenant_id`, `ref_type`, `ref_id`, `name`, `category`, `tags[]`, `priority`, `location`, `is_active`.
-- Optional (storage): `active_window_start_at`, `active_window_end_at`, `time_start`, `time_end`, `exact_key`, `avatar_url`, `cover_url`, `badge`, `subtitle`, `updated_at`, `ref_slug`, `ref_path`.
-- Response (`/map/pois`) excludes `is_active`, `tags[]`, `taxonomy_terms[]`.
-- Response (`/map/near`) may include richer card fields (see D11).
-- Response-only: `distance_meters` (when `origin_lat/lng` provided).
+---
 
-### D1.1) Radius semantics + “Search this area” (proposed)
-- `max_distance_meters` is always anchored to a reference origin (`origin_lat/lng`), not auto-updated as the user pans.
-- Panning the map does not change origin until the user taps **Search this area** (sets origin to new center + refetches).
-- Tenant settings (nested) define defaults and bounds for radius:
-  - `map_ui.radius.min_km` (default: 1)
-  - `map_ui.radius.default_km` (default: 5)
-  - `map_ui.radius.max_km` (default: 50)
-  - Optional `map_ui.default_location` with `{ lat, lng }` for initial origin when user location is unavailable.
+## Definition of Done
+- [x] ✅ Production-Ready Map + POIs backend runtime is package-owned and decoupled from host implementation details.
+- [x] ✅ Production-Ready Cross-domain POI side effects flow through package contracts/listeners.
+- [x] ✅ Production-Ready Settings-driven map behavior is consumed via settings kernel.
+- [x] ✅ Production-Ready Full Laravel suite passes after migration.
+- [x] ✅ Production-Ready Documentation synchronized with final architecture.
 
-### D1.2) `distance_meters` contract (proposed)
-- If `origin_lat/lng` is provided, the backend **must** include `distance_meters` on each POI in the response.
-- When origin is absent, `distance_meters` may be omitted.
+---
 
-### D1.3) POI registry + taxonomy registry (approved)
-- Define a POI type registry (`poi_types`) and taxonomy/terms registry for normalization and routing.
-- Store `taxonomy_terms_flat[]` (e.g., `["cuisine:italian"]`) on `map_pois` for fast filtering.
-- Reads **never** run pipelines; they fetch normalized POI records by `ref_type/ref_id` and `slug`.
-
-### D1.4) Map endpoint canonical path (proposed)
-- Standardize the map POI endpoint as `/api/v1/map/pois` (deprecate `/api/v1/app/map/pois`).
-
-### D1.5) POI enablement defaults (approved)
-- Account Profile types default allowlist for POI projection (MVP): `venue`, `restaurant`, `experience_provider`.
-- `artist`, `influencer`, `curator` are POI-disabled by default, toggled via tenant settings or profile capability.
-
-### D2) POI-enabled profile types (approved)
-- POI-enabled by default: `venue`, `restaurant`, `experience_provider`.
-- POI-disabled by default: `artist`, `influencer`, `curator` (unless explicitly toggled).
-
-### D5) Static Assets remain separate (decision)
-- Static Assets are **not** Account Profiles. They project into `map_pois` with `ref_type=static`.
-- They are tenant/landlord-managed POIs without operator linkage or invite/favorite semantics.
-
-### D7) POI media inheritance (approved)
-- Media inheritance is resolved **at projection time** (POI upsert/update jobs), not at query time.
-- `ref_type=event`: inherit media from the Event (no venue/profile media merge).
-- `ref_type=account_profile`: inherit media from the Account Profile.
-- `ref_type=static`: inherit media from the Static Asset.
-
-### D3) Priority defaults (proposed)
-- 100: Sponsored/boosted  
-- 80: Live event  
-- 60: Upcoming event  
-- 40: Static POI (venue/restaurant)  
-- 20: Landmark/static asset
-
-### D4) Endpoint access (proposed)
-- `/map/pois` and `/map/filters`: tenant-authenticated (Sanctum) + account-accessible. Filters must include taxonomy types/values when available.
-- Admin endpoints (if any): tenant/admin only.
-
-### D6) SSE inclusion (proposed)
-- [>] Deferred `/api/v1/map/pois/stream` for MVP. Revisit only if delta polling becomes a problem.
-
-### D8) Minimal map feed payload (approved)
-- `/api/v1/map/pois` returns **minimal markers only** (no full card payload).
-- Minimal payload includes `top_ref.updated_at` so clients can use local cache for card data.
-- `stack_key` is always present; `top_ref.updated_at` is required for polling cache validation.
-
-### D9) Delta polling strategy (approved)
-- No polling while user is dragging the map.
-- After map becomes idle, debounce 500–800ms before requesting.
-- Enforce minimum request interval (2–3s).
-- If new viewport is within cached bounds and filters unchanged → **delta** request (since last server time).
-- If viewport extends outside cached bounds, zoom changes, or filters change → **full snapshot** for new viewport (still minimal markers).
-- Response includes `server_time` and echoes `bounds` for client cache tracking.
-
-### D10) Stack details endpoint (approved)
-- Stack expansion uses `GET /api/v1/map/pois?stack_key=...` to return items for that stack.
-
-### D11) `/api/v1/map/near` card payload (proposed)
-- Returns paginated card list (default 10/page) ordered by `distance_meters`.
-- Required fields: `ref_type`, `ref_id`, `title`, `category`, `location`, `distance_meters`, `updated_at`.
-- Optional fields: `subtitle`, `avatar_url`, `cover_url`, `badge`, `time_start`, `time_end`, `ref_slug`, `ref_path`.
-- Card payload **includes** `tags[]` and `taxonomy_terms[]`.
-- Navigation intent: slugs are unique **per model only**. Card items must expose `ref_slug`, and `ref_path` must be `/{ref_type}/{ref_slug}` to avoid collisions.
+## Decision Log
+- `M1-00`: Created as dedicated backend stream by product/architecture decision.
+- `M1-05`: Events -> Map POI integration relocated to `belluga_map_pois`; Events remains contract-only for projection sync.

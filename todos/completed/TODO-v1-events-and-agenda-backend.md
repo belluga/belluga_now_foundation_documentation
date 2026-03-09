@@ -23,7 +23,7 @@
 - Tenant CRUD for events (create/update/delete/list)
 - Invite‑driven confirmation only (no check‑in)
 - Geo radius defaults driven by tenant settings (`map_ui.radius`)
-- Event location is always derived from the venue Account Profile (no standalone event location)
+- Event location statement in this TODO is historical; canonical contract was superseded by `location + place_ref` in `TODO-v1-events-location-core-cutover.md` and `modules/events_module.md`
 
 ## Out of Scope (MVP)
 - `/api/v1/events/{event_id}/check-in` behavior and rules (deferred to vnext)

@@ -10,7 +10,7 @@ Establish a production-grade Tenant Admin information architecture and navigatio
 
 ## References
 - `foundation_documentation/modules/tenant_admin_module.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-landlord-admin-scope-access.md`
+- `foundation_documentation/todos/completed/TODO-v1-landlord-admin-scope-access.md`
 - `lib/application/router/modular_app/modules/tenant_admin_module.dart`
 - `lib/presentation/tenant_admin/shell/tenant_admin_shell_screen.dart`
 - `lib/presentation/tenant_admin/shell/tenant_admin_dashboard_screen.dart`
@@ -131,7 +131,7 @@ Establish a production-grade Tenant Admin information architecture and navigatio
 - [x] ✅ Production‑Ready `fvm flutter test test/presentation/tenant_admin/controllers/tenant_admin_organizations_controller_test.dart test/presentation/tenant_admin/controllers/tenant_admin_profile_types_controller_test.dart test/presentation/tenant_admin/controllers/tenant_admin_static_profile_types_controller_test.dart test/presentation/tenant_admin/controllers/tenant_admin_taxonomies_controller_test.dart`
 - [x] ✅ Production‑Ready `fvm flutter test --update-goldens test/presentation/tenant_admin/shared/tenant_admin_visual_regression_golden_test.dart`
 - [x] ✅ Production‑Ready `fvm flutter test test/presentation/tenant_admin/shared/tenant_admin_visual_regression_golden_test.dart`
-- [x] ✅ Production‑Ready Device integration run completed one-by-one (WSL-safe) for all `integration_test/*_test.dart` via checklist `.agent/test-run-progress.md`.
+- [x] ✅ Production‑Ready Device integration run completed one-by-one (WSL-safe) for all `integration_test/*_test.dart` via checklist `foundation_documentation/artifacts/tmp/flutter-device-runner/test-run-progress.md`.
 - [x] ✅ Production‑Ready Full unit test suite executed in chunks:
   - `fvm flutter test test/application test/event_model_test.dart test/widget_test.dart`
   - `fvm flutter test test/infrastructure`

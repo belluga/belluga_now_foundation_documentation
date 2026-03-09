@@ -8,6 +8,19 @@
 
 The Onboarding Flow module (MOD-307) owns the full first-time experience across the app. It orchestrates how a user—often entering through an invite link—progresses from invite context to account creation, preference capture, and location initialization. While the Invite & Social Loop module handles the graph logic, onboarding governs the UI state machine, partial profile storage, and cross-module handoffs.
 
+### 1.1 Canonical Anchors
+
+- System/platform references:
+  - `foundation_documentation/system_roadmap.md`
+  - `foundation_documentation/submodule_flutter-app_summary.md`
+- Cross-module references:
+  - `foundation_documentation/modules/invite_and_social_loop_module.md`
+  - `foundation_documentation/modules/map_poi_module.md`
+  - `foundation_documentation/modules/task_and_reminder_module.md`
+- Tactical TODO streams:
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
+  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+
 ## 2. Entry Paths
 
 1. **Invite Acceptance Path**
@@ -84,3 +97,18 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 ---
 
 *Next Action:* Flesh out collection schemas (`onboarding_sessions`, `preference_snapshots`), API details, and UI sequence diagrams once we finalize the answers above.
+
+## 6. Canonical Decision Baseline
+
+| Decision ID | Status | Decision | Impact | Canonical Evidence |
+| --- | --- | --- | --- | --- |
+| `ONB-01` | Approved | Invite-first and organic paths share one onboarding state machine with contextual branching. | Prevents duplicated onboarding implementations. | Sections `2`, `3` |
+| `ONB-02` | Approved | Contact import and location consent are optional but produce follow-up task intents when skipped. | Guarantees recoverability without blocking acquisition. | Sections `3`, `4` |
+| `ONB-03` | Approved | Dynamic push onboarding answers are callback-driven (no plugin persistence). | Keeps onboarding plugin generic and stateless. | Section `3` |
+
+## 7. Tactical TODO Promotion Ledger
+
+| TODO | Purpose | Promotion Status | Promoted Sections | Notes |
+| --- | --- | --- | --- | --- |
+| `TODO-v1-invites-implementation.md` | Invite acceptance/contact-import flow contracts | In progress | `2`, `4`, `6` | Main authority for invite/onboarding boundary. |
+| `TODO-v1-first-release.md` | MVP onboarding sequencing and release posture | In progress | `3`, `5` | Tracks open onboarding questions at release level. |
