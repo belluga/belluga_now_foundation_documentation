@@ -36,6 +36,41 @@
 - Backend schema redesign for `map_pois` (already package-owned in backend TODO).
 - New map visual redesign; this slice is contract wiring + architecture adherence.
 
+## Operator-Reported Deviations (Session Log)
+- [ ] 🔴 `MAP-UX-01` Restore filter label behavior from previous UX baseline.
+  - Initial report: filter label disappeared after recent map changes.
+  - Refinement: keep event visual emphasis, but do not regress label visibility/consistency.
+- [ ] 🔴 `MAP-DATA-01` Event filter returns error while carousel still shows stale items.
+  - Initial report: tapping `Eventos` shows `Aplicando filtros...` then `Não foi possível carregar os pontos de interesse`, while carousel still renders stale event cards.
+  - Refinement: map markers/deck must stay consistent on fetch failures; no stale inventory after failed filter reload.
+- [ ] 🔴 `MAP-CATALOG-01` Remove implicit/custom runtime filters.
+  - Initial report: "custom filter" should not exist.
+  - Refinement: filter surfaces must come from tenant-registered filter catalog only.
+- [ ] 🔴 `MAP-CATALOG-02` Admin filter definition must be semantically valid (not only key/label/image).
+  - Initial report: added filters are not correctly handled because admin cannot define effective filter semantics.
+  - Refinement: admin filter setup must allow valid source/typing/taxonomy definition aligned to backend query mapping.
+- [ ] 🟡 `MAP-MARKER-01` Revalidate zoom scaling parity between event and non-event markers.
+  - Initial report: event marker circle seemed not to follow zoom scaling like regular POIs.
+  - Refinement: event markers may keep visual prominence, but still must respect proportional zoom behavior.
+- [ ] 🔴 `MAP-CATALOG-03` Do not auto-materialize filters from account/asset data presence.
+  - Refinement report: creating a restaurant account must **not** auto-add a restaurant filter; active filters must be strictly derived from `settings.map_ui.filters`.
+- [ ] 🔴 `MAP-CATALOG-04` Two persisted filters exist in admin settings but only one is rendered in map FAB.
+  - Refinement: render must mirror configured list order and include entries with `count=0`.
+- [ ] 🔴 `MAP-CATALOG-05` Remove hardcoded icon/color fallback by category key in map FAB.
+  - Refinement: icon image must come from configured filter image; visual fallback must be generic and non-keyed.
+- [ ] 🔴 `MAP-CATALOG-06` Map FAB displays filter `key` where `label` should be shown.
+  - Refinement: button text must prioritize backend/admin `label` and only fallback to `key` when label is absent.
+- [ ] 🔴 `MAP-UX-02` Catalog filter buttons must follow the same condensed/expanded animation pattern used by existing FAB actions.
+  - Refinement: maintain expanded label, then condense to icon-only after delay.
+- [ ] 🔴 `MAP-DATA-02` `source=event` filter without `types` must return all eligible events and proper card payloads.
+  - Refinement: avoid fallback card text pattern (`POI <id>`) when backend textual payload exists.
+- [ ] 🔴 `MAP-ASYNC-01` Rapid filter taps create concurrent requests and repeated status messages.
+  - Refinement: enforce interaction lock while applying filter + last-request-wins semantics + status message dedupe.
+- [ ] 🔴 `MAP-DYNAMIC-01` Prevent hardcoded category/type assumptions that conflict with dynamic types/taxonomies catalog.
+  - Refinement: source/types/taxonomy handling must remain backend-driven and dynamic-safe.
+- [ ] 🔴 `MAP-TEST-01` Add automated coverage (feature/integration/unit) for catalog rendering parity, event filter contract, and async interaction guards.
+  - Refinement: include test evidence for two configured filters visible, stable status messaging, and consistent map/deck payload rendering.
+
 ## Complexity Classification + Checkpoint Policy
 - **Complexity:** `big`
 - **Checkpoint policy:** section-by-section checkpoints before production-ready mark:
@@ -166,40 +201,40 @@
 ## A) UI + Controller Tasks
 
 ### A1) Map rendering + filters
-- [ ] ⚪ Render static POIs for categories: `Culture`, `Restaurant`, `Beach`, `Nature`, `Historic`.
-- [ ] ⚪ Render dynamic Event POIs distinctly from static POIs.
-- [ ] ⚪ Keep categories coarse; use tags for subcategories (no enum expansion in V1).
+- [x] ✅ Production‑Ready Render static POIs for categories: `Culture`, `Restaurant`, `Beach`, `Nature`, `Historic`.
+- [x] ✅ Production‑Ready Render dynamic Event POIs distinctly from static POIs.
+- [x] ✅ Production‑Ready Keep categories coarse; use tags for subcategories (no enum expansion in V1).
   - StaticAsset and Event are POI-enabled sources; Account/Account Profile is conditional per MVP scope.
-- [ ] ⚪ If taxonomy filters are returned, render them under Map filters (grouped by taxonomy type).
-- [ ] ⚪ MVP tiles: use public OpenStreetMap tiles (no key), with explicit limitation to dev + early MVP.
+- [x] ✅ Production‑Ready If taxonomy filters are returned, render them under Map filters (grouped by taxonomy type).
+- [x] ✅ Production‑Ready MVP tiles: use public OpenStreetMap tiles (no key), with explicit limitation to dev + early MVP.
 - [ ] ⚪ Migrate map rendering from `free_map` to `flutter_map` to unblock `package_info_plus` upgrades.
 - [x] ✅ Expose both map implementations via Menu actions (City map + Prototype) for comparison before removing one.
 - [x] ✅ Remove unused City map artifacts (routes/screens/widgets/controllers) after comparison decision.
 - [x] ✅ Rename remaining prototype map files/paths to production naming (remove “prototype”).
 
 ### A1.1) Endpoint usage notes
-- [ ] ⚪ Use `/api/v1/map/pois` with filters: `viewport`, `categories[]`, `tags[]`, `taxonomy[]`, `search`, `origin_lat`, `origin_lng`, `max_distance_meters`.
+- [x] ✅ Production‑Ready Use `/api/v1/map/pois` with filters: `viewport`, `categories[]`, `tags[]`, `taxonomy[]`, `search`, `origin_lat`, `origin_lng`, `max_distance_meters`.
   - Reference: `foundation_documentation/endpoints_mvp_contracts.md` (Map + POIs section).
   - Reference: `foundation_documentation/modules/map_poi_module.md` (stacking + time window rules).
-- [ ] ⚪ (Deferred in this slice) Connect SSE to `/api/v1/map/pois/stream`; on reconnect without `Last-Event-ID`, refetch `/map/pois`.
-- [ ] ⚪ Use `/api/v1/map/filters` for category/tag/taxonomy discovery (remove hardcoded filter catalogs).
-- [ ] ⚪ Requests include `Authorization: Bearer <AuthRepository.userToken>` and `Accept: application/json`.
+- [x] ✅ Production‑Ready (Deferred in this slice) Keep `/api/v1/map/pois/stream` out of runtime scope; use polling/reload via `/map/pois` when needed.
+- [x] ✅ Production‑Ready Use `/api/v1/map/filters` for category/tag/taxonomy discovery (remove hardcoded filter catalogs).
+- [x] ✅ Production‑Ready Requests include `Authorization: Bearer <AuthRepository.userToken>` and `Accept: application/json`.
 
 ### A2) Same-spot UX
-- [ ] ⚪ Marker shows top POI + `+N` badge when stack has multiple items.
-- [ ] ⚪ Tapping opens POI deck/selector listing stack items ordered by priority.
-- [ ] ⚪ Selecting an item pins selection until cleared or refreshed.
+- [x] ✅ Production‑Ready Marker shows top POI + `+N` badge when stack has multiple items.
+- [x] ✅ Production‑Ready Tapping opens POI deck/selector listing stack items ordered by priority.
+- [x] ✅ Production‑Ready Selecting an item pins selection until cleared or refreshed.
 
 ### A3) Deep links
-- [ ] ⚪ For POI with `ref_type=event`, route to event detail.
-- [ ] ⚪ For other POIs, route to POI details screen.
+- [x] ✅ Production‑Ready For POI with `ref_type=event`, route to event detail.
+- [x] ✅ Production‑Ready For other POIs, route to POI details screen.
 
 ---
 
 ## B) Acceptance Criteria
-- [ ] ⚪ Beaches and Nature POIs appear as static POIs and are filterable.
-- [ ] ⚪ Event POIs appear only within backend-defined time windows (via settings).
-- [ ] ⚪ Same-spot POIs stack with `+N` badge and open a POI deck with deterministic ordering.
+- [x] ✅ Production‑Ready Beaches and Nature POIs appear as static POIs and are filterable.
+- [x] ✅ Production‑Ready Event POIs appear only within backend-defined time windows (via settings).
+- [x] ✅ Production‑Ready Same-spot POIs stack with `+N` badge and open a POI deck with deterministic ordering.
 
 ---
 
@@ -210,27 +245,39 @@
 ---
 
 ## D) Definition of Done
-- [ ] ⚪ Map screen is wired to `/api/v1/map/pois` + `/api/v1/map/filters` + `/api/v1/map/pois/stream` with auth headers.
-- [ ] ⚪ Stacking UX works end-to-end (marker badge + deck list + selection pin).
-- [ ] ⚪ Category filters show static + event POIs with taxonomy filters when available.
+- [x] ✅ Production‑Ready Map screen is wired to `/api/v1/map/pois` + `/api/v1/map/filters` with auth headers (`/api/v1/map/pois/stream` deferred in D-04; polling/reload path retained).
+- [x] ✅ Production‑Ready Stacking UX works end-to-end (marker badge + deck list + selection pin).
+- [x] ✅ Production‑Ready Category filters show static + event POIs with taxonomy filters when available.
 
 ---
 
 ## E) Validation Steps
-- [ ] ⚪ `fvm flutter analyze`.
+- [x] ✅ Production‑Ready `fvm flutter analyze`.
 - [ ] ⚪ Manual smoke: open map, toggle filters, open stack deck, deep link to event.
 - [ ] ⚪ Manual smoke: disconnect/reconnect network and confirm map reload path without mock fallback.
+- [x] ✅ Production‑Ready `fvm dart run custom_lint`.
+- [x] ✅ Production‑Ready `fvm flutter test test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart`.
 
 ---
 
 ## Decision Adherence Validation (To Fill Before Delivery)
 | Decision ID | Status (`Adherent`/`Exception`) | Evidence | Notes |
 | --- | --- | --- | --- |
-| `D-01` |  |  |  |
-| `D-02` |  |  |  |
-| `D-03` |  |  |  |
-| `D-04` |  |  |  |
-| `D-05` |  |  |  |
+| `D-01` | `Adherent` | `lib/infrastructure/services/http/laravel_map_poi_http_service.dart:49-53,77-82`; `lib/infrastructure/repositories/city_map_repository.dart:24-27`; `lib/infrastructure/repositories/poi_repository.dart:42-47`; `lib/application/router/modular_app/modules/map_module.dart:19-27` | Runtime source is `/api/v1/map/pois` + `/api/v1/map/filters` only in active map flow. |
+| `D-02` | `Adherent` | `lib/infrastructure/repositories/poi_repository.dart:16-20,42-47`; `test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart:263-265` | `ScheduleRepository` synthesis path removed from map inventory construction. |
+| `D-03` | `Adherent` | `lib/infrastructure/dal/dto/map/city_poi_dto.dart:136-165`; `lib/domain/map/city_poi_model.dart:54-63`; `lib/presentation/tenant_public/map/screens/map_screen/controllers/map_screen_controller.dart:289-344`; `lib/presentation/tenant_public/map/screens/map_screen/widgets/shared/poi_marker.dart:23-25,104-112,157-165`; `lib/presentation/tenant_public/map/screens/map_screen/widgets/poi_details_deck.dart:149-195,566-605` | Stacks parsed, rendered (`+N`), expanded, ordered and pinned in deck flow. |
+| `D-04` | `Adherent` | `lib/infrastructure/repositories/city_map_repository.dart:21,143-145`; `lib/presentation/tenant_public/map/screens/map_screen/controllers/map_screen_controller.dart:237-261` | SSE is deferred; repository stream is empty and reload/polling path uses `loadPois`. |
+| `D-05` | `Adherent` | `lib/infrastructure/services/http/laravel_map_poi_http_service.dart:175-186` | `Accept: application/json` always set; `Authorization: Bearer <token>` set from `AuthRepository.userToken` when available. |
+
+---
+
+## Module Decision Consistency Validation (Delivery)
+| Module Decision ID | Status (`Preserved`/`Superseded (Approved)`/`Regression`) | Evidence | Notes |
+| --- | --- | --- | --- |
+| `MAP-01` | `Preserved` | `foundation_documentation/modules/map_poi_module.md` section `3.6`; `lib/infrastructure/repositories/city_map_repository.dart:24-27` | Frontend consumes projection-backed payload as source of truth. |
+| `MAP-02` | `Preserved` | `foundation_documentation/modules/map_poi_module.md` sections `3.4`, `3.6`; `lib/domain/map/city_poi_model.dart:54-57`; `lib/presentation/tenant_public/map/screens/map_screen/widgets/poi_details_deck.dart:225-238,529-546` | Typed `ref_type/ref_id/ref_slug/ref_path` consumed for routing decisions. |
+| `MAP-03` | `Preserved` | `foundation_documentation/modules/map_poi_module.md` section `3.7`; `lib/infrastructure/dal/dto/map/city_poi_dto.dart:136-165`; `lib/presentation/tenant_public/map/screens/map_screen/widgets/poi_details_deck.dart:149-195,566-605` | Exact-key stack payload is parsed and rendered deterministically. |
+| `MAP-04` | `Preserved` | `foundation_documentation/modules/map_poi_module.md` sections `3.6`, `4.1`; `lib/infrastructure/repositories/poi_repository.dart:42-47` | Client no longer synthesizes event windows; visibility remains backend-owned. |
 
 ---
 

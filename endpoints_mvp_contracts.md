@@ -169,7 +169,14 @@
         "min_km": 1,
         "default_km": 5,
         "max_km": 50
-      }
+      },
+      "filters": [
+        {
+          "key": "culture",
+          "label": "Cultura",
+          "image_uri": "https://tenant.example.com/storage/tenants/tenant-a/map_ui/filters/culture.png"
+        }
+      ]
     }
   }
 }
@@ -186,6 +193,10 @@
 - `profile_types`: Tenant profile type registry entries used to drive profile UI + favorites.
 - `settings.map_ui.radius.default_km`: Default radius for map/agenda filters (km).
 - `settings.map_ui.radius.max_km`: Maximum radius bound for map/agenda filters (km).
+- `settings.map_ui.filters[]`: Ordered map filter catalog used by tenant-admin and map filter discovery payload decoration.
+- `settings.map_ui.filters[].key`: Stable category key aligned with `/map/filters.categories[].key`.
+- `settings.map_ui.filters[].label`: Tenant-facing display label override for the filter key.
+- `settings.map_ui.filters[].image_uri`: Optional image URL rendered in map filter button surfaces.
 
 **Branding assets:** use default paths `GET /logo-light.png`, `/logo-dark.png`, `/icon-light.png`, `/icon-dark.png` (no direct URLs in this payload).
 
@@ -254,8 +265,10 @@
   "tenant_id": "string",
   "invites": [
     {
-      "id": "string",
-      "event_id": "string",
+      "target_ref": {
+        "event_id": "string",
+        "occurrence_id": "string?"
+      },
       "event_name": "string",
       "event_date": "2025-01-01T00:00:00Z",
       "event_image_url": "string",
@@ -263,14 +276,127 @@
       "host_name": "string",
       "message": "string",
       "tags": ["string"],
-      "inviter_name": "string?",
-      "inviter_avatar_url": "string?",
-      "additional_inviters": ["string"]
+      "attendance_policy": "free_confirmation_only|paid_reservation_only|either",
+      "inviter_candidates": [
+        {
+          "invite_id": "string",
+          "inviter_principal": { "kind": "user|account_profile", "id": "string" },
+          "display_name": "string?",
+          "avatar_url": "string?",
+          "status": "pending|accepted|declined|expired"
+        }
+      ],
+      "social_proof": {
+        "additional_inviter_count": 0
+      }
     }
   ],
   "has_more": true
 }
 ```
+**Notes:**
+- Feed is grouped by canonical invite target, not flat by invite edge.
+- Native clients must use `inviter_candidates[].invite_id` for explicit inviter selection when more than one candidate exists for a target.
+- Candidate identity must respect privacy policy; when identity is not allowed, backend should return anonymized summaries/counts instead of raw profile fields.
+- `occurrence_id` is required whenever runtime invite/attendance actions are occurrence-resolved; `null` is allowed only for single-occurrence or intentionally event-scoped compatibility flows.
+
+### `POST /invites`
+**Purpose:** Create direct invites for one or more recipients from the native app.  
+**Request (body):**
+```json
+{
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
+  "account_profile_id": "string?",
+  "recipients": [
+    {
+      "receiver_user_id": "string?",
+      "contact_hash": "string?"
+    }
+  ],
+  "message": "string?"
+}
+```
+**Response (minimum):**
+```json
+{
+  "tenant_id": "string",
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
+  "created": [
+    { "invite_id": "string", "receiver_user_id": "string?" }
+  ],
+  "already_invited": [
+    { "receiver_user_id": "string?" }
+  ],
+  "blocked": [
+    { "receiver_user_id": "string?", "reason": "rate_limited|quota_exceeded|suppressed" }
+  ]
+}
+```
+**Notes:**
+- `account_profile_id` is required when the sender is acting as `inviter_principal.kind = account_profile`.
+- Each recipient must provide either `receiver_user_id` or `contact_hash`.
+- Duplicate invite prevention follows the canonical uniqueness key `(tenant_id, event_id, occurrence_id | null, receiver_user_id, inviter_principal.kind, inviter_principal.id)` and returns `already_invited` instead of creating a new edge.
+
+### `POST /invites/{invite_id}/accept`
+**Purpose:** Accept the selected direct invite from native app.  
+**Request (body):**
+```json
+{
+  "idempotency_key": "string?"
+}
+```
+**Response (minimum):**
+```json
+{
+  "tenant_id": "string",
+  "invite_id": "string",
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
+  "status": "accepted|already_accepted|expired",
+  "credited_acceptance": true,
+  "attendance_policy": "free_confirmation_only|paid_reservation_only|either",
+  "next_step": "none|free_confirmation_created|reservation_required|commitment_choice_required|open_app_to_continue",
+  "closed_duplicate_invite_ids": ["string"],
+  "accepted_at": "2025-01-01T00:00:00Z?"
+}
+```
+**Notes:**
+- This endpoint is the canonical native path after explicit inviter selection.
+- Backend must close duplicate pending invites for the same `(receiver,target_ref)` when acceptance succeeds.
+- `next_step` is the canonical contract field for post-acceptance follow-up semantics across native and web acceptance flows.
+
+### `POST /invites/{invite_id}/decline`
+**Purpose:** Decline the selected direct invite from native app.  
+**Request (body):**
+```json
+{
+  "idempotency_key": "string?"
+}
+```
+**Response (minimum):**
+```json
+{
+  "tenant_id": "string",
+  "invite_id": "string",
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
+  "status": "declined|already_declined|expired",
+  "group_has_other_pending": true,
+  "declined_at": "2025-01-01T00:00:00Z?"
+}
+```
+**Notes:**
+- Declining one invite edge does not implicitly decline other inviter candidates for the same target.
 
 ### `GET /invites/settings`
 **Purpose:** Invite quotas + UX messaging limits.  
@@ -279,10 +405,11 @@
 {
   "tenant_id": "string",
   "limits": {
-    "pending_limit_basic": 20,
-    "pending_limit_verified": 50,
-    "pending_limit_account_paid": 100,
-    "per_event_invite_limit": 1
+    "max_invites_per_event_per_inviter": 300,
+    "max_invites_per_day_per_account": 500,
+    "max_invites_per_day_per_user_actor": 100,
+    "max_pending_invites_per_invitee": 20,
+    "max_invites_to_same_invitee_per_30d": 10
   },
   "cooldowns": {
     "share_code_cooldown_seconds": 0
@@ -296,14 +423,23 @@
 **Purpose:** Create share code for invite attribution.  
 **Request (body):**
 ```json
-{ "event_id": "string", "account_profile_id": "string?" }
+{
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
+  "account_profile_id": "string?"
+}
 ```
 **Response (minimum):**
 ```json
 {
   "tenant_id": "string",
   "code": "string",
-  "event_id": "string",
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
   "inviter_principal": { "kind": "user|account_profile", "id": "string" }
 }
 ```
@@ -317,7 +453,7 @@
 ## 9) Push Messages (Tenant)
 
 ### `GET /push/messages/{push_message_id}/data`
-**Purpose:** Fetch user-specific push payload rendered for the authenticated user.  
+**Purpose:** Fetch user-specific push payload rendered for the authenticated user.
 **Auth:** Bearer token (tenant user).  
 **Request (headers):**
 - `Authorization: Bearer <token>`
@@ -387,29 +523,37 @@
 {
   "tenant_id": "string",
   "invite_id": "string",
-  "event_id": "string",
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
   "inviter_principal": { "kind": "user|account_profile", "id": "string" },
-  "status": "accepted|declined|already_accepted|expired",
+  "status": "accepted|already_accepted|expired",
+  "attendance_policy": "free_confirmation_only|paid_reservation_only|either",
+  "next_step": "none|free_confirmation_created|open_app_to_continue",
   "attribution_bound": true,
   "accepted_at": "2025-01-01T00:00:00Z?"
 }
 ```
 **Field Definitions**
 - `inviter_principal.kind`: `user`, `account_profile`.
-- `status`: `accepted`, `declined`, `already_accepted`, `expired`.
+- `status`: `accepted`, `already_accepted`, `expired`.
+- `next_step`: `none`, `free_confirmation_created`, `open_app_to_continue`.
 
 **Requirement:** Invite share links must carry `code` as a GET parameter.
 **Tracking Notes:**
 - `share_visit` is tracked separately from invites; it does **not** count as an accepted invite.
 - When an acceptance occurs via this endpoint, it **does** count as `invite_accepted` with `source = share_url`.
+- Web acceptance is intentionally narrow: no inbox browsing, no multi-inviter selector, no direct invite send/decline, no presence confirmation, and no check-in.
+- If the resolved post-acceptance flow requires richer UX than auto-resolution, backend must return `next_step = open_app_to_continue`.
 
 #### Invite Flow & Friends Management (MVP)
 - **Primary invite paths:**
 - **Direct invite (existing user):** server creates a per-recipient invite and sends push. Source = `direct_invite`.
   - **Share link:** server issues a `code` via `POST /invites/share`; no per-recipient record until acceptance. Source = `share_url`.
-- **Acceptance rules:** only one accepted invite per invitee per event. Acceptances should bind attribution to the inviter principal.
-- **Tracking:** `share_visit` is analytics-only. `invite_sent` and `invite_accepted` should include a `source` (`direct_invite`, `share_url`).
-- **Friends (MVP):** no social graph. “Friends” are matched contacts from hashed imports only; raw PII is never stored.
+- **Acceptance rules:** only one credited accepted invite per invitee per canonical target. Direct native acceptance requires explicit inviter selection through `invite_id`; share-code acceptance binds to the code’s inviter principal.
+- **Tracking:** `share_visit` is analytics-only. `invite_sent` and `invite_accepted` should include a `source` (`direct_invite`, `share_url`). The project north-star metrics are `credited_invite_acceptances` and normalized `presences_confirmed` (successful free confirmations or paid reservations).
+- **Contacts/Friends (MVP):** no reciprocal social graph or favorite-based visibility model is implemented on MVP invite flows. Hashed contact matches are the only discovery/targeting surface here; raw PII is never stored.
 - **Delivery fallback:** if a contact hash matches an existing user, send push; if no match, use a share URL (e.g., WhatsApp deep link) with the invite `code`.
 
 ### `POST /contacts/import`
@@ -693,6 +837,8 @@ Not returned by `/agenda` and `/events/{event_id}`:
   "origin_lng": 0.0,
   "max_distance_meters": 100000,
   "categories": ["culture"],
+  "source": "event|account_profile|static",
+  "types": ["show"],
   "tags": ["string"],
   "taxonomy": ["type:value"],
   "search": "string?",
@@ -702,6 +848,8 @@ Not returned by `/agenda` and `/events/{event_id}`:
 ```
 **Field Definitions**
 - `categories[]`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
+- `source`: `event`, `account_profile`, `static` (aliases accepted by backend: `account`, `asset`, `static_asset`).
+- `types[]`: dynamic source-type slugs (backend projection field `source_type`).
 - `sort`: `priority`, `distance`, `time_to_event`.
 - `taxonomy[]`: `type:value` tokens (e.g., `cuisine:italian`).
 
@@ -724,10 +872,23 @@ Not returned by `/agenda` and `/events/{event_id}`:
       "top_poi": {
         "ref_type": "event|account_profile|static",
         "ref_id": "string",
+        "ref_slug": "string?",
+        "ref_path": "/event/sample-event",
+        "title": "string",
+        "subtitle": "string?",
+        "name": "string",
+        "description": "string?",
+        "address": "string?",
         "category": "culture|beach|nature|historic|restaurant",
+        "source_type": "string?",
         "location": { "lat": 0.0, "lng": 0.0 },
         "priority": 0,
         "updated_at": "2025-01-01T00:00:00Z",
+        "time_start": "2025-01-01T00:00:00Z",
+        "time_end": "2025-01-01T03:00:00Z",
+        "avatar_url": "string?",
+        "cover_url": "string?",
+        "badge": "string?",
         "distance_meters": 0
       }
     }
@@ -738,6 +899,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 **Field Definitions**
 - `ref_type`: `event`, `account_profile`, `static`.
 - `category`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
+- `top_poi.source_type`: backend-defined type slug used by `types[]` filtering.
 - `stack_key`: required for every stack, even when `stack_count = 1`.
 - `top_poi.updated_at`: required for polling cache validation.
 
@@ -793,13 +955,25 @@ Not returned by `/agenda` and `/events/{event_id}`:
 
 ### `GET /map/filters`
 **Purpose:** Server-defined filter catalog.  
-**Request (query params):** Same scoping filters as `/map/pois` (`ne_lat`, `ne_lng`, `sw_lat`, `sw_lng`, `origin_lat`, `origin_lng`, `max_distance_meters`, `categories[]`, `tags[]`, `taxonomy[]`, `search`).  
+**Request (query params):** Same scoping filters as `/map/pois` (`ne_lat`, `ne_lng`, `sw_lat`, `sw_lng`, `origin_lat`, `origin_lng`, `max_distance_meters`, `categories[]`, `source`, `types[]`, `tags[]`, `taxonomy[]`, `search`).  
 **Response:**
 ```json
 {
   "tenant_id": "string",
   "categories": [
-    { "key": "culture", "label": "string", "count": 0 }
+    {
+      "key": "culture",
+      "label": "Cultura",
+      "image_uri": "https://tenant.example.com/storage/tenants/tenant-a/map_ui/filters/culture.png",
+      "query": {
+        "source": "event",
+        "types": ["show"],
+        "categories": ["culture"],
+        "taxonomy": ["music_genre:rock"],
+        "tags": ["live"]
+      },
+      "count": 0
+    }
   ],
   "tags": [
     { "key": "string", "label": "string", "count": 0 }
@@ -811,6 +985,10 @@ Not returned by `/agenda` and `/events/{event_id}`:
 ```
 **Field Definitions**
 - `categories[].key`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
+- `categories[].label`: tenant-facing label; when `settings.map_ui.filters` defines the key, the configured label overrides fallback label.
+- `categories[].image_uri`: optional tenant-configured image URL for map filter button surfaces.
+- `categories[].query`: normalized backend filter payload used when the category is selected (includes `source`, `types[]`, `categories[]`, `taxonomy[]`, `tags[]` as applicable).
+- `categories[]` ordering: backend mirrors `settings.map_ui.filters` order and includes configured entries even when `count = 0`.
 - `taxonomy_terms[].type`: taxonomy group slug (e.g., `cuisine`, `music_genre`, `vibe`).
 
 ---
@@ -878,7 +1056,16 @@ Not returned by `/agenda` and `/events/{event_id}`:
   "data": {
     "events": {
       "default_duration_hours": 3,
-      "mode": "basic"
+      "mode": "basic",
+      "attendance": {
+        "allowed_policies": [
+          "free_confirmation_only",
+          "paid_reservation_only",
+          "either"
+        ],
+        "default_policy": "free_confirmation_only",
+        "allow_event_override": true
+      }
     }
   }
 }
@@ -890,7 +1077,14 @@ Not returned by `/agenda` and `/events/{event_id}`:
 ```json
 {
   "default_duration_hours": 4,
-  "stock_enabled": true
+  "attendance": {
+    "allowed_policies": [
+      "free_confirmation_only",
+      "paid_reservation_only"
+    ],
+    "default_policy": "free_confirmation_only",
+    "allow_event_override": true
+  }
 }
 ```
 **Response (minimum):**
@@ -898,7 +1092,14 @@ Not returned by `/agenda` and `/events/{event_id}`:
 {
   "data": {
     "default_duration_hours": 4,
-    "stock_enabled": true
+    "attendance": {
+      "allowed_policies": [
+        "free_confirmation_only",
+        "paid_reservation_only"
+      ],
+      "default_policy": "free_confirmation_only",
+      "allow_event_override": true
+    }
   }
 }
 ```
@@ -908,6 +1109,10 @@ Not returned by `/agenda` and `/events/{event_id}`:
 - PATCH payload: must be a direct object/map (envelopes like `paths` are invalid).
 - PATCH merge rule: only payload-present keys mutate; omitted keys remain unchanged.
 - Explicit clear: `null` is allowed only for nullable fields; non-nullable `null` returns `422`.
+- `events.attendance.allowed_policies`: subset of `free_confirmation_only | paid_reservation_only | either`.
+- `events.attendance.default_policy`: must belong to `allowed_policies`.
+- `events.attendance.allow_event_override`: when false, event creators inherit tenant default policy and cannot choose another value.
+- Capability rule: `paid_reservation_only` and `either` require paid reservation capability in the tenant/runtime; otherwise validation must reject them.
 
 ### Landlord equivalents (landlord host context)
 - `GET /admin/api/v1/settings/schema`

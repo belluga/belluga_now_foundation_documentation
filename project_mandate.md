@@ -20,7 +20,7 @@ These principles define the purpose and ethical boundaries of the platform. They
 * **P-B3: Authentic Connection:** The platform must foster genuine connections between people (moratoriums, tourists) and the local culture (specialists, producers), prioritizing authenticity over pure commoditization.
 * **P-B4: Symbiotic Ecosystem:** The platform is not a zero-sum game. The relationship between users, partners, and the platform must be mutually beneficial.
 * **P-B5: Social Mobilization as North Star:** The definitive metric is real-world movement—`Convites Aceitos` + `Presenças Confirmadas`—tracked all-time and in the current month (“Em Alta”). Vanity metrics (followers, likes, stars) do not guide success.
-* **P-B6: Privacy with Agency:** Users can operate publicly or limit visibility to reciprocated “amigos” while still participating in invites; rankings anonymize private profiles (blur/avatar masking).
+* **P-B6: Privacy with Agency:** Users can operate publicly or limit full-profile visibility to viewers they explicitly approve through favorites while still participating in invites; reciprocal favorites become product-level friends, rankings anonymize private profiles (blur/avatar masking), and unilateral contact matches may receive only capped exposure.
 
 ## 3. Social Pivot Summary
 

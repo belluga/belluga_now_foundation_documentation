@@ -3,7 +3,7 @@
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
 **Status:** Active
 **Owners:** Backend Team + Flutter Team + Web Team
-**Objective:** Deliver Invites as an independent social transaction functionality, with Event as referenced invite object (`event_id`) and backend-owned acceptance attribution semantics.
+**Objective:** Deliver Invites as an independent social transaction functionality, with canonical invite target reference `event_id + occurrence_id | null` and backend-owned acceptance attribution semantics. Invite acceptance is the social conversion; attendance commitment (`free_confirmation | paid_reservation`) and check-in remain adjacent concerns and must not be collapsed into invite status.
 
 ---
 
@@ -16,9 +16,11 @@
 ---
 
 ## A) Ownership Boundary (Locked)
-- [x] ✅ Production‑Ready Invites references Event via `event_id` only.
+- [x] ✅ Production‑Ready Invites references canonical invite targets via `event_id + occurrence_id | null`.
 - [ ] ⚪ Invite lifecycle, attribution, quotas, and acceptance are Invite-domain source-of-truth.
+- [ ] ⚪ Invite acceptance is social conversion state only; it does not by itself define `free_confirmation`, `paid_reservation`, or `check_in`.
 - [ ] ⚪ Events may expose invite-related projections for UX, but must not own invite transaction state.
+- [ ] ⚪ `occurrence_id` is required whenever runtime actions are occurrence-resolved; `null` remains a compatibility shortcut only for single-occurrence or intentionally event-scoped flows.
 - [x] ✅ Production‑Ready Federation compatibility requirement: invite user-interaction events must remain ActivityPub-compatible by contract shape (adapter delivery deferred).
   - Rule: keep stable canonical IDs and append-only event semantics for invite lifecycle events.
   - Rule: do not federate raw secrets/tokens/private anti-abuse payloads.
@@ -27,15 +29,60 @@
 
 ## B) Backend Track (Invites)
 
+### B0) Mongo delivery strategy (write models + projections)
+- [ ] ⚪ Use a two-layer Mongo model:
+  - canonical collections for source-of-truth writes
+  - normalized projection collections for read APIs, counters, and streams
+- [ ] ⚪ Follow the Map POI pattern for read models only:
+  - query-ready normalized documents
+  - no request-path cross-domain joins
+  - no request-path recounts for hot APIs
+- [ ] ⚪ Follow the Ticketing pattern for critical writes:
+  - transaction
+  - idempotency key / dedupe identity
+  - outbox event after commit
+
+**Canonical collections (invite-owned V1 minimum):**
+- [ ] ⚪ `invite_edges`
+- [ ] ⚪ `invite_outbox_events`
+- [ ] ⚪ `contact_hash_directory`
+- [ ] ⚪ `invite_actions` only if explicit action drill-down/audit cannot be served from edge history + outbox in the first cut
+
+**Adjacent canonical collection (not invite-owned):**
+- [ ] ⚪ `attendance_commitments` when the attendance-commitment slice lands; invites may project it but should not claim ownership of it in this TODO stream
+
+**Projection collections (V1 minimum):**
+- [ ] ⚪ `invite_feed_projection`
+  - receiver-facing inbox/feed grouped for UX
+  - includes inviter options and projected commitment/check-in summary when available
+- [ ] ⚪ `principal_social_metrics`
+  - inviter/account-profile/user counters used by `/me`, rankings, and workspace metrics
+- [ ] ⚪ `event_social_projection` only if event/occurrence summary cannot be served cheaply from indexed invite sources in the first cut
+
+**Explicit simplification rule:**
+- [ ] ⚪ Start with `invite_feed_projection` + `principal_social_metrics`.
+- [ ] ⚪ Add `event_social_projection` only if event/detail/home reads prove hot enough to justify a dedicated precomputed summary.
+- [ ] ⚪ Do not introduce more projection collections in V1 unless a concrete hot query cannot be served by those projections.
+
+**Hot query baseline (indexes must be designed from these first):**
+- [ ] ⚪ receiver invite inbox/feed
+- [ ] ⚪ invite by uniqueness key `(tenant_id, event_id, occurrence_id | null, receiver_user_id, inviter_principal.kind, inviter_principal.id)`
+- [ ] ⚪ event/occurrence social summary
+- [ ] ⚪ inviter/account-profile metrics
+- [ ] ⚪ outbox processing queue
+
 ### B1) Core endpoints and model
 - [ ] ⚪ Implement invite persistence with:
-  - `tenant_id`, `event_id`, `receiver_user_id`
+  - `tenant_id`, `event_id`, `occurrence_id | null`, `receiver_user_id`
   - `inviter_principal {kind:user|account_profile,id}`
   - `issued_by_user_id`, `account_profile_id` (when applicable)
   - `status` incl. `closed_duplicate`, `credited_acceptance`, timestamps
-- [ ] ⚪ Implement `GET /api/v1/invites`.
+- [ ] ⚪ Implement `GET /api/v1/invites` as grouped feed by canonical target with `inviter_candidates[]`.
 - [ ] ⚪ Implement `GET /api/v1/invites/stream` (SSE deltas).
 - [ ] ⚪ Implement `GET /api/v1/invites/settings`.
+- [ ] ⚪ Implement `POST /api/v1/invites`.
+- [ ] ⚪ Implement `POST /api/v1/invites/{invite_id}/accept` returning canonical `next_step` metadata.
+- [ ] ⚪ Implement `POST /api/v1/invites/{invite_id}/decline`.
 - [ ] ⚪ Implement `POST /api/v1/contacts/import` (hashed contacts only).
 
 ### B2) Share code and web acceptance
@@ -45,7 +92,7 @@
 - [ ] ⚪ Ensure share codes do not bypass duplicate invite protections.
 
 ### B3) Attribution and anti-gaming transaction
-- [ ] ⚪ Enforce uniqueness key `(tenant_id, event_id, receiver_user_id, inviter_principal.kind, inviter_principal.id)`.
+- [ ] ⚪ Enforce uniqueness key `(tenant_id, event_id, occurrence_id | null, receiver_user_id, inviter_principal.kind, inviter_principal.id)`.
 - [ ] ⚪ On duplicate invite creation, return `already_invited`.
 - [ ] ⚪ On acceptance, set selected invite as `accepted + credited_acceptance=true` and close others as `closed_duplicate` transactionally.
 
@@ -53,6 +100,13 @@
 - [ ] ⚪ Enforce quota/suppression limits server-side with structured `429` payload.
 - [ ] ⚪ Validate account-profile invite issuance permissions for admin-assigned operators in MVP.
 - [ ] ⚪ Emit backend-owned invite telemetry with idempotency keys and canonical identifiers.
+
+### B5) Projection discipline and Mongo guardrails
+- [ ] ⚪ Read APIs (`GET /invites`, event social counters, `/me` social counters) must read from projection collections, not from multi-collection runtime aggregation.
+- [ ] ⚪ Runtime query services must not create indexes; all required indexes are provisioned through migrations.
+- [ ] ⚪ Avoid regex-heavy filtering for hot paths when normalized exact-match fields can be written once and queried cheaply.
+- [ ] ⚪ Bound stream/delta batches so stale cursors do not materialize unbounded Mongo result sets.
+- [ ] ⚪ Validate hot query paths with seeded data and `explain()` before marking production-ready.
 
 ---
 
@@ -73,8 +127,8 @@
 ---
 
 ## D) Integration Criteria (Invites <-> Events)
-- [ ] ⚪ `confirmed_only` in Events reads from Invite acceptance source-of-truth.
-- [ ] ⚪ Invite acceptance updates are reflected in event projections without duplicating business ownership.
+- [ ] ⚪ `confirmed_only` in Events is an MVP transitional projection and must not permanently hard-code invite acceptance as the canonical attendance state.
+- [ ] ⚪ Invite acceptance updates are reflected in event/social projections without implying ownership of attendance commitment or check-in.
 - [ ] ⚪ No local-only confirmation state remains authoritative in Flutter once Invite backend is live.
 
 Moved-from-Events ownership anchors:

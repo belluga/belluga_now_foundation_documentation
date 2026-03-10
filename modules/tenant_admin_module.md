@@ -175,7 +175,7 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with 
 
 - `/admin/settings` is the **Settings Hub** entrypoint.
 - Dedicated settings routes:
-  - `/admin/settings/local-preferences` → local preferences (`map_ui.radius` bounds + `map_ui.default_origin` fallback seed + theme)
+  - `/admin/settings/local-preferences` → local preferences (`map_ui.radius` bounds + `map_ui.default_origin` fallback seed + `map_ui.filters` catalog + theme)
   - `/admin/settings/visual-identity` → branding/visual identity
   - `/admin/settings/technical-integrations` → firebase/push/telemetry
   - `/admin/settings/environment-snapshot` → read-only environment diagnostics
@@ -1279,6 +1279,27 @@ Proxy an external image URL and return raw image bytes for client-side ingestion
 - Scheme: `http|https` only
 - Blocks `localhost`, private IPs, and reserved IP ranges (SSRF guardrail)
 
+### `POST /admin/api/v1/media/map-filter-image`
+Upload and persist a tenant-scoped image asset for `map_ui.filters[].image_uri`.
+
+**Purpose:** Preserve the same upload/crop ingestion pattern used by tenant-admin media flows while storing a stable URL that can be referenced by map filter catalog entries.
+
+**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `account-users:create,account-users:update`
+
+**Request Schema** (`multipart/form-data`)
+- `key` (string): target filter key (slug-like, 1..64 chars)
+- `image` (file): `jpg|jpeg|png|webp`, max 2MB
+
+**Response Schema**
+```json
+{
+  "data": {
+    "key": "culture",
+    "image_uri": "https://tenant.example.com/storage/tenants/tenant-a/map_ui/filters/culture.png"
+  }
+}
+```
+
 ### `PATCH /admin/api/v1/settings/push`
 Update tenant push settings (push-only).
 
@@ -1368,7 +1389,14 @@ Update tenant `map_ui` settings used by map + agenda contracts.
     "min_km": 1,
     "default_km": 5,
     "max_km": 50
-  }
+  },
+  "filters": [
+    {
+      "key": "culture",
+      "label": "Cultura",
+      "image_uri": "https://tenant.example.com/storage/tenants/tenant-a/map_ui/filters/culture.png"
+    }
+  ]
 }
 ```
 
@@ -1385,10 +1413,58 @@ Update tenant `map_ui` settings used by map + agenda contracts.
       "min_km": 1,
       "default_km": 5,
       "max_km": 50
+    },
+    "filters": [
+      {
+        "key": "culture",
+        "label": "Cultura",
+        "image_uri": "https://tenant.example.com/storage/tenants/tenant-a/map_ui/filters/culture.png"
+      }
+    ]
+  }
+}
+```
+
+### `PATCH /admin/api/v1/settings/values/events`
+Update tenant `events` settings that govern event-creation boundaries.
+
+**Request Schema**
+```json
+{
+  "attendance": {
+    "allowed_policies": [
+      "free_confirmation_only",
+      "paid_reservation_only",
+      "either"
+    ],
+    "default_policy": "free_confirmation_only",
+    "allow_event_override": true
+  }
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "attendance": {
+      "allowed_policies": [
+        "free_confirmation_only",
+        "paid_reservation_only",
+        "either"
+      ],
+      "default_policy": "free_confirmation_only",
+      "allow_event_override": true
     }
   }
 }
 ```
+
+**Field Definitions**
+- `attendance.allowed_policies` (list): allowed values are `free_confirmation_only`, `paid_reservation_only`, `either`.
+- `attendance.default_policy` (enum): must belong to `allowed_policies`.
+- `attendance.allow_event_override` (bool): when false, event creators cannot choose a different policy; the tenant default is enforced on every event.
+- Paid reservation note: `paid_reservation_only` and `either` are valid only when the tenant/runtime supports paid reservation capability; otherwise validation must reject them.
 
 ### `GET /admin/api/v1/settings/telemetry`
 List telemetry integrations.
@@ -1477,6 +1553,7 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TAD-02` | Approved | Scope/subscope governance is mandatory and route ownership cannot be inferred ad hoc. | Prevents route drift and admin/workspace overlap. | Sections `2.1`, `3.0` |
 | `TAD-03` | Approved | Settings screens follow canonical hub + dedicated flows with controller-owned state. | Provides consistent admin UX architecture baseline. | Sections `3.5`, `3.6`, `3.7` |
 | `TAD-04` | Approved | Tenant map/agenda fallback origin is tenant-owned configuration under `settings.map_ui.default_origin`. | Guarantees deterministic origin fallback for agenda/search when user location is unavailable. | Sections `3.6`, `4` (`PATCH /admin/api/v1/settings/values/map_ui`) |
+| `TAD-05` | Approved | Attendance policy governance is tenant-owned under `settings.events.attendance`; account profiles creating events are limited to the tenant-approved policy boundaries. | Gives tenant admins explicit control over free confirmation vs paid reservation behavior across all tenant events. | Section `4` (`PATCH /admin/api/v1/settings/values/events`) |
 
 ## 6. Tactical TODO Promotion Ledger
 

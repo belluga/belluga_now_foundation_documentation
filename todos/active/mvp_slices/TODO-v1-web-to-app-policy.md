@@ -17,13 +17,13 @@
 ## A) V1 Policy (Initial Stance)
 
 ### Web (Unauthenticated) is allowed for (read-only + promotion)
-- [ ] ⚪ Event landing page (read-only): title, date/time, venue name, artists names, hero media
-- [ ] ⚪ Invite landing page (read-only): “You were invited by …” context + event summary
-- [ ] ⚪ Web unauth surfaces may mint a backend-issued anonymous Sanctum token via `POST /api/v1/anonymous/identities` to call allowed endpoints
-- [ ] ⚪ Install/Open-App CTA (deep link) that preserves attribution code
-- [ ] ⚪ V1 exception: allow invite acceptance only from invite landing reached via a single `code` (credited to that code’s inviter principal)
-- [ ] ⚪ V1 exception: allow re-share only the same event after acceptance (external share only), backend rate-limited
-- [ ] ⚪ Map browsing (read-only): allow web navigation on map for discovery (no favorites, no check-in)
+- [x] ✅ Event landing page (read-only): title, date/time, venue name, artists names, hero media
+- [x] ✅ Invite landing page (read-only): “You were invited by …” context + event summary
+- [x] ✅ Web unauth surfaces may mint a backend-issued anonymous Sanctum token via `POST /api/v1/anonymous/identities` to call allowed endpoints
+- [x] ✅ Install/Open-App CTA (deep link) that preserves attribution code
+- [x] ✅ V1 exception: allow invite acceptance only from invite landing reached via a single `code` (credited to that code’s inviter principal)
+- [x] ✅ V1 exception: allow re-share only the same event after acceptance (external share only), backend rate-limited
+- [x] ✅ Map browsing (read-only): allow web navigation on map for discovery (no favorites, no check-in)
 
 ### Web (Authenticated) is allowed for (account profile workspace)
 - [ ] ⚪ Account Profile Workspace: event creation + management
@@ -31,14 +31,20 @@
 - [ ] ⚪ Account Profile Workspace: invite metrics dashboards (post‑MVP)
 
 ### App-only for V1 (tenant conversion + trust actions)
-- [ ] ⚪ Accept/Decline invite from agenda surfaces (credited acceptance + anti-gaming); invite landing by `code` is the only web exception
-- [ ] ⚪ Confirm presence / check-in
-- [ ] ⚪ Send invites (user + account_profile; account_profile issuance is admin-assigned in MVP)
+- [x] ✅ Accept/Decline invite from agenda/feed surfaces (credited acceptance + anti-gaming); invite landing by `code` is the only web exception
+- [x] ✅ Confirm presence / check-in
+- [x] ✅ Send invites (user + account_profile; account_profile issuance is admin-assigned in MVP)
 - [ ] ⚪ Favorites (artist favorites)
 - [ ] ⚪ Full map experience (location permission, stacked POI deck UX parity, search/filter); web can browse read-only
-- [ ] ⚪ Any “full map parity” behavior beyond read-only browsing (favorites on map, check-in from map, credited acceptance selection UI)
+- [x] ✅ Any “full map parity” behavior beyond read-only browsing (favorites on map, check-in from map, credited acceptance selection UI)
 
 Rationale: keep high-value actions in the app to ensure identity, location capabilities, push reminders, and consistent attribution.
+
+### Approved web guardrail clarifications
+- [x] ✅ Web does **not** expose grouped invite inbox browsing.
+- [x] ✅ Web does **not** expose multi-inviter selection; explicit inviter selection remains native-app-only.
+- [x] ✅ Web does **not** expose direct invite send/decline.
+- [x] ✅ If post-acceptance handling requires richer UX than auto-resolution, web must return the user to the app.
 
 ---
 
@@ -49,7 +55,7 @@ Rationale: keep high-value actions in the app to ensure identity, location capab
 - [ ] ⚪ Web must redirect to:
   - [ ] ⚪ App deep link (if installed)
   - [ ] ⚪ App store (if not installed), preserving the `code` for post-install attribution
-- [ ] ⚪ After install/sign-up, the app must call the backend `consume` endpoint to bind attribution to the new user
+- [ ] ⚪ If later we introduce post-install attribution binding beyond `/invites/share/{code}/accept`, it must be specified in a separate contract update; MVP does not rely on `/consume`
 
 ---
 
@@ -66,7 +72,7 @@ Rationale: keep high-value actions in the app to ensure identity, location capab
 
 ### App events (minimum)
 - [ ] ⚪ `app_first_open_with_code`
-- [ ] ⚪ `app_attribution_consumed`
+- [ ] ⚪ `app_deep_link_opened_with_code`
 - [ ] ⚪ `app_signup_completed` (if applicable)
 - [ ] ⚪ `invite_accepted` / `invite_declined`
 - [ ] ⚪ `event_confirmed_presence`
@@ -82,8 +88,9 @@ Rationale: keep high-value actions in the app to ensure identity, location capab
 
 ## D) Guardrails
 
-- [ ] ⚪ If we later allow web acceptance, it must still enforce:
-  - [ ] ⚪ credited acceptance selection
-  - [ ] ⚪ anti-spam limits
-  - [ ] ⚪ identity binding (account creation)
-  - [ ] ⚪ fraud checks
+- [x] ✅ Web acceptance in V1 must still enforce:
+  - [x] ✅ single-code attribution binding
+  - [x] ✅ anti-spam limits
+  - [x] ✅ identity binding (anonymous or authenticated Sanctum identity)
+  - [x] ✅ fraud/rate-limit checks
+  - [x] ✅ app handoff when richer fulfillment is required
