@@ -60,16 +60,31 @@
   - Refinement: icon image must come from configured filter image; visual fallback must be generic and non-keyed.
 - [ ] 🔴 `MAP-CATALOG-06` Map FAB displays filter `key` where `label` should be shown.
   - Refinement: button text must prioritize backend/admin `label` and only fallback to `key` when label is absent.
+- [x] ✅ `MAP-CATALOG-07` Filter image now replaces the FAB icon reliably, and image updates propagate when the admin changes the filter card image.
+  - Incremental report: changing the configured filter image does not update the rendered image in settings/map as expected.
+  - Refinement: filter image must be the single visual source for the FAB icon, and image replacements must invalidate stale rendering so the updated image appears in admin preview and public map flow.
 - [ ] 🔴 `MAP-UX-02` Catalog filter buttons must follow the same condensed/expanded animation pattern used by existing FAB actions.
   - Refinement: maintain expanded label, then condense to icon-only after delay.
+- [x] ✅ `MAP-UX-03` Selected filter visual state restored with perceptible contrast against unselected filters.
+  - Incremental report: selected and unselected filter buttons now look equal or nearly equal.
+  - Refinement: active filter state must have clear visual distinction in both expanded and condensed FAB modes, matching the previous UX baseline.
 - [ ] 🔴 `MAP-DATA-02` `source=event` filter without `types` must return all eligible events and proper card payloads.
   - Refinement: avoid fallback card text pattern (`POI <id>`) when backend textual payload exists.
+- [x] ✅ `MAP-DATA-03` Asset-backed catalog filters now constrain map/deck results correctly.
+  - Incremental report: the `event` filter is effectively filtering events, but the `assets` filter is returning unfiltered or mismatched results.
+  - Refinement: selecting an asset-backed configured filter must restrict both markers and deck/cards to the configured asset query semantics only.
 - [ ] 🔴 `MAP-ASYNC-01` Rapid filter taps create concurrent requests and repeated status messages.
   - Refinement: enforce interaction lock while applying filter + last-request-wins semantics + status message dedupe.
 - [ ] 🔴 `MAP-DYNAMIC-01` Prevent hardcoded category/type assumptions that conflict with dynamic types/taxonomies catalog.
   - Refinement: source/types/taxonomy handling must remain backend-driven and dynamic-safe.
 - [ ] 🔴 `MAP-TEST-01` Add automated coverage (feature/integration/unit) for catalog rendering parity, event filter contract, and async interaction guards.
   - Refinement: include test evidence for two configured filters visible, stable status messaging, and consistent map/deck payload rendering.
+- [x] ✅ `MAP-TEST-02` Added E2E coverage for asset-backed filter correctness.
+  - Refinement: integration flow must prove that an asset-configured filter changes both map markers and deck/cards, not only event-backed filters.
+- [x] ✅ `MAP-TEST-03` Added E2E coverage for filter image replacement/refresh.
+  - Refinement: integration flow must prove `upload/change image -> settings preview updates -> public map FAB updates`, including cache-busting on image replacement.
+- [x] ✅ `MAP-TEST-04` Added coverage for active-vs-inactive filter visual contrast.
+  - Refinement: tests must prove selected filters render with a clearly different visual state from unselected ones in the map FAB.
 
 ## Complexity Classification + Checkpoint Policy
 - **Complexity:** `big`
