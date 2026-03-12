@@ -110,5 +110,5 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
-| `TODO-v1-invites-implementation.md` | Invite acceptance/contact-import flow contracts | In progress | `2`, `4`, `6` | Main authority for invite/onboarding boundary. |
+| `TODO-v1-invites-implementation.md` | Invite acceptance/contact-import flow contracts | Completed (2026-03-12) | `2`, `4`, `6` | Main authority for invite/onboarding boundary. |
 | `TODO-v1-first-release.md` | MVP onboarding sequencing and release posture | In progress | `3`, `5` | Tracks open onboarding questions at release level. |

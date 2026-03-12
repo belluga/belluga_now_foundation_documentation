@@ -74,6 +74,13 @@ This section is the canonical Flutter presentation DI/ownership contract. Rules/
 | Module class (`ModuleContract`) | `registerLazySingleton`, `registerFactory`, `registerRouteResolver`. | Direct `GetIt.I.register*`/`GetIt.instance.register*`. |
 | Global bootstrap (`main.dart`, `ModuleSettings`, app bootstrap repository) | App-lifecycle non-UI services/contracts/gates/coordinators. | Global registrations using `*Controller` or `*ControllerContract` naming. |
 
+Executable guardrails for this contract:
+- Domain files cannot declare `fromJson`/`fromMap` factories; transport parsing belongs to DAO/DTO layers and infrastructure mappers.
+- Domain fields must express validation/nullability through ValueObjects or domain-owned types instead of primitive transport fields.
+- Repositories/services cannot parse raw JSON or hydrate DTOs inline; DAO is the transport ingestion boundary.
+- DTO -> Domain mapping is delegated to dedicated mapper files under `lib/infrastructure/dal/dto/mappers/**`.
+- Files under `lib/**` should keep one public class per file; screen files still retain the stricter `multi_widget_file_warning` hygiene rule.
+
 #### 2.2 API Endpoint Definitions
 
 | Endpoint | Method | Description | Required Role | Request Schema | Response Schema |
@@ -302,6 +309,6 @@ This section is the canonical Flutter presentation DI/ownership contract. Rules/
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
 | `TODO-v1-events-and-agenda-frontend.md` | Events/agenda client contracts and UX integration | Completed | `2.2`, `2.3`, `3` | Maintains occurrence-first event consumption. |
-| `TODO-v1-invites-implementation.md` | Invite/social flow delivery in client | In progress | `2.2`, `2.4`, `2.5` | Share acceptance + contacts import paths. |
+| `TODO-v1-invites-implementation.md` | Invite/social flow delivery in client | Completed (2026-03-12) | `2.2`, `2.4`, `2.5` | Share acceptance + contacts import paths. |
 | `TODO-v1-map-frontend.md` | Map rendering/filter/stacking contracts | In progress | `2.2`, `2.3`, `2.4` | Aligns with projection-backed map APIs. |
 | `TODO-v1-tenant-user-account-profile-area.md` | Workspace scope and route ownership | In progress | `2.0`, `3` | Account workspace/subscope integrity. |

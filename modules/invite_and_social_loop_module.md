@@ -6,7 +6,7 @@
 
 ## 1. Overview
 
-The Invite & Social Loop module (MOD-302) governs the tenant app virality engine. It manages invite issuance, referral graph analytics, friend resume projections, and gamified progression that feeds both the tenant app and the account profile workspace. The module is built to operate with mocked persistence today while remaining API-compatible with a future backend microservice.
+The Invite & Social Loop module (MOD-302) governs the tenant app virality engine. It manages invite issuance, referral graph analytics, friend resume projections, and gamified progression that feeds both the tenant app and the account profile workspace. The MVP now runs on backend-owned persistence (`belluga_invites` package + Mongo projections) with Flutter consuming the canonical API contract directly.
 **MVP scope:** only **Account User** invite issuance is implemented; account-plan quotas/monetization are deferred to post‑MVP.
 
 ### 1.1 Canonical Anchors
@@ -104,12 +104,12 @@ Backend must return:
 - a structured payload describing which limit was exceeded and when it resets.
 
 **Suggested healthy defaults (backend-owned; per-tenant + per-plan override):**
-- `max_invites_per_event_per_inviter`: `300`
-- `max_invites_per_day_per_account`: `500` (Tiny Free plan: `50–100`)
 - `max_invites_per_day_per_user_actor`: `100`
-- `max_pending_invites_per_invitee`: `20`
-- `max_invites_to_same_invitee_per_30d` (any events): `10`
 - Suppression: per-account blocklist + per-user opt-out
+
+**MVP simplification (approved):**
+- Invite-send cap enforced in MVP: `max_invites_per_day_per_user_actor`.
+- Deferred to VNext for invite-send policy: `max_invites_per_event_per_inviter`, `max_invites_per_day_per_account`, `max_pending_invites_per_invitee`, `max_invites_to_same_invitee_per_30d`.
 
 ## 2.2 Lifecycle Baseline (Invite vs Commitment vs Check-in)
 
@@ -365,6 +365,7 @@ Even on web “unauthenticated” landings, the canonical API is Sanctum-validat
 - Web must mint or resume an anonymous identity via `POST /anonymous/identities` to obtain a Sanctum token.
 - The web client then calls the same invite acceptance / share endpoints using `Authorization: Bearer <token>`.
 - The backend controls what anonymous tokens may do via `tenant.anonymous_access_policy.abilities` (and TTL), and must still enforce quotas and uniqueness rules.
+- Flutter/web invite landing compatibility is anchored on `/invite?code=...`; the client must preserve `code` through onboarding/install bootstrap so attribution is bound once identity is available.
 
 **Events**
 * Outbound: `invite.created`, `invite.accepted`, `invite.declined`, `invite.accepted.contacts-import-triggered`, `invite.fulfillment.step-required`, `invite.fulfillment.step-completed`, `invite.attendance.confirmed`, `invite.attendance.unconfirmed`, `invite.attendance.no-show`, `invite.attendance.geo-confirmed`, `invite.expired`, `invite.reward-unlocked`, `invite.rate-limited`, `invite.plan-limit-reached`, `invite.snoozed`, `invite.suppressed`.
@@ -427,6 +428,6 @@ Even on web “unauthenticated” landings, the canonical API is Sanctum-validat
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
-| `TODO-v1-invites-implementation.md` | Invite backend/client flow hardening | In progress | `2.1`, `3`, `4` | Canonical stream for invite delivery decisions. |
+| `TODO-v1-invites-implementation.md` | Invite backend/client flow hardening | Completed (2026-03-12) | `2.1`, `3`, `4` | Canonical stream for invite delivery decisions. |
 | `TODO-v1-web-to-app-policy.md` | Web/share acceptance boundary policy | In progress | `4.3`, `4.4` | Governs web exception and attribution path. |
 | `TODO-vnext-referral-result-attribution.md` | Future lineage-based downstream result attribution | In progress | `2.5`, `4.5` | Defines Mongo-safe activity-fact and projection strategy for 1st/2nd-level invite-tree results. |

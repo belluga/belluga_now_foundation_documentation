@@ -124,5 +124,5 @@ Appends events (creation, acknowledgement, completion) for auditability.
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
-| `TODO-v1-invites-implementation.md` | Invite reminder/check-in integration and follow-up intents | In progress | `2`, `5`, `8` | Invite/task boundary remains contract-driven. |
+| `TODO-v1-invites-implementation.md` | Invite reminder/check-in integration and follow-up intents | In progress (non-blocking) | `2`, `5`, `8` | Deliberately deferred to attendance/check-in follow-up slices; invite delivery is complete without this integration. |
 | `TODO-v1-first-release.md` | MVP orchestration priorities and hardening sequence | In progress | `4`, `7` | Tracks release-level readiness for reminders. |
