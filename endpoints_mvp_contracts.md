@@ -299,6 +299,7 @@
 - Native clients must use `inviter_candidates[].invite_id` for explicit inviter selection when more than one candidate exists for a target.
 - Candidate identity must respect privacy policy; when identity is not allowed, backend should return anonymized summaries/counts instead of raw profile fields.
 - `occurrence_id` is required whenever runtime invite/attendance actions are occurrence-resolved; `null` is allowed only for single-occurrence or intentionally event-scoped compatibility flows.
+- VNext roadmap: add cursor pagination for deep invite feed scrolling while preserving page-based compatibility in MVP clients.
 
 ### `POST /invites`
 **Purpose:** Create direct invites for one or more recipients from the native app.  
@@ -334,7 +335,7 @@
     { "receiver_user_id": "string?" }
   ],
   "blocked": [
-    { "receiver_user_id": "string?", "reason": "rate_limited|quota_exceeded|suppressed" }
+    { "receiver_user_id": "string?", "reason": "suppressed" }
   ]
 }
 ```
@@ -342,6 +343,22 @@
 - `account_profile_id` is required when the sender is acting as `inviter_principal.kind = account_profile`.
 - Each recipient must provide either `receiver_user_id` or `contact_hash`.
 - Duplicate invite prevention follows the canonical uniqueness key `(tenant_id, event_id, occurrence_id | null, receiver_user_id, inviter_principal.kind, inviter_principal.id)` and returns `already_invited` instead of creating a new edge.
+- Sender/global quota rejections must return deterministic `429` payloads:
+```json
+{
+  "status": "rejected",
+  "code": "rate_limited",
+  "message": "string",
+  "payload": {
+    "limit_key": "max_invites_per_day_per_user_actor",
+    "scope": "user_actor",
+    "max_allowed": 100,
+    "current_count": 100,
+    "window": "day",
+    "reset_at": "2025-01-01T00:00:00Z?"
+  }
+}
+```
 
 ### `POST /invites/{invite_id}/accept`
 **Purpose:** Accept the selected direct invite from native app.  
@@ -405,19 +422,17 @@
 {
   "tenant_id": "string",
   "limits": {
-    "max_invites_per_event_per_inviter": 300,
-    "max_invites_per_day_per_account": 500,
     "max_invites_per_day_per_user_actor": 100,
-    "max_pending_invites_per_invitee": 20,
-    "max_invites_to_same_invitee_per_30d": 10
+    "max_share_codes_per_day_per_user_actor": 30
   },
   "cooldowns": {
-    "share_code_cooldown_seconds": 0
+    "share_code_cooldown_seconds": 60
   },
   "reset_at": "2025-01-01T00:00:00Z?",
   "over_quota_message": "string?"
 }
 ```
+**MVP note:** invite-send cap is `max_invites_per_day_per_user_actor`; event/account/receiver invite-send limits are deferred to VNext.
 
 ### `POST /invites/share`
 **Purpose:** Create share code for invite attribution.  
@@ -447,6 +462,23 @@
 - **User invites:** only to imported contacts (hashed) or existing app users.
 - **Account Profile invites:** may target followers/favorites for broader reach; direct user targeting allowed as needed.
 - When `inviter_principal.kind = account_profile`, `account_profile_id` is **required** and must belong to the inviter’s account/tenant context.
+- Anti-spam rejections must return deterministic `429` payloads:
+```json
+{
+  "status": "rejected",
+  "code": "rate_limited|share_rate_limited",
+  "message": "string",
+  "payload": {
+    "limit_key": "max_share_codes_per_day_per_user_actor|share_code_cooldown_seconds",
+    "scope": "share_user_actor|share_target",
+    "max_allowed": 30,
+    "current_count": 30,
+    "window": "day|cooldown",
+    "reset_at": "2025-01-01T00:00:00Z?",
+    "retry_after_seconds": 60
+  }
+}
+```
 
 ---
 
@@ -517,7 +549,12 @@
 
 ### `POST /invites/share/{code}/accept`
 **Purpose:** Accept invite from web landing by code.  
-**Request (headers/body):** Auth via Sanctum (anonymous identity). No body required.  
+**Request (headers/body):** Auth via Sanctum (anonymous identity). Optional idempotency payload:
+```json
+{
+  "idempotency_key": "string?"
+}
+```
 **Response:**
 ```json
 {
@@ -791,21 +828,63 @@ Not returned by `/agenda` and `/events/{event_id}`:
 **Field Definitions**
 - `thumb.type`: `image`.
 
-### `POST /events/{event_id}/check-in`
-**Purpose:** Presence confirmation.  
+### `GET /events/attendance/confirmed`
+**Purpose:** List backend-authoritative event confirmations (attendance commitments) for the current user.  
+**Response:**
+```json
+{
+  "tenant_id": "string",
+  "data": {
+    "confirmed_event_ids": ["string"]
+  }
+}
+```
+
+### `POST /events/{event_id}/attendance/confirm`
+**Purpose:** Confirm presence for an event (free confirmation commitment).  
+**Request:**
+```json
+{
+  "occurrence_id": "string?"
+}
+```
 **Response:**
 ```json
 {
   "tenant_id": "string",
   "event_id": "string",
-  "presence_status": "confirmed|no_show",
-  "check_in_method": "geofence|qr|staff_manual",
+  "occurrence_id": "string?",
+  "kind": "free_confirmation",
+  "status": "active",
   "confirmed_at": "2025-01-01T00:00:00Z"
 }
 ```
 **Field Definitions**
-- `presence_status`: `confirmed`, `no_show`.
-- `check_in_method`: `geofence`, `qr`, `staff_manual`.
+- `kind`: `free_confirmation`.
+- `status`: `active`.
+
+### `POST /events/{event_id}/attendance/unconfirm`
+**Purpose:** Cancel a previously active free confirmation commitment for an event.  
+**Request:**
+```json
+{
+  "occurrence_id": "string?"
+}
+```
+**Response:**
+```json
+{
+  "tenant_id": "string",
+  "event_id": "string",
+  "occurrence_id": "string?",
+  "kind": "free_confirmation",
+  "status": "canceled",
+  "canceled_at": "2025-01-01T00:00:00Z"
+}
+```
+**Field Definitions**
+- `kind`: `free_confirmation`.
+- `status`: `canceled`.
 
 ---
 

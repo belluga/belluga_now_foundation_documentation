@@ -1,7 +1,7 @@
 # TODO (V1): Invites Delivery (Attribution + Quotas + Acceptance)
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Completed (Synced on 2026-03-12 after idempotency + web invite-code attribution closure)
+**Status:** In Progress (`D-11` hard delivery gate closed on 2026-03-13; stream remains open for broader invites completion items)
 **Owners:** Backend Team + Flutter Team + Web Team
 **Objective:** Deliver Invites as an independent social transaction functionality, with canonical invite target reference `event_id + occurrence_id | null` and backend-owned acceptance attribution semantics. Invite acceptance is the social conversion; attendance commitment (`free_confirmation | paid_reservation`) and check-in remain adjacent concerns and must not be collapsed into invite status.
 
@@ -21,6 +21,7 @@
 - Replace the mock invite stack with the approved canonical implementation in Laravel and Flutter.
 - Deliver backend-owned invite persistence, grouped feed, send/accept/decline/share flows, hashed contact import, quotas, and attribution semantics.
 - Replace event-owned/local-only invite acceptance behavior in Flutter with the canonical invite repository/backend contract.
+- Remove any remaining local-authoritative participation state in Flutter for this delivery scope (invite actions + presence confirmation surface).
 
 ### Out of Scope Restatement
 - Rich account-profile invite analytics dashboards (data capture only in MVP).
@@ -39,6 +40,7 @@
 - `D-08` Tenant-authenticated invite routes must enforce `CheckTenantAccess`; invite mutations must align with the platform API hardening baseline and deterministic rejection contract.
 - `D-09` Validation requires targeted Laravel tests, Flutter analyzer, affected Flutter tests, and manual smoke coverage for send/accept/decline/share accept.
 - `D-10` MVP invite-send quota enforcement scope is `max_invites_per_day_per_user_actor`; event/account/receiver invite-send limits are deferred to VNext.
+- `D-11` **Hard delivery gate:** no local-authoritative state is allowed in Flutter for invite actions, presence confirmation/reservation, check-in, or participation counters. Local cache/UI state is allowed only as read-through projection of backend-authoritative data.
 
 ### Module Decision Consistency Matrix (Planned)
 | Decision | Module Reference | Planned Handling | Evidence |
@@ -53,6 +55,7 @@
 | `D-08` | Tenant-authenticated route guardrails + API hardening baseline | `Preserve` | `foundation_documentation/endpoints_mvp_contracts.md` §0, `laravel-app/bootstrap/app.php` |
 | `D-09` | Definition of done + validation steps | `Preserve` | this TODO §§ G/H |
 | `D-10` | Backend-owned limits baseline for MVP | `Preserve` | `foundation_documentation/modules/invite_and_social_loop_module.md` §2.1D |
+| `D-11` | Backend-owned canonical source for invite/participation state | `Preserve` | `foundation_documentation/modules/invite_and_social_loop_module.md` §2.2/§2.4, `foundation_documentation/domain_entities.md` (Invite vs Attendance Commitment vs Check-in separation) |
 
 ### Plan Review Gate
 
@@ -248,11 +251,13 @@
 ## D) Integration Criteria (Invites <-> Events)
 - [x] ✅ Production‑Ready `confirmed_only` remains a filter/projection concern and does not redefine invite acceptance as canonical attendance state.
 - [x] ✅ Production‑Ready Invite acceptance updates invite-owned and principal metrics projections without taking ownership of attendance commitment/check-in lifecycles.
-- [x] ✅ Production‑Ready No local-only confirmation state remains authoritative in Flutter once Invite backend is live.
+- [x] ✅ Production‑Ready No local-only **invite acceptance** state remains authoritative in Flutter once Invite backend is live.
+- [x] ✅ Production‑Ready `D-11` hard gate closed: no local-authoritative participation confirmation state remains in Flutter delivery scope.
+  - Evidence: `UserEventsRepository.confirmEventAttendance/unconfirmEventAttendance` now call backend attendance endpoints through `UserEventsBackendContract` and refresh from backend-owned confirmed IDs.
 
 Moved-from-Events ownership anchors:
 - [x] ✅ Production‑Ready Event detail invite actions (`accept/decline`) remain routed through Invite endpoints and become authoritative from Invite backend state.
-- [x] ✅ Production‑Ready Remove/replace any residual local-only confirmation assumptions in Flutter event detail once Invite backend acceptance flows are active.
+- [x] ✅ Production‑Ready Remove/replace any residual local-only **invite action** assumptions in Flutter event detail once Invite backend acceptance flows are active.
 
 ---
 
@@ -261,6 +266,7 @@ Moved-from-Events ownership anchors:
 - [x] ✅ Production‑Ready Duplicate invite abuse is blocked by uniqueness + transactional closure logic.
 - [x] ✅ Production‑Ready Quota and suppression enforcement works with clear API errors and reset metadata.
 - [x] ✅ Production‑Ready Invite telemetry/push lifecycle is emitted with stable identifiers.
+- [x] ✅ Production‑Ready `D-11` delivery rule satisfied: no local-authoritative invite/participation confirmation state remains in Flutter runtime paths.
 
 ---
 
@@ -274,6 +280,7 @@ Moved-from-Events ownership anchors:
 - [x] ✅ Production‑Ready Invite functionality is independently deliverable from Event catalog internals.
 - [x] ✅ Production‑Ready Contracts/docs/roadmap are synchronized for Invite endpoints.
 - [x] ✅ Production‑Ready Validation steps completed or blocked with explicit notes.
+- [x] ✅ Production‑Ready Hard gate `D-11` closed with implementation + evidence.
 
 ---
 
@@ -281,8 +288,10 @@ Moved-from-Events ownership anchors:
 - [x] ✅ Production‑Ready Add/refresh backend tests: success, auth, validation, duplicate, quota, and share-code acceptance flows.
   - Evidence: `tests/Feature/Invites/InvitesFlowTest.php` covers success, auth, validation, duplicate closure, quota rejection payloads, contacts import, share acceptance, share anti-spam limits, and idempotency replay/mismatch guards.
 - [x] ✅ Production‑Ready `fvm flutter analyze`.
-  - Evidence: `No issues found! (ran in 16.5s)` on `2026-03-12`.
+  - Evidence: `No issues found!` on `2026-03-13` after backend-authoritative attendance wiring + fake contract updates.
 - [x] ✅ Production‑Ready Smoke coverage: invite send/accept/decline, duplicate handling, and web code accept are covered by automated API + Flutter flow tests in this stream.
+- [x] ✅ Production‑Ready Add explicit regression-proof for `D-11`: assert no production runtime path uses local-authoritative confirmation writes for invite/participation state.
+  - Evidence: `UserEventsRepository` writes route through `UserEventsBackendContract` only; controllers now call `refreshConfirmedEventIds()` and consume read-through stream state.
 
 ---
 
@@ -293,12 +302,13 @@ Moved-from-Events ownership anchors:
 | `D-02` | `Adherent` | `flutter-app/lib/infrastructure/dal/datasources/mock_invites_database.dart` (deleted), `flutter-app/lib/infrastructure/repositories/invites_repository.dart` | Mock invite datasource removed from runtime path. |
 | `D-03` | `Adherent` | `laravel-app/packages/belluga/belluga_invites/routes/invites.php` | All approved MVP endpoints are present. |
 | `D-04` | `Adherent` | `laravel-app/packages/belluga/belluga_invites/database/migrations/2026_03_12_000100_create_invite_core_collections.php` | Baseline collections/projections implemented; `event_social_projection` intentionally deferred. |
-| `D-05` | `Adherent` | `flutter-app/lib/domain/repositories/invites_repository_contract.dart`, `flutter-app/lib/presentation/tenant_public/schedule/screens/event_detail_screen/controllers/event_detail_controller.dart` | Accept/decline flow goes through invites repository, not `confirmEventAttendance`. |
-| `D-06` | `Adherent` | `flutter-app/lib/presentation/tenant_public/invites/**`, `flutter-app/lib/presentation/tenant_public/schedule/screens/event_detail_screen/**`, related tests under `flutter-app/test/**` | Invite flow/event detail migrated and tested. |
+| `D-05` | `Adherent` | `flutter-app/lib/domain/repositories/invites_repository_contract.dart`, `flutter-app/lib/presentation/tenant_public/schedule/screens/immersive_event_detail/controllers/immersive_event_detail_controller.dart` | Accept/decline flow goes through invites repository, not event-owned invite writes. |
+| `D-06` | `Adherent` | `flutter-app/lib/presentation/tenant_public/invites/**`, `flutter-app/lib/presentation/tenant_public/schedule/screens/immersive_event_detail/**`, related tests under `flutter-app/test/**` | Invite flow/event detail migrated and tested on immersive path. |
 | `D-07` | `Adherent` | `laravel-app/packages/belluga/belluga_invites/routes/invites.php`, `InviteShareController`, `InvitesFlowTest::test_share_accept_works_for_anonymous_user` | Web acceptance remains code-bound with Sanctum compatibility. |
 | `D-08` | `Adherent` | `laravel-app/packages/belluga/belluga_invites/routes/invites.php`, `.../HandlesInviteDomainExceptions.php` | `CheckTenantAccess` enforced; deterministic rejection payloads are implemented. |
 | `D-09` | `Adherent` | Validation section H | Automated smoke + targeted suites executed in this stream. |
 | `D-10` | `Adherent` | `laravel-app/packages/belluga/belluga_invites/src/Application/Mutations/InviteMutationService.php`, `.../Settings/InviteRuntimeSettingsService.php`, `tests/Feature/Invites/InvitesFlowTest.php` | Invite-send quota is user-actor daily only; event/account/receiver invite-send limits are deferred to VNext and covered by regression tests. |
+| `D-11` | `Adherent` | `flutter-app/lib/infrastructure/repositories/user_events_repository.dart`, `flutter-app/lib/infrastructure/dal/dao/laravel_backend/user_events_backend/laravel_user_events_backend.dart`, `flutter-app/lib/presentation/tenant_public/schedule/screens/immersive_event_detail/controllers/immersive_event_detail_controller.dart` | Presence confirmation flow now routes through backend attendance endpoints and refreshes backend-authoritative confirmed IDs before UI projection. |
 
 ---
 
@@ -332,3 +342,11 @@ Moved-from-Events ownership anchors:
     - `test/presentation/tenant/schedule/screens/event_detail_screen/event_detail_screen_test.dart`
     - `test/presentation/tenant_public/schedule/screens/event_search_screen/controllers/event_search_screen_controller_test.dart`
     - `test/presentation/tenant/home/screens/tenant_home_screen/widgets/agenda_section/controllers/tenant_home_agenda_controller_test.dart`
+
+## L) Sync Notes (2026-03-13)
+- Flutter immersive event detail keeps confirmation CTA independent from invite presence:
+  - `Confirmar Presença` remains the non-confirmed CTA regardless of received-invite availability.
+  - Received invites remain handled by the dedicated invite widget and do not gate/hide the confirmation CTA.
+- Decision update:
+  - `D-11` frozen as hard gate: no local-authoritative invite/participation state is acceptable for delivery.
+  - Current status: closed. Presence confirmation now uses backend attendance endpoints (`confirm/unconfirm/list confirmed`) and read-through refresh in Flutter repository/controller paths.
