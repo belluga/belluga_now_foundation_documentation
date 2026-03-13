@@ -37,47 +37,47 @@
 - New map visual redesign; this slice is contract wiring + architecture adherence.
 
 ## Operator-Reported Deviations (Session Log)
-- [ ] 🔴 `MAP-UX-01` Restore filter label behavior from previous UX baseline.
+- [x] ✅ `MAP-UX-01` Restore filter label behavior from previous UX baseline.
   - Initial report: filter label disappeared after recent map changes.
   - Refinement: keep event visual emphasis, but do not regress label visibility/consistency.
-- [ ] 🔴 `MAP-DATA-01` Event filter returns error while carousel still shows stale items.
+- [x] ✅ `MAP-DATA-01` Event filter returns error while carousel still shows stale items.
   - Initial report: tapping `Eventos` shows `Aplicando filtros...` then `Não foi possível carregar os pontos de interesse`, while carousel still renders stale event cards.
   - Refinement: map markers/deck must stay consistent on fetch failures; no stale inventory after failed filter reload.
-- [ ] 🔴 `MAP-CATALOG-01` Remove implicit/custom runtime filters.
+- [x] ✅ `MAP-CATALOG-01` Remove implicit/custom runtime filters.
   - Initial report: "custom filter" should not exist.
   - Refinement: filter surfaces must come from tenant-registered filter catalog only.
-- [ ] 🔴 `MAP-CATALOG-02` Admin filter definition must be semantically valid (not only key/label/image).
+- [x] ✅ `MAP-CATALOG-02` Admin filter definition must be semantically valid (not only key/label/image).
   - Initial report: added filters are not correctly handled because admin cannot define effective filter semantics.
   - Refinement: admin filter setup must allow valid source/typing/taxonomy definition aligned to backend query mapping.
-- [ ] 🟡 `MAP-MARKER-01` Revalidate zoom scaling parity between event and non-event markers.
+- [x] ✅ `MAP-MARKER-01` Revalidate zoom scaling parity between event and non-event markers.
   - Initial report: event marker circle seemed not to follow zoom scaling like regular POIs.
   - Refinement: event markers may keep visual prominence, but still must respect proportional zoom behavior.
-- [ ] 🔴 `MAP-CATALOG-03` Do not auto-materialize filters from account/asset data presence.
+- [x] ✅ `MAP-CATALOG-03` Do not auto-materialize filters from account/asset data presence.
   - Refinement report: creating a restaurant account must **not** auto-add a restaurant filter; active filters must be strictly derived from `settings.map_ui.filters`.
-- [ ] 🔴 `MAP-CATALOG-04` Two persisted filters exist in admin settings but only one is rendered in map FAB.
+- [x] ✅ `MAP-CATALOG-04` Two persisted filters exist in admin settings but only one is rendered in map FAB.
   - Refinement: render must mirror configured list order and include entries with `count=0`.
-- [ ] 🔴 `MAP-CATALOG-05` Remove hardcoded icon/color fallback by category key in map FAB.
+- [x] ✅ `MAP-CATALOG-05` Remove hardcoded icon/color fallback by category key in map FAB.
   - Refinement: icon image must come from configured filter image; visual fallback must be generic and non-keyed.
-- [ ] 🔴 `MAP-CATALOG-06` Map FAB displays filter `key` where `label` should be shown.
+- [x] ✅ `MAP-CATALOG-06` Map FAB displays filter `key` where `label` should be shown.
   - Refinement: button text must prioritize backend/admin `label` and only fallback to `key` when label is absent.
 - [x] ✅ `MAP-CATALOG-07` Filter image now replaces the FAB icon reliably, and image updates propagate when the admin changes the filter card image.
   - Incremental report: changing the configured filter image does not update the rendered image in settings/map as expected.
   - Refinement: filter image must be the single visual source for the FAB icon, and image replacements must invalidate stale rendering so the updated image appears in admin preview and public map flow.
-- [ ] 🔴 `MAP-UX-02` Catalog filter buttons must follow the same condensed/expanded animation pattern used by existing FAB actions.
+- [x] ✅ `MAP-UX-02` Catalog filter buttons must follow the same condensed/expanded animation pattern used by existing FAB actions.
   - Refinement: maintain expanded label, then condense to icon-only after delay.
 - [x] ✅ `MAP-UX-03` Selected filter visual state restored with perceptible contrast against unselected filters.
   - Incremental report: selected and unselected filter buttons now look equal or nearly equal.
   - Refinement: active filter state must have clear visual distinction in both expanded and condensed FAB modes, matching the previous UX baseline.
-- [ ] 🔴 `MAP-DATA-02` `source=event` filter without `types` must return all eligible events and proper card payloads.
+- [x] ✅ `MAP-DATA-02` `source=event` filter without `types` must return all eligible events and proper card payloads.
   - Refinement: avoid fallback card text pattern (`POI <id>`) when backend textual payload exists.
 - [x] ✅ `MAP-DATA-03` Asset-backed catalog filters now constrain map/deck results correctly.
   - Incremental report: the `event` filter is effectively filtering events, but the `assets` filter is returning unfiltered or mismatched results.
   - Refinement: selecting an asset-backed configured filter must restrict both markers and deck/cards to the configured asset query semantics only.
-- [ ] 🔴 `MAP-ASYNC-01` Rapid filter taps create concurrent requests and repeated status messages.
+- [x] ✅ `MAP-ASYNC-01` Rapid filter taps create concurrent requests and repeated status messages.
   - Refinement: enforce interaction lock while applying filter + last-request-wins semantics + status message dedupe.
-- [ ] 🔴 `MAP-DYNAMIC-01` Prevent hardcoded category/type assumptions that conflict with dynamic types/taxonomies catalog.
+- [x] ✅ `MAP-DYNAMIC-01` Prevent hardcoded category/type assumptions that conflict with dynamic types/taxonomies catalog.
   - Refinement: source/types/taxonomy handling must remain backend-driven and dynamic-safe.
-- [ ] 🔴 `MAP-TEST-01` Add automated coverage (feature/integration/unit) for catalog rendering parity, event filter contract, and async interaction guards.
+- [x] ✅ `MAP-TEST-01` Add automated coverage (feature/integration/unit) for catalog rendering parity, event filter contract, and async interaction guards.
   - Refinement: include test evidence for two configured filters visible, stable status messaging, and consistent map/deck payload rendering.
 - [x] ✅ `MAP-TEST-02` Added E2E coverage for asset-backed filter correctness.
   - Refinement: integration flow must prove that an asset-configured filter changes both map markers and deck/cards, not only event-backed filters.
@@ -268,8 +268,8 @@
 
 ## E) Validation Steps
 - [x] ✅ Production‑Ready `fvm flutter analyze`.
-- [ ] ⚪ Manual smoke: open map, toggle filters, open stack deck, deep link to event.
-- [ ] ⚪ Manual smoke: disconnect/reconnect network and confirm map reload path without mock fallback.
+- [x] ✅ Production‑Ready Manual smoke: open map, toggle filters, open stack deck, deep link to event.
+- [x] ✅ Production‑Ready Manual smoke: disconnect/reconnect network and confirm map reload path without mock fallback.
 - [x] ✅ Production‑Ready `fvm dart run custom_lint`.
 - [x] ✅ Production‑Ready `fvm flutter test test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart`.
 

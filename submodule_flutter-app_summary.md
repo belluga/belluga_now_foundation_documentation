@@ -77,7 +77,7 @@ Governance constraints:
 
 ## 6. Key Integration Points / API Surface (If Applicable)
 
-* **API Prefix/Base:** `https://{AppData.hostname}/api` (derived at runtime from the environment bootstrap payload).
+* **API Prefix/Base:** `AppData.mainDomainValue.value.resolve('/api')` (canonical tenant-scoped origin after bootstrap).
 * **Primary Endpoints/Modules (Current Consumer Shape):** App environment/bootstrap (branding + theme), schedule/events, invites, favorites, account_profiles/discovery, profile, map POIs (mixed: bootstrap via Laravel adapter; others primarily mock-backed).
 * **Authentication Method:** Presentational auth flows exist, but repository/backends are currently mock-focused; secure storage is available for future token/session persistence.
 
@@ -90,6 +90,7 @@ Governance constraints:
 * `ModuleSettings` supports test-time backend builders, enabling targeted tests to swap mock/real adapters without changing production wiring.
 * Architecture adherence refactor in progress: move repository/infrastructure usage out of screens/widgets into controllers, remove DTO types from UI, and ensure presentation logic remains controller-owned (no API contract changes intended).
 * DTO factories removed from Flutter domain models; mapping is centralized in infrastructure DTO mappers (invites, schedule, user, thumb, partner).
+* Custom lint coverage now also enforces domain `fromJson/fromMap` prohibition, domain primitive-field warnings, repository/service JSON parsing boundaries, repository inline DTO->Domain mapper prohibition, and `multi_public_class_file_warning` under `lib/**`.
 * Hard‑NO cleanup queued (FCX‑06): remove non-controller/cross-feature GetIt resolution from widgets/screens, eliminate Future/StreamBuilder usage in presentation, replace direct Navigator calls with router/controller-driven navigation, split multi‑widget files, and purge DTO dependencies from the domain layer.
 * Profile module dependency wiring will be tightened to ensure `LandlordLoginController` is always registered when Profile routes are loaded (prevents GetIt resolution failures in device tests).
 * Architecture cleanup will introduce domain-level contracts for `AppDataRepository`, `PoiRepository`, `PushPresentationGate`, and `TelemetryQueue`, plus domain-owned `PoiQuery` to remove infrastructure/DAL dependencies from controllers.
@@ -106,3 +107,4 @@ Governance constraints:
 * Landlord/admin access is now strictly landlord-context owned: tenant scope cannot reach landlord routes, `Entrar como Admin` is landlord-only, and `TenantAdminShellRoute` stays tenant-gated until an accessible tenant is resolved/selected.
 * Home agenda regression bundle delivered: nullable artist/friend avatars no longer collapse the visible agenda feed, eager auto-pagination was removed from the visible Home path, and tenant-admin archived filter serialization was corrected.
 * Tenant-admin settings parsing now treats empty `map_ui` namespace payloads as an empty namespace instead of leaking sibling settings into `PATCH /admin/api/v1/settings/values/map_ui`; the persistence path is covered by repository + integration tests.
+* Invite flow now accepts share-code bootstrap on `/invite?code=...` (same `InviteFlowRoute` surface), calls `InvitesRepository.acceptShareCode`, and preserves attribution during app onboarding/bootstrap before rendering grouped invite feed UI.

@@ -101,3 +101,4 @@ Contract expectations exposed to Flutter/Web clients:
 * **Legacy-data repair path:** `tenant:accounts:profiles:repair {tenant_slug} {--execute} {--profile_type=personal}` audits/repairs missing tenant account profiles for strict onboarding-only UI policy.
 * Tenant push credentials are now single-credential only (upsert via `PUT /api/v1/settings/push/credentials`); multiple credentials return 409 until cleaned up.
 * Tenant push settings no longer accept or return `firebase_credentials_id`; configuration relies on a single stored credential plus `firebase` public config.
+* **Invites package hardening:** invite accept/decline/share-accept mutations now persist command-level idempotency (`invite_command_idempotencies`) with replay/mismatch guards, keeping duplicate mutation retries deterministic under Mongo + Sanctum flows.

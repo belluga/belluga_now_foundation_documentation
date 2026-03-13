@@ -63,7 +63,8 @@
 *Página de conteúdo para convencer o usuário a participar.*
 
 ### 3.1. Estrutura da Página
-- **Componente:** Usará o template `ItemLandingPage`.
+- **Componente:** Usará o template `ItemLandingPage` em versão imersiva.
+- **Roteamento canônico:** usar somente `/agenda/evento/:slug`, resolvendo internamente para `ImmersiveEventDetailRoute`. O termo "imersivo" permanece técnico (widget/implementação), não parte da URL pública.
 - **Call to Action (CTA):**
     - **Botão Fixo (Sticky):** `[Botão: Confirmar Presença]`
 

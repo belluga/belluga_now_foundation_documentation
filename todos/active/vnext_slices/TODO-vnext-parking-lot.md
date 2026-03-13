@@ -42,6 +42,12 @@
 
 - **Account profile invite metrics**
   - Reason: defer account_profile-facing metrics dashboards until after MVP invite flows are stable.
+- **Receiver-side invite-volume limits (`max_pending_invites_per_invitee`, `max_invites_to_same_invitee_per_30d`)**
+  - Reason: MVP keeps only `max_invites_per_day_per_user_actor` for invite-send quotas; reintroduce receiver anti-spam limits in VNext with dedicated counter/index strategy.
+- **Event/account invite-send caps (`max_invites_per_event_per_inviter`, `max_invites_per_day_per_account`)**
+  - Reason: deferred to VNext to keep MVP limit policy minimal and avoid premature quota complexity.
+- **Invite feed cursor pagination (replace deep `skip/limit` pages)**
+  - Reason: MVP stays page-based by contract; VNext should add cursor pagination for better deep-scroll performance while keeping compatibility.
 
 ---
 
