@@ -68,7 +68,8 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/settings/firebase` | Tenant Admin | Update tenant firebase settings. | Implemented | Dedicated endpoint for firebase config. |
 | `/api/v1/settings/telemetry` | Tenant Admin | Manage telemetry integrations (list + upsert). | Implemented | Upsert by `type`; unique types enforced. |
 | `/api/v1/settings/telemetry/{type}` | Tenant Admin | Remove telemetry integration by type. | Implemented | DELETE removes a single type. |
-| `/admin/api/v1/media/map-filter-image` | Tenant Admin | Upload tenant-scoped image used by `settings.map_ui.filters[].image_uri`. | Planned | Complements local-preferences map filter catalog editor; accepts authenticated multipart (`key`, `image`) and returns canonical `image_uri`. |
+| `/admin/api/v1/media/map-filter-image` | Tenant Admin | Upload tenant-scoped image used by `settings.map_ui.filters[].image_uri`. | Tested & Ready | Complements local-preferences map filter catalog editor; accepts authenticated multipart (`key`, `image`) and returns canonical `image_uri`. |
+| `/api/v1/media/map-filters/{key}` | Tenant | Canonical public delivery for map filter images. | Tested & Ready | Returns tenant-scoped image bytes with `ETag`/`Last-Modified`; legacy `/map-filters/{key}/image` remains compatibility alias. |
 | `/admin/api/v1/organizations` | Tenant Admin | List organizations (grouping only). | Implemented | Tenant‑scoped; landlord users only. Paged response with org metadata. |
 | `/admin/api/v1/organizations` | Tenant Admin | Create organization. | Implemented | Tenant‑scoped; landlord users only. Minimal MVP fields: `name`, optional `description`. |
 | `/admin/api/v1/organizations/{organization_id}` | Tenant Admin | Organization detail. | Implemented | Tenant‑scoped; landlord users only. Returns org metadata. |
@@ -81,6 +82,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/admin/api/v1/account_profiles` | Tenant Admin | List account profiles. | Implemented | Tenant‑scoped; landlord users only. Paged response includes profile metadata + `ownership_state`. |
 | `/admin/api/v1/account_profiles` | Tenant Admin | Manual create account profile (legacy). | Implemented | Project route override rejects with deterministic `409` and `meta.use_endpoint=/admin/api/v1/account_onboardings`. |
 | `/admin/api/v1/account_profiles/{account_profile_id}` | Tenant Admin | Fetch/update/delete account profile. | Implemented | Tenant‑scoped; landlord users only. Soft delete + restore + force delete endpoints are live. |
+| `/api/v1/media/account-profiles/{account_profile_id}/{avatar\|cover}` | Tenant | Canonical public delivery for account profile avatar/cover media. | Tested & Ready | Returns tenant-scoped image bytes with cache validators; legacy `/account-profiles/{account_profile}/avatar|cover` remains compatibility alias. |
 | `/admin/api/v1/account_profiles/geo` | Tenant Admin | Geo search for POI-enabled profiles. | Implemented | **Removed** from tenant admin routes; superseded by `/api/v1/map/pois`. |
 | `/admin/api/v1/account_profile_types` | Tenant Admin | Profile type registry (tenant settings). | Implemented | Returns registry entries and capabilities. |
 | `/admin/api/v1/account_profile_types` | Tenant Admin | Create profile type registry entry. | Implemented | Persists to `account_profile_types`. |
@@ -99,6 +101,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/admin/api/v1/static_profile_types/{profile_type}` | Tenant Admin | Update static profile type. | Tested & Ready | `profile_type` is immutable; patch label/capabilities/taxonomies. |
 | `/admin/api/v1/static_profile_types/{profile_type}` | Tenant Admin | Delete static profile type. | Tested & Ready | Removes entry from registry. |
 | `/admin/api/v1/static_assets` | Tenant Admin | Static Asset CRUD for map POIs + pages. | Tested & Ready | Tenant-admin endpoints for create/update/delete/restore of static assets. |
+| `/api/v1/media/static-assets/{static_asset_id}/{avatar\|cover}` | Tenant | Canonical public delivery for static asset avatar/cover media. | Tested & Ready | Returns tenant-scoped image bytes with cache validators; legacy `/static-assets/{static_asset}/avatar|cover` remains compatibility alias. |
 | `/admin/api/v1/media/external-image` | Tenant Admin | Proxy external image URL to bytes for ingestion (URL import without CORS). | Tested & Ready | Authenticated + `CheckTenantAccess`; SSRF + size limits; returns raw bytes with `Cache-Control: no-store`. |
 | `/api/v1/static_assets/{asset_ref}` | Tenant | Static Asset public read (page). | Tested & Ready | Returns the static asset page payload by id or slug. |
 | `/admin/api/v1/events` | Tenant Admin | List events (admin). | Tested & Ready | Admin listing, page-based. |
