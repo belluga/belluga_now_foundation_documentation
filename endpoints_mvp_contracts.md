@@ -549,7 +549,7 @@
 
 ### `POST /invites/share/{code}/accept`
 **Purpose:** Accept invite from web landing by code.  
-**Request (headers/body):** Auth via Sanctum (anonymous identity). Optional idempotency payload:
+**Request (headers/body):** Auth via Sanctum (**authenticated identity required**). Optional idempotency payload:
 ```json
 {
   "idempotency_key": "string?"
@@ -577,10 +577,22 @@
 - `status`: `accepted`, `already_accepted`, `expired`.
 - `next_step`: `none`, `free_confirmation_created`, `open_app_to_continue`.
 
+**Auth Error Contract**
+```json
+{
+  "status": "rejected",
+  "code": "auth_required",
+  "message": "auth_required",
+  "payload": {}
+}
+```
+- Returned with `401` when caller is unauthenticated or authenticated as anonymous identity.
+
 **Requirement:** Invite share links must carry `code` as a GET parameter.
 **Tracking Notes:**
 - `share_visit` is tracked separately from invites; it does **not** count as an accepted invite.
 - When an acceptance occurs via this endpoint, it **does** count as `invite_accepted` with `source = share_url`.
+- Web login flow must preserve original deep-link query (`/invite?code=...`) until authenticated acceptance call is completed.
 - Web acceptance is intentionally narrow: no inbox browsing, no multi-inviter selector, no direct invite send/decline, no presence confirmation, and no check-in.
 - If the resolved post-acceptance flow requires richer UX than auto-resolution, backend must return `next_step = open_app_to_continue`.
 

@@ -1,7 +1,7 @@
 # TODO (V1): Tenant Admin — Map Filters Editor UI
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.  
-**Status:** Active (delivery complete; manual smoke pending)  
+**Status:** Completed (Production‑Ready; manual smoke confirmed on 2026-03-13)  
 **Owners:** Flutter Team (+ backend settings schema support)  
 **Objective:** Enable tenant-admin editing of map filter catalog (label + image + order) under `map_ui`, reusing the existing tenant-admin image ingestion/crop pipeline with square `1024x1024` constraints.
 
@@ -198,7 +198,7 @@
 - [x] ✅ Production‑Ready `fvm dart run custom_lint`
 - [x] ✅ Production‑Ready `fvm flutter test test/infrastructure/repositories/tenant_admin_settings_repository_test.dart`
 - [x] ✅ Production‑Ready `fvm flutter test test/presentation/tenant_admin/settings/tenant_admin_settings_screen_test.dart`
-- [ ] ⚪ Manual smoke: tenant-admin `/admin/settings/local-preferences` add/edit/remove/reorder filter entries and save successfully.
+- [x] ✅ Production‑Ready Manual smoke: tenant-admin `/admin/settings/local-preferences` add/edit/remove/reorder filter entries and save successfully.
 
 ---
 

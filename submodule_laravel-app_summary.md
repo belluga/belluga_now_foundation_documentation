@@ -108,3 +108,5 @@ Contract expectations exposed to Flutter/Web clients:
 * Tenant push credentials are now single-credential only (upsert via `PUT /api/v1/settings/push/credentials`); multiple credentials return 409 until cleaned up.
 * Tenant push settings no longer accept or return `firebase_credentials_id`; configuration relies on a single stored credential plus `firebase` public config.
 * **Invites package hardening:** invite accept/decline/share-accept mutations now persist command-level idempotency (`invite_command_idempotencies`) with replay/mismatch guards, keeping duplicate mutation retries deterministic under Mongo + Sanctum flows.
+* **Invite share accept identity-first:** `POST /api/v1/invites/share/{code}/accept` now rejects anonymous identities with deterministic `401 auth_required`, while authenticated users keep canonical attribution binding.
+* **Tenant-domain route binding fix:** invite mutation/share controllers now include the tenant-domain route parameter in method signatures, preventing host-value misbinding on `{invite_id}`/`{code}` actions under `Route::domain('{tenant_domain}')`.

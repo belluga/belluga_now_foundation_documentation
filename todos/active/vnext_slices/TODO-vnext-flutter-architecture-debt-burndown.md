@@ -40,6 +40,7 @@ Close the remaining repo-wide Flutter architectural debt surfaced by the active 
   - `repository_json_parsing_forbidden`
   - `service_json_parsing_forbidden`
   - `repository_inline_dto_to_domain_mapper_forbidden`
+  - `repository_raw_payload_map_forbidden` (established; globally disabled during debt program): repositories must not parse/build raw transport maps (`Map<String, Object?>`, map envelopes/lists, payload map assembly); raw payload ownership is DAO/DTO/mapper boundary.
   - `multi_public_class_file_warning`
 - Burn down the debt iteratively, by bounded domain/repository/presentation clusters, until the repo can realistically move from warnings-only to harder enforcement.
 - Treat the current feature branch as a mandatory no-new-debt lane:
@@ -70,6 +71,7 @@ Close the remaining repo-wide Flutter architectural debt surfaced by the active 
   - `2` `repository_inline_dto_to_domain_mapper_forbidden`
   - total active findings: `80`
 - `domain_primitive_field_forbidden` remains intentionally disabled by root config until its dedicated debt lane is burned down and the rule can be re-enabled explicitly.
+- `repository_raw_payload_map_forbidden` was established in custom lint but is intentionally disabled in root `analysis_options.yaml`; branch-delta analysis includes this rule while the legacy debt is tracked here.
 - Initial branch-delta findings had concentrated in these files before the cleanup:
   - `lib/domain/app_data/app_data.dart`
   - `lib/domain/map/city_poi_model.dart`
@@ -109,6 +111,7 @@ Close the remaining repo-wide Flutter architectural debt surfaced by the active 
 - `BR-04` Domain files changed by the branch must express semantics through domain-owned types/value objects or be structurally refactored until the rule no longer flags them.
 - `BR-05` Structural hygiene applies to changed files too: one public class per file unless a rule calibration proves the finding is non-objective.
 - `BR-06` `domain_primitive_field_forbidden` may stay disabled in root config during the debt program, but its semantics remain full for any explicit audit/fixture run.
+- `BR-07` Branch-touched repositories must not keep/add raw transport map handling (`Map<String, Object?>` payload extraction/building); request/response raw shaping belongs to DAO/DTO boundaries.
 
 ## Decision Baseline (Frozen)
 - `D-01` Preserve the warnings-only rollout while the repo-wide debt remains open.
@@ -117,6 +120,7 @@ Close the remaining repo-wide Flutter architectural debt surfaced by the active 
 - `D-04` Keep the repo-wide debt burn-down separated from the parsing-test-hardening program, while cross-linking both TODOs when a finding affects parser semantics.
 - `D-05` `domain_primitive_field_forbidden` cannot be narrowed by path; rollout control must happen via config, while domain carriers that fail the rule are reclassified or refactored.
 - `D-06` The remaining active repo-wide findings in this branch must be reduced to zero rather than deferred again, because they are concentrated in structural/path-local refactors and a small set of repository/domain cleanup points.
+- `D-07` Repository files must delegate raw transport map parsing/building to DAO/DTO layers (no repository-owned `Map<String, Object?>` payload extraction/building patterns).
 
 ## Module Coherence Gate (Pre-Implementation)
 | Decision ID | Module Coherence | Change Intent | Evidence |
@@ -126,11 +130,13 @@ Close the remaining repo-wide Flutter architectural debt surfaced by the active 
 | `D-03` | Aligned | Preserve | `foundation_documentation/domain_entities.md` (`Flutter domain boundary`) |
 | `D-04` | Aligned | Preserve | `TODO-vnext-raw-dto-domain-parse-hardening.md` scope separation |
 | `D-06` | Aligned | Preserve | Current session decision to close the remaining non-primitive custom-lint debt in this branch |
+| `D-07` | Aligned | Preserve | `foundation_documentation/domain_entities.md` (`Flutter domain boundary`), DAO/DTO mapping boundary contract |
 | `BR-01` | Aligned | Preserve | Current session decision approved by the user on 2026-03-11 |
 | `BR-02` | Aligned | Preserve | `SEM EXCEÇÃO` policy in prior architecture-lint consolidation TODO |
 | `BR-03` | Aligned | Preserve | `foundation_documentation/domain_entities.md` |
 | `BR-04` | Aligned | Preserve | `foundation_documentation/modules/flutter_client_experience_module.md` (`2.1 Domain Rules`) |
 | `BR-05` | Aligned | Preserve | `tool/belluga_custom_lint/docs/rules.md` (`multi_public_class_file_warning`) |
+| `BR-07` | Aligned | Preserve | `foundation_documentation/domain_entities.md` (`Flutter domain boundary`) |
 
 ## Workstreams
 ### WS-01 Branch Delta Adherence
@@ -147,14 +153,22 @@ Close the remaining repo-wide Flutter architectural debt surfaced by the active 
 - [ ] ⚪ Split remaining multi-public-class files into dedicated files and update imports/exports/call-sites.
 - [ ] ⚪ Move remaining domain `fromJson/fromMap` factories out of `lib/domain/**`.
 - [ ] ⚪ Move remaining repository JSON parsing/hydration into DAO/mapper boundaries.
+- [ ] ⚪ Remove repository-owned raw transport map payload extraction/building (`Map<String, Object?>`) by migrating those responsibilities to DAO/DTO boundaries.
 - [ ] ⚪ Remove remaining inline DTO-to-domain mapper methods from repositories.
 - [ ] ⚪ Re-run `fvm dart run custom_lint` until the active repo-wide baseline is zero with `domain_primitive_field_forbidden` still disabled.
 
 ### WS-04 Calibration Discipline
 - [x] ✅ Production-Ready Reject path-based exclusions for `domain_primitive_field_forbidden`.
+- [x] ✅ Production-Ready Keep `repository_raw_payload_map_forbidden` disabled in root config until DAO/DTO migration debt is materially reduced.
+- [ ] ⚪ Re-enable `repository_raw_payload_map_forbidden` in root config after repository raw-map debt reaches acceptable baseline.
 - [ ] ⚪ Audit any suspected false positives found during branch cleanup.
 - [ ] ⚪ Narrow rules only when objective evidence shows overreach.
 - [ ] ⚪ Keep docs/fixtures synchronized with every accepted calibration.
+
+### WS-05 Governance Consolidation
+- [x] ✅ Production-Ready Consolidate repository raw-payload-map boundary guidance in Delphi repository skills/rules/workflows and Cline mirrors.
+- [x] ✅ Production-Ready Add explicit remediation guidance in custom lint rule docs for `repository_raw_payload_map_forbidden`.
+- [ ] ⚪ Keep branch-delta guard execution in branch CI/checklist while the rule remains disabled globally.
 
 ## Definition Of Done
 - This TODO exists as the canonical repo-wide backlog for Flutter architectural debt burn-down.
@@ -165,6 +179,7 @@ Close the remaining repo-wide Flutter architectural debt surfaced by the active 
 
 ## Validation Steps
 - `fvm dart run custom_lint`
+- `bash tool/belluga_custom_lint/bin/check_branch_delta_raw_payload_map.sh`
 - `fvm flutter test --reporter expanded --concurrency=1`
 - Full device integration rerun for the branch using the resilient runner
 - Optional targeted `dart test` in `tool/belluga_custom_lint` when rule calibration is required
@@ -175,6 +190,8 @@ Close the remaining repo-wide Flutter architectural debt surfaced by the active 
 - `fvm dart analyze lib test`: clean
 - `fvm dart analyze lib test tool/belluga_custom_lint`: clean
 - `fvm dart run custom_lint`: repo-wide baseline still open (`300` warnings), but `0` findings remain in files changed by this branch against `origin/dev`
+- `repository_raw_payload_map_forbidden`: rule created + documented + globally disabled in root config; branch-delta guard command established for debt-lane enforcement.
+- `bash tool/belluga_custom_lint/bin/check_branch_delta_raw_payload_map.sh`: failed as expected for current branch debt (`153` findings), confirming the legacy migration backlog remains active under this TODO.
 - `fvm flutter test --reporter expanded --concurrency=1`: `345` tests passed
 - Device integration reruns passed:
   - `integration_test/feature_map_event_filter_actions_test.dart`

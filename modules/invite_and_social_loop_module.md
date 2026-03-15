@@ -31,7 +31,7 @@ The Invite & Social Loop module (MOD-302) governs the tenant app virality engine
 | `/convites` | tenant host/app | `tenant` | `tenant_public` | n/a | tenant user |
 | `/agenda` invite actions | tenant host/app | `tenant` | `tenant_public` | n/a | tenant user |
 | `/workspace/{account_slug}` invite metrics/workspace surfaces | tenant host/app | `tenant` | `tenant_public` | `account_workspace` | account membership / landlord override |
-| invite landing via share `code` | site_public or tenant host web landing | `landlord` or `tenant` | `site_public` or `tenant_public` | n/a | anonymous identity or authenticated user per policy |
+| invite landing via share `code` | site_public or tenant host web landing | `landlord` or `tenant` | `site_public` or `tenant_public` | n/a | login-first; acceptance requires authenticated tenant user |
 
 ---
 
@@ -347,10 +347,10 @@ V1 requires tracking external shares (WhatsApp/Instagram/etc.) for **new users**
 - Backend records **share visits** and **invite acceptance**; acceptance is triggered by `/invites/share/{code}/accept` (source = `share_url`).
 - Backend must prevent duplicate invite issuance to the same receiver+target+inviter principal (see Uniqueness rule); the share code is attribution, not a loophole to spam.
 
-### 4.4 Web Acceptance + Same-Event Re-Share (V1 Exception)
+### 4.4 Web Acceptance + Same-Event Re-Share (V1 Identity-First)
 
-V1 supports a narrow web exception for invite acceptance:
-- Web can accept an invite only when reached via a single invite/share `code` (invite landing).
+V1 supports web acceptance only under identity-first constraints:
+- Web can accept an invite only when reached via a single invite/share `code` (invite landing) **and after authentication**.
 - The credited inviter is the inviter principal bound to that code (no multi-inviter selection on web).
 - After acceptance, web may allow the new attendee to **re-share only the same event** externally (WhatsApp/Instagram/etc.), subject to strict backend limits.
 - Web must not expose grouped invite inbox browsing, direct invite send/decline, agenda-first acceptance, presence confirmation, or check-in.
@@ -358,13 +358,13 @@ V1 supports a narrow web exception for invite acceptance:
 
 This enables viral growth while keeping app-only “agenda-first acceptance” as the trusted conversion surface.
 
-#### Sanctum + Anonymous Identity Requirement
+#### Sanctum Requirement (Identity-First)
 
 Even on web “unauthenticated” landings, the canonical API is Sanctum-validated by default:
 
-- Web must mint or resume an anonymous identity via `POST /anonymous/identities` to obtain a Sanctum token.
-- The web client then calls the same invite acceptance / share endpoints using `Authorization: Bearer <token>`.
-- The backend controls what anonymous tokens may do via `tenant.anonymous_access_policy.abilities` (and TTL), and must still enforce quotas and uniqueness rules.
+- Web may mint or resume an anonymous identity via `POST /anonymous/identities` for read-only/allowed calls.
+- Invite share-code acceptance must use authenticated Sanctum identity; anonymous acceptance attempts must return deterministic `401 auth_required`.
+- Unauthenticated entry via `/invite?code=...` must preserve `code` through login and resume the original deep link before calling acceptance.
 - Flutter/web invite landing compatibility is anchored on `/invite?code=...`; the client must preserve `code` through onboarding/install bootstrap so attribution is bound once identity is available.
 
 **Events**

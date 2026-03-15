@@ -58,7 +58,7 @@ Governance constraints:
 
 * **Invariants:** Controllers are the sole owners of state mutations; widgets remain presentational; every domain entity surfaces as a value-object backed model; DI registrations occur before route build.
 * **Validation Rules:** Input fields rely on domain value objects (e.g., `EmailValue`, `PasswordValue`); invite codes enforce length 6–12; POI filter radius 1–50 km; schedule entries require ISO-8601 timestamps.
-* **Authorization Requirements:** Anonymous flow limited to onboarding and invite acceptance; authenticated tenant scope unlocks home, schedule, map; account workspace scope exposes account/profile dashboards (future flavor); promoter scope requires explicit feature flag.
+* **Authorization Requirements:** Anonymous flow is limited to onboarding/bootstrap/read-only surfaces; invite share-code acceptance is identity-first (authenticated user required). Authenticated tenant scope unlocks home, schedule, map; account workspace scope exposes account/profile dashboards (future flavor); promoter scope requires explicit feature flag.
 * **Shared Services:** `UserLocationService` + `LocationRepository` live in the domain layer. Controllers (Map, Search, Invite Check-in) inject the service to request permission, seed initial filters, and pass coordinates to repositories. Repositories never call each other; services wrap a single repository per architecture principle §2.5.
 * **Task & Invite Hooks:** TaskStream integration is deferred post-MVP. Invite controllers must respect `Web-to-App Promotion Policy` by deep-linking to `/invites/share/{code}/accept` and using `POST /contacts/import` instead of handling critical actions purely on the web.
 
@@ -78,6 +78,7 @@ Executable guardrails for this contract:
 - Domain files cannot declare `fromJson`/`fromMap` factories; transport parsing belongs to DAO/DTO layers and infrastructure mappers.
 - Domain fields must express validation/nullability through ValueObjects or domain-owned types instead of primitive transport fields.
 - Repositories/services cannot parse raw JSON or hydrate DTOs inline; DAO is the transport ingestion boundary.
+- Repositories cannot declare raw transport typing (`dynamic`, `Map<String, dynamic>`) in boundary signatures/helpers; DAO adapters own raw payload shapes.
 - DTO -> Domain mapping is delegated to dedicated mapper files under `lib/infrastructure/dal/dto/mappers/**`.
 - Files under `lib/**` should keep one public class per file; screen files still retain the stricter `multi_widget_file_warning` hygiene rule.
 

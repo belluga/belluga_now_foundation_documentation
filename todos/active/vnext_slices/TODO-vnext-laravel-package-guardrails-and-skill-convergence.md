@@ -60,6 +60,12 @@ Turn the current package architecture conventions into explicit, auditable rules
 - [x] Production-Ready Route ownership was inconsistent across packages; all current Belluga `host-integrated` and `shared-kernel` packages now use `host-owned-routes`.
 - [x] Production-Ready Host binding verification was split across runtime fail-fast providers and the workflow Python assertion; `laravel-app/scripts/architecture_guardrails.php` now covers it directly.
 - [x] Production-Ready Host integration composition was concentrated in `laravel-app/app/Providers/AppServiceProvider.php`; package composition now lives in dedicated providers under `laravel-app/app/Providers/PackageIntegration/**`.
+- [x] Production-Ready `belluga_push_handler` runtime TTL enforcement now resolves schema defaults consistently, eliminating drift between settings materialization and delivery validation.
+- [x] Production-Ready `belluga_events` and `belluga_settings` application services now throw package exceptions instead of using `abort(...)`, with HTTP translation kept at the controller edge.
+- [x] Production-Ready `belluga_push_handler` no longer depends on package-internal service locator paths (`app(...)`) and its duplicated store/update request validation flow has been consolidated.
+- [ ] Pending `belluga_events` async queue observability still collapses "unsupported/unavailable metrics" and "empty queue" into the same `[]` signal, allowing the monitor to clear alert state when queue visibility is missing.
+- [ ] Pending `belluga_push_handler` account controllers still duplicate account-context resolution and scope guards, increasing drift risk across `422`/`404`/scoping behavior.
+- [ ] Pending oversized classes remain in package application/request layers (`EventManagementService`, `EventQueryService`, `PushMessageRequest`), concentrating multiple responsibilities and making future refactors riskier than necessary.
 
 ---
 
@@ -79,6 +85,12 @@ Turn the current package architecture conventions into explicit, auditable rules
 8. Migrate every current Belluga package route surface to `host-owned-routes`, deleting package route files and removing `loadRoutesFrom(...)` from package providers.
 9. Remove obsolete/duplicated package communication seams that are no longer the canonical integration path.
 10. Break package composition out of `AppServiceProvider.php` into dedicated host integration providers and guard against re-centralization.
+11. Align package runtime behavior with canonical settings defaults where schema defaults were recently promoted out of legacy shims.
+12. Remove transport-layer helpers (`abort(...)`) from package application services in favor of package exceptions translated at the HTTP edge.
+13. Reduce duplicated validation/service-locator paths inside `belluga_push_handler` while preserving package decoupling and current API contracts.
+14. Differentiate queue metrics availability from an actually empty queue in `belluga_events`, so operational monitoring fails closed instead of silently clearing state.
+15. Remove repeated account-context guard boilerplate from `belluga_push_handler` account controllers while preserving current API behavior.
+16. Extract at least one concrete responsibility out of oversized package classes so the remaining hotspots shrink in scope without changing external contracts.
 
 ## Out of Scope
 - Introducing PHPStan, Larastan, Deptrac, or another analyzer stack in this slice.

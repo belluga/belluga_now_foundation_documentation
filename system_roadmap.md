@@ -42,7 +42,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/invites/stream` | MOD-201 | Invite delta stream (SSE). | Implemented | Emits invite created/updated/deleted deltas from `invite_outbox_events`; tenant-authenticated + `CheckTenantAccess`. |
 | `/api/v1/invites/settings` | MOD-201 | Backend-owned invite quotas, anti-spam limits, and UX messaging settings. | Tested & Ready | Returns limits/cooldowns/reset metadata; `429` rejections include structured limit payload metadata. |
 | `/api/v1/invites/share` | MOD-201 | External share codes for event invites (new user install/signup attribution). | Tested & Ready | Implemented with same-target reuse, anti-spam cooldown/daily limits, and account-profile issuer permission checks. |
-| `/api/v1/invites/share/{code}/accept` | MOD-201 | Web landing acceptance for invite share codes. | Tested & Ready | Requires Sanctum (anonymous identity supported) and binds attribution to inviter principal for canonical target. |
+| `/api/v1/invites/share/{code}/accept` | MOD-201 | Web/app acceptance for invite share codes (identity-first). | Tested & Ready | Requires authenticated Sanctum user; anonymous identity receives deterministic `401 auth_required`; binds attribution to inviter principal for canonical target. |
 | `/api/v1/agenda` | MOD-201 | Paged agenda feed with search + past toggle, includes happening-now events. | Tested & Ready | Request: `page`, `page_size`, `past_only`, `search`, `categories`, `tags`, `taxonomy`, `origin_lat/lng`, `max_distance_meters`. Response: occurrence-first event DTO (`event_id`, `occurrence_id`, `date_time_start/end`, `occurrences`, `event_parties`, `capabilities`, taxonomy/tags), `has_more` flag. Invite lifecycle fields are not exposed by Events payloads. Event location follows canonical `location + place_ref` (venue projection is resolver output, not a required write input). Happening-now rule: `date_time_start <= now < effective_end` (default end = start + 3h). |
 | `/api/v1/events/stream` | MOD-201 | Event delta stream (SSE). | Tested & Ready | Emits occurrence-first deltas (`occurrence.created`, `occurrence.updated`, `occurrence.deleted`) with `{event_id, occurrence_id, type, updated_at}`. Clients resume with `Last-Event-ID`; on reconnect without cursor (or invalid cursor), client reloads page 1 from `/agenda` and continues from now. |
 | `/api/v1/events/{event_id}` | MOD-201 | Event detail payload. | Tested & Ready | Event detail contract is aligned to occurrence-first agenda cards (`occurrences[]`, `event_parties`, `capabilities`, taxonomy/tags). Invite lifecycle fields are intentionally absent from Events payloads. Event location follows canonical `location + place_ref`. |
@@ -139,8 +139,8 @@ These roadmap phases extend the Flutter persona track and remain aligned with th
 - Invite landing (read-only): “You were invited by …” context + event summary.
 - Map browsing (read-only) for discovery; guide users into app for confirmations.
 - Install / Open-App CTAs that preserve the invite share code for attribution.
-- Invite acceptance is allowed only from invite landing reached via a single `code` (narrow V1 exception); credited to that code’s inviter principal.
-- Web “unauthenticated” surfaces may mint a backend-issued anonymous Sanctum token via `/api/v1/anonymous/identities` to call allowed endpoints.
+- Invite acceptance requires authenticated user identity; web unauthenticated entry must login and resume original deep link with `code` preserved.
+- Web “unauthenticated” surfaces may still mint anonymous Sanctum tokens for read-only/allowed calls, but anonymous identities cannot accept invite share codes.
 
 **Web authenticated allowed (V1):**
 - Tenant/Admin area: accounts, events, assets, and branding management.

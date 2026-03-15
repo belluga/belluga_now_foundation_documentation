@@ -1,7 +1,7 @@
 # TODO (V1): Invites Delivery (Attribution + Quotas + Acceptance)
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** In Progress (`D-11` hard delivery gate closed on 2026-03-13; stream remains open for broader invites completion items)
+**Status:** Completed (Production‑Ready; moved from active on 2026-03-13)
 **Owners:** Backend Team + Flutter Team + Web Team
 **Objective:** Deliver Invites as an independent social transaction functionality, with canonical invite target reference `event_id + occurrence_id | null` and backend-owned acceptance attribution semantics. Invite acceptance is the social conversion; attendance commitment (`free_confirmation | paid_reservation`) and check-in remain adjacent concerns and must not be collapsed into invite status.
 
