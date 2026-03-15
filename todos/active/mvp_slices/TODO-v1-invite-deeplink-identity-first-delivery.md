@@ -76,7 +76,7 @@
 ### Issue Cards
 
 - `I-01` `critical`
-  - Evidence: `foundation_documentation/policies/web_to_app_promotion_policy.md` currently allows anonymous-token web acceptance; user decision now requires login for acceptance.
+  - Evidence: planning baseline (pre-policy v1.2) allowed anonymous-token web acceptance; user decision requires authenticated identity for acceptance.
   - Why now: policy/contract mismatch will reintroduce non-sync acceptance paths and attribution divergence.
   - Option A: keep anonymous acceptance and patch sync later. Effort `low`; risk `critical`; blast radius `high`; maintenance `high`.
   - Option B (**Recommended**): require authenticated identity for share accept now and supersede policy/docs accordingly. Effort `medium`; risk `medium`; blast radius `medium`; maintenance `low`.
@@ -135,7 +135,7 @@
 - `D-01` Share-code acceptance requires authenticated identity; anonymous identities cannot accept invites.
 - `D-02` Deep-link auth redirect must preserve original `/invite?code=...` context end-to-end.
 - `D-03` For invalid/consumed code, final behavior follows product-approved fallback policy (currently: silent home fallback).
-- `D-04` `/convites` invite entry route must be guarded for authenticated tenant user flow consistency.
+- `D-04` `/convites` and `/convites/compartilhar` remain authenticated tenant routes; `/invite?code=...` is preview-first (tenant-guarded, no forced login) and requires authentication only when user decides to accept/decline.
 - `D-05` Android App Links for `guarappari.belluga.space` must be configured in app manifest and verified with `assetlinks.json`.
 - `D-06` iOS Universal Links for `guarappari.belluga.space` must be configured via associated domains + AASA.
 - `D-07` Web/infra must serve `/.well-known/assetlinks.json` and `/.well-known/apple-app-site-association` from canonical deployment path.
@@ -148,14 +148,14 @@
 - `INV-PD-05`: native app is direct contract owner for invite actions.
 - `INV-PD-06`: web exception boundary is narrow and code-bound.
 - `FCX-02`: route/scope ownership must be explicit and guarded.
-- `Web-to-App policy v1.1`: currently allows anonymous-token acceptance (candidate supersede by D-01).
+- `Web-to-App policy v1.2`: identity-first acceptance is canonical (anonymous-token acceptance removed).
 
 ---
 
 ## Module Decision Consistency Matrix (Planned)
 | Decision | Module Reference | Planned Handling | Evidence |
 | --- | --- | --- | --- |
-| `D-01` | Web-to-App policy section `3.1`, `4.0`, `4.1` | `Supersede (Intentional)` | policy currently allows anonymous-token acceptance; user-approved direction requires login-only acceptance. |
+| `D-01` | Web-to-App policy section `3.1`, `4.0`, `4.1` | `Preserve` | policy v1.2 already enforces identity-first acceptance and removes anonymous-token acceptance. |
 | `D-02` | `INV-PD-06`, FCX task hooks (`/invites/share/{code}/accept`) | `Preserve` | `foundation_documentation/modules/invite_and_social_loop_module.md` §4.4, `flutter_client_experience_module.md` §2.1 |
 | `D-03` | No prior canonical decision explicitly fixes invalid-code UX | `Out of Scope` (no prior baseline) | requires explicit TODO-owned execution note + later module promotion if kept. |
 | `D-04` | FCX route matrix + tenant user guard expectation | `Preserve` | `foundation_documentation/modules/flutter_client_experience_module.md` §2.0 |
@@ -172,14 +172,16 @@
 ### A) Policy + Backend
 - [x] ✅ Update web-to-app canonical docs to supersede anonymous acceptance and require authenticated identity for share-code acceptance.
 - [x] ✅ Enforce backend identity-state guard on `POST /api/v1/invites/share/{code}/accept` (reject anonymous identities with deterministic auth error).
+- [x] ✅ Add backend preview endpoint `GET /api/v1/invites/share/{code}` for unauthenticated `/invite?code=...` landing context.
 - [x] ✅ Add/adjust backend tests for anonymous rejection + authenticated success in share-code acceptance.
 
 ### B) Flutter (Route/Guard/Flow)
-- [x] ✅ Add route guard coverage for invite entry flow requiring authenticated tenant identity.
+- [x] ✅ Update invite route guard split: keep auth guard on `/convites` and `/convites/compartilhar`, allow anonymous preview on `/invite`.
 - [x] ✅ Ensure login redirect preserves full invite deep-link query context.
+- [x] ✅ Ensure signup redirect also preserves and replays the original deep link query context.
 - [x] ✅ Refactor invite flow resolution to deterministic state machine; no accidental route loss.
 - [x] ✅ Implement product-approved invalid/consumed-code behavior (`silent home fallback`).
-- [x] ✅ Add/refresh unit/widget tests for guarded deep-link flow and code-resolution outcomes.
+- [x] ✅ Add/refresh unit/widget/integration tests for preview-first invite flow (anonymous CTA + login/signup redirect replay) and guarded authenticated flows.
 
 ### C) Android App Links (Guarappari)
 - [x] ✅ Add HTTPS App Link `intent-filter` (`autoVerify=true`) for `guarappari.belluga.space` invite routes.
@@ -205,7 +207,10 @@
 
 ## Acceptance Criteria
 - [x] ✅ Anonymous identity cannot accept invite share code; authenticated user can.
+- [x] ✅ `/invite?code=...` no longer forces immediate login; it renders invite-first UI with CTA for authentication.
+- [x] ✅ Invite UI action contract: authenticated users see `Recusar` + `Aceitar` with swipe affordance; unauthenticated users see only `Entre para Aceitar ou Recusar`.
 - [x] ✅ Login flow round-trips back to original deep link with `code` preserved.
+- [x] ✅ Signup flow also round-trips back to original deep link with `code` preserved.
 - [x] ✅ Invite deep-link resolution no longer drops context unpredictably.
 - [ ] 🟡 Android App Link opens native app for guarappari when installed.
 - [ ] 🟡 iOS Universal Link opens native app for guarappari when installed.
@@ -230,7 +235,7 @@
 ## Validation Steps
 - [x] ✅ Backend feature/integration tests: share accept authenticated success + anonymous rejection.
 - [x] ✅ Flutter unit/widget tests: invite guard/auth redirect + code handling outcomes.
-- [x] ✅ Flutter integration test: deep-link auth round-trip with preserved `code` (`--flavor guarappari`).
+- [x] ✅ Flutter integration tests: deep-link auth round-trip + share-code bootstrap preview/accept paths (`-d flutter-tester`).
 - [x] ✅ `fvm flutter analyze`.
 - [x] ✅ `fvm dart run custom_lint`.
 - [ ] 🟡 Android manual: browser click on `/invite?code=...` with app installed and not installed.
@@ -245,12 +250,12 @@
 | `D-01` | `Adherent` | `laravel-app/packages/belluga/belluga_invites/src/Application/Mutations/InviteShareService.php`, `laravel-app/tests/Feature/Invites/InvitesFlowTest.php` | Anonymous identity rejection + authenticated success validated in backend test suite. |
 | `D-02` | `Adherent` | `flutter-app/lib/application/router/guards/auth_route_guard.dart`, `flutter-app/test/application/router/guards/auth_route_guard_test.dart`, `flutter-app/integration_test/feature_invite_deeplink_auth_roundtrip_test.dart` | Redirect path normalization + query preservation asserted in unit/integration tests. |
 | `D-03` | `Adherent` | `flutter-app/lib/presentation/tenant_public/invites/screens/invite_flow_screen/widgets/invite_flow_coordinator.dart` | Product-approved silent-home fallback remains deterministic when invite list is empty. |
-| `D-04` | `Adherent` | `flutter-app/lib/application/router/modular_app/modules/invites_module.dart`, `flutter-app/test/application/router/modules/invites_module_test.dart` | Invite entry/share routes require `TenantRouteGuard` + `AuthRouteGuard`. |
+| `D-04` | `Adherent` | `flutter-app/lib/application/router/modular_app/modules/invites_module.dart`, `flutter-app/test/application/router/modules/invites_module_test.dart`, `flutter-app/test/presentation/tenant/invites/screens/invite_flow_screen/invite_flow_screen_test.dart` | `/invite` is tenant-guarded preview-first; `/convites` and `/convites/compartilhar` remain tenant+auth guarded. |
 | `D-05` | `In Progress` | `flutter-app/android/app/src/main/AndroidManifest.xml`, `flutter-app/.well-known/assetlinks.json`, `flutter-app/test/platform/deep_link_platform_config_test.dart` | App Links wiring + artifacts + config tests complete; device verification pending credentials/fingerprint finalization. |
 | `D-06` | `In Progress` | `flutter-app/ios/Runner/Runner.entitlements`, `flutter-app/ios/Runner.xcodeproj/project.pbxproj`, `flutter-app/.well-known/apple-app-site-association`, `flutter-app/test/platform/deep_link_platform_config_test.dart` | Universal Links wiring + artifacts + config tests complete; device verification pending Apple team/bundle credential finalization. |
 | `D-07` | `Adherent` | `docker/nginx/prod.conf.template`, `docker/nginx/local.conf.template`, `laravel-app/public/.well-known/*`, `flutter-app/test/platform/deep_link_platform_config_test.dart` | Canonical runtime serving path versioned and test-asserted. |
 | `D-08` | `Adherent` | `flutter-app/.well-known/*`, `laravel-app/public/.well-known/*` | Scope remains guarappari-only (`com.guarappari.app`, guarappari invite paths/domains). |
-| `D-09` | `Adherent` | `laravel-app/tests/Feature/Invites/InvitesFlowTest.php`, `flutter-app/test/application/router/**`, `flutter-app/test/platform/deep_link_platform_config_test.dart`, `flutter-app/integration_test/feature_invite_deeplink_auth_roundtrip_test.dart` | Automated backend/unit/integration coverage executed successfully; only OS-level manual checks remain pending. |
+| `D-09` | `Adherent` | `laravel-app/tests/Feature/Invites/InvitesFlowTest.php`, `flutter-app/test/application/router/**`, `flutter-app/test/presentation/tenant/invites/screens/invite_flow_screen/**`, `flutter-app/test/platform/deep_link_platform_config_test.dart`, `flutter-app/integration_test/feature_invite_deeplink_auth_roundtrip_test.dart`, `flutter-app/integration_test/feature_invite_flow_share_code_bootstrap_test.dart` | Automated backend/unit/widget/integration coverage executed successfully; only OS-level manual checks remain pending. |
 
 ## Module Decision Consistency Validation
 | Decision | Delivery Status | Evidence | Notes |
@@ -258,4 +263,4 @@
 | `INV-PD-05` | `Preserved` | `laravel-app/packages/belluga/belluga_invites/src/Application/Mutations/InviteShareService.php` + `InvitesFlowTest` | Native/app conversion ownership preserved; web acceptance remains narrow and policy-bounded. |
 | `INV-PD-06` | `Preserved` | `flutter-app/lib/application/router/guards/auth_route_guard.dart`, `integration_test/feature_invite_deeplink_auth_roundtrip_test.dart` | Deep-link continuity preserved through auth redirect with `code` round-trip. |
 | `FCX-02` | `Preserved` | `flutter-app/lib/application/router/modular_app/modules/invites_module.dart` + route guard tests | Route ownership explicit and guard-enforced for invite entry/share flows. |
-| `Web-to-App policy v1.1` | `Superseded (Approved)` | `foundation_documentation/policies/web_to_app_promotion_policy.md` (v1.2) | Anonymous acceptance removed; identity-first acceptance is canonical. |
+| `Web-to-App policy (v1.1 -> v1.2)` | `Superseded (Approved)` | `foundation_documentation/policies/web_to_app_promotion_policy.md` (v1.2) | Anonymous acceptance removed; identity-first acceptance is canonical. |

@@ -60,7 +60,7 @@ Governance constraints:
 * **Validation Rules:** Input fields rely on domain value objects (e.g., `EmailValue`, `PasswordValue`); invite codes enforce length 6–12; POI filter radius 1–50 km; schedule entries require ISO-8601 timestamps.
 * **Authorization Requirements:** Anonymous flow is limited to onboarding/bootstrap/read-only surfaces; invite share-code acceptance is identity-first (authenticated user required). Authenticated tenant scope unlocks home, schedule, map; account workspace scope exposes account/profile dashboards (future flavor); promoter scope requires explicit feature flag.
 * **Shared Services:** `UserLocationService` + `LocationRepository` live in the domain layer. Controllers (Map, Search, Invite Check-in) inject the service to request permission, seed initial filters, and pass coordinates to repositories. Repositories never call each other; services wrap a single repository per architecture principle §2.5.
-* **Task & Invite Hooks:** TaskStream integration is deferred post-MVP. Invite controllers must respect `Web-to-App Promotion Policy` by deep-linking to `/invites/share/{code}/accept` and using `POST /contacts/import` instead of handling critical actions purely on the web.
+* **Task & Invite Hooks:** TaskStream integration is deferred post-MVP. Invite controllers must respect `Web-to-App Promotion Policy` by resolving preview-first context from `GET /invites/share/{code}`, then deep-linking/auth-round-tripping to `/invites/share/{code}/accept`; use `POST /contacts/import` instead of handling critical actions purely on the web.
 
 #### 2.1.1 Presentation DI Matrix (Canonical)
 
@@ -92,6 +92,7 @@ Executable guardrails for this contract:
 | `/invites/stream` | GET | Streams invite deltas for live updates. | Tenant | `InviteStreamRequest` | SSE delta events |
 | `/invites/settings` | GET | Fetches invite limits and UX messaging settings. | Tenant | `InviteSettingsRequest` | `InviteSettingsResponse` |
 | `/invites/share` | POST | Creates or returns a share code for an event invite. | Tenant | `InviteShareRequest` | `InviteShareResponse` |
+| `/invites/share/{code}` | GET | Resolves invite preview payload for `/invite?code=...` before auth. | Tenant | n/a | `InviteSharePreviewResponse` |
 | `/invites/share/{code}/accept` | POST | Accepts a share invite for the current user (records source). | Tenant | `InviteShareAcceptRequest` | `InviteShareAcceptResponse` |
 | `/contacts/import` | POST | Imports hashed contacts for friend matching. | Tenant | `ContactsImportRequest` | `ContactsImportResponse` |
 | `/agenda` | GET | Provides schedule entries, suggested actions, and contextual CTAs. | Tenant | `AgendaRequest` | `AgendaResponse` |

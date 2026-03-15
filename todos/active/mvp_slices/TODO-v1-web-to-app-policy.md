@@ -21,8 +21,8 @@
 - [x] ✅ Invite landing page (read-only): “You were invited by …” context + event summary
 - [x] ✅ Web unauth surfaces may mint a backend-issued anonymous Sanctum token via `POST /api/v1/anonymous/identities` to call allowed endpoints
 - [x] ✅ Install/Open-App CTA (deep link) that preserves attribution code
-- [x] ✅ V1 exception: allow invite acceptance only from invite landing reached via a single `code` (credited to that code’s inviter principal)
-- [x] ✅ V1 exception: allow re-share only the same event after acceptance (external share only), backend rate-limited
+- [x] ✅ V1 exception boundary: invite landing reached via a single `code` may initiate acceptance flow, but completion requires authenticated user identity (credited to that code’s inviter principal)
+- [x] ✅ V1 exception: after authenticated acceptance, allow re-share only the same event (external share only), backend rate-limited
 - [x] ✅ Map browsing (read-only): allow web navigation on map for discovery (no favorites, no check-in)
 
 ### Web (Authenticated) is allowed for (account profile workspace)
@@ -51,7 +51,7 @@ Rationale: keep high-value actions in the app to ensure identity, location capab
 ## B) Deep Link / Attribution Requirements
 
 - [ ] ⚪ Web links must carry a single `code` (invite share code) in the URL
-- [ ] ⚪ If web user is not logged in, web mints/resumes an anonymous identity (`POST /api/v1/anonymous/identities`) and uses its Sanctum token for landing actions (accept + same-event re-share)
+- [ ] ⚪ If web user is not logged in, web may mint/resume an anonymous identity (`POST /api/v1/anonymous/identities`) only for read-only/allowed landing actions; invite acceptance and re-share require authenticated user identity
 - [ ] ⚪ Web must redirect to:
   - [ ] ⚪ App deep link (if installed)
   - [ ] ⚪ App store (if not installed), preserving the `code` for post-install attribution
@@ -91,6 +91,6 @@ Rationale: keep high-value actions in the app to ensure identity, location capab
 - [x] ✅ Web acceptance in V1 must still enforce:
   - [x] ✅ single-code attribution binding
   - [x] ✅ anti-spam limits
-  - [x] ✅ identity binding (anonymous or authenticated Sanctum identity)
+  - [x] ✅ identity binding requires authenticated user identity (anonymous identity cannot accept invite share codes)
   - [x] ✅ fraud/rate-limit checks
   - [x] ✅ app handoff when richer fulfillment is required

@@ -31,7 +31,7 @@ The Invite & Social Loop module (MOD-302) governs the tenant app virality engine
 | `/convites` | tenant host/app | `tenant` | `tenant_public` | n/a | tenant user |
 | `/agenda` invite actions | tenant host/app | `tenant` | `tenant_public` | n/a | tenant user |
 | `/workspace/{account_slug}` invite metrics/workspace surfaces | tenant host/app | `tenant` | `tenant_public` | `account_workspace` | account membership / landlord override |
-| invite landing via share `code` | site_public or tenant host web landing | `landlord` or `tenant` | `site_public` or `tenant_public` | n/a | login-first; acceptance requires authenticated tenant user |
+| invite landing via share `code` (`/invite?code=...`) | site_public or tenant host web landing | `landlord` or `tenant` | `site_public` or `tenant_public` | n/a | preview-first for unauthenticated entry; accept/decline requires authenticated tenant user |
 
 ---
 
@@ -304,10 +304,11 @@ To enforce both anti-spam policies and account plan limits, the module maintains
 | `/invites/{invite_id}/accept` | POST | Accepts the selected invite edge in native app and returns commitment next-step metadata. |
 | `/invites/{invite_id}/decline` | POST | Declines the selected invite edge in native app without implicitly declining other inviter candidates. |
 | `/invites/share` | POST | Creates (or returns) an external share code that attributes installs/signups to an inviter principal for a specific invite target. |
+| `/invites/share/{code}` | GET | Resolves share-code invite preview payload for unauthenticated/authenticated invite landing surfaces. |
 | `/invites/share/{code}/accept` | POST | Accepts a share invite for the current user and emits `invite.accepted`. |
 | `/contacts/import` | POST | Imports hashed contacts for friend matching and invite discovery. |
 
-**Deferred (post-MVP) endpoints:** `/invites/share/{code}` (resolve), `/invites/share/{code}/consume`, `/invites/{inviteCode}/resend`, `/invites/{inviteCode}/snooze`, `/invites/{inviteCode}/suppress-event`, `/invites/{inviteCode}/accept/import-contacts`, `/invites/{inviteCode}/attendance`.
+**Deferred (post-MVP) endpoints:** `/invites/share/{code}/consume`, `/invites/{inviteCode}/resend`, `/invites/{inviteCode}/snooze`, `/invites/{inviteCode}/suppress-event`, `/invites/{inviteCode}/accept/import-contacts`, `/invites/{inviteCode}/attendance`.
 
 ### 4.1 Native App Invite Contract
 
@@ -350,7 +351,8 @@ V1 requires tracking external shares (WhatsApp/Instagram/etc.) for **new users**
 ### 4.4 Web Acceptance + Same-Event Re-Share (V1 Identity-First)
 
 V1 supports web acceptance only under identity-first constraints:
-- Web can accept an invite only when reached via a single invite/share `code` (invite landing) **and after authentication**.
+- Web invite landing must resolve preview context from a single invite/share `code` (invite landing) without forcing immediate login.
+- Accept/decline actions on that preview require authentication and resume the original `/invite?code=...` context after login/signup.
 - The credited inviter is the inviter principal bound to that code (no multi-inviter selection on web).
 - After acceptance, web may allow the new attendee to **re-share only the same event** externally (WhatsApp/Instagram/etc.), subject to strict backend limits.
 - Web must not expose grouped invite inbox browsing, direct invite send/decline, agenda-first acceptance, presence confirmation, or check-in.
@@ -364,7 +366,7 @@ Even on web “unauthenticated” landings, the canonical API is Sanctum-validat
 
 - Web may mint or resume an anonymous identity via `POST /anonymous/identities` for read-only/allowed calls.
 - Invite share-code acceptance must use authenticated Sanctum identity; anonymous acceptance attempts must return deterministic `401 auth_required`.
-- Unauthenticated entry via `/invite?code=...` must preserve `code` through login and resume the original deep link before calling acceptance.
+- Unauthenticated entry via `/invite?code=...` must render invite-first preview, preserve `code` through login/signup, and resume the original deep link before calling acceptance.
 - Flutter/web invite landing compatibility is anchored on `/invite?code=...`; the client must preserve `code` through onboarding/install bootstrap so attribution is bound once identity is available.
 
 **Events**

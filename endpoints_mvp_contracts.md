@@ -547,6 +547,62 @@
 - Generate URL-safe codes (base62/ULID/short hash). Recommended length ≥ 8–10 chars.
 - On insert conflict, retry generation (e.g., up to 3–5 attempts) before failing.
 
+### `GET /invites/share/{code}`
+**Purpose:** Resolve invite landing preview context for a share code (`/invite?code=...`) before authentication.
+**Auth:** Tenant domain resolution required; authenticated identity not required.
+**Response:**
+```json
+{
+  "tenant_id": "string",
+  "code": "string",
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
+  "inviter_principal": { "kind": "user|account_profile", "id": "string" },
+  "invite": {
+    "id": "string",
+    "target_ref": {
+      "event_id": "string",
+      "occurrence_id": "string?"
+    },
+    "event_name": "string",
+    "event_date": "2025-01-01T00:00:00Z",
+    "event_image_url": "https://...",
+    "location": "string",
+    "host_name": "string",
+    "message": "string",
+    "tags": ["string"],
+    "attendance_policy": "free_confirmation_only|paid_reservation_only|either",
+    "inviter_candidates": [
+      {
+        "invite_id": "string",
+        "inviter_principal": { "kind": "user|account_profile", "id": "string" },
+        "display_name": "string",
+        "avatar_url": "https://...?",
+        "status": "pending"
+      }
+    ],
+    "social_proof": { "additional_inviter_count": 0 }
+  }
+}
+```
+**Field Definitions**
+- `inviter_principal.kind`: `user`, `account_profile`.
+- `invite.attendance_policy`: `free_confirmation_only`, `paid_reservation_only`, `either`.
+- `invite.inviter_candidates[].status`: `pending`.
+
+**Not Found Contract**
+```json
+{
+  "status": "rejected",
+  "code": "invite_share_not_found",
+  "message": "invite_share_not_found",
+  "payload": {}
+}
+```
+- Returned with `404` for missing, expired, or invalid share-code previews.
+
 ### `POST /invites/share/{code}/accept`
 **Purpose:** Accept invite from web landing by code.  
 **Request (headers/body):** Auth via Sanctum (**authenticated identity required**). Optional idempotency payload:
@@ -592,7 +648,7 @@
 **Tracking Notes:**
 - `share_visit` is tracked separately from invites; it does **not** count as an accepted invite.
 - When an acceptance occurs via this endpoint, it **does** count as `invite_accepted` with `source = share_url`.
-- Web login flow must preserve original deep-link query (`/invite?code=...`) until authenticated acceptance call is completed.
+- Web invite landing must resolve preview context via `GET /invites/share/{code}` and preserve original deep-link query (`/invite?code=...`) through login/signup until authenticated acceptance is completed.
 - Web acceptance is intentionally narrow: no inbox browsing, no multi-inviter selector, no direct invite send/decline, no presence confirmation, and no check-in.
 - If the resolved post-acceptance flow requires richer UX than auto-resolution, backend must return `next_step = open_app_to_continue`.
 
