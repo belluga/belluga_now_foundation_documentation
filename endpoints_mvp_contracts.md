@@ -8,7 +8,7 @@
 
 ## 0) Conventions
 - Base prefix is `/api/v1` (router-mounted). Paths below omit the prefix unless explicitly stated.
-- All responses include `tenant_id` when the request is tenant-scoped.
+- All responses include `tenant_id` when the request is tenant-scoped, except endpoints that explicitly document a tenant-isolated payload without `tenant_id` (for example `/favorites`).
 - IDs are stable string IDs (Mongo ObjectId as string).
 - Date/times are ISO 8601 (`YYYY-MM-DDTHH:mm:ssZ`).
 - Home composition is client-side only. There is **no** aggregated `/home-overview` endpoint; use independent requests (e.g., `/invites`, `/agenda`, `/account_profiles/discovery`, `/missions`, `/discover/people`, `/discover/curator-content`, `/map/pois`).
@@ -237,6 +237,62 @@
 **Field Definitions**
 - `user_level`: `basic`, `verified`.
 - `privacy_mode`: `public`, `friends_only`.
+
+### `GET /favorites`
+**Purpose:** Return user favorites with registry-backed snapshot ordering for Home and other account-profile contexts.  
+**Request (query):**
+```json
+{
+  "page": 1,
+  "page_size": 20,
+  "registry_key": "account_profile",
+  "target_type": "account_profile"
+}
+```
+**Response (minimum):**
+```json
+{
+  "items": [
+    {
+      "favorite_id": "string",
+      "registry_key": "account_profile",
+      "target_type": "account_profile",
+      "target_id": "string",
+      "favorited_at": "2025-01-01T00:00:00Z",
+      "target": {
+        "id": "string",
+        "slug": "string",
+        "display_name": "string",
+        "avatar_url": "string?"
+      },
+      "snapshot": {
+        "next_event_occurrence_id": "string?",
+        "next_event_occurrence_at": "2025-01-01T00:00:00Z?",
+        "last_event_occurrence_at": "2025-01-01T00:00:00Z?"
+      },
+      "navigation": {
+        "kind": "account_profile",
+        "target_slug": "string"
+      }
+    }
+  ],
+  "has_more": false
+}
+```
+**Notes:**
+- Query filter by `registry_key` is optional.
+- Ordering policy:
+  - block A: `next_event_occurrence_at` ascending,
+  - block B: `last_event_occurrence_at` descending when next is null,
+  - block C: `favorited_at` descending when both event dates are null.
+- Anonymous identities return `200` with `items=[]` and `has_more=false`.
+- Snapshot persistence is tenant-isolated by database; payload intentionally omits `tenant_id`.
+- Registry/migration guardrails:
+  - `registry_key` is required snake_case.
+  - `snapshot_collection` can be omitted (fallback `favoritable_snapshots`) or explicitly provided.
+  - when explicitly provided, `snapshot_collection` must match `favoritable_{registry_key}_snapshots`.
+  - multiple registries can share one collection only with common envelope fields (`registry_key`, `target_type`, `target_id`, `updated_at`).
+  - default shared collection is forbidden when the registry declares non-default/specific indexes.
 
 ---
 
@@ -787,7 +843,7 @@
 
 ### `GET /events/stream` (SSE)
 **Purpose:** Stream event occurrence deltas for active app filters (SSE).  
-**Request (query):** filter set aligned with `/agenda` (`categories[]`, `tags[]`, `taxonomy[]`, `origin_lat`, `origin_lng`, `max_distance_meters`).  
+**Request (query):** filter set aligned with `/agenda` (`categories[]`, `tags[]`, `taxonomy[]`, `confirmed_only`, `origin_lat`, `origin_lng`, `max_distance_meters`).  
 **Headers (optional):** `Last-Event-ID` to resume from the last received SSE cursor.  
 **Event types:**
 - `occurrence.created` (new occurrence matches filters)
@@ -812,6 +868,7 @@
   "page": 1,
   "page_size": 10,
   "past_only": false,
+  "confirmed_only": false,
   "categories": ["string"],
   "tags": ["string"],
   "taxonomy": [{ "type": "string", "value": "string" }],
@@ -829,8 +886,11 @@
 - Categories filter matches `type.slug` or event categories when available (case-insensitive).
 - Tags filter matches any `tags[]` on the event (case-insensitive).
 - Taxonomy filter matches slug pairs (`type`, `value`) against event/venue/artist taxonomy terms.
+- `confirmed_only=true` returns only attendance-confirmed events for the current identity.
+- `confirmed_only=true` + anonymous identity returns `200` with empty list and `has_more=false`.
 - Client flows for agenda/search must resolve origin before requesting this endpoint (`user location` -> `settings.map_ui.default_origin`).
 - Backend applies geo filtering using `origin_lat`/`origin_lng` + `max_distance_meters` bounded by tenant `map_ui.radius` limits.
+- Exception: with `confirmed_only=true`, geo filters do not exclude items (origin may be used only to compute optional `distance_meters`).
 - No unfiltered fallback list is applied when geo filters produce zero matches.
 
 **Response (minimum):**
