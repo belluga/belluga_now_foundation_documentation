@@ -1,8 +1,8 @@
-# TODO-v1 Home Favorites Query Contract
+# TODO-v1 Favorites Query Contract (Home + Discovery)
 
 ## Scope
 - Establish the ideal data contract for favorites consumption in Home and Discovery so both surfaces stop using duplicate/legacy fetch composition.
-- Define whether favorites should consume a dedicated projection, shared home snapshot, or lazy follow-up query.
+- Define the canonical read model for favorites as `favorite_edges` + registry-owned snapshot collection.
 - Define the required Flutter adaptation so Home and Discovery Favorites consume the new favorites payload format directly (without agenda-based reordering).
 
 ## Out Of Scope
@@ -32,6 +32,7 @@
 - Scope stays Account Profile only in V1 (`target_type=account_profile`) and is reused across contexts, not Home-only.
 - For V1 `registry_key=account_profile`, the derived dedicated collection name resolves to `favoritable_account_profile_snapshots` by convention rule (not hardcoded), and this registry uses dedicated indexes for `event_occurrences` date ordering.
 - Endpoint remains `GET /api/v1/favorites` and returns favorites for Home + Discovery based on `favorite_edges` + snapshot join.
+- Anonymous identities return `200` with empty list (`items=[]`, `has_more=false`) for Home/Discovery safety.
 - Navigation target on favorite tap is always the account profile (not direct event navigation).
 - Ordering policy is fixed in three blocks:
   - Block A: items with `next_event_occurrence_at` (ascending).
@@ -118,5 +119,5 @@
 - Validate Home Favorites no longer triggers a duplicate upcoming agenda fetch on initial load.
 - Validate Discovery Favorites uses the same `/api/v1/favorites` contract path and does not use legacy parallel composition.
 - Validate snapshot refresh jobs run on account profile update + event/occurrence CRUD and update ordering fields.
-- Validate Home ordering blocks (`next_event_occurrence_at` -> `last_event_occurrence_at` -> `favorited_at`) in integration tests.
+- Validate ordering blocks (`next_event_occurrence_at` -> `last_event_occurrence_at` -> `favorited_at`) in Home + Discovery integration tests.
 - Validate Flutter mapping and rendering in Home + Discovery using the new `/api/v1/favorites` payload shape (including empty-list behavior) without fallback to agenda-based data composition.

@@ -46,8 +46,8 @@
 ## 2026-03-19 Code Reality Check
 - `fetchMyEvents()` still piggybacks on public upcoming agenda data and filters locally:
   - `flutter-app/lib/infrastructure/repositories/user_events_repository.dart`
-- Backend currently provides only confirmed IDs (`GET /api/v1/events/attendance/confirmed`), not a dedicated Home "my events" projection payload:
+- Backend still needs contract-aligned `confirmed_only` behavior wired in `/api/v1/agenda` and `/api/v1/events/stream` (including anonymous empty-list semantics):
   - `flutter-app/lib/infrastructure/dal/dao/laravel_backend/user_events_backend/laravel_user_events_backend.dart`
   - `laravel-app/routes/api/project_tenant_public_api_v1.php`
   - `laravel-app/app/Http/Api/v1/Controllers/EventAttendanceController.php`
-- Conclusion: this TODO is **not** just documentation drift; implementation work is still required to remove Home piggybacking on generic agenda fetches.
+- Conclusion: this TODO is **not** just documentation drift; implementation work is still required to remove Home piggybacking on generic agenda fetches and finalize `confirmed_only` end-to-end.
