@@ -18,6 +18,7 @@
 | Defect ID | Severity | Source Test / Gate | Symptom | Root Cause Hypothesis | Linked Fix TODO | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | TD-001 | High | `tools/flutter/web_app_tests/navigation.spec.js` via `bash tools/flutter/run_web_navigation_smoke.sh mutation` (`tenant agenda UI state matches tenant agenda API payload`) | First tenant public Home agenda request was emitted without `origin_lat`/`origin_lng`. | `ScheduleRepository.fetchUpcomingEvents()` used `getAllEvents()` (`_backend.fetchEvents`) path without origin params on startup. | `foundation_documentation/todos/completed/TODO-v1-events-location-gating-and-tenant-default-origin.md` (`D-14`) | Resolved |
+| TD-002 | High | `tools/flutter/web_app_tests/navigation.spec.js` via `bash tools/flutter/run_web_navigation_smoke.sh mutation` (`tenant agenda UI state matches tenant agenda API payload`) | Mutation gate failed with "Agenda API returned items, but UI still shows empty state" while Home was correctly empty. | The assertion compared Home UI state against non-Home `/api/v1/agenda` requests (for example `page_size=25` auxiliary fetches), instead of the canonical Home agenda request (`page_size=10`, `past_only=0`, `confirmed_only=0`). | `foundation_documentation/todos/completed/TODO-vnext-home-agenda-mutation-query-parity.md` | Resolved |
 
 ---
 

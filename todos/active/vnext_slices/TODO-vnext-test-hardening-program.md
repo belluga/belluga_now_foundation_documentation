@@ -6,6 +6,7 @@
 **Objective:** Eliminate silent false positives and establish high-confidence regression gates across Laravel + Flutter + Web for critical user journeys.
 **Complexity:** `big`  
 **Checkpoint policy:** section-by-section checkpoints before execution approval.
+**2026-03-18 update:** agenda mutation parity now scopes assertions to the canonical Home agenda request to avoid false negatives from auxiliary agenda fetches.
 
 ---
 
@@ -215,7 +216,7 @@ _Post-implementation adherence validation._
 | --- | --- | --- | --- | --- | --- |
 | D-T01 | Exception | Aligned | Preserve | `tools/flutter/web_app_tests/navigation.spec.js` via `bash tools/flutter/run_web_navigation_smoke.sh`, `tests/Feature/Events/AgendaAndEventsControllerTest.php`, `test/infrastructure/repositories/tenant_admin_events_repository_test.dart` | Layered evidence run is in progress; remaining blocker is cross-platform completeness (`D-T02`, mobile evidence). |
 | D-T02 | Exception | Aligned | Preserve | No mobile execution evidence captured in this checkpoint. | Compatibility cannot be declared complete without web+mobile (or explicit approved exclusion). |
-| D-T03 | Adherent | Aligned | Preserve | `tools/flutter/web_app_tests/navigation.spec.js` via `bash tools/flutter/run_web_navigation_smoke.sh mutation` (`tenant agenda UI state matches tenant agenda API payload` passed). | Origin query semantics (`origin_lat`/`origin_lng`) are now asserted and passing in real tenant navigation flow. |
+| D-T03 | Adherent | Aligned | Preserve | `tools/flutter/web_app_tests/navigation.spec.js` via `bash tools/flutter/run_web_navigation_smoke.sh mutation` (`tenant agenda UI state matches tenant agenda API payload` passed). | Origin query semantics (`origin_lat`/`origin_lng`) are asserted on the canonical Home query scope (`page_size=10`, `past_only=0`, `confirmed_only=0`) to prevent auxiliary-query false negatives. |
 | D-T04 | Adherent | Aligned | Preserve | `flutter-app/test/infrastructure/repositories/tenant_admin_events_repository_test.dart` (`fetchEventTypes` token path + mapping assertions). | Repository contract coverage added and passing. |
 | D-T05 | Adherent | Aligned | Preserve | `laravel-app/tests/Feature/Events/AgendaAndEventsControllerTest.php::testAgendaSearchFailsFastWhenAtlasSearchIsUnavailable`. | Fail-fast semantics verified in non-Atlas environment. |
 | D-T06 | Adherent | Aligned | Preserve | Changed test files audited: no `skip/only` bypasses or status-only-only assertions in touched paths. | Gate remains active for future changes. |
