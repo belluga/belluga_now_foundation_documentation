@@ -50,7 +50,7 @@ This separation prevents accidental “half-logged-in” behaviors that break at
 ## 4. Landing + Attribution Rules (V1)
 
 - Web landing pages must preserve the invite share `code` through install/open-app flows.
-- Conversions are attributed only when the backend receives the corresponding canonical events (e.g., authenticated `POST /api/v1/invites/share/{code}/accept`, invite acceptance, check-in).
+- Conversions are attributed only when the backend receives the corresponding canonical events (e.g., authenticated `POST /api/v1/invites/share/{code}/materialize`, canonical invite acceptance, check-in).
 - Web-auth account profile workspace actions are first-class and tracked separately (do not mix with tenant acquisition funnels).
 
 ### 4.0 Sanctum Requirement (Open API Clarification)
@@ -67,7 +67,7 @@ V1 acceptance is identity-first: **invite share code acceptance requires authent
 
 Constraints:
 - Unauthenticated `/invite?code=...` entry must render invite preview-first context and preserve the original deep link/query (`code`).
-- Accept/decline CTA on preview triggers authentication; after login/signup, the client resumes the original deep link and calls `POST /api/v1/invites/share/{code}/accept`.
+- Accept/decline CTA on preview triggers authentication; after login/signup, the client resumes the original deep link, calls `POST /api/v1/invites/share/{code}/materialize`, and only then exposes canonical `/invites/{invite_id}/accept|decline`.
 - Invite preview context is resolved by `GET /api/v1/invites/share/{code}` and must remain available without authenticated identity.
 - The accepted invite is credited to the inviter principal bound to that `code` (no multi-inviter selector on web).
 - Anonymous identity attempting acceptance must receive deterministic `401` (`auth_required`).
@@ -87,7 +87,7 @@ We will revisit the policy after Phase 8 (Gamification Spine) once we have suffi
 
 | Module | Impact |
 |--------|--------|
-| Invite & Social Loop | Web unauth shows invite preview context + deep links. Invite landing acceptance is preview-first then auth-gated (`/invite?code=...` -> auth CTA -> `/invites/share/{code}/accept`) with no anonymous acceptance path. Web-auth account profile workspace can view invite metrics and manage invite campaigns (post‑MVP); agenda-first acceptance remains app-only. |
+| Invite & Social Loop | Web unauth shows invite preview context + deep links. Invite landing acceptance is preview-first then auth-gated (`/invite?code=...` -> auth CTA -> `/invites/share/{code}/materialize` -> `/invites/{invite_id}/accept|decline`) with no anonymous acceptance path. Web-auth account profile workspace can view invite metrics and manage invite campaigns (post‑MVP); agenda-first acceptance remains app-only. |
 | Onboarding Flow | All onboarding steps (preferences, location, contact import) are app-only. Web unauth pages inform and route to app install/open. |
 | Task & Reminder | Push reminders point to app deep links. Web-auth account profile workspace can configure some notification preferences, but execution remains app-driven. |
 | Tenant Home Composer | Web unauth event pages deep link into app screens; do not replicate home composition logic on web in V1. |

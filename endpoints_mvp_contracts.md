@@ -299,6 +299,7 @@
 - Native clients must use `inviter_candidates[].invite_id` for explicit inviter selection when more than one candidate exists for a target.
 - Candidate identity must respect privacy policy; when identity is not allowed, backend should return anonymized summaries/counts instead of raw profile fields.
 - `occurrence_id` is required whenever runtime invite/attendance actions are occurrence-resolved; `null` is allowed only for single-occurrence or intentionally event-scoped compatibility flows.
+- `message` is optional author input. Feed/share payloads may return `""` when no custom invite message was provided.
 - VNext roadmap: add cursor pagination for deep invite feed scrolling while preserving page-based compatibility in MVP clients.
 
 ### `POST /invites`
@@ -381,13 +382,14 @@
   "credited_acceptance": true,
   "attendance_policy": "free_confirmation_only|paid_reservation_only|either",
   "next_step": "none|free_confirmation_created|reservation_required|commitment_choice_required|open_app_to_continue",
-  "closed_duplicate_invite_ids": ["string"],
+  "superseded_invite_ids": ["string"],
   "accepted_at": "2025-01-01T00:00:00Z?"
 }
 ```
 **Notes:**
 - This endpoint is the canonical native path after explicit inviter selection.
-- Backend must close duplicate pending invites for the same `(receiver,target_ref)` when acceptance succeeds.
+- Backend must supersede competing pending invites for the same `(receiver,target_ref)` when acceptance succeeds.
+- Superseded invites must use `status = superseded` with `supersession_reason = other_invite_credited`.
 - `next_step` is the canonical contract field for post-acceptance follow-up semantics across native and web acceptance flows.
 
 ### `POST /invites/{invite_id}/decline`
@@ -591,6 +593,7 @@
 - `inviter_principal.kind`: `user`, `account_profile`.
 - `invite.attendance_policy`: `free_confirmation_only`, `paid_reservation_only`, `either`.
 - `invite.inviter_candidates[].status`: `pending`.
+- `invite.message` may be an empty string when the share/direct invite was created without a custom message.
 
 **Not Found Contract**
 ```json
@@ -603,8 +606,8 @@
 ```
 - Returned with `404` for missing, expired, or invalid share-code previews.
 
-### `POST /invites/share/{code}/accept`
-**Purpose:** Accept invite from web landing by code.  
+### `POST /invites/share/{code}/materialize`
+**Purpose:** Create or reuse the canonical invite edge for the authenticated user before rendering invite decision UI.  
 **Request (headers/body):** Auth via Sanctum (**authenticated identity required**). Optional idempotency payload:
 ```json
 {
@@ -621,17 +624,16 @@
     "occurrence_id": "string?"
   },
   "inviter_principal": { "kind": "user|account_profile", "id": "string" },
-  "status": "accepted|already_accepted|expired",
+  "status": "pending|accepted|declined|superseded|expired",
   "attendance_policy": "free_confirmation_only|paid_reservation_only|either",
-  "next_step": "none|free_confirmation_created|open_app_to_continue",
-  "attribution_bound": true,
+  "credited_acceptance": false,
   "accepted_at": "2025-01-01T00:00:00Z?"
 }
 ```
 **Field Definitions**
 - `inviter_principal.kind`: `user`, `account_profile`.
-- `status`: `accepted`, `already_accepted`, `expired`.
-- `next_step`: `none`, `free_confirmation_created`, `open_app_to_continue`.
+- `status`: current canonical invite-edge status for the authenticated user after share-code materialization.
+- `credited_acceptance`: reflects the materialized edge state; it remains `false` while the invite is pending and only becomes `true` after standard `POST /invites/{invite_id}/accept`.
 
 **Auth Error Contract**
 ```json
@@ -647,10 +649,97 @@
 **Requirement:** Invite share links must carry `code` as a GET parameter.
 **Tracking Notes:**
 - `share_visit` is tracked separately from invites; it does **not** count as an accepted invite.
-- When an acceptance occurs via this endpoint, it **does** count as `invite_accepted` with `source = share_url`.
-- Web invite landing must resolve preview context via `GET /invites/share/{code}` and preserve original deep-link query (`/invite?code=...`) through login/signup until authenticated acceptance is completed.
-- Web acceptance is intentionally narrow: no inbox browsing, no multi-inviter selector, no direct invite send/decline, no presence confirmation, and no check-in.
-- If the resolved post-acceptance flow requires richer UX than auto-resolution, backend must return `next_step = open_app_to_continue`.
+- This endpoint materializes attribution only; it does **not** count as `invite_accepted`.
+- Web/app invite landing must resolve preview context via `GET /invites/share/{code}` and preserve original deep-link query (`/invite?code=...`) through login/signup until authenticated materialization is completed.
+- After materialization, all decisions must use the canonical invite mutation endpoints `POST /invites/{invite_id}/accept|decline`.
+- Web acceptance remains intentionally narrow: no inbox browsing, no multi-inviter selector, no direct invite send, no presence confirmation, and no check-in.
+
+### `POST /test-support/invites/bootstrap` (`stage` only, non-product)
+**Purpose:** Provision deterministic invite fixtures for deployed compatibility tests against `stage`.  
+**Auth:** Tenant resolution required plus dedicated test-support secret header. Must be unavailable outside `stage`.  
+**Headers:** `X-Test-Support-Key: <stage-secret>`  
+**Request (body):**
+```json
+{
+  "run_id": "string",
+  "scenario": "accept_pending|decline_pending|direct_confirmation_superseded|expired_share"
+}
+```
+**Response (minimum):**
+```json
+{
+  "run_id": "string",
+  "tenant": {
+    "slug": "guarappari",
+    "tenant_url": "https://guarappari.belluga.app",
+    "landlord_url": "https://belluga.app"
+  },
+  "mobile": {
+    "app_domain_identifier": "com.guarappari.app"
+  },
+  "inviter": {
+    "email": "string",
+    "password": "string"
+  },
+  "invitee": {
+    "email": "string",
+    "password": "string"
+  },
+  "signup_candidate": {
+    "name": "string",
+    "email": "string",
+    "password": "string"
+  },
+  "event_id": "string",
+  "share_code": "string",
+  "invite_url": "https://guarappari.belluga.app/invite?code=..."
+}
+```
+**Contract Notes**
+- Fixtures must be isolated by `run_id`.
+- Invite behavior setup must use canonical invite services/contracts; bootstrap must not bypass the invite contract with raw direct-mutation shortcuts.
+- This endpoint is internal test support and must never be enabled on `main`/production.
+
+### `GET /test-support/invites/state/{run_id}` (`stage` only, non-product)
+**Purpose:** Read deterministic invite fixture state after compatibility execution.  
+**Auth:** Tenant resolution required plus dedicated test-support secret header.  
+**Headers:** `X-Test-Support-Key: <stage-secret>`  
+**Response (minimum):**
+```json
+{
+  "run_id": "string",
+  "scenario": "string",
+  "event_id": "string",
+  "share_code": "string",
+  "invites": [
+    {
+      "invite_id": "string",
+      "receiver_user_id": "string",
+      "status": "pending|accepted|declined|superseded|expired",
+      "credited_acceptance": true,
+      "supersession_reason": "string?"
+    }
+  ]
+}
+```
+
+### `POST /test-support/invites/cleanup` (`stage` only, non-product)
+**Purpose:** Remove deterministic invite fixtures for a prior `run_id`.  
+**Auth:** Tenant resolution required plus dedicated test-support secret header.  
+**Headers:** `X-Test-Support-Key: <stage-secret>`  
+**Request (body):**
+```json
+{
+  "run_id": "string"
+}
+```
+**Response (minimum):**
+```json
+{
+  "run_id": "string",
+  "deleted": true
+}
+```
 
 #### Invite Flow & Friends Management (MVP)
 - **Primary invite paths:**
@@ -897,7 +986,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 - `thumb.type`: `image`.
 
 ### `GET /events/attendance/confirmed`
-**Purpose:** List backend-authoritative event confirmations (attendance commitments) for the current user.  
+**Purpose:** List backend-authoritative event confirmations for the current user.  
 **Response:**
 ```json
 {
@@ -909,7 +998,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 ```
 
 ### `POST /events/{event_id}/attendance/confirm`
-**Purpose:** Confirm presence for an event (free confirmation commitment).  
+**Purpose:** Confirm presence for an event (free attendance confirmation).  
 **Request:**
 ```json
 {
@@ -932,7 +1021,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 - `status`: `active`.
 
 ### `POST /events/{event_id}/attendance/unconfirm`
-**Purpose:** Cancel a previously active free confirmation commitment for an event.  
+**Purpose:** Cancel a previously active free attendance confirmation for an event.  
 **Request:**
 ```json
 {
@@ -1260,6 +1349,86 @@ Not returned by `/agenda` and `/events/{event_id}`:
 - `events.attendance.default_policy`: must belong to `allowed_policies`.
 - `events.attendance.allow_event_override`: when false, event creators inherit tenant default policy and cannot choose another value.
 - Capability rule: `paid_reservation_only` and `either` require paid reservation capability in the tenant/runtime; otherwise validation must reject them.
+
+### `PATCH /admin/api/v1/settings/values/app_links`
+**Purpose:** Update deep-link credentials only (no duplicated app identifiers).
+**Request (body):**
+```json
+{
+  "android": {
+    "sha256_cert_fingerprints": ["AA:BB:...:ZZ"]
+  },
+  "ios": {
+    "team_id": "ABCDE12345",
+    "paths": ["/invite*", "/convites*"]
+  }
+}
+```
+**Response (minimum):**
+```json
+{
+  "data": {
+    "android": {
+      "sha256_cert_fingerprints": ["AA:BB:...:ZZ"]
+    },
+    "ios": {
+      "team_id": "ABCDE12345",
+      "paths": ["/invite*", "/convites*"]
+    }
+  }
+}
+```
+
+### `GET /admin/api/v1/appdomains`
+**Purpose:** Fetch typed mobile app identifiers (resolver source-of-truth).
+**Response (minimum):**
+```json
+{
+  "app_domains": {
+    "android": "com.guarappari.app",
+    "ios": "com.guarappari.app"
+  }
+}
+```
+
+### `POST /admin/api/v1/appdomains`
+**Purpose:** Upsert one typed mobile app identifier.
+**Request (body):**
+```json
+{
+  "platform": "android|ios",
+  "identifier": "com.guarappari.app"
+}
+```
+**Response (minimum):**
+```json
+{
+  "message": "App domain identifier saved successfully.",
+  "app_domains": {
+    "android": "com.guarappari.app",
+    "ios": "com.guarappari.app"
+  }
+}
+```
+
+### `DELETE /admin/api/v1/appdomains`
+**Purpose:** Remove one typed mobile app identifier.
+**Request (body):**
+```json
+{
+  "platform": "android|ios"
+}
+```
+**Response (minimum):**
+```json
+{
+  "message": "App domain identifier removed successfully.",
+  "app_domains": {
+    "android": null,
+    "ios": "com.guarappari.app"
+  }
+}
+```
 
 ### Landlord equivalents (landlord host context)
 - `GET /admin/api/v1/settings/schema`

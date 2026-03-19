@@ -60,7 +60,7 @@ Governance constraints:
 * **Validation Rules:** Input fields rely on domain value objects (e.g., `EmailValue`, `PasswordValue`); invite codes enforce length 6–12; POI filter radius 1–50 km; schedule entries require ISO-8601 timestamps.
 * **Authorization Requirements:** Anonymous flow is limited to onboarding/bootstrap/read-only surfaces; invite share-code acceptance is identity-first (authenticated user required). Authenticated tenant scope unlocks home, schedule, map; account workspace scope exposes account/profile dashboards (future flavor); promoter scope requires explicit feature flag.
 * **Shared Services:** `UserLocationService` + `LocationRepository` live in the domain layer. Controllers (Map, Search, Invite Check-in) inject the service to request permission, seed initial filters, and pass coordinates to repositories. Repositories never call each other; services wrap a single repository per architecture principle §2.5.
-* **Task & Invite Hooks:** TaskStream integration is deferred post-MVP. Invite controllers must respect `Web-to-App Promotion Policy` by resolving preview-first context from `GET /invites/share/{code}`, then deep-linking/auth-round-tripping to `/invites/share/{code}/accept`; use `POST /contacts/import` instead of handling critical actions purely on the web.
+* **Task & Invite Hooks:** TaskStream integration is deferred post-MVP. Invite controllers must respect `Web-to-App Promotion Policy` by resolving preview-first context from `GET /invites/share/{code}`, then deep-linking/auth-round-tripping to `POST /invites/share/{code}/materialize` before exposing decision UI; once materialized, all decisions must use the canonical invite endpoints `POST /invites/{invite_id}/accept|decline`. Use `POST /contacts/import` instead of handling critical actions purely on the web.
 
 #### 2.1.1 Presentation DI Matrix (Canonical)
 
@@ -93,7 +93,7 @@ Executable guardrails for this contract:
 | `/invites/settings` | GET | Fetches invite limits and UX messaging settings. | Tenant | `InviteSettingsRequest` | `InviteSettingsResponse` |
 | `/invites/share` | POST | Creates or returns a share code for an event invite. | Tenant | `InviteShareRequest` | `InviteShareResponse` |
 | `/invites/share/{code}` | GET | Resolves invite preview payload for `/invite?code=...` before auth. | Tenant | n/a | `InviteSharePreviewResponse` |
-| `/invites/share/{code}/accept` | POST | Accepts a share invite for the current user (records source). | Tenant | `InviteShareAcceptRequest` | `InviteShareAcceptResponse` |
+| `/invites/share/{code}/materialize` | POST | Creates or reuses the canonical invite edge for the current authenticated user before decision UI is shown. | Tenant | `InviteShareMaterializeRequest` | `InviteShareMaterializeResponse` |
 | `/contacts/import` | POST | Imports hashed contacts for friend matching. | Tenant | `ContactsImportRequest` | `ContactsImportResponse` |
 | `/agenda` | GET | Provides schedule entries, suggested actions, and contextual CTAs. | Tenant | `AgendaRequest` | `AgendaResponse` |
 | `/events/stream` | GET | Streams event deltas for active filters. | Tenant | `EventStreamRequest` | SSE delta events |
@@ -232,10 +232,42 @@ Executable guardrails for this contract:
 
 #### 2.7 Testing Strategy
 
-* **Unit Tests:** 100 % coverage for controllers’ state transitions, repository mocks, and value object validations.
-* **Integration Tests:** AutoRoute navigation flows, DI bootstrap, and StreamValue-driven UI updates using `flutter_test`.
-* **Contract Tests:** Golden contract tests ensuring mock responses match schema definitions; SSE event shape validation.
-* **Performance Tests:** Frame budget tests for home, map, and schedule screens under 60 fps minimum using `integration_test`.
+The Flutter client must separate regression confidence from real compatibility evidence. A green fake/UI-flow suite is never enough to claim Flutter↔Laravel safety for invite-critical paths.
+
+**Canonical taxonomy**
+
+| Test Class | Scope | Counts as Real Compatibility? | Required Environment | Notes |
+| --- | --- | --- | --- | --- |
+| Unit / widget / controller tests | Value-object validation, controller state transitions, route-local UI behavior | No | local-safe + CI | Mandatory for fast regression feedback. |
+| UI-flow `integration_test` with fakes | AutoRoute/DI/StreamValue behavior under controlled doubles | No | local-safe + CI | These prove state-machine integrity only; they must never be reported as backend compatibility evidence. |
+| Repository / decoder contract tests | Flutter transport boundary (`preview`, `materialize`, `accept`, `decline`, malformed payloads, terminal states) | No | local-safe + CI | Required whenever invite payload shape changes. |
+| Real Flutter runtime compatibility suite | Real backend, real repositories, real controller/runtime behavior for invite critical paths | Yes | `stage` only | Must run against the deployed `stage` backend, not mocks or local doubles. |
+| Web/browser compatibility suite | Invite landing, preview, auth redirect preservation, fallback behavior, `.well-known`/deeplink artifacts | Yes for browser boundary | `stage` only for mutation; `readonly` can run on `stage|main` | Executed through `tools/flutter/run_web_navigation_smoke.sh`. |
+| OS/device deep-link validation | Android App Links / iOS Universal Links open behavior | Manual evidence only | physical device/simulator | Never replaced by browser or repository tests. |
+
+**Invite-critical coverage baseline**
+
+Invite flows must be proven in layers:
+- Laravel feature/package tests own canonical invite business rules.
+- Flutter repository/decoder tests own payload semantics and drift detection.
+- Flutter controller/widget tests own state-machine and navigation regressions.
+- `stage` runtime/browser suites own real compatibility proof.
+
+**Environment gates**
+
+| Environment | Required Invite Gates | Claim Allowed |
+| --- | --- | --- |
+| `dev` | Laravel local-safe invite tests + Flutter unit/widget/repository tests | Contract-safe locally, but not real deployed compatibility |
+| `stage` | Real Flutter runtime invite suite + Playwright/browser invite suite | Real deployed compatibility for invite critical paths |
+| `main` | Read-only smoke only | Production-readiness smoke, never mutation-backed compatibility proof |
+
+**Execution honesty**
+
+- A required invite gate that did not run is `blocked`, never `passed`.
+- Flutter invite tests that use fake repositories, fake routers, or fake controllers must be labeled as regression coverage, not end-to-end or compatibility coverage.
+- Stage invite compatibility must use deterministic fixtures/test support. It must not depend on shared manual data.
+- Web invite validation proves host/domain tenant resolution.
+- Flutter runtime invite validation proves mobile/app-domain tenant resolution.
 
 ## 3. Cross-Module Considerations
 

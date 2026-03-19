@@ -55,7 +55,7 @@ Rationale: keep high-value actions in the app to ensure identity, location capab
 - [ ] ⚪ Web must redirect to:
   - [ ] ⚪ App deep link (if installed)
   - [ ] ⚪ App store (if not installed), preserving the `code` for post-install attribution
-- [ ] ⚪ If later we introduce post-install attribution binding beyond `/invites/share/{code}/accept`, it must be specified in a separate contract update; MVP does not rely on `/consume`
+- [ ] ⚪ If later we introduce post-install attribution binding beyond `/invites/share/{code}/materialize` + canonical `/invites/{invite_id}/accept|decline`, it must be specified in a separate contract update; MVP does not rely on `/consume`
 
 ---
 

@@ -89,9 +89,11 @@ If a duplicate attempt occurs:
 When a user accepts via invites, exactly **one** invite becomes the credited acceptance for that `(receiver_user_id, event_id, occurrence_id | null)` target.
 
 - UI must force explicit selection (“Aceitar convite de …” opens a selector dialog); **no default inviter selection** is applied.
-- On acceptance, the selected invite transitions to `accepted` with `credited_acceptance=true`.
-- All other invites for the same `(receiver_user_id, event_id, occurrence_id | null)` target transition to `closed_duplicate` (still queryable for audit and reporting, but not counted as accepted conversions).
+- On acceptance, the selected invite transitions to `accepted` with `credited_acceptance=true`. This flag marks which invite edge received attribution for the authenticated attendance confirmation; it is not a second attendance record.
+- All other invites for the same `(receiver_user_id, event_id, occurrence_id | null)` target transition to `superseded` with `supersession_reason=other_invite_credited` (still queryable for audit and reporting, but not counted as accepted conversions).
+- If the receiver confirms attendance directly for the same target without selecting a pending invite, pending invites for that target transition to `superseded` with `supersession_reason=direct_confirmation`.
 - Event-scoped compatibility flows must resolve the effective target reference before credit is assigned so multi-occurrence events never collapse unrelated attendance intents into one conversion.
+- Generic event confirmation surfaces must not silently choose a winning inviter when more than one pending inviter exists for the same target; attribution requires explicit selection.
 
 ### D) Backend-Owned Limits (Tenant Settings + Enforcement)
 Invite limits are configured and enforced by the backend. Flutter:
@@ -118,14 +120,12 @@ The invite stack must be modeled as three separate axes:
 1. **Invite lifecycle (social decision)**
    - `invite.created` is the creation event, not a persisted status.
    - A newly created invite starts with `status = pending`.
-   - Invite status then evolves independently: `pending -> accepted | declined | expired` (plus audit/control variants such as `closed_duplicate`, `suppressed`).
+   - Invite status then evolves independently: `pending -> accepted | declined | expired` (plus audit/control variants such as `superseded`, `suppressed`).
 
-2. **Attendance commitment lifecycle (planned attendance / held spot)**
+2. **Attendance confirmation / reservation lifecycle**
    - Invite acceptance is a **social conversion**, not the entire attendance state machine.
-   - Canonical commitment is modeled separately as `attendance_commitment`.
-   - `attendance_commitment.kind` is `free_confirmation | paid_reservation`.
-   - `attendance_commitment.status` is `active | canceled | expired | fulfilled`.
-   - Commitment kind is determined by the event/occurrence attendance policy, not simply by whether the event is paid.
+   - Canonical free attendance write is modeled as attendance confirmation; paid attendance follows reservation lifecycle.
+   - Attendance mode is determined by the event/occurrence attendance policy, not simply by whether the event is paid.
    - Approved policy baseline: `free_confirmation_only | paid_reservation_only | either`.
    - Attendance policy governance is tenant-owned under the tenant `events` settings namespace. Account profiles creating events inside a tenant are limited to the tenant-approved policy boundaries.
    - Event write baseline: the event chooses one `attendance_policy` inside the tenant boundaries and may optionally enable `allow_occurrence_policy_override`.
@@ -137,15 +137,15 @@ The invite stack must be modeled as three separate axes:
    - If tenant settings disable event override, event creators inherit the tenant default policy. If override is allowed, the event may choose any policy inside `allowed_policies`.
    - If the event sets `allow_occurrence_policy_override=true`, occurrences may choose their own policy inside tenant `allowed_policies`; otherwise occurrences inherit the event policy.
    - `paid_reservation_only` and `either` require the tenant/runtime to support the paid reservation capability; otherwise those policies are invalid at both settings and event-write time.
-   - Canonical commitment ownership belongs to an adjacent Participation/Attendance domain. Invites may trigger or project commitment state for UX, but it does not own commitment source-of-truth.
-   - `free_confirmation` and `paid_reservation` are mutually exclusive for the same user + event/occurrence unless an explicit upgrade/migration rule is introduced.
-   - Acceptance-to-commitment transition rule:
-     - `free_confirmation_only`: accepting an invite records the social conversion and should auto-create `free_confirmation` unless an active commitment already exists.
+   - Canonical attendance-write ownership belongs to an adjacent Participation/Attendance domain. Invites may trigger or project confirmation/reservation state for UX, but they do not own that source-of-truth.
+   - Free attendance confirmation and paid reservation are mutually exclusive for the same user + event/occurrence unless an explicit upgrade/migration rule is introduced.
+   - Acceptance-to-attendance transition rule:
+     - `free_confirmation_only`: accepting an invite records the social conversion and the authenticated attendance confirmation unless the user is already confirmed.
      - `paid_reservation_only`: accepting an invite records the social conversion only; `paid_reservation` exists only after the reservation/payment flow succeeds.
-     - `either`: accepting an invite records the social conversion first, then the system must resolve `free_confirmation` vs `paid_reservation` through explicit user choice or a backend default. This path exists only when the resolved event/occurrence policy is `either`.
+     - `either`: accepting an invite records the social conversion first, then the system must resolve direct confirmation vs `paid_reservation` through explicit user choice or a backend default. This path exists only when the resolved event/occurrence policy is `either`.
 
 3. **Check-in lifecycle (arrival proof)**
-   - Check-in is separate from both invite acceptance and attendance commitment.
+   - Check-in is separate from both invite acceptance and attendance confirmation/reservation.
    - It is an on-site proof action (`geofence | qr | staff_manual | admission-assisted`).
    - Successful check-in confirms real attendance; lack of check-in does not automatically prove absence.
 
@@ -164,11 +164,11 @@ These decisions are now part of the module baseline and should be treated as can
 - [x] 🟢 `INV-PD-02` Attendance policy contract is approved as `free_confirmation_only | paid_reservation_only | either`.
   - Approved direction: the event chooses one policy within tenant-owned `settings.events.attendance` boundaries and may allow occurrences to override it while still respecting those boundaries.
 
-- [x] 🟢 `INV-PD-03` Commitment ownership boundary belongs to an adjacent Participation/Attendance domain, not to Invites, Events, or Ticketing.
-  - Approved direction: Invites owns social conversion and attribution; Participation/Attendance owns neutral commitment state; Ticketing may fulfill paid flows without becoming the canonical owner of commitment identity.
+- [x] 🟢 `INV-PD-03` Attendance-write ownership boundary belongs to an adjacent Participation/Attendance domain, not to Invites, Events, or Ticketing.
+  - Approved direction: Invites owns social conversion and attribution; Participation/Attendance owns attendance confirmation/reservation state; Ticketing may fulfill paid flows without becoming the canonical owner of attendance identity.
 
-- [x] 🟢 `INV-PD-04` Acceptance-to-commitment transition follows attendance policy.
-  - Approved direction: acceptance always records social conversion first; policy then decides whether the system auto-creates `free_confirmation`, requires successful `paid_reservation`, or asks the user/default policy to choose in `either` mode.
+- [x] 🟢 `INV-PD-04` Acceptance-to-attendance transition follows attendance policy.
+  - Approved direction: acceptance always records social conversion first; policy then decides whether the system records direct attendance confirmation, requires successful `paid_reservation`, or asks the user/default policy to choose in `either` mode.
 
 ## 2.4 Resolved Remaining Conceptual Decisions
 
@@ -178,13 +178,16 @@ These decisions are now approved and complete the invite-module baseline. Friend
   - Approved direction: native app surfaces use grouped invite cards by target, each exposing stable `inviter_candidates[]` with `invite_id`. Direct native mutations are `POST /invites` (send), `POST /invites/{invite_id}/accept`, and `POST /invites/{invite_id}/decline`. Explicit inviter selection is mandatory whenever a target has multiple candidates.
 
 - [x] 🟢 `INV-PD-06` Web exception boundary remains narrow and code-bound.
-  - Approved direction: web may open invite landing, accept by a single `code`, and re-share only the same target externally after acceptance. Web does not expose inbox/feed browsing, multi-inviter selection, direct invite send/decline, agenda acceptance, commitment-choice UX, presence confirmation, or check-in. If acceptance requires a richer next step than auto-resolution, web must hand off to the app.
+  - Approved direction: web may open invite landing, accept by a single `code`, and re-share only the same target externally after acceptance. Web does not expose inbox/feed browsing, multi-inviter selection, direct invite send/decline, agenda acceptance, confirmation/reservation-choice UX, presence confirmation, or check-in. If acceptance requires a richer next step than auto-resolution, web must hand off to the app.
 
 - [x] 🟢 `INV-PD-07` Post-event attendance outcome policy is default-`unconfirmed`, explicit-`no_show`.
-  - Approved direction: `unconfirmed` is always the default unresolved post-event outcome without successful check-in. `no_show` may be assigned only by explicit policy or privileged operator action, typically when an active attendance commitment existed and the event closed without confirmed attendance. `manually_confirmed` is a privileged correction/audit outcome and never inferred automatically.
+  - Approved direction: `unconfirmed` is always the default unresolved post-event outcome without successful check-in. `no_show` may be assigned only by explicit policy or privileged operator action, typically when direct attendance confirmation or paid reservation existed and the event closed without confirmed attendance. `manually_confirmed` is a privileged correction/audit outcome and never inferred automatically.
 
 - [x] 🟢 `INV-PD-08` Social metric semantics preserve the project north star.
-  - Approved direction: north-star metric 1 is `credited_invite_acceptances` from canonical `invite.accepted`; north-star metric 2 remains exposed as `presences_confirmed`, but is incremented by successful activation of `attendance_commitment` regardless of whether the underlying kind is `free_confirmation` or `paid_reservation`. `check_ins`, `attendance_outcomes`, `invite_sent`, `share_visits`, and views remain secondary/supporting metrics.
+  - Approved direction: north-star metric 1 is `credited_invite_acceptances` from canonical `invite.accepted`; north-star metric 2 remains exposed as `presences_confirmed`, but is incremented by successful attendance confirmation or paid reservation activation. `check_ins`, `attendance_outcomes`, `invite_sent`, `share_visits`, and views remain secondary/supporting metrics.
+
+- [x] 🟢 `INV-PD-10` Invite terminal semantics distinguish supersession from suppression.
+  - Approved direction: `superseded` is business-outcome closure and must carry explicit `supersession_reason` (`other_invite_credited`, `direct_confirmation`); `suppressed` remains reserved for policy/governance closure such as opt-out, abuse controls, or administrative blocking.
 
 - [x] 🟢 `INV-PD-09` Privacy exposure policy follows viewer-scoped exposure with aggregate fallback.
   - Approved direction: `public` users may appear as `full_profile` in permitted invite/social-proof surfaces. `friends_only` users may appear as `full_profile` only when the target has explicitly approved the viewer through `favorite_edge(target -> viewer)`; reciprocal favorites are the product-level `friend` label, but not a separate visibility primitive. Unilateral contact matches and direct invite counterparties may receive at most `capped_profile` unless a target-owned favorite already grants `full_profile`. `capped_profile` excludes avatar/photo and specific accepted-event details; outside those relationships, users contribute only anonymized/aggregate counts.
@@ -230,9 +233,9 @@ These decisions are now approved and complete the invite-module baseline. Friend
   "updated_at": "Date"
 }
 ```
-`status` ∈ {`pending`, `viewed`, `accepted`, `declined`, `closed_duplicate`, `expired`, `snoozed`, `suppressed`}. `channel` includes `whatsapp`, `in_app`, `qr`, `link`. `auto_expire_at` is derived from the related event/offer end time so invitations automatically close when the underlying experience has passed. `plan_charge_bucket` ties each invite to the account plan quota bucket used by billing (e.g., `core`, `premium_boost`), enabling per-plan limits.
+`status` ∈ {`pending`, `viewed`, `accepted`, `declined`, `superseded`, `expired`, `snoozed`, `suppressed`}. `channel` includes `whatsapp`, `in_app`, `qr`, `link`. `auto_expire_at` is derived from the related event/offer end time so invitations automatically close when the underlying experience has passed. `plan_charge_bucket` ties each invite to the account plan quota bucket used by billing (e.g., `core`, `premium_boost`), enabling per-plan limits.
 
-Invite domain owns the social decision state only. Canonical attendance commitment (`free_confirmation | paid_reservation`), check-in, and post-event attendance outcome live outside `invite_edges`. Invite feeds may project commitment or attendance summaries for UX, but those projections are not source-of-truth.
+Invite domain owns the social decision state only. Canonical attendance confirmation / reservation, check-in, and post-event attendance outcome live outside `invite_edges`. Invite feeds may project confirmation/reservation or attendance summaries for UX, but those projections are not source-of-truth.
 
 **V1 additional fields (required):**
 ```json
@@ -240,11 +243,13 @@ Invite domain owns the social decision state only. Canonical attendance commitme
   "inviter_principal": { "kind": "user|account_profile", "id": "ObjectId()" },
   "account_profile_id": "ObjectId() | null",
   "issued_by_user_id": "ObjectId() | null",
-  "credited_acceptance": "Boolean"
+  "credited_acceptance": "Boolean",
+  "supersession_reason": "null|other_invite_credited|direct_confirmation"
 }
 ```
 `occurrence_id` is required for multi-occurrence runtime targets and remains nullable only for single-occurrence/event-scoped compatibility flows.
 `account_profile_id` is required when `inviter_principal.kind = account_profile` and must match the profile issuing the invite.
+`supersession_reason` is set only when `status = superseded`. `suppressed` remains reserved for policy/governance closure.
 
 ### 3.2 `invite_actions`
 Captures all user actions performed on an invite entry.
@@ -301,11 +306,11 @@ To enforce both anti-spam policies and account plan limits, the module maintains
 | `/invites` | POST | Creates direct invites for one or more recipients on a canonical invite target. |
 | `/invites/stream` | GET | Streams invite deltas for live updates (created/updated/deleted). |
 | `/invites/settings` | GET | Returns backend-owned tenant settings relevant to invite quotas, anti-spam, and client UX messaging. |
-| `/invites/{invite_id}/accept` | POST | Accepts the selected invite edge in native app and returns commitment next-step metadata. |
+| `/invites/{invite_id}/accept` | POST | Accepts the selected invite edge in native app and returns attendance next-step metadata. |
 | `/invites/{invite_id}/decline` | POST | Declines the selected invite edge in native app without implicitly declining other inviter candidates. |
 | `/invites/share` | POST | Creates (or returns) an external share code that attributes installs/signups to an inviter principal for a specific invite target. |
 | `/invites/share/{code}` | GET | Resolves share-code invite preview payload for unauthenticated/authenticated invite landing surfaces. |
-| `/invites/share/{code}/accept` | POST | Accepts a share invite for the current user and emits `invite.accepted`. |
+| `/invites/share/{code}/materialize` | POST | Creates or reuses the canonical invite edge for the authenticated user before any accept/decline action. |
 | `/contacts/import` | POST | Imports hashed contacts for friend matching and invite discovery. |
 
 **Deferred (post-MVP) endpoints:** `/invites/share/{code}/consume`, `/invites/{inviteCode}/resend`, `/invites/{inviteCode}/snooze`, `/invites/{inviteCode}/suppress-event`, `/invites/{inviteCode}/accept/import-contacts`, `/invites/{inviteCode}/attendance`.
@@ -317,7 +322,7 @@ Native app is the full-fidelity invite client.
 - `GET /invites` returns grouped invite cards by canonical target, not a flat one-row-per-edge list.
 - Each grouped card must include stable `inviter_candidates[]` entries with `invite_id` so the app can enforce explicit inviter selection when multiple pending inviters exist for the same target.
 - `POST /invites` is the native direct-send mutation for existing users or matched contacts.
-- `POST /invites/{invite_id}/accept` accepts the selected invite edge, closes duplicates for the same `(receiver,target_ref)`, and returns the resolved `attendance_policy` plus next-step metadata (`none`, `free_confirmation_created`, `reservation_required`, `commitment_choice_required`, or `open_app_to_continue`).
+- `POST /invites/{invite_id}/accept` accepts the selected invite edge, supersedes competing pending invites for the same `(receiver,target_ref)`, and returns the resolved `attendance_policy` plus next-step metadata (`none`, `free_confirmation_created`, `reservation_required`, `commitment_choice_required`, or `open_app_to_continue`).
 - `POST /invites/{invite_id}/decline` declines only the selected edge; it does not silently decline other pending inviter candidates for the same target.
 - Native app remains the trusted surface for grouped invite selection, invite inbox management, and any richer follow-up action beyond narrow web exceptions.
 
@@ -345,40 +350,64 @@ V1 requires tracking external shares (WhatsApp/Instagram/etc.) for **new users**
 
 **Key requirements:**
 - `code` resolves to a single inviter principal + canonical invite target.
-- Backend records **share visits** and **invite acceptance**; acceptance is triggered by `/invites/share/{code}/accept` (source = `share_url`).
+- Backend records **share visits** and materializes a canonical invite edge from the share code before any decision; after materialization, acceptance/decline use the standard `/invites/{invite_id}/accept|decline` contract (source = `share_url` for the materialized edge).
 - Backend must prevent duplicate invite issuance to the same receiver+target+inviter principal (see Uniqueness rule); the share code is attribution, not a loophole to spam.
 
 ### 4.4 Web Acceptance + Same-Event Re-Share (V1 Identity-First)
 
-V1 supports web acceptance only under identity-first constraints:
+V1 supports web preview/materialization only under identity-first constraints:
 - Web invite landing must resolve preview context from a single invite/share `code` (invite landing) without forcing immediate login.
-- Accept/decline actions on that preview require authentication and resume the original `/invite?code=...` context after login/signup.
+- Accept/decline actions on that preview require authentication, resume the original `/invite?code=...` context after login/signup, and materialize the canonical invite edge before any decision is offered.
 - The credited inviter is the inviter principal bound to that code (no multi-inviter selection on web).
+- After materialization, any acceptance/decline must run through the standard invite mutation endpoints using the materialized `invite_id`.
 - After acceptance, web may allow the new attendee to **re-share only the same event** externally (WhatsApp/Instagram/etc.), subject to strict backend limits.
 - Web must not expose grouped invite inbox browsing, direct invite send/decline, agenda-first acceptance, presence confirmation, or check-in.
-- If the resolved next step requires richer fulfillment than auto-resolution (for example, commitment choice or paid reservation handling), web must return the user to the app instead of expanding the web flow.
+- If the resolved next step requires richer fulfillment than auto-resolution (for example, confirmation/reservation choice or paid reservation handling), web must return the user to the app instead of expanding the web flow.
 
 This enables viral growth while keeping app-only “agenda-first acceptance” as the trusted conversion surface.
+
+### 4.4.A Compatibility Assurance Baseline
+
+Invite confidence is intentionally layered:
+- canonical business semantics are enforced in Laravel feature/package tests;
+- Flutter controller/widget and UI-flow tests protect the invite state machine, but do not count as real backend compatibility when they use doubles;
+- Flutter repository/decoder tests own payload-shape and malformed/terminal transport coverage;
+- deployed compatibility is proven only in `stage`, using deterministic invite fixtures plus:
+  - Flutter runtime tests for mobile/app-domain resolution;
+  - browser tests for host/domain web entry, preview, auth redirect, and fallback behavior.
+
+Testing implications:
+- fake `integration_test` coverage must never be described as end-to-end invite safety;
+- `stage` may run mutation-backed invite compatibility because it is the highest lane where mutation is allowed;
+- `main` remains read-only smoke only;
+- web invite validation must prove host-based tenant resolution;
+- Flutter runtime invite validation must prove app/mobile tenant resolution (`X-App-Domain` / package identifier path).
+
+Stage-only invite test support is allowed for this purpose, provided all of the following remain true:
+- it is guarded by environment + secret + tenant boundary;
+- it is deterministic and run-id isolated;
+- it uses canonical invite services/contracts for invite behavior setup rather than ad-hoc direct invite mutations;
+- it is unavailable outside the intended `stage` boundary.
 
 #### Sanctum Requirement (Identity-First)
 
 Even on web “unauthenticated” landings, the canonical API is Sanctum-validated by default:
 
 - Web may mint or resume an anonymous identity via `POST /anonymous/identities` for read-only/allowed calls.
-- Invite share-code acceptance must use authenticated Sanctum identity; anonymous acceptance attempts must return deterministic `401 auth_required`.
-- Unauthenticated entry via `/invite?code=...` must render invite-first preview, preserve `code` through login/signup, and resume the original deep link before calling acceptance.
+- Invite share-code materialization must use authenticated Sanctum identity; anonymous attempts must return deterministic `401 auth_required`.
+- Unauthenticated entry via `/invite?code=...` must render invite-first preview, preserve `code` through login/signup, and resume the original deep link before materializing the invite edge.
 - Flutter/web invite landing compatibility is anchored on `/invite?code=...`; the client must preserve `code` through onboarding/install bootstrap so attribution is bound once identity is available.
 
 **Events**
-* Outbound: `invite.created`, `invite.accepted`, `invite.declined`, `invite.accepted.contacts-import-triggered`, `invite.fulfillment.step-required`, `invite.fulfillment.step-completed`, `invite.attendance.confirmed`, `invite.attendance.unconfirmed`, `invite.attendance.no-show`, `invite.attendance.geo-confirmed`, `invite.expired`, `invite.reward-unlocked`, `invite.rate-limited`, `invite.plan-limit-reached`, `invite.snoozed`, `invite.suppressed`.
+* Outbound: `invite.created`, `invite.accepted`, `invite.declined`, `invite.superseded`, `invite.accepted.contacts-import-triggered`, `invite.fulfillment.step-required`, `invite.fulfillment.step-completed`, `invite.attendance.confirmed`, `invite.attendance.unconfirmed`, `invite.attendance.no-show`, `invite.attendance.geo-confirmed`, `invite.expired`, `invite.reward-unlocked`, `invite.rate-limited`, `invite.plan-limit-reached`, `invite.snoozed`, `invite.suppressed`.
 * Inbound: `user.profile.updated` (refresh resumes), `agenda.action.completed` (to suggest invites tied to actions), `participation.presence_confirmation.recorded`, `participation.check_in.recorded`, `insights.rank.changed`, `task.completed` (so we can auto-unsnooze when reminders convert).
-* Analytics/CRM Integration: Every fulfillment intent (`invite.fulfillment.step-required`, e.g., pay deposit, upload document) is mirrored to the Account Analytics/CRM module along with contact info so account operators can track outstanding requirements. When tasks complete, the analytics module receives `invite.fulfillment.step-completed` events (emitted by Transaction Bridge or Task & Reminder). Attendance-related projections are driven by commitment/check-in inputs; `invite.attendance.unconfirmed` is the default unresolved post-event state, while `invite.attendance.no-show` should be explicit/policy-driven rather than automatic. These events tie back to account KPIs and invite reward logic.
-* Task & Reminder Integration: `invite.snoozed` dispatches a `task.intent` payload `{ source_type: "invite", invite_id, reminder_type: "invite_followup" }` so MOD-306 can schedule pushes. When a user selects “Decide later,” remind them before the invite expires. As the event time approaches, the invite module emits a `task.intent` with `reminder_type: "invite_checkin"` targeting the invitee to complete the relevant attendance flow. That reminder may deep link to an attendance-commitment or check-in surface depending on policy. When the tenant shares venue coordinates, the participation/check-in flow may request passive location evidence; a successful geo-backed check-in should emit canonical participation events first, after which the invite module may project `invite.attendance.geo-confirmed` for social/account analytics. (Flutter reference: `native_geofence` package can be used during mock/prototype stages to monitor entry/exit events while keeping the invite module decoupled from the specific plugin.) Future enhancement: once we unlock account-profile-to-guest messaging, accepted invitees will be able to opt into push channels—or even lightweight chat rooms—so account profiles and invite trees can coordinate in real time. That capability is deferred beyond v1 and will reuse the Task/Reminder notification rails with additional consent checks.
+* Analytics/CRM Integration: Every fulfillment intent (`invite.fulfillment.step-required`, e.g., pay deposit, upload document) is mirrored to the Account Analytics/CRM module along with contact info so account operators can track outstanding requirements. When tasks complete, the analytics module receives `invite.fulfillment.step-completed` events (emitted by Transaction Bridge or Task & Reminder). Attendance-related projections are driven by confirmation/reservation/check-in inputs; `invite.attendance.unconfirmed` is the default unresolved post-event state, while `invite.attendance.no-show` should be explicit/policy-driven rather than automatic. These events tie back to account KPIs and invite reward logic.
+* Task & Reminder Integration: `invite.snoozed` dispatches a `task.intent` payload `{ source_type: "invite", invite_id, reminder_type: "invite_followup" }` so MOD-306 can schedule pushes. When a user selects “Decide later,” remind them before the invite expires. As the event time approaches, the invite module emits a `task.intent` with `reminder_type: "invite_checkin"` targeting the invitee to complete the relevant attendance flow. That reminder may deep link to an attendance-confirmation, reservation, or check-in surface depending on policy. When the tenant shares venue coordinates, the participation/check-in flow may request passive location evidence; a successful geo-backed check-in should emit canonical participation events first, after which the invite module may project `invite.attendance.geo-confirmed` for social/account analytics. (Flutter reference: `native_geofence` package can be used during mock/prototype stages to monitor entry/exit events while keeping the invite module decoupled from the specific plugin.) Future enhancement: once we unlock account-profile-to-guest messaging, accepted invitees will be able to opt into push channels—or even lightweight chat rooms—so account profiles and invite trees can coordinate in real time. That capability is deferred beyond v1 and will reuse the Task/Reminder notification rails with additional consent checks.
 
 ### 4.5 Metric / Privacy / Workspace Baseline
 
 - North-star metrics remain `credited_invite_acceptances` + `presences_confirmed`.
-- `presences_confirmed` is the product/analytics label for successful attendance-commitment activation, regardless of whether the underlying commitment kind is `free_confirmation` or `paid_reservation`.
+- `presences_confirmed` is the product/analytics label for successful attendance confirmation or paid reservation activation, regardless of which attendance path produced it.
 - `check_ins`, `attendance_outcomes`, `invite_sent`, `share_visits`, and content views are secondary metrics and must not replace the north star in rankings or “Em Alta” logic.
 - Future micro-conversions attributable to an invite tree (for example `check_in.recorded`, `promo.requested`, `purchase.completed`) must be modeled as append-only activity facts with bounded lineage snapshots and consumed through indexed projections; they must not require recursive invite-tree reads on hot request paths.
 - `public` users may appear as `full_profile` in allowed social-proof surfaces.
@@ -411,10 +440,10 @@ Even on web “unauthenticated” landings, the canonical API is Sanctum-validat
 | `INV-02` | Approved | Duplicate invite prevention is strict by `(tenant,target_ref,receiver,inviter_principal)` key. | Prevents spam/metric inflation. | Section `2.1 B` |
 | `INV-03` | Approved | Exactly one credited acceptance exists per `(receiver,target_ref)`; explicit selection is required. | Deterministic conversion and gamification metrics. | Section `2.1 C` |
 | `INV-04` | Approved | Quotas/limits are backend-owned and enforceable via `429`. | Client cannot bypass rate/plan controls. | Section `2.1 D` |
-| `INV-05` | Approved | Canonical invite target identity is `event_id + occurrence_id | null`, with `occurrence_id` required for multi-occurrence runtime actions. | Stabilizes uniqueness, credited acceptance, commitment lookup, mission scope, and Mongo index design. | Sections `2.1 B`, `2.1 C`, `3.1`, `4.3` |
+| `INV-05` | Approved | Canonical invite target identity is `event_id + occurrence_id | null`, with `occurrence_id` required for multi-occurrence runtime actions. | Stabilizes uniqueness, credited acceptance, attendance lookup, mission scope, and Mongo index design. | Sections `2.1 B`, `2.1 C`, `3.1`, `4.3` |
 | `INV-06` | Approved | Attendance policy enum is `free_confirmation_only | paid_reservation_only | either`; the event chooses one policy and occurrences may override only when the event explicitly allows it. | Gives all invite/attendance flows a single policy vocabulary with a clear event-to-occurrence hierarchy. | Section `2.2` |
-| `INV-07` | Approved | `attendance_commitment` is owned by an adjacent Participation/Attendance domain, not by Invites, Events, or Ticketing. | Keeps social conversion, attendance intent, and paid fulfillment cleanly separated. | Sections `2.2`, `3.1` |
-| `INV-08` | Approved | Invite acceptance always records social conversion first; commitment creation then follows attendance policy. | Prevents conversion metrics from being coupled to reservation/check-in implementation details. | Section `2.2` |
+| `INV-07` | Approved | Attendance confirmation / reservation state is owned by an adjacent Participation/Attendance domain, not by Invites, Events, or Ticketing. | Keeps social conversion, attendance write ownership, and paid fulfillment cleanly separated. | Sections `2.2`, `3.1` |
+| `INV-08` | Approved | Invite acceptance always records social conversion first; attendance confirmation or reservation resolution then follows attendance policy. | Prevents conversion metrics from being coupled to reservation/check-in implementation details. | Section `2.2` |
 | `INV-09` | Approved | Attendance policy governance is tenant-owned through `settings.events.attendance`; account-profile event creators may only choose policies inside tenant-approved boundaries. | Keeps event creation aligned with tenant business rules, capabilities, and monetization constraints. | Section `2.2` |
 | `INV-10` | Approved | Native app owns grouped invite selection and uses `POST /invites`, `POST /invites/{invite_id}/accept`, and `POST /invites/{invite_id}/decline` as the canonical direct invite mutations. | Stabilizes backend/client contract for direct invite send and explicit inviter selection. | Sections `2.4`, `4`, `4.1` |
 | `INV-11` | Approved | Web invite behavior is code-bound and narrow: accept by code, same-target re-share, then hand off to app for anything richer. | Prevents web from becoming a divergent second invite client. | Sections `2.4`, `4.4` |
@@ -425,6 +454,7 @@ Even on web “unauthenticated” landings, the canonical API is Sanctum-validat
 | `INV-16` | Approved | V1 Mongo read-model baseline is `invite_feed_projection` + `principal_social_metrics`; richer projections are evidence-driven additions. | Prevents premature read-model sprawl. | Section `2.4` |
 | `INV-17` | Approved | Challenges/missions consume invite and attendance behaviors from outside the invite module via `belluga_missions`. | Keeps reward logic decoupled from invite ownership. | Sections `2.4`, `4.5` |
 | `INV-18` | Approved | Future invite-tree result attribution must use bounded lineage snapshots + append-only activity facts + indexed aggregate projections, never request-path graph traversal. | Opens the door for 1st/2nd-level micro-conversion analytics while staying MongoDB-friendly. | Sections `2.5`, `4.5` |
+| `INV-19` | Approved | Invite terminal semantics distinguish `superseded` (business-outcome closure) from `suppressed` (policy/governance closure), with explicit `supersession_reason` when superseded. | Prevents attribution ambiguity and keeps policy blocking separate from causal loss. | Sections `2.1 C`, `2.2`, `3.1` |
 
 ## 8. Tactical TODO Promotion Ledger
 
