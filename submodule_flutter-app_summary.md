@@ -31,7 +31,7 @@
 * **Key Patterns:**
     * Controller-owned state via `StreamValue`; widgets act as (mostly) pure renderers.
     * Repository contracts live in `lib/domain/repositories/*`; implementations in `lib/infrastructure/repositories/*`.
-    * DAL split between DTOs (`lib/infrastructure/dal/dto/*`) and backend adapters (`lib/infrastructure/dal/dao/*`), with mocks as the default data source.
+    * DAL split between DTOs (`lib/infrastructure/dal/dto/*`) and backend adapters (`lib/infrastructure/dal/dao/*`), with Laravel adapters as the runtime source.
     * Navigation is defined via AutoRoute and assembled through modular route providers (`lib/application/router/modular_app/*`).
 
 ### 3.1 Canonical Presentation Ownership Model (Governance)
@@ -55,7 +55,7 @@ Governance constraints:
 
 ## 4. Ecosystem Configuration Points
 
-* **Configuration Method:** DI wiring through GetIt + module registration (`ModuleSettings`); backend adapters default to mock implementations with targeted Laravel-backed adapters for environment/bootstrap.
+* **Configuration Method:** DI wiring through GetIt + module registration (`ModuleSettings`); runtime backend adapters are Laravel-only, while test overrides remain explicit/injected.
 * **Key Variables/Files:**
     * `.fvmrc` / `.fvm/fvm_config.json`: Flutter SDK pinning.
     * `pubspec.yaml`: Declares third-party packages and Flutter SDK constraints.
@@ -69,8 +69,8 @@ Governance constraints:
 ## 5. Architectural Principle Alignment
 
 * **P-1 (Domain-First, Schema-Second):** Partially Aligned — Domain entities and value objects exist, but partner subtype vocabulary (e.g., influencer/curator) and engagement metrics still need stricter documentation traceability in foundation docs.
-* **P-3 (API-Centric Ecosystem):** Partially Aligned — The app bootstraps against a Laravel-backed environment endpoint, while most feature data remains mock-backed to unblock UI/flow development ahead of finalized API delivery.
-* **P-8 (Explicit Schemas):** Partially Aligned — Significant DTO coverage exists (app_data, schedule, invites, profile, map), but mock databases (notably account_profiles/discovery) still encode schema expectations implicitly.
+* **P-3 (API-Centric Ecosystem):** Aligned — Runtime flows are Laravel-backed and bootstrapped through `/api/v1/environment`, with no runtime mock fallback.
+* **P-8 (Explicit Schemas):** Partially Aligned — Significant DTO coverage exists (app_data, schedule, invites, profile, map); remaining gaps are contract documentation depth and adapter completeness, not runtime mock databases.
 * **Appendix A (Flutter Tenets):** Partially Aligned — Feature-first organization and controller/stream patterns are present; continued tightening is needed to keep DTOs out of widgets and keep screen logic consistently controller-driven.
 
 ---
@@ -78,15 +78,15 @@ Governance constraints:
 ## 6. Key Integration Points / API Surface (If Applicable)
 
 * **API Prefix/Base:** `AppData.mainDomainValue.value.resolve('/api')` (canonical tenant-scoped origin after bootstrap).
-* **Primary Endpoints/Modules (Current Consumer Shape):** App environment/bootstrap (branding + theme), schedule/events, invites, favorites, account_profiles/discovery, profile, map POIs (mixed: bootstrap via Laravel adapter; others primarily mock-backed).
-* **Authentication Method:** Presentational auth flows exist, but repository/backends are currently mock-focused; secure storage is available for future token/session persistence.
+* **Primary Endpoints/Modules (Current Consumer Shape):** App environment/bootstrap (branding + theme), schedule/events, invites, favorites, account_profiles/discovery, profile, map POIs (Laravel-backed runtime adapters).
+* **Authentication Method:** Presentational auth flows are backed by Laravel runtime adapters; secure storage supports token/session persistence.
 
 ---
 
 ## 7. Notes & Observations
 
 * Environment/bootstrap is implemented via a Laravel-backed adapter (`GET /api/v1/environment` + `X-App-Domain` header for mobile resolution) and must remain aligned with the backend payload keys used for branding (e.g., `main_logo_light_url`, `main_icon_dark_url`, `theme_data_settings`).
-* Account profiles/discovery continues to rely on local mock databases that embed subtype and engagement expectations; these should be treated as prototype contracts and mirrored in foundation documentation to prevent Flutter ↔ Laravel drift.
+* Account profiles/discovery runtime now follows account/account-profile contracts and must consume Laravel-backed repositories only; no runtime mock dataset fallback is allowed.
 * `ModuleSettings` supports test-time backend builders, enabling targeted tests to swap mock/real adapters without changing production wiring.
 * Architecture adherence refactor in progress: move repository/infrastructure usage out of screens/widgets into controllers, remove DTO types from UI, and ensure presentation logic remains controller-owned (no API contract changes intended).
 * DTO factories removed from Flutter domain models; mapping is centralized in infrastructure DTO mappers (invites, schedule, user, thumb, partner).
@@ -94,8 +94,7 @@ Governance constraints:
 * Hard‑NO cleanup queued (FCX‑06): remove non-controller/cross-feature GetIt resolution from widgets/screens, eliminate Future/StreamBuilder usage in presentation, replace direct Navigator calls with router/controller-driven navigation, split multi‑widget files, and purge DTO dependencies from the domain layer.
 * Profile module dependency wiring will be tightened to ensure `LandlordLoginController` is always registered when Profile routes are loaded (prevents GetIt resolution failures in device tests).
 * Architecture cleanup will introduce domain-level contracts for `AppDataRepository`, `PoiRepository`, `PushPresentationGate`, and `TelemetryQueue`, plus domain-owned `PoiQuery` to remove infrastructure/DAL dependencies from controllers.
-* Partner detail mocks will be lifted into domain projections/services so controllers consume only domain types (no DTOs or DAL classes in presentation).
-* Partner audio playback now routes through a domain-level `AudioPlayerServiceContract`, with the mock implementation registered in `DiscoveryModule` and controllers consuming the contract (no infrastructure dependencies in presentation).
+* Partner-specific mock content providers and partner audio playback are removed from MVP runtime scope; discovery/profile details remain account/account-profile driven.
 * Integration tests updated to use domain `PoiQuery` and `PartnerProfileConfigBuilder`; device checklist shows all integration tests green after these updates.
 * `packages/belluga_form_validation/` is now the canonical internal Flutter package for reusable form-validation behavior: transport-agnostic `422` failure modeling, `field|group|global` target resolution, theme-dependent default widgets, and anchor/scroll helpers.
 * Tenant-admin account sync pattern established: account list/detail/form flows consume repository-owned canonical streams; detail controllers derive account state via repository watch (stable `id` first, slug fallback only while unresolved), avoiding manual cross-controller synchronization.

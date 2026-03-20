@@ -3,7 +3,7 @@
 
 ## 1. Roadmap Overview
 
-This roadmap enumerates the foundational milestones for the Belluga ecosystem. It aligns mocked implementations with the definitive architecture to guarantee a seamless transition toward production services.
+This roadmap enumerates the foundational milestones for the Belluga ecosystem. It aligns Flutter and Laravel implementations around production contracts, with runtime clients consuming live backend adapters only.
 
 ## 2. Current Milestones
 
@@ -11,7 +11,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 |------------|-----------|-------------|--------|--------|-------|
 | Flutter Client Experience | FCX-01 | Bootstrap DI container, theming, and StreamValue-based controller scaffolding. | 2025-02-28 | In Progress | Delphi |
 | Flutter Client Experience | FCX-02 | Lock endpoint response schemas (contract-first) for MVP flows. | 2025-03-05 | Planned | Delphi |
-| Flutter Client Experience | FCX-03 | Wire mocked repositories/services to tenant home, agenda, invites, map, and profiles based on contracts. | 2025-03-12 | Planned | Delphi |
+| Flutter Client Experience | FCX-03 | Wire Laravel-backed repositories/services to tenant home, agenda, invites, map, and account profiles based on contracts. | 2025-03-12 | Planned | Delphi |
 | Flutter Client Experience | FCX-04 | Implement telemetry (Mixpanel) baseline for MVP flows. | 2025-03-19 | Planned | Delphi |
 | Flutter Client Experience | FCX-05 | Add location permission guard + permission screen for geo-dependent routes (map/nearby). | 2025-03-26 | Planned | Delphi |
 | Flutter Client Experience | FCX-06 | Eliminate Flutter architecture hard‑NO deviations (non-controller/cross-feature GetIt resolution in screens/widgets, DTOs in domain, Future/StreamBuilder in UI, direct Navigator usage, multi‑widget files). | 2025-04-01 | Planned | Delphi |
@@ -117,7 +117,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 
 | ID | Risk | Impact | Mitigation |
 |----|------|--------|------------|
-| R-201-01 | Mock payload drift from backend contract. | UI regressions when real API arrives. | Maintain contract tests and share DTO schemas with backend team. |
+| R-201-01 | Flutter contract drift from backend payloads/adapters. | Runtime regressions on live tenant flows. | Maintain contract tests, enforce live-only runtime adapters, and share DTO schemas with backend team. |
 | R-201-02 | Controller lifecycle leaks degrade performance. | Memory growth and navigation instability. | Enforce disposal patterns and add integration tests covering scope teardown. |
 
 ## 5. Flutter Experience Future Phases

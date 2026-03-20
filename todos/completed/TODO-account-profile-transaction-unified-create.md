@@ -303,11 +303,12 @@ Implementation cannot proceed with unresolved `Conflict`. `Supersede` requires e
 - Canonical onboarding create is enforced at `POST /admin/api/v1/account_onboardings`; legacy create endpoints now return deterministic `409` with `error_code=tenant_admin_onboarding_required` and `meta.use_endpoint`.
 - Flutter tenant-admin create now submits one composite onboarding request and handles success as a single onboarding outcome routed via replacement to account detail.
 - Standalone profile-create path is blocked in tenant-admin UX; missing-profile account detail is now rendered as invariant-broken data state.
-- Legacy missing-profile audit command is delivered (`tenant:accounts:profiles:repair`) and executed in local environment with verified zero-impact result:
+- Legacy missing-profile audit was executed during rollout with verified zero-impact result (historical evidence):
   - `guarappari`: `total_accounts=44`, `missing_count=0`
   - `boora-alfredo-chaves`: `total_accounts=0`, `missing_count=0`
   - `tmp-nofallback`: `total_accounts=0`, `missing_count=0`
   - `tmp-nofallback-882210`: `total_accounts=0`, `missing_count=0`
+- Follow-up hardening removed the temporary repair command/service from runtime code after onboarding moved to strict transactional persistence.
 
 ## Decision Adherence Validation (fill before delivery)
 

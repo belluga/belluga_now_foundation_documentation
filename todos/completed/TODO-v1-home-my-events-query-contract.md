@@ -1,6 +1,11 @@
 # TODO-v1 Home My Events Query Contract
 
-**Status:** Active (code gap confirmed on 2026-03-19)
+**Status:** Completed (implementation completed and merged on 2026-03-19)
+
+## Delivery Closure Note (2026-03-19)
+- This TODO was delivered during the MVP favorites/my-events implementation cycle and merged to the Flutter `dev` lane via PR #135.
+- Home `my events` now consumes the `confirmed_only` contract path as defined here.
+- This document remains as historical implementation record; follow-up changes must be tracked in a new TODO.
 
 ## Scope
 - Establish the ideal query contract for Home `my events` so the section stops piggybacking on the generic public agenda feed.
@@ -8,7 +13,7 @@
 - Define the required Flutter adaptation so Home consumes the `confirmed_only` agenda format directly.
 
 ## Out Of Scope
-- Implementing the contract in this TODO.
+- Net-new behavior beyond the delivered V1 `confirmed_only` contract scope.
 - Favorites/home agenda pagination behavior.
 
 ## Problem Statement
@@ -43,11 +48,9 @@
 - Validate Home `my events` no longer piggybacks on the generic agenda request.
 - Validate Flutter consumes the `confirmed_only` payload shape end-to-end (including anonymous empty-list behavior) without fallback local filtering from public agenda results.
 
-## 2026-03-19 Code Reality Check
-- `fetchMyEvents()` still piggybacks on public upcoming agenda data and filters locally:
+## 2026-03-19 Delivery Check
+- `fetchMyEvents()` now uses the schedule page contract with `confirmedOnly: true` and no longer piggybacks on generic upcoming agenda filtering:
   - `flutter-app/lib/infrastructure/repositories/user_events_repository.dart`
-- Backend still needs contract-aligned `confirmed_only` behavior wired in `/api/v1/agenda` and `/api/v1/events/stream` (including anonymous empty-list semantics):
-  - `flutter-app/lib/infrastructure/dal/dao/laravel_backend/user_events_backend/laravel_user_events_backend.dart`
-  - `laravel-app/routes/api/project_tenant_public_api_v1.php`
-  - `laravel-app/app/Http/Api/v1/Controllers/EventAttendanceController.php`
-- Conclusion: this TODO is **not** just documentation drift; implementation work is still required to remove Home piggybacking on generic agenda fetches and finalize `confirmed_only` end-to-end.
+- Contract-path behavior is covered in Home origin-flow tests for `confirmed_only` usage and pagination expectations:
+  - `flutter-app/test/presentation/tenant/home/screens/tenant_home_screen/controllers/tenant_home_controller_origin_flow_test.dart`
+- Conclusion: this TODO is delivered; remaining future refinements should be tracked as separate scope.

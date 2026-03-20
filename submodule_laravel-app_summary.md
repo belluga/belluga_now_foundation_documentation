@@ -103,8 +103,7 @@ Contract expectations exposed to Flutter/Web clients:
 * **Static asset pages:** public read endpoint returns static asset page payloads by id or slug; static assets reuse the shared profile page schema (display name, media, content, taxonomy).
 * **Account Profile BSON:** `AccountProfile` no longer casts `location` or `taxonomy_terms` to arrays, preserving MongoDB BSON for geo indexes and taxonomy payloads.
 * **Bootstrap on register:** password registration now ensures a personal account + profile via `AccountProfileBootstrapService`.
-* **Onboarding orchestration:** `AccountOnboardingService` composes account + profile + optional media inside one backend orchestration boundary with rollback/compensation on validation/media/runtime failure to prevent partial persistence.
-* **Legacy-data repair path:** `tenant:accounts:profiles:repair {tenant_slug} {--execute} {--profile_type=personal}` audits/repairs missing tenant account profiles for strict onboarding-only UI policy.
+* **Onboarding orchestration:** `AccountOnboardingService` now executes account + role + profile + optional media in one tenant transaction boundary; any validation/media/runtime failure aborts the transaction and prevents partial persistence.
 * Tenant push credentials are now single-credential only (upsert via `PUT /api/v1/settings/push/credentials`); multiple credentials return 409 until cleaned up.
 * Tenant push settings no longer accept or return `firebase_credentials_id`; configuration relies on a single stored credential plus `firebase` public config.
 * **Invites package hardening:** invite accept/decline/share-materialize mutations now persist command-level idempotency (`invite_command_idempotencies`) with replay/mismatch guards, keeping duplicate mutation retries deterministic under Mongo + Sanctum flows.

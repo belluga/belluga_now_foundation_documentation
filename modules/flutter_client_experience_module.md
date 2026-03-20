@@ -5,7 +5,7 @@
 
 | Module ID | Module Name | Primary Responsibility | Status | Owner |
 |-----------|-------------|------------------------|--------|-------|
-| MOD-201 | Flutter Client Experience Module | Deliver the multi-tenant mobile client with mocked backends and full-layer architecture (controllers, repositories, services). | Defined | Delphi |
+| MOD-201 | Flutter Client Experience Module | Deliver the multi-tenant mobile client with Laravel-backed runtime adapters and full-layer architecture (controllers, repositories, services). | Defined | Delphi |
 
 ### 1.1 Canonical Anchors
 
@@ -28,11 +28,18 @@
 
 ### MOD-201: Flutter Client Experience Module
 
-* **Purpose Statement:** Establish the foundational Flutter application that orchestrates tenant, account/profile, and promoter experiences through a clean architecture stack (presentation, domain, infrastructure) wired to mocked service contracts that mirror the definitive API.
+* **Purpose Statement:** Establish the foundational Flutter application that orchestrates tenant and account/profile experiences through a clean architecture stack (presentation, domain, infrastructure) wired to Laravel-backed service contracts.
 * **Core Entities:** User, Account, Account Profile, Offering, Transaction.
 * **Key Workflows:** Adaptive onboarding, tenant home discovery, invite and social growth loop, agenda management, map exploration with POIs, authenticated profile utilities.
-* **External Dependencies:** AutoRoute (navigation), GetIt (DI container), StreamValue (reactive state wrapper), value_object_pattern, Firebase Cloud Messaging (future push integration), mocked HTTP + SSE backends.
-* **Service-Level Objectives:** Screen state transitions <150 ms under mock data; cold-start bootstrap <2.5 s on mid-range devices; navigation stack integrity with zero controller leaks; 100 % controller-stream parity (no orphaned state).
+* **External Dependencies:** AutoRoute (navigation), GetIt (DI container), StreamValue (reactive state wrapper), value_object_pattern, Firebase Cloud Messaging (future push integration), Laravel HTTP + SSE backends.
+* **Service-Level Objectives:** Screen state transitions <150 ms under cached/remote data; cold-start bootstrap <2.5 s on mid-range devices with backend available; navigation stack integrity with zero controller leaks; 100 % controller-stream parity (no orphaned state).
+
+#### 2.0.1 Runtime Backend Mandate (V1 Launch)
+
+- Compiled/runtime app path is **Laravel-only**. Runtime mock fallback is forbidden.
+- Mock adapters/datasets are allowed only in test targets through explicit test injection.
+- Startup must hard-stop when backend bootstrap is unavailable and require user retry after connectivity recovers.
+- Discovery runtime contract is account/account-profile based; partner-only mock content providers and audio player service are out of MVP runtime scope.
 
 #### 2.0 Scope/Subscope Ownership (Authoritative)
 

@@ -1,12 +1,19 @@
 # TODO-v1 Favorites Query Contract (Home + Discovery)
 
+**Status:** Completed (implementation completed and merged on 2026-03-19)
+
+## Delivery Closure Note (2026-03-19)
+- This TODO was delivered during the MVP favorites/my-events implementation cycle and merged to the Flutter `dev` lane via PR #135.
+- The contract and ordering path described here are now implemented and validated in code/tests for Home and Discovery consumption flow.
+- This document remains as historical implementation record; follow-up changes must be tracked in a new TODO.
+
 ## Scope
 - Establish the ideal data contract for favorites consumption in Home and Discovery so both surfaces stop using duplicate/legacy fetch composition.
 - Define the canonical read model for favorites as `favorite_edges` + registry-owned snapshot collection.
 - Define the required Flutter adaptation so Home and Discovery Favorites consume the new favorites payload format directly (without agenda-based reordering).
 
 ## Out Of Scope
-- Implementing the contract in this TODO.
+- Net-new favorites capabilities beyond the delivered V1 query contract.
 - `my events` query redesign.
 
 ## Problem Statement
