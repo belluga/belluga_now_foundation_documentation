@@ -33,6 +33,8 @@
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-frontend.md`
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-icon-color-config.md`
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-targeted-visual-polish.md`
 - `foundation_documentation/modules/tenant_admin_module.md`
 - `foundation_documentation/modules/map_poi_module.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
@@ -41,15 +43,19 @@
 
 ## Scope
 - Fix Tenant Admin account/profile search behavior.
-- Allow editing account/profile type for unmanaged entities in Tenant Admin.
-- Remove hardcoded map icon/color behavior and make visuals configurable (or use generic fallback strategy).
+- Allow editing account ownership state (`tenant_owned` / `unmanaged`) from Tenant Admin edit flow.
+- Add unmanaged-only account delete flow with backend transactional consistency.
 - Fix Discovery list truncation so users can access the full expected dataset.
-- Execute a small visual polish pass on affected screens.
+- Keep Branding/Visual Identity color-picker improvements within this slice.
+- Remove legacy test-only mock backend code from runtime `lib` paths and relocate it to test-only support paths.
+- Relocate local app metadata source out of `dao/local` into a clearer infrastructure/platform path (without changing runtime behavior).
 
 ## Out of Scope
 - New major IA/UX redesign for admin, map, or discovery.
 - Net-new MVP capabilities unrelated to these defects.
 - Backend schema redesign for map POI core model.
+- Map marker/filter icon-color architecture refactor (tracked in `TODO-v1-map-icon-color-config.md`).
+- Targeted cross-screen visual polish pass (tracked in `TODO-v1-targeted-visual-polish.md`).
 
 ---
 
@@ -68,23 +74,28 @@
 | H3.5 | Update venue wording to physical-host wording | UI terminology alignment with defined contract. |
 | C.5 | Allow manual `#RRGGBB` input in Branding edit color picker with live preview | Clear UX/contract requirement with deterministic validation. |
 | D.6 | Restrict Discovery chips/categories to favoritable profile types only | Deterministic rule driven by `profile_types.capabilities.is_favoritable`. |
+| B.1-B.5 | Ownership edit + unmanaged-only delete guardrails | Contract and eligibility rule already aligned (`tenant_owned/unmanaged`; delete only unmanaged). |
 
 ### Needs Decision/Alignment First (before implementation)
 | Ref | Task | Decision needed |
 | --- | --- | --- |
 | A.3-A.4 | Search criteria + refresh/clear lifecycle behavior | Final UX behavior on clear/pagination/reload interactions. |
-| B.1-B.4 | Unmanaged type edit flow + guardrails | Exact eligibility semantics and backend enforcement boundaries. |
-| C.1-C.4 | Map icon/color hardcoding removal | Source-of-truth config, fallback policy, runtime refresh semantics. |
 | D.2-D.4 | Discovery completeness behavior | Canonical contract choice: paging/infinite/complete fetch semantics. |
 | D.5 | Favorites mutation for identified users only | Define backend mutation contract and explicit auth/identity gate behavior for anonymous users. |
 | D.7 | Enforce non-admin account profile privacy boundary in Discovery/public endpoint | Decide explicit public-visibility contract (field/policy) before enforcing backend filter. |
-| E.1-E.3 | Visual polish pass | Subjective UX priorities and acceptance thresholds. |
 | Parking Lot | Fallback image policy | Product decision by definition. |
 
 ### Suggested Execution Sequence
 1. Deliver the objective set first (`H1`, `H2`, `H3.2`, `H3.5`, plus diagnostics `A.1`, `A.2`, `D.1`).
-2. Close remaining decision-heavy items (`B/C/D/E`).
-3. Execute `F` validation after each decision-heavy batch.
+2. Close remaining decision-heavy items in this TODO (`B/D`).
+3. Execute map and visual dedicated TODOs in parallel (`TODO-v1-map-icon-color-config.md` and `TODO-v1-targeted-visual-polish.md`).
+4. Execute `F` validation after each decision-heavy batch.
+
+## Next Delivery Scope Lock (Alignment 2026-03-21)
+- [ ] ⚪ Close all still-pending `D` items in this TODO (`D.2`, `D.3` and remaining `D` acceptance criteria).
+- [ ] ⚪ Close all still-pending `F` validation/test items in this TODO (`F.1`, `F.2`, `F.3`, favorites regression line).
+- [ ] ⚪ Close remaining `G` Definition of Done lines after validation evidence is complete.
+- [ ] ⚪ Include and deliver `C.6` (PWA icon rendering consistency) in this same delivery.
 
 ---
 
@@ -93,8 +104,8 @@
 ### Tasks
 - [ ] 🟧 Local-Implemented — Reproduce and document failing search paths (Account list, Account Profile list/detail selectors).
 - [ ] 🟧 Local-Implemented — Verify request/query propagation from Flutter filters/search to backend endpoints.
-- [ ] ⚪ Fix search criteria application and result refresh lifecycle.
-- [ ] ⚪ Ensure clear-search restores baseline dataset correctly.
+- [ ] 🟧 Local-Implemented — Fix search criteria application and result refresh lifecycle (backend-first with debounce and page reset).
+- [ ] 🟧 Local-Implemented — Ensure clear-search restores baseline dataset correctly via backend reload.
 
 ### Diagnostic Evidence (2026-03-21)
 - Flutter account-list search is local-only over already loaded pages (`flutter-app/lib/presentation/tenant_admin/accounts/screens/tenant_admin_accounts_list_screen.dart`, `_filterAccounts`), so unloaded pages are never queried.
@@ -121,37 +132,34 @@
 
 ---
 
-## B) Workstream: Edit Type for Unmanaged Accounts/Profiles
+## B) Workstream: Ownership Edit + Unmanaged Delete Guardrails
 
 ### Tasks
-- [ ] ⚪ Define exact eligibility rule for editing type (`unmanaged` only).
-- [ ] ⚪ Add edit flow in Tenant Admin UI for unmanaged account/profile type.
-- [ ] ⚪ Wire update persistence and refresh list/detail projections after save.
-- [ ] ⚪ Keep managed/tenant-owned guardrails explicit in UI and backend validation.
+- [ ] 🟧 Local-Implemented — Add ownership-state edit flow in Tenant Admin profile edit (`tenant_owned` / `unmanaged`, same options as create flow).
+- [ ] 🟧 Local-Implemented — Wire ownership-state persistence through backend account update contract and refresh list/detail projections after save.
+- [ ] 🟧 Local-Implemented — Enforce unmanaged-only account delete in backend with transactional consistency (account + account profiles + role templates).
+- [ ] 🟧 Local-Implemented — Expose delete CTA in account detail UI only when account is unmanaged and route deletion through backend contract.
+- [ ] 🟧 Local-Implemented — Keep managed/tenant-owned guardrails explicit in UI and backend validation (delete blocked for non-unmanaged).
 
 ### Acceptance Criteria
-- [ ] ⚪ Unmanaged entities can update type successfully.
-- [ ] ⚪ Ineligible entities are blocked with clear feedback.
-- [ ] ⚪ Updated type is reflected consistently in list/detail/filter surfaces.
+- [ ] 🟧 Local-Implemented — Admin can update ownership state from edit flow and observe reflected value in account detail/list surfaces.
+- [ ] 🟧 Local-Implemented — Delete operation succeeds only for unmanaged accounts.
+- [ ] 🟧 Local-Implemented — Ineligible delete attempts are blocked by backend validation with explicit error.
 
 ---
 
-## C) Workstream: Map Icon/Color Hardcoding Removal
+## C) Workstream: Branding Color Picker Improvements (Scoped in This TODO)
 
 ### Tasks
-- [ ] ⚪ Identify hardcoded icon/color mappings currently applied in map filter/marker UI.
-- [ ] ⚪ Replace key-based hardcoding with configurable source (catalog/settings payload).
-- [ ] ⚪ Define fallback strategy when icon/color metadata is absent (generic, non-keyed fallback).
-- [ ] ⚪ Ensure runtime refresh reflects admin-config changes without code edits.
 - [ ] 🟧 Local-Implemented — In Branding/Visual Identity edit flow, allow manual `#RRGGBB` input in color picker modal and keep picker/preview synced with typed value.
 - [ ] 🟧 Local-Implemented — Remove preset color chips from Branding color picker modal (keep a single canonical editable hex input).
+- [ ] ⚪ Ensure PWA icon field behavior is explicit and functional in UI: if independent, persist + render saved image using the same upload/display standards as other branding images.
 
 ### Acceptance Criteria
-- [ ] ⚪ Map filter/icon visuals are driven by configuration, not hardcoded category keys.
-- [ ] ⚪ Color behavior is consistent and does not regress selected-state contrast.
-- [ ] ⚪ Fallback visuals are stable and deterministic.
 - [ ] 🟧 Local-Implemented — In Branding/Visual Identity edit flow, color picker modal accepts manually typed valid `#RRGGBB` values and updates picker/preview immediately.
 - [ ] 🟧 Local-Implemented — Branding color picker modal no longer renders preset chips.
+- [ ] ⚪ PWA icon preview/render path is consistent with saved data (no silent mismatch between saved asset and displayed UI state).
+- [ ] 🟡 Provisional — Map icon/color hardcoding architectural refactor moved to dedicated TODO `TODO-v1-map-icon-color-config.md`.
 
 ---
 
@@ -161,10 +169,10 @@
 - [ ] 🟧 Local-Implemented — Audit current Discovery fetch/pagination limits and identify truncation source.
 - [ ] ⚪ Align list loading with canonical dataset expectations (pagination/infinite scroll or complete fetch by contract).
 - [ ] ⚪ Ensure filter/search interactions do not silently drop valid items.
-- [ ] ⚪ Validate interaction with favorites state and profile-type registry filtering.
-- [ ] ⚪ Establish favorites mutation flow with backend persistence and enforce mutation access for identified users only (anonymous users must be blocked and redirected to auth).
-- [ ] ⚪ Restrict Discovery filter chips/categories to profile types where `capabilities.is_favoritable=true`.
-- [ ] ⚪ Enforce non-admin/public account-profile listing to return only public profiles (block private profile leakage in Discovery source endpoint).
+- [ ] 🟧 Local-Implemented — Validate interaction with favorites state and profile-type registry filtering.
+- [ ] 🟧 Local-Implemented — Establish favorites mutation flow with backend persistence and enforce mutation access for identified users only (anonymous users must be blocked and redirected to auth).
+- [ ] 🟧 Local-Implemented — Restrict Discovery filter chips/categories to profile types where `capabilities.is_favoritable=true`.
+- [ ] 🟧 Local-Implemented — Enforce non-admin/public account-profile listing to return only public profiles (block private profile leakage in Discovery source endpoint).
 
 ### Diagnostic Evidence (2026-03-21)
 - Discovery loads partners through a single fetch path (`flutter-app/lib/presentation/tenant_public/discovery/controllers/discovery_screen_controller.dart`, `_loadPartners -> fetchAllAccountProfiles`).
@@ -179,45 +187,55 @@
 - [ ] ⚪ No silent cap at low item count.
 - [ ] ⚪ Scrolling/loading behavior is predictable and stable.
 - [ ] ⚪ Favorite toggle persists across reloads/sessions and remains consistent with server state.
-- [ ] ⚪ Anonymous users cannot mutate favorites; authenticated identified users can.
-- [ ] ⚪ Discovery chips/categories only show favoritable account-profile types.
-- [ ] ⚪ Non-admin Discovery source endpoint excludes private profiles from returned data.
+- [ ] 🟧 Local-Implemented — Anonymous users cannot mutate favorites; authenticated identified users can.
+- [ ] 🟧 Local-Implemented — Discovery chips/categories only show favoritable account-profile types.
+- [ ] 🟧 Local-Implemented — Non-admin Discovery source endpoint excludes private profiles from returned data.
 
 ---
 
 ## E) Workstream: Visual Improvements (Targeted)
 
-### Tasks
-- [ ] ⚪ Apply targeted polish on affected screens (spacing, hierarchy, contrast, state clarity).
-- [ ] ⚪ Review selected/unselected visual states in map/discovery actions.
-- [ ] ⚪ Review admin form/list visual consistency after functional fixes.
-
-### Acceptance Criteria
-- [ ] ⚪ No visual regressions in affected components.
-- [ ] ⚪ Interaction states are visually clear.
-- [ ] ⚪ Layout remains stable on common mobile breakpoints.
+Moved to dedicated TODO: `TODO-v1-targeted-visual-polish.md`.
 
 ---
 
 ## F) Validation and Test Plan
 - [ ] ⚪ Add/adjust unit/widget tests for admin search and unmanaged type edit flows.
 - [ ] ⚪ Add/adjust tests for discovery completeness/pagination behavior.
-- [ ] ⚪ Add/adjust map UI tests for configurable icon/color behavior and fallback path.
 - [ ] ⚪ Run targeted regression suite for Home/Discovery/Map/Admin impacted surfaces.
+- [ ] 🟧 Local-Implemented — Add/adjust tests and analyzer checks after legacy mock/local path cleanup (`mock_backend` relocation + `AppDataLocalInfoSource` relocation).
 - [ ] 🟧 Local-Implemented — Add Flutter tests for `H1/H2`: type and event forms submit without description (`description/content` optional).
 - [ ] 🟧 Local-Implemented — Add Laravel request/feature tests for `H1/H2`: create/update accepts missing `description/content` and preserves existing validation rules.
 - [ ] 🟧 Local-Implemented — Add Flutter + Laravel contract tests for `H3`: host candidates use POI capability + valid location and persist `place_ref.type=account_profile`.
+- [ ] 🟧 Local-Implemented — Add/adjust Flutter tests for admin accounts backend-first search and ownership edit flow in account-profile edit screen.
+- [ ] 🟧 Local-Implemented — Add Laravel feature tests for accounts search fields, ownership update, unmanaged-only delete guard, and delete cascade consistency.
 - [ ] ⚪ Add favorites regression tests (Flutter + Laravel): mutation is blocked for anonymous users and allowed only for authenticated identified users.
+
+---
+
+## I) Workstream: Infrastructure Cleanup (Mock Backend + Local Adapter Paths)
+
+### Tasks
+- [ ] 🟧 Local-Implemented — Remove `lib/infrastructure/dal/dao/mock_backend/**` from runtime code ownership by relocating required fixtures/adapters to test-only support paths.
+- [ ] 🟧 Local-Implemented — Update test imports/usages to the new test-only locations and remove remaining `mock_backend` references from production `lib` modules.
+- [ ] 🟧 Local-Implemented — Move `AppDataLocalInfoSource` out of `lib/infrastructure/dal/dao/local/**` to a clearer infrastructure/platform location and update imports.
+- [ ] 🟧 Local-Implemented — Keep `AppDataLocalInfoSource` behavior intact (no fallback contract change), only path/ownership cleanup.
+
+### Acceptance Criteria
+- [ ] 🟧 Local-Implemented — `flutter analyze lib test integration_test` passes after path cleanup.
+- [ ] 🟧 Local-Implemented — No runtime module under production `lib` depends on `mock_backend` paths.
+- [ ] 🟧 Local-Implemented — `AppDataLocalInfoSource` remains functional and initialization flow behavior is unchanged.
 
 ---
 
 ## G) Definition of Done
 - [ ] ⚪ Admin search works correctly in all affected Tenant Admin flows.
 - [ ] ⚪ Unmanaged type edit is available and guarded correctly.
-- [ ] ⚪ Map icon/color rendering is configuration-driven (or generic fallback), without hardcoded category coupling.
 - [ ] ⚪ Discovery no longer truncates to a small subset unexpectedly.
-- [ ] ⚪ Visual polish pass delivered with no regressions.
 - [ ] ⚪ Tests updated and passing for touched areas.
+- [ ] ⚪ Legacy mock/local path cleanup delivered without runtime regressions.
+- [ ] 🟡 Provisional — Map icon/color DoD tracked in `TODO-v1-map-icon-color-config.md`.
+- [ ] 🟡 Provisional — Visual polish DoD tracked in `TODO-v1-targeted-visual-polish.md`.
 
 
 ## H) Priority Workstream (Current Delivery): Event Form + Host Eligibility
@@ -274,8 +292,14 @@
 
 ---
 
-## Parking Lot (Defer)
-- [ ] ⚪ Decide fallback image policy for event cards vs event detail screen.
+## Event Image Fallback Policy (Locked 2026-03-21)
+- [x] Processed — Fallback order approved by product:
+  1) Event uses first artist cover (artist order as provided by payload).
+  2) If unavailable, use host/place cover.
+  3) If unavailable, use settings `default image placeholder`.
+  4) If unavailable, render local placeholder (non-image).
+- [ ] 🟧 Local-Implemented — Implement fallback policy in event cards and event detail surfaces with consistent ordering.
+- [ ] 🟧 Local-Implemented — Add regression tests for fallback chain across card/detail rendering.
 
 ## Manual edited by the user
 When the user finds an issue, list it here. We should evaluate and transform it into tasks. If necessary, ask the user.
@@ -283,3 +307,7 @@ When the user finds an issue, list it here. We should evaluate and transform it 
 - [x] Processed (2026-03-21): "Discovery chips/categories should include only favoritable profile types." -> captured as `D.6`.
 - [x] Processed (2026-03-21): "Non-admin discovery/public account-profile endpoint must not leak private profiles." -> captured as `D.7`.
 - [x] Processed (2026-03-21): "Static Assets should remove legacy tags/categories and rely only on taxonomy_terms." -> implemented locally in Flutter + Laravel contracts and map-poi source adapter compatibility.
+- [x] Processed (2026-03-21): "Define event image fallback order for cards/detail." -> policy locked in `Event Image Fallback Policy`.
+
+
+- [x] Processed (2026-03-21): "PWA icon is not showing saved image in UI." -> captured as `C.6` (explicit functional contract + implementation/validation).
