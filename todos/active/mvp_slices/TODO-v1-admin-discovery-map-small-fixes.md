@@ -122,6 +122,50 @@
 - [ ] ⚪ Tests updated and passing for touched areas.
 
 
-# Manual edition fornew issues found #
+## H) Priority Workstream (Current Delivery): Event Form + Host Eligibility
 
-* Fallback image for events on the card. But not on the Event Screen. We should decide if we will have a fallback or not.
+### Delivery Scope Lock (Current Iteration)
+- [ ] ⚪ Deliver only this workstream (`H1`, `H2`, `H3`) in the current iteration.
+- [ ] ⚪ Keep workstreams `A` through `G` pending until these priority items are delivered.
+
+### H1) Type Description Optional (Account Types, Event Types, Any Types)
+
+#### Tasks
+- [ ] ⚪ Remove required-description validation from type create/edit forms in Flutter.
+- [ ] ⚪ Align backend validation/contracts so type description is optional (store/update paths).
+- [ ] ⚪ Ensure payload encoding omits empty description fields (instead of forcing empty-string validation errors).
+
+#### Acceptance Criteria
+- [ ] ⚪ Type forms submit successfully with blank description.
+- [ ] ⚪ API accepts create/update type payloads without description.
+- [ ] ⚪ Existing types with description continue to render without regressions.
+
+### H2) Event/Occurrence Description Optional
+
+#### Tasks
+- [ ] ⚪ Remove required-description validation from event creation/edit form (`content` field).
+- [ ] ⚪ Align backend event create/update validation so `content` is optional.
+- [ ] ⚪ Verify occurrence scheduling and publication rules do not depend on description text.
+
+#### Acceptance Criteria
+- [ ] ⚪ Event create/update succeeds with no description.
+- [ ] ⚪ Occurrence validation behavior remains unchanged (date/time rules only).
+- [ ] ⚪ Event list/detail rendering remains stable when description is missing.
+
+### H3) Physical Host Eligibility by POI Capability (Not Hardcoded Venue)
+
+#### Tasks
+- [ ] ⚪ Replace venue-only host candidate criteria with capability criteria: profile type must have `capabilities.is_poi_enabled=true`.
+- [ ] ⚪ Require valid profile location for physical/hybrid host eligibility.
+- [ ] ⚪ Update event creation contract to use canonical physical-host reference `place_ref.type=account_profile`.
+- [ ] ⚪ Update Flutter labels/UX from venue-only wording to generic physical host wording.
+
+#### Acceptance Criteria
+- [ ] ⚪ Non-venue account profiles can be selected as physical host when `is_poi_enabled=true` and location is valid.
+- [ ] ⚪ Ineligible profiles (no POI capability or no valid location) do not appear as physical-host candidates.
+- [ ] ⚪ Event creation persists canonical `place_ref.type=account_profile` for physical/hybrid flows.
+
+---
+
+## Parking Lot (Defer)
+- [ ] ⚪ Decide fallback image policy for event cards vs event detail screen.

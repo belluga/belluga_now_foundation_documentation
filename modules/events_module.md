@@ -68,11 +68,14 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 - Agenda/detail contracts are occurrence-first and include `event_id` + `occurrence_id`.
 - Event location contract is `location` + `place_ref`; venue projection is resolved from `place_ref` when applicable.
 - `event_parties` are event composition principals (artists/hosts/venues/etc.) with payload-driven `can_edit`.
+- Event party-candidate payload is capability-driven for physical hosts: profiles eligible for physical host selection come from profile types with `capabilities.is_poi_enabled=true` and valid coordinates.
 
 ### 5.2 Write model
 
 - Event create/update accepts `occurrences[]` as schedule source.
 - `venue_id` is prohibited in write payloads.
+- Event description/content is optional (`content` is not required on create/update).
+- Event type description is optional in the event-type registry and in resolved event type payloads.
 - Event create/update must validate requested `attendance_policy` and optional `allow_occurrence_policy_override` against tenant-owned `settings.events.attendance` boundaries.
 - If tenant settings disable event override, Events persists the tenant default policy on the event.
 - If tenant settings allow event override, the event may choose one policy from tenant `allowed_policies`.
@@ -80,9 +83,9 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 - Otherwise occurrences inherit the event `attendance_policy`.
 - If paid reservation capability is unavailable for the tenant/runtime, `paid_reservation_only` and `either` are invalid write values.
 - `location.mode` drives required fields:
-  - `physical`: `place_ref` required.
+  - `physical`: `place_ref` required with canonical `place_ref.type=account_profile`.
   - `online`: `location.online` required.
-  - `hybrid`: both required.
+  - `hybrid`: both required; physical host uses canonical `place_ref.type=account_profile`.
 
 ### 5.3 Stream model
 
