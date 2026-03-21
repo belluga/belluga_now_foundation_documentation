@@ -43,6 +43,7 @@ completion_metadata: branch=feature/x, commit=abc1234
 
 - Treat this repo as project-specific context; do not move content into `delphi-ai/`.
 - Follow the TODO-driven execution method before any changes.
+- Create new tactical TODOs from `delphi-ai/templates/todo_template.md` (see `foundation_documentation/todos/README.md`).
 - `✅ Production‑Ready` TODO status requires Delivery Confidence Gate evidence (or explicit waiver rationale), with artifacts under `foundation_documentation/artifacts/tmp/<run-id>/...`.
 - Record branch + commit hash in TODOs when tasks are completed.
 
