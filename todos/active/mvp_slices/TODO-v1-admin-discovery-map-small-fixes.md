@@ -1,7 +1,7 @@
 # TODO (V1): Admin + Discovery + Map Small Fixes
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.  
-**Status:** Active  
+**Status:** Active (local scope completed; awaiting promotion lane)  
 **Owners:** Flutter Team, Laravel Team  
 **Objective:** Fix small-but-blocking MVP issues across Tenant Admin, Discovery, and Map before release freeze.
 **Promotion lane path:** `dev -> stage -> main` (when scope requires production rollout)
@@ -92,10 +92,10 @@
 4. Execute `F` validation after each decision-heavy batch.
 
 ## Next Delivery Scope Lock (Alignment 2026-03-21)
-- [ ] 🟧 Local-Implemented — Close all still-pending `D` items in this TODO (`D.2`, `D.3` and remaining `D` acceptance criteria).
-- [ ] 🟧 Local-Implemented — Close all still-pending `F` validation/test items in this TODO (`F.1`, `F.2`, `F.3`, favorites regression line).
-- [ ] 🟧 Local-Implemented — Close remaining `G` Definition of Done lines after validation evidence is complete.
-- [ ] 🟧 Local-Implemented — Include and deliver `C.6` (PWA icon rendering consistency) in this same delivery.
+- [x] Processed (2026-03-21) — Closed `D` items in this TODO with backend-first pagination/search, favoritable chip filtering, and favorite/auth guard behavior.
+- [x] Processed (2026-03-21) — Closed `F` validation/test scope with targeted Flutter + Laravel suites and local web build evidence.
+- [x] Processed (2026-03-21) — Closed `G` local Definition of Done lines for this slice.
+- [x] Processed (2026-03-21) — Included `C.6` (PWA icon rendering consistency) in this delivery scope.
 
 ---
 
@@ -289,6 +289,11 @@ Moved to dedicated TODO: `TODO-v1-targeted-visual-polish.md`.
 - `flutter test test/infrastructure/repositories/tenant_admin_static_assets_repository_test.dart test/presentation/tenant_admin/static_assets/tenant_admin_static_assets_list_screen_test.dart test/presentation/tenant_admin/static_assets/tenant_admin_static_asset_edit_screen_test.dart test/presentation/tenant_admin/controllers/tenant_admin_static_profile_types_controller_test.dart` -> passed (`20` tests).
 - `dart analyze lib test integration_test` -> passed (no issues).
 - `docker compose exec -T app php artisan test tests/Feature/StaticAssets/StaticAssetsControllerTest.php tests/Feature/Map/MapPoiRebuildCommandTest.php` (with local `DB_URI*`) -> passed (`8` tests).
+- `fvm flutter test test/domain/venue_event/projections/venue_event_resume_test.dart` -> passed (`2` tests; fallback chain coverage).
+- `fvm flutter test test/presentation/tenant_public/discovery/discovery_screen_controller_test.dart` -> passed (`5` tests; pagination + auth/favorites behavior).
+- `fvm flutter test test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart` -> passed (`2` tests).
+- `./laravel-app/scripts/delphi/run_laravel_tests_safe.sh tests/Feature/AccountProfiles/AccountProfilesControllerTest.php tests/Feature/Favorites/FavoritesControllerTest.php` -> passed (`34` tests).
+- `bash scripts/build_web.sh ../web-app dev --clean-output` -> passed (Flutter `3.41.5`, with known wasm dry-run warnings only).
 
 ---
 
@@ -298,8 +303,8 @@ Moved to dedicated TODO: `TODO-v1-targeted-visual-polish.md`.
   2) If unavailable, use host/place cover.
   3) If unavailable, use settings `default image placeholder`.
   4) If unavailable, render local placeholder (non-image).
-- [ ] 🟧 Local-Implemented — Implement fallback policy in event cards and event detail surfaces with consistent ordering.
-- [ ] 🟧 Local-Implemented — Add regression tests for fallback chain across card/detail rendering.
+- [x] Processed (2026-03-21) — Fallback policy implemented in canonical projection `VenueEventResume.resolvePreferredImageUri` and consumed by event card/detail flows via `VenueEventResume.fromScheduleEvent` and detail invite builder.
+- [x] Processed (2026-03-21) — Regression tests added/validated for fallback chain (`test/domain/venue_event/projections/venue_event_resume_test.dart`) and detail surface integration tests.
 
 ## Manual edited by the user
 When the user finds an issue, list it here. We should evaluate and transform it into tasks. If necessary, ask the user.
@@ -308,6 +313,7 @@ When the user finds an issue, list it here. We should evaluate and transform it 
 - [x] Processed (2026-03-21): "Non-admin discovery/public account-profile endpoint must not leak private profiles." -> captured as `D.7`.
 - [x] Processed (2026-03-21): "Static Assets should remove legacy tags/categories and rely only on taxonomy_terms." -> implemented locally in Flutter + Laravel contracts and map-poi source adapter compatibility.
 - [x] Processed (2026-03-21): "Define event image fallback order for cards/detail." -> policy locked in `Event Image Fallback Policy`.
+- [x] Processed (2026-03-21): "Web mobile keyboard opens and pushes layout but does not restore on close." -> fixed locally in tenant-admin shell (`resizeToAvoidBottomInset=false`) and project SDK updated via FVM to Flutter `3.41.5`.
 
 
 - [x] Processed (2026-03-21): "PWA icon is not showing saved image in UI." -> captured as `C.6` (explicit functional contract + implementation/validation).
