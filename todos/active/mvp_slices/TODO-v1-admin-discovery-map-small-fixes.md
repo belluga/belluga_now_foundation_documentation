@@ -19,11 +19,11 @@
 | --- | --- | --- | --- | --- | --- |
 | A — Admin Search | `belluga_now_docker/flutter-app@feature/v1-priority-h1-h3-admin-event-host-poi (diagnostic audit local)` | `<pending>` | `<pending>` | `<pending>` | `🟡 Provisional` |
 | B — Unmanaged Type Edit | `<pending>` | `<pending>` | `<pending>` | `<pending>` | `⚪ Pending` |
-| C — Map Icon/Color Config | `belluga_now_docker/flutter-app@feature/v1-priority-h1-h3-admin-event-host-poi (local C.5 implementation, uncommitted)` | `<pending>` | `<pending>` | `<pending>` | `🟡 Provisional` |
+| C — Map Icon/Color Config | `flutter-app@feature/v1-priority-h1-h3-admin-event-host-poi: 1ecfc17 (C.5 local implementation)` | `<pending>` | `<pending>` | `<pending>` | `🟡 Provisional` |
 | D — Discovery Truncation | `belluga_now_docker/flutter-app@feature/v1-priority-h1-h3-admin-event-host-poi (diagnostic audit local)` | `<pending>` | `<pending>` | `<pending>` | `🟡 Provisional` |
 | E — Visual Improvements | `<pending>` | `<pending>` | `<pending>` | `<pending>` | `⚪ Pending` |
-| F — Validation and Tests | `flutter-app local test evidence (H + C.5 + static-assets taxonomy cleanup); laravel-app local test evidence (H + static-assets/map-poi)` | `<pending>` | `<pending>` | `<pending>` | `🟡 Provisional` |
-| H — Event Form + Host Eligibility | `flutter-app@feature/v1-priority-h1-h3-admin-event-host-poi: bc75ded (+local H3.2 fallback removal); laravel-app@feature/v1-priority-h1-h3-admin-event-host-poi: daba0bc` | `Flutter PR #139; Laravel PR #99` | `Flutter PR #140; Laravel PR #100` | `<pending>` | `🟣 Lane-Promoted (H1/H2/H3.1/H3.3/H3.4/H3.5) + 🟧 Local-Implemented (H3.2)` |
+| F — Validation and Tests | `flutter-app@1ecfc17 + laravel-app@4ae7815 local test evidence (H + C.5 + static-assets taxonomy cleanup)` | `<pending>` | `<pending>` | `<pending>` | `🟡 Provisional` |
+| H — Event Form + Host Eligibility | `flutter-app@feature/v1-priority-h1-h3-admin-event-host-poi: 1ecfc17 (+local H3.2 fallback removal); laravel-app@feature/v1-priority-h1-h3-admin-event-host-poi: 4ae7815` | `Flutter PR #139; Laravel PR #99` | `Flutter PR #140; Laravel PR #100` | `<pending>` | `🟣 Lane-Promoted (H1/H2/H3.1/H3.3/H3.4/H3.5) + 🟧 Local-Implemented (H3.2)` |
 
 ---
 
