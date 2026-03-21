@@ -17,12 +17,12 @@
 ## Promotion Evidence (Required)
 | Workstream | Local Branch / Commit | PR to `dev` | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| A — Admin Search | `belluga_now_docker/flutter-app@feature/v1-priority-h1-h3-admin-event-host-poi (diagnostic audit local)` | `<pending>` | `<pending>` | `<pending>` | `🟡 Provisional` |
-| B — Unmanaged Type Edit | `<pending>` | `<pending>` | `<pending>` | `<pending>` | `⚪ Pending` |
-| C — Map Icon/Color Config | `flutter-app@feature/v1-priority-h1-h3-admin-event-host-poi: 1ecfc17 (C.5 local implementation)` | `<pending>` | `<pending>` | `<pending>` | `🟡 Provisional` |
-| D — Discovery Truncation | `belluga_now_docker/flutter-app@feature/v1-priority-h1-h3-admin-event-host-poi (diagnostic audit local)` | `<pending>` | `<pending>` | `<pending>` | `🟡 Provisional` |
-| E — Visual Improvements | `<pending>` | `<pending>` | `<pending>` | `<pending>` | `⚪ Pending` |
-| F — Validation and Tests | `flutter-app@1ecfc17 + laravel-app@4ae7815 local test evidence (H + C.5 + static-assets taxonomy cleanup)` | `<pending>` | `<pending>` | `<pending>` | `🟡 Provisional` |
+| A — Admin Search | `belluga_now_docker/flutter-app@feature/v1-admin-discovery-map-small-fixes-followup (backend-first search + debounce + per_page)` | `<pending>` | `<pending>` | `<pending>` | `🟧 Local-Implemented` |
+| B — Unmanaged Type Edit | `belluga_now_docker/flutter-app@feature/v1-admin-discovery-map-small-fixes-followup + laravel-app@feature/v1-admin-discovery-map-small-fixes-followup` | `<pending>` | `<pending>` | `<pending>` | `🟧 Local-Implemented` |
+| C — Map Icon/Color Config | `flutter-app@feature/v1-admin-discovery-map-small-fixes-followup (C.5 + C.6 local implementation)` | `<pending>` | `<pending>` | `<pending>` | `🟧 Local-Implemented (Branding scope) + 🟡 Provisional (map refactor moved)` |
+| D — Discovery Truncation | `belluga_now_docker/flutter-app@feature/v1-admin-discovery-map-small-fixes-followup + laravel-app@feature/v1-admin-discovery-map-small-fixes-followup` | `<pending>` | `<pending>` | `<pending>` | `🟧 Local-Implemented` |
+| E — Visual Improvements | `<pending>` | `<pending>` | `<pending>` | `<pending>` | `🟡 Provisional (tracked in dedicated TODO)` |
+| F — Validation and Tests | `flutter-app@feature/v1-admin-discovery-map-small-fixes-followup + laravel-app@feature/v1-admin-discovery-map-small-fixes-followup (analyze + Flutter/Laravel targeted suites + local web build)` | `<pending>` | `<pending>` | `<pending>` | `🟧 Local-Implemented` |
 | H — Event Form + Host Eligibility | `flutter-app@feature/v1-priority-h1-h3-admin-event-host-poi: 1ecfc17 (+local H3.2 fallback removal); laravel-app@feature/v1-priority-h1-h3-admin-event-host-poi: 4ae7815` | `Flutter PR #139; Laravel PR #99` | `Flutter PR #140; Laravel PR #100` | `<pending>` | `🟣 Lane-Promoted (H1/H2/H3.1/H3.3/H3.4/H3.5) + 🟧 Local-Implemented (H3.2)` |
 
 ---
@@ -92,10 +92,10 @@
 4. Execute `F` validation after each decision-heavy batch.
 
 ## Next Delivery Scope Lock (Alignment 2026-03-21)
-- [ ] ⚪ Close all still-pending `D` items in this TODO (`D.2`, `D.3` and remaining `D` acceptance criteria).
-- [ ] ⚪ Close all still-pending `F` validation/test items in this TODO (`F.1`, `F.2`, `F.3`, favorites regression line).
-- [ ] ⚪ Close remaining `G` Definition of Done lines after validation evidence is complete.
-- [ ] ⚪ Include and deliver `C.6` (PWA icon rendering consistency) in this same delivery.
+- [ ] 🟧 Local-Implemented — Close all still-pending `D` items in this TODO (`D.2`, `D.3` and remaining `D` acceptance criteria).
+- [ ] 🟧 Local-Implemented — Close all still-pending `F` validation/test items in this TODO (`F.1`, `F.2`, `F.3`, favorites regression line).
+- [ ] 🟧 Local-Implemented — Close remaining `G` Definition of Done lines after validation evidence is complete.
+- [ ] 🟧 Local-Implemented — Include and deliver `C.6` (PWA icon rendering consistency) in this same delivery.
 
 ---
 
@@ -115,9 +115,9 @@
 - Additional pagination mismatch observed: Flutter sends `page_size`, while Laravel account/profile index controllers read `per_page` by default.
 
 ### Acceptance Criteria
-- [ ] ⚪ Search by name/identifier returns expected matches.
-- [ ] ⚪ Search state is consistent after pagination/reload.
-- [ ] ⚪ Empty/loading/error states remain correct while searching.
+- [ ] 🟧 Local-Implemented — Search by name/identifier returns expected matches.
+- [ ] 🟧 Local-Implemented — Search state is consistent after pagination/reload.
+- [ ] 🟧 Local-Implemented — Empty/loading/error states remain correct while searching.
 
 ### Search Decision Baseline (2026-03-21)
 - Admin search must be backend-first (not local-only over loaded pages) for paginated lists.
@@ -153,12 +153,12 @@
 ### Tasks
 - [ ] 🟧 Local-Implemented — In Branding/Visual Identity edit flow, allow manual `#RRGGBB` input in color picker modal and keep picker/preview synced with typed value.
 - [ ] 🟧 Local-Implemented — Remove preset color chips from Branding color picker modal (keep a single canonical editable hex input).
-- [ ] ⚪ Ensure PWA icon field behavior is explicit and functional in UI: if independent, persist + render saved image using the same upload/display standards as other branding images.
+- [ ] 🟧 Local-Implemented — Ensure PWA icon field behavior is explicit and functional in UI: if independent, persist + render saved image using the same upload/display standards as other branding images.
 
 ### Acceptance Criteria
 - [ ] 🟧 Local-Implemented — In Branding/Visual Identity edit flow, color picker modal accepts manually typed valid `#RRGGBB` values and updates picker/preview immediately.
 - [ ] 🟧 Local-Implemented — Branding color picker modal no longer renders preset chips.
-- [ ] ⚪ PWA icon preview/render path is consistent with saved data (no silent mismatch between saved asset and displayed UI state).
+- [ ] 🟧 Local-Implemented — PWA icon preview/render path is consistent with saved data (no silent mismatch between saved asset and displayed UI state).
 - [ ] 🟡 Provisional — Map icon/color hardcoding architectural refactor moved to dedicated TODO `TODO-v1-map-icon-color-config.md`.
 
 ---
@@ -167,8 +167,8 @@
 
 ### Tasks
 - [ ] 🟧 Local-Implemented — Audit current Discovery fetch/pagination limits and identify truncation source.
-- [ ] ⚪ Align list loading with canonical dataset expectations (pagination/infinite scroll or complete fetch by contract).
-- [ ] ⚪ Ensure filter/search interactions do not silently drop valid items.
+- [ ] 🟧 Local-Implemented — Align list loading with canonical dataset expectations (pagination/infinite scroll or complete fetch by contract).
+- [ ] 🟧 Local-Implemented — Ensure filter/search interactions do not silently drop valid items.
 - [ ] 🟧 Local-Implemented — Validate interaction with favorites state and profile-type registry filtering.
 - [ ] 🟧 Local-Implemented — Establish favorites mutation flow with backend persistence and enforce mutation access for identified users only (anonymous users must be blocked and redirected to auth).
 - [ ] 🟧 Local-Implemented — Restrict Discovery filter chips/categories to profile types where `capabilities.is_favoritable=true`.
@@ -183,10 +183,10 @@
 - Non-admin/public endpoint (`AccountProfilesController::publicIndex`) currently applies allowed-type filtering only (`publicPaginate`) and does not enforce an explicit public-visibility boundary, allowing private-profile leakage if present (`laravel-app/app/Application/AccountProfiles/AccountProfileQueryService.php`).
 
 ### Acceptance Criteria
-- [ ] ⚪ Discovery displays full expected dataset for the active query/filter context.
-- [ ] ⚪ No silent cap at low item count.
-- [ ] ⚪ Scrolling/loading behavior is predictable and stable.
-- [ ] ⚪ Favorite toggle persists across reloads/sessions and remains consistent with server state.
+- [ ] 🟧 Local-Implemented — Discovery displays full expected dataset for the active query/filter context.
+- [ ] 🟧 Local-Implemented — No silent cap at low item count.
+- [ ] 🟧 Local-Implemented — Scrolling/loading behavior is predictable and stable.
+- [ ] 🟧 Local-Implemented — Favorite toggle persists across reloads/sessions and remains consistent with server state.
 - [ ] 🟧 Local-Implemented — Anonymous users cannot mutate favorites; authenticated identified users can.
 - [ ] 🟧 Local-Implemented — Discovery chips/categories only show favoritable account-profile types.
 - [ ] 🟧 Local-Implemented — Non-admin Discovery source endpoint excludes private profiles from returned data.
@@ -200,16 +200,16 @@ Moved to dedicated TODO: `TODO-v1-targeted-visual-polish.md`.
 ---
 
 ## F) Validation and Test Plan
-- [ ] ⚪ Add/adjust unit/widget tests for admin search and unmanaged type edit flows.
-- [ ] ⚪ Add/adjust tests for discovery completeness/pagination behavior.
-- [ ] ⚪ Run targeted regression suite for Home/Discovery/Map/Admin impacted surfaces.
+- [ ] 🟧 Local-Implemented — Add/adjust unit/widget tests for admin search and unmanaged type edit flows.
+- [ ] 🟧 Local-Implemented — Add/adjust tests for discovery completeness/pagination behavior.
+- [ ] 🟧 Local-Implemented — Run targeted regression suite for Home/Discovery/Map/Admin impacted surfaces.
 - [ ] 🟧 Local-Implemented — Add/adjust tests and analyzer checks after legacy mock/local path cleanup (`mock_backend` relocation + `AppDataLocalInfoSource` relocation).
 - [ ] 🟧 Local-Implemented — Add Flutter tests for `H1/H2`: type and event forms submit without description (`description/content` optional).
 - [ ] 🟧 Local-Implemented — Add Laravel request/feature tests for `H1/H2`: create/update accepts missing `description/content` and preserves existing validation rules.
 - [ ] 🟧 Local-Implemented — Add Flutter + Laravel contract tests for `H3`: host candidates use POI capability + valid location and persist `place_ref.type=account_profile`.
 - [ ] 🟧 Local-Implemented — Add/adjust Flutter tests for admin accounts backend-first search and ownership edit flow in account-profile edit screen.
 - [ ] 🟧 Local-Implemented — Add Laravel feature tests for accounts search fields, ownership update, unmanaged-only delete guard, and delete cascade consistency.
-- [ ] ⚪ Add favorites regression tests (Flutter + Laravel): mutation is blocked for anonymous users and allowed only for authenticated identified users.
+- [ ] 🟧 Local-Implemented — Add favorites regression tests (Flutter + Laravel): mutation is blocked for anonymous users and allowed only for authenticated identified users.
 
 ---
 
@@ -229,11 +229,11 @@ Moved to dedicated TODO: `TODO-v1-targeted-visual-polish.md`.
 ---
 
 ## G) Definition of Done
-- [ ] ⚪ Admin search works correctly in all affected Tenant Admin flows.
-- [ ] ⚪ Unmanaged type edit is available and guarded correctly.
-- [ ] ⚪ Discovery no longer truncates to a small subset unexpectedly.
-- [ ] ⚪ Tests updated and passing for touched areas.
-- [ ] ⚪ Legacy mock/local path cleanup delivered without runtime regressions.
+- [ ] 🟧 Local-Implemented — Admin search works correctly in all affected Tenant Admin flows.
+- [ ] 🟧 Local-Implemented — Unmanaged type edit is available and guarded correctly.
+- [ ] 🟧 Local-Implemented — Discovery no longer truncates to a small subset unexpectedly.
+- [ ] 🟧 Local-Implemented — Tests updated and passing for touched areas.
+- [ ] 🟧 Local-Implemented — Legacy mock/local path cleanup delivered without runtime regressions.
 - [ ] 🟡 Provisional — Map icon/color DoD tracked in `TODO-v1-map-icon-color-config.md`.
 - [ ] 🟡 Provisional — Visual polish DoD tracked in `TODO-v1-targeted-visual-polish.md`.
 
