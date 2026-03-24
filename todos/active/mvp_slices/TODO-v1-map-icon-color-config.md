@@ -9,7 +9,7 @@
 ---
 
 ## References
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-admin-discovery-map-small-fixes.md`
+- `foundation_documentation/todos/completed/TODO-v1-admin-discovery-map-small-fixes.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-frontend.md`
 - `foundation_documentation/modules/map_poi_module.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`

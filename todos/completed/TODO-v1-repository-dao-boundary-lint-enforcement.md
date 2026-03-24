@@ -1,6 +1,6 @@
 # TODO (V1): Repository-DAO Boundary Lint Enforcement
 
-**Status:** Active (`In Progress`)  
+**Status:** Completed (`Production‑Ready`)  
 **Owners:** Flutter Team  
 **Objective:** Enforce the architecture contract where repositories consume typed DTOs/services and return domain/projections, while raw payload/maps/dynamic parsing is confined to DAO adapters.
 
@@ -45,7 +45,7 @@
 ## Canonical Module Anchors
 - **Primary:** `foundation_documentation/modules/flutter_client_experience_module.md`
 - **Secondary:** `foundation_documentation/submodule_flutter-app_summary.md`
-- **Related Tactical Stream:** `foundation_documentation/todos/active/mvp_slices/TODO-v1-backend-wiring-consolidation.md`
+- **Related Tactical Stream:** `foundation_documentation/todos/completed/TODO-v1-backend-wiring-consolidation.md`
 
 ## Decision Consolidation Targets
 - `foundation_documentation/modules/flutter_client_experience_module.md`:
@@ -132,8 +132,8 @@
 - [x] ✅ Production‑Ready Implement repository transport-boundary lint rule.
 - [x] ✅ Production‑Ready Register rule and update `rules.md`.
 - [x] ✅ Production‑Ready Run custom lint/analyze and capture findings.
-- [ ] ⚪ Pending Remediate in-scope image-flow repositories.
-- [ ] ⚪ Pending Run targeted tests and record outcomes.
+- [x] ✅ Production‑Ready Remediate in-scope image-flow repositories.
+- [x] ✅ Production‑Ready Run targeted tests and record outcomes.
 - [x] ✅ Production‑Ready Consolidate stable decisions into module docs.
 
 ## Execution Evidence (Current Pass)

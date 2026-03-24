@@ -89,6 +89,27 @@ Executable guardrails for this contract:
 - DTO -> Domain mapping is delegated to dedicated mapper files under `lib/infrastructure/dal/dto/mappers/**`.
 - Files under `lib/**` should keep one public class per file; screen files still retain the stricter `multi_widget_file_warning` hygiene rule.
 
+#### 2.1.2 Route-Driven Hydration Contract (Canonical)
+
+This section defines objective hydration parameters for screen/detail flows. The contract is mandatory for all Flutter route surfaces.
+
+| Parameter | Required Rule | Forbidden Pattern | Enforcement |
+|---|---|---|---|
+| Route hydration boundary | Route-level resolvers own URL-param to domain hydration. | Screen lifecycle (`initState`, `didUpdateWidget`) loading feature data from `widget.<path/query param>`. | `ui_route_param_hydration_forbidden` |
+| Screen responsibility | Screen renders controller streams and emits user intents only. | Screen orchestrating fetch/hydrate logic tied to route params. | `ui_build_side_effects_forbidden`, architecture review |
+| Controller ingress | Controllers accept canonical IDs/models from resolver/module contracts. | Controller hydration coupled to direct route widget state by screen glue logic. | `screen_controller_resolution_pattern_required`, code review |
+| Route contract safety | Required non-URL args must be explicitly classified (`URL-Hydratable` or `Internal-Only`) and documented. | Implicit required args with no resolver/fallback path. | Route contract audit on `app_router.gr.dart` |
+
+Hydration decision matrix:
+- **Detail route with URL identity (`slug`, `id`)**: use `RouteModelResolver` (or resolver-equivalent module registration) to hydrate domain object or canonical ID before screen build.
+- **Screen with resolved model/ID**: screen consumes controller stream state only; no route-param hydration call from screen lifecycle.
+- **Internal-only route (not deep-link safe)**: route must declare deterministic fallback/guard and remain explicit in route contract audit.
+
+No-exception guardrails:
+- Do not call `controller.load/fetch/hydrate*(widget.<param>)` inside screen lifecycle methods.
+- Do not bypass resolver discipline by moving hydration to helper methods still owned by screen lifecycle.
+- If resolver cannot be applied, document the exception decision first and define lint/tests that constrain the fallback path.
+
 #### 2.2 API Endpoint Definitions
 
 | Endpoint | Method | Description | Required Role | Request Schema | Response Schema |

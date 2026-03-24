@@ -28,7 +28,7 @@
 - Backend contract redesign (unless a minimal additive read endpoint is strictly required and approved).
 - Any route contract evolution not explicitly listed in `Decision Baseline (Frozen)` as `Contract-Change Required`.
 
-## Current Findings (Route Constructors Still Requiring Non-URL Objects/Labels) — Audit Snapshot 2026-03-20 (Revalidated)
+## Current Findings (Route Constructors Still Requiring Non-URL Objects/Labels) — Audit Snapshot 2026-03-24 (Revalidated)
 ### Shared/system routes
 - `LocationPermissionRoute`: requires `LocationPermissionState initialState`.
 - `LocationNotLiveRoute`: requires `LocationPermissionState blockerState`.
@@ -40,20 +40,13 @@
 ### Tenant admin routes
 - `TenantAdminEventEditRoute`: requires `TenantAdminEvent event`.
 - `TenantAdminEventTypeEditRoute`: requires `TenantAdminEventType type`.
-- `TenantAdminProfileTypeDetailRoute`: requires `TenantAdminProfileTypeDefinition definition`.
-- `TenantAdminProfileTypeEditRoute`: requires `TenantAdminProfileTypeDefinition definition`.
-- `TenantAdminStaticProfileTypeDetailRoute`: requires `TenantAdminStaticProfileTypeDefinition definition`.
-- `TenantAdminStaticProfileTypeEditRoute`: requires `TenantAdminStaticProfileTypeDefinition definition`.
-- `TenantAdminTaxonomyEditRoute`: requires `TenantAdminTaxonomyDefinition taxonomy`.
-- `TenantAdminTaxonomyTermsRoute`: path already carries `taxonomyId`, but still requires non-path `taxonomyName`.
-- `TenantAdminTaxonomyTermCreateRoute`: path already carries `taxonomyId`, but still requires non-path `taxonomyName`.
-- `TenantAdminTaxonomyTermEditRoute`: path already carries `taxonomyId` + `termId`, but still requires non-path `taxonomyName` + `TenantAdminTaxonomyTermDefinition term`.
-- `TenantAdminTaxonomyTermDetailRoute`: path already carries `taxonomyId` + `termId`, but still requires non-path `taxonomyName` + `TenantAdminTaxonomyTermDefinition term`.
 
 ### Confirmed Progress Already in Code
+- Tenant-admin profile/static-profile/taxonomy/term routes are now URL-first and no longer require non-URL object/name constructor args.
 - Tenant-admin path params are encoded and validated in `test/application/router/tenant_admin_route_path_params_test.dart` (accounts, profile types, static profile types, taxonomies, terms, workspace).
+- Resolvers for profile/static-profile/taxonomy/term hydration are registered in `TenantAdminModule` and consumed via `ResolverRoute`.
 - `TenantAdminStaticAssetDetailRoute` and `TenantAdminStaticAssetEditRoute` are already URL-hydratable from `assetId` path param via `orElse` route-args fallback.
-- Revalidation against current `app_router.gr.dart` confirms the matrix remains complete for required non-URL domain/state args (no additional uncovered routes beyond the listed set).
+- Revalidation against current `app_router.gr.dart` confirms the remaining required non-URL domain/state args are restricted to shared location routes + invite share + POI details + tenant-admin event edit routes.
 
 ## Coverage Contract (System-Wide)
 - Every route in generated router with required non-URL args must be classified in one of these implementation buckets:
@@ -75,29 +68,21 @@
 | `PoiDetailsRoute` | `poi` | none (`/mapa/poi`) | `Contract-Change Required` | `URL-Hydratable` | Flutter Team | Route must add URL identifier (`poiId` or canonical slug/ref) before resolver hydration. |
 | `TenantAdminEventEditRoute` | `event` | none (`/events/edit`) | `Internal-Only` | `Internal-Only` | Flutter Team | Keep internal-only in V1; contract change optional future track. |
 | `TenantAdminEventTypeEditRoute` | `type` | none (`/events/types/edit`) | `Internal-Only` | `Internal-Only` | Flutter Team | Keep internal-only in V1; contract change optional future track. |
-| `TenantAdminProfileTypeDetailRoute` | `definition` | `profileType` | `URL-Hydratable (Current Contract)` | `URL-Hydratable` | Flutter Team | Hydrate by `profileType`; keep object arg optional fast-path only. |
-| `TenantAdminProfileTypeEditRoute` | `definition` | `profileType` | `URL-Hydratable (Current Contract)` | `URL-Hydratable` | Flutter Team | Hydrate by `profileType`; keep object arg optional fast-path only. |
-| `TenantAdminStaticProfileTypeDetailRoute` | `definition` | `profileType` | `URL-Hydratable (Current Contract)` | `URL-Hydratable` | Flutter Team | Hydrate by `profileType`; keep object arg optional fast-path only. |
-| `TenantAdminStaticProfileTypeEditRoute` | `definition` | `profileType` | `URL-Hydratable (Current Contract)` | `URL-Hydratable` | Flutter Team | Hydrate by `profileType`; keep object arg optional fast-path only. |
-| `TenantAdminTaxonomyEditRoute` | `taxonomy` | `taxonomyId` | `URL-Hydratable (Current Contract)` | `URL-Hydratable` | Flutter Team | Hydrate taxonomy by id; keep object arg optional fast-path only. |
-| `TenantAdminTaxonomyTermsRoute` | `taxonomyName` | `taxonomyId` | `URL-Hydratable (Current Contract)` | `URL-Hydratable` | Flutter Team | Derive title/name from hydrated taxonomy. |
-| `TenantAdminTaxonomyTermCreateRoute` | `taxonomyName` | `taxonomyId` | `URL-Hydratable (Current Contract)` | `URL-Hydratable` | Flutter Team | Derive title/name from hydrated taxonomy. |
-| `TenantAdminTaxonomyTermDetailRoute` | `taxonomyName`, `term` | `taxonomyId`, `termId` | `URL-Hydratable (Current Contract)` | `URL-Hydratable` | Flutter Team | Hydrate taxonomy + term by ids; keep non-url args optional fast-path only. |
-| `TenantAdminTaxonomyTermEditRoute` | `taxonomyName`, `term` | `taxonomyId`, `termId` | `URL-Hydratable (Current Contract)` | `URL-Hydratable` | Flutter Team | Hydrate taxonomy + term by ids; keep non-url args optional fast-path only. |
 
-## Coherence Scan (2026-03-20)
+## Coherence Scan (2026-03-24)
 - `app_router.gr.dart` confirms the matrix is exhaustive for required non-URL args in current generated contracts.
-- Tenant-admin currently registers route resolver only for static asset detail; profile-type and taxonomy hydration resolvers are still absent and must be added in this scope.
+- Tenant-admin currently registers profile/static-profile/taxonomy/term resolvers and routes consume them through `ResolverRoute`.
 - Taxonomy feature currently has two list screens (`TenantAdminTaxonomyTermsScreen` and `TenantAdminTaxonomyTermsListScreen`); router points to `TenantAdminTaxonomyTermsScreen`. Route hardening and tests must use the routed screen as canonical.
-- Current path-param test (`test/application/router/tenant_admin_route_path_params_test.dart`) encodes now-deprecated required object args for profile/taxonomy routes and must be updated when constructors become URL-first/optional fast-path.
+- Path-param test (`test/application/router/tenant_admin_route_path_params_test.dart`) is aligned with URL-first profile/static-profile/taxonomy constructors.
 - `PoiDetailsRoute` currently lacks URL identifier and map repository contract lacks single-POI fetch by id/slug, so URL-only hydration for POI is blocked until route contract evolution.
+- Internal-only routes listed above still require route args and still need explicit absent-args fallback + focused test coverage.
 
 ## Plan
 - [x] ✅ Production‑Ready Revalidated matrix completeness against current generated router (`app_router.gr.dart`) on 2026-03-20.
 - [x] ✅ Production‑Ready Confirmed target disposition for every affected route and froze baseline matrix (2026-03-20).
 - [x] ✅ Production‑Ready Ran coherence scan from routed pages/controllers/repositories/tests and documented blocking dependencies.
-- [ ] ⚪ Pending Refactor constructors for `URL-Hydratable (Current Contract)` routes so non-URL objects/labels become optional fast-path args.
-- [ ] ⚪ Pending Add resolver/controller hydration for profile-type and taxonomy routes (`profileType`, `taxonomyId`, `termId`).
+- [x] ✅ Production‑Ready Refactored profile/static-profile/taxonomy route constructors to URL-first signatures (no required non-URL objects/labels).
+- [x] ✅ Production‑Ready Added resolver/controller hydration for profile-type and taxonomy routes (`profileType`, `taxonomyId`, `termId`).
 - [ ] ⚪ Pending Add deterministic loading/error/not-found states for deep-link and refresh entry in URL-hydratable routes.
 - [ ] ⚪ Pending Add deterministic fallback behavior for all `Internal-Only` routes when args are absent.
 - [ ] ⚪ Pending Execute route contract evolution for `PoiDetailsRoute` (identifier in URL + repository/resolver support) before URL-hydratable hardening.
@@ -119,7 +104,7 @@
 - [ ] ⚪ Pending `fvm flutter test test/application/router/tenant_admin_route_path_params_test.dart`
 - [ ] ⚪ Pending Add/run a generated-router contract check that fails on unclassified required non-URL args.
 - [ ] ⚪ Pending Update/add tests for profile-type/taxonomy routes validating deep-link refresh without preloaded objects.
-- [ ] ⚪ Pending Update path-param tests to new optional-fast-path constructor signatures for profile/taxonomy routes.
+- [x] ✅ Production‑Ready Updated path-param tests to URL-first constructor signatures for profile/taxonomy routes.
 - [ ] ⚪ Pending Add/run focused tests for shared location routes (`/location/permission`, `/location/not-live`) absent-args behavior.
 - [ ] ⚪ Pending Add/run focused tests for internal-only edit routes (`TenantAdminEventEditRoute`, `TenantAdminEventTypeEditRoute`) absent-args fallback behavior.
 - [ ] ⚪ Pending Add/run focused tests for `InviteShareRoute` internal-only absent-args fallback behavior.

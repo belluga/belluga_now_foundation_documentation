@@ -1,7 +1,7 @@
 # TODO (V1): Admin + Discovery + Map Small Fixes
 
-**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.  
-**Status:** Active (local scope completed; awaiting promotion lane)  
+**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] Production-Ready`.  
+**Status:** Completed (scope delivered and promoted to `main`)  
 **Owners:** Flutter Team, Laravel Team  
 **Objective:** Fix small-but-blocking MVP issues across Tenant Admin, Discovery, and Map before release freeze.
 **Promotion lane path:** `dev -> stage -> main` (when scope requires production rollout)
@@ -17,14 +17,14 @@
 ## Promotion Evidence (Required)
 | Workstream | Local Branch / Commit | PR to `dev` | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| A — Admin Search | `belluga_now_docker/flutter-app@feature/v1-admin-discovery-map-small-fixes-followup (backend-first search + debounce + per_page)` | `<pending>` | `<pending>` | `<pending>` | `🟧 Local-Implemented` |
-| B — Unmanaged Type Edit | `belluga_now_docker/flutter-app@feature/v1-admin-discovery-map-small-fixes-followup + laravel-app@feature/v1-admin-discovery-map-small-fixes-followup` | `<pending>` | `<pending>` | `<pending>` | `🟧 Local-Implemented` |
-| C — Map Icon/Color Config | `flutter-app@feature/v1-admin-discovery-map-small-fixes-followup (C.5 + C.6 local implementation)` | `<pending>` | `<pending>` | `<pending>` | `🟧 Local-Implemented (Branding scope) + 🟡 Provisional (map refactor moved)` |
-| D — Discovery Truncation | `belluga_now_docker/flutter-app@feature/v1-admin-discovery-map-small-fixes-followup + laravel-app@feature/v1-admin-discovery-map-small-fixes-followup` | `<pending>` | `<pending>` | `<pending>` | `🟧 Local-Implemented` |
-| E — Visual Improvements | `<pending>` | `<pending>` | `<pending>` | `<pending>` | `🟡 Provisional (tracked in dedicated TODO)` |
-| F — Validation and Tests | `flutter-app@feature/v1-admin-discovery-map-small-fixes-followup + laravel-app@feature/v1-admin-discovery-map-small-fixes-followup (analyze + Flutter/Laravel targeted suites + local web build)` | `<pending>` | `<pending>` | `<pending>` | `🟧 Local-Implemented` |
-| H — Event Form + Host Eligibility | `flutter-app@feature/v1-priority-h1-h3-admin-event-host-poi: 1ecfc17 (+local H3.2 fallback removal); laravel-app@feature/v1-priority-h1-h3-admin-event-host-poi: 4ae7815` | `Flutter PR #139; Laravel PR #99` | `Flutter PR #140; Laravel PR #100` | `<pending>` | `🟣 Lane-Promoted (H1/H2/H3.1/H3.3/H3.4/H3.5) + 🟧 Local-Implemented (H3.2)` |
-| J — Tenant Public Regressions (Discovery/Home/Location/Text) | `flutter-app@feature/v1-admin-discovery-map-small-fixes-followup (J.3/J.4) + laravel-app@feature/v1-admin-discovery-map-small-fixes-followup (J.1/J.5 + token-scope tests)` | `<pending>` | `<pending>` | `<pending>` | `🟧 Local-Implemented (J.1/J.3/J.4/J.5) + 🟡 Provisional (J.2 superseded to VNext)` |
+| A — Admin Search | `belluga_now_docker/flutter-app@feature/v1-admin-discovery-map-small-fixes-followup (backend-first search + debounce + per_page)` | `Flutter PR #149; Laravel PR #109` | `Flutter PR #150; Laravel PR #110` | `Flutter PR #151; Laravel PR #111` | `Production-Ready` |
+| B — Unmanaged Type Edit | `belluga_now_docker/flutter-app@feature/v1-admin-discovery-map-small-fixes-followup + laravel-app@feature/v1-admin-discovery-map-small-fixes-followup` | `Flutter PR #149; Laravel PR #109` | `Flutter PR #150; Laravel PR #110` | `Flutter PR #151; Laravel PR #111` | `Production-Ready` |
+| C — Map Icon/Color Config | `flutter-app@feature/v1-admin-discovery-map-small-fixes-followup (C.5 + C.6 local implementation)` | `Flutter PR #149; Laravel PR #109` | `Flutter PR #150; Laravel PR #110` | `Flutter PR #151; Laravel PR #111` | `Production-Ready (Branding scope within this TODO)` |
+| D — Discovery Truncation | `belluga_now_docker/flutter-app@feature/v1-admin-discovery-map-small-fixes-followup + laravel-app@feature/v1-admin-discovery-map-small-fixes-followup` | `Flutter PR #149; Laravel PR #109` | `Flutter PR #150; Laravel PR #110` | `Flutter PR #151; Laravel PR #111` | `Production-Ready` |
+| F — Validation and Tests | `flutter-app@feature/v1-admin-discovery-map-small-fixes-followup + laravel-app@feature/v1-admin-discovery-map-small-fixes-followup (analyze + Flutter/Laravel targeted suites + local web build)` | `Flutter PR #149; Laravel PR #109` | `Flutter PR #150; Laravel PR #110` | `Flutter PR #151; Laravel PR #111` | `Production-Ready` |
+| H — Event Form + Host Eligibility | `flutter-app@feature/v1-priority-h1-h3-admin-event-host-poi: 1ecfc17 (+local H3.2 fallback removal); laravel-app@feature/v1-priority-h1-h3-admin-event-host-poi: 4ae7815` | `Flutter PR #139; Laravel PR #99` | `Flutter PR #140; Laravel PR #100` | `Flutter PR #151; Laravel PR #111` | `Production-Ready` |
+| J — Tenant Public Regressions (Discovery/Home/Location/Text) | `flutter-app@feature/v1-admin-discovery-map-small-fixes-followup (J.3/J.4) + laravel-app@feature/v1-admin-discovery-map-small-fixes-followup (J.1/J.5 + token-scope tests)` | `Flutter PR #149; Laravel PR #109` | `Flutter PR #150; Laravel PR #110` | `Flutter PR #151; Laravel PR #111` | `Production-Ready` |
+| K — Repository/Service No-Fallback Guardrail | `flutter-app@feature/v1-admin-discovery-map-small-fixes-followup (rule + fallback cleanup + follow-up cfdb9a8)` | `Flutter PR #152; Flutter PR #155` | `Flutter PR #156` | `Flutter PR #157` | `Production-Ready` |
 
 ---
 
@@ -34,8 +34,6 @@
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-frontend.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-icon-color-config.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-targeted-visual-polish.md`
 - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-search-performance-hardening.md`
 - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-public-resilience-and-error-continuity.md`
 - `foundation_documentation/modules/tenant_admin_module.md`
@@ -53,6 +51,7 @@
 - Fix tenant-public Home agenda returning empty state when backend has eligible events.
 - Fix web location permission UX flow (retry behavior and denied-permanent guidance).
 - Define and implement canonical contains-search behavior for text filters (`thales` vs `thale`) across affected lists.
+- Enforce no-fallback policy in repositories/services: runtime/model fallbacks are forbidden at data/service layer; only controller/view may handle empty/error presentation states.
 - Keep Branding/Visual Identity color-picker improvements within this slice.
 - Remove legacy test-only mock backend code from runtime `lib` paths and relocate it to test-only support paths.
 - Relocate local app metadata source out of `dao/local` into a clearer infrastructure/platform path (without changing runtime behavior).
@@ -61,8 +60,6 @@
 - New major IA/UX redesign for admin, map, or discovery.
 - Net-new MVP capabilities unrelated to these defects.
 - Backend schema redesign for map POI core model.
-- Map marker/filter icon-color architecture refactor (tracked in `TODO-v1-map-icon-color-config.md`).
-- Targeted cross-screen visual polish pass (tracked in `TODO-v1-targeted-visual-polish.md`).
 
 ---
 
@@ -97,9 +94,8 @@
 ### Suggested Execution Sequence
 1. Deliver the objective set first (`H1`, `H2`, `H3.2`, `H3.5`, plus diagnostics `A.1`, `A.2`, `D.1`).
 2. Close remaining decision-heavy items in this TODO (`B/D`).
-3. Execute map and visual dedicated TODOs in parallel (`TODO-v1-map-icon-color-config.md` and `TODO-v1-targeted-visual-polish.md`).
-4. Close `J` tenant-public regressions (`Discovery/Home/Location/Text`) with explicit regression tests.
-5. Execute `F` validation after each decision-heavy batch.
+3. Close `J` tenant-public regressions (`Discovery/Home/Location/Text`) with explicit regression tests.
+4. Execute `F` validation after each decision-heavy batch.
 
 ## Next Delivery Scope Lock (Alignment 2026-03-21)
 - [x] Processed (2026-03-21) — Closed `D` items in this TODO with backend-first pagination/search, favoritable chip filtering, and favorite/auth guard behavior.
@@ -112,10 +108,10 @@
 ## A) Workstream: Admin Search Not Working Properly
 
 ### Tasks
-- [ ] 🟧 Local-Implemented — Reproduce and document failing search paths (Account list, Account Profile list/detail selectors).
-- [ ] 🟧 Local-Implemented — Verify request/query propagation from Flutter filters/search to backend endpoints.
-- [ ] 🟧 Local-Implemented — Fix search criteria application and result refresh lifecycle (backend-first with debounce and page reset).
-- [ ] 🟧 Local-Implemented — Ensure clear-search restores baseline dataset correctly via backend reload.
+- [x] Production-Ready — Reproduce and document failing search paths (Account list, Account Profile list/detail selectors).
+- [x] Production-Ready — Verify request/query propagation from Flutter filters/search to backend endpoints.
+- [x] Production-Ready — Fix search criteria application and result refresh lifecycle (backend-first with debounce and page reset).
+- [x] Production-Ready — Ensure clear-search restores baseline dataset correctly via backend reload.
 
 ### Diagnostic Evidence (2026-03-21)
 - Flutter account-list search is local-only over already loaded pages (`flutter-app/lib/presentation/tenant_admin/accounts/screens/tenant_admin_accounts_list_screen.dart`, `_filterAccounts`), so unloaded pages are never queried.
@@ -125,9 +121,9 @@
 - Additional pagination mismatch observed: Flutter sends `page_size`, while Laravel account/profile index controllers read `per_page` by default.
 
 ### Acceptance Criteria
-- [ ] 🟧 Local-Implemented — Search by name/identifier returns expected matches.
-- [ ] 🟧 Local-Implemented — Search state is consistent after pagination/reload.
-- [ ] 🟧 Local-Implemented — Empty/loading/error states remain correct while searching.
+- [x] Production-Ready — Search by name/identifier returns expected matches.
+- [x] Production-Ready — Search state is consistent after pagination/reload.
+- [x] Production-Ready — Empty/loading/error states remain correct while searching.
 
 ### Search Decision Baseline (2026-03-21)
 - Admin search must be backend-first (not local-only over loaded pages) for paginated lists.
@@ -145,44 +141,43 @@
 ## B) Workstream: Ownership Edit + Unmanaged Delete Guardrails
 
 ### Tasks
-- [ ] 🟧 Local-Implemented — Add ownership-state edit flow in Tenant Admin profile edit (`tenant_owned` / `unmanaged`, same options as create flow).
-- [ ] 🟧 Local-Implemented — Wire ownership-state persistence through backend account update contract and refresh list/detail projections after save.
-- [ ] 🟧 Local-Implemented — Enforce unmanaged-only account delete in backend with transactional consistency (account + account profiles + role templates).
-- [ ] 🟧 Local-Implemented — Expose delete CTA in account detail UI only when account is unmanaged and route deletion through backend contract.
-- [ ] 🟧 Local-Implemented — Keep managed/tenant-owned guardrails explicit in UI and backend validation (delete blocked for non-unmanaged).
+- [x] Production-Ready — Add ownership-state edit flow in Tenant Admin profile edit (`tenant_owned` / `unmanaged`, same options as create flow).
+- [x] Production-Ready — Wire ownership-state persistence through backend account update contract and refresh list/detail projections after save.
+- [x] Production-Ready — Enforce unmanaged-only account delete in backend with transactional consistency (account + account profiles + role templates).
+- [x] Production-Ready — Expose delete CTA in account detail UI only when account is unmanaged and route deletion through backend contract.
+- [x] Production-Ready — Keep managed/tenant-owned guardrails explicit in UI and backend validation (delete blocked for non-unmanaged).
 
 ### Acceptance Criteria
-- [ ] 🟧 Local-Implemented — Admin can update ownership state from edit flow and observe reflected value in account detail/list surfaces.
-- [ ] 🟧 Local-Implemented — Delete operation succeeds only for unmanaged accounts.
-- [ ] 🟧 Local-Implemented — Ineligible delete attempts are blocked by backend validation with explicit error.
+- [x] Production-Ready — Admin can update ownership state from edit flow and observe reflected value in account detail/list surfaces.
+- [x] Production-Ready — Delete operation succeeds only for unmanaged accounts.
+- [x] Production-Ready — Ineligible delete attempts are blocked by backend validation with explicit error.
 
 ---
 
 ## C) Workstream: Branding Color Picker Improvements (Scoped in This TODO)
 
 ### Tasks
-- [ ] 🟧 Local-Implemented — In Branding/Visual Identity edit flow, allow manual `#RRGGBB` input in color picker modal and keep picker/preview synced with typed value.
-- [ ] 🟧 Local-Implemented — Remove preset color chips from Branding color picker modal (keep a single canonical editable hex input).
-- [ ] 🟧 Local-Implemented — Ensure PWA icon field behavior is explicit and functional in UI: if independent, persist + render saved image using the same upload/display standards as other branding images.
+- [x] Production-Ready — In Branding/Visual Identity edit flow, allow manual `#RRGGBB` input in color picker modal and keep picker/preview synced with typed value.
+- [x] Production-Ready — Remove preset color chips from Branding color picker modal (keep a single canonical editable hex input).
+- [x] Production-Ready — Ensure PWA icon field behavior is explicit and functional in UI: if independent, persist + render saved image using the same upload/display standards as other branding images.
 
 ### Acceptance Criteria
-- [ ] 🟧 Local-Implemented — In Branding/Visual Identity edit flow, color picker modal accepts manually typed valid `#RRGGBB` values and updates picker/preview immediately.
-- [ ] 🟧 Local-Implemented — Branding color picker modal no longer renders preset chips.
-- [ ] 🟧 Local-Implemented — PWA icon preview/render path is consistent with saved data (no silent mismatch between saved asset and displayed UI state).
-- [ ] 🟡 Provisional — Map icon/color hardcoding architectural refactor moved to dedicated TODO `TODO-v1-map-icon-color-config.md`.
+- [x] Production-Ready — In Branding/Visual Identity edit flow, color picker modal accepts manually typed valid `#RRGGBB` values and updates picker/preview immediately.
+- [x] Production-Ready — Branding color picker modal no longer renders preset chips.
+- [x] Production-Ready — PWA icon preview/render path is consistent with saved data (no silent mismatch between saved asset and displayed UI state).
 
 ---
 
 ## D) Workstream: Discovery Shows Only Few Items
 
 ### Tasks
-- [ ] 🟧 Local-Implemented — Audit current Discovery fetch/pagination limits and identify truncation source.
-- [ ] 🟧 Local-Implemented — Align list loading with canonical dataset expectations (pagination/infinite scroll or complete fetch by contract).
-- [ ] 🟧 Local-Implemented — Ensure filter/search interactions do not silently drop valid items.
-- [ ] 🟧 Local-Implemented — Validate interaction with favorites state and profile-type registry filtering.
-- [ ] 🟧 Local-Implemented — Establish favorites mutation flow with backend persistence and enforce mutation access for identified users only (anonymous users must be blocked and redirected to auth).
-- [ ] 🟧 Local-Implemented — Restrict Discovery filter chips/categories to profile types where `capabilities.is_favoritable=true`.
-- [ ] 🟧 Local-Implemented — Enforce non-admin/public account-profile listing to return only public profiles (block private profile leakage in Discovery source endpoint).
+- [x] Production-Ready — Audit current Discovery fetch/pagination limits and identify truncation source.
+- [x] Production-Ready — Align list loading with canonical dataset expectations (pagination/infinite scroll or complete fetch by contract).
+- [x] Production-Ready — Ensure filter/search interactions do not silently drop valid items.
+- [x] Production-Ready — Validate interaction with favorites state and profile-type registry filtering.
+- [x] Production-Ready — Establish favorites mutation flow with backend persistence and enforce mutation access for identified users only (anonymous users must be blocked and redirected to auth).
+- [x] Production-Ready — Restrict Discovery filter chips/categories to profile types where `capabilities.is_favoritable=true`.
+- [x] Production-Ready — Enforce non-admin/public account-profile listing to return only public profiles (block private profile leakage in Discovery source endpoint).
 
 ### Diagnostic Evidence (2026-03-21)
 - Discovery loads partners through a single fetch path (`flutter-app/lib/presentation/tenant_public/discovery/controllers/discovery_screen_controller.dart`, `_loadPartners -> fetchAllAccountProfiles`).
@@ -193,110 +188,98 @@
 - Non-admin/public endpoint (`AccountProfilesController::publicIndex`) currently applies allowed-type filtering only (`publicPaginate`) and does not enforce an explicit public-visibility boundary, allowing private-profile leakage if present (`laravel-app/app/Application/AccountProfiles/AccountProfileQueryService.php`).
 
 ### Acceptance Criteria
-- [ ] 🟧 Local-Implemented — Discovery displays full expected dataset for the active query/filter context.
-- [ ] 🟧 Local-Implemented — No silent cap at low item count.
-- [ ] 🟧 Local-Implemented — Scrolling/loading behavior is predictable and stable.
-- [ ] 🟧 Local-Implemented — Favorite toggle persists across reloads/sessions and remains consistent with server state.
-- [ ] 🟧 Local-Implemented — Anonymous users cannot mutate favorites; authenticated identified users can.
-- [ ] 🟧 Local-Implemented — Discovery chips/categories only show favoritable account-profile types.
-- [ ] 🟧 Local-Implemented — Non-admin Discovery source endpoint excludes private profiles from returned data.
-
----
-
-## E) Workstream: Visual Improvements (Targeted)
-
-Moved to dedicated TODO: `TODO-v1-targeted-visual-polish.md`.
-
----
+- [x] Production-Ready — Discovery displays full expected dataset for the active query/filter context.
+- [x] Production-Ready — No silent cap at low item count.
+- [x] Production-Ready — Scrolling/loading behavior is predictable and stable.
+- [x] Production-Ready — Favorite toggle persists across reloads/sessions and remains consistent with server state.
+- [x] Production-Ready — Anonymous users cannot mutate favorites; authenticated identified users can.
+- [x] Production-Ready — Discovery chips/categories only show favoritable account-profile types.
+- [x] Production-Ready — Non-admin Discovery source endpoint excludes private profiles from returned data.
 
 ## F) Validation and Test Plan
-- [ ] 🟧 Local-Implemented — Add/adjust unit/widget tests for admin search and unmanaged type edit flows.
-- [ ] 🟧 Local-Implemented — Add/adjust tests for discovery completeness/pagination behavior.
-- [ ] 🟧 Local-Implemented — Run targeted regression suite for Home/Discovery/Map/Admin impacted surfaces.
-- [ ] 🟧 Local-Implemented — Add/adjust tests and analyzer checks after legacy mock/local path cleanup (`mock_backend` relocation + `AppDataLocalInfoSource` relocation).
-- [ ] 🟧 Local-Implemented — Add Flutter tests for `H1/H2`: type and event forms submit without description (`description/content` optional).
-- [ ] 🟧 Local-Implemented — Add Laravel request/feature tests for `H1/H2`: create/update accepts missing `description/content` and preserves existing validation rules.
-- [ ] 🟧 Local-Implemented — Add Flutter + Laravel contract tests for `H3`: host candidates use POI capability + valid location and persist `place_ref.type=account_profile`.
-- [ ] 🟧 Local-Implemented — Add/adjust Flutter tests for admin accounts backend-first search and ownership edit flow in account-profile edit screen.
-- [ ] 🟧 Local-Implemented — Add Laravel feature tests for accounts search fields, ownership update, unmanaged-only delete guard, and delete cascade consistency.
-- [ ] 🟧 Local-Implemented — Add favorites regression tests (Flutter + Laravel): mutation is blocked for anonymous users and allowed only for authenticated identified users.
-- [ ] 🟡 Provisional — Add regression coverage for tenant-public discovery bootstrap (`anon auth + first-page load + favoritable chips`), including explicit 401/403 handling. (`2026-03-22`: backend token-scope 200/403 regression added for tenant-public `agenda` + `account_profiles`, plus anonymous token first-page access assertions; discovery first-page loading-state retry coverage superseded to VNext resilience TODO)
-- [ ] 🟧 Local-Implemented — Add regression coverage for tenant-public Home agenda parity (`API returns items -> UI must render items`) and filter-origin query contract.
-- [ ] 🟧 Local-Implemented — Add widget/controller tests for web location permission denied-permanent UX (explicit step-by-step guidance and deterministic retry behavior).
-- [ ] 🟧 Local-Implemented — Add backend + Flutter tests for canonical contains textual filtering behavior on account profiles, assets, and events search endpoints/queries. (Laravel targeted suite executed successfully on 2026-03-22 after Docker restart)
+- [x] Production-Ready — Add/adjust unit/widget tests for admin search and unmanaged type edit flows.
+- [x] Production-Ready — Add/adjust tests for discovery completeness/pagination behavior.
+- [x] Production-Ready — Run targeted regression suite for Home/Discovery/Map/Admin impacted surfaces.
+- [x] Production-Ready — Add/adjust tests and analyzer checks after legacy mock/local path cleanup (`mock_backend` relocation + `AppDataLocalInfoSource` relocation).
+- [x] Production-Ready — Add Flutter tests for `H1/H2`: type and event forms submit without description (`description/content` optional).
+- [x] Production-Ready — Add Laravel request/feature tests for `H1/H2`: create/update accepts missing `description/content` and preserves existing validation rules.
+- [x] Production-Ready — Add Flutter + Laravel contract tests for `H3`: host candidates use POI capability + valid location and persist `place_ref.type=account_profile`.
+- [x] Production-Ready — Add/adjust Flutter tests for admin accounts backend-first search and ownership edit flow in account-profile edit screen.
+- [x] Production-Ready — Add Laravel feature tests for accounts search fields, ownership update, unmanaged-only delete guard, and delete cascade consistency.
+- [x] Production-Ready — Add favorites regression tests (Flutter + Laravel): mutation is blocked for anonymous users and allowed only for authenticated identified users.
+- [x] Production-Ready — Add regression coverage for tenant-public Home agenda parity (`API returns items -> UI must render items`) and filter-origin query contract.
+- [x] Production-Ready — Add widget/controller tests for web location permission denied-permanent UX (explicit step-by-step guidance and deterministic retry behavior).
+- [x] Production-Ready — Add backend + Flutter tests for canonical contains textual filtering behavior on account profiles, assets, and events search endpoints/queries. (Laravel targeted suite executed successfully on 2026-03-22 after Docker restart)
 
 ---
 
 ## I) Workstream: Infrastructure Cleanup (Mock Backend + Local Adapter Paths)
 
 ### Tasks
-- [ ] 🟧 Local-Implemented — Remove `lib/infrastructure/dal/dao/mock_backend/**` from runtime code ownership by relocating required fixtures/adapters to test-only support paths.
-- [ ] 🟧 Local-Implemented — Update test imports/usages to the new test-only locations and remove remaining `mock_backend` references from production `lib` modules.
-- [ ] 🟧 Local-Implemented — Move `AppDataLocalInfoSource` out of `lib/infrastructure/dal/dao/local/**` to a clearer infrastructure/platform location and update imports.
-- [ ] 🟧 Local-Implemented — Keep `AppDataLocalInfoSource` behavior intact (no fallback contract change), only path/ownership cleanup.
+- [x] Production-Ready — Remove `lib/infrastructure/dal/dao/mock_backend/**` from runtime code ownership by relocating required fixtures/adapters to test-only support paths.
+- [x] Production-Ready — Update test imports/usages to the new test-only locations and remove remaining `mock_backend` references from production `lib` modules.
+- [x] Production-Ready — Move `AppDataLocalInfoSource` out of `lib/infrastructure/dal/dao/local/**` to a clearer infrastructure/platform location and update imports.
+- [x] Production-Ready — Keep `AppDataLocalInfoSource` behavior intact (no fallback contract change), only path/ownership cleanup.
 
 ### Acceptance Criteria
-- [ ] 🟧 Local-Implemented — `flutter analyze lib test integration_test` passes after path cleanup.
-- [ ] 🟧 Local-Implemented — No runtime module under production `lib` depends on `mock_backend` paths.
-- [ ] 🟧 Local-Implemented — `AppDataLocalInfoSource` remains functional and initialization flow behavior is unchanged.
+- [x] Production-Ready — `flutter analyze lib test integration_test` passes after path cleanup.
+- [x] Production-Ready — No runtime module under production `lib` depends on `mock_backend` paths.
+- [x] Production-Ready — `AppDataLocalInfoSource` remains functional and initialization flow behavior is unchanged.
 
 ---
 
 ## G) Definition of Done
-- [ ] 🟧 Local-Implemented — Admin search works correctly in all affected Tenant Admin flows.
-- [ ] 🟧 Local-Implemented — Unmanaged type edit is available and guarded correctly.
-- [ ] 🟧 Local-Implemented — Discovery no longer truncates to a small subset unexpectedly.
-- [ ] 🟧 Local-Implemented — Tests updated and passing for touched areas.
-- [ ] 🟧 Local-Implemented — Legacy mock/local path cleanup delivered without runtime regressions.
-- [ ] 🟡 Provisional — Tenant-public discovery/home/location regressions are resolved and covered by regression tests. (`J.2` continuity/fault-tolerance scope superseded to VNext TODO.)
-- [ ] 🟡 Provisional — Map icon/color DoD tracked in `TODO-v1-map-icon-color-config.md`.
-- [ ] 🟡 Provisional — Visual polish DoD tracked in `TODO-v1-targeted-visual-polish.md`.
+- [x] Production-Ready — Admin search works correctly in all affected Tenant Admin flows.
+- [x] Production-Ready — Unmanaged type edit is available and guarded correctly.
+- [x] Production-Ready — Discovery no longer truncates to a small subset unexpectedly.
+- [x] Production-Ready — Tests updated and passing for touched areas.
+- [x] Production-Ready — Legacy mock/local path cleanup delivered without runtime regressions.
 
 
 ## H) Priority Workstream (Current Delivery): Event Form + Host Eligibility
 
 ### Delivery Scope Lock (Current Iteration)
-- [ ] 🟡 Provisional — Deliver only this workstream (`H1`, `H2`, `H3`) in the current iteration.
-- [ ] 🟡 Provisional — Keep workstreams `A` through `G` pending until these priority items are delivered.
+- [x] Processed (historical scope lock for this iteration) — Delivered this workstream (`H1`, `H2`, `H3`) and promoted through lane.
+- [x] Processed (historical scope lock for this iteration) — Workstreams `A` through `G` were resumed and completed after the priority delivery.
 
 ### H1) Type Description Optional (Account Types, Event Types, Any Types)
 
 #### Tasks
-- [ ] 🟣 Lane-Promoted — Remove required-description validation from type create/edit forms in Flutter.
-- [ ] 🟣 Lane-Promoted — Align backend validation/contracts so type description is optional (store/update paths).
-- [ ] 🟣 Lane-Promoted — Ensure payload encoding omits empty description fields (instead of forcing empty-string validation errors).
+- [x] Production-Ready — Remove required-description validation from type create/edit forms in Flutter.
+- [x] Production-Ready — Align backend validation/contracts so type description is optional (store/update paths).
+- [x] Production-Ready — Ensure payload encoding omits empty description fields (instead of forcing empty-string validation errors).
 
 #### Acceptance Criteria
-- [ ] 🟣 Lane-Promoted — Type forms submit successfully with blank description.
-- [ ] 🟣 Lane-Promoted — API accepts create/update type payloads without description.
-- [ ] 🟣 Lane-Promoted — Existing types with description continue to render without regressions.
+- [x] Production-Ready — Type forms submit successfully with blank description.
+- [x] Production-Ready — API accepts create/update type payloads without description.
+- [x] Production-Ready — Existing types with description continue to render without regressions.
 
 ### H2) Event/Occurrence Description Optional
 
 #### Tasks
-- [ ] 🟣 Lane-Promoted — Remove required-description validation from event creation/edit form (`content` field).
-- [ ] 🟣 Lane-Promoted — Align backend event create/update validation so `content` is optional.
-- [ ] 🟣 Lane-Promoted — Verify occurrence scheduling and publication rules do not depend on description text.
+- [x] Production-Ready — Remove required-description validation from event creation/edit form (`content` field).
+- [x] Production-Ready — Align backend event create/update validation so `content` is optional.
+- [x] Production-Ready — Verify occurrence scheduling and publication rules do not depend on description text.
 
 #### Acceptance Criteria
-- [ ] 🟣 Lane-Promoted — Event create/update succeeds with no description.
-- [ ] 🟣 Lane-Promoted — Occurrence validation behavior remains unchanged (date/time rules only).
-- [ ] 🟣 Lane-Promoted — Event list/detail rendering remains stable when description is missing.
+- [x] Production-Ready — Event create/update succeeds with no description.
+- [x] Production-Ready — Occurrence validation behavior remains unchanged (date/time rules only).
+- [x] Production-Ready — Event list/detail rendering remains stable when description is missing.
 
 ### H3) Physical Host Eligibility by POI Capability (Not Hardcoded Venue)
 
 #### Tasks
-- [ ] 🟣 Lane-Promoted — Replace venue-only host candidate criteria with capability criteria: profile type must have `capabilities.is_poi_enabled=true`.
-- [ ] 🟧 Local-Implemented — Remove legacy host-candidates fallback from `venues`; consume only canonical `physical_hosts` payload in Flutter.
-- [ ] 🟣 Lane-Promoted — Require valid profile location for physical/hybrid host eligibility.
-- [ ] 🟣 Lane-Promoted — Update event creation contract to use canonical physical-host reference `place_ref.type=account_profile`.
-- [ ] 🟣 Lane-Promoted — Update Flutter labels/UX from venue-only wording to generic physical host wording.
+- [x] Production-Ready — Replace venue-only host candidate criteria with capability criteria: profile type must have `capabilities.is_poi_enabled=true`.
+- [x] Production-Ready — Remove legacy host-candidates fallback from `venues`; consume only canonical `physical_hosts` payload in Flutter.
+- [x] Production-Ready — Require valid profile location for physical/hybrid host eligibility.
+- [x] Production-Ready — Update event creation contract to use canonical physical-host reference `place_ref.type=account_profile`.
+- [x] Production-Ready — Update Flutter labels/UX from venue-only wording to generic physical host wording.
 
 #### Acceptance Criteria
-- [ ] 🟣 Lane-Promoted — Non-venue account profiles can be selected as physical host when `is_poi_enabled=true` and location is valid.
-- [ ] 🟣 Lane-Promoted — Ineligible profiles (no POI capability or no valid location) do not appear as physical-host candidates.
-- [ ] 🟣 Lane-Promoted — Event creation persists canonical `place_ref.type=account_profile` for physical/hybrid flows.
-- [ ] 🟧 Local-Implemented — Event form host candidates are sourced only from `physical_hosts` (no `venues` compatibility path).
+- [x] Production-Ready — Non-venue account profiles can be selected as physical host when `is_poi_enabled=true` and location is valid.
+- [x] Production-Ready — Ineligible profiles (no POI capability or no valid location) do not appear as physical-host candidates.
+- [x] Production-Ready — Event creation persists canonical `place_ref.type=account_profile` for physical/hybrid flows.
+- [x] Production-Ready — Event form host candidates are sourced only from `physical_hosts` (no `venues` compatibility path).
 
 #### Local Validation Evidence (2026-03-21)
 - `fvm flutter test test/infrastructure/repositories/tenant_admin_events_repository_test.dart test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart` -> passed (`22` tests).
@@ -317,18 +300,15 @@ Moved to dedicated TODO: `TODO-v1-targeted-visual-polish.md`.
 ## J) Workstream: Tenant Public Runtime Regressions (Discovery + Home + Location + Text Filters)
 
 ### Tasks
-- [ ] 🟧 Local-Implemented — Fix tenant-public discovery bootstrap/auth flow so first page + favoritable chips load with canonical anonymous account auth (no landlord-only tenant-access guard behavior on public tenant endpoints).
-- [ ] 🟡 Provisional — Ensure discovery first-page failures do not lock infinite loading state; expose deterministic retry/error path. (**Superseded to** `TODO-vnext-tenant-public-resilience-and-error-continuity.md`.)
-- [ ] 🟧 Local-Implemented — Fix tenant-public Home agenda rendering parity: when Home agenda API returns eligible events, Home list must render them (no false empty state).
-- [ ] 🟧 Local-Implemented — Fix web location-permission flow: if browser permission is denied-permanent, show explicit step-by-step recovery; retry CTA behavior must be deterministic and non-silent.
-- [ ] 🟧 Local-Implemented — Define and implement canonical contains textual filtering behavior (for example `thale` must match `thales`) for account profiles, static assets, and events.
+- [x] Production-Ready — Fix tenant-public discovery bootstrap/auth flow so first page + favoritable chips load with canonical anonymous account auth (no landlord-only tenant-access guard behavior on public tenant endpoints).
+- [x] Production-Ready — Fix tenant-public Home agenda rendering parity: when Home agenda API returns eligible events, Home list must render them (no false empty state).
+- [x] Production-Ready — Fix web location-permission flow: if browser permission is denied-permanent, show explicit step-by-step recovery; retry CTA behavior must be deterministic and non-silent.
+- [x] Production-Ready — Define and implement canonical contains textual filtering behavior (for example `thale` must match `thales`) for account profiles, static assets, and events.
 
 ### Acceptance Criteria
-- [ ] 🟡 Provisional — Discovery screen no longer gets stuck loading on production with existing favoritable profile types. (Superseded to VNext resilience TODO.)
-- [ ] 🟡 Provisional — Discovery chips for favoritable profile types render on first load when backend responds successfully. (Superseded to VNext resilience TODO.)
-- [ ] 🟧 Local-Implemented — Home agenda shows events when backend returns events for the active tenant context.
-- [ ] 🟧 Local-Implemented — Web location permission UX clearly instructs re-enable flow when browser no longer prompts.
-- [ ] 🟧 Local-Implemented — Contains textual search behavior is consistent across targeted surfaces and covered by tests. (Laravel targeted suite executed successfully on 2026-03-22 after Docker restart)
+- [x] Production-Ready — Home agenda shows events when backend returns events for the active tenant context.
+- [x] Production-Ready — Web location permission UX clearly instructs re-enable flow when browser no longer prompts.
+- [x] Production-Ready — Contains textual search behavior is consistent across targeted surfaces and covered by tests. (Laravel targeted suite executed successfully on 2026-03-22 after Docker restart)
 
 ### Diagnostic Evidence (Captured 2026-03-22)
 - Production symptom: tenant-public discovery can stay in loading state and fail to render favoritable chips/categories.
@@ -363,6 +343,27 @@ When the user finds an issue, list it here. We should evaluate and transform it 
 - [x] Processed (2026-03-22): "Web location permission CTA does not trigger prompt; denied-permanent path needs explicit user guidance." -> implemented locally as `J.4` (controller + UI guidance + regression tests).
 - [x] Processed (2026-03-22): "Textual filter inconsistency (`thales` returns, `thale` does not) likely affects other text-filter surfaces." -> `J.5` validated locally in Laravel tests after Docker recovery (accounts/assets/events contains-regex strategy).
 - [x] Processed (2026-03-22): "MVP should use regex contains (`%term%`) even with higher cost, and VNext must optimize." -> MVP behavior set in Laravel query services; VNext optimization tracked in `TODO-vnext-search-performance-hardening.md`.
+- [x] Processed (2026-03-24): "Forbid fallback in repositories/services; allow empty/error handling only in controller/view layer." -> custom lint guardrail added and repository/service fallback return paths removed; promoted to `main` (`Flutter PR #152` and follow-up `#155`, promoted via `#156` and `#157`).
 
 
 - [x] Processed (2026-03-21): "PWA icon is not showing saved image in UI." -> captured as `C.6` (explicit functional contract + implementation/validation).
+
+---
+
+## K) Workstream: Repository/Service No-Fallback Guardrail
+
+### Tasks
+- [x] ✅ Production-Ready — Add custom lint rule to forbid fallback return paths in `lib/infrastructure/repositories/**` and `lib/infrastructure/services/**` catch handlers (for example returning `[]`, `{}`, `null`, or optimistic model values after failures).
+- [x] ✅ Production-Ready — Remove fallback behavior currently implemented in this slice repositories/services (replace with explicit exceptions/typed failures and let controllers decide UI empty/error state).
+- [x] ✅ Production-Ready — Keep fallback behavior only in controller/view layer (error messaging, retry state, empty UI), not in repository/service model contracts.
+
+### Acceptance Criteria
+- [x] ✅ Production-Ready — `fvm dart run custom_lint` flags new repository/service fallback attempts through the new rule.
+- [x] ✅ Production-Ready — Affected repositories/services in this TODO no longer return fallback model values when backend/runtime call fails.
+- [x] ✅ Production-Ready — UI remains stable because controllers handle failures explicitly (no silent model fallback at repository/service layer).
+
+### Local Validation Evidence (2026-03-22)
+- `fvm dart run custom_lint` -> passed with new rule `repository_service_catch_return_fallback_forbidden`.
+- Rule baseline found `9` fallback-return violations in repository/service catch handlers; all corrected locally.
+- `fvm flutter analyze lib test integration_test` -> passed (no issues).
+- `fvm flutter test test/infrastructure/repositories/account_profiles_repository_test.dart test/infrastructure/repositories/tenant_admin_events_repository_test.dart test/infrastructure/repositories/tenant_admin_settings_repository_test.dart test/infrastructure/repositories/telemetry_repository_test.dart` -> passed (`53` tests).

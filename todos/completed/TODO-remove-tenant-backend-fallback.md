@@ -19,7 +19,7 @@
 ## C) Tasks
 - [x] ✅ Production‑Ready Remove `kLocalEnvironmentFallback` usage in `AppDataRepository` and fail fast on backend fetch errors.
 - [x] ✅ Production‑Ready Validate app init fails clearly when tenant backend is down (no boilerplate tenant).
-- [x] ✅ Production‑Ready Add MVP todo item for removing remaining fallbacks (UI/data) + offline flow (`todos/active/mvp_slices/TODO-v1-backend-wiring-consolidation.md`, section `C4`).
+- [x] ✅ Production‑Ready Add MVP todo item for removing remaining fallbacks (UI/data) + offline flow (`todos/completed/TODO-v1-backend-wiring-consolidation.md`, section `Completion Summary`).
 
 ## D) Definition of Done
 - [x] ✅ Production‑Ready App bootstrap does **not** load boilerplate tenant when backend is unreachable.
