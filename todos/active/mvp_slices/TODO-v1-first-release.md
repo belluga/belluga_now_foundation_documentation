@@ -127,12 +127,9 @@ These are scope descriptors (not tasks).
 - [ ] ⚪ Make settings tenant-configurable (no app release required to tune)
 
 Suggested defaults (override per tenant + plan):
-- `max_invites_per_event_per_inviter = 300`
-- `max_invites_per_day_per_account_profile = 500` (Tiny Free: `50–100`)
 - `max_invites_per_day_per_user_actor = 100`
-- `max_pending_invites_per_invitee = 20`
-- `max_invites_to_same_invitee_per_30d = 10`
 - suppression: per-profile blocklist + per-user opt-out
+- event/account/receiver invite-send limits are deferred to VNext (`max_invites_per_event_per_inviter`, `max_invites_per_day_per_account_profile`, `max_pending_invites_per_invitee`, `max_invites_to_same_invitee_per_30d`)
 
 ### 2.2 Account memberships (Deferred)
 - [ ] ⚪ Implement account memberships post‑MVP (draft spec in `foundation_documentation/modules/partner_admin_module.md`)

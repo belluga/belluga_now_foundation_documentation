@@ -8,7 +8,7 @@
 
 ## 0) Conventions
 - Base prefix is `/api/v1` (router-mounted). Paths below omit the prefix unless explicitly stated.
-- All responses include `tenant_id` when the request is tenant-scoped.
+- All responses include `tenant_id` when the request is tenant-scoped, except endpoints that explicitly document a tenant-isolated payload without `tenant_id` (for example `/favorites`).
 - IDs are stable string IDs (Mongo ObjectId as string).
 - Date/times are ISO 8601 (`YYYY-MM-DDTHH:mm:ssZ`).
 - Home composition is client-side only. There is **no** aggregated `/home-overview` endpoint; use independent requests (e.g., `/invites`, `/agenda`, `/account_profiles/discovery`, `/missions`, `/discover/people`, `/discover/curator-content`, `/map/pois`).
@@ -169,7 +169,14 @@
         "min_km": 1,
         "default_km": 5,
         "max_km": 50
-      }
+      },
+      "filters": [
+        {
+          "key": "culture",
+          "label": "Cultura",
+          "image_uri": "https://tenant.example.com/storage/tenants/tenant-a/map_ui/filters/culture.png"
+        }
+      ]
     }
   }
 }
@@ -186,6 +193,10 @@
 - `profile_types`: Tenant profile type registry entries used to drive profile UI + favorites.
 - `settings.map_ui.radius.default_km`: Default radius for map/agenda filters (km).
 - `settings.map_ui.radius.max_km`: Maximum radius bound for map/agenda filters (km).
+- `settings.map_ui.filters[]`: Ordered map filter catalog used by tenant-admin and map filter discovery payload decoration.
+- `settings.map_ui.filters[].key`: Stable category key aligned with `/map/filters.categories[].key`.
+- `settings.map_ui.filters[].label`: Tenant-facing display label override for the filter key.
+- `settings.map_ui.filters[].image_uri`: Optional image URL rendered in map filter button surfaces.
 
 **Branding assets:** use default paths `GET /logo-light.png`, `/logo-dark.png`, `/icon-light.png`, `/icon-dark.png` (no direct URLs in this payload).
 
@@ -227,6 +238,62 @@
 - `user_level`: `basic`, `verified`.
 - `privacy_mode`: `public`, `friends_only`.
 
+### `GET /favorites`
+**Purpose:** Return user favorites with registry-backed snapshot ordering for Home and other account-profile contexts.  
+**Request (query):**
+```json
+{
+  "page": 1,
+  "page_size": 20,
+  "registry_key": "account_profile",
+  "target_type": "account_profile"
+}
+```
+**Response (minimum):**
+```json
+{
+  "items": [
+    {
+      "favorite_id": "string",
+      "registry_key": "account_profile",
+      "target_type": "account_profile",
+      "target_id": "string",
+      "favorited_at": "2025-01-01T00:00:00Z",
+      "target": {
+        "id": "string",
+        "slug": "string",
+        "display_name": "string",
+        "avatar_url": "string?"
+      },
+      "snapshot": {
+        "next_event_occurrence_id": "string?",
+        "next_event_occurrence_at": "2025-01-01T00:00:00Z?",
+        "last_event_occurrence_at": "2025-01-01T00:00:00Z?"
+      },
+      "navigation": {
+        "kind": "account_profile",
+        "target_slug": "string"
+      }
+    }
+  ],
+  "has_more": false
+}
+```
+**Notes:**
+- Query filter by `registry_key` is optional.
+- Ordering policy:
+  - block A: `next_event_occurrence_at` ascending,
+  - block B: `last_event_occurrence_at` descending when next is null,
+  - block C: `favorited_at` descending when both event dates are null.
+- Anonymous identities return `200` with `items=[]` and `has_more=false`.
+- Snapshot persistence is tenant-isolated by database; payload intentionally omits `tenant_id`.
+- Registry/migration guardrails:
+  - `registry_key` is required snake_case.
+  - `snapshot_collection` can be omitted (fallback `favoritable_snapshots`) or explicitly provided.
+  - when explicitly provided, `snapshot_collection` must match `favoritable_{registry_key}_snapshots`.
+  - multiple registries can share one collection only with common envelope fields (`registry_key`, `target_type`, `target_id`, `updated_at`).
+  - default shared collection is forbidden when the registry declares non-default/specific indexes.
+
 ---
 
 ## 3) Invites (User + Account Profile)
@@ -254,8 +321,10 @@
   "tenant_id": "string",
   "invites": [
     {
-      "id": "string",
-      "event_id": "string",
+      "target_ref": {
+        "event_id": "string",
+        "occurrence_id": "string?"
+      },
       "event_name": "string",
       "event_date": "2025-01-01T00:00:00Z",
       "event_image_url": "string",
@@ -263,14 +332,146 @@
       "host_name": "string",
       "message": "string",
       "tags": ["string"],
-      "inviter_name": "string?",
-      "inviter_avatar_url": "string?",
-      "additional_inviters": ["string"]
+      "attendance_policy": "free_confirmation_only|paid_reservation_only|either",
+      "inviter_candidates": [
+        {
+          "invite_id": "string",
+          "inviter_principal": { "kind": "user|account_profile", "id": "string" },
+          "display_name": "string?",
+          "avatar_url": "string?",
+          "status": "pending|accepted|declined|expired"
+        }
+      ],
+      "social_proof": {
+        "additional_inviter_count": 0
+      }
     }
   ],
   "has_more": true
 }
 ```
+**Notes:**
+- Feed is grouped by canonical invite target, not flat by invite edge.
+- Native clients must use `inviter_candidates[].invite_id` for explicit inviter selection when more than one candidate exists for a target.
+- Candidate identity must respect privacy policy; when identity is not allowed, backend should return anonymized summaries/counts instead of raw profile fields.
+- `occurrence_id` is required whenever runtime invite/attendance actions are occurrence-resolved; `null` is allowed only for single-occurrence or intentionally event-scoped compatibility flows.
+- `message` is optional author input. Feed/share payloads may return `""` when no custom invite message was provided.
+- VNext roadmap: add cursor pagination for deep invite feed scrolling while preserving page-based compatibility in MVP clients.
+
+### `POST /invites`
+**Purpose:** Create direct invites for one or more recipients from the native app.  
+**Request (body):**
+```json
+{
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
+  "account_profile_id": "string?",
+  "recipients": [
+    {
+      "receiver_user_id": "string?",
+      "contact_hash": "string?"
+    }
+  ],
+  "message": "string?"
+}
+```
+**Response (minimum):**
+```json
+{
+  "tenant_id": "string",
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
+  "created": [
+    { "invite_id": "string", "receiver_user_id": "string?" }
+  ],
+  "already_invited": [
+    { "receiver_user_id": "string?" }
+  ],
+  "blocked": [
+    { "receiver_user_id": "string?", "reason": "suppressed" }
+  ]
+}
+```
+**Notes:**
+- `account_profile_id` is required when the sender is acting as `inviter_principal.kind = account_profile`.
+- Each recipient must provide either `receiver_user_id` or `contact_hash`.
+- Duplicate invite prevention follows the canonical uniqueness key `(tenant_id, event_id, occurrence_id | null, receiver_user_id, inviter_principal.kind, inviter_principal.id)` and returns `already_invited` instead of creating a new edge.
+- Sender/global quota rejections must return deterministic `429` payloads:
+```json
+{
+  "status": "rejected",
+  "code": "rate_limited",
+  "message": "string",
+  "payload": {
+    "limit_key": "max_invites_per_day_per_user_actor",
+    "scope": "user_actor",
+    "max_allowed": 100,
+    "current_count": 100,
+    "window": "day",
+    "reset_at": "2025-01-01T00:00:00Z?"
+  }
+}
+```
+
+### `POST /invites/{invite_id}/accept`
+**Purpose:** Accept the selected direct invite from native app.  
+**Request (body):**
+```json
+{
+  "idempotency_key": "string?"
+}
+```
+**Response (minimum):**
+```json
+{
+  "tenant_id": "string",
+  "invite_id": "string",
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
+  "status": "accepted|already_accepted|expired",
+  "credited_acceptance": true,
+  "attendance_policy": "free_confirmation_only|paid_reservation_only|either",
+  "next_step": "none|free_confirmation_created|reservation_required|commitment_choice_required|open_app_to_continue",
+  "superseded_invite_ids": ["string"],
+  "accepted_at": "2025-01-01T00:00:00Z?"
+}
+```
+**Notes:**
+- This endpoint is the canonical native path after explicit inviter selection.
+- Backend must supersede competing pending invites for the same `(receiver,target_ref)` when acceptance succeeds.
+- Superseded invites must use `status = superseded` with `supersession_reason = other_invite_credited`.
+- `next_step` is the canonical contract field for post-acceptance follow-up semantics across native and web acceptance flows.
+
+### `POST /invites/{invite_id}/decline`
+**Purpose:** Decline the selected direct invite from native app.  
+**Request (body):**
+```json
+{
+  "idempotency_key": "string?"
+}
+```
+**Response (minimum):**
+```json
+{
+  "tenant_id": "string",
+  "invite_id": "string",
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
+  "status": "declined|already_declined|expired",
+  "group_has_other_pending": true,
+  "declined_at": "2025-01-01T00:00:00Z?"
+}
+```
+**Notes:**
+- Declining one invite edge does not implicitly decline other inviter candidates for the same target.
 
 ### `GET /invites/settings`
 **Purpose:** Invite quotas + UX messaging limits.  
@@ -279,31 +480,39 @@
 {
   "tenant_id": "string",
   "limits": {
-    "pending_limit_basic": 20,
-    "pending_limit_verified": 50,
-    "pending_limit_account_paid": 100,
-    "per_event_invite_limit": 1
+    "max_invites_per_day_per_user_actor": 100,
+    "max_share_codes_per_day_per_user_actor": 30
   },
   "cooldowns": {
-    "share_code_cooldown_seconds": 0
+    "share_code_cooldown_seconds": 60
   },
   "reset_at": "2025-01-01T00:00:00Z?",
   "over_quota_message": "string?"
 }
 ```
+**MVP note:** invite-send cap is `max_invites_per_day_per_user_actor`; event/account/receiver invite-send limits are deferred to VNext.
 
 ### `POST /invites/share`
 **Purpose:** Create share code for invite attribution.  
 **Request (body):**
 ```json
-{ "event_id": "string", "account_profile_id": "string?" }
+{
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
+  "account_profile_id": "string?"
+}
 ```
 **Response (minimum):**
 ```json
 {
   "tenant_id": "string",
   "code": "string",
-  "event_id": "string",
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
   "inviter_principal": { "kind": "user|account_profile", "id": "string" }
 }
 ```
@@ -311,13 +520,30 @@
 - **User invites:** only to imported contacts (hashed) or existing app users.
 - **Account Profile invites:** may target followers/favorites for broader reach; direct user targeting allowed as needed.
 - When `inviter_principal.kind = account_profile`, `account_profile_id` is **required** and must belong to the inviter’s account/tenant context.
+- Anti-spam rejections must return deterministic `429` payloads:
+```json
+{
+  "status": "rejected",
+  "code": "rate_limited|share_rate_limited",
+  "message": "string",
+  "payload": {
+    "limit_key": "max_share_codes_per_day_per_user_actor|share_code_cooldown_seconds",
+    "scope": "share_user_actor|share_target",
+    "max_allowed": 30,
+    "current_count": 30,
+    "window": "day|cooldown",
+    "reset_at": "2025-01-01T00:00:00Z?",
+    "retry_after_seconds": 60
+  }
+}
+```
 
 ---
 
 ## 9) Push Messages (Tenant)
 
 ### `GET /push/messages/{push_message_id}/data`
-**Purpose:** Fetch user-specific push payload rendered for the authenticated user.  
+**Purpose:** Fetch user-specific push payload rendered for the authenticated user.
 **Auth:** Bearer token (tenant user).  
 **Request (headers):**
 - `Authorization: Bearer <token>`
@@ -379,37 +605,205 @@
 - Generate URL-safe codes (base62/ULID/short hash). Recommended length ≥ 8–10 chars.
 - On insert conflict, retry generation (e.g., up to 3–5 attempts) before failing.
 
-### `POST /invites/share/{code}/accept`
-**Purpose:** Accept invite from web landing by code.  
-**Request (headers/body):** Auth via Sanctum (anonymous identity). No body required.  
+### `GET /invites/share/{code}`
+**Purpose:** Resolve invite landing preview context for a share code (`/invite?code=...`) before authentication.
+**Auth:** Tenant domain resolution required; authenticated identity not required.
+**Response:**
+```json
+{
+  "tenant_id": "string",
+  "code": "string",
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
+  "inviter_principal": { "kind": "user|account_profile", "id": "string" },
+  "invite": {
+    "id": "string",
+    "target_ref": {
+      "event_id": "string",
+      "occurrence_id": "string?"
+    },
+    "event_name": "string",
+    "event_date": "2025-01-01T00:00:00Z",
+    "event_image_url": "https://...",
+    "location": "string",
+    "host_name": "string",
+    "message": "string",
+    "tags": ["string"],
+    "attendance_policy": "free_confirmation_only|paid_reservation_only|either",
+    "inviter_candidates": [
+      {
+        "invite_id": "string",
+        "inviter_principal": { "kind": "user|account_profile", "id": "string" },
+        "display_name": "string",
+        "avatar_url": "https://...?",
+        "status": "pending"
+      }
+    ],
+    "social_proof": { "additional_inviter_count": 0 }
+  }
+}
+```
+**Field Definitions**
+- `inviter_principal.kind`: `user`, `account_profile`.
+- `invite.attendance_policy`: `free_confirmation_only`, `paid_reservation_only`, `either`.
+- `invite.inviter_candidates[].status`: `pending`.
+- `invite.message` may be an empty string when the share/direct invite was created without a custom message.
+
+**Not Found Contract**
+```json
+{
+  "status": "rejected",
+  "code": "invite_share_not_found",
+  "message": "invite_share_not_found",
+  "payload": {}
+}
+```
+- Returned with `404` for missing, expired, or invalid share-code previews.
+
+### `POST /invites/share/{code}/materialize`
+**Purpose:** Create or reuse the canonical invite edge for the authenticated user before rendering invite decision UI.  
+**Request (headers/body):** Auth via Sanctum (**authenticated identity required**). Optional idempotency payload:
+```json
+{
+  "idempotency_key": "string?"
+}
+```
 **Response:**
 ```json
 {
   "tenant_id": "string",
   "invite_id": "string",
-  "event_id": "string",
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
   "inviter_principal": { "kind": "user|account_profile", "id": "string" },
-  "status": "accepted|declined|already_accepted|expired",
-  "attribution_bound": true,
+  "status": "pending|accepted|declined|superseded|expired",
+  "attendance_policy": "free_confirmation_only|paid_reservation_only|either",
+  "credited_acceptance": false,
   "accepted_at": "2025-01-01T00:00:00Z?"
 }
 ```
 **Field Definitions**
 - `inviter_principal.kind`: `user`, `account_profile`.
-- `status`: `accepted`, `declined`, `already_accepted`, `expired`.
+- `status`: current canonical invite-edge status for the authenticated user after share-code materialization.
+- `credited_acceptance`: reflects the materialized edge state; it remains `false` while the invite is pending and only becomes `true` after standard `POST /invites/{invite_id}/accept`.
+
+**Auth Error Contract**
+```json
+{
+  "status": "rejected",
+  "code": "auth_required",
+  "message": "auth_required",
+  "payload": {}
+}
+```
+- Returned with `401` when caller is unauthenticated or authenticated as anonymous identity.
 
 **Requirement:** Invite share links must carry `code` as a GET parameter.
 **Tracking Notes:**
 - `share_visit` is tracked separately from invites; it does **not** count as an accepted invite.
-- When an acceptance occurs via this endpoint, it **does** count as `invite_accepted` with `source = share_url`.
+- This endpoint materializes attribution only; it does **not** count as `invite_accepted`.
+- Web/app invite landing must resolve preview context via `GET /invites/share/{code}` and preserve original deep-link query (`/invite?code=...`) through login/signup until authenticated materialization is completed.
+- After materialization, all decisions must use the canonical invite mutation endpoints `POST /invites/{invite_id}/accept|decline`.
+- Web acceptance remains intentionally narrow: no inbox browsing, no multi-inviter selector, no direct invite send, no presence confirmation, and no check-in.
+
+### `POST /test-support/invites/bootstrap` (`stage` only, non-product)
+**Purpose:** Provision deterministic invite fixtures for deployed compatibility tests against `stage`.  
+**Auth:** Tenant resolution required plus dedicated test-support secret header. Must be unavailable outside `stage`.  
+**Headers:** `X-Test-Support-Key: <stage-secret>`  
+**Request (body):**
+```json
+{
+  "run_id": "string",
+  "scenario": "accept_pending|decline_pending|direct_confirmation_superseded|expired_share"
+}
+```
+**Response (minimum):**
+```json
+{
+  "run_id": "string",
+  "tenant": {
+    "slug": "guarappari",
+    "tenant_url": "https://guarappari.belluga.app",
+    "landlord_url": "https://belluga.app"
+  },
+  "mobile": {
+    "app_domain_identifier": "com.guarappari.app"
+  },
+  "inviter": {
+    "email": "string",
+    "password": "string"
+  },
+  "invitee": {
+    "email": "string",
+    "password": "string"
+  },
+  "signup_candidate": {
+    "name": "string",
+    "email": "string",
+    "password": "string"
+  },
+  "event_id": "string",
+  "share_code": "string",
+  "invite_url": "https://guarappari.belluga.app/invite?code=..."
+}
+```
+**Contract Notes**
+- Fixtures must be isolated by `run_id`.
+- Invite behavior setup must use canonical invite services/contracts; bootstrap must not bypass the invite contract with raw direct-mutation shortcuts.
+- This endpoint is internal test support and must never be enabled on `main`/production.
+
+### `GET /test-support/invites/state/{run_id}` (`stage` only, non-product)
+**Purpose:** Read deterministic invite fixture state after compatibility execution.  
+**Auth:** Tenant resolution required plus dedicated test-support secret header.  
+**Headers:** `X-Test-Support-Key: <stage-secret>`  
+**Response (minimum):**
+```json
+{
+  "run_id": "string",
+  "scenario": "string",
+  "event_id": "string",
+  "share_code": "string",
+  "invites": [
+    {
+      "invite_id": "string",
+      "receiver_user_id": "string",
+      "status": "pending|accepted|declined|superseded|expired",
+      "credited_acceptance": true,
+      "supersession_reason": "string?"
+    }
+  ]
+}
+```
+
+### `POST /test-support/invites/cleanup` (`stage` only, non-product)
+**Purpose:** Remove deterministic invite fixtures for a prior `run_id`.  
+**Auth:** Tenant resolution required plus dedicated test-support secret header.  
+**Headers:** `X-Test-Support-Key: <stage-secret>`  
+**Request (body):**
+```json
+{
+  "run_id": "string"
+}
+```
+**Response (minimum):**
+```json
+{
+  "run_id": "string",
+  "deleted": true
+}
+```
 
 #### Invite Flow & Friends Management (MVP)
 - **Primary invite paths:**
 - **Direct invite (existing user):** server creates a per-recipient invite and sends push. Source = `direct_invite`.
   - **Share link:** server issues a `code` via `POST /invites/share`; no per-recipient record until acceptance. Source = `share_url`.
-- **Acceptance rules:** only one accepted invite per invitee per event. Acceptances should bind attribution to the inviter principal.
-- **Tracking:** `share_visit` is analytics-only. `invite_sent` and `invite_accepted` should include a `source` (`direct_invite`, `share_url`).
-- **Friends (MVP):** no social graph. “Friends” are matched contacts from hashed imports only; raw PII is never stored.
+- **Acceptance rules:** only one credited accepted invite per invitee per canonical target. Direct native acceptance requires explicit inviter selection through `invite_id`; share-code acceptance binds to the code’s inviter principal.
+- **Tracking:** `share_visit` is analytics-only. `invite_sent` and `invite_accepted` should include a `source` (`direct_invite`, `share_url`). The project north-star metrics are `credited_invite_acceptances` and normalized `presences_confirmed` (successful free confirmations or paid reservations).
+- **Contacts/Friends (MVP):** no reciprocal social graph or favorite-based visibility model is implemented on MVP invite flows. Hashed contact matches are the only discovery/targeting surface here; raw PII is never stored.
 - **Delivery fallback:** if a contact hash matches an existing user, send push; if no match, use a share URL (e.g., WhatsApp deep link) with the invite `code`.
 
 ### `POST /contacts/import`
@@ -449,7 +843,7 @@
 
 ### `GET /events/stream` (SSE)
 **Purpose:** Stream event occurrence deltas for active app filters (SSE).  
-**Request (query):** filter set aligned with `/agenda` (`categories[]`, `tags[]`, `taxonomy[]`, `origin_lat`, `origin_lng`, `max_distance_meters`).  
+**Request (query):** filter set aligned with `/agenda` (`categories[]`, `tags[]`, `taxonomy[]`, `confirmed_only`, `origin_lat`, `origin_lng`, `max_distance_meters`).  
 **Headers (optional):** `Last-Event-ID` to resume from the last received SSE cursor.  
 **Event types:**
 - `occurrence.created` (new occurrence matches filters)
@@ -474,6 +868,7 @@
   "page": 1,
   "page_size": 10,
   "past_only": false,
+  "confirmed_only": false,
   "categories": ["string"],
   "tags": ["string"],
   "taxonomy": [{ "type": "string", "value": "string" }],
@@ -491,8 +886,11 @@
 - Categories filter matches `type.slug` or event categories when available (case-insensitive).
 - Tags filter matches any `tags[]` on the event (case-insensitive).
 - Taxonomy filter matches slug pairs (`type`, `value`) against event/venue/artist taxonomy terms.
+- `confirmed_only=true` returns only attendance-confirmed events for the current identity.
+- `confirmed_only=true` + anonymous identity returns `200` with empty list and `has_more=false`.
 - Client flows for agenda/search must resolve origin before requesting this endpoint (`user location` -> `settings.map_ui.default_origin`).
 - Backend applies geo filtering using `origin_lat`/`origin_lng` + `max_distance_meters` bounded by tenant `map_ui.radius` limits.
+- Exception: with `confirmed_only=true`, geo filters do not exclude items (origin may be used only to compute optional `distance_meters`).
 - No unfiltered fallback list is applied when geo filters produce zero matches.
 
 **Response (minimum):**
@@ -647,21 +1045,63 @@ Not returned by `/agenda` and `/events/{event_id}`:
 **Field Definitions**
 - `thumb.type`: `image`.
 
-### `POST /events/{event_id}/check-in`
-**Purpose:** Presence confirmation.  
+### `GET /events/attendance/confirmed`
+**Purpose:** List backend-authoritative event confirmations for the current user.  
+**Response:**
+```json
+{
+  "tenant_id": "string",
+  "data": {
+    "confirmed_event_ids": ["string"]
+  }
+}
+```
+
+### `POST /events/{event_id}/attendance/confirm`
+**Purpose:** Confirm presence for an event (free attendance confirmation).  
+**Request:**
+```json
+{
+  "occurrence_id": "string?"
+}
+```
 **Response:**
 ```json
 {
   "tenant_id": "string",
   "event_id": "string",
-  "presence_status": "confirmed|no_show",
-  "check_in_method": "geofence|qr|staff_manual",
+  "occurrence_id": "string?",
+  "kind": "free_confirmation",
+  "status": "active",
   "confirmed_at": "2025-01-01T00:00:00Z"
 }
 ```
 **Field Definitions**
-- `presence_status`: `confirmed`, `no_show`.
-- `check_in_method`: `geofence`, `qr`, `staff_manual`.
+- `kind`: `free_confirmation`.
+- `status`: `active`.
+
+### `POST /events/{event_id}/attendance/unconfirm`
+**Purpose:** Cancel a previously active free attendance confirmation for an event.  
+**Request:**
+```json
+{
+  "occurrence_id": "string?"
+}
+```
+**Response:**
+```json
+{
+  "tenant_id": "string",
+  "event_id": "string",
+  "occurrence_id": "string?",
+  "kind": "free_confirmation",
+  "status": "canceled",
+  "canceled_at": "2025-01-01T00:00:00Z"
+}
+```
+**Field Definitions**
+- `kind`: `free_confirmation`.
+- `status`: `canceled`.
 
 ---
 
@@ -693,6 +1133,8 @@ Not returned by `/agenda` and `/events/{event_id}`:
   "origin_lng": 0.0,
   "max_distance_meters": 100000,
   "categories": ["culture"],
+  "source": "event|account_profile|static",
+  "types": ["show"],
   "tags": ["string"],
   "taxonomy": ["type:value"],
   "search": "string?",
@@ -702,6 +1144,8 @@ Not returned by `/agenda` and `/events/{event_id}`:
 ```
 **Field Definitions**
 - `categories[]`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
+- `source`: `event`, `account_profile`, `static` (aliases accepted by backend: `account`, `asset`, `static_asset`).
+- `types[]`: dynamic source-type slugs (backend projection field `source_type`).
 - `sort`: `priority`, `distance`, `time_to_event`.
 - `taxonomy[]`: `type:value` tokens (e.g., `cuisine:italian`).
 
@@ -724,10 +1168,23 @@ Not returned by `/agenda` and `/events/{event_id}`:
       "top_poi": {
         "ref_type": "event|account_profile|static",
         "ref_id": "string",
+        "ref_slug": "string?",
+        "ref_path": "/event/sample-event",
+        "title": "string",
+        "subtitle": "string?",
+        "name": "string",
+        "description": "string?",
+        "address": "string?",
         "category": "culture|beach|nature|historic|restaurant",
+        "source_type": "string?",
         "location": { "lat": 0.0, "lng": 0.0 },
         "priority": 0,
         "updated_at": "2025-01-01T00:00:00Z",
+        "time_start": "2025-01-01T00:00:00Z",
+        "time_end": "2025-01-01T03:00:00Z",
+        "avatar_url": "string?",
+        "cover_url": "string?",
+        "badge": "string?",
         "distance_meters": 0
       }
     }
@@ -738,6 +1195,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 **Field Definitions**
 - `ref_type`: `event`, `account_profile`, `static`.
 - `category`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
+- `top_poi.source_type`: backend-defined type slug used by `types[]` filtering.
 - `stack_key`: required for every stack, even when `stack_count = 1`.
 - `top_poi.updated_at`: required for polling cache validation.
 
@@ -793,13 +1251,25 @@ Not returned by `/agenda` and `/events/{event_id}`:
 
 ### `GET /map/filters`
 **Purpose:** Server-defined filter catalog.  
-**Request (query params):** Same scoping filters as `/map/pois` (`ne_lat`, `ne_lng`, `sw_lat`, `sw_lng`, `origin_lat`, `origin_lng`, `max_distance_meters`, `categories[]`, `tags[]`, `taxonomy[]`, `search`).  
+**Request (query params):** Same scoping filters as `/map/pois` (`ne_lat`, `ne_lng`, `sw_lat`, `sw_lng`, `origin_lat`, `origin_lng`, `max_distance_meters`, `categories[]`, `source`, `types[]`, `tags[]`, `taxonomy[]`, `search`).  
 **Response:**
 ```json
 {
   "tenant_id": "string",
   "categories": [
-    { "key": "culture", "label": "string", "count": 0 }
+    {
+      "key": "culture",
+      "label": "Cultura",
+      "image_uri": "https://tenant.example.com/storage/tenants/tenant-a/map_ui/filters/culture.png",
+      "query": {
+        "source": "event",
+        "types": ["show"],
+        "categories": ["culture"],
+        "taxonomy": ["music_genre:rock"],
+        "tags": ["live"]
+      },
+      "count": 0
+    }
   ],
   "tags": [
     { "key": "string", "label": "string", "count": 0 }
@@ -811,6 +1281,10 @@ Not returned by `/agenda` and `/events/{event_id}`:
 ```
 **Field Definitions**
 - `categories[].key`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
+- `categories[].label`: tenant-facing label; when `settings.map_ui.filters` defines the key, the configured label overrides fallback label.
+- `categories[].image_uri`: optional tenant-configured image URL for map filter button surfaces.
+- `categories[].query`: normalized backend filter payload used when the category is selected (includes `source`, `types[]`, `categories[]`, `taxonomy[]`, `tags[]` as applicable).
+- `categories[]` ordering: backend mirrors `settings.map_ui.filters` order and includes configured entries even when `count = 0`.
 - `taxonomy_terms[].type`: taxonomy group slug (e.g., `cuisine`, `music_genre`, `vibe`).
 
 ---
@@ -878,7 +1352,16 @@ Not returned by `/agenda` and `/events/{event_id}`:
   "data": {
     "events": {
       "default_duration_hours": 3,
-      "mode": "basic"
+      "mode": "basic",
+      "attendance": {
+        "allowed_policies": [
+          "free_confirmation_only",
+          "paid_reservation_only",
+          "either"
+        ],
+        "default_policy": "free_confirmation_only",
+        "allow_event_override": true
+      }
     }
   }
 }
@@ -890,7 +1373,14 @@ Not returned by `/agenda` and `/events/{event_id}`:
 ```json
 {
   "default_duration_hours": 4,
-  "stock_enabled": true
+  "attendance": {
+    "allowed_policies": [
+      "free_confirmation_only",
+      "paid_reservation_only"
+    ],
+    "default_policy": "free_confirmation_only",
+    "allow_event_override": true
+  }
 }
 ```
 **Response (minimum):**
@@ -898,7 +1388,14 @@ Not returned by `/agenda` and `/events/{event_id}`:
 {
   "data": {
     "default_duration_hours": 4,
-    "stock_enabled": true
+    "attendance": {
+      "allowed_policies": [
+        "free_confirmation_only",
+        "paid_reservation_only"
+      ],
+      "default_policy": "free_confirmation_only",
+      "allow_event_override": true
+    }
   }
 }
 ```
@@ -908,6 +1405,90 @@ Not returned by `/agenda` and `/events/{event_id}`:
 - PATCH payload: must be a direct object/map (envelopes like `paths` are invalid).
 - PATCH merge rule: only payload-present keys mutate; omitted keys remain unchanged.
 - Explicit clear: `null` is allowed only for nullable fields; non-nullable `null` returns `422`.
+- `events.attendance.allowed_policies`: subset of `free_confirmation_only | paid_reservation_only | either`.
+- `events.attendance.default_policy`: must belong to `allowed_policies`.
+- `events.attendance.allow_event_override`: when false, event creators inherit tenant default policy and cannot choose another value.
+- Capability rule: `paid_reservation_only` and `either` require paid reservation capability in the tenant/runtime; otherwise validation must reject them.
+
+### `PATCH /admin/api/v1/settings/values/app_links`
+**Purpose:** Update deep-link credentials only (no duplicated app identifiers).
+**Request (body):**
+```json
+{
+  "android": {
+    "sha256_cert_fingerprints": ["AA:BB:...:ZZ"]
+  },
+  "ios": {
+    "team_id": "ABCDE12345",
+    "paths": ["/invite*", "/convites*"]
+  }
+}
+```
+**Response (minimum):**
+```json
+{
+  "data": {
+    "android": {
+      "sha256_cert_fingerprints": ["AA:BB:...:ZZ"]
+    },
+    "ios": {
+      "team_id": "ABCDE12345",
+      "paths": ["/invite*", "/convites*"]
+    }
+  }
+}
+```
+
+### `GET /admin/api/v1/appdomains`
+**Purpose:** Fetch typed mobile app identifiers (resolver source-of-truth).
+**Response (minimum):**
+```json
+{
+  "app_domains": {
+    "android": "com.guarappari.app",
+    "ios": "com.guarappari.app"
+  }
+}
+```
+
+### `POST /admin/api/v1/appdomains`
+**Purpose:** Upsert one typed mobile app identifier.
+**Request (body):**
+```json
+{
+  "platform": "android|ios",
+  "identifier": "com.guarappari.app"
+}
+```
+**Response (minimum):**
+```json
+{
+  "message": "App domain identifier saved successfully.",
+  "app_domains": {
+    "android": "com.guarappari.app",
+    "ios": "com.guarappari.app"
+  }
+}
+```
+
+### `DELETE /admin/api/v1/appdomains`
+**Purpose:** Remove one typed mobile app identifier.
+**Request (body):**
+```json
+{
+  "platform": "android|ios"
+}
+```
+**Response (minimum):**
+```json
+{
+  "message": "App domain identifier removed successfully.",
+  "app_domains": {
+    "android": null,
+    "ios": "com.guarappari.app"
+  }
+}
+```
 
 ### Landlord equivalents (landlord host context)
 - `GET /admin/api/v1/settings/schema`

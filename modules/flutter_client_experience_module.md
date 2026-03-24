@@ -5,7 +5,7 @@
 
 | Module ID | Module Name | Primary Responsibility | Status | Owner |
 |-----------|-------------|------------------------|--------|-------|
-| MOD-201 | Flutter Client Experience Module | Deliver the multi-tenant mobile client with mocked backends and full-layer architecture (controllers, repositories, services). | Defined | Delphi |
+| MOD-201 | Flutter Client Experience Module | Deliver the multi-tenant mobile client with Laravel-backed runtime adapters and full-layer architecture (controllers, repositories, services). | Defined | Delphi |
 
 ### 1.1 Canonical Anchors
 
@@ -28,11 +28,18 @@
 
 ### MOD-201: Flutter Client Experience Module
 
-* **Purpose Statement:** Establish the foundational Flutter application that orchestrates tenant, account/profile, and promoter experiences through a clean architecture stack (presentation, domain, infrastructure) wired to mocked service contracts that mirror the definitive API.
+* **Purpose Statement:** Establish the foundational Flutter application that orchestrates tenant and account/profile experiences through a clean architecture stack (presentation, domain, infrastructure) wired to Laravel-backed service contracts.
 * **Core Entities:** User, Account, Account Profile, Offering, Transaction.
 * **Key Workflows:** Adaptive onboarding, tenant home discovery, invite and social growth loop, agenda management, map exploration with POIs, authenticated profile utilities.
-* **External Dependencies:** AutoRoute (navigation), GetIt (DI container), StreamValue (reactive state wrapper), value_object_pattern, Firebase Cloud Messaging (future push integration), mocked HTTP + SSE backends.
-* **Service-Level Objectives:** Screen state transitions <150 ms under mock data; cold-start bootstrap <2.5 s on mid-range devices; navigation stack integrity with zero controller leaks; 100 % controller-stream parity (no orphaned state).
+* **External Dependencies:** AutoRoute (navigation), GetIt (DI container), StreamValue (reactive state wrapper), value_object_pattern, Firebase Cloud Messaging (future push integration), Laravel HTTP + SSE backends.
+* **Service-Level Objectives:** Screen state transitions <150 ms under cached/remote data; cold-start bootstrap <2.5 s on mid-range devices with backend available; navigation stack integrity with zero controller leaks; 100 % controller-stream parity (no orphaned state).
+
+#### 2.0.1 Runtime Backend Mandate (V1 Launch)
+
+- Compiled/runtime app path is **Laravel-only**. Runtime mock fallback is forbidden.
+- Mock adapters/datasets are allowed only in test targets through explicit test injection.
+- Startup must hard-stop when backend bootstrap is unavailable and require user retry after connectivity recovers.
+- Discovery runtime contract is account/account-profile based; partner-only mock content providers and audio player service are out of MVP runtime scope.
 
 #### 2.0 Scope/Subscope Ownership (Authoritative)
 
@@ -58,9 +65,9 @@ Governance constraints:
 
 * **Invariants:** Controllers are the sole owners of state mutations; widgets remain presentational; every domain entity surfaces as a value-object backed model; DI registrations occur before route build.
 * **Validation Rules:** Input fields rely on domain value objects (e.g., `EmailValue`, `PasswordValue`); invite codes enforce length 6–12; POI filter radius 1–50 km; schedule entries require ISO-8601 timestamps.
-* **Authorization Requirements:** Anonymous flow limited to onboarding and invite acceptance; authenticated tenant scope unlocks home, schedule, map; account workspace scope exposes account/profile dashboards (future flavor); promoter scope requires explicit feature flag.
+* **Authorization Requirements:** Anonymous flow is limited to onboarding/bootstrap/read-only surfaces; invite share-code acceptance is identity-first (authenticated user required). Authenticated tenant scope unlocks home, schedule, map; account workspace scope exposes account/profile dashboards (future flavor); promoter scope requires explicit feature flag.
 * **Shared Services:** `UserLocationService` + `LocationRepository` live in the domain layer. Controllers (Map, Search, Invite Check-in) inject the service to request permission, seed initial filters, and pass coordinates to repositories. Repositories never call each other; services wrap a single repository per architecture principle §2.5.
-* **Task & Invite Hooks:** TaskStream integration is deferred post-MVP. Invite controllers must respect `Web-to-App Promotion Policy` by deep-linking to `/invites/share/{code}/accept` and using `POST /contacts/import` instead of handling critical actions purely on the web.
+* **Task & Invite Hooks:** TaskStream integration is deferred post-MVP. Invite controllers must respect `Web-to-App Promotion Policy` by resolving preview-first context from `GET /invites/share/{code}`, then deep-linking/auth-round-tripping to `POST /invites/share/{code}/materialize` before exposing decision UI; once materialized, all decisions must use the canonical invite endpoints `POST /invites/{invite_id}/accept|decline`. Use `POST /contacts/import` instead of handling critical actions purely on the web.
 
 #### 2.1.1 Presentation DI Matrix (Canonical)
 
@@ -74,6 +81,35 @@ This section is the canonical Flutter presentation DI/ownership contract. Rules/
 | Module class (`ModuleContract`) | `registerLazySingleton`, `registerFactory`, `registerRouteResolver`. | Direct `GetIt.I.register*`/`GetIt.instance.register*`. |
 | Global bootstrap (`main.dart`, `ModuleSettings`, app bootstrap repository) | App-lifecycle non-UI services/contracts/gates/coordinators. | Global registrations using `*Controller` or `*ControllerContract` naming. |
 
+Executable guardrails for this contract:
+- Domain files cannot declare `fromJson`/`fromMap` factories; transport parsing belongs to DAO/DTO layers and infrastructure mappers.
+- Domain fields must express validation/nullability through ValueObjects or domain-owned types instead of primitive transport fields.
+- Repositories/services cannot parse raw JSON or hydrate DTOs inline; DAO is the transport ingestion boundary.
+- Repositories cannot declare raw transport typing (`dynamic`, `Map<String, dynamic>`) in boundary signatures/helpers; DAO adapters own raw payload shapes.
+- DTO -> Domain mapping is delegated to dedicated mapper files under `lib/infrastructure/dal/dto/mappers/**`.
+- Files under `lib/**` should keep one public class per file; screen files still retain the stricter `multi_widget_file_warning` hygiene rule.
+
+#### 2.1.2 Route-Driven Hydration Contract (Canonical)
+
+This section defines objective hydration parameters for screen/detail flows. The contract is mandatory for all Flutter route surfaces.
+
+| Parameter | Required Rule | Forbidden Pattern | Enforcement |
+|---|---|---|---|
+| Route hydration boundary | Route-level resolvers own URL-param to domain hydration. | Screen lifecycle (`initState`, `didUpdateWidget`) loading feature data from `widget.<path/query param>`. | `ui_route_param_hydration_forbidden` |
+| Screen responsibility | Screen renders controller streams and emits user intents only. | Screen orchestrating fetch/hydrate logic tied to route params. | `ui_build_side_effects_forbidden`, architecture review |
+| Controller ingress | Controllers accept canonical IDs/models from resolver/module contracts. | Controller hydration coupled to direct route widget state by screen glue logic. | `screen_controller_resolution_pattern_required`, code review |
+| Route contract safety | Required non-URL args must be explicitly classified (`URL-Hydratable` or `Internal-Only`) and documented. | Implicit required args with no resolver/fallback path. | Route contract audit on `app_router.gr.dart` |
+
+Hydration decision matrix:
+- **Detail route with URL identity (`slug`, `id`)**: use `RouteModelResolver` (or resolver-equivalent module registration) to hydrate domain object or canonical ID before screen build.
+- **Screen with resolved model/ID**: screen consumes controller stream state only; no route-param hydration call from screen lifecycle.
+- **Internal-only route (not deep-link safe)**: route must declare deterministic fallback/guard and remain explicit in route contract audit.
+
+No-exception guardrails:
+- Do not call `controller.load/fetch/hydrate*(widget.<param>)` inside screen lifecycle methods.
+- Do not bypass resolver discipline by moving hydration to helper methods still owned by screen lifecycle.
+- If resolver cannot be applied, document the exception decision first and define lint/tests that constrain the fallback path.
+
 #### 2.2 API Endpoint Definitions
 
 | Endpoint | Method | Description | Required Role | Request Schema | Response Schema |
@@ -84,7 +120,8 @@ This section is the canonical Flutter presentation DI/ownership contract. Rules/
 | `/invites/stream` | GET | Streams invite deltas for live updates. | Tenant | `InviteStreamRequest` | SSE delta events |
 | `/invites/settings` | GET | Fetches invite limits and UX messaging settings. | Tenant | `InviteSettingsRequest` | `InviteSettingsResponse` |
 | `/invites/share` | POST | Creates or returns a share code for an event invite. | Tenant | `InviteShareRequest` | `InviteShareResponse` |
-| `/invites/share/{code}/accept` | POST | Accepts a share invite for the current user (records source). | Tenant | `InviteShareAcceptRequest` | `InviteShareAcceptResponse` |
+| `/invites/share/{code}` | GET | Resolves invite preview payload for `/invite?code=...` before auth. | Tenant | n/a | `InviteSharePreviewResponse` |
+| `/invites/share/{code}/materialize` | POST | Creates or reuses the canonical invite edge for the current authenticated user before decision UI is shown. | Tenant | `InviteShareMaterializeRequest` | `InviteShareMaterializeResponse` |
 | `/contacts/import` | POST | Imports hashed contacts for friend matching. | Tenant | `ContactsImportRequest` | `ContactsImportResponse` |
 | `/agenda` | GET | Provides schedule entries, suggested actions, and contextual CTAs. | Tenant | `AgendaRequest` | `AgendaResponse` |
 | `/events/stream` | GET | Streams event deltas for active filters. | Tenant | `EventStreamRequest` | SSE delta events |
@@ -223,10 +260,42 @@ This section is the canonical Flutter presentation DI/ownership contract. Rules/
 
 #### 2.7 Testing Strategy
 
-* **Unit Tests:** 100 % coverage for controllers’ state transitions, repository mocks, and value object validations.
-* **Integration Tests:** AutoRoute navigation flows, DI bootstrap, and StreamValue-driven UI updates using `flutter_test`.
-* **Contract Tests:** Golden contract tests ensuring mock responses match schema definitions; SSE event shape validation.
-* **Performance Tests:** Frame budget tests for home, map, and schedule screens under 60 fps minimum using `integration_test`.
+The Flutter client must separate regression confidence from real compatibility evidence. A green fake/UI-flow suite is never enough to claim Flutter↔Laravel safety for invite-critical paths.
+
+**Canonical taxonomy**
+
+| Test Class | Scope | Counts as Real Compatibility? | Required Environment | Notes |
+| --- | --- | --- | --- | --- |
+| Unit / widget / controller tests | Value-object validation, controller state transitions, route-local UI behavior | No | local-safe + CI | Mandatory for fast regression feedback. |
+| UI-flow `integration_test` with fakes | AutoRoute/DI/StreamValue behavior under controlled doubles | No | local-safe + CI | These prove state-machine integrity only; they must never be reported as backend compatibility evidence. |
+| Repository / decoder contract tests | Flutter transport boundary (`preview`, `materialize`, `accept`, `decline`, malformed payloads, terminal states) | No | local-safe + CI | Required whenever invite payload shape changes. |
+| Real Flutter runtime compatibility suite | Real backend, real repositories, real controller/runtime behavior for invite critical paths | Yes | `stage` only | Must run against the deployed `stage` backend, not mocks or local doubles. |
+| Web/browser compatibility suite | Invite landing, preview, auth redirect preservation, fallback behavior, `.well-known`/deeplink artifacts | Yes for browser boundary | `stage` only for mutation; `readonly` can run on `stage|main` | Executed through `tools/flutter/run_web_navigation_smoke.sh`. |
+| OS/device deep-link validation | Android App Links / iOS Universal Links open behavior | Manual evidence only | physical device/simulator | Never replaced by browser or repository tests. |
+
+**Invite-critical coverage baseline**
+
+Invite flows must be proven in layers:
+- Laravel feature/package tests own canonical invite business rules.
+- Flutter repository/decoder tests own payload semantics and drift detection.
+- Flutter controller/widget tests own state-machine and navigation regressions.
+- `stage` runtime/browser suites own real compatibility proof.
+
+**Environment gates**
+
+| Environment | Required Invite Gates | Claim Allowed |
+| --- | --- | --- |
+| `dev` | Laravel local-safe invite tests + Flutter unit/widget/repository tests | Contract-safe locally, but not real deployed compatibility |
+| `stage` | Real Flutter runtime invite suite + Playwright/browser invite suite | Real deployed compatibility for invite critical paths |
+| `main` | Read-only smoke only | Production-readiness smoke, never mutation-backed compatibility proof |
+
+**Execution honesty**
+
+- A required invite gate that did not run is `blocked`, never `passed`.
+- Flutter invite tests that use fake repositories, fake routers, or fake controllers must be labeled as regression coverage, not end-to-end or compatibility coverage.
+- Stage invite compatibility must use deterministic fixtures/test support. It must not depend on shared manual data.
+- Web invite validation proves host/domain tenant resolution.
+- Flutter runtime invite validation proves mobile/app-domain tenant resolution.
 
 ## 3. Cross-Module Considerations
 
@@ -302,6 +371,6 @@ This section is the canonical Flutter presentation DI/ownership contract. Rules/
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
 | `TODO-v1-events-and-agenda-frontend.md` | Events/agenda client contracts and UX integration | Completed | `2.2`, `2.3`, `3` | Maintains occurrence-first event consumption. |
-| `TODO-v1-invites-implementation.md` | Invite/social flow delivery in client | In progress | `2.2`, `2.4`, `2.5` | Share acceptance + contacts import paths. |
+| `TODO-v1-invites-implementation.md` | Invite/social flow delivery in client | Completed (2026-03-12) | `2.2`, `2.4`, `2.5` | Share acceptance + contacts import paths. |
 | `TODO-v1-map-frontend.md` | Map rendering/filter/stacking contracts | In progress | `2.2`, `2.3`, `2.4` | Aligns with projection-backed map APIs. |
 | `TODO-v1-tenant-user-account-profile-area.md` | Workspace scope and route ownership | In progress | `2.0`, `3` | Account workspace/subscope integrity. |

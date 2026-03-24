@@ -48,12 +48,15 @@ The primary mechanism for fetching POIs will be an on-demand process driven by t
 ```json
 map_ui: {
   radius: { min_km: 1, default_km: 5, max_km: 50 },
-  default_location: { lat: Number, lng: Number }, // optional
+  default_origin: { lat: Number, lng: Number, label: String? }, // optional
   poi_time_window_days: { past: 1, future: 30 }, // optional
-  events: { default_duration_hours: 3 } // optional
+  events: { default_duration_hours: 3 }, // optional
+  filters: [ // optional; ordered list used by /map/filters decoration
+    { key: "culture", label: "Cultura", image_uri: "https://.../culture.png" }
+  ]
 }
 ```
-If tenant settings are missing, the defaults above apply. `default_location` is used as the initial origin when user location is unavailable.
+If tenant settings are missing, the defaults above apply. `default_origin` is used as the initial origin when user location is unavailable.
 
 ### 3.2. Real-Time Updates (SSE)
 
@@ -248,7 +251,9 @@ Response shape (example):
         - `ne_lat`, `ne_lng`, `sw_lat`, `sw_lng` (optional but recommended): current map viewport bounds.
         - `origin_lat`, `origin_lng` (optional): reference point for `$geoNear` / distance ordering; if omitted, backend may derive from viewport center.
         - `max_distance_meters` (optional): radius filter anchored to origin; when present, backend must compute `distance_meters`.
-        - `categories[]`, `tags[]`, `taxonomy[]`, `search` (optional): filters and free-text matching (taxonomy entries are `{type, value}` pairs).
+        - `categories[]`, `source`, `types[]`, `tags[]`, `taxonomy[]`, `search` (optional): filters and free-text matching (taxonomy entries are `{type, value}` pairs).
+          - `source`: canonical source selector (`event|account_profile|static`).
+          - `types[]`: dynamic source-type slugs mapped from projection field `source_type`.
         - `sort` (optional): `priority`, `distance`, `time_to_event`.
     -   Backend enforcement:
         - Use MongoDB geospatial queries (`$geoNear` and/or `$geoWithin`) as the authoritative source of “nearby” truth.
@@ -264,7 +269,13 @@ Response shape (example):
         - `page`, `page_size` (optional; default 10).
     -   Response fields: `ref_type`, `ref_id`, `ref_slug`, `ref_path` (`/{ref_type}/{ref_slug}`), `title`, `subtitle?`, `category`, `location`, `distance_meters`, `updated_at`, `avatar_url?`, `cover_url?`, `badge?`, `time_start?`, `time_end?`, plus `tags[]` and `taxonomy_terms[]`.
 3.  **Filter Discovery Endpoint:** `GET /api/v1/map/filters`
-    -   Returns all available categories and their associated tags to dynamically build the filter UI (taxonomy catalog is sourced separately and applied as advanced filters when needed).
+    -   Returns all available categories and their associated tags to dynamically build the filter UI.
+    -   Category payload can be decorated by `settings.map_ui.filters` (tenant-admin managed):
+        - `label` override per key;
+        - optional `image_uri`;
+        - normalized `query` payload (`source`, `types[]`, `categories[]`, `taxonomy[]`, `tags[]`) used by Flutter when applying a category.
+        - configured list ordering first, with configured entries retained even when `count = 0`.
+    -   Taxonomy catalog is sourced from POI taxonomy aggregations and applied as advanced filters when needed.
 
 ### 4.2. SSE API (Real-Time Events)
 

@@ -223,7 +223,7 @@ Guar[APP]ari é uma plataforma de experiências que cria um **ecossistema simbi�
 - **Exibição:** Parceiros exibem curadores/pessoas vinculadas e vice-versa; principal janela de prova social mensal (presenças confirmadas no mês).
 
 ### 2.3.5. Configurações de Privacidade e Ranking
-- **Perfil:** `privacy_mode` (`public`, `friends_only`), `friends` = favoritos recíprocos (UI para ver quem te favoritou e favoritar de volta).
+- **Perfil:** `privacy_mode` (`public`, `friends_only`), `contact` = contato com match por hash, `favorite` = favorito unilateral, `friend` = favorito reciproco; `friends_only` libera perfil completo apenas para quem o usuario aprovou via favorito, enquanto contatos unilaterais recebem no maximo exposicao limitada (sem foto/avatar e sem eventos aceitos especificos).
 - **Ranking:** Sempre conta métricas; se `friends_only`, exibe como anonimizado (nome oculto, avatar blur). Convites não são limitados pela privacidade.
 
 ### 2.3.6. Experiência de Descoberta Social (App Discover)

@@ -3,7 +3,7 @@
 
 ## 1. Roadmap Overview
 
-This roadmap enumerates the foundational milestones for the Belluga ecosystem. It aligns mocked implementations with the definitive architecture to guarantee a seamless transition toward production services.
+This roadmap enumerates the foundational milestones for the Belluga ecosystem. It aligns Flutter and Laravel implementations around production contracts, with runtime clients consuming live backend adapters only.
 
 ## 2. Current Milestones
 
@@ -11,7 +11,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 |------------|-----------|-------------|--------|--------|-------|
 | Flutter Client Experience | FCX-01 | Bootstrap DI container, theming, and StreamValue-based controller scaffolding. | 2025-02-28 | In Progress | Delphi |
 | Flutter Client Experience | FCX-02 | Lock endpoint response schemas (contract-first) for MVP flows. | 2025-03-05 | Planned | Delphi |
-| Flutter Client Experience | FCX-03 | Wire mocked repositories/services to tenant home, agenda, invites, map, and profiles based on contracts. | 2025-03-12 | Planned | Delphi |
+| Flutter Client Experience | FCX-03 | Wire Laravel-backed repositories/services to tenant home, agenda, invites, map, and account profiles based on contracts. | 2025-03-12 | Planned | Delphi |
 | Flutter Client Experience | FCX-04 | Implement telemetry (Mixpanel) baseline for MVP flows. | 2025-03-19 | Planned | Delphi |
 | Flutter Client Experience | FCX-05 | Add location permission guard + permission screen for geo-dependent routes (map/nearby). | 2025-03-26 | Planned | Delphi |
 | Flutter Client Experience | FCX-06 | Eliminate Flutter architecture hard‑NO deviations (non-controller/cross-feature GetIt resolution in screens/widgets, DTOs in domain, Future/StreamBuilder in UI, direct Navigator usage, multi‑widget files). | 2025-04-01 | Planned | Delphi |
@@ -37,13 +37,16 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 |----------|--------|-------------|----------------|-------|
 | `/api/v1/anonymous/identities` | MOD-101 | Anonymous identity bootstrap (Sanctum token issuance for web/app guest flows). | Implemented | Unauthenticated route returns `{user_id, identity_state, token, abilities, expires_at?}`; abilities/TTL controlled by `tenant.anonymous_access_policy`. |
 | `/api/v1/auth/token_validate` | MOD-101 | Validate bearer token and return minimal user profile. | Implemented | Returns `{ data: { user: { id, name, emails, custom_data } } }` for login check; route registered in `routes/api/public_tenant_maybe_api_v1.php`. |
-| `/api/v1/environment` | MOD-101 | Tenant/landlord resolution + branding payload for app/web bootstraps. | Implemented | Returns tenant identity + theme settings + telemetry/firebase/push config + `profile_types` registry + `settings.map_ui` (`radius` min/default/max + `default_origin`); location freshness lives under `telemetry`; uses host/app domain context. |
-| `/api/v1/invites` | MOD-201 | Invite feed and referral graph. | Defined | Enforces 1 invite per person/event; **user invites** limited to contacts/installed users; **account_profile invites** can target favorites/followers (admin-assigned in MVP). No route registered in `routes/api`. |
-| `/api/v1/invites/stream` | MOD-201 | Invite delta stream (SSE). | Planned | Emits invite created/updated/deleted events for authenticated user; inviter principal kind = `user|account_profile`. |
-| `/api/v1/invites/settings` | MOD-201 | Backend-owned invite quotas, anti-spam limits, and UX messaging settings. | Planned | Backend enforces over-quota responses (`429`) and returns reset metadata; Flutter fetches for messaging/UX. |
-| `/api/v1/invites/share` | MOD-201 | External share codes for event invites (new user install/signup attribution). | Planned | Anyone who can invite can generate; resolves to `inviter_principal` (user or account_profile) + `event_id`; requires `account_profile_id` when inviter is account_profile; includes `/consume` to bind attribution post-install. |
-| `/api/v1/invites/share/{code}/accept` | MOD-201 | Web landing acceptance for invite share codes. | Planned | Requires Sanctum (anonymous token); binds attribution and returns invite state. |
-| `/api/v1/agenda` | MOD-201 | Paged agenda feed with search + past toggle, includes happening-now events. | Tested & Ready | Request: `page`, `page_size`, `past_only`, `search`, `categories`, `tags`, `taxonomy`, `origin_lat/lng`, `max_distance_meters`. Response: occurrence-first event DTO (`event_id`, `occurrence_id`, `date_time_start/end`, `occurrences`, `event_parties`, `capabilities`, taxonomy/tags), `has_more` flag. Invite lifecycle fields are not exposed by Events payloads. Event location follows canonical `location + place_ref` (venue projection is resolver output, not a required write input). Happening-now rule: `date_time_start <= now < effective_end` (default end = start + 3h). |
+| `/api/v1/environment` | MOD-101 | Tenant/landlord resolution + branding payload for app/web bootstraps. | Implemented | Returns tenant identity + theme settings + telemetry/firebase/push config + `profile_types` registry + `settings.map_ui` (`radius` min/default/max + `default_origin` + ordered `filters[]` catalog with `key/label/image_uri`); location freshness lives under `telemetry`; uses host/app domain context. |
+| `/.well-known/assetlinks.json` | MOD-101 | Host-resolved Android App Links association payload. | Implemented | Served by Laravel web route under `tenant-maybe`; package identifier comes from typed app domains (`app_android`) and credentials come from `settings.app_links.android` (tenant scope, landlord fallback). Static public file shadowing is intentionally removed. |
+| `/.well-known/apple-app-site-association` | MOD-101 | Host-resolved iOS Universal Links association payload. | Implemented | Served by Laravel web route under `tenant-maybe`; bundle identifier comes from typed app domains (`app_ios`) and credentials come from `settings.app_links.ios` (tenant scope, landlord fallback). Returns JSON fallback shape when credentials are missing. |
+| `/api/v1/invites` | MOD-201 | Invite feed and referral graph. | Tested & Ready | Implemented in `belluga_invites` package with grouped feed, canonical uniqueness, duplicate protection, and covered by `tests/Feature/Invites/InvitesFlowTest.php`. |
+| `/api/v1/invites/stream` | MOD-201 | Invite delta stream (SSE). | Implemented | Emits invite created/updated/deleted deltas from `invite_outbox_events`; tenant-authenticated + `CheckTenantAccess`. |
+| `/api/v1/invites/settings` | MOD-201 | Backend-owned invite quotas, anti-spam limits, and UX messaging settings. | Tested & Ready | Returns limits/cooldowns/reset metadata; `429` rejections include structured limit payload metadata. |
+| `/api/v1/invites/share` | MOD-201 | External share codes for event invites (new user install/signup attribution). | Tested & Ready | Implemented with same-target reuse, anti-spam cooldown/daily limits, and account-profile issuer permission checks. |
+| `/api/v1/invites/share/{code}` | MOD-201 | Share-code invite preview resolution for `/invite?code=...` landing. | Tested & Ready | Public tenant route resolves invite preview context without forced login; missing/expired codes return deterministic `404 invite_share_not_found`. |
+| `/api/v1/invites/share/{code}/materialize` | MOD-201 | Web/app share entry materialization for invite codes (identity-first). | Tested & Ready | Requires authenticated Sanctum user; anonymous identity receives deterministic `401 auth_required`; creates or reuses the canonical invite edge before standard `/invites/{invite_id}/accept|decline`. |
+| `/api/v1/agenda` | MOD-201 | Paged agenda feed with search + past toggle, includes happening-now events. | Tested & Ready | Request: `page`, `page_size`, `past_only`, `confirmed_only`, `search`, `categories`, `tags`, `taxonomy`, `origin_lat/lng`, `max_distance_meters`. Response: occurrence-first event DTO (`event_id`, `occurrence_id`, `date_time_start/end`, `occurrences`, `event_parties`, `capabilities`, taxonomy/tags), `has_more` flag. Invite lifecycle fields are not exposed by Events payloads. Event location follows canonical `location + place_ref` (venue projection is resolver output, not a required write input). Happening-now rule: `date_time_start <= now < effective_end` (default end = start + 3h). `confirmed_only=1` returns only attendance-confirmed items; anonymous identity returns `200` empty list; geo filters must not exclude confirmed-only items (origin remains optional for distance decoration). |
 | `/api/v1/events/stream` | MOD-201 | Event delta stream (SSE). | Tested & Ready | Emits occurrence-first deltas (`occurrence.created`, `occurrence.updated`, `occurrence.deleted`) with `{event_id, occurrence_id, type, updated_at}`. Clients resume with `Last-Event-ID`; on reconnect without cursor (or invalid cursor), client reloads page 1 from `/agenda` and continues from now. |
 | `/api/v1/events/{event_id}` | MOD-201 | Event detail payload. | Tested & Ready | Event detail contract is aligned to occurrence-first agenda cards (`occurrences[]`, `event_parties`, `capabilities`, taxonomy/tags). Invite lifecycle fields are intentionally absent from Events payloads. Event location follows canonical `location + place_ref`. |
 | `/api/v1/map/pois` | MOD-201 | Map POIs (projection-backed). | Tested & Ready | Minimal stack payload with `stack_key` + `top_poi.updated_at`; filters by `categories`, `tags`, `taxonomy`, `search`; no tags/taxonomy returned. Uses user profile timezone for day-based event window filters. |
@@ -51,23 +54,26 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/map/filters` | MOD-201 | Map filter discovery (categories/tags). | Tested & Ready | Returns category/tag/taxonomy catalogs from the projection set; removes hardcoded filter catalogs from mocks. |
 | `/api/v1/map/near` | MOD-201 | Map POI card list (distance-ordered). | Tested & Ready | Paginated (default 10/page) with rich card fields, tags, and taxonomy terms; includes `ref_slug` + `ref_path`. |
 | `/api/v1/me` | MOD-201 | Authenticated profile summary and role claims. | Implemented | Mock payload authoring queued in FCX-02. |
+| `/api/v1/favorites` | MOD-201 | Registry-backed favorites feed for Home and account-profile contexts. | Defined | Reads from `favorite_edges` + registry snapshot. Query accepts optional `registry_key`; V1 uses `registry_key=account_profile` with derived dedicated collection `favoritable_account_profile_snapshots` and occurrence ordering (`next_event_occurrence_at` asc, fallback `last_event_occurrence_at` desc, then `favorited_at` desc). Payload omits `tenant_id` (tenant-isolated DB). Guardrail must enforce registry snake_case, explicit collection pattern when provided, and block default shared collection for registries with specific indexes. |
 | `/api/v1/account_profiles/discovery` | MOD-201 | Account profile discovery cards with engagement metrics and invite counts. | Defined | Needs DTO/value-object mapping and shared prototype data for Laravel alignment. No route registered; public index exists at `/api/v1/account_profiles`. |
 | `/api/v1/events/{event_id}/check-in` | MOD-201 | Presence confirmation with geofence/QR/staff methods. | Planned | Deferred to VNext; MVP uses invite acceptance only for confirmations. |
 | `/api/v1/missions` | MOD-201 | Account-profile-created missions with metric targets and rewards. | Defined | Metrics selectable per mission; account workspace must show rankings/progress. |
 | `/api/v1/account_profile_links` | MOD-201 | Account profile ↔ curador/pessoa linkage. | Defined | Bidirectional proposals; statuses pending/accepted; monthly proof-of-presence window. |
 | `/api/v1/discover/people` | MOD-201 | People/Influencer row ordered by monthly Social Score. | Defined | Prefer verified on ties; respects privacy by anonymizing friends-only profiles. |
 | `/api/v1/discover/curator-content` | MOD-201 | Curator-produced content for “Veja isso…” row. | Defined | Ordered by latest published (future: most viewed); links to account profile/event. |
-| `/api/v1/contacts/import` | MOD-201 | Hashed contact import for friend suggestions and invite matching. | Planned | Accepts salted hashes only; no raw PII stored. |
+| `/api/v1/contacts/import` | MOD-201 | Hashed contact import for friend suggestions and invite matching. | Tested & Ready | Implemented in invites package; hashed-only matching + invite targeting path covered by invite feature tests. |
 | `/api/v1/push/register` | MOD-201 | Register device token for push notifications. | Implemented | Stores per-device tokens; used for invites/reminders. |
 | `/admin/api/v1/settings/schema` | Tenant Admin | Discover tenant settings schema (namespace metadata, nodes, conditional metadata). | Tested & Ready | Canonical settings-kernel discovery endpoint for tenant-admin scope; includes `schema_version` + stable node IDs. |
 | `/admin/api/v1/settings/values` | Tenant Admin | Fetch tenant settings values for authorized namespaces. | Tested & Ready | Scope-aware values payload filtered by namespace abilities; tenant-admin local-preferences reads `map_ui.default_origin` from this surface. |
-| `/admin/api/v1/settings/values/{namespace}` | Tenant Admin | Partial namespace PATCH (canonical contract). | Tested & Ready | Direct object payload only; field-presence merge; nullable-only `null` clear; non-nullable `null` => `422`; atomic mixed set+clear. Tenant-admin local-preferences edits `map_ui.default_origin` via this contract. |
+| `/admin/api/v1/settings/values/{namespace}` | Tenant Admin | Partial namespace PATCH (canonical contract). | Tested & Ready | Direct object payload only; field-presence merge; nullable-only `null` clear; non-nullable `null` => `422`; atomic mixed set+clear. Tenant-admin uses this contract for `map_ui.default_origin` and `app_links` (Android/iOS association credentials). |
 | `/admin/api/v1/settings/{schema|values}` + `/admin/api/v1/settings/values/{namespace}` | Landlord Admin | Landlord-scope settings schema/values/PATCH. | Tested & Ready | Same canonical contract in landlord scope store. |
 | `/admin/api/v1/{tenant_slug}/settings/{schema|values}` + `/admin/api/v1/{tenant_slug}/settings/values/{namespace}` | Landlord Admin (on behalf tenant) | Execute settings schema/values/PATCH against a tenant scope from landlord context. | Tested & Ready | Tenant scope resolution through adapter + canonical PATCH semantics. |
 | `/api/v1/settings/push` | Tenant Admin | Update tenant push settings (push-only). | Implemented | Split from firebase/telemetry; returns push config payload. |
 | `/api/v1/settings/firebase` | Tenant Admin | Update tenant firebase settings. | Implemented | Dedicated endpoint for firebase config. |
 | `/api/v1/settings/telemetry` | Tenant Admin | Manage telemetry integrations (list + upsert). | Implemented | Upsert by `type`; unique types enforced. |
 | `/api/v1/settings/telemetry/{type}` | Tenant Admin | Remove telemetry integration by type. | Implemented | DELETE removes a single type. |
+| `/admin/api/v1/media/map-filter-image` | Tenant Admin | Upload tenant-scoped image used by `settings.map_ui.filters[].image_uri`. | Tested & Ready | Complements local-preferences map filter catalog editor; accepts authenticated multipart (`key`, `image`) and returns canonical `image_uri`. |
+| `/api/v1/media/map-filters/{key}` | Tenant | Canonical public delivery for map filter images. | Tested & Ready | Returns tenant-scoped image bytes with `ETag`/`Last-Modified`; legacy `/map-filters/{key}/image` remains compatibility alias. |
 | `/admin/api/v1/organizations` | Tenant Admin | List organizations (grouping only). | Implemented | Tenant‑scoped; landlord users only. Paged response with org metadata. |
 | `/admin/api/v1/organizations` | Tenant Admin | Create organization. | Implemented | Tenant‑scoped; landlord users only. Minimal MVP fields: `name`, optional `description`. |
 | `/admin/api/v1/organizations/{organization_id}` | Tenant Admin | Organization detail. | Implemented | Tenant‑scoped; landlord users only. Returns org metadata. |
@@ -80,6 +86,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/admin/api/v1/account_profiles` | Tenant Admin | List account profiles. | Implemented | Tenant‑scoped; landlord users only. Paged response includes profile metadata + `ownership_state`. |
 | `/admin/api/v1/account_profiles` | Tenant Admin | Manual create account profile (legacy). | Implemented | Project route override rejects with deterministic `409` and `meta.use_endpoint=/admin/api/v1/account_onboardings`. |
 | `/admin/api/v1/account_profiles/{account_profile_id}` | Tenant Admin | Fetch/update/delete account profile. | Implemented | Tenant‑scoped; landlord users only. Soft delete + restore + force delete endpoints are live. |
+| `/api/v1/media/account-profiles/{account_profile_id}/{avatar\|cover}` | Tenant | Canonical public delivery for account profile avatar/cover media. | Tested & Ready | Returns tenant-scoped image bytes with cache validators; legacy `/account-profiles/{account_profile}/avatar|cover` remains compatibility alias. |
 | `/admin/api/v1/account_profiles/geo` | Tenant Admin | Geo search for POI-enabled profiles. | Implemented | **Removed** from tenant admin routes; superseded by `/api/v1/map/pois`. |
 | `/admin/api/v1/account_profile_types` | Tenant Admin | Profile type registry (tenant settings). | Implemented | Returns registry entries and capabilities. |
 | `/admin/api/v1/account_profile_types` | Tenant Admin | Create profile type registry entry. | Implemented | Persists to `account_profile_types`. |
@@ -98,6 +105,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/admin/api/v1/static_profile_types/{profile_type}` | Tenant Admin | Update static profile type. | Tested & Ready | `profile_type` is immutable; patch label/capabilities/taxonomies. |
 | `/admin/api/v1/static_profile_types/{profile_type}` | Tenant Admin | Delete static profile type. | Tested & Ready | Removes entry from registry. |
 | `/admin/api/v1/static_assets` | Tenant Admin | Static Asset CRUD for map POIs + pages. | Tested & Ready | Tenant-admin endpoints for create/update/delete/restore of static assets. |
+| `/api/v1/media/static-assets/{static_asset_id}/{avatar\|cover}` | Tenant | Canonical public delivery for static asset avatar/cover media. | Tested & Ready | Returns tenant-scoped image bytes with cache validators; legacy `/static-assets/{static_asset}/avatar|cover` remains compatibility alias. |
 | `/admin/api/v1/media/external-image` | Tenant Admin | Proxy external image URL to bytes for ingestion (URL import without CORS). | Tested & Ready | Authenticated + `CheckTenantAccess`; SSRF + size limits; returns raw bytes with `Cache-Control: no-store`. |
 | `/api/v1/static_assets/{asset_ref}` | Tenant | Static Asset public read (page). | Tested & Ready | Returns the static asset page payload by id or slug. |
 | `/admin/api/v1/events` | Tenant Admin | List events (admin). | Tested & Ready | Admin listing, page-based. |
@@ -109,7 +117,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 
 | ID | Risk | Impact | Mitigation |
 |----|------|--------|------------|
-| R-201-01 | Mock payload drift from backend contract. | UI regressions when real API arrives. | Maintain contract tests and share DTO schemas with backend team. |
+| R-201-01 | Flutter contract drift from backend payloads/adapters. | Runtime regressions on live tenant flows. | Maintain contract tests, enforce live-only runtime adapters, and share DTO schemas with backend team. |
 | R-201-02 | Controller lifecycle leaks degrade performance. | Memory growth and navigation instability. | Enforce disposal patterns and add integration tests covering scope teardown. |
 
 ## 5. Flutter Experience Future Phases
@@ -135,8 +143,8 @@ These roadmap phases extend the Flutter persona track and remain aligned with th
 - Invite landing (read-only): “You were invited by …” context + event summary.
 - Map browsing (read-only) for discovery; guide users into app for confirmations.
 - Install / Open-App CTAs that preserve the invite share code for attribution.
-- Invite acceptance is allowed only from invite landing reached via a single `code` (narrow V1 exception); credited to that code’s inviter principal.
-- Web “unauthenticated” surfaces may mint a backend-issued anonymous Sanctum token via `/api/v1/anonymous/identities` to call allowed endpoints.
+- Invite acceptance requires authenticated user identity; web unauthenticated entry must login and resume original deep link with `code` preserved.
+- Web “unauthenticated” surfaces may still mint anonymous Sanctum tokens for read-only/allowed calls, but anonymous identities cannot accept invite share codes.
 
 **Web authenticated allowed (V1):**
 - Tenant/Admin area: accounts, events, assets, and branding management.
@@ -147,7 +155,7 @@ These roadmap phases extend the Flutter persona track and remain aligned with th
 - Send invites (user + account_profile; account_profile issuance is admin-assigned in MVP).
 - Favorites and trust actions (check-in, credited acceptance selection).
 
-**Attribution requirement:** External share links carry a single `code` as a GET param that resolves `{ tenant_id, event_id, inviter_principal }`. Web must preserve this `code` through install and the app must call a backend `consume` endpoint post-install/post-signup to bind attribution.
+**Attribution requirement:** External share links carry a single `code` as a GET param that resolves `{ tenant_id, event_id, inviter_principal }`. Web/app flows must preserve this `code` through install/login/signup, materialize the canonical invite through authenticated `POST /api/v1/invites/share/{code}/materialize`, and then complete attribution through standard `/api/v1/invites/{invite_id}/accept|decline`. Any additional post-install binding contract beyond this sequence requires an explicit contract update.
 
 **Tracking mandate (V1):** Instrument web → install → signup → acceptance → presence funnel to validate whether web-only actions should be expanded later. Use Mixpanel (client) and/or server-side events, but align naming to avoid double-counting.
 

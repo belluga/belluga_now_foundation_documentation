@@ -26,13 +26,13 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 1. **Invite Acceptance Path**
     * Steps:
         * User lands via `inviteCode` deep link → sees invite context (sender, event, incentives).
-        * `Accept` action immediately confirms the invite (even before full account creation) and emits `invite.accepted`.
+        * `Accept`/`Decline` actions remain preview-only until the user authenticates; after login/signup the app materializes the canonical invite edge and then applies the standard invite decision.
         * Screen flows continue with:
             1. Minimal identity capture (name + email/phone).
             2. Contact import prompt (`import contacts to share with friends`) wired to Invite module’s endpoint.
             3. Optional “Find friends” preview from `friend_resumes` to encourage immediate viral sharing.
         * After contact import (or skip), user transitions to preference capture + location consent steps to personalize home/map.
-    * Integration: Calls `/invites/share/{code}/accept` to confirm the invite, then uses `POST /contacts/import` if the user opts to import contacts. Invite metadata is stored locally so preference recommendations can reference the same event/account profile.
+    * Integration: Calls `/invites/share/{code}/materialize` after authenticated entry, then uses `/invites/{invite_id}/accept|decline` plus `POST /contacts/import` if the user opts to import contacts. Invite metadata is stored locally so preference recommendations can reference the same event/account profile.
 
 2. **Invite Decline / No Invite Path**
     * Steps:
@@ -110,5 +110,5 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
-| `TODO-v1-invites-implementation.md` | Invite acceptance/contact-import flow contracts | In progress | `2`, `4`, `6` | Main authority for invite/onboarding boundary. |
+| `TODO-v1-invites-implementation.md` | Invite acceptance/contact-import flow contracts | Completed (2026-03-12) | `2`, `4`, `6` | Main authority for invite/onboarding boundary. |
 | `TODO-v1-first-release.md` | MVP onboarding sequencing and release posture | In progress | `3`, `5` | Tracks open onboarding questions at release level. |

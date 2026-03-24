@@ -175,9 +175,9 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with 
 
 - `/admin/settings` is the **Settings Hub** entrypoint.
 - Dedicated settings routes:
-  - `/admin/settings/local-preferences` → local preferences (`map_ui.radius` bounds + `map_ui.default_origin` fallback seed + theme)
+  - `/admin/settings/local-preferences` → local preferences (`map_ui.radius` bounds + `map_ui.default_origin` fallback seed + `map_ui.filters` catalog + theme)
   - `/admin/settings/visual-identity` → branding/visual identity
-  - `/admin/settings/technical-integrations` → firebase/push/telemetry
+  - `/admin/settings/technical-integrations` → app links + firebase/push/telemetry
   - `/admin/settings/environment-snapshot` → read-only environment diagnostics
 - The settings controller remains the state owner; each settings screen consumes only the relevant state slices and actions.
 
@@ -1279,6 +1279,27 @@ Proxy an external image URL and return raw image bytes for client-side ingestion
 - Scheme: `http|https` only
 - Blocks `localhost`, private IPs, and reserved IP ranges (SSRF guardrail)
 
+### `POST /admin/api/v1/media/map-filter-image`
+Upload and persist a tenant-scoped image asset for `map_ui.filters[].image_uri`.
+
+**Purpose:** Preserve the same upload/crop ingestion pattern used by tenant-admin media flows while storing a stable URL that can be referenced by map filter catalog entries.
+
+**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `account-users:create,account-users:update`
+
+**Request Schema** (`multipart/form-data`)
+- `key` (string): target filter key (slug-like, 1..64 chars)
+- `image` (file): `jpg|jpeg|png|webp`, max 2MB
+
+**Response Schema**
+```json
+{
+  "data": {
+    "key": "culture",
+    "image_uri": "https://tenant.example.com/storage/tenants/tenant-a/map_ui/filters/culture.png"
+  }
+}
+```
+
 ### `PATCH /admin/api/v1/settings/push`
 Update tenant push settings (push-only).
 
@@ -1368,7 +1389,14 @@ Update tenant `map_ui` settings used by map + agenda contracts.
     "min_km": 1,
     "default_km": 5,
     "max_km": 50
-  }
+  },
+  "filters": [
+    {
+      "key": "culture",
+      "label": "Cultura",
+      "image_uri": "https://tenant.example.com/storage/tenants/tenant-a/map_ui/filters/culture.png"
+    }
+  ]
 }
 ```
 
@@ -1385,7 +1413,153 @@ Update tenant `map_ui` settings used by map + agenda contracts.
       "min_km": 1,
       "default_km": 5,
       "max_km": 50
+    },
+    "filters": [
+      {
+        "key": "culture",
+        "label": "Cultura",
+        "image_uri": "https://tenant.example.com/storage/tenants/tenant-a/map_ui/filters/culture.png"
+      }
+    ]
+  }
+}
+```
+
+### `PATCH /admin/api/v1/settings/values/events`
+Update tenant `events` settings that govern event-creation boundaries.
+
+**Request Schema**
+```json
+{
+  "attendance": {
+    "allowed_policies": [
+      "free_confirmation_only",
+      "paid_reservation_only",
+      "either"
+    ],
+    "default_policy": "free_confirmation_only",
+    "allow_event_override": true
+  }
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "attendance": {
+      "allowed_policies": [
+        "free_confirmation_only",
+        "paid_reservation_only",
+        "either"
+      ],
+      "default_policy": "free_confirmation_only",
+      "allow_event_override": true
     }
+  }
+}
+```
+
+**Field Definitions**
+- `attendance.allowed_policies` (list): allowed values are `free_confirmation_only`, `paid_reservation_only`, `either`.
+- `attendance.default_policy` (enum): must belong to `allowed_policies`.
+- `attendance.allow_event_override` (bool): when false, event creators cannot choose a different policy; the tenant default is enforced on every event.
+- Paid reservation note: `paid_reservation_only` and `either` are valid only when the tenant/runtime supports paid reservation capability; otherwise validation must reject them.
+
+### `PATCH /admin/api/v1/settings/values/app_links`
+Update tenant deep-link association credentials used by Android App Links and iOS Universal Links.
+App identifiers are managed separately by typed app-domain endpoints.
+
+**Request Schema**
+```json
+{
+  "android": {
+    "sha256_cert_fingerprints": [
+      "AA:BB:CC:DD:...:ZZ"
+    ]
+  },
+  "ios": {
+    "team_id": "TEAMID1234",
+    "paths": [
+      "/invite*",
+      "/convites*"
+    ]
+  }
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "android": {
+      "sha256_cert_fingerprints": [
+        "AA:BB:CC:DD:...:ZZ"
+      ]
+    },
+    "ios": {
+      "team_id": "TEAMID1234",
+      "paths": [
+        "/invite*",
+        "/convites*"
+      ]
+    }
+  }
+}
+```
+
+### `GET /admin/api/v1/appdomains`
+Fetch typed mobile app identifiers used for tenant resolution and deeplink payload derivation.
+
+**Response Schema**
+```json
+{
+  "app_domains": {
+    "android": "com.guarappari.app",
+    "ios": "com.guarappari.app"
+  }
+}
+```
+
+### `POST /admin/api/v1/appdomains`
+Upsert typed mobile app identifier for one platform.
+
+**Request Schema**
+```json
+{
+  "platform": "android|ios",
+  "identifier": "com.guarappari.app"
+}
+```
+
+**Response Schema**
+```json
+{
+  "message": "App domain identifier saved successfully.",
+  "app_domains": {
+    "android": "com.guarappari.app",
+    "ios": "com.guarappari.app"
+  }
+}
+```
+
+### `DELETE /admin/api/v1/appdomains`
+Remove typed mobile app identifier for one platform.
+
+**Request Schema**
+```json
+{
+  "platform": "android|ios"
+}
+```
+
+**Response Schema**
+```json
+{
+  "message": "App domain identifier removed successfully.",
+  "app_domains": {
+    "android": null,
+    "ios": "com.guarappari.app"
   }
 }
 ```
@@ -1477,6 +1651,8 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TAD-02` | Approved | Scope/subscope governance is mandatory and route ownership cannot be inferred ad hoc. | Prevents route drift and admin/workspace overlap. | Sections `2.1`, `3.0` |
 | `TAD-03` | Approved | Settings screens follow canonical hub + dedicated flows with controller-owned state. | Provides consistent admin UX architecture baseline. | Sections `3.5`, `3.6`, `3.7` |
 | `TAD-04` | Approved | Tenant map/agenda fallback origin is tenant-owned configuration under `settings.map_ui.default_origin`. | Guarantees deterministic origin fallback for agenda/search when user location is unavailable. | Sections `3.6`, `4` (`PATCH /admin/api/v1/settings/values/map_ui`) |
+| `TAD-05` | Approved | Attendance policy governance is tenant-owned under `settings.events.attendance`; account profiles creating events are limited to the tenant-approved policy boundaries. | Gives tenant admins explicit control over free confirmation vs paid reservation behavior across all tenant events. | Section `4` (`PATCH /admin/api/v1/settings/values/events`) |
+| `TAD-06` | Approved | Deep-link credentials are tenant-owned under `settings.app_links`, while app identifiers are tenant-owned typed app domains (`/admin/api/v1/appdomains`). | Removes duplication of package/bundle identifiers from settings and keeps canonical ownership split between resolver identifiers and credentials. | Sections `3.6`, `4` (`PATCH /admin/api/v1/settings/values/app_links`, `GET/POST/DELETE /admin/api/v1/appdomains`) |
 
 ## 6. Tactical TODO Promotion Ledger
 
@@ -1484,5 +1660,7 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | --- | --- | --- | --- | --- |
 | `TODO-v1-tenant-admin-navigation-ia-events-priority.md` | Tenant-admin IA and route priorities | Completed | `3`, `5` | Completed and archived; route/navigation priorities promoted. |
 | `TODO-v1-events-location-gating-and-tenant-default-origin.md` | Map/agenda default-origin tenant settings contract | Promoted | `3.6`, `4`, `5` | Contract and Flutter local-preferences editor are both delivered; canonical baseline is now fully implemented. |
+| `TODO-v1-deeplink-host-resolved-well-known.md` | `.well-known` host-resolved serving + tenant `app_links` settings surface | In progress | `3.6`, `4`, `5` | Host-resolved endpoint path is delivered; runtime evidence remains tied to tenant credential rollout. |
+| `TODO-v1-app-domain-app-links-convergence.md` | Converge app identifiers into typed app domains + credential-only `settings.app_links` | Completed | `3.6`, `4`, `5` | Canonical split delivered with validation and tests; resolver/association/admin contracts synchronized. |
 | `TODO-v1-tenant-user-account-profile-area.md` | Account/profile admin boundaries | In progress | `2`, `4`, `5` | Aligns account/profile CRUD contracts and scope. |
 | `TODO-v1-static-assets-media-parity-with-account-profiles.md` | Media parity and static assets admin flows | In progress | `4`, `5` | Syncs media endpoints and UX behavior. |

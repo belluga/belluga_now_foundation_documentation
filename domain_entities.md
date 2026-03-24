@@ -7,7 +7,7 @@ This document defines the Core Business Entities (CBEs) for the Bóora! platform
 
 This list serves as the domain source of truth referenced by the `system_architecture_principles.md` (Principle P-1) and is the foundation for all module design.
 
-**Flutter domain boundary:** Domain entities and value objects must not depend on DTOs or infrastructure types. All DTO parsing/mapping lives in the infrastructure layer (mappers/repositories), and UI/controllers consume only domain/projection models.
+**Flutter domain boundary:** Domain entities and value objects must not depend on DTOs or infrastructure types. All DTO parsing/mapping lives in the infrastructure layer (mappers/repositories), and UI/controllers consume only domain/projection models. If a model lives under `lib/domain/**`, it must honor the domain contract; carriers that cannot satisfy that contract must be reclassified outside the domain layer instead of being excluded from enforcement by path.
 
 ---
 
@@ -37,14 +37,17 @@ This list serves as the domain source of truth referenced by the `system_archite
 | --- | --- | --- |
 | Favorite Badge | Normalizes the glyph/branding metadata for a favorite collection badge. Exposes value objects for icon code point, font family, and package so UI layers can render glyphs without mutating domain state. | Stored under `lib/domain/favorite/` and consumed by `Favorite` + `FavoriteResume`. |
 | Artist Resume | Canonical snapshot of an artist/curator identity for events, invites, and map markers. Carries `ArtistIdValue`, `ArtistNameValue`, `ArtistAvatarValue`, and `ArtistIsHighlightValue` so Venue/Schedule projections never fall back to primitives. | Lives under `lib/domain/artist/` and is produced from schedule DTOs before reaching UI controllers. |
-| Friend Resume | Lightweight projection of a `User` contact used inside invites. Stores `FriendIdValue`, `TitleValue`, `FriendAvatarValue`, and `FriendMatchLabelValue` so we never fall back to primitives in domain → presentation boundaries. | Used exclusively by invite share/flow controllers. |
+| Connection | Viewer-scoped relationship between one user and another, derived from contact imports/matches, user-favorite edges, and reciprocal friendship. Distinguishes `contact_match`, directional favorite approval, and mutual friendship to drive what profile exposure level is allowed. | Owned by the future `belluga_connections` package; not a generic social graph. |
+| Friend Resume / Viewer-Scoped Person Resume | Lightweight viewer-scoped projection of a `User` used by invites, onboarding, and future people discovery. Carries only the fields allowed by `profile_exposure_level` (`aggregate_only`, `capped_profile`, `full_profile`). | Current Flutter `FriendResume` should evolve toward this connections-owned projection. |
 | City POI & Map Events | Represents geographic entities surfaced on the tenant map (coordinates, categories, badges) plus immutable POI update events (move, activation, deactivation). All coordinates, badges, and filter tokens must be expressed as value objects to keep map math and styling independent from Flutter types. | Resides under `lib/domain/map/` with collections for `value_objects/`, `events/`, and `filters/`. |
 | Venue / Local | Canonical “place” aggregate referenced by offerings/events. A Venue can be physical (address + coordinates) or online (no fixed locality, optional URL). Physical venues must be eligible for GeoQuery and navigation; online venues must be treated as “available anywhere” and must not trigger distance ordering or geo constraints. | The map module owns the normalized POI registry; schedule/agendas reference venues by `venue_id` + summary fields. |
-| Invite | Represents a social invitation tied to an event/offering, with inviter, invitees, status, timestamps, and source links for attribution. | Only one accepted invite per invitee per event; expires at event end; supports invite attribution for ranking and missions. |
-| Presence / Check-in | Captures the verified presence of a user at an event via geofence/QR/staff confirmation. | Presence is the source of truth for “Presenças Confirmadas”; accepted-without-check-in is treated as no-show. |
+| Invite | Represents a social invitation tied to an event/offering, with inviter, invitees, status, timestamps, and source links for attribution. | Only one accepted invite per invitee per event; acceptance is a social conversion and does not by itself define reservation/confirmation or on-site attendance proof. |
+| Attendance Commitment | Represents a planned attendance slot/commitment for an event/offering, independent from invite acceptance. | Kind is `free_confirmation` or `paid_reservation`; the two are mutually exclusive per user + event/occurrence unless an explicit upgrade rule exists. |
+| Check-in | Captures on-site arrival proof for a user at an event via geofence/QR/staff/admission validation. | Separate from both invite acceptance and attendance commitment; confirms actual attendance when recorded successfully. |
+| Event Activity Fact | Append-only attributed event/result fact used for downstream analytics such as invite-tree-generated check-ins, promo requests, purchases, and offer claims. | Never replaces canonical package-owned state; intended for lineage-aware projections and drill-down. |
 | Mission | Defines account-profile-created goals (e.g., `10 convites aceitos`) with metric target, window, reward, and validation source. | Metric is selected per mission; pre-event missions should prefer invites/engagement over presence. |
 | Social Score | Aggregates north-star metrics for users and account profiles (partner label): `Convites Aceitos` (esforço) and `Presenças Confirmadas` (resultado), tracked all-time and for the current month (“Em Alta”). | Drives rankings, badges, and Pro/Verificado unlocks; respects privacy/anonymization when applicable. |
-| Contact Hash Directory | Stores salted hashes of user-imported contacts to enable friend suggestions and invite matching without storing raw PII. | Used to suggest “Pessoas” in discovery and to match invite acceptance with previously imported contact hashes. |
+| Contact Hash Directory | Stores salted hashes of user-imported contacts to enable contact matching and invite discovery without storing raw PII. | Future canonical owner: `belluga_connections`; supports unilateral contact matching without persisting raw address-book data. |
 
 ### Account Profile Label Field Definitions
 
@@ -138,12 +141,25 @@ This list serves as the domain source of truth referenced by the `system_archite
 ### Social Graph & Presence Field Definitions
 
 - `user_level` (enum): `basic`, `verified` (Pro/Verificado). Verified unlocks higher invite limits and monetization surfaces.
-- `privacy_mode` (enum): `public`, `friends_only` (friends defined as reciprocated favorites). Private users are anonymized in rankings (blur/avatar masking) but still count toward metrics.
+- `privacy_mode` (enum): `public`, `friends_only`. In `friends_only`, full-profile visibility is limited to viewers explicitly approved by the target through `favorite_edge(target -> viewer)`; reciprocal favorites are the product-level “friends”. Private users are anonymized in rankings (blur/avatar masking) but still count toward metrics.
+- `contact_match` (relationship flag): unilateral matched-contact relationship created from hashed phone/email imports (`viewer_user_id -> matched_user_id`).
+- `favorite_edge` (relationship flag): unilateral explicit user-to-user approval edge (`owner_user_id -> favored_user_id`). When the owner is `friends_only`, this edge grants the favored user access to the owner's `full_profile`.
+- `friend` (derived relationship): reciprocal `favorite_edge`; the product-level mutual relationship label.
+- `profile_exposure_level` (enum): `aggregate_only`, `capped_profile`, `full_profile`. Governs which user fields may be exposed to a specific viewer in a specific context.
+  - `aggregate_only`: counts/metrics only; no identity/media payload.
+  - `capped_profile`: safe identity surface without avatar/photo and without specific accepted-event history.
+  - `full_profile`: may include avatar/photo and specific accepted-event details where the target is public or has explicitly approved the viewer (for example via `favorite_edge(target -> viewer)`).
 - `people_discovery_priority`: order “Pessoas” by monthly Social Score; verified users are surfaced first when scores tie, but both verified and basic can appear.
 - `invite_status` (enum): `pending`, `accepted`, `declined`; `expired` is derived when the event ends. Exactly one accepted invite per invitee per event.
 - `invite_limits` (by role): `basic` up to 20 pending invites simultaneously; `verified` up to 50; `account_paid` up to 100 (higher via plan tiers). Invites are single-use per invitee/event.
+- `attendance_policy` (enum): `free_confirmation_only`, `paid_reservation_only`, `either`. The event chooses one policy within tenant-owned attendance boundaries; an occurrence may override only when the event enables that behavior and tenant policy permits it.
+- `allow_occurrence_policy_override` (bool): event-level flag that allows occurrences to choose their own `attendance_policy` within tenant-approved boundaries.
+- `attendance_commitment_kind` (enum): `free_confirmation`, `paid_reservation`. The kind is determined by the event/occurrence attendance policy, not merely by whether the event is paid.
+- `attendance_commitment_status` (enum): `active`, `canceled`, `expired`, `fulfilled`.
 - `check_in_method` (enum): `geofence`, `qr`, `staff_manual`. Geofence radius is account-profile-defined; QR is optional reinforcement; manual is staff-only for auditability.
-- `presence_status` (enum): `confirmed`, `no_show` (accepted invite without check-in by event end).
+- `attendance_outcome` (enum): `confirmed`, `unconfirmed`, `no_show`, `manually_confirmed`. The default post-event unresolved state without successful check-in is `unconfirmed`; `no_show` is explicit/policy-driven and should not be the automatic fallback.
+- `activity_type` (enum/string): canonical bounded identifier for append-only downstream event/result facts (e.g., `check_in.recorded`, `promo.requested`, `purchase.completed`, `offer.claimed`).
+- `referral_lineage` (array): bounded ancestor snapshot attached to a credited invite acceptance or downstream activity fact so level-based invite attribution can be answered without runtime graph traversal.
 - `mission_metric` (enum): `invites_accepted`, `presences_confirmed`, `check_ins`, `purchases` (future). Chosen per mission by the account profile; pre-event missions are advised to avoid presence unless explicitly desired.
 - `mission_status` (enum): `pending`, `active`, `completed`, `expired`.
 - `account_profile_curator_link_status` (enum): `pending`, `accepted`; either side can propose, reciprocal acceptance required.

@@ -81,6 +81,8 @@ Even in V1, we must support operational reality:
 **Access boundary (agreed):**
 - Event invite metrics are visible to account operators once memberships land; in MVP, metrics remain landlord/admin-only.
 - Metrics are not visible to “any inviter”; they are scoped to the event host/managing account profile.
+- Default analytics surfaces should expose event-level aggregates and inviter-principal breakdowns first; raw invitee identity belongs only to explicit operational/audit lists, not default dashboards.
+- `friends_only` users still count toward metrics, but their identity should remain anonymized outside direct operational handling where access is justified.
 
 **Metrics required for Challenges/Gamification (per event):**
 - Per inviter principal: `sent`, `viewed`, `accepted (credited)`, `declined`, `closed_duplicate`, plus optional attendance/check-in counts.
@@ -108,6 +110,7 @@ Defer detailed documentation until the tenant modules (Map, Invite, Agenda, Tran
 | `PAD-01` | Approved | Workspace is scoped by `account_profile_id` and role/permission maps, not by invite sender alone. | Enforces tenant-safe operational boundaries. | Section `2.1 A` |
 | `PAD-02` | Approved | Membership model exists as post-MVP target; MVP keeps landlord/admin-assigned operations. | Avoids fake permissions while preserving auditability. | Sections `2.1 A`, `2.1 C` |
 | `PAD-03` | Approved | Invite metrics for workspace are host/account-profile scoped. | Supports gamification/challenges without cross-account leakage. | Section `2.1 B` |
+| `PAD-04` | Approved | Default workspace dashboards show aggregates and inviter-principal breakdowns first; raw invitee identity is restricted to explicit operational/audit lists. | Balances business visibility with privacy and tenant-safe handling. | Section `2.1 B` |
 
 ## 5. Tactical TODO Promotion Ledger
 
