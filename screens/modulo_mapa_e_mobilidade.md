@@ -26,23 +26,22 @@ Algumas experiências do módulo (ex.: listagem de endereços/POIs próximos, or
 - **Pins (Ícones):** Iconografia clara para diferenciar Eventos, Lojas/Produtores, Guias e Pontos de Interesse (Ex: Farmácia, Ponto de Táxi).
 - **FAB de Retorno:** O ícone de `[Ícone de Localização]` (Action Button flutuante) é mantido para centrar o mapa na localização atual do usuário.
 
-### 1.2. Ferramentas de Busca e Filtro (Ação Lenta/Rápida)
+### 1.2. Ferramentas de Busca e Filtro (Runtime Atual)
 
 #### A. Barra de Pesquisa Geográfica
 - **Topo da Tela:** `[🔎 Buscar evento, lojinha, guia ou endereço...]` (Permanente).
 
-#### B. Fluxo de Filtro (Dica Visual e Acionador)
-- **Ao Abrir a Tela:** A `Linha de Tags Principais` aparece por **~3 segundos** como "dica visual" e some.
-- **Acionador:** `[Ícone de Filtro]` (com contador) no canto da tela.
+#### B. FAB Filters Dinâmicos (Contrato Atual)
+- Os botões de categoria são montados dinamicamente a partir de `GET /api/v1/map/filters`.
+- Cada item pode trazer `label` e `image_uri` (decorado por `settings.map_ui.filters` no tenant admin).
+- Quando o backend envia `query` por categoria (`source`, `types`, `categories`, `taxonomy`, `tags`), o app aplica esse payload diretamente ao tocar no FAB.
+- Quando não há `query` explícita, o app usa fallback por chave da categoria (`categories=[key]`).
+- Tocar no FAB ativo limpa o filtro (toggle-off).
+- O botão `Limpar filtros` aparece quando há filtros ativos.
+- Enquanto uma recarga de filtros/POIs está em andamento, a interação com FABs fica bloqueada para evitar requisições concorrentes.
 
-**Fluxo de Interação de Filtro (Tags Expansíveis):**
-1.  **Clique:** Usuário clica no `[Ícone de Filtro]`.
-2.  **Exposição:** A `Linha de Tags Principais` (Carrossel Horizontal) reaparece.
-    - **Tags Principais:** `[Todos]` | `[Agenda]` | `[Lojas/Produtores]` | `[Guias/Roteiros]` | `[Utilidade Pública]`
-3.  **Expansão (Refinamento):** Ao clicar em uma tag que possui subcategorias (Ex: `[Lojas/Produtores]`), uma **Segunda Linha de Tags** surge imediatamente abaixo.
-    - **Subcategorias:** `[Checkbox: Produtos Rurais]` | `[Checkbox: Artesanato]` | `[Checkbox: Lojas de Conveniência]`
-    - **Contador:** O número de subcategorias ativas é exibido na Tag Principal (Ex: `[Lojas/Produtores (2)]`) e no `[Ícone de Filtro]`.
-4.  **Fechamento:** A Linha de Tags some após um período de inatividade ou ao clicar fora da área de filtro.
+#### C. Observação de Evolução
+- O fluxo antigo de tags expansíveis em duas linhas não representa mais o comportamento runtime atual e foi substituído pelo catálogo dinâmico de FAB filters.
 
 ---
 

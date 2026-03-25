@@ -36,6 +36,7 @@
 - Static-assets coverage is still weaker than account-profiles for media update paths (URL-mode update, multipart update, and explicit removals).
 - Account-profile feature coverage already includes media update/replace/remove checks; this suite must be kept as a non-regression guard during shared-core migration.
 - Flutter create/edit flows are currently upload-first in practice (URL fields in repositories exist, but submit paths pass `avatarUrl/coverUrl` as `null`).
+- Flutter post-save media stability coverage is already present for static-assets list/detail/edit paths; remaining risk is concentrated on backend shared-core extraction + static-assets backend parity tests.
 
 ## D) Decision Baseline (Frozen)
 - `D-01` `/api/v1/media/*` remains the canonical media contract for all model media surfaces.
@@ -66,7 +67,7 @@
 - [ ] ⚪ Pending Add package unit tests (path resolution, legacy/canonical URL normalization, remove logic, tenant scoping).
 - [ ] ⚪ Pending Add package integration tests (expected adapter behavior for avatar/cover semantics).
 - [ ] ⚪ Pending Migrate/update existing account-profile/static-assets feature tests in `laravel-app` to assert unified package-backed behavior (no domain drift).
-- [ ] ⚪ Pending Add/adjust Flutter-focused tests to validate stable post-save media behavior (list/detail/edit refresh) under the finalized upload-first contract.
+- [x] ✅ Production‑Ready Add/adjust Flutter-focused tests to validate stable post-save media behavior (list/detail/edit refresh) under the finalized upload-first contract.
 
 ## F) Definition of Done
 - [ ] ⚪ Pending Account-profile and static-assets media services use the same shared processing core.
@@ -86,7 +87,7 @@
 - [ ] ⚪ Pending Automated: Laravel targeted feature suite for static-assets media (create/update/remove + canonical/legacy retrieval).
 - [ ] ⚪ Pending Automated: Package unit/integration suite for media-processing abstractions.
 - [ ] ⚪ Pending Automated: `laravel-app` integration/feature suite proving package-backed media behavior across account-profiles/static-assets/map-filters.
-- [ ] ⚪ Pending Automated: Flutter tests covering post-save media persistence/render behavior for static-assets (and any impacted account-profile paths).
+- [x] ✅ Production‑Ready Automated: Flutter tests cover post-save media persistence/render behavior for static-assets (list/detail/edit + upload-first flow stability).
 
 ## H) Complexity / Checkpoint Policy
 - Complexity: `large`
@@ -101,3 +102,4 @@
 ## J) Approval Gate
 - 2026-03-20: Scope updated to prioritize unified media-processing core and parity-by-contract across models.
 - 2026-03-20: Scope updated again to require package extraction in this slice (not only package-ready design).
+- 2026-03-24: Status audit synchronized with codebase evidence; Flutter post-save media test items promoted to ✅ Production‑Ready.

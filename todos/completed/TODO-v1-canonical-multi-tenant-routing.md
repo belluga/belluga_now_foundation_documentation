@@ -11,7 +11,7 @@
   - `foundation_documentation/policies/scope_subscope_governance.md`
 - The specific strategy in this file (`/t/:tenantSlug` canonical path migration) is no longer aligned with the approved model.
 - Remaining valid work moved to a focused active TODO:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-route-url-only-hydration-hardening.md`
+  - `foundation_documentation/todos/completed/TODO-v1-route-url-only-hydration-hardening.md`
 - Decision summary:
   - Keep tenant identity resolution by host/domain for `tenant_public` and `tenant_admin`.
   - Keep `/workspace` and `/workspace/{account_slug}` for `account_workspace`.

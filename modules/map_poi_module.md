@@ -13,15 +13,34 @@ This document outlines the architecture and data synchronization strategy for th
   - `foundation_documentation/todos/completed/TODO-v1-map-backend.md`
   - `foundation_documentation/todos/completed/TODO-v1-events-capability-map-poi.md`
 
-## 2. Current Prototype Implementation
+### 1.2 Scope and Route Ownership (V1)
 
-The initial prototype uses a mocked data layer that simulates fetching POIs from a hardcoded list. This is being actively refactored to support a high-fidelity mock of the final architecture.
+Primary ownership for this module is tenant runtime with explicit internal-only guard routes.
+
+| Route | Host Context | EnvironmentType | Main Scope | Subscope | Guard/Identity |
+| --- | --- | --- | --- | --- | --- |
+| `/mapa` | tenant domain | `tenant` | `tenant_public` | n/a | tenant public session |
+| `/mapa/poi` | tenant domain | `tenant` | `tenant_public` | n/a | tenant public session |
+| `/location/permission` | tenant domain | `tenant` | `tenant_public` | n/a | location guard fallback route |
+| `/location/not-live` | tenant domain | `tenant` | `tenant_public` | n/a | location guard fallback route |
+
+## 2. Current Runtime Implementation
+
+The active Flutter map runtime is already Laravel-backed and query-driven:
+- `CityMapRepository` resolves POIs and filters from Laravel HTTP services (`/api/v1/map/pois`, `/api/v1/map/filters`).
+- Stack expansion uses the same POI endpoint with `stack_key`.
+- Route hydration uses query params on both `/mapa` and `/mapa/poi` (`poi` + optional `stack`).
+- Initial POI focus is condition-gated by observed map readiness events before moving camera.
+- Deep-link initialization order is priority-driven: when `poi` query is present, the controller resolves/selects/queues POI focus first, while filters/default list/location refresh continue in parallel.
+
+**Deep-Link Order Priority (current decision):**
+- **Priority target:** the first meaningful map movement must honor explicit URL intent (`poi`) before non-blocking startup flows (filter catalog refresh, default list refresh, location refresh completion).
+- **Motivation:** reduce perceived delay in direct-open/refresh deep links where POI exists but camera movement was delayed by unrelated startup requests.
+- **Guardrail:** this is orchestration-only; it does not change route scope/host policy, does not introduce in-memory correctness dependencies, and keeps deterministic fallback (`POI do link não foi encontrado.`) when typed lookup cannot resolve.
 
 **Shared Location Contract.** As part of FCX-02, the main Flutter application owns a `LocationRepository` + `UserLocationService` pair that lives in the domain layer. Controllers are the only consumers of repositories, so the service is injected into controllers, which then pass the user’s coordinates to downstream repositories (Map, Agenda, Task/Reminder). No repository is allowed to call another repository directly; when features need multiple data sources, controllers compose the calls or rely on lightweight domain services. This keeps dependency arrows pointing inward (controllers → repositories) and prevents caching or network responsibilities from leaking between repos.
 
-**Mock Strategy.** During mock phases the `LocationRepository` offers deterministic positions (configurable in debug menus) so we can test distance sorting and viewport queries without GPS. When the real platform location APIs are wired, the same repository continues to back the service, preserving controller contracts.
-
-**Location Permission Gate (Guard).** All screens whose behavior depends on current user location (e.g., the Map POI viewport, “nearby”/distance-ranked lists, and any future “near me” actions) must be protected by a dedicated navigation guard. If location services are disabled or permission is not granted, navigation must redirect to an inviting permission screen that:
+**Location Permission Gate (Guard).** All screens whose behavior depends on current user location (e.g., the Map POI viewport, “nearby”/distance-ranked lists, and any future “near me” actions) are protected by dedicated guards. If location services are disabled or permission is not granted, navigation redirects to a permission/not-live flow that:
 - Explains why location is required (nearby venues, distance sorting, “search this area”).
 - Offers a primary CTA to request permission (when possible) or open settings (when denied forever).
 - Offers a CTA to open system location settings when the device-level service is disabled.
@@ -30,13 +49,11 @@ The initial prototype uses a mocked data layer that simulates fetching POIs from
 - Show a “not live” screen explaining we’re using a possibly outdated location (with timestamp).
 - Allow the user to continue using cached location for “nearby” ordering and map centering, while offering a CTA to re-enable live location.
 
-## 3. Proposed Architecture: A Server-Centric, Real-Time Model
+## 3. Architecture Baseline: Server-Centric, Real-Time Ready
 
-Initial architectural discussions considered a client-heavy caching model. However, requirements for powerful geospatial search, real-time location tracking, and live state changes make a **server-centric, real-time model** the superior approach.
+The module baseline is server-centric for geospatial search and projection reads, with realtime-ready contract surfaces. Backend owns query truth (`$geoNear`/viewport filters, visibility windows, typed references), while Flutter owns route/state orchestration and resilient fallback behavior for guarded/internal flows.
 
-This architecture leverages a powerful backend database (e.g., **MongoDB with geospatial indexes**) to handle all complex queries, while using a real-time communication layer (**SSE**) to push instant updates to clients.
-
-*A core principle of this architecture is to **Build for the Future**. The B2C client application and its underlying mock data layer will be built to support the full v1.1 feature set from the start, even if some features are only testable via a debug menu initially. This avoids building technical debt and ensures the foundation is scalable.*
+The realtime channel (`/api/v1/map/pois/stream`) remains defined and compatible with this model, but MVP execution stays polling/list-query first.
 
 ### 3.1. On-Demand Data Fetching (HTTP REST API)
 
@@ -65,7 +82,19 @@ For instant updates like moving POIs and live offers, a persistent SSE connectio
 ### 3.3. User Interface and Interaction
 
 #### 3.3.1. Filtering
-A two-level filtering system will be implemented for categories, sub-category tags, and search distance. Map controllers must accept an `initial_filter_payload` so any upstream surface (Home quick actions, agenda CTAs, notifications) can deep-link users into a pre-filtered map session. Example payload `{ "categories": ["music"], "tags": ["live"], "max_distance_meters": 3000 }`. When provided, the map bootstraps the viewport, selects the FAB/filter chips accordingly, and issues an immediate POI fetch using those parameters. Controllers persist this payload in state so pushing back to the map restores the last selection unless the user explicitly clears it. If the initial filter corresponds to one of the Floating Action Buttons (e.g., “Music”, “Beaches”), that FAB renders in the active state (highlighted/selected). This visual feedback tells the user the map is already filtered and that they can tap the same FAB to toggle or choose another filter to broaden the results.
+Filtering is server-query driven (`categories`, `source`, `types`, `taxonomy`, `tags`, `search`, `max_distance_meters`) and controlled by controller-owned state.
+
+**FAB filters (current Flutter behavior):**
+- FAB category actions are built dynamically from `/api/v1/map/filters` categories (`label` + optional `image_uri`), including tenant-admin decoration via `settings.map_ui.filters`.
+- Each category can ship a normalized backend `query` payload (`source`, `types[]`, `categories[]`, `taxonomy[]`, `tags[]`); tapping a FAB applies this payload directly.
+- If a category has no explicit query payload, the fallback behavior applies category key filtering (`categories=[key]`).
+- Tapping an already-active FAB clears filters (toggle-off behavior).
+- `Limpar filtros` appears whenever category/taxonomy filters are active.
+- While map loading/filter reload is in flight, FAB interactions are locked to prevent overlapping filter requests.
+
+**Deep-link filter payload support (contract):**
+- Controllers may accept initial filter payloads from upstream surfaces.
+- When provided, first-frame UI must reflect active filters and issue the corresponding server query deterministically.
 
 #### 3.3.2. POI Details Card & Actions
 When a user taps a POI, a details card will appear with "Details", "Share", and "Route" buttons.
@@ -75,12 +104,14 @@ When a user taps a POI, a details card will appear with "Details", "Share", and 
 -   **Deselection Logic:** The POI details card must close automatically if the user clicks on the map outside the card or begins to drag the map, signifying a loss of focus.
 -   **Mouseover Effect (Web):** On the web platform, hovering over a POI marker should increase its z-index to bring it to the front.
 
-## 4. API Requirements for Proposed Architecture
+## 4. API Contract (Current Runtime + Pending Additions)
 
-This architecture requires a REST API for on-demand queries and an SSE API for real-time events. The data model for a POI will need to include a `priority` field to control the visual stacking order.
+The runtime already consumes REST APIs for on-demand queries and defines SSE compatibility surfaces for future realtime adoption. POI payloads include `priority` to control visual stacking order.
 
 ### 3.4 POI Type Registry & Navigation
-- **Normalized IDs/Slugs:** Every custom object (poi, event, artist) exposes `id`, `slug`, and `type`. Navigation and actions use the slug as the canonical identifier; IDs back lookups but routing is slug-first.
+- **Normalized IDs/Slugs:** Every custom object (poi, event, artist) exposes `id`, `slug`, and `type`.
+- **Current map route hydration:** Flutter map routes hydrate by query key (`poi=<ref_type>:<ref_id>`; fallback to raw `id`) plus optional `stack`, not by slug path params.
+- **Navigation keys:** `ref_type + ref_id` is the current canonical map deep-link key. `slug/ref_path` remain relevant for detail/share surfaces.
 - **POI Type Registry:** `poi_types` defines how to map external sources into normalized POIs without per-request pipelines.
   ```json
   {
@@ -98,10 +129,10 @@ This architecture requires a REST API for on-demand queries and an SSE API for r
     "route": { "name": "poi_detail", "params": ["slug"] }
   }
   ```
-- **Lookup Flow:** Pipelines are only used upstream to produce/update normalized POI documents. Reads (agenda, map, event detail) never run pipelines; they fetch the normalized POI by `slug/id`. Events carry `place_ref` (`{type,id}`) and POI lookup must use that typed reference (commonly `type=venue`). Route resolution uses `type` + `slug` → route map (e.g., `poi/*` → POI detail; `event` → event detail).
+- **Lookup Flow:** Pipelines are only used upstream to produce/update normalized POI documents. Reads (agenda, map, event detail) never run pipelines. Current map lookup resolves by typed reference (`ref_type/ref_id`) through loaded payload + optional stack expansion and, when needed, deterministic single-POI lookup (`/map/pois/lookup`).
 
 ### 3.5 Custom Objects & Taxonomies
-- **Custom Object Types:** `poi`, `event`, `artist`. All share the normalized shape `{ id, slug, type }` for routing and linking; slug is the primary navigation key.
+- **Custom Object Types:** `poi`, `event`, `artist`. All share the normalized shape `{ id, slug, type }` for routing and linking. Detail/share flows can stay slug-driven, while map deep-link hydration remains typed-reference (`ref_type + ref_id`) driven.
 - **Taxonomies/Terms:** `taxonomies` define `{ id, slug, name, applies_to: [poi|event|artist] }`; `terms` carry `{ id, slug, name, taxonomy_id }`. Object-term links use `{ object_type, object_id, term_id }`.
 - **Usage:**
   - POIs own their terms (e.g., `cuisine`, `ambience`, `vibe`).
@@ -260,6 +291,7 @@ Response shape (example):
         - When `origin_lat/lng` is provided, return `distance_meters` for each POI.
         - Apply time-window filters for `active_window_*` using backend-owned tenant settings (future/past **days**). The client should not hardcode visibility windows.
     -   Response fields: **stack groups** keyed by `stack_key`, each with `center`, `stack_count`, and a `top_poi` payload. The `top_poi.updated_at` field is required for polling cache validation. `tags[]` and `taxonomy_terms[]` are **filter-only** and are not returned in this payload. When sorting by `distance`, backend orders by ascending distance while still honoring priority tiers (sponsors > live events > others).
+    -   Deep-link contract note: this endpoint is viewport/origin scoped and does not guarantee global `poi`-only resolution for arbitrary `ref_type/ref_id` links.
 2.  **Nearby Card List Endpoint:** `GET /api/v1/map/near`
     -   Purpose: return a distance-ordered list of POI cards, paginated (default 10/page), with richer fields for navigation.
     -   Parameters (query string):
@@ -276,6 +308,13 @@ Response shape (example):
         - normalized `query` payload (`source`, `types[]`, `categories[]`, `taxonomy[]`, `tags[]`) used by Flutter when applying a category.
         - configured list ordering first, with configured entries retained even when `count = 0`.
     -   Taxonomy catalog is sourced from POI taxonomy aggregations and applied as advanced filters when needed.
+4.  **POI Lookup Endpoint:** `GET /api/v1/map/pois/lookup`
+    -   Purpose: deterministic lookup for a single POI by canonical typed reference, independent of viewport/origin.
+    -   Parameters (query string):
+        - `ref_type` (required)
+        - `ref_id` (required)
+    -   Response fields: canonical POI payload compatible with map deep-link hydration (`ref_type`, `ref_id`, `ref_slug`, `ref_path`, `location`, `updated_at`, `stack_key?`, `stack_count?`).
+    -   Status: implemented and covered by feature tests (`MapPoisControllerTest`) for successful typed lookup + deterministic not-found behavior.
 
 ### 4.2. SSE API (Real-Time Events)
 
@@ -293,11 +332,11 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 -   The "Account Workspace" (Account Profile management) or landlord functionality for managing POIs and offers will not be a separate application. It will be a different mode or build flavor within the main Flutter codebase, ensuring efficiency and code reuse.
 
 ### 5.3. Implementation Roadmap
--   **Phase 1 (Complete):** Foundational Mock Data Layer (`MockPoiDatabase`, `MockHttpService`, `MockSseService`).
--   **Phase 2 (In Progress):** Connect Data Layer to UI (Refactor `Repository`, `Controller`, and `Screen`).
--   **Phase 2.1 (Queued):** Implement Core Visual Logic (Visual Stacking Order using the `priority` field).
--   **Phase 3 (Queued):** Implement Feature UI (Filtering Panel, POI Details Card with Deselection Logic).
--   **Phase 4 (Queued):** Final Polish (Web-specific mouseover effects, etc.).
+-   **Phase 1 (Complete):** Laravel-backed runtime wired for map POIs + filters + stack expansion.
+-   **Phase 2 (Complete):** Dynamic FAB category filters from backend catalog (`/map/filters`) with tenant-admin decoration and controller-owned lock/reload behavior.
+-   **Phase 3 (Complete):** URL-only route hydration hardening (`poi + stack` routes + internal-only fallbacks + deep-link order-priority focus behavior).
+-   **Phase 4 (Complete):** Backend typed single-POI lookup (`/map/pois/lookup`) delivered to close global `poi`-only deep-link resolution.
+-   **Phase 5 (Deferred MVP):** SSE stream adoption for map deltas (`/map/pois/stream`), keeping polling/list endpoints as source of truth in MVP.
 
 ## 6. Canonical Decision Baseline
 
@@ -307,6 +346,8 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 | `MAP-02` | Approved | Event linkage uses typed reference (`place_ref`/`ref_type+ref_id`), not legacy direct venue ownership assumptions. | Aligns map integration with current Events contract. | Sections `1.1`, `3.4`, `3.6` |
 | `MAP-03` | Approved | Same-spot POIs are deterministic via normalized coordinates and stack grouping. | Avoids marker jitter and duplicate-point instability. | Section `3.7` |
 | `MAP-04` | Approved | Visibility windows are backend-owned and timezone-aware; clients do not hardcode time windows. | Consistent POI visibility and lower client drift risk. | Sections `3.6`, `4.1` |
+| `MAP-05` | Approved | Global `poi`-only deep links resolve through backend single-POI typed lookup (`ref_type` + `ref_id`) independent of viewport/origin list payloads. | Eliminates false not-found for valid POIs outside initial map payload windows. | Section `4.1` |
+| `MAP-06` | Approved | Deep-link startup gives URL POI intent (`poi`) higher orchestration priority than non-blocking startup refreshes; POI focus is prepared early and applied once map-ready conditions are met. | Reduces time-to-focus for direct-open/refresh links without changing architecture boundaries or fallback semantics. | Section `2` |
 
 ## 7. Tactical TODO Promotion Ledger
 
@@ -314,4 +355,5 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 | --- | --- | --- | --- | --- |
 | `TODO-v1-map-backend.md` | Map package extraction and backend contract ownership | Production-Ready | `1.1`, `3.6`, `4`, `6` | Package ownership complete (`belluga_map_pois`), including internal rebuild command. |
 | `TODO-v1-map-frontend.md` | Flutter map UX + filter/stacking consumption | In progress | `3.3`, `4.1`, `5` | Client contract alignment stream. |
+| `TODO-v1-route-url-only-hydration-hardening.md` | URL-only route hydration + internal-only fallback hardening | Production-Ready | `4.1`, `6` | `poi + stack` + `poi`-only deterministic lookup delivered end-to-end. |
 | `TODO-v1-events-capability-map-poi.md` | Events capability decisions for POI projection | Promoted | `1.1`, `3.6`, `6` | Completed and promoted into module baseline. |

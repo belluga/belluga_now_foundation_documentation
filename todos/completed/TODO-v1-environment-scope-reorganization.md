@@ -307,6 +307,6 @@
   - presentation route files must be explicitly organized by canonical subscope ownership.
 
 ## Dependencies
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-route-url-only-hydration-hardening.md`
+- `foundation_documentation/todos/completed/TODO-v1-route-url-only-hydration-hardening.md`
 - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-route-paths-refactor.md`
 - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-endpoint-scope-separation.md`
