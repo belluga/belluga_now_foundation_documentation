@@ -3,7 +3,7 @@
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
 **Status:** Active  
 **Owner:** Delphi + Backend Team  
-**Goal:** Ship the first tenant-facing version focused on Events + Invites + Favorites (Artists + Venues) + Map (with Beaches), with Web invite landing + acceptance functional in V1 and a Flutter test foundation that prevents regressions.
+**Goal:** Ship the first tenant-facing version focused on Events + Invites + Favorites (Artists + Venues) + Map (with Beaches), with web invite landing as promotion-only and conversion happening in app via deferred deep linking + progressive profiling.
 
 ---
 
@@ -15,7 +15,7 @@
 - Roadmap tracking: `foundation_documentation/system_roadmap.md`
 - Deferred features: `foundation_documentation/todos/active/TODO-vnext-parking-lot.md`
 - Flutter test foundation (baseline): `foundation_documentation/todos/active/mvp_slices/TODO-v1-flutter-test-foundation.md`
-- Invites implementation slice: `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
+- Invites implementation slice: `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`
 - Telemetry + push slice: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-and-push.md`
 - Map slice: `foundation_documentation/todos/active/mvp_slices/TODO-v1-map.md`
 - Events/Agenda slice: `foundation_documentation/todos/completed/TODO-v1-events-and-agenda.md`
@@ -30,7 +30,7 @@ These are scope descriptors (not tasks).
 - Events browsing + event detail
 - Invites: send, receive, accept/decline, confirm presence
 - Invite crediting selection (“Accept invite from…”, no default)
-- Web: invite landing + accept via code (V1 is web functional for these flows)
+- Web: invite landing is read-only + app promotion CTA; invite acceptance happens in app (anonymous-first progressive profiling)
 - Map POIs with categories: `Culture`, `Restaurant`, `Beach`, `Nature`, `Historic` + dynamic `Events`
 - StaticAssets (landlord-managed) are POI-enabled sources; Unmanaged accounts are supported for account profile creation.
 - Favorites: Artists + Venues (favorites remain surfaced in Home)
@@ -55,7 +55,7 @@ These are scope descriptors (not tasks).
 
 ### Dependency map (high level)
 - Core loop: Invites + Agenda → unlock Telemetry/Push.
-- Web invite acceptance depends on stable environment resolution + share code contract (and must remain contract-aligned with app invites).
+- Web-to-app conversion depends on reliable deferred deep link capture, share-code propagation, and app-side anonymous invite acceptance contract.
 - Map depends on stable event detail routing + time-window settings for event POIs.
 - Tenant/admin area depends on landlord/admin operators for MVP; memberships are deferred (credited acceptance semantics for invites remain app-side).
 
@@ -69,14 +69,14 @@ These are scope descriptors (not tasks).
 - Manual: compile and run app; smoke routes still open without crashes
 
 ### M1 — Core loop contracts + mock fidelity
-- TODOs: `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`, `foundation_documentation/todos/completed/TODO-v1-events-and-agenda.md` (refinement + mock-first)
+- TODOs: `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`, `foundation_documentation/todos/completed/TODO-v1-events-and-agenda.md` (refinement + mock-first)
 - Gate: DTO/fixture contract tests updated; no mock drift from docs
 - Manual: browse events → open event detail → start invite flow (mock-backed)
 
-### M2 — Web functional (invite landing + accept via code)
-- TODOs: `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md` + web slices in `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
-- Gate: web acceptance works against contract-faithful mock server endpoints
-- Manual: open tenant subdomain → invite landing → accept → verify result state
+### M2 — Web read-only promotion + app conversion (deferred deep link)
+- TODOs: `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md` + `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`
+- Gate: web invite surfaces are read-only, deferred deep link capture works on first open, and app anonymous accept flow is functional with auth wall for trust actions
+- Manual: open tenant subdomain → open invite landing → click app CTA → install/open app via link → invite card opens with correct code → anonymous accept succeeds
 
 ### M3 — Telemetry + push baseline
 - TODO: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-and-push.md`
@@ -214,6 +214,7 @@ Suggested defaults (override per tenant + plan):
 - [ ] ⚪ No Wallet/Purchases/Premium surfaces ship in V1 (tracked as deferred)
 - [ ] ⚪ Push notifications work end-to-end for invite received at minimum, including deep link routing
 - [ ] ⚪ Mixpanel captures the invite funnel and event funnel with consistent identifiers
+- [ ] ⚪ Web stays promotion-only while app conversion follows progressive profiling (`deferred deep link -> anonymous accept -> auth wall -> signup`)
 
 ---
 

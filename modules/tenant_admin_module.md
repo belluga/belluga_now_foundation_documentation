@@ -1007,10 +1007,12 @@ Update account profile basic fields.
   "avatar_url": "string?",
   "cover_url": "string?",
   "avatar": "file?",
-  "cover": "file?"
+  "cover": "file?",
+  "remove_avatar": "boolean?",
+  "remove_cover": "boolean?"
 }
 ```
-**Upload notes:** Use `multipart/form-data` when sending `avatar`/`cover`. PATCH updates are partial; only provided fields are modified.
+**Upload notes:** Use `multipart/form-data` when sending `avatar`/`cover`. PATCH updates are partial; only provided fields are modified. To explicitly clear stored media, send `remove_avatar=true` and/or `remove_cover=true`.
 
 **Response Schema**
 ```json
@@ -1222,7 +1224,13 @@ Fetch static asset detail.
 ### `PATCH /admin/api/v1/static_assets/{asset_id}`
 Update static asset (tenant admin).
 
-**Request Schema:** same as create (partial).  
+**Request Schema:** same as create (partial) plus optional explicit media removal flags:
+```json
+{
+  "remove_avatar": "boolean?",
+  "remove_cover": "boolean?"
+}
+```
 **Compatibility note:** `categories` and `is_active` are still accepted by backend validation for compatibility, but tenant-admin forms no longer send these fields.
 **Response:** same as detail.
 

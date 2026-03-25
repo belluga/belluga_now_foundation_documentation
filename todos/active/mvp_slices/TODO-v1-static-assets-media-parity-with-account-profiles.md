@@ -19,6 +19,7 @@
 - Flutter:
   - Keep current upload-first submit behavior unless a dedicated product decision changes the client contract.
   - Ensure screens keep consuming backend-generated media URLs without introducing fallback masking.
+  - Enforce explicit media removal command parity on edit flows (`remove_avatar`, `remove_cover`) for both static-assets and account-profiles.
 - Testing:
   - Add shared-core unit coverage and migrate/expand model feature tests to prove parity.
   - Update existing tests where refactor changes service boundaries or payload expectations.
@@ -35,7 +36,8 @@
 - `remove_avatar` / `remove_cover` semantics are implemented in media services, but request validation parity is inconsistent between models.
 - Static-assets coverage is still weaker than account-profiles for media update paths (URL-mode update, multipart update, and explicit removals).
 - Account-profile feature coverage already includes media update/replace/remove checks; this suite must be kept as a non-regression guard during shared-core migration.
-- Flutter create/edit flows are currently upload-first in practice (URL fields in repositories exist, but submit paths pass `avatarUrl/coverUrl` as `null`).
+- Flutter create/edit flows are upload-first in practice (URL fields in repositories exist, but submit paths pass `avatarUrl/coverUrl` as `null`).
+- Flutter edit flows now send explicit removal command flags (`remove_avatar`, `remove_cover`) with controller-owned intent for static-assets and account-profiles.
 - Flutter post-save media stability coverage is already present for static-assets list/detail/edit paths; remaining risk is concentrated on backend shared-core extraction + static-assets backend parity tests.
 
 ## D) Decision Baseline (Frozen)
@@ -53,40 +55,43 @@
 - [x] ✅ Production‑Ready Static-assets public media routes and controller parity delivered (canonical + legacy aliases + cache validators).
 - [x] ✅ Production‑Ready Account-profile canonical/legacy media parameter handling aligned.
 - [x] ✅ Production‑Ready Map-filter public media delivery parity wired.
-- [ ] ⚪ Pending Define package contract for shared media processing (slots, remove flags, URL normalize, storage path resolve, versioning, tenant scoping).
-- [ ] ⚪ Pending Create internal reusable package for media processing core following existing ecosystem package pattern.
-- [ ] ⚪ Pending Wire package dependency in `laravel-app` and ensure deterministic install in local + CI.
-- [ ] ⚪ Pending Refactor `AccountProfileMediaService` to delegate to package adapter/core.
-- [ ] ⚪ Pending Refactor `StaticAssetMediaService` to delegate to package adapter/core.
-- [ ] ⚪ Pending Migrate map-filter media storage logic to package primitives where applicable (without route contract change).
-- [ ] ⚪ Pending Standardize request validation parity for removal flags (`remove_avatar`, `remove_cover`) across media-enabled update requests.
-- [ ] ⚪ Pending Add/adjust Laravel feature tests for static-assets media update paths:
+- [x] ✅ Production‑Ready Define package contract for shared media processing (`MediaModelDefinition` + host tenant scope contract + slot semantics).
+- [x] ✅ Production‑Ready Create internal reusable package for media processing core following existing ecosystem package pattern (`packages/belluga/belluga_media`).
+- [x] ✅ Production‑Ready Wire package dependency in `laravel-app` (composer path repo + autoload + providers) and validate deterministic bootstrap (`composer dump-autoload` + architecture guardrails).
+- [x] ✅ Production‑Ready Refactor `AccountProfileMediaService` to delegate to package adapter/core.
+- [x] ✅ Production‑Ready Refactor `StaticAssetMediaService` to delegate to package adapter/core.
+- [x] ✅ Production‑Ready Migrate map-filter media storage logic to package primitives where applicable (tenant scope resolution delegated to package contract adapter).
+- [x] ✅ Production‑Ready Standardize request validation parity for removal flags (`remove_avatar`, `remove_cover`) across media-enabled update requests.
+- [x] ✅ Production‑Ready Add/adjust Laravel feature tests for static-assets media update paths:
   - URL-field update persistence/readback
   - multipart update replacement/readback
   - explicit remove flags clearing media + storage cleanup
-- [ ] ⚪ Pending Add package unit tests (path resolution, legacy/canonical URL normalization, remove logic, tenant scoping).
-- [ ] ⚪ Pending Add package integration tests (expected adapter behavior for avatar/cover semantics).
-- [ ] ⚪ Pending Migrate/update existing account-profile/static-assets feature tests in `laravel-app` to assert unified package-backed behavior (no domain drift).
+- [x] ✅ Production‑Ready Add package unit tests (path resolution, legacy/canonical URL normalization, remove logic, tenant scoping).
+- [x] ✅ Production‑Ready Add package integration tests (adapter binding + decoupling guardrails).
+- [x] ✅ Production‑Ready Migrate/update existing account-profile/static-assets feature tests in `laravel-app` to assert unified package-backed behavior (no domain drift).
 - [x] ✅ Production‑Ready Add/adjust Flutter-focused tests to validate stable post-save media behavior (list/detail/edit refresh) under the finalized upload-first contract.
+- [x] ✅ Production‑Ready Standardize Flutter edit removal semantics across static-assets/account-profiles with explicit removal flags (`remove_avatar`, `remove_cover`) and regression coverage.
 
 ## F) Definition of Done
-- [ ] ⚪ Pending Account-profile and static-assets media services use the same shared processing core.
-- [ ] ⚪ Pending `laravel-app` consumes media processing through the extracted internal Composer package (no duplicated in-app core copy).
-- [ ] ⚪ Pending No duplicated model-specific implementations remain for generic media processing concerns.
-- [ ] ⚪ Pending `remove_avatar` / `remove_cover` semantics are consistent and validated for every media-enabled update endpoint.
+- [x] ✅ Production‑Ready Account-profile and static-assets media services use the same shared processing core.
+- [x] ✅ Production‑Ready `laravel-app` consumes media processing through the extracted internal Composer package (no duplicated in-app core copy).
+- [x] ✅ Production‑Ready No duplicated model-specific implementations remain for generic media processing concerns.
+- [x] ✅ Production‑Ready `remove_avatar` / `remove_cover` semantics are consistent and validated for every media-enabled update endpoint.
 - [x] ✅ Production‑Ready Canonical media URLs are currently retrievable and legacy aliases currently work as compatibility endpoints.
-- [ ] ⚪ Pending Canonical + legacy retrieval contract remains green after shared-core refactor (no regressions).
-- [ ] ⚪ Pending Static-assets and account-profiles pass equivalent create/update/remove media regression tests.
+- [x] ✅ Production‑Ready Canonical + legacy retrieval contract remains green after shared-core refactor (no regressions).
+- [x] ✅ Production‑Ready Static-assets and account-profiles pass equivalent create/update/remove media regression tests.
 - [ ] ⚪ Pending Flutter media rendering and refresh behavior remains stable after backend consolidation.
 
 ## G) Validation
 - [ ] ⚪ Pending Manual: Create/update/remove avatar/cover for static-assets and account-profiles; verify list/detail/edit after reload.
+- [x] ✅ Production‑Ready Manual: Upload + retrieval parity validated on Flutter app for static-assets and account-profiles (2026-03-25).
+- [ ] ⚪ Pending Manual: Explicit remove parity retest on both flows in final release candidate checklist.
 - [ ] ⚪ Pending Manual: Validate canonical and legacy media URL retrieval parity for both models.
 - [ ] ⚪ Pending Manual: Validate `laravel-app` package wiring in a clean environment (`composer install` + boot + media endpoints healthy).
-- [ ] 🟡 Provisional Automated: Re-run and adjust existing Laravel account-profiles media suite as non-regression coverage after shared-core migration.
-- [ ] ⚪ Pending Automated: Laravel targeted feature suite for static-assets media (create/update/remove + canonical/legacy retrieval).
-- [ ] ⚪ Pending Automated: Package unit/integration suite for media-processing abstractions.
-- [ ] ⚪ Pending Automated: `laravel-app` integration/feature suite proving package-backed media behavior across account-profiles/static-assets/map-filters.
+- [x] ✅ Production‑Ready Automated: Re-run existing Laravel account-profiles media suite as non-regression coverage after shared-core migration.
+- [x] ✅ Production‑Ready Automated: Laravel targeted feature suite for static-assets media (create/update/remove + canonical/legacy retrieval).
+- [x] ✅ Production‑Ready Automated: Package unit/integration suite for media-processing abstractions.
+- [x] ✅ Production‑Ready Automated: `laravel-app` integration/feature suite proving package-backed media behavior across account-profiles/static-assets/map-filters.
 - [x] ✅ Production‑Ready Automated: Flutter tests cover post-save media persistence/render behavior for static-assets (list/detail/edit + upload-first flow stability).
 
 ## H) Complexity / Checkpoint Policy
@@ -103,3 +108,5 @@
 - 2026-03-20: Scope updated to prioritize unified media-processing core and parity-by-contract across models.
 - 2026-03-20: Scope updated again to require package extraction in this slice (not only package-ready design).
 - 2026-03-24: Status audit synchronized with codebase evidence; Flutter post-save media test items promoted to ✅ Production‑Ready.
+- 2026-03-25: `APROVADO` received for TDD execution; shared media package extraction + Laravel parity test gates implemented and validated.
+- 2026-03-25: Flutter parity patch delivered for explicit media removals in static-assets/account-profiles edit flows; automated tests + custom lint green; manual upload/retrieval validation confirmed.
