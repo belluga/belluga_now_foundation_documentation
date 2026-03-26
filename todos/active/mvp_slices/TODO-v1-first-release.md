@@ -20,7 +20,7 @@
 - Map slice: `foundation_documentation/todos/active/mvp_slices/TODO-v1-map.md`
 - Events/Agenda slice: `foundation_documentation/todos/completed/TODO-v1-events-and-agenda.md`
 - Account Profile UI slice: `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
-- Tenant/admin area slice: `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
+- Tenant/admin area slice: `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
 - Web-to-app policy slice: `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md`
 
 ## 0) Scope Boundaries (V1)
@@ -94,7 +94,7 @@ These are scope descriptors (not tasks).
 - Manual: favorites strip works; artist profile uses reduced tabs
 
 ### M6 — Tenant/Admin area V1 minimum
-- TODO: `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
+- TODO: `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
 - Gate: tenant/admin authorization enforced
 - Manual: tenant admin can manage accounts, assets, events, and branding
 

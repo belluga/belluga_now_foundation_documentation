@@ -22,7 +22,7 @@
   - `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-frontend.md`
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-frontend.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
+  - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
 
 ## 2. Module Specification
 
@@ -65,9 +65,9 @@ Governance constraints:
 
 * **Invariants:** Controllers are the sole owners of state mutations; widgets remain presentational; every domain entity surfaces as a value-object backed model; DI registrations occur before route build.
 * **Validation Rules:** Input fields rely on domain value objects (e.g., `EmailValue`, `PasswordValue`); invite codes enforce length 6–12; POI filter radius 1–50 km; schedule entries require ISO-8601 timestamps.
-* **Authorization Requirements:** Anonymous flow is limited to onboarding/bootstrap/read-only surfaces; invite share-code acceptance is identity-first (authenticated user required). Authenticated tenant scope unlocks home, schedule, map; account workspace scope exposes account/profile dashboards (future flavor); promoter scope requires explicit feature flag.
+* **Authorization Requirements:** Progressive profiling is anonymous-first for invite conversion: anonymous users may resolve share preview and accept invite from app invite flow, while trust actions remain hard-gated behind Auth Wall (`favorite`, `send_invite`, presence/check-in boundaries). Authenticated tenant scope unlocks full trust-action surfaces; account workspace scope exposes account/profile dashboards (future flavor); promoter scope requires explicit feature flag.
 * **Shared Services:** `UserLocationService` + `LocationRepository` live in the domain layer. Controllers (Map, Search, Invite Check-in) inject the service to request permission, seed initial filters, and pass coordinates to repositories. Repositories never call each other; services wrap a single repository per architecture principle §2.5.
-* **Task & Invite Hooks:** TaskStream integration is deferred post-MVP. Invite controllers must respect `Web-to-App Promotion Policy` by resolving preview-first context from `GET /invites/share/{code}`, then deep-linking/auth-round-tripping to `POST /invites/share/{code}/materialize` before exposing decision UI; once materialized, all decisions must use the canonical invite endpoints `POST /invites/{invite_id}/accept|decline`. Use `POST /contacts/import` instead of handling critical actions purely on the web.
+* **Task & Invite Hooks:** TaskStream integration is deferred post-MVP. Invite controllers must respect `Web-to-App Promotion Policy` by resolving preview-first context from `GET /invites/share/{code}`, allowing anonymous app acceptance through canonical `POST /invites/{invite_id}/accept|decline`, and using `POST /invites/share/{code}/materialize` only when an authenticated continuation/pre-bind flow is explicitly required. Use `POST /contacts/import` instead of handling critical actions purely on the web.
 
 #### 2.1.1 Presentation DI Matrix (Canonical)
 
@@ -121,7 +121,7 @@ No-exception guardrails:
 | `/invites/settings` | GET | Fetches invite limits and UX messaging settings. | Tenant | `InviteSettingsRequest` | `InviteSettingsResponse` |
 | `/invites/share` | POST | Creates or returns a share code for an event invite. | Tenant | `InviteShareRequest` | `InviteShareResponse` |
 | `/invites/share/{code}` | GET | Resolves invite preview payload for `/invite?code=...` before auth. | Tenant | n/a | `InviteSharePreviewResponse` |
-| `/invites/share/{code}/materialize` | POST | Creates or reuses the canonical invite edge for the current authenticated user before decision UI is shown. | Tenant | `InviteShareMaterializeRequest` | `InviteShareMaterializeResponse` |
+| `/invites/share/{code}/materialize` | POST | Optional authenticated continuation/pre-bind for share-code flows (not required for anonymous app acceptance). | Tenant | `InviteShareMaterializeRequest` | `InviteShareMaterializeResponse` |
 | `/contacts/import` | POST | Imports hashed contacts for friend matching. | Tenant | `ContactsImportRequest` | `ContactsImportResponse` |
 | `/agenda` | GET | Provides schedule entries, suggested actions, and contextual CTAs. | Tenant | `AgendaRequest` | `AgendaResponse` |
 | `/events/stream` | GET | Streams event deltas for active filters. | Tenant | `EventStreamRequest` | SSE delta events |
@@ -373,4 +373,4 @@ Invite flows must be proven in layers:
 | `TODO-v1-events-and-agenda-frontend.md` | Events/agenda client contracts and UX integration | Completed | `2.2`, `2.3`, `3` | Maintains occurrence-first event consumption. |
 | `TODO-v1-invites-implementation.md` | Invite/social flow delivery in client | Completed (2026-03-12) | `2.2`, `2.4`, `2.5` | Share acceptance + contacts import paths. |
 | `TODO-v1-map-frontend.md` | Map rendering/filter/stacking contracts | In progress | `2.2`, `2.3`, `2.4` | Aligns with projection-backed map APIs. |
-| `TODO-v1-tenant-user-account-profile-area.md` | Workspace scope and route ownership | In progress | `2.0`, `3` | Account workspace/subscope integrity. |
+| `TODO-vnext-tenant-user-account-profile-area.md` | Workspace scope and route ownership | In progress | `2.0`, `3` | Account workspace/subscope integrity. |

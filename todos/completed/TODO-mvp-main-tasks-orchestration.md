@@ -121,7 +121,7 @@
 - [ ] ⚪ Invites (Flutter): `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
 - [ ] ⚪ Map: `foundation_documentation/todos/active/mvp_slices/TODO-v1-map.md`
 - [ ] ⚪ Account Profile UI (type-driven): `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
-- [ ] ⚪ Tenant/Admin area (MVP: Account + Account Profile creation): `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
+- [ ] ⚪ Tenant/Admin area (MVP: Account + Account Profile creation): `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
 - [ ] ⚪ Web-to-app policy: `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md`
 - [ ] ⚪ Telemetry + push: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-and-push.md`
 - [ ] ⚪ UI/UX polish: `foundation_documentation/todos/completed/TODO-mvp-ui-polish.md`
@@ -134,7 +134,7 @@
 - [ ] ⚪ Events & Agenda (API): `foundation_documentation/todos/completed/TODO-v1-events-and-agenda.md`
 - [ ] ⚪ Map/POI projection: `foundation_documentation/todos/active/mvp_slices/TODO-v1-map.md`
 - [ ] ⚪ Telemetry + push: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-and-push.md`
-- [ ] ⚪ Tenant/Admin area (accounts/assets/branding): `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
+- [ ] ⚪ Tenant/Admin area (accounts/assets/branding): `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
 
 ---
 

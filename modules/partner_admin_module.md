@@ -20,7 +20,7 @@ Captures the intent to deliver an Account Profile Admin/Workspace experience whe
   - `foundation_documentation/modules/invite_and_social_loop_module.md`
   - `foundation_documentation/modules/tenant_admin_module.md`
 - Tactical TODO streams:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
+  - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
 
 ## 2. Planned Scope (to be detailed later)
@@ -116,5 +116,5 @@ Defer detailed documentation until the tenant modules (Map, Invite, Agenda, Tran
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
-| `TODO-v1-tenant-user-account-profile-area.md` | Workspace scope and ownership model | In progress | `1.1`, `2.1`, `4` | Canonical stream for workspace boundary decisions. |
+| `TODO-vnext-tenant-user-account-profile-area.md` | Workspace scope and ownership model | In progress | `1.1`, `2.1`, `4` | Canonical stream for workspace boundary decisions. |
 | `TODO-v1-account-profile-ui.md` | Account profile management UX contract | In progress | `2`, `2.1 C` | UI flow authority for workspace minimum. |

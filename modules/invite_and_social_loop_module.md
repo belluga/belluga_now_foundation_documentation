@@ -31,7 +31,7 @@ The Invite & Social Loop module (MOD-302) governs the tenant app virality engine
 | `/convites` | tenant host/app | `tenant` | `tenant_public` | n/a | tenant user |
 | `/agenda` invite actions | tenant host/app | `tenant` | `tenant_public` | n/a | tenant user |
 | `/workspace/{account_slug}` invite metrics/workspace surfaces | tenant host/app | `tenant` | `tenant_public` | `account_workspace` | account membership / landlord override |
-| invite landing via share `code` (`/invite?code=...`) | site_public or tenant host web landing | `landlord` or `tenant` | `site_public` or `tenant_public` | n/a | preview-first for unauthenticated entry; accept/decline requires authenticated tenant user |
+| invite landing via share `code` (`/invite?code=...`) | site_public or tenant host web landing | `landlord` or `tenant` | `site_public` or `tenant_public` | n/a | preview-first on web (read-only CTA to app); app flow allows anonymous accept/decline with device-bound identity |
 
 ---
 
@@ -350,21 +350,23 @@ V1 requires tracking external shares (WhatsApp/Instagram/etc.) for **new users**
 
 **Key requirements:**
 - `code` resolves to a single inviter principal + canonical invite target.
-- Backend records **share visits** and materializes a canonical invite edge from the share code before any decision; after materialization, acceptance/decline use the standard `/invites/{invite_id}/accept|decline` contract (source = `share_url` for the materialized edge).
+- Backend records **share visits** and exposes preview payload with canonical invite identity.
+- App progressive-profiling flow may accept/decline directly from preview using standard `/invites/{invite_id}/accept|decline`.
+- Authenticated continuation flows may still materialize attribution through `/invites/share/{code}/materialize` before decision when explicit pre-bind is required.
 - Backend must prevent duplicate invite issuance to the same receiver+target+inviter principal (see Uniqueness rule); the share code is attribution, not a loophole to spam.
 
-### 4.4 Web Acceptance + Same-Event Re-Share (V1 Identity-First)
+### 4.4 Web Promotion-Only + App Anonymous Acceptance (V1 Progressive Profiling)
 
-V1 supports web preview/materialization only under identity-first constraints:
-- Web invite landing must resolve preview context from a single invite/share `code` (invite landing) without forcing immediate login.
-- Accept/decline actions on that preview require authentication, resume the original `/invite?code=...` context after login/signup, and materialize the canonical invite edge before any decision is offered.
-- The credited inviter is the inviter principal bound to that code (no multi-inviter selection on web).
-- After materialization, any acceptance/decline must run through the standard invite mutation endpoints using the materialized `invite_id`.
-- After acceptance, web may allow the new attendee to **re-share only the same event** externally (WhatsApp/Instagram/etc.), subject to strict backend limits.
-- Web must not expose grouped invite inbox browsing, direct invite send/decline, agenda-first acceptance, presence confirmation, or check-in.
-- If the resolved next step requires richer fulfillment than auto-resolution (for example, confirmation/reservation choice or paid reservation handling), web must return the user to the app instead of expanding the web flow.
+V1 uses web as read-only promotion and app as anonymous-first conversion:
+- Web invite landing resolves preview context from a single invite/share `code` and remains read-only.
+- Web invite landing exposes promotion CTA (`Baixe o App para Confirmar`) with `code` propagation to app/open-store paths.
+- Web does not execute invite accept/decline mutations and does not expose grouped invite inbox/send flows.
+- App entry via `/invite?code=...` must render invite-first preview and allow anonymous accept/decline without forced login.
+- The credited inviter remains the inviter principal bound to that `code` (no web-side multi-inviter selection).
+- After anonymous acceptance, app keeps feed/map navigation available; trust actions (`favorite`, `send_invite`, presence/check-in boundaries) are intercepted by Auth Wall.
+- If a post-accept path requires richer fulfillment, handling remains app-owned; web does not expand to mutation surfaces.
 
-This enables viral growth while keeping app-only “agenda-first acceptance” as the trusted conversion surface.
+This preserves low-friction viral conversion while keeping trust boundaries explicit.
 
 ### 4.4.A Compatibility Assurance Baseline
 
@@ -389,14 +391,15 @@ Stage-only invite test support is allowed for this purpose, provided all of the 
 - it uses canonical invite services/contracts for invite behavior setup rather than ad-hoc direct invite mutations;
 - it is unavailable outside the intended `stage` boundary.
 
-#### Sanctum Requirement (Identity-First)
+#### Sanctum + Identity Requirement (Progressive Profiling)
 
-Even on web “unauthenticated” landings, the canonical API is Sanctum-validated by default:
+Canonical invite APIs remain Sanctum-validated, with identity behavior split by channel:
 
-- Web may mint or resume an anonymous identity via `POST /anonymous/identities` for read-only/allowed calls.
-- Invite share-code materialization must use authenticated Sanctum identity; anonymous attempts must return deterministic `401 auth_required`.
-- Unauthenticated entry via `/invite?code=...` must render invite-first preview, preserve `code` through login/signup, and resume the original deep link before materializing the invite edge.
-- Flutter/web invite landing compatibility is anchored on `/invite?code=...`; the client must preserve `code` through onboarding/install bootstrap so attribution is bound once identity is available.
+- App may mint or resume an anonymous identity via `POST /anonymous/identities` for device-bound progressive profiling flows.
+- Web invite landing in V1 must not mint anonymous identity for invite conversion; it is read-only + promotion only.
+- Invite share-code materialization (`POST /invites/share/{code}/materialize`) remains authenticated-only; anonymous attempts must return deterministic `401 auth_required`.
+- Canonical invite acceptance endpoint (`POST /invites/{invite_id}/accept`) must accept app-originated anonymous identities in V1 and preserve attribution semantics.
+- Flutter/web invite landing compatibility remains anchored on `/invite?code=...`; clients must preserve `code` through onboarding/install bootstrap so attribution is not lost.
 
 **Events**
 * Outbound: `invite.created`, `invite.accepted`, `invite.declined`, `invite.superseded`, `invite.accepted.contacts-import-triggered`, `invite.fulfillment.step-required`, `invite.fulfillment.step-completed`, `invite.attendance.confirmed`, `invite.attendance.unconfirmed`, `invite.attendance.no-show`, `invite.attendance.geo-confirmed`, `invite.expired`, `invite.reward-unlocked`, `invite.rate-limited`, `invite.plan-limit-reached`, `invite.snoozed`, `invite.suppressed`.
@@ -446,7 +449,7 @@ Even on web “unauthenticated” landings, the canonical API is Sanctum-validat
 | `INV-08` | Approved | Invite acceptance always records social conversion first; attendance confirmation or reservation resolution then follows attendance policy. | Prevents conversion metrics from being coupled to reservation/check-in implementation details. | Section `2.2` |
 | `INV-09` | Approved | Attendance policy governance is tenant-owned through `settings.events.attendance`; account-profile event creators may only choose policies inside tenant-approved boundaries. | Keeps event creation aligned with tenant business rules, capabilities, and monetization constraints. | Section `2.2` |
 | `INV-10` | Approved | Native app owns grouped invite selection and uses `POST /invites`, `POST /invites/{invite_id}/accept`, and `POST /invites/{invite_id}/decline` as the canonical direct invite mutations. | Stabilizes backend/client contract for direct invite send and explicit inviter selection. | Sections `2.4`, `4`, `4.1` |
-| `INV-11` | Approved | Web invite behavior is code-bound and narrow: accept by code, same-target re-share, then hand off to app for anything richer. | Prevents web from becoming a divergent second invite client. | Sections `2.4`, `4.4` |
+| `INV-11` | Approved | Web invite behavior in V1 is promotion/read-only only; app owns anonymous-first invite acceptance and all trust-action mutations. | Preserves low-friction growth while preventing web from becoming a divergent second invite client. | Sections `2.4`, `4.4` |
 | `INV-12` | Approved | Default post-event unresolved outcome is `unconfirmed`; `no_show` and `manually_confirmed` are explicit policy/operator outcomes only. | Preserves fairness and analytics integrity. | Sections `2.4`, `4` |
 | `INV-13` | Approved | North-star mobilization metrics are `credited_invite_acceptances` + `presences_confirmed`, where `presences_confirmed` normalizes both free confirmations and paid reservations. | Keeps mandate, analytics, rankings, and missions aligned. | Sections `2.4`, `4.5` |
 | `INV-14` | Approved | Privacy exposure is viewer-scoped: `friends_only` users reach `full_profile` only when the target explicitly approves the viewer (for example via `favorite_edge(target -> viewer)`), `capped_profile` for unilateral/direct-counterparty contexts, otherwise aggregate/anonymized only. | Aligns social proof with the privacy-with-agency mandate while preserving simple contact-match UX and directional approval. | Sections `2.4`, `4.5` |
@@ -461,5 +464,5 @@ Even on web “unauthenticated” landings, the canonical API is Sanctum-validat
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
 | `TODO-v1-invites-implementation.md` | Invite backend/client flow hardening | Completed (2026-03-12) | `2.1`, `3`, `4` | Canonical stream for invite delivery decisions. |
-| `TODO-v1-web-to-app-policy.md` | Web/share acceptance boundary policy | In progress | `4.3`, `4.4` | Governs web exception and attribution path. |
+| `TODO-v1-web-to-app-policy.md` | Web promotion-only + app progressive profiling policy | In progress | `4.3`, `4.4` | Governs read-only web boundary, anonymous app acceptance, and attribution path. |
 | `TODO-vnext-referral-result-attribution.md` | Future lineage-based downstream result attribution | In progress | `2.5`, `4.5` | Defines Mongo-safe activity-fact and projection strategy for 1st/2nd-level invite-tree results. |

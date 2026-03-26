@@ -2,7 +2,7 @@
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
 **Status:** Active  
-**MVP Note:** The MVP tenant/admin capability is limited to Account + Account Profile creation (see `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`). The Account Workspace is post‑MVP.
+**MVP Note:** The MVP tenant/admin capability is limited to Account + Account Profile creation (see `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`). The Account Workspace is post‑MVP.
 **Owners:** Backend Team + Delphi (Flutter)  
 **Objective:** Deliver the Account Workspace (post‑MVP) for managing accounts, events, assets, and tenant branding. MVP only includes the Tenant User Area for Account + Account Profile creation.
 

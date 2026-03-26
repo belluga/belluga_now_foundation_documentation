@@ -11,7 +11,7 @@
 - `foundation_documentation/domain_entities.md`
 - `foundation_documentation/modules/tenant_admin_module.md`
 - `foundation_documentation/submodule_laravel-app_summary.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
+- `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
 
 ---
 

@@ -31,7 +31,7 @@
 ## References
 - `delphi-ai/templates/todo_template.md`
 - `foundation_documentation/todos/README.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
+- `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-frontend.md`
 - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-search-performance-hardening.md`

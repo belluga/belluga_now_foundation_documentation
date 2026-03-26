@@ -95,3 +95,20 @@
   - Defer expanding `CityPoiCategory` unless validated by UX demand.
 - **Sponsors POIs**
   - Reason: sponsors may require multi-location entities and/or moving POIs; defer until the model supports this cleanly.
+
+---
+
+## J) Web-to-App Policy Carryover (Deferred from V1)
+
+- **Authenticated account workspace: event creation + management**
+  - Source reference: `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md` (A2).
+  - Reason: V1 keeps web unauthenticated surfaces as showcase/read-only and does not expand authenticated workspace scope.
+- **Authenticated account workspace: memberships/team management**
+  - Source reference: `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md` (A2).
+  - Reason: defer operational account-team tooling until post-MVP workspace hardening.
+- **Authenticated account workspace: invite metrics dashboards**
+  - Source reference: `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md` (A2).
+  - Tracking note: already represented in section `E) Invites & Metrics` as **Account profile invite metrics**; keep this entry only as cross-reference from the V1 policy TODO.
+- **Physical check-in + `action_type=check_in` auth-wall telemetry**
+  - Source references: `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md` (A4, D2) and `foundation_documentation/todos/active/vnext_slices/TODO-vnext-event-checkin.md`.
+  - Reason: business rule remains auth-required in V1, but feature delivery and dedicated interception telemetry become VNext scope.

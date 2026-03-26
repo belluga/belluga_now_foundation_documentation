@@ -1,40 +1,42 @@
-# TODO (V1): Account Profile UI (Type-Driven Detail + Favorites)
+# TODO (V1): Account Profile UI (MVP Scope Freeze + VNext Carryover)
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Active  
+**Status:** Active (Scope Frozen for MVP)  
 **Owners:** Backend Team + Delphi (Flutter) + Product  
-**Objective:** Deliver a single Account Profile detail experience that adapts to profile types (Artist, Venue in MVP) via configuration, with favorites behavior driven by profile capabilities. “Partner” remains a tenant-facing label; the canonical model is Account Profile (1:1 per Account). Discovery and partner flows must use **Account Profile Types** and a tenant route that exposes **available accounts** for discovery.
+**Objective:** Enforce the MVP boundary so V1 work is limited to visual polish on `sign in`, `sign up`, and the main `Perfil` screen only. Net-new Account Profile area expansion (detail/discovery/favorites/admin/workspace/event-management surfaces) is deferred to VNext.
 
 ---
 
 ## References
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
 - `foundation_documentation/todos/completed/TODO-v1-account-profile-implementation.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
+- `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-targeted-visual-polish.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-media-uploads.md`
 - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-account-profile-types.md`
+- `foundation_documentation/todos/active/vnext_slices/TODO-vnext-account-workspace.md`
 - `lib/presentation/tenant/partners/models/partner_profile_config.dart`
 
 ---
 
 ## Scope (MVP)
-- Use the existing Account Profile detail base page (Flutter: Partner Detail) with type-driven module configs.
-- **MVP profile types:** `personal`, `artist`, `venue` (registry is flat; no `parent_type` inheritance).
-- UI modules in this slice apply to `artist` and `venue`; personal profiles are out of scope for this UI.
-- Keep favorites in Home; favorites open the Account Profile detail page.
-- Favorites visibility and toggling are driven by `capabilities.is_favoritable`.
-- **MVP favoritable policy:** `personal` is **not** favoritable; `artist` and `venue` are favoritable.
-- **Registry source (MVP):** `GET /api/v1/environment` exposes `profile_types`; tenant app must hydrate from that payload (**no mock fallback**). If registry is missing/empty, favorites are disabled (no default policy).
-- **Non‑MVP types:** keep enums/mocks as‑is, but only render types present in the registry (no new type decisions in MVP).
-- **Partner types = Account Profile Types.** Any partner-type selection/filtering must read the account profile type registry.
-- Discovery lists must use a dedicated **Account Available** endpoint (tenant scope) that exposes account profiles available for discovery.
-- Discovery list is **authenticated-only** but does **not** require a specific ability; any authenticated user token can access it.
+- Restrict MVP polish to:
+  - `sign in` screen
+  - `sign up` screen
+  - main `Perfil` screen
+- Keep current Account Profile behavior stable; do not expand this area during MVP.
+- Carry all remaining Account Profile area backlog to VNext planning and implementation.
 
 ## Decisions to Close
+- [x] ✅ Production‑Ready **MVP scope freeze:** only auth + main profile visual polish (`sign in`, `sign up`, `Perfil`) remains in V1 scope.
+- [x] ✅ Production‑Ready **Account Profile area expansion is VNext:** create/manage/event-management/account-workspace flows are deferred.
 - [x] ✅ Production‑Ready **Account Available** is an access concern (not a new route). The existing route must be reachable by Account Users (tenant scope).
 - [x] ✅ Production‑Ready **Profile types are registry-driven only**: remove fixed enums and treat `profile_type` as a string sourced from `/api/v1/environment`. Filtering/labels must be derived from the registry, not hardcoded lists.
 
 ## Out of Scope
+- Net-new Account Profile area delivery during MVP.
+- Account Profile create/manage/event-management flows.
+- Discovery/favorites enhancements beyond what is required for auth + main profile polish.
 - Full memberships/roles system.
 - Store/commerce modules and external links.
 - Account Workspace (post‑MVP).
@@ -61,8 +63,8 @@
 ## B) Flutter Tasks
 
 ### B1) Generic Account Profile detail base
-- [ ] ⚪ Keep the existing base page (Partner Detail) as the canonical Account Profile detail UI.
-- [ ] ⚪ Ensure header + taxonomy remain above tabs for all types.
+- [ ] ⚪ Deferred to VNext: Keep the existing base page (Partner Detail) as the canonical Account Profile detail UI.
+- [ ] ⚪ Deferred to VNext: Ensure header + taxonomy remain above tabs for all types.
 
 ### B2) Type-driven configs (MVP)
 - [x] ✅ Artist config (reduced tabs):
@@ -74,13 +76,13 @@
 - [x] ✅ Exclude `externalLinks`, `supportedEntities`, commerce/store modules in MVP.
 
 ### B3) Post‑MVP type placeholders
-- [ ] ⚪ Define additional Account Profile types once module requirements are specified (tracked in `TODO-vnext-account-profile-types.md`).
+- [ ] ⚪ Deferred to VNext: Define additional Account Profile types once module requirements are specified (tracked in `TODO-vnext-account-profile-types.md`).
 
 ### B4) Favorites behavior (MVP)
 - [x] ✅ Keep Favorites strip in Home as the entrypoint.
 - [x] ✅ Favorite toggles visible only when `is_favoritable` is true (if registry is missing/empty, favorites are hidden/disabled).
 - [x] ✅ Favorite taps open the Account Profile detail page:
-  - [ ] ⚪ Primary tenant favorite keeps pinned behavior.
+  - [ ] ⚪ Deferred to VNext: Primary tenant favorite keeps pinned behavior.
   - [x] ✅ Artist/Venue favorites open the Partner Detail page (Flutter naming).
   - [x] ✅ Any registry-backed favorite with a resolvable slug opens Partner Detail (no type gating).
 
@@ -92,7 +94,7 @@
 - [x] ✅ Production‑Ready Update discovery partner list to call the Account Available endpoint (no legacy partner endpoints).
 - [x] ✅ Production‑Ready Partner type filters must use Account Profile Types (registry-backed) and label accordingly.
 - [x] ✅ Production‑Ready Handle empty list state using the Account Available response (no registry fallback).
-- [ ] ⚪ Fix discovery filter header overflow by adjusting header extent/padding so registry-driven chips render without RenderFlex errors.
+- [ ] ⚪ Deferred to VNext: Fix discovery filter header overflow by adjusting header extent/padding so registry-driven chips render without RenderFlex errors.
 
 ### B7) Registry-driven types (no fixed enums)
 - [x] ✅ Production‑Ready Replace `AccountProfileType` enum with registry-driven string types sourced from `/api/v1/environment`.
@@ -107,20 +109,20 @@
 ---
 
 ## C) Acceptance Criteria
-- [ ] ⚪ Account Profile detail is type‑driven (Artist/Venue in MVP) with reduced tabs.
-- [ ] ⚪ Favorites are visible in Home and open the correct Account Profile detail view.
-- [ ] ⚪ Venue profile shows `Como Chegar` with map preview + route CTA.
-- [ ] ⚪ Discovery surfaces only show profile types present in the registry.
-- [ ] ⚪ Discovery partner list shows a clear empty state when no profiles are available.
-- [ ] ⚪ Discovery partner list uses Account Available endpoint and Account Profile Types (no legacy partner types).
+- [ ] ⚪ Sign in screen has final visual polish with clear hierarchy and state styling.
+- [ ] ⚪ Sign up screen has final visual polish with clear hierarchy and state styling.
+- [ ] ⚪ Main `Perfil` screen has final visual polish with stable layout/states.
+- [ ] ⚪ No new Account Profile area management/event surfaces are introduced in MVP.
+- [ ] ⚪ Account Profile area backlog is explicitly deferred to VNext references.
 
 ## D) Definition of Done
-- [ ] ⚪ Artist + Venue tabs match the reduced configs (no commerce, no external links).
-- [ ] ⚪ Favorites visibility respects `capabilities.is_favoritable`; no fallback defaults when registry is missing.
-- [ ] ⚪ Event detail `O Local` CTA routes to venue profile.
-- [ ] ⚪ Discovery empty state differentiates “no partners available” vs “no results for filters”.
+- [ ] ⚪ Scope freeze is consistent across:
+  - `TODO-v1-account-profile-ui.md`
+  - `TODO-vnext-tenant-user-account-profile-area.md`
+  - `TODO-v1-targeted-visual-polish.md`
+- [ ] ⚪ All non-polish Account Profile area pending items are marked as VNext/deferred.
 - [x] ✅ Production‑Ready Discovery filters + cards render types strictly from registry (no enum/static type lists).
 
 ## E) Validation Steps
-- [x] ✅ `fvm flutter analyze`
-- [ ] ⚪ Manual smoke: open artist + venue profiles, verify tabs, and toggle favorites.
+- [ ] ⚪ Manual smoke: verify `sign in`, `sign up`, and main `Perfil` polish on mobile breakpoints.
+- [ ] ⚪ Manual smoke: verify no new Account Profile area flows were introduced in MVP.

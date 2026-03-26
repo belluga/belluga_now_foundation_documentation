@@ -1,45 +1,45 @@
-# TODO (V1): Tenant User Area — Account + Account Profile Creation
+# TODO (VNext): Tenant User Area — Account Profile Area
 **Version:** 1.0
 **Owner:** Delphi
 **Date:** 2026-01-17
 
 ## Objective
-Deliver the MVP **frontend-only** tenant user area that allows creation of Accounts and Account Profiles, and links profiles to accounts. This enables admin-assigned operators to bootstrap account profile identities (partner label) without full memberships. The UI must respect `ownership_state` and optional Organization grouping.
+Establish the VNext delivery stream for the tenant/admin Account Profile area (account/profile/organization/event-management surfaces), while preserving the MVP boundary where V1 polish is restricted to `sign in`, `sign up`, and the main `Perfil` screen.
 
 ## References
 - `foundation_documentation/todos/completed/TODO-v1-account-profile-implementation.md`
 - `foundation_documentation/todos/completed/TODO-v1-tenant-admin-data-layer-rebuild.md`
+- `foundation_documentation/todos/active/mvp_slices/TODO-v1-targeted-visual-polish.md`
+- `foundation_documentation/todos/active/vnext_slices/TODO-vnext-account-workspace.md`
+- `foundation_documentation/todos/active/vnext_slices/TODO-vnext-account-claim-flow.md`
 
 ## Scope
-- Document the **tenant user area** flows for:
-  - Create Account
-  - Create Account Profile and attach it to an Account
-  - View existing Accounts/Profiles (basic list/detail)
-- Document **Landlord (tenant admin) authentication** for mobile usage.
-- Optional: create or select an **Organization** when creating tenant-owned accounts (grouping only).
-- Separate listings by `ownership_state` (tenant_owned vs unmanaged vs user_owned).
-- Reference required endpoint contracts and payloads (admin/tenant routes) defined in the Account Profile Implementation TODO.
-- Document MVP access rules (landlord/tenant admins only; no memberships yet).
-- Align with Account Profile implementation TODO.
+- Document the VNext delivery scope for tenant/admin Account Profile area work.
+- Preserve current MVP behavior; no expansion of account/profile/organization management surfaces in V1.
+- Align with `TODO-v1-targeted-visual-polish.md`: only `sign in`, `sign up`, and main `Perfil` polish are in MVP scope.
+- Keep this TODO as the canonical VNext stream for this area.
 
 ## Out of Scope
+- Tenant/admin Account Profile area implementation in V1.
+- New or expanded flows for Accounts, Account Profiles, Organizations, and events under profile/admin area.
 - Full memberships/roles system.
 - Self‑serve user onboarding for account operators.
 - **User claim flow for unmanaged accounts (post‑MVP).**
 - **User-created additional business accounts (post‑MVP).**
 - Account workspace dashboards.
-- Flutter UI implementation details.
+- Flutter implementation expansion for tenant/admin area in V1.
 
 ## Definition of Done
-- Flows and endpoint contracts for Account + Account Profile creation are documented.
-- Access control rules are explicit (admin-assigned in MVP).
-- Cross-references to Account Profile implementation are present.
-- Mobile admin UI + routing strategy is documented.
+- V1 scope freeze is explicit and consistent with related MVP TODOs.
+- VNext ownership is explicit for deferred Account Profile area work.
+- No V1 execution is requested for tenant/admin Account Profile area beyond scope documentation.
 
 ## Validation Steps
-- Manual doc review: ensure creation flows are documented and match contracts.
+- Manual doc review: ensure no MVP TODO still implies tenant/admin Account Profile area implementation for V1.
 
 ## Decisions
+- MVP does **not** include tenant/admin Account Profile area delivery.
+- MVP polish surface is only `sign in`, `sign up`, and main `Perfil`.
 - MVP access is admin/tenant only (no memberships).
 - Account Profiles must be linked to Accounts at creation.
 - Backend endpoint definitions live in `foundation_documentation/todos/completed/TODO-v1-account-profile-implementation.md`.
@@ -57,6 +57,13 @@ Deliver the MVP **frontend-only** tenant user area that allows creation of Accou
 - Mobile supports **mode switching** between user and landlord tokens, but **only one mode is active at a time**.
 - Switching modes performs a **full navigation reset** into the target shell (no mixed history).
 - UI must clearly indicate the active mode (banner + badge) and allow “Exit Admin Mode”.
+
+## VNext Ownership (Authoritative for Deferred Work)
+- Account workspace and account-profile-area delivery: `foundation_documentation/todos/active/vnext_slices/TODO-vnext-account-workspace.md`.
+- Operator claim/user-owned expansion: `foundation_documentation/todos/active/vnext_slices/TODO-vnext-account-claim-flow.md`.
+- Additional profile types and profile-area expansion: `foundation_documentation/todos/active/vnext_slices/TODO-vnext-account-profile-types.md`.
+
+> The sections below are retained as historical design and contract notes for VNext planning. They are not active MVP implementation scope.
 
 ## Routing & UI Strategy (Mobile Admin Mode)
 - Add a **mode switcher** under profile/settings:
@@ -94,8 +101,8 @@ Deliver the MVP **frontend-only** tenant user area that allows creation of Accou
 
 ## Merge Stabilization (tenant-area)
 - [x] ✅ Production-Ready Remove legacy auth fallback wrapper in `lib/infrastructure/dal/dao/laravel_backend/auth_backend/auth_backend.dart` (strict contract only).
-- [ ] ⚪ Resolve remaining analyzer errors after merging tenant-area into dev.
-- [ ] ⚪ Run `fvm flutter analyze` and confirm a clean result.
+- [ ] ⚪ Deferred to VNext: Resolve remaining analyzer errors after merging tenant-area into dev.
+- [ ] ⚪ Deferred to VNext: Run `fvm flutter analyze` and confirm a clean result.
 
 ## UI Data Model Mapping (Tenant Admin UI)
 

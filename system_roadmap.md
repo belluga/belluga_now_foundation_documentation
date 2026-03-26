@@ -35,7 +35,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 
 | Endpoint | Module | Description | Current Status | Notes |
 |----------|--------|-------------|----------------|-------|
-| `/api/v1/anonymous/identities` | MOD-101 | Anonymous identity bootstrap (Sanctum token issuance for web/app guest flows). | Implemented | Unauthenticated route returns `{user_id, identity_state, token, abilities, expires_at?}`; abilities/TTL controlled by `tenant.anonymous_access_policy`. |
+| `/api/v1/anonymous/identities` | MOD-101 | Anonymous identity bootstrap (Sanctum token issuance for app guest flows). | Implemented | Unauthenticated route returns `{user_id, identity_state, token, abilities, expires_at?}`; abilities/TTL controlled by `tenant.anonymous_access_policy`. V1 web invite landing is read-only and must not mint anonymous identities for invite conversion. |
 | `/api/v1/auth/token_validate` | MOD-101 | Validate bearer token and return minimal user profile. | Implemented | Returns `{ data: { user: { id, name, emails, custom_data } } }` for login check; route registered in `routes/api/public_tenant_maybe_api_v1.php`. |
 | `/api/v1/environment` | MOD-101 | Tenant/landlord resolution + branding payload for app/web bootstraps. | Implemented | Returns tenant identity + theme settings + telemetry/firebase/push config + `profile_types` registry + `settings.map_ui` (`radius` min/default/max + `default_origin` + ordered `filters[]` catalog with `key/label/image_uri`); location freshness lives under `telemetry`; uses host/app domain context. |
 | `/.well-known/assetlinks.json` | MOD-101 | Host-resolved Android App Links association payload. | Implemented | Served by Laravel web route under `tenant-maybe`; package identifier comes from typed app domains (`app_android`) and credentials come from `settings.app_links.android` (tenant scope, landlord fallback). Static public file shadowing is intentionally removed. |
@@ -45,7 +45,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/invites/settings` | MOD-201 | Backend-owned invite quotas, anti-spam limits, and UX messaging settings. | Tested & Ready | Returns limits/cooldowns/reset metadata; `429` rejections include structured limit payload metadata. |
 | `/api/v1/invites/share` | MOD-201 | External share codes for event invites (new user install/signup attribution). | Tested & Ready | Implemented with same-target reuse, anti-spam cooldown/daily limits, and account-profile issuer permission checks. |
 | `/api/v1/invites/share/{code}` | MOD-201 | Share-code invite preview resolution for `/invite?code=...` landing. | Tested & Ready | Public tenant route resolves invite preview context without forced login; missing/expired codes return deterministic `404 invite_share_not_found`. |
-| `/api/v1/invites/share/{code}/materialize` | MOD-201 | Web/app share entry materialization for invite codes (identity-first). | Tested & Ready | Requires authenticated Sanctum user; anonymous identity receives deterministic `401 auth_required`; creates or reuses the canonical invite edge before standard `/invites/{invite_id}/accept|decline`. |
+| `/api/v1/invites/share/{code}/materialize` | MOD-201 | Share entry materialization for authenticated continuation flows. | Tested & Ready | Requires authenticated Sanctum user; anonymous identity receives deterministic `401 auth_required`. V1 app conversion is anonymous-first and may accept directly from preview using `POST /invites/{invite_id}/accept`; materialization remains available for authenticated continuation and compatibility flows. |
 | `/api/v1/agenda` | MOD-201 | Paged agenda feed with search + past toggle, includes happening-now events. | Tested & Ready | Request: `page`, `page_size`, `past_only`, `confirmed_only`, `search`, `categories`, `tags`, `taxonomy`, `origin_lat/lng`, `max_distance_meters`. Response: occurrence-first event DTO (`event_id`, `occurrence_id`, `date_time_start/end`, `occurrences`, `event_parties`, `capabilities`, taxonomy/tags), `has_more` flag. Invite lifecycle fields are not exposed by Events payloads. Event location follows canonical `location + place_ref` (venue projection is resolver output, not a required write input). Happening-now rule: `date_time_start <= now < effective_end` (default end = start + 3h). `confirmed_only=1` returns only attendance-confirmed items; anonymous identity returns `200` empty list; geo filters must not exclude confirmed-only items (origin remains optional for distance decoration). |
 | `/api/v1/events/stream` | MOD-201 | Event delta stream (SSE). | Tested & Ready | Emits occurrence-first deltas (`occurrence.created`, `occurrence.updated`, `occurrence.deleted`) with `{event_id, occurrence_id, type, updated_at}`. Clients resume with `Last-Event-ID`; on reconnect without cursor (or invalid cursor), client reloads page 1 from `/agenda` and continues from now. |
 | `/api/v1/events/{event_id}` | MOD-201 | Event detail payload. | Tested & Ready | Event detail contract is aligned to occurrence-first agenda cards (`occurrences[]`, `event_parties`, `capabilities`, taxonomy/tags). Invite lifecycle fields are intentionally absent from Events payloads. Event location follows canonical `location + place_ref`. |
@@ -137,27 +137,27 @@ These roadmap phases extend the Flutter persona track and remain aligned with th
 
 ## 6. Web-to-App Promotion Policy
 
-**Initial stance (V1):** Web is a promotional/preview surface; the app owns conversion and trust actions.
+**Initial stance (V1):** Web is a promotional/read-only surface; the app owns conversion through progressive profiling (anonymous-first, auth-later).
 
 **Web allowed (V1):**
 - Event landing (read-only): title, date/time, venue name, artists names, hero media.
 - Invite landing (read-only): “You were invited by …” context + event summary.
 - Map browsing (read-only) for discovery; guide users into app for confirmations.
-- Install / Open-App CTAs that preserve the invite share code for attribution.
-- Invite acceptance requires authenticated user identity; web unauthenticated entry must login and resume original deep link with `code` preserved.
-- Web “unauthenticated” surfaces may still mint anonymous Sanctum tokens for read-only/allowed calls, but anonymous identities cannot accept invite share codes.
+- Install/Open-App CTA must preserve invite share code attribution (`code`) and promote app conversion (`Baixe o App para Confirmar`).
+- Web invite surfaces cannot accept/decline invites in V1.
+- Web “unauthenticated” surfaces must not mint anonymous identities for invite conversion.
 
 **Web authenticated allowed (V1):**
 - Tenant/Admin area: accounts, events, assets, and branding management.
 
 **App-only (V1):**
-- Accept/Decline invite from agenda surfaces (credited acceptance selection + anti-gaming + quota enforcement).
-- Confirm presence / check-in.
-- Send invites (user + account_profile; account_profile issuance is admin-assigned in MVP).
-- Favorites and trust actions (check-in, credited acceptance selection).
+- Deferred deep-link first-open capture for invite `code` (critical funnel step).
+- Anonymous identity bootstrap (device-bound) and anonymous invite acceptance via canonical `POST /api/v1/invites/{invite_id}/accept`.
+- Feed/map read-only navigation for anonymous users after acceptance.
+- Auth Wall hard-gates: favorites, send-invite actions, and presence/check-in boundaries.
 
-**Attribution requirement:** External share links carry a single `code` as a GET param that resolves `{ tenant_id, event_id, inviter_principal }`. Web/app flows must preserve this `code` through install/login/signup, materialize the canonical invite through authenticated `POST /api/v1/invites/share/{code}/materialize`, and then complete attribution through standard `/api/v1/invites/{invite_id}/accept|decline`. Any additional post-install binding contract beyond this sequence requires an explicit contract update.
+**Attribution requirement:** External share links carry a single `code` as a GET param that resolves `{ tenant_id, event_id, inviter_principal }`. Web/store/app flows must preserve this `code` through install and first open. App may accept anonymously directly from share preview; authenticated continuation flows may still materialize through `POST /api/v1/invites/share/{code}/materialize` before decision UI when needed. Anonymous-to-authenticated merge must preserve invite attribution/history.
 
-**Tracking mandate (V1):** Instrument web → install → signup → acceptance → presence funnel to validate whether web-only actions should be expanded later. Use Mixpanel (client) and/or server-side events, but align naming to avoid double-counting.
+**Tracking mandate (V1):** Instrument inverted funnel `landing -> install -> deferred deep link captured -> anonymous accept -> auth wall triggered -> signup completed`, with deterministic event naming and deduplication.
 
-**Future consideration:** Revisit after Phase 8 once viral loops and account profile analytics are stable. At that time we can evaluate a lightweight web confirmation flow for specific tenants or campaigns, balancing lower friction against the need to keep Task & Reminder and map experiences consistent. Any shift will require the invite, onboarding, and task modules to expose parallel web APIs with equivalent security guarantees.
+**Future consideration:** Revisit after Phase 8 once viral loops and account profile analytics are stable. Any future web mutation expansion requires explicit contract/module/TODO updates with equivalent security and attribution guarantees.

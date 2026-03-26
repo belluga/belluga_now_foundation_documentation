@@ -52,7 +52,7 @@
 ## 1) Identity + Bootstrap
 
 ### `POST /anonymous/identities`
-**Purpose:** Create or resume anonymous identity for web/app flows.  
+**Purpose:** Create or resume anonymous identity for app progressive-profiling flows.  
 **Request (body):**
 ```json
 {
@@ -81,6 +81,7 @@
 - `identity_state`: `anonymous`.
 
 **Client retry policy (Flutter):** up to 3 attempts with delays of 200ms then 800ms; fail hard after final attempt.
+**Channel rule (V1):** web invite landing remains read-only and must not use this endpoint for invite conversion.
 
 ### `POST /auth/register/password`
 **Purpose:** Register an authenticated user.  
@@ -418,7 +419,7 @@
 ```
 
 ### `POST /invites/{invite_id}/accept`
-**Purpose:** Accept the selected direct invite from native app.  
+**Purpose:** Accept the selected direct invite from native app (authenticated or anonymous device-bound identity).  
 **Request (body):**
 ```json
 {
@@ -443,7 +444,8 @@
 }
 ```
 **Notes:**
-- This endpoint is the canonical native path after explicit inviter selection.
+- This endpoint is the canonical app mutation path after explicit inviter selection.
+- Anonymous app identities are allowed in V1 progressive profiling and must preserve inviter attribution semantics.
 - Backend must supersede competing pending invites for the same `(receiver,target_ref)` when acceptance succeeds.
 - Superseded invites must use `status = superseded` with `supersession_reason = other_invite_credited`.
 - `next_step` is the canonical contract field for post-acceptance follow-up semantics across native and web acceptance flows.
@@ -663,7 +665,7 @@
 - Returned with `404` for missing, expired, or invalid share-code previews.
 
 ### `POST /invites/share/{code}/materialize`
-**Purpose:** Create or reuse the canonical invite edge for the authenticated user before rendering invite decision UI.  
+**Purpose:** Optional authenticated continuation/pre-bind step that creates or reuses the canonical invite edge before rendering invite decision UI.  
 **Request (headers/body):** Auth via Sanctum (**authenticated identity required**). Optional idempotency payload:
 ```json
 {
@@ -706,9 +708,10 @@
 **Tracking Notes:**
 - `share_visit` is tracked separately from invites; it does **not** count as an accepted invite.
 - This endpoint materializes attribution only; it does **not** count as `invite_accepted`.
-- Web/app invite landing must resolve preview context via `GET /invites/share/{code}` and preserve original deep-link query (`/invite?code=...`) through login/signup until authenticated materialization is completed.
-- After materialization, all decisions must use the canonical invite mutation endpoints `POST /invites/{invite_id}/accept|decline`.
-- Web acceptance remains intentionally narrow: no inbox browsing, no multi-inviter selector, no direct invite send, no presence confirmation, and no check-in.
+- Invite landing must resolve preview context via `GET /invites/share/{code}` and preserve original deep-link query (`/invite?code=...`) through store/app handoff.
+- App anonymous flow may decide directly from preview using canonical `POST /invites/{invite_id}/accept|decline` without this pre-bind step.
+- When this endpoint is used, decisions must continue through canonical invite mutation endpoints `POST /invites/{invite_id}/accept|decline`.
+- Web remains promotion/read-only in V1: no accept/decline mutations, no inbox browsing, no multi-inviter selector, no direct invite send, no presence confirmation, and no check-in.
 
 ### `POST /test-support/invites/bootstrap` (`stage` only, non-product)
 **Purpose:** Provision deterministic invite fixtures for deployed compatibility tests against `stage`.  

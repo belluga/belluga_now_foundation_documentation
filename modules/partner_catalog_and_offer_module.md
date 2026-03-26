@@ -19,7 +19,7 @@ The Account Profile Catalog & Offer module (MOD-304) maintains the canonical rep
   - `foundation_documentation/modules/partner_admin_module.md`
   - `foundation_documentation/modules/events_module.md`
 - Tactical TODO streams:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-user-account-profile-area.md`
+  - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-static-assets-media-parity-with-account-profiles.md`
 
@@ -141,5 +141,5 @@ Aggregated data served to authenticated account operators once the workspace lau
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
-| `TODO-v1-tenant-user-account-profile-area.md` | Account/profile scope and contracts | In progress | `1.1`, `3`, `7` | Main stream for account profile domain hardening. |
+| `TODO-vnext-tenant-user-account-profile-area.md` | Account/profile scope and contracts | In progress | `1.1`, `3`, `7` | Main stream for account profile domain hardening. |
 | `TODO-v1-account-profile-ui.md` | CRUD/form contract parity with backend | In progress | `4`, `7` | Ensures UI flows follow canonical catalog payloads. |
