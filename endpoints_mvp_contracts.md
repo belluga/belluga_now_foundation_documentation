@@ -295,6 +295,92 @@
   - multiple registries can share one collection only with common envelope fields (`registry_key`, `target_type`, `target_id`, `updated_at`).
   - default shared collection is forbidden when the registry declares non-default/specific indexes.
 
+### `GET /account_profiles`
+**Purpose:** Tenant-public discovery list of account profiles (paginated).  
+**Request (query):**
+```json
+{
+  "page": 1,
+  "per_page": 30,
+  "page_size": 30,
+  "search": "string?",
+  "profile_type": "string?",
+  "filter": { "profile_type": "string?" }
+}
+```
+**Response (minimum):**
+```json
+{
+  "current_page": 1,
+  "per_page": 30,
+  "last_page": 1,
+  "data": [
+    {
+      "id": "string",
+      "account_id": "string",
+      "profile_type": "string",
+      "display_name": "string",
+      "slug": "string",
+      "avatar_url": "string?",
+      "cover_url": "string?",
+      "taxonomy_terms": [{ "type": "string", "value": "string" }],
+      "location": { "lat": 0.0, "lng": 0.0 },
+      "ownership_state": "tenant_owned|unmanaged|user_owned|null",
+      "created_at": "2025-01-01T00:00:00Z?",
+      "updated_at": "2025-01-01T00:00:00Z?"
+    }
+  ]
+}
+```
+**Notes:**
+- Backend always enforces:
+  - `is_active = true`;
+  - `profile_type` intersected with tenant registry where `capabilities.is_favoritable=true`;
+  - visibility boundary (`visibility='public'` only).
+- Client query params cannot override those constraints.
+
+### `GET /account_profiles/near`
+**Purpose:** Tenant-public distance-ordered list for Discovery `Perto de você`.  
+**Request (query):**
+```json
+{
+  "origin_lat": 0.0,
+  "origin_lng": 0.0,
+  "max_distance_meters": 100000,
+  "search": "string?",
+  "profile_type": "string?",
+  "filter": { "profile_type": "string?" },
+  "page": 1,
+  "page_size": 10
+}
+```
+**Response (minimum):**
+```json
+{
+  "page": 1,
+  "page_size": 10,
+  "has_more": false,
+  "data": [
+    {
+      "id": "string",
+      "account_id": "string",
+      "profile_type": "string",
+      "display_name": "string",
+      "slug": "string",
+      "avatar_url": "string?",
+      "cover_url": "string?",
+      "taxonomy_terms": [{ "type": "string", "value": "string" }],
+      "location": { "lat": 0.0, "lng": 0.0 },
+      "ownership_state": "tenant_owned|unmanaged|user_owned|null",
+      "distance_meters": 0
+    }
+  ]
+}
+```
+**Notes:**
+- Backend always enforces favoritable types + public visibility boundary exactly as `GET /account_profiles`.
+- Client filters are narrowing-only (cannot broaden beyond backend policy).
+
 ---
 
 ## 3) Invites (User + Account Profile)
@@ -871,6 +957,7 @@
   "page": 1,
   "page_size": 10,
   "past_only": false,
+  "live_now_only": false,
   "confirmed_only": false,
   "categories": ["string"],
   "tags": ["string"],
@@ -883,6 +970,8 @@
 **Notes (mock behavior):**
 - `past_only=false` returns upcoming events **plus** events happening now.
 - `past_only=true` returns events that started before now **and are not happening now**.
+- `live_now_only=true` returns only events happening now (`date_time_start <= now < date_time_end`).
+- `live_now_only=true` and `past_only=true` is invalid and must return `422`.
 - "Happening now" means `date_time_start <= now < date_time_end`. If `date_time_end` is missing, assume `date_time_start + 3h`.
 - Sort order: upcoming/now ascending by `date_time_start`, past descending by `date_time_start`.
 - Text search is not supported in MVP (`search` query parameter is rejected).

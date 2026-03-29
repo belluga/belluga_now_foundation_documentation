@@ -553,8 +553,13 @@ List profile type registry for the tenant.
     {
       "type": "string",
       "label": "string",
-      "map_category": "string",
       "allowed_taxonomies": ["string"],
+      "poi_visual": {
+        "mode": "icon|image",
+        "icon": "string?",
+        "color": "#RRGGBB?",
+        "image_source": "avatar|cover?"
+      },
       "capabilities": {
         "is_favoritable": true,
         "is_poi_enabled": false
@@ -572,8 +577,13 @@ Create a profile type registry entry (tenant admin).
 {
   "type": "string",
   "label": "string",
-  "map_category": "string?",
   "allowed_taxonomies": ["string"],
+  "poi_visual": {
+    "mode": "icon|image",
+    "icon": "string?",
+    "color": "#RRGGBB?",
+    "image_source": "avatar|cover?"
+  },
   "capabilities": {
     "is_favoritable": true,
     "is_poi_enabled": false
@@ -587,8 +597,13 @@ Create a profile type registry entry (tenant admin).
   "data": {
     "type": "string",
     "label": "string",
-    "map_category": "string",
     "allowed_taxonomies": ["string"],
+    "poi_visual": {
+      "mode": "icon|image",
+      "icon": "string?",
+      "color": "#RRGGBB?",
+      "image_source": "avatar|cover?"
+    },
     "capabilities": {
       "is_favoritable": true,
       "is_poi_enabled": false
@@ -604,8 +619,13 @@ Update a profile type registry entry (tenant admin).
 ```json
 {
   "label": "string?",
-  "map_category": "string?",
   "allowed_taxonomies": ["string"],
+  "poi_visual": {
+    "mode": "icon|image",
+    "icon": "string?",
+    "color": "#RRGGBB?",
+    "image_source": "avatar|cover?"
+  },
   "capabilities": {
     "is_favoritable": true,
     "is_poi_enabled": false
@@ -619,12 +639,30 @@ Update a profile type registry entry (tenant admin).
   "data": {
     "type": "string",
     "label": "string",
-    "map_category": "string",
     "allowed_taxonomies": ["string"],
+    "poi_visual": {
+      "mode": "icon|image",
+      "icon": "string?",
+      "color": "#RRGGBB?",
+      "image_source": "avatar|cover?"
+    },
     "capabilities": {
       "is_favoritable": true,
       "is_poi_enabled": false
     }
+  }
+}
+```
+
+### `GET /admin/api/v1/account_profile_types/{profile_type}/map_poi_projection_impact`
+Preview impacted map projections before disabling POI capability for a profile type.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "profile_type": "string",
+    "projection_count": 67
   }
 }
 ```
@@ -647,7 +685,14 @@ List static profile type registry for the tenant.
     {
       "type": "string",
       "label": "string",
+      "map_category": "string",
       "allowed_taxonomies": ["string"],
+      "poi_visual": {
+        "mode": "icon|image",
+        "icon": "string?",
+        "color": "#RRGGBB?",
+        "image_source": "avatar|cover?"
+      },
       "capabilities": {
         "is_poi_enabled": true,
         "has_bio": true,
@@ -669,7 +714,14 @@ Create a static profile type registry entry (tenant admin).
 {
   "type": "string",
   "label": "string",
+  "map_category": "string?",
   "allowed_taxonomies": ["string"],
+  "poi_visual": {
+    "mode": "icon|image",
+    "icon": "string?",
+    "color": "#RRGGBB?",
+    "image_source": "avatar|cover?"
+  },
   "capabilities": {
     "is_poi_enabled": true,
     "has_bio": true,
@@ -687,7 +739,14 @@ Create a static profile type registry entry (tenant admin).
   "data": {
     "type": "string",
     "label": "string",
+    "map_category": "string",
     "allowed_taxonomies": ["string"],
+    "poi_visual": {
+      "mode": "icon|image",
+      "icon": "string?",
+      "color": "#RRGGBB?",
+      "image_source": "avatar|cover?"
+    },
     "capabilities": {
       "is_poi_enabled": true,
       "has_bio": true,
@@ -707,7 +766,14 @@ Update a static profile type registry entry (tenant admin).
 ```json
 {
   "label": "string?",
+  "map_category": "string?",
   "allowed_taxonomies": ["string"],
+  "poi_visual": {
+    "mode": "icon|image",
+    "icon": "string?",
+    "color": "#RRGGBB?",
+    "image_source": "avatar|cover?"
+  },
   "capabilities": {
     "is_poi_enabled": true,
     "has_bio": true,
@@ -725,7 +791,14 @@ Update a static profile type registry entry (tenant admin).
   "data": {
     "type": "string",
     "label": "string",
+    "map_category": "string",
     "allowed_taxonomies": ["string"],
+    "poi_visual": {
+      "mode": "icon|image",
+      "icon": "string?",
+      "color": "#RRGGBB?",
+      "image_source": "avatar|cover?"
+    },
     "capabilities": {
       "is_poi_enabled": true,
       "has_bio": true,
@@ -734,6 +807,19 @@ Update a static profile type registry entry (tenant admin).
       "has_cover": true,
       "has_content": true
     }
+  }
+}
+```
+
+### `GET /admin/api/v1/static_profile_types/{profile_type}/map_poi_projection_impact`
+Preview impacted map projections before disabling POI capability for a static profile type.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "profile_type": "string",
+    "projection_count": 42
   }
 }
 ```
@@ -751,8 +837,13 @@ Delete a static profile type registry entry (tenant admin).
 - `profile_type_registry.label` (string): human-readable name of the profile type.
 - `profile_type_registry.map_category` (string): coarse map bucket used when projecting static assets into `map_pois.category`.
 - `profile_type_registry.allowed_taxonomies` (list): list of taxonomy keys allowed for the profile type.
+- `profile_type_registry.poi_visual.mode` (enum): valid values are `icon`, `image`.
+- `profile_type_registry.poi_visual.icon` (string): required when `poi_visual.mode=icon`.
+- `profile_type_registry.poi_visual.color` (string): required when `poi_visual.mode=icon`; hex format `#RRGGBB`.
+- `profile_type_registry.poi_visual.image_source` (enum): required when `poi_visual.mode=image`; valid values are `avatar`, `cover`.
 - `profile_type_registry.capabilities.is_favoritable` (bool): whether the profile type can be favorited.
 - `profile_type_registry.capabilities.is_poi_enabled` (bool): whether the profile type requires/participates in map POI location.
+- `map_poi_projection_impact.projection_count` (int): affected `map_pois` count shown in destructive confirmation before disabling POI capability.
 
 ### `GET /admin/api/v1/taxonomies`
 List taxonomies for the tenant (Account Profiles + Static Assets + Events).
@@ -1402,7 +1493,14 @@ Update tenant `map_ui` settings used by map + agenda contracts.
     {
       "key": "culture",
       "label": "Cultura",
-      "image_uri": "https://tenant.example.com/storage/tenants/tenant-a/map_ui/filters/culture.png"
+      "image_uri": "https://tenant.example.com/storage/tenants/tenant-a/map_ui/filters/culture.png",
+      "override_marker": true,
+      "marker_override": {
+        "mode": "icon|image",
+        "icon": "string?",
+        "color": "#RRGGBB?",
+        "image_uri": "https://tenant.example.com/storage/tenants/tenant-a/map_ui/filters/culture-marker.png?"
+      }
     }
   ]
 }
@@ -1426,7 +1524,14 @@ Update tenant `map_ui` settings used by map + agenda contracts.
       {
         "key": "culture",
         "label": "Cultura",
-        "image_uri": "https://tenant.example.com/storage/tenants/tenant-a/map_ui/filters/culture.png"
+        "image_uri": "https://tenant.example.com/storage/tenants/tenant-a/map_ui/filters/culture.png",
+        "override_marker": true,
+        "marker_override": {
+          "mode": "icon|image",
+          "icon": "string?",
+          "color": "#RRGGBB?",
+          "image_uri": "https://tenant.example.com/storage/tenants/tenant-a/map_ui/filters/culture-marker.png?"
+        }
       }
     ]
   }
@@ -1661,6 +1766,7 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TAD-04` | Approved | Tenant map/agenda fallback origin is tenant-owned configuration under `settings.map_ui.default_origin`. | Guarantees deterministic origin fallback for agenda/search when user location is unavailable. | Sections `3.6`, `4` (`PATCH /admin/api/v1/settings/values/map_ui`) |
 | `TAD-05` | Approved | Attendance policy governance is tenant-owned under `settings.events.attendance`; account profiles creating events are limited to the tenant-approved policy boundaries. | Gives tenant admins explicit control over free confirmation vs paid reservation behavior across all tenant events. | Section `4` (`PATCH /admin/api/v1/settings/values/events`) |
 | `TAD-06` | Approved | Deep-link credentials are tenant-owned under `settings.app_links`, while app identifiers are tenant-owned typed app domains (`/admin/api/v1/appdomains`). | Removes duplication of package/bundle identifiers from settings and keeps canonical ownership split between resolver identifiers and credentials. | Sections `3.6`, `4` (`PATCH /admin/api/v1/settings/values/app_links`, `GET/POST/DELETE /admin/api/v1/appdomains`) |
+| `TAD-07` | Approved | POI-enabled type definitions own `poi_visual`; disabling POI requires destructive preview via projection-impact endpoint before hard-delete path. | Aligns tenant-admin type editing with map projection ownership and destructive-action safeguards. | Section `4` (`account_profile_types/static_profile_types` + `map_poi_projection_impact`) |
 
 ## 6. Tactical TODO Promotion Ledger
 
@@ -1670,5 +1776,6 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TODO-v1-events-location-gating-and-tenant-default-origin.md` | Map/agenda default-origin tenant settings contract | Promoted | `3.6`, `4`, `5` | Contract and Flutter local-preferences editor are both delivered; canonical baseline is now fully implemented. |
 | `TODO-v1-deeplink-host-resolved-well-known.md` | `.well-known` host-resolved serving + tenant `app_links` settings surface | In progress | `3.6`, `4`, `5` | Host-resolved endpoint path is delivered; runtime evidence remains tied to tenant credential rollout. |
 | `TODO-v1-app-domain-app-links-convergence.md` | Converge app identifiers into typed app domains + credential-only `settings.app_links` | Completed | `3.6`, `4`, `5` | Canonical split delivered with validation and tests; resolver/association/admin contracts synchronized. |
+| `TODO-v1-map-icon-color-config.md` | Type-level POI visuals + filter marker override + projection impact preview integration | In progress | `4`, `5` | Tenant-admin contracts updated for `poi_visual`, filter marker override metadata, and destructive-impact preview endpoints. |
 | `TODO-vnext-tenant-user-account-profile-area.md` | Account/profile admin boundaries | In progress | `2`, `4`, `5` | Aligns account/profile CRUD contracts and scope. |
 | `TODO-v1-static-assets-media-parity-with-account-profiles.md` | Media parity and static assets admin flows | In progress | `4`, `5` | Syncs media endpoints and UX behavior. |

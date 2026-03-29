@@ -123,13 +123,14 @@ No-exception guardrails:
 | `/invites/share/{code}` | GET | Resolves invite preview payload for `/invite?code=...` before auth. | Tenant | n/a | `InviteSharePreviewResponse` |
 | `/invites/share/{code}/materialize` | POST | Optional authenticated continuation/pre-bind for share-code flows (not required for anonymous app acceptance). | Tenant | `InviteShareMaterializeRequest` | `InviteShareMaterializeResponse` |
 | `/contacts/import` | POST | Imports hashed contacts for friend matching. | Tenant | `ContactsImportRequest` | `ContactsImportResponse` |
-| `/agenda` | GET | Provides schedule entries, suggested actions, and contextual CTAs. | Tenant | `AgendaRequest` | `AgendaResponse` |
+| `/agenda` | GET | Provides schedule entries, suggested actions, and contextual CTAs (`live_now_only=true` powers Discovery "Tocando agora"). Discovery MVP rendering is artist-driven: show the section only when live-now entries include at least one artist. | Tenant | `AgendaRequest` | `AgendaResponse` |
 | `/events/stream` | GET | Streams event deltas for active filters. | Tenant | `EventStreamRequest` | SSE delta events |
 | `/events/{event_id}` | GET | Returns event detail. | Tenant | `EventDetailRequest` | `EventDetailResponse` |
 | `/events/{event_id}/check-in` | POST | Confirms presence for an event. | Tenant | `EventCheckInRequest` | `EventCheckInResponse` |
 | `/map/pois` | GET | Returns POIs for the active viewport and filter set. | Tenant | `MapPoisRequest` | `MapPoisResponse` |
+| `/map/pois/lookup` | GET | Resolves one POI by canonical typed reference (`ref_type + ref_id`). | Tenant | `MapPoiLookupRequest` | `MapPoiLookupResponse` |
 | `/map/pois/stream` | GET | Streams POI deltas for active filters. | Tenant | `MapPoisStreamRequest` | SSE delta events |
-| `/map/filters` | GET | Returns server-defined categories/tags for map filters. | Tenant | `MapFiltersRequest` | `MapFiltersResponse` |
+| `/map/filters` | GET | Returns server-defined categories/tags for map filters, including optional marker override metadata. | Tenant | `MapFiltersRequest` | `MapFiltersResponse` |
 
 *Success/Failure Handling:* All endpoints return `metadata.request_id` for tracing, success payloads encapsulated in `data`, and standardized error envelopes with `error.code`, `error.message`, `error.hints[]`. Security-hardening responses are also valid when emitted as top-level machine-readable fields (`code`, `message`, optional `retry_after`, `correlation_id`, `cf_ray_id`). Flutter clients must parse both forms without UX regression.
 *Rate Limiting:* Soft limit of 5 req/min per endpoint during mock stage to mirror production throttles; burst handling delegated to controller retry strategies.
@@ -203,19 +204,28 @@ No-exception guardrails:
 | Field | Type | Description | Required | Notes |
 |-------|------|-------------|----------|-------|
 | `_id` | ObjectId | POI identifier. | Yes | |
-| `account_profile_id` | ObjectId | Owning account profile reference. | Yes | |
-| `category` | String | High-level POI category. | Yes | |
-| `tags` | Array\<String\> | Secondary classification tags. | Yes | Max 10. |
+| `ref_type` | String | Canonical source reference type. | Yes | `account_profile`, `event`, `static`. |
+| `ref_id` | String | Canonical source reference id. | Yes | |
+| `ref_slug` | String | Slug used by detail/share routes. | No | |
+| `ref_path` | String | Canonical deep-link path segment. | No | |
+| `category` | String | High-level POI category for rendering/filtering. | Yes | |
+| `source_type` | String | Source subtype (for `types[]` filter). | No | |
+| `tags` | Array\<String\> | Secondary classification tags. | No | |
 | `priority` | Integer | Render stacking priority (higher first). | Yes | 0–100. |
-| `geo` | GeoPointDocument | Latitude/longitude and viewport metadata. | Yes | |
-| `live_status` | String | Current live state. | Yes | |
-| `available_offers` | Array\<OfferDocument\> | Offers attached to the POI. | No | |
+| `location` | GeoPointDocument | Latitude/longitude used for map rendering. | Yes | |
+| `is_active` | Boolean | Active visibility state for map queries. | Yes | |
+| `avatar_url` | String | Optional media URL from source item. | No | |
+| `cover_url` | String | Optional media URL from source item. | No | |
+| `visual` | MapPoiVisualDocument | Projection-owned visual snapshot for marker rendering. | No | |
+| `updated_at` | DateTime | Last projection update timestamp. | Yes | ISO-8601 in transport. |
 
 **Field Definitions**
 
-* `category`: Valid values are `food_drink`, `music`, `art`, `nature`, `mobility`.
-* `live_status`: Valid values are `static`, `live_event`, `sponsored_highlight`.
-* `OfferDocument.kind`: Valid values are `discount`, `bundle`, `vip_pass`.
+* `ref_type`: Valid values are `account_profile`, `event`, `static`.
+* `visual.mode`: Valid values are `icon`, `image`.
+* `visual.source`: Valid values are `type_definition`, `item_media`.
+* `visual.icon` + `visual.color`: required when `visual.mode=icon`.
+* `visual.image_uri`: required when `visual.mode=image`.
 
 ##### Deferred (post-MVP): profile_summaries
 
@@ -303,6 +313,8 @@ Invite flows must be proven in layers:
 * **Shared Libraries:** `lib/application` hosts theming and localization contracts; `lib/presentation/shared/widgets` houses reusable components (e.g., `MainLogo`, `BellugaBottomNavigationBar`); `lib/domain/value_objects` encapsulates validation logic shared across modules; `packages/` hosts internal reusable Flutter packages whose public APIs remain transport-agnostic and module-aligned.
 * **Data Ownership Boundaries:** Mock repositories remain the single source of truth for state; cached DTOs never overwrite domain models without controller orchestration.
 * **Failure & Degradation Modes:** When SSE streams disconnect, controllers downgrade to polling (`/map/pois`) and surface passive UI states; offline mode caches last successful responses and displays timestamped banners.
+* **Map marker visual precedence:** runtime marker rendering applies `active_filter.marker_override` (when valid) -> `poi.visual` -> single generic fallback; override scope is marker-only.
+* **Map filter activation contract:** runtime filters are mutually exclusive, leaving exactly one active filter context at a time.
 
 ### 3.1 Reusable Form Validation Package Baseline
 
@@ -365,6 +377,7 @@ Invite flows must be proven in layers:
 | `FCX-02` | Approved | Scope/subscope route ownership must follow governance matrix. | Blocks route ambiguity across landlord/tenant/account-workspace. | Section `2.0 Scope/Subscope Ownership` |
 | `FCX-03` | Approved | Flutter consumes backend contracts via domain repositories and contract-tested adapters. | Keeps UI resilient during mock→real backend transition. | Sections `2.2`, `2.7`, `3` |
 | `FCX-04` | Approved | Reusable form validation is package-scoped, transport-agnostic, and controller-owned via one validation stream per form. | Standardizes `422` handling and inline validation rendering without breaking presentation/infrastructure boundaries. | Section `3.1` + `4` |
+| `FCX-05` | Approved | Map marker rendering precedence is `active_filter.marker_override` (valid only) -> `poi.visual` -> single generic fallback, with mutually exclusive active filter state. | Removes hardcoded visual coupling while preserving deterministic runtime behavior. | Sections `2.2`, `2.3`, `3` |
 
 ## 8. Tactical TODO Promotion Ledger
 
@@ -373,4 +386,5 @@ Invite flows must be proven in layers:
 | `TODO-v1-events-and-agenda-frontend.md` | Events/agenda client contracts and UX integration | Completed | `2.2`, `2.3`, `3` | Maintains occurrence-first event consumption. |
 | `TODO-v1-invites-implementation.md` | Invite/social flow delivery in client | Completed (2026-03-12) | `2.2`, `2.4`, `2.5` | Share acceptance + contacts import paths. |
 | `TODO-v1-map-frontend.md` | Map rendering/filter/stacking contracts | In progress | `2.2`, `2.3`, `2.4` | Aligns with projection-backed map APIs. |
+| `TODO-v1-map-icon-color-config.md` | Type-driven POI visual rendering and filter marker override consumption | In progress | `2.2`, `2.3`, `3` | Runtime now consumes `map_pois.visual` + override precedence with single fallback path. |
 | `TODO-vnext-tenant-user-account-profile-area.md` | Workspace scope and route ownership | In progress | `2.0`, `3` | Account workspace/subscope integrity. |

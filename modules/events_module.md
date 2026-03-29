@@ -96,6 +96,8 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 
 - Text search is disabled for MVP agenda/events listing (`search` is prohibited).
 - Filtering baseline is categorical + taxonomy + geo (`categories`, `tags`, `taxonomy`, origin/radius).
+- `live_now_only=true` is supported on `/agenda` to return only currently-running occurrences and is used by Discovery "Tocando agora" surfaces.
+- Consumer alignment note (Flutter Discovery MVP): the `Tocando agora` section is artist-driven and remains hidden when live-now payload has no artists, even if occurrences are currently live.
 - Taxonomy filters use typed slug pairs (`taxonomy[].type`, `taxonomy[].value`) across `taxonomy_terms`, `venue.taxonomy_terms`, and `artists.taxonomy_terms`.
 - Runtime query services do not create indexes.
 - Required Mongo indexes are application-owned and provisioned through tenant migrations in the Spatie multitenancy flow.

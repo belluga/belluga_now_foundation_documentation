@@ -147,8 +147,9 @@ For V1, we treat `map_pois` as a **materialized projection/read model** used by 
 Key properties:
 - `map_pois` is the map projection (geometry + category + tags + priority + deep-link reference).
 - For `ref_type=static`, `map_pois.category` is derived from `static_profile_types.map_category` (fallback to `static_assets.profile_type`). `static_assets.categories[]` is legacy metadata and must not drive map categorization.
+- `map_pois.visual` is projection-owned and resolved from type-level `poi_visual` + item media (`avatar_url`/`cover_url`) when applicable.
 - The record may carry optional `active_window_start_at` + `active_window_end_at` (nullable). We do **not** store `visible_from`/`visible_until`. Visibility windows are computed at query time using backend-owned tenant settings and the **user timezone** stored on the user profile.
-- Account Profile/Custom Object types can enable/disable POI projection via capabilities. When disabled, the backend can keep the POI record but set `is_active=false` (soft disabled), or omit creation entirely for that type.
+- Account Profile/Static Profile types control POI projection via capabilities. When `is_poi_enabled=false`, existing `map_pois` for that type are hard-deleted.
 
 **Reference linkage (required):**
 ```json
@@ -172,6 +173,30 @@ Query-time window policy (backend settings example):
 - POIs without `active_window_*` are always eligible (subject to `is_active`, viewport, and filters)
 
 This ensures future events/campaigns do not appear immediately when created, while still allowing the backend to tune visibility without rewriting data.
+
+**POI visual snapshot contract (required):**
+```json
+{
+  "visual": {
+    "mode": "icon|image",
+    "icon": "string?",
+    "color": "#RRGGBB?",
+    "image_uri": "https://...?",
+    "source": "type_definition|item_media"
+  }
+}
+```
+
+- `mode=icon` requires `icon + color`.
+- `mode=image` requires `image_uri`.
+- Invalid/unresolvable visual inputs must clear/omit `visual`; Flutter applies one generic fallback marker path.
+
+**Projection refresh triggers (required):**
+- Item media change (`avatar_url`/`cover_url`) -> full POI re-materialization for affected refs.
+- Item type change (`profile_type`) -> full POI re-materialization for affected refs.
+- Type visual change (`poi_visual`) -> full POI re-materialization for all affected refs.
+- Type `is_poi_enabled=true` -> full POI re-materialization for affected refs.
+- Type `is_poi_enabled=false` -> hard-delete affected POI projections.
 
 **Temporary Static POIs (VNext):** Static Assets may be marked as temporary (`is_temporary`) with a date range. A background job flips `is_active` based on the window. Map queries always filter by `is_active` only (no time logic at query time). In MVP, `is_active` is managed manually.
 
@@ -290,7 +315,7 @@ Response shape (example):
         - Use MongoDB geospatial queries (`$geoNear` and/or `$geoWithin`) as the authoritative source of “nearby” truth.
         - When `origin_lat/lng` is provided, return `distance_meters` for each POI.
         - Apply time-window filters for `active_window_*` using backend-owned tenant settings (future/past **days**). The client should not hardcode visibility windows.
-    -   Response fields: **stack groups** keyed by `stack_key`, each with `center`, `stack_count`, and a `top_poi` payload. The `top_poi.updated_at` field is required for polling cache validation. `tags[]` and `taxonomy_terms[]` are **filter-only** and are not returned in this payload. When sorting by `distance`, backend orders by ascending distance while still honoring priority tiers (sponsors > live events > others).
+    -   Response fields: **stack groups** keyed by `stack_key`, each with `center`, `stack_count`, and a `top_poi` payload. The `top_poi.updated_at` field is required for polling cache validation. `top_poi.visual` must follow the projection visual contract (`mode`, `icon/color` or `image_uri`, `source`). `tags[]` and `taxonomy_terms[]` are **filter-only** and are not returned in this payload. When sorting by `distance`, backend orders by ascending distance while still honoring priority tiers (sponsors > live events > others).
     -   Deep-link contract note: this endpoint is viewport/origin scoped and does not guarantee global `poi`-only resolution for arbitrary `ref_type/ref_id` links.
 2.  **Nearby Card List Endpoint:** `GET /api/v1/map/near`
     -   Purpose: return a distance-ordered list of POI cards, paginated (default 10/page), with richer fields for navigation.
@@ -299,12 +324,13 @@ Response shape (example):
         - `max_distance_meters` (optional).
         - `categories[]`, `tags[]`, `taxonomy[]`, `search` (optional).
         - `page`, `page_size` (optional; default 10).
-    -   Response fields: `ref_type`, `ref_id`, `ref_slug`, `ref_path` (`/{ref_type}/{ref_slug}`), `title`, `subtitle?`, `category`, `location`, `distance_meters`, `updated_at`, `avatar_url?`, `cover_url?`, `badge?`, `time_start?`, `time_end?`, plus `tags[]` and `taxonomy_terms[]`.
+    -   Response fields: `ref_type`, `ref_id`, `ref_slug`, `ref_path` (`/{ref_type}/{ref_slug}`), `title`, `subtitle?`, `category`, `location`, `distance_meters`, `updated_at`, `avatar_url?`, `cover_url?`, `visual?`, `badge?`, `time_start?`, `time_end?`, plus `tags[]` and `taxonomy_terms[]`.
 3.  **Filter Discovery Endpoint:** `GET /api/v1/map/filters`
     -   Returns all available categories and their associated tags to dynamically build the filter UI.
     -   Category payload can be decorated by `settings.map_ui.filters` (tenant-admin managed):
         - `label` override per key;
         - optional `image_uri`;
+        - optional marker override (`override_marker`, `marker_override.mode`, `marker_override.icon`, `marker_override.color`, `marker_override.image_uri`);
         - normalized `query` payload (`source`, `types[]`, `categories[]`, `taxonomy[]`, `tags[]`) used by Flutter when applying a category.
         - configured list ordering first, with configured entries retained even when `count = 0`.
     -   Taxonomy catalog is sourced from POI taxonomy aggregations and applied as advanced filters when needed.
@@ -313,7 +339,7 @@ Response shape (example):
     -   Parameters (query string):
         - `ref_type` (required)
         - `ref_id` (required)
-    -   Response fields: canonical POI payload compatible with map deep-link hydration (`ref_type`, `ref_id`, `ref_slug`, `ref_path`, `location`, `updated_at`, `stack_key?`, `stack_count?`).
+    -   Response fields: canonical POI payload compatible with map deep-link hydration (`ref_type`, `ref_id`, `ref_slug`, `ref_path`, `location`, `updated_at`, `visual?`, `stack_key?`, `stack_count?`).
     -   Status: implemented and covered by feature tests (`MapPoisControllerTest`) for successful typed lookup + deterministic not-found behavior.
 
 ### 4.2. SSE API (Real-Time Events)
@@ -348,6 +374,8 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 | `MAP-04` | Approved | Visibility windows are backend-owned and timezone-aware; clients do not hardcode time windows. | Consistent POI visibility and lower client drift risk. | Sections `3.6`, `4.1` |
 | `MAP-05` | Approved | Global `poi`-only deep links resolve through backend single-POI typed lookup (`ref_type` + `ref_id`) independent of viewport/origin list payloads. | Eliminates false not-found for valid POIs outside initial map payload windows. | Section `4.1` |
 | `MAP-06` | Approved | Deep-link startup gives URL POI intent (`poi`) higher orchestration priority than non-blocking startup refreshes; POI focus is prepared early and applied once map-ready conditions are met. | Reduces time-to-focus for direct-open/refresh links without changing architecture boundaries or fallback semantics. | Section `2` |
+| `MAP-07` | Approved | POI marker visuals are type-driven (`poi_visual`) and consolidated into projection-owned `map_pois.visual`; clients consume projection snapshot directly. | Removes runtime hardcoded visual coupling and keeps marker behavior deterministic across clients. | Sections `3.6`, `4.1` |
+| `MAP-08` | Approved | Disabling `is_poi_enabled` for a type hard-deletes affected projections; enabling or visual changes trigger full re-materialization. | Keeps projection state coherent with type capability/visual source of truth. | Section `3.6` |
 
 ## 7. Tactical TODO Promotion Ledger
 
@@ -355,5 +383,6 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 | --- | --- | --- | --- | --- |
 | `TODO-v1-map-backend.md` | Map package extraction and backend contract ownership | Production-Ready | `1.1`, `3.6`, `4`, `6` | Package ownership complete (`belluga_map_pois`), including internal rebuild command. |
 | `TODO-v1-map-frontend.md` | Flutter map UX + filter/stacking consumption | In progress | `3.3`, `4.1`, `5` | Client contract alignment stream. |
+| `TODO-v1-map-icon-color-config.md` | Type-driven POI visuals + filter marker override + hard-delete/rematerialization contract | In progress | `3.6`, `4.1`, `6` | Local implementation and test coverage delivered; lane promotion pending. |
 | `TODO-v1-route-url-only-hydration-hardening.md` | URL-only route hydration + internal-only fallback hardening | Production-Ready | `4.1`, `6` | `poi + stack` + `poi`-only deterministic lookup delivered end-to-end. |
 | `TODO-v1-events-capability-map-poi.md` | Events capability decisions for POI projection | Promoted | `1.1`, `3.6`, `6` | Completed and promoted into module baseline. |

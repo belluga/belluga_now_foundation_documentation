@@ -60,6 +60,9 @@ This list serves as the domain source of truth referenced by the `system_archite
   - For `influencer`: `invite_count` (non-negative int; if present, should align with `accepted_invites` for consistency).
   - For `curator`: `article_count` and `doc_count` (non-negative ints).
 - `media`: `avatar_uri` and `cover_uri` are optional but, if present, must be valid URIs captured as value objects. Fallbacks live in the projection layer, not the aggregate.
+- `visibility` (enum, optional): `public`, `friends_only`.
+  - Tenant-public discovery endpoints must always enforce public exposure only (`visibility='public'`).
+  - Client filters cannot override this boundary.
 - `tags` (array of strings): optional, up to 16 entries, each ≤32 chars, sanitized and stored via value objects to avoid leaking UI-specific tokens into the domain. Tags are **type-aware**; examples include:
   - `artist`: music genres (e.g., rock, samba, eletrônica).
   - `experience_provider`: context/location tags (e.g., mar, praia, mergulho, montanha).
