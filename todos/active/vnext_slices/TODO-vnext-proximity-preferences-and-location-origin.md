@@ -65,6 +65,8 @@ The product goal is to support scenarios such as a user who is **planning a futu
 - The first rollout affects **Home only**; other geo consumers stay on their current rules until a dedicated follow-up promotes shared behavior.
 - VNext still owns the broader user-controlled origin model (especially manual map-picked reference origin and backend-backed persistence).
 - Persisted user preference for selected radius remains distinct from tenant-configured min/default/max bounds.
+- When `user_fixed_location` is active, we may evaluate a direct toggle/action from the map snackbar/banner to switch back to live location without routing through the full settings editor.
+- VNext should move location-origin user-facing copy/messages out of hardcoded Flutter strings and into environment/backend-provided contract fields, while preserving a deterministic Flutter fallback path during rollout or partial-backend adoption.
 
 ## Open Decisions To Close Later
 - Canonical backend owner/package for user proximity settings.

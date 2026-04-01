@@ -37,7 +37,18 @@ The active Flutter map runtime is already Laravel-backed and query-driven:
 - **Motivation:** reduce perceived delay in direct-open/refresh deep links where POI exists but camera movement was delayed by unrelated startup requests.
 - **Guardrail:** this is orchestration-only; it does not change route scope/host policy, does not introduce in-memory correctness dependencies, and keeps deterministic fallback (`POI do link não foi encontrado.`) when typed lookup cannot resolve.
 
-**Shared Location Contract.** As part of FCX-02, the main Flutter application owns a `LocationRepository` + `UserLocationService` pair that lives in the domain layer. Controllers are the only consumers of repositories, so the service is injected into controllers, which then pass the user’s coordinates to downstream repositories (Map, Agenda, Task/Reminder). No repository is allowed to call another repository directly; when features need multiple data sources, controllers compose the calls or rely on lightweight domain services. This keeps dependency arrows pointing inward (controllers → repositories) and prevents caching or network responsibilities from leaking between repos.
+**Shared Location Contract.** As part of FCX-02, the main Flutter application owns a `LocationRepository` + `UserLocationService` pair for raw device coordinates, and a canonical `LocationOriginService` for effective-origin selection. Geo consumers must not branch inline on `tenantDefaultOrigin`, raw distance checks, or local `LocationOriginSettings` construction. Instead, they consume the canonical result:
+- `mode`: `user_live_location`, `tenant_default_location`, or `user_fixed_location`
+- `reason`: `live`, `outsideRange`, `unavailable`, or `userPreference`
+- `effective coordinate`: the coordinate that should anchor geo queries for that flow
+
+The map respects this same canonical policy:
+- inside tenant-served range with usable live location -> live user origin
+- outside tenant-served range -> tenant default origin with `outsideRange`
+- unavailable location -> tenant default origin with `unavailable`
+- future user override -> user fixed origin with `userPreference`
+
+Transient map notices are `reason`-driven and only render when the reason has an associated copy.
 
 **Location Permission Gate (Guard).** Map routes keep `/location/permission` as the single canonical public location gate, but map entry is no longer a hard block:
 - Missing permission/service on `/mapa` or `/mapa/poi` redirects to `/location/permission`.
