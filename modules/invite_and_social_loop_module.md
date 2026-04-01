@@ -28,10 +28,10 @@ The Invite & Social Loop module (MOD-302) governs the tenant app virality engine
 
 | Route | Host Context | EnvironmentType | Main Scope | Subscope | Guard/Identity |
 | --- | --- | --- | --- | --- | --- |
-| `/convites` | tenant host/app | `tenant` | `tenant_public` | n/a | tenant user |
+| `/convites` | tenant host/app | `tenant` | `tenant_public` | n/a | tenant user in app; anonymous web only when acting as compatibility invite landing with valid `code` |
 | `/agenda` invite actions | tenant host/app | `tenant` | `tenant_public` | n/a | tenant user |
 | `/workspace/{account_slug}` invite metrics/workspace surfaces | tenant host/app | `tenant` | `tenant_public` | `account_workspace` | account membership / landlord override |
-| invite landing via share `code` (`/invite?code=...`) | site_public or tenant host web landing | `landlord` or `tenant` | `site_public` or `tenant_public` | n/a | preview-first on web (read-only CTA to app); app flow allows anonymous accept/decline with device-bound identity |
+| invite landing via share `code` (`/invite?code=...`) | site_public or tenant host web landing | `landlord` or `tenant` | `site_public` or `tenant_public` | n/a | preview-first on web (read-only CTA to app); app flow allows anonymous accept/decline with device-bound identity; missing/invalid `code` falls back to canonical `/` |
 
 ---
 
@@ -175,10 +175,10 @@ These decisions are now part of the module baseline and should be treated as can
 These decisions are now approved and complete the invite-module baseline. Friends graph evolution remains a separate exploration stream.
 
 - [x] 🟢 `INV-PD-05` Direct native contract is group-first and selection-explicit.
-  - Approved direction: native app surfaces use grouped invite cards by target, each exposing stable `inviter_candidates[]` with `invite_id`. Direct native mutations are `POST /invites` (send), `POST /invites/{invite_id}/accept`, and `POST /invites/{invite_id}/decline`. Explicit inviter selection is mandatory whenever a target has multiple candidates.
+  - Approved direction: native app surfaces use grouped invite cards by target, each exposing stable `inviter_candidates[]` with `invite_id`. Direct native mutations are `POST /invites` (send), `POST /invites/{invite_id}/accept`, `POST /invites/{invite_id}/decline`, and anonymous-first share acceptance via `POST /invites/share/{code}/accept`. Explicit inviter selection is mandatory whenever a target has multiple candidates.
 
 - [x] 🟢 `INV-PD-06` Web exception boundary remains narrow and code-bound.
-  - Approved direction: web may open invite landing, accept by a single `code`, and re-share only the same target externally after acceptance. Web does not expose inbox/feed browsing, multi-inviter selection, direct invite send/decline, agenda acceptance, confirmation/reservation-choice UX, presence confirmation, or check-in. If acceptance requires a richer next step than auto-resolution, web must hand off to the app.
+  - Approved direction: web may open invite landing and re-share only the same target externally, but acceptance in V1 is app-only through anonymous-first flow (`/invites/share/{code}/accept`). Web does not expose inbox/feed browsing, multi-inviter selection, direct invite send/decline, agenda acceptance, confirmation/reservation-choice UX, presence confirmation, or check-in.
 
 - [x] 🟢 `INV-PD-07` Post-event attendance outcome policy is default-`unconfirmed`, explicit-`no_show`.
   - Approved direction: `unconfirmed` is always the default unresolved post-event outcome without successful check-in. `no_show` may be assigned only by explicit policy or privileged operator action, typically when direct attendance confirmation or paid reservation existed and the event closed without confirmed attendance. `manually_confirmed` is a privileged correction/audit outcome and never inferred automatically.
@@ -310,6 +310,7 @@ To enforce both anti-spam policies and account plan limits, the module maintains
 | `/invites/{invite_id}/decline` | POST | Declines the selected invite edge in native app without implicitly declining other inviter candidates. |
 | `/invites/share` | POST | Creates (or returns) an external share code that attributes installs/signups to an inviter principal for a specific invite target. |
 | `/invites/share/{code}` | GET | Resolves share-code invite preview payload for unauthenticated/authenticated invite landing surfaces. |
+| `/invites/share/{code}/accept` | POST | Canonical anonymous-first share acceptance endpoint; resolves/materializes invite edge and applies acceptance atomically. |
 | `/invites/share/{code}/materialize` | POST | Creates or reuses the canonical invite edge for the authenticated user before any accept/decline action. |
 | `/contacts/import` | POST | Imports hashed contacts for friend matching and invite discovery. |
 
@@ -351,7 +352,7 @@ V1 requires tracking external shares (WhatsApp/Instagram/etc.) for **new users**
 **Key requirements:**
 - `code` resolves to a single inviter principal + canonical invite target.
 - Backend records **share visits** and exposes preview payload with canonical invite identity.
-- App progressive-profiling flow may accept/decline directly from preview using standard `/invites/{invite_id}/accept|decline`.
+- App progressive-profiling flow accepts from preview via `/invites/share/{code}/accept` (anonymous-first, no forced login).
 - Authenticated continuation flows may still materialize attribution through `/invites/share/{code}/materialize` before decision when explicit pre-bind is required.
 - Backend must prevent duplicate invite issuance to the same receiver+target+inviter principal (see Uniqueness rule); the share code is attribution, not a loophole to spam.
 
@@ -360,8 +361,13 @@ V1 requires tracking external shares (WhatsApp/Instagram/etc.) for **new users**
 V1 uses web as read-only promotion and app as anonymous-first conversion:
 - Web invite landing resolves preview context from a single invite/share `code` and remains read-only.
 - Web invite landing exposes promotion CTA (`Baixe o App para Confirmar`) with `code` propagation to app/open-store paths.
+- Web handoff target is deterministic: only invite-landing context (`/invite` or `/convites`) with valid `code` uses `/invite?code=...`; missing/invalid `code` on either route falls back to canonical `/`.
+- Store/open targets are resolved dynamically per tenant for Android and iOS (backend contract; no client hardcoded store URLs).
 - Web does not execute invite accept/decline mutations and does not expose grouped invite inbox/send flows.
+- Any tenant-public hard/auth gate reached on web must hand off to the canonical app-promotion route/screen and then into `/open-app`; web login continuation is not a V1 conversion path, and route-gated/action-gated boundaries must not diverge.
 - App entry via `/invite?code=...` must render invite-first preview and allow anonymous accept/decline without forced login.
+- Deferred install-path capture in V1 is Android-first; iOS deferred capture is explicitly VNext while installed-app universal links remain supported.
+- First-open unresolved capture must emit deferred-capture-failed telemetry and route deterministically to `/`.
 - The credited inviter remains the inviter principal bound to that `code` (no web-side multi-inviter selection).
 - After anonymous acceptance, app keeps feed/map navigation available; trust actions (`favorite`, `send_invite`, presence/check-in boundaries) are intercepted by Auth Wall.
 - If a post-accept path requires richer fulfillment, handling remains app-owned; web does not expand to mutation surfaces.
@@ -398,7 +404,7 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 - App may mint or resume an anonymous identity via `POST /anonymous/identities` for device-bound progressive profiling flows.
 - Web invite landing in V1 must not mint anonymous identity for invite conversion; it is read-only + promotion only.
 - Invite share-code materialization (`POST /invites/share/{code}/materialize`) remains authenticated-only; anonymous attempts must return deterministic `401 auth_required`.
-- Canonical invite acceptance endpoint (`POST /invites/{invite_id}/accept`) must accept app-originated anonymous identities in V1 and preserve attribution semantics.
+- Canonical invite acceptance endpoints (`POST /invites/{invite_id}/accept` for materialized ids and `POST /invites/share/{code}/accept` for anonymous-first share preview) must preserve attribution semantics in V1.
 - Flutter/web invite landing compatibility remains anchored on `/invite?code=...`; clients must preserve `code` through onboarding/install bootstrap so attribution is not lost.
 
 **Events**

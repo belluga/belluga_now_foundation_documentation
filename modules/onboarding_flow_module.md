@@ -26,13 +26,13 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 1. **Invite Acceptance Path**
     * Steps:
         * User lands via `inviteCode` deep link → sees invite context (sender, event, incentives).
-        * `Accept`/`Decline` actions remain preview-only until the user authenticates; after login/signup the app materializes the canonical invite edge and then applies the standard invite decision.
+        * `Accept`/`Decline` actions are available in app with anonymous identity (progressive profiling). Auth is deferred until a trust action hits Auth Wall.
         * Screen flows continue with:
             1. Minimal identity capture (name + email/phone).
             2. Contact import prompt (`import contacts to share with friends`) wired to Invite module’s endpoint.
             3. Optional “Find friends” preview from `friend_resumes` to encourage immediate viral sharing.
         * After contact import (or skip), user transitions to preference capture + location consent steps to personalize home/map.
-    * Integration: Calls `/invites/share/{code}/materialize` after authenticated entry, then uses `/invites/{invite_id}/accept|decline` plus `POST /contacts/import` if the user opts to import contacts. Invite metadata is stored locally so preference recommendations can reference the same event/account profile.
+    * Integration: Canonical share-preview decision uses `POST /invites/share/{code}/accept` (anonymous-first). Authenticated continuation may still use `/invites/share/{code}/materialize` and `/invites/{invite_id}/accept|decline` when explicitly required. `POST /contacts/import` remains optional when the user opts to import contacts. Invite metadata is stored locally so preference recommendations can reference the same event/account profile.
 
 2. **Invite Decline / No Invite Path**
     * Steps:

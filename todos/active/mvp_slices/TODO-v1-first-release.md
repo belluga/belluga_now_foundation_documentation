@@ -3,7 +3,7 @@
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
 **Status:** Active  
 **Owner:** Delphi + Backend Team  
-**Goal:** Ship the first tenant-facing version focused on Events + Invites + Favorites (Artists + Venues) + Map (with Beaches), with web invite landing as promotion-only and conversion happening in app via deferred deep linking + progressive profiling.
+**Goal:** Ship the first tenant-facing version focused on Events + Invites + Favorites (Artists + Venues) + Map (with Beaches), with web invite landing as promotion-only and conversion happening in app via Android-first deferred deep linking + progressive profiling (iOS deferred capture in VNext).
 
 ---
 
@@ -55,7 +55,7 @@ These are scope descriptors (not tasks).
 
 ### Dependency map (high level)
 - Core loop: Invites + Agenda → unlock Telemetry/Push.
-- Web-to-app conversion depends on reliable deferred deep link capture, share-code propagation, and app-side anonymous invite acceptance contract.
+- Web-to-app conversion depends on reliable Android deferred deep-link capture, share-code propagation, tenant-dynamic store/open routing (Android+iOS), and app-side anonymous invite acceptance contract.
 - Map depends on stable event detail routing + time-window settings for event POIs.
 - Tenant/admin area depends on landlord/admin operators for MVP; memberships are deferred (credited acceptance semantics for invites remain app-side).
 
@@ -73,9 +73,9 @@ These are scope descriptors (not tasks).
 - Gate: DTO/fixture contract tests updated; no mock drift from docs
 - Manual: browse events → open event detail → start invite flow (mock-backed)
 
-### M2 — Web read-only promotion + app conversion (deferred deep link)
+### M2 — Web read-only promotion + app conversion (Android deferred deep link)
 - TODOs: `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md` + `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`
-- Gate: web invite surfaces are read-only, deferred deep link capture works on first open, and app anonymous accept flow is functional with auth wall for trust actions
+- Gate: web invite surfaces are read-only, Android deferred deep-link capture works on first open, iOS fallback behavior is explicit (deferred capture in VNext), and app anonymous accept flow is functional with auth wall for trust actions
 - Manual: open tenant subdomain → open invite landing → click app CTA → install/open app via link → invite card opens with correct code → anonymous accept succeeds
 
 ### M3 — Telemetry + push baseline
@@ -214,7 +214,7 @@ Suggested defaults (override per tenant + plan):
 - [ ] ⚪ No Wallet/Purchases/Premium surfaces ship in V1 (tracked as deferred)
 - [ ] ⚪ Push notifications work end-to-end for invite received at minimum, including deep link routing
 - [ ] ⚪ Mixpanel captures the invite funnel and event funnel with consistent identifiers
-- [ ] ⚪ Web stays promotion-only while app conversion follows progressive profiling (`deferred deep link -> anonymous accept -> auth wall -> signup`)
+- [ ] ⚪ Web stays promotion-only while app conversion follows progressive profiling (`android deferred deep link -> anonymous accept -> auth wall -> signup`), with iOS deferred capture explicitly tracked in VNext and deterministic fallback behavior.
 
 ---
 

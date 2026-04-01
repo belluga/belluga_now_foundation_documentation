@@ -30,7 +30,7 @@ The Tenant Home Composer module (MOD-301) assembles the personalized landing exp
   - main scope: `tenant_public`
 - Secondary touchpoints:
   - transition target to `tenant_admin` via explicit admin actions/CTAs.
-  - transition target to `account_workspace` via explicit account-workspace CTAs.
+  - route-level transition target to `account_workspace` remains governed, but tenant-public Home does not own a direct workspace CTA in V1; when exposed, that transition is profile/workspace-owned rather than a Home AppBar affordance.
 
 ### 1.2 Route/Subscope Matrix
 | Route | Host Context | EnvironmentType | Main Scope | Subscope | Notes |
@@ -154,6 +154,8 @@ Captures user actions taken from the home screen so ranking logic can adapt.
 | `HOM-01` | Approved | MVP home remains client-composed with no aggregated home endpoint. | Prevents premature backend coupling before contract maturity. | Sections `1`, `4` |
 | `HOM-02` | Approved | Post-MVP composer uses immutable snapshot model + rulesets. | Enables experimentation/audit without live mutation side effects. | Sections `2`, `3` |
 | `HOM-03` | Approved | Scope ownership remains `tenant_public` with explicit transitions only. | Preserves route governance clarity for home/admin/workspace. | Sections `1.1`, `1.2` |
+| `HOM-04` | Approved | Tenant-public Home V1 does not expose unauthenticated web affordances that imply identity convenience (direct workspace entry from Home, Agenda invite/confirmed filter). Workspace transition remains profile/workspace-owned when introduced. | Keeps Home aligned with the web-to-app promotion lane while preserving governed route availability for VNext authenticated web. | Sections `1.1`, `1.2` |
+| `HOM-05` | Approved | Home Agenda radius selection persists as a user/device preference (including anonymous sessions), but V1 applies that persisted preference only to the Home Agenda surface. | Preserves the “my local Home preference” UX without silently changing Event Search/other radius consumers before a broader alignment pass. | `foundation_documentation/todos/completed/TODO-v1-home-agenda-radius-persistence-and-sheet-polish.md` |
 
 ## 8. Tactical TODO Promotion Ledger
 
@@ -161,3 +163,4 @@ Captures user actions taken from the home screen so ranking logic can adapt.
 | --- | --- | --- | --- | --- |
 | `TODO-v1-first-release.md` | MVP release posture for home composition | In progress | `1`, `4`, `7` | Keeps no-aggregator policy explicit for MVP. |
 | `TODO-v1-events-and-agenda-frontend.md` | Home consumption of agenda/event contracts | Completed | `2`, `7` | Ensures home cards align with occurrence-first contracts. |
+| `TODO-v1-home-agenda-radius-persistence-and-sheet-polish.md` | Home Agenda radius preference persistence + sheet polish | Completed | `7`, `8` | Home-only radius preference semantics and sheet UX are now promoted; broader schedule/filter unification remains separate. |

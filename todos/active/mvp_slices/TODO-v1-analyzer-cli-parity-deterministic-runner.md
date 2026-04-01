@@ -59,10 +59,16 @@
 - `fvm dart analyze <50 explicit files>` => `48 issues found`
 - `fvm dart run custom_lint` => `No issues found!`
 - Explicit-file analyze bypasses `analysis_options.yaml` excludes (fixture file in excluded path still reports diagnostics).
+- `fvm dart analyze --format machine` at `flutter-app` root (post-reset, warmed) => `EXIT:0`, empty stdout, still false-clean.
+- `fvm dart analyze --format machine lib/presentation/tenant_admin/events/controllers/tenant_admin_events_controller.dart` => real warning reported:
+  - `controller_delegated_streamvalue_write_forbidden`
+  - file: `tenant_admin_events_controller.dart:246`
+- `fvm dart analyze --format machine lib/presentation/tenant_admin/events/controllers` => `EXIT:0`, empty stdout, false-clean even though the folder contains the same flagged file.
 
 Interpretation:
 - CLI directory/package analysis is yielding false-clean for plugin diagnostics in this setup.
 - Explicit-file analysis reports expected plugin diagnostics, but requires explicit exclude filtering.
+- Folder-target mode remains non-authoritative and should not be considered as a recovery path.
 
 ---
 
@@ -179,6 +185,55 @@ Interpretation:
 - `fvm dart analyze lib/domain/map/filters/poi_filter_category.dart` (reference sample)
 - Broad sample check using explicit-file batch output from official command logs.
 
+## 2026-03-31 Review Checkpoint
+- Root command remains the intended UX target, but current local evidence shows it is not trustworthy as the real-diagnostics source in this toolchain state.
+- The immediate engineering requirement is therefore: establish a CLI command that deterministically reports the same real plugin diagnostics we can already prove via explicit-file analysis.
+- No product-code warning cleanup should start before this parity lane is closed.
+
+### 2026-03-31 Additional Incident Confirmation (Rule Change Lifecycle)
+- Fresh incident characteristics matched the prior pattern observed after creating or altering analyzer rules.
+- After removing `~/.dartServer`, `.dart_tool`, running `fvm flutter clean`, and `fvm flutter pub get`, concurrent cold-start analyzer runs produced a broken plugin artifact:
+  - `plugin.aot: file too short`
+  - `IsolateSpawnException ... does not contain a valid AOT snapshot`
+- Rebuilding again in a **single sequential** analyzer flow restored a healthy plugin cache:
+  - all three `~/.dartServer/.plugin_manager/*/bin/plugin.aot` files rebuilt to a stable non-zero size,
+  - explicit-file analyze resumed reporting the real warning correctly.
+- However, even after the plugin cache/AOT artifacts were fully rebuilt and healthy:
+  - `fvm dart analyze --format machine` at root still returned `EXIT:0` false-clean,
+  - while explicit-file analyze still reported the expected plugin warning.
+
+Operational conclusion:
+- Rule creation/modification is a credible trigger for plugin cache/AOT instability.
+- After any rule creation/modification:
+  1. clear `~/.dartServer` + local `.dart_tool`,
+  2. run `fvm flutter clean`,
+  3. run `fvm flutter pub get`,
+  4. warm the analyzer **sequentially** (never parallel cold-start analyzes),
+  5. only then assess analyzer parity.
+- This sequence is necessary to avoid corrupted `plugin.aot`, but it is **not sufficient** to restore trustworthy root-command parity in the current toolchain state.
+
+### 2026-03-31 Recovery Update (Legacy custom_lint Orphan)
+- Additional local cleanup uncovered a legacy orphan directory under `tool/belluga_custom_lint/` containing stale `.dart_tool`, `build/`, and `extension_discovery` artifacts even though the package itself no longer exists and is not part of the main workspace `package_config.json`.
+- After clearing:
+  - `~/.dartServer/.instrumentation`
+  - `~/.dartServer/.prompts`
+  - orphan artifacts under `tool/belluga_custom_lint/**`
+  - local `.dart_tool`
+  - and then rerunning `fvm flutter pub get`
+- the official root command recovered and started reporting the same real plugin diagnostics already proven by explicit-file analysis.
+
+Recovered evidence:
+- `fvm dart analyze --format machine lib/presentation/tenant_admin/events/controllers/tenant_admin_events_controller.dart`
+  - reports `controller_delegated_streamvalue_write_forbidden`
+  - `EXIT:2`
+- `fvm dart analyze --format machine`
+  - now reports the same family of real warnings across root scope
+  - `EXIT:2`
+
+Updated interpretation:
+- The local false-clean incident was not caused only by `.plugin_manager` / AOT rebuild instability.
+- Legacy orphan `custom_lint` artifacts under `tool/belluga_custom_lint/` were also contributing noise/state pollution and must be cleared as part of analyzer recovery.
+
 ## Definition of Done
 - One official command is documented and used in CI + local scripts.
 - Official command reports real architecture warnings that match sample file expectations.
@@ -187,4 +242,3 @@ Interpretation:
   - before vs after counts,
   - real warning examples,
   - changed files summary.
-

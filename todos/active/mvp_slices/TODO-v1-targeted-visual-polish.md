@@ -19,7 +19,7 @@
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-screen-signin-signup-polish.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-screen-profile-polish.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-screen-events-polish.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-screen-discovery-polish.md`
+- `foundation_documentation/todos/completed/TODO-v1-screen-discovery-polish.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-screen-invite-polish.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-screen-invite-friends-polish.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-screen-account-profile-detail-polish.md`
@@ -133,7 +133,7 @@
 - [ ] ⚪ `TODO-v1-screen-signin-signup-polish.md` (Sign in / Sign up flow)
 - [ ] ⚪ `TODO-v1-screen-profile-polish.md` (signed-in + signed-out profile screen)
 - [ ] ⚪ `TODO-v1-screen-events-polish.md` (events screen)
-- [ ] ⚪ `TODO-v1-screen-discovery-polish.md` (account profile discovery screen)
+- [x] ✅ Production-Ready `TODO-v1-screen-discovery-polish.md` (account profile discovery screen)
 - [ ] ⚪ `TODO-v1-screen-invite-polish.md` (invite screen)
 - [ ] ⚪ `TODO-v1-screen-invite-friends-polish.md` (invite friends flow/screen)
 - [ ] ⚪ `TODO-v1-screen-account-profile-detail-polish.md` (account profile detail screen)

@@ -1,104 +1,139 @@
 # Documentation: Web-to-App Promotion Policy
 
-**Version:** 1.2  
-**Date:** March 14, 2026  
+**Version:** 1.5  
+**Date:** March 30, 2026  
 **Authors:** Delphi (Belluga Co-Engineering)
 
 ## 1. Purpose
 
-This policy captures the rules governing how web surfaces (landing pages, invite links, account profile campaigns) promote the native Guar[APP]ari application. It ensures every module (Invite, Onboarding, Task & Reminder, Account Profile Analytics) follows the same stance when deciding whether high-value actions can occur on the web or must flow through the app.
+This policy defines the V1 acquisition and conversion boundary across Web and App surfaces. The objective is to minimize entry friction, preserve viral attribution, and keep trust actions inside the native app with explicit auth boundaries.
 
-## 2. Three-Tier Surface Model (V1)
+## 2. Canonical V1 Surface Model
 
-We operate with three explicit tiers:
+We operate with two practical conversion tiers in V1:
 
-1. **Web (Unauthenticated):** acquisition and context only (read-only + login/install handoff).
-2. **Web (Authenticated):** lightweight account operations + account profile workspace operations.
-3. **App:** conversion, trust actions, location/push-native flows.
+1. **Web (Public/Tenant Public):** read-only showcase and promotion only.
+2. **App:** conversion, anonymous-first invite decision, and all trust actions.
 
-This separation prevents accidental “half-logged-in” behaviors that break attribution, quotas, and gamification metrics.
+`Web (Authenticated)` workspace capabilities are deferred to VNext and are out of V1 conversion scope.
 
-## 3. V1 Stance (What Each Tier May Do)
+### 2.1 Deep-Link Package Ownership (V1)
 
-### 3.1 Web (Unauthenticated)
+Backend deep-link governance is package-owned end-to-end:
+
+- `belluga_deep_links` is the canonical owner of:
+  - App Links / Universal Links association payload generation (`/.well-known/assetlinks.json`, `/.well-known/apple-app-site-association`);
+  - `settings.app_links` schema registration + patch guard validation rules;
+  - web promotion/open-app handoff resolution;
+  - deferred deep-link first-open resolver contract (Android V1, iOS-ready contract surface).
+- Host app (`laravel-app`) must remain integration-thin:
+  - route wiring and middleware composition;
+  - adapter bindings for tenant/domain/settings context required by the package contracts.
+
+## 3. V1 Rules by Surface
+
+### 3.1 Web (Read-Only Promotion)
+
 - Allowed:
-  - event/invite landing (read-only), account profile branding (partner label), “Open in App / Install” CTA, attribution code preservation.
-  - **Map browsing (read-only):** show POIs/events on a web map to support discovery and guide users into the app for confirmations.
+  - event/invite landing preview;
+  - map/feed style discovery in read-only mode;
+  - app promotion CTA (`Baixe o App para Confirmar`) and install/open handoff preserving `code` via backend-resolved dynamic tenant targets for Android and iOS.
 - Not allowed:
-  - invite share-code acceptance without authenticated identity,
-  - tenant “agenda-first” acceptance flows (acceptance initiated from the app agenda remains app-only),
-  - check-in, favorites, any general-purpose “web social graph”, or “web-native” invite sending beyond same-event re-share after acceptance.
+  - invite accept/decline/materialize mutations from web;
+  - minting anonymous identity from web for invite conversion (`POST /api/v1/anonymous/identities`);
+  - trust-action execution on web (`favorite`, `send_invite`, attendance/check-in-related mutations);
+  - using web login/auth continuation as tenant-public hard-gate fallback.
 
-### 3.2 Web (Authenticated)
-- Allowed (V1):
-  - Account bootstrap/recovery (login/signup/password reset).
-  - Invite share-code acceptance from invite landing (`/invite?code=...`) after login, preserving attribution.
-  - **Account Profile Workspace**: event creation and management, account profile editing, team management (post‑MVP), invite metrics dashboards (post‑MVP).
-  - Map browsing (read-only) is allowed, but remains a non-trust surface.
-- Not allowed (V1):
-  - Tenant agenda-first conversion/trust actions: accept/decline invites from agenda, check-in, favorites, or any “full map parity” behaviors.
+Anonymous web direct-URL allowlist is explicit in V1:
+- public: `/`, `/privacy-policy`, `/descobrir`, `/parceiro/:slug`, `/agenda/evento/:slug`, `/mapa`, `/mapa/poi`, `/invite?code=...`, `/convites?code=...`, `/location/permission`, `/baixe-o-app`;
+- canonical fallback to `/`: blocked non-identity routes such as `/agenda`, invalid invite URLs without `code`, and legacy `/menu`;
+- promotion boundary: identity/auth-owned routes such as `/profile`, `/workspace*`, `/convites/compartilhar`, and `/auth/*`.
 
-### 3.3 App
-- Allowed (V1): all tenant conversion + trust actions:
-  - accept/decline invites (credited acceptance selection),
-  - confirm presence/check-in,
-  - send invites (user + account_profile; account_profile issuance is admin-assigned in MVP),
-  - favorites,
-  - full map experience (location permission + POI stacking deck),
-  - tenant push and deep-link flows.
+**Hard-gate rule:** if a trust/auth gate is hit on web tenant-public surfaces, the result must be a canonical app-promotion route/screen that then hands off through `/open-app`; web-login continuation is never allowed in V1.
+Handoff target rule:
+- only invite-landing context (`/invite` or `/convites`) with valid `code` -> `/invite?code=...`;
+- missing/invalid `code` on either invite route, or any non-invite context -> canonical tenant home (`/`).
+- route-gated and action-gated identity boundaries on web must use the same promotion surface; modal-only divergence is not allowed.
 
-## 4. Landing + Attribution Rules (V1)
+Identity-dependent convenience affordances on tenant-public Home must also follow the unauthenticated web posture:
+- hide the direct `Account Workspace` entry from Home while web auth is unavailable;
+- hide the Agenda invite/confirmed filter while the web session is unauthenticated.
+- identity-owned routes such as `/profile` must not continue to web auth in V1; unauthenticated web access must resolve to app-promotion UX/handoff instead.
+- `/location/not-live` is legacy and must not survive as a second public location surface; `/location/permission` is the single canonical public location gate in V1.
 
-- Web landing pages must preserve the invite share `code` through install/open-app flows.
-- Conversions are attributed only when the backend receives the corresponding canonical events (e.g., authenticated `POST /api/v1/invites/share/{code}/materialize`, canonical invite acceptance, check-in).
-- Web-auth account profile workspace actions are first-class and tracked separately (do not mix with tenant acquisition funnels).
+These affordances may reappear only once authenticated web exists in VNext; their return does not change the V1 rule that tenant-public trust/hard gates promote the app instead of continuing through web login.
 
-### 4.0 Sanctum Requirement (Open API Clarification)
+### 3.2 App (Progressive Profiling Conversion Surface)
 
-“Open API” in this ecosystem means **a single canonical API surface** shared by web/app clients, with **Sanctum validation by default**.
+- Invite flows are anonymous-first:
+  - app may mint/resume anonymous identity (`POST /api/v1/anonymous/identities`);
+  - invite acceptance from share preview uses `POST /api/v1/invites/share/{code}/accept`;
+  - inviter attribution remains bound to the share `code` principal.
+- Deferred deep linking is mandatory:
+  - **V1 MVP scope:** Android install path (Play Store) must preserve invite `code` and capture it on first open.
+  - **iOS deferred capture** is explicitly deferred to VNext; MVP iOS keeps installed-app universal link behavior plus deterministic fallback UX when deferred capture is unavailable.
+- First-open routing must be deterministic:
+  - when `code` is captured/resolved, route directly to invite flow;
+  - when deferred capture fails or resolves no invite, route to canonical tenant home (`/`), never blank/intermediate dead-ends.
+- Post-accept behavior:
+  - anonymous users can continue feed/map browsing in read-only posture;
+  - trust actions trigger Auth Wall.
+- Identity-owned app routes (for example `/profile`) remain auth-gated in app runtime; anonymous app access must continue to native auth/login, not app-promotion fallback.
 
-- Web “unauthenticated” surfaces are still allowed to call Sanctum-protected endpoints by first minting an **anonymous identity token** via `POST /api/v1/anonymous/identities`.
-- The backend controls what anonymous tokens may do using `tenant.anonymous_access_policy.abilities` (and TTL).
-- Anonymous identities must never accept invite share codes.
+### 3.3 Auth Wall Scope (V1)
 
-## 4.1 Identity-First Invite Acceptance (V1)
+Auth Wall is mandatory for:
+- `favorite` actions;
+- `send_invite` actions;
+- attendance/check-in boundaries (check-in feature delivery itself remains VNext).
 
-V1 acceptance is identity-first: **invite share code acceptance requires authenticated user identity**, even when the user enters from a web invite landing.
+## 4. Attribution and Endpoint Contract Baseline
 
-Constraints:
-- Unauthenticated `/invite?code=...` entry must render invite preview-first context and preserve the original deep link/query (`code`).
-- Accept/decline CTA on preview triggers authentication; after login/signup, the client resumes the original deep link, calls `POST /api/v1/invites/share/{code}/materialize`, and only then exposes canonical `/invites/{invite_id}/accept|decline`.
-- Invite preview context is resolved by `GET /api/v1/invites/share/{code}` and must remain available without authenticated identity.
-- The accepted invite is credited to the inviter principal bound to that `code` (no multi-inviter selector on web).
-- Anonymous identity attempting acceptance must receive deterministic `401` (`auth_required`).
-- **Re-share allowed on web:** only for the **same event** the user just accepted (external share only), and always backend rate-limited.
-- Acceptance initiated from the tenant agenda remains app-only (the app is the “trusted conversion surface”).
+- Share links carry one canonical `code` parameter.
+- Web must preserve `code` through install/open-app handoff.
+- Canonical web handoff endpoint is `GET /open-app` (backend resolves tenant-dynamic store target + attribution payload).
+- Canonical web promotion boundary route is a Flutter screen that uses runtime tenant/app branding (`Environment.name`, `main_icon_*`) and then calls `/open-app` with an explicit `platform_target=android|ios` override when the user chooses a store.
+- The promotion surface may render a single store CTA when the web browser platform can be inferred as Android or iOS; when platform inference is unavailable or ambiguous, it must render both store badges.
+- Handoff URI resolution is deterministic: preserve invite context only when the current route is invite-landing (`/invite` or `/convites`) and `code` exists; otherwise use canonical tenant home (`/`).
+- Store/open handoff targets must be resolved dynamically per tenant (Android + iOS) by backend contract; web/app clients must not hardcode store URLs.
+- When the promotion surface renders multiple store badges, App Store badge ordering and artwork must follow Apple’s published App Store Marketing Guidelines, including use of Apple-provided badge artwork and first position in a multi-badge lineup.
+- Canonical deferred first-open resolver endpoint is `POST /api/v1/deep-links/deferred/resolve` (Android MVP capture contract; iOS returns deterministic `not_captured` in V1).
+- Canonical app acceptance path for share preview is `POST /api/v1/invites/share/{code}/accept`.
+- `POST /api/v1/invites/share/{code}/materialize` remains authenticated-only and optional for explicit continuation flows.
+- Canonical direct invite mutations (`POST /api/v1/invites/{invite_id}/accept|decline`) remain valid for materialized/inbox flows.
 
-## 5. Future Evaluation Criteria
+## 5. Tracking and KPI Baseline
 
-We will revisit the policy after Phase 8 (Gamification Spine) once we have sufficient telemetry on invite funnels. A shift toward web confirmations or web-native chat will require:
+The V1 funnel is:
 
-1. **Security Parity:** Equivalent authentication/authorization guarantees on the web as in the app.
-2. **Task & Reminder Bridging:** Ability to schedule push/email reminders even when the acceptance originated on the web.
-3. **Module Parity:** Invite, Onboarding, Map, and Transaction modules must expose consistent schemas so both web and app clients stay in sync.
-4. **Account Plan Requirements:** Certain account tiers may fund lighter web funnels; these will be evaluated per tenant with opt-in contracts.
+`landing -> app install -> deferred deep link captured -> anonymous accept -> auth wall triggered -> signup completed`
 
-## 6. Implications by Module
+Required key events include:
+- `web_invite_landing_opened` (`store_channel=web`, `has_code=true|false`)
+- `web_open_app_clicked` (`store_channel`, `platform_target=android|ios`)
+- `web_install_clicked` (`store_channel`, `platform_target=android|ios`)
+- `app_anonymous_invite_accepted`
+- `app_auth_wall_triggered` (`action_type=favorite|send_invite` in V1)
+- `app_signup_completed`
+- `app_deferred_deep_link_captured` / `app_deferred_deep_link_capture_failed` with `platform` + `store_channel` properties (`platform=android` in V1 MVP; `ios` when VNext deferred capture is enabled).
+
+Store-channel and deferred failure modes must remain explicit in telemetry:
+- `store_channel=web` for web-to-app CTA origin.
+- `app_deferred_deep_link_capture_failed.failure_reason` must differentiate at least: `referrer_unavailable`, `resolver_not_captured`, `resolver_unsupported_platform`, `resolver_error`.
+
+## 6. Module Impact Summary
 
 | Module | Impact |
 |--------|--------|
-| Invite & Social Loop | Web unauth shows invite preview context + deep links. Invite landing acceptance is preview-first then auth-gated (`/invite?code=...` -> auth CTA -> `/invites/share/{code}/materialize` -> `/invites/{invite_id}/accept|decline`) with no anonymous acceptance path. Web-auth account profile workspace can view invite metrics and manage invite campaigns (post‑MVP); agenda-first acceptance remains app-only. |
-| Onboarding Flow | All onboarding steps (preferences, location, contact import) are app-only. Web unauth pages inform and route to app install/open. |
-| Task & Reminder | Push reminders point to app deep links. Web-auth account profile workspace can configure some notification preferences, but execution remains app-driven. |
-| Tenant Home Composer | Web unauth event pages deep link into app screens; do not replicate home composition logic on web in V1. |
-| Account Workspace | Web authenticated is the primary surface for account/profile event management + dashboards in V1; landlord users can override as needed. |
-| Account Profile Analytics | Tracks web landing traffic and account profile workspace actions; attributes tenant conversions only when backend receives app completion events. |
+| Invite & Social Loop | Web stays preview/promotion only; app owns anonymous-first acceptance and invite mutations. |
+| Flutter Client Experience | Must implement Android V1 deferred deep-link capture + app-side auth wall interception while keeping web hard gates as app handoff. |
+| Task & Reminder | Push/deep-link execution remains app-owned; web only routes users into app. |
+| Account Workspace (VNext) | Web authenticated workspace does not alter V1 tenant-public conversion boundaries. |
 
 ## 7. Policy Maintenance
 
-* Any proposal to relax the app requirement must update this file, the system roadmap section, and the affected module docs.
-* Changes require product and account stakeholder approval, since they affect revenue-sharing agreements and data privacy.
+Any proposal to re-enable web mutation flows must update this policy, `system_roadmap.md`, and affected module contracts (`invite_and_social_loop_module.md`, `flutter_client_experience_module.md`) in the same change set.
 
 ---
 
-*Next Review:* After Phase 8 telemetry review or sooner if growth experiments justify reconsideration.
+*Next Review:* after V1 funnel telemetry stabilization and VNext workspace planning.

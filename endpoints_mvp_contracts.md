@@ -81,7 +81,55 @@
 - `identity_state`: `anonymous`.
 
 **Client retry policy (Flutter):** up to 3 attempts with delays of 200ms then 800ms; fail hard after final attempt.
-**Channel rule (V1):** web invite landing remains read-only and must not use this endpoint for invite conversion.
+**Channel rule (V1):** web invite landing remains read-only and must not use this endpoint for invite conversion. Tenant-public web hard gates must hand off to app/open-store flows instead of minting web anonymous identity.
+
+### `POST /deep-links/deferred/resolve`
+**Purpose:** Resolve deferred deep-link first-open attribution from app-provided install metadata (Android MVP), returning deterministic routing outcome.
+**Request (body):**
+```json
+{
+  "platform": "android|ios",
+  "install_referrer": "string?",
+  "store_channel": "string?"
+}
+```
+**Response:**
+```json
+{
+  "data": {
+    "status": "captured|not_captured",
+    "code": "string|null",
+    "target_path": "/invite?code=...|/",
+    "store_channel": "string|null",
+    "failure_reason": "string|null"
+  }
+}
+```
+**Field Definitions**
+- `status`
+  - `captured`: invite `code` was resolved and should route to invite flow.
+  - `not_captured`: no invite `code` could be resolved; fallback route must be `/`.
+- `failure_reason` (when `status=not_captured`)
+  - `referrer_unavailable`
+  - `code_missing`
+  - `unsupported_platform` (iOS in V1 MVP)
+  - `resolver_unavailable` (client-side fallback classification when resolver request fails)
+
+**V1 scope note:** Android deferred install capture is required in MVP. iOS deferred install capture remains VNext and returns deterministic `not_captured` in V1.
+
+### `GET /open-app` (web handoff route)
+**Purpose:** Canonical web promotion/hard-gate handoff route; backend resolves tenant-dynamic store/open destination while preserving deterministic invite attribution rules.
+**Request (query):**
+- `path` (`/invite|/convites|/` + arbitrary incoming values normalized by backend policy)
+- `code` (`string?`)
+- `store_channel` (`string?`)
+- `platform_target` (`android|ios?`) optional explicit override for web promotion surfaces that render separate store choices; when absent, backend may fall back to user-agent detection.
+
+**Response:** `302` redirect (`Location` header) to:
+- dynamic Android/iOS store URL with attribution payload when store target is configured; or
+- deterministic in-domain fallback open target (`/invite?code=...` only for invite-landing context with valid `code`; otherwise `/`).
+
+**Channel rule (V1):** Web tenant-public hard gates (`favorite`, `send_invite`, attendance boundary attempts) must resolve through this handoff route and must not continue through web auth/login conversion.
 
 ### `POST /auth/register/password`
 **Purpose:** Register an authenticated user.  
@@ -378,7 +426,11 @@
 }
 ```
 **Notes:**
-- Backend always enforces favoritable types + public visibility boundary exactly as `GET /account_profiles`.
+- Backend always enforces:
+  - `profile_type` intersected with tenant registry where `capabilities.is_favoritable=true`;
+  - `profile_type` intersected with tenant registry where `capabilities.is_poi_enabled=true`;
+  - `visibility='public'` boundary;
+  - nearest-first ordering by computed `distance_meters`.
 - Client filters are narrowing-only (cannot broaden beyond backend policy).
 
 ---
@@ -534,7 +586,7 @@
 - Anonymous app identities are allowed in V1 progressive profiling and must preserve inviter attribution semantics.
 - Backend must supersede competing pending invites for the same `(receiver,target_ref)` when acceptance succeeds.
 - Superseded invites must use `status = superseded` with `supersession_reason = other_invite_credited`.
-- `next_step` is the canonical contract field for post-acceptance follow-up semantics across native and web acceptance flows.
+- `next_step` is the canonical contract field for post-acceptance follow-up semantics across native acceptance and future authenticated workspace continuations.
 
 ### `POST /invites/{invite_id}/decline`
 **Purpose:** Decline the selected direct invite from native app.  
@@ -790,14 +842,50 @@
 ```
 - Returned with `401` when caller is unauthenticated or authenticated as anonymous identity.
 
+### `POST /invites/share/{code}/accept`
+**Purpose:** Canonical anonymous-first share decision endpoint for app progressive profiling; resolves or materializes invite edge bound to `code` and performs acceptance atomically.  
+**Auth:** Sanctum token required (registered or anonymous identity).  
+**Request (headers/body):**
+```json
+{
+  "idempotency_key": "string?"
+}
+```
+**Response:**
+```json
+{
+  "tenant_id": "string",
+  "invite_id": "string",
+  "target_ref": {
+    "event_id": "string",
+    "occurrence_id": "string?"
+  },
+  "inviter_principal": { "kind": "user|account_profile", "id": "string" },
+  "status": "accepted|already_accepted|expired|superseded",
+  "attendance_policy": "free_confirmation_only|paid_reservation_only|either",
+  "credited_acceptance": true,
+  "accepted_at": "2025-01-01T00:00:00Z?",
+  "next_step": "none|free_confirmation_created|reservation_required|commitment_choice_required|open_app_to_continue",
+  "superseded_invite_ids": ["string"]
+}
+```
+**Field Definitions**
+- `inviter_principal.kind`: `user`, `account_profile`.
+- `status`: canonical acceptance result status for the resolved invite edge.
+- `next_step`: `none`, `free_confirmation_created`, `reservation_required`, `commitment_choice_required`, `open_app_to_continue`.
+
 **Requirement:** Invite share links must carry `code` as a GET parameter.
 **Tracking Notes:**
 - `share_visit` is tracked separately from invites; it does **not** count as an accepted invite.
-- This endpoint materializes attribution only; it does **not** count as `invite_accepted`.
+- `POST /invites/share/{code}/materialize` only materializes attribution; it does **not** count as `invite_accepted`.
 - Invite landing must resolve preview context via `GET /invites/share/{code}` and preserve original deep-link query (`/invite?code=...`) through store/app handoff.
-- App anonymous flow may decide directly from preview using canonical `POST /invites/{invite_id}/accept|decline` without this pre-bind step.
-- When this endpoint is used, decisions must continue through canonical invite mutation endpoints `POST /invites/{invite_id}/accept|decline`.
+- Store/open handoff targets must be resolved dynamically per tenant for Android+iOS; clients must not hardcode store URLs.
+- Handoff target selection is deterministic and context-aware: preserve `/invite?code=...` only when current route context is invite landing (`/invite` or `/convites`) with valid `code`; all other contexts use canonical `/`.
+- App anonymous flow accepts from preview using canonical `POST /invites/share/{code}/accept` (no forced pre-materialize step).
+- First-open resolver must be deterministic: captured `code` routes to invite flow; unresolved capture routes to `/` and emits `app_deferred_deep_link_capture_failed` (`store_channel` when available).
+- Materialized/inbox flows continue through canonical invite mutation endpoints `POST /invites/{invite_id}/accept|decline`.
 - Web remains promotion/read-only in V1: no accept/decline mutations, no inbox browsing, no multi-inviter selector, no direct invite send, no presence confirmation, and no check-in.
+- Web tenant-public hard/auth gates must not continue via web login; they must promote app handoff with `code` preservation.
 
 ### `POST /test-support/invites/bootstrap` (`stage` only, non-product)
 **Purpose:** Provision deterministic invite fixtures for deployed compatibility tests against `stage`.  

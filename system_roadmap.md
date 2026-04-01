@@ -45,7 +45,8 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/invites/settings` | MOD-201 | Backend-owned invite quotas, anti-spam limits, and UX messaging settings. | Tested & Ready | Returns limits/cooldowns/reset metadata; `429` rejections include structured limit payload metadata. |
 | `/api/v1/invites/share` | MOD-201 | External share codes for event invites (new user install/signup attribution). | Tested & Ready | Implemented with same-target reuse, anti-spam cooldown/daily limits, and account-profile issuer permission checks. |
 | `/api/v1/invites/share/{code}` | MOD-201 | Share-code invite preview resolution for `/invite?code=...` landing. | Tested & Ready | Public tenant route resolves invite preview context without forced login; missing/expired codes return deterministic `404 invite_share_not_found`. |
-| `/api/v1/invites/share/{code}/materialize` | MOD-201 | Share entry materialization for authenticated continuation flows. | Tested & Ready | Requires authenticated Sanctum user; anonymous identity receives deterministic `401 auth_required`. V1 app conversion is anonymous-first and may accept directly from preview using `POST /invites/{invite_id}/accept`; materialization remains available for authenticated continuation and compatibility flows. |
+| `/api/v1/invites/share/{code}/accept` | MOD-201 | Canonical anonymous-first share acceptance endpoint. | Tested & Ready | Accepts with authenticated or anonymous Sanctum identity, resolves/materializes edge atomically, and preserves inviter attribution bound to `code`. |
+| `/api/v1/invites/share/{code}/materialize` | MOD-201 | Share entry materialization for authenticated continuation flows. | Tested & Ready | Requires authenticated Sanctum user; anonymous identity receives deterministic `401 auth_required`. V1 app conversion is anonymous-first and accepts directly from preview using `POST /invites/share/{code}/accept`; materialization remains available for authenticated continuation and compatibility flows. |
 | `/api/v1/agenda` | MOD-201 | Paged agenda feed with search + past toggle, includes happening-now events. | Tested & Ready | Request: `page`, `page_size`, `past_only`, `confirmed_only`, `search`, `categories`, `tags`, `taxonomy`, `origin_lat/lng`, `max_distance_meters`. Response: occurrence-first event DTO (`event_id`, `occurrence_id`, `date_time_start/end`, `occurrences`, `event_parties`, `capabilities`, taxonomy/tags), `has_more` flag. Invite lifecycle fields are not exposed by Events payloads. Event location follows canonical `location + place_ref` (venue projection is resolver output, not a required write input). Happening-now rule: `date_time_start <= now < effective_end` (default end = start + 3h). `confirmed_only=1` returns only attendance-confirmed items; anonymous identity returns `200` empty list; geo filters must not exclude confirmed-only items (origin remains optional for distance decoration). |
 | `/api/v1/events/stream` | MOD-201 | Event delta stream (SSE). | Tested & Ready | Emits occurrence-first deltas (`occurrence.created`, `occurrence.updated`, `occurrence.deleted`) with `{event_id, occurrence_id, type, updated_at}`. Clients resume with `Last-Event-ID`; on reconnect without cursor (or invalid cursor), client reloads page 1 from `/agenda` and continues from now. |
 | `/api/v1/events/{event_id}` | MOD-201 | Event detail payload. | Tested & Ready | Event detail contract is aligned to occurrence-first agenda cards (`occurrences[]`, `event_parties`, `capabilities`, taxonomy/tags). Invite lifecycle fields are intentionally absent from Events payloads. Event location follows canonical `location + place_ref`. |
@@ -143,21 +144,25 @@ These roadmap phases extend the Flutter persona track and remain aligned with th
 - Event landing (read-only): title, date/time, venue name, artists names, hero media.
 - Invite landing (read-only): “You were invited by …” context + event summary.
 - Map browsing (read-only) for discovery; guide users into app for confirmations.
-- Install/Open-App CTA must preserve invite share code attribution (`code`) and promote app conversion (`Baixe o App para Confirmar`).
+- Install/Open-App CTA must preserve invite share code attribution (`code`), promote app conversion (`Baixe o App para Confirmar`), and use backend-resolved dynamic tenant store/open targets for Android and iOS. Handoff target is deterministic: only invite-landing context (`/invite` or `/convites`) with valid `code` uses `/invite?code=...`; otherwise use canonical `/`.
 - Web invite surfaces cannot accept/decline invites in V1.
 - Web “unauthenticated” surfaces must not mint anonymous identities for invite conversion.
 
-**Web authenticated allowed (V1):**
-- Tenant/Admin area: accounts, events, assets, and branding management.
+**Web authenticated scope (V1):**
+- Tenant/Admin workspace remains outside tenant-public conversion flow and does not serve as fallback for tenant-public hard gates.
+- Workspace expansion (accounts/events/assets/branding operations) is tracked separately and must not reintroduce web invite/trust mutations in V1.
 
 **App-only (V1):**
-- Deferred deep-link first-open capture for invite `code` (critical funnel step).
-- Anonymous identity bootstrap (device-bound) and anonymous invite acceptance via canonical `POST /api/v1/invites/{invite_id}/accept`.
+- Deferred deep-link first-open capture for invite `code` on Android install paths (critical funnel step for V1).
+- Anonymous identity bootstrap (device-bound) and anonymous invite acceptance via canonical `POST /api/v1/invites/share/{code}/accept`.
+- First-open routing contract is deterministic: captured `code` routes to invite flow; unresolved capture routes to canonical tenant home (`/`).
 - Feed/map read-only navigation for anonymous users after acceptance.
 - Auth Wall hard-gates: favorites, send-invite actions, and presence/check-in boundaries.
+- Web tenant-public hard-gate hits must resolve to app promotion/open-app handoff, never web login continuation. If no invite `code` exists in the current context, the handoff target is `/`.
+- iOS deferred deep-link capture is explicitly VNext-scoped (`TODO-vnext-ios-universal-links-production-validation.md`); MVP iOS keeps installed-app universal links + fallback behavior.
 
-**Attribution requirement:** External share links carry a single `code` as a GET param that resolves `{ tenant_id, event_id, inviter_principal }`. Web/store/app flows must preserve this `code` through install and first open. App may accept anonymously directly from share preview; authenticated continuation flows may still materialize through `POST /api/v1/invites/share/{code}/materialize` before decision UI when needed. Anonymous-to-authenticated merge must preserve invite attribution/history.
+**Attribution requirement:** External share links carry a single `code` as a GET param that resolves `{ tenant_id, event_id, inviter_principal }`. Web/store/app flows must preserve this `code`; Android V1 must preserve it through install + first open, while iOS deferred install preservation is VNext-scoped. Store/open routing must be tenant-dynamic for Android+iOS (no hardcoded store URLs in clients). App may accept anonymously directly from share preview; authenticated continuation flows may still materialize through `POST /api/v1/invites/share/{code}/materialize` before decision UI when needed. Anonymous-to-authenticated merge must preserve invite attribution/history.
 
-**Tracking mandate (V1):** Instrument inverted funnel `landing -> install -> deferred deep link captured -> anonymous accept -> auth wall triggered -> signup completed`, with deterministic event naming and deduplication.
+**Tracking mandate (V1):** Instrument inverted funnel `landing -> install -> deferred deep link captured -> anonymous accept -> auth wall triggered -> signup completed`, with deterministic event naming and deduplication. `store_channel` is required on `web_open_app_clicked`, `web_install_clicked`, and deferred capture result events (Android in V1; iOS when VNext deferred capture is enabled).
 
 **Future consideration:** Revisit after Phase 8 once viral loops and account profile analytics are stable. Any future web mutation expansion requires explicit contract/module/TODO updates with equivalent security and attribution guarantees.

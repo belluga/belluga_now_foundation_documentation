@@ -22,7 +22,6 @@ Primary ownership for this module is tenant runtime with explicit internal-only 
 | `/mapa` | tenant domain | `tenant` | `tenant_public` | n/a | tenant public session |
 | `/mapa/poi` | tenant domain | `tenant` | `tenant_public` | n/a | tenant public session |
 | `/location/permission` | tenant domain | `tenant` | `tenant_public` | n/a | location guard fallback route |
-| `/location/not-live` | tenant domain | `tenant` | `tenant_public` | n/a | location guard fallback route |
 
 ## 2. Current Runtime Implementation
 
@@ -40,7 +39,7 @@ The active Flutter map runtime is already Laravel-backed and query-driven:
 
 **Shared Location Contract.** As part of FCX-02, the main Flutter application owns a `LocationRepository` + `UserLocationService` pair that lives in the domain layer. Controllers are the only consumers of repositories, so the service is injected into controllers, which then pass the user’s coordinates to downstream repositories (Map, Agenda, Task/Reminder). No repository is allowed to call another repository directly; when features need multiple data sources, controllers compose the calls or rely on lightweight domain services. This keeps dependency arrows pointing inward (controllers → repositories) and prevents caching or network responsibilities from leaking between repos.
 
-**Location Permission Gate (Guard).** All screens whose behavior depends on current user location (e.g., the Map POI viewport, “nearby”/distance-ranked lists, and any future “near me” actions) are protected by dedicated guards. If location services are disabled or permission is not granted, navigation redirects to a permission/not-live flow that:
+**Location Permission Gate (Guard).** All screens whose behavior depends on current user location (e.g., the Map POI viewport, “nearby”/distance-ranked lists, and any future “near me” actions) are protected by dedicated guards. If location services are disabled or permission is not granted, navigation redirects to the single canonical public location gate at `/location/permission`, which:
 - Explains why location is required (nearby venues, distance sorting, “search this area”).
 - Offers a primary CTA to request permission (when possible) or open settings (when denied forever).
 - Offers a CTA to open system location settings when the device-level service is disabled.
