@@ -37,7 +37,7 @@ The product goal is to support scenarios such as a user who is **planning a futu
 
 ## Out of Scope
 - Replacing the V1 local-only persistence path immediately.
-- The new V1 Home-only automatic fixed-reference fallback when the user is outside the tenant-city boundary; that behavior is now tracked in `foundation_documentation/todos/active/mvp_slices/TODO-v1-home-location-origin-reference-mode.md`.
+- The new V1 Home-only automatic fixed-reference fallback when the user is outside the tenant-city boundary; that behavior is now tracked in `foundation_documentation/todos/completed/TODO-v1-home-location-origin-reference-mode.md`.
 - Applying the same persisted location-origin behavior to Discovery, Map, or generic Event Search in this slice.
 - Full trip-planning product flows beyond proximity settings.
 - New public route/screen IA outside the settings and Home-affecting flow.
@@ -60,6 +60,7 @@ The product goal is to support scenarios such as a user who is **planning a futu
 - The user must be able to choose whether “my location” means:
   - live device location, or
   - a manually selected place on the map.
+- The user must be able to prefer a fixed/manual reference location even when the current live device location is inside the tenant-supported range; V1 automatic classification must not become the permanent VNext constraint.
 - A manually selected place is a valid primary origin for Home proximity experiences; this is not a fallback-only mode.
 - The first rollout affects **Home only**; other geo consumers stay on their current rules until a dedicated follow-up promotes shared behavior.
 - VNext still owns the broader user-controlled origin model (especially manual map-picked reference origin and backend-backed persistence).

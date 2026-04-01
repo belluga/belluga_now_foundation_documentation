@@ -1,6 +1,6 @@
 # TODO (V1): Home Location Origin Reference Mode
 
-**Status:** Active
+**Status:** Completed
 **Primary Module Anchor:** `foundation_documentation/modules/tenant_home_composer_module.md`
 **Secondary Module Anchor:** `foundation_documentation/modules/agenda_and_action_planner_module.md`
 **Complexity:** medium
@@ -13,7 +13,7 @@ Home currently resolves its effective geographic origin with a simple rule:
 
 This is insufficient for the current product need.
 
-A user may open the app while physically far away from the tenant city. In that case, using live device location makes the Home agenda effectively unusable, because the runtime radius is bounded (currently up to 50 km) and the user sits outside the tenant operating area.
+A user may open the app while physically far away from the tenant city. In that case, using live device location makes the Home agenda effectively unusable, because the runtime radius is bounded by the maximum distance configured for the tenant and the user sits outside the tenant operating area.
 
 For V1 we need a **reference-origin mode** on Home so the experience remains useful even for users who are far from the city and just want to explore/test what is happening there.
 
@@ -45,8 +45,8 @@ Out of scope:
 
 ## 4. Decision Baseline (Frozen)
 - `D-01` This slice affects **Home only**.
-- `D-02` Home must classify the runtime origin against the tenant default origin using a fixed distance boundary.
-- `D-03` For V1, the fixed boundary is **50 km from the tenant default origin**.
+- `D-02` Home must classify the runtime origin against the tenant default origin using the **tenant-configured maximum Home radius** as the decision boundary.
+- `D-03` For V1, if the live user location is farther than `app_data.mapRadiusMaxMeters` from the tenant default origin, Home must switch to fixed-reference mode for Home only.
 - `D-04` If the live user location is within that boundary, Home uses:
   - `use_live_location = true`
   - `fixed_location_reference = null`
@@ -95,19 +95,19 @@ Dialog intent:
 - explain that fixed reference is used when the current location is too far from the city area served by the app
 - do **not** introduce manual selection or deep settings navigation in this slice
 
-## 7. Implementation Shape (Planned)
-1. Extend the local settings/runtime persistence path to store Home location-origin mode.
-2. Refactor Home effective-origin resolution so it computes distance between:
-   - live user coordinate, and
-   - tenant default origin
-3. Apply the 50 km boundary before choosing the effective Home origin.
-4. Publish the chosen mode to Home presentation state.
-5. Replace the current “location found/address only” row with the explicit mode row + info affordance.
-6. Add RED/GREEN test coverage for:
-   - inside-range => live mode
-   - outside-range => fixed-reference mode
-   - persisted restoration on re-entry
-   - correct status copy/dialog trigger
+## 7. Delivery Outcome
+- `AppDataRepository` now persists Home-only location-origin settings locally/device-side, including anonymous sessions.
+- `TenantHomeAgendaController` now classifies Home origin against the tenant default origin using the tenant-configured maximum Home radius as the boundary:
+  - inside range => live location
+  - outside range => fixed tenant default origin
+  - unavailable live location => fixed tenant default origin with a distinct explanatory reason
+- Home Agenda cache hydration now reuses the persisted fixed-reference mode across controller re-entry, avoiding cache misses when the user is physically far away from the tenant city.
+- `TenantHomeController` now projects the repository-owned Home origin state into explicit UI status copy below the logo.
+- The Home header now shows:
+  - `Usando sua localização.`
+  - `Usando localização fixa.`
+  with a small info affordance and informational dialog.
+- Local persistence remains V1-only/device-local; manual editing and backend/profile-backed persistence remain tracked in VNext.
 
 ## 8. Risks / Notes
 - The current codebase already uses tenant default origin as a generic fallback, but it does not model that fallback as a persisted, explicit Home mode.

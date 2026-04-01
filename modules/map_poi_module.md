@@ -39,14 +39,13 @@ The active Flutter map runtime is already Laravel-backed and query-driven:
 
 **Shared Location Contract.** As part of FCX-02, the main Flutter application owns a `LocationRepository` + `UserLocationService` pair that lives in the domain layer. Controllers are the only consumers of repositories, so the service is injected into controllers, which then pass the user’s coordinates to downstream repositories (Map, Agenda, Task/Reminder). No repository is allowed to call another repository directly; when features need multiple data sources, controllers compose the calls or rely on lightweight domain services. This keeps dependency arrows pointing inward (controllers → repositories) and prevents caching or network responsibilities from leaking between repos.
 
-**Location Permission Gate (Guard).** All screens whose behavior depends on current user location (e.g., the Map POI viewport, “nearby”/distance-ranked lists, and any future “near me” actions) are protected by dedicated guards. If location services are disabled or permission is not granted, navigation redirects to the single canonical public location gate at `/location/permission`, which:
-- Explains why location is required (nearby venues, distance sorting, “search this area”).
-- Offers a primary CTA to request permission (when possible) or open settings (when denied forever).
-- Offers a CTA to open system location settings when the device-level service is disabled.
-
-**Cached Location Mode (Non-Live).** When live location is blocked (service off / permission denied) but the app has a previously captured location, the client should remain usable:
-- Show a “not live” screen explaining we’re using a possibly outdated location (with timestamp).
-- Allow the user to continue using cached location for “nearby” ordering and map centering, while offering a CTA to re-enable live location.
+**Location Permission Gate (Guard).** Map routes keep `/location/permission` as the single canonical public location gate, but map entry is no longer a hard block:
+- Missing permission/service on `/mapa` or `/mapa/poi` redirects to `/location/permission`.
+- If the user grants permission, AutoRoute resumes the originally requested map target.
+- If the user chooses `Continuar sem localização`, AutoRoute still resumes the originally requested map target in soft-gate mode.
+- In soft-gate mode, the map uses the tenant default origin/fixed-reference path for that access instead of blocking the screen.
+- The map shows a dismissible top notice for that access only, reusing the approved fixed-location explanatory copy.
+- There is no separate `/location/not-live` surface in V1; map fallback behavior stays inside the map flow itself.
 
 ## 3. Architecture Baseline: Server-Centric, Real-Time Ready
 

@@ -40,6 +40,7 @@ Out of scope:
 - `D-06` The Home controller is responsible for persisting the selected radius through `AppDataRepositoryContract`; widgets do not write storage directly.
 - `D-07` Home radius changes use draft-local slider updates and only persist when the user taps the explicit confirmation CTA. Closing the sheet without confirmation discards the draft.
 - `D-08` The Home radius bottom sheet content must respect device safe areas, including the bottom CTA area on mobile browsers, and the modal height must be content-driven rather than an imposed fixed height.
+- `D-09` If no Home radius preference is persisted yet, the initial selected radius must be seeded from the distance between the user location and the tenant default origin, clamped to the tenant-configured min/max bounds. If no usable user location exists yet, Home falls back to the tenant-configured default radius.
 
 ## 4. Plan
 1. Sync docs for Home/Agenda radius ownership and Home-only persistence semantics.
@@ -63,6 +64,7 @@ Out of scope:
 ## 6. Delivery Outcome
 - Home Agenda radius now restores from persisted local/device preference, including anonymous sessions.
 - The persisted selected radius no longer collapses the tenant-configured maximum slider bound.
+- When no radius preference exists yet, Home now seeds the initial selected radius from the user-to-tenant-center distance, clamped to the tenant-configured bounds, and persists that seeded value locally/device-side.
 - The Home radius sheet now follows the approved Stitch direction with explicit confirmation CTA and draft-only slider interaction until confirmation.
 - The Home radius sheet now respects bottom safe areas on mobile browsers/devices and keeps height content-driven instead of relying on an imposed fixed height.
 - Widget/controller coverage now locks persistence semantics, explicit confirmation semantics, and bottom-safe-area behavior.
