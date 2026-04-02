@@ -111,6 +111,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/admin/api/v1/media/external-image` | Tenant Admin | Proxy external image URL to bytes for ingestion (URL import without CORS). | Tested & Ready | Authenticated + `CheckTenantAccess`; SSRF + size limits; returns raw bytes with `Cache-Control: no-store`. |
 | `/api/v1/static_assets/{asset_ref}` | Tenant | Static Asset public read (page). | Tested & Ready | Returns the static asset page payload by id or slug. |
 | `/admin/api/v1/events` | Tenant Admin | List events (admin). | Tested & Ready | Admin listing, page-based. |
+| `/admin/api/v1/events/account_profile_candidates` | Tenant Admin | Page-based event-form account-profile candidate search. | Implemented | Typed query (`artist|physical_host`) with backend-owned `like` search + paginator metadata; account-scoped mirror lives under `/api/v1/accounts/{account_slug}/events/account_profile_candidates`. |
 | `/admin/api/v1/events` | Tenant Admin | Create event. | Tested & Ready | Admin/account profile creates event. |
 | `/admin/api/v1/events/{event_id}` | Tenant Admin | Update event (partial). | Tested & Ready | Patch event metadata + schedule. |
 | `/admin/api/v1/branding/update` | Tenant Admin | Update tenant branding settings. | Implemented | Drives `/environment` payload + asset paths; route registered in `routes/api/tenant_api_v1.php`. Contract scope is `theme_data_settings` + `logo_settings`/`pwa_icon` (tenant name is not persisted by this endpoint). |

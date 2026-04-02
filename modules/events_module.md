@@ -59,6 +59,7 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 | `EVS-FILTER-01` | Approved | MVP agenda/events listing does not accept text search (`search` query parameter is prohibited). | Avoids unsupported Atlas/text runtime paths during MVP and keeps filtering deterministic. | `laravel-app/packages/belluga/belluga_events/src/Http/Api/v1/Requests/AgendaIndexRequest.php`, `.../EventIndexRequest.php` |
 | `EVS-FILTER-02` | Approved | Agenda filtering is taxonomy/category/tag + geo only, with taxonomy matching by slug pairs (`type`, `value`). | Aligns query path with tenant taxonomy registry and term slugs. | `laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php`, `laravel-app/app/Application/Taxonomies/TaxonomyValidationService.php` |
 | `EVS-OPS-01` | Approved | Query runtime must not create indexes; required Mongo indexes are provisioned deterministically via tenant migration flow (Spatie `tenant_migration_paths`). | Avoids request-path index creation latency/failures and centralizes ops lifecycle in migrations. | `laravel-app/packages/belluga/belluga_events/database/migrations/2026_02_26_000300_create_event_occurrences_collection.php`, `.../2026_03_06_000500_add_event_occurrences_artists_taxonomy_terms_index.php` |
+| `EVS-MGMT-01` | Approved | Event-form candidate discovery uses typed, page-based `account_profile_candidates` queries (`artist` or `physical_host`) instead of mixed snapshots. | Keeps admin/account event forms aligned with paginator conventions and avoids preload truncation in large artist catalogs. | `foundation_documentation/endpoints_mvp_contracts.md`, Events candidate controller/request/adapter |
 | `EVS-ATT-01` | Approved | Attendance policy governance is tenant-owned under `settings.events.attendance`; Events validates create/update payloads against those tenant boundaries and persists the resolved event/occurrence policy. | Keeps account-profile event creation inside tenant business constraints while preserving occurrence-level runtime clarity. | Sections `3.1`, `5.2`, `7` |
 
 ## 5. Contract Summary for Clients
@@ -68,7 +69,7 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 - Agenda/detail contracts are occurrence-first and include `event_id` + `occurrence_id`.
 - Event location contract is `location` + `place_ref`; venue projection is resolved from `place_ref` when applicable.
 - `event_parties` are event composition principals (artists/hosts/venues/etc.) with payload-driven `can_edit`.
-- Event party-candidate payload is capability-driven for physical hosts: profiles eligible for physical host selection come from profile types with `capabilities.is_poi_enabled=true` and valid coordinates.
+- Event-form account-profile candidate discovery is type-driven and page-based: `artist` returns artist profiles only, while `physical_host` returns POI-enabled profiles with valid coordinates.
 
 ### 5.2 Write model
 
@@ -82,6 +83,7 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 - If the event sets `allow_occurrence_policy_override=true`, occurrence payloads may choose their own policy using only tenant-approved values.
 - Otherwise occurrences inherit the event `attendance_policy`.
 - If paid reservation capability is unavailable for the tenant/runtime, `paid_reservation_only` and `either` are invalid write values.
+- Event-form candidate search is backend-owned and paginated through `GET /events/account_profile_candidates`; client search remains `like`-semantics aligned with backend query fields, not a local-only in-memory filter.
 - `location.mode` drives required fields:
   - `physical`: `place_ref` required with canonical `place_ref.type=account_profile`.
   - `online`: `location.online` required.

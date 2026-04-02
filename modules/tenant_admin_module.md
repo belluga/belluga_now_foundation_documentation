@@ -177,7 +177,7 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with 
 - Dedicated settings routes:
   - `/admin/settings/local-preferences` → local preferences (`map_ui.radius` bounds + `map_ui.default_origin` fallback seed + `map_ui.filters` catalog + theme)
   - `/admin/settings/visual-identity` → branding/visual identity
-  - `/admin/settings/technical-integrations` → app links + firebase/push/telemetry
+  - `/admin/settings/technical-integrations` → app links + firebase/push/telemetry + resend email delivery
   - `/admin/settings/environment-snapshot` → read-only environment diagnostics
 - The settings controller remains the state owner; each settings screen consumes only the relevant state slices and actions.
 
@@ -248,6 +248,42 @@ Create an organization (grouping only in MVP).
   }
 }
 ```
+
+### `GET /admin/api/v1/events/account_profile_candidates`
+Page-based account-profile candidate discovery for the event form artist/physical-host pickers.
+
+**Query Parameters**
+- `type`: `artist|physical_host` (required)
+- `search`: `string?`
+- `page`: `int?`
+- `page_size` or `per_page`: `int?` (max `50`)
+
+**Response Schema**
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "account_id": "string",
+      "profile_type": "string",
+      "display_name": "string",
+      "slug": "string?",
+      "avatar_url": "string?",
+      "cover_url": "string?"
+    }
+  ],
+  "current_page": 1,
+  "last_page": 1,
+  "per_page": 20,
+  "total": 0
+}
+```
+
+**Notes**
+- `type=artist` supports the event-form artist picker.
+- `type=physical_host` supports venue/host selection and returns only POI-enabled profiles with valid coordinates.
+- The account-scoped own-create mirror uses `/api/v1/accounts/{account_slug}/events/account_profile_candidates` with the same semantics.
+- Tenant-admin search must be server-driven and paginated; local-only filtering of a fixed preload snapshot is not canonical.
 
 ### `GET /admin/api/v1/organizations/{organization_id}`
 Fetch organization detail.
@@ -1598,6 +1634,81 @@ App identifiers are managed separately by typed app-domain endpoints.
       "/convites*"
     ]
   }
+}
+```
+
+### `PATCH /admin/api/v1/settings/values/resend_email`
+Update tenant-owned Resend delivery defaults used by tenant-public transactional sends.
+
+**Request Schema**
+```json
+{
+  "token": "re_xxxxxxxxx",
+  "from": "Belluga <noreply@belluga.space>",
+  "to": [
+    "admin@bellugasolutions.com.br"
+  ],
+  "cc": [],
+  "bcc": [],
+  "reply_to": []
+}
+```
+
+**Contract Notes**
+- `token` and `from` are nullable strings so admins can stage the integration incrementally.
+- `to` is the canonical primary delivery target list and must contain no more than 50 emails.
+- `cc`, `bcc`, and `reply_to` are optional email arrays and default to empty lists.
+- Public/front flows must not read this namespace directly; it is admin-only configuration.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "token": "re_xxxxxxxxx",
+    "from": "Belluga <noreply@belluga.space>",
+    "to": [
+      "admin@bellugasolutions.com.br"
+    ],
+    "cc": [],
+    "bcc": [],
+    "reply_to": []
+  }
+}
+```
+
+### `POST /api/v1/email/send`
+Tenant-public transactional email send endpoint used by the temporary web tester-waitlist flow.
+
+**Request Schema**
+```json
+{
+  "email": "lead@example.com",
+  "whatsapp": "27996419823",
+  "os": "Android",
+  "app_name": "Guarappari"
+}
+```
+
+**Behavior**
+- tenant is resolved by canonical tenant-public middleware/host context.
+- endpoint reads `settings.resend_email`.
+- endpoint composes the email subject/body on the backend.
+- if `token`, `from`, or `to` are missing, the endpoint returns an explicit integration-pending failure.
+
+**Success Response**
+```json
+{
+  "ok": true,
+  "provider": "resend",
+  "message_id": "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794"
+}
+```
+
+**Incomplete Integration Response**
+```json
+{
+  "ok": false,
+  "message": "Integracao de email pendente. Informe ao administrador do site."
 }
 ```
 

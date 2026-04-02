@@ -93,6 +93,7 @@ Auth Wall is mandatory for:
 - Web must preserve `code` through install/open-app handoff.
 - Canonical web handoff endpoint is `GET /open-app` (backend resolves tenant-dynamic store target + attribution payload).
 - Canonical web promotion boundary route is a Flutter screen that uses runtime tenant/app branding (`Environment.name`, `main_icon_*`) and then calls `/open-app` with an explicit `platform_target=android|ios` override when the user chooses a store.
+- Pre-MVP launch may temporarily keep the same canonical boundary route while rendering a tester waitlist form instead of the store-download experience; this variant must remain route-stable and isolate lead capture behind a dedicated adapter so the future app-download experience can be restored without guard/route changes. The current variant may be hardcoded temporarily, but that is not the target VNext architecture.
 - The promotion surface may render a single store CTA when the web browser platform can be inferred as Android or iOS; when platform inference is unavailable or ambiguous, it must render both store badges.
 - Handoff URI resolution is deterministic: preserve invite context only when the current route is invite-landing (`/invite` or `/convites`) and `code` exists; otherwise use canonical tenant home (`/`).
 - Store/open handoff targets must be resolved dynamically per tenant (Android + iOS) by backend contract; web/app clients must not hardcode store URLs.

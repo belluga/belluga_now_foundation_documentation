@@ -248,12 +248,21 @@ This document defines the tenant admin UI surfaces used to manage **Contas**, **
   - Location selection must reuse the same canonical tenant-admin POI/location picker pattern used by account/profile/event flows (`TenantAdminLocationPickerRoute` + `TenantAdminLocationSelectionContract` confirmed stream).
 - `/admin/settings/visual-identity` → Identidade visual (branding).
 - `/admin/settings/technical-integrations` → Integrações técnicas.
+  - Must expose dedicated admin configuration for Resend email delivery alongside existing App Links, Firebase, Push, and Telemetry sections.
+  - Resend section stores tenant delivery envelope defaults in `settings.resend_email`:
+    - `token`
+    - `from`
+    - `to[]`
+    - `cc[]` (optional)
+    - `bcc[]` (optional)
+    - `reply_to[]` (optional)
+  - Save operation must patch `/admin/api/v1/settings/values/resend_email`.
 - `/admin/settings/environment-snapshot` → Snapshot do environment (somente leitura).
 
 **Interaction pattern:**
 - Mutable fields in edit contexts open field-edit sheets where appropriate.
 - Long operations (e.g., media ingestion/upload) expose busy states from controller streams and disable only affected actions.
-- Existing backend payloads/contracts for Firebase, Push, Telemetry, and Branding are preserved.
+- Existing backend payloads/contracts for Firebase, Push, Telemetry, Branding, and Resend email settings are preserved.
 - Branding seed colors in Settings use a proper color picker UI (not free text only), while controller/repository contracts keep `#RRGGBB` values.
 - Settings branding state is canonicalized in repository-owned `StreamValue` (single source of truth); controllers delegate this stream to screens/widgets and only hydrate form controllers from canonical updates.
 - Branding save flow must re-read persisted tenant branding from tenant environment endpoint (`{tenant-domain}/api/v1/environment`) and republish the canonical stream; post-save UI reflection cannot depend on local echo/fallback values.

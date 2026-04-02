@@ -2671,6 +2671,42 @@ Not returned by `/agenda` and `/events/{event_id}`:
 }
 ```
 
+### `GET /events/account_profile_candidates`
+**Purpose:** Page-based account-profile candidate discovery for event forms in management contexts. Tenant-admin uses `/admin/api/v1/events/account_profile_candidates`; account-scoped own-create uses `/api/v1/accounts/{account_slug}/events/account_profile_candidates`.
+
+**Request (query):**
+- `type`: `artist|physical_host` (required)
+- `search`: `string?`
+- `page`: `int?`
+- `page_size` or `per_page`: `int?` (max `50`)
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "account_id": "string",
+      "profile_type": "artist|venue|restaurant|string",
+      "display_name": "string",
+      "slug": "string?",
+      "avatar_url": "string?",
+      "cover_url": "string?"
+    }
+  ],
+  "current_page": 1,
+  "last_page": 1,
+  "per_page": 20,
+  "total": 0
+}
+```
+
+**Rules**
+- `type=artist` returns only artist account profiles.
+- `type=physical_host` returns only POI-enabled account profiles with valid coordinates.
+- Search semantics are backend-owned and use canonical `like` matching on candidate fields (`display_name`, `slug`).
+- Event-form candidate discovery must remain page-based; clients must not depend on a one-shot fixed preload.
+
 ### `POST /events`
 **Purpose:** Create event.  
 **Request (body):**
