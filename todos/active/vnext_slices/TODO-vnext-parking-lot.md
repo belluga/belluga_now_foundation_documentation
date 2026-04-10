@@ -69,9 +69,10 @@
   - Tracking: `foundation_documentation/todos/active/vnext_slices/TODO-vnext-deploy-pre-migration-backup.md`
 - [x] ✅ Production‑Ready **Queue tenant-context hotfix promoted from VNext to immediate V1 lane**
   - Reason: this is an active runtime reliability defect (tenant-aware queue failures in production), so it moved out of VNext parking lot into immediate execution.
-  - Tracking: `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-queue-tenant-context-hotfix.md`
+  - Tracking: `foundation_documentation/todos/completed/TODO-v1-ticketing-queue-tenant-context-hotfix.md`
 - [ ] ⚪ Pending **GitHub Actions migration to Node 24 runtime**
   - Reason: workflow currently emits deprecation warnings for Node 20 JavaScript actions (for example `actions/checkout@v4` runtime transition policy). VNext should update/pin all affected actions and validate runner compatibility.
+  - Tracking: `foundation_documentation/todos/active/vnext_slices/TODO-vnext-github-actions-runtime-version-upgrade-no-behavior-change.md`
 
 ## I) Test Reliability Hardening (VNext)
 

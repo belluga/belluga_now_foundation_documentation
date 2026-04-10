@@ -1,7 +1,7 @@
 # TODO (V1): Map Icon/Color Config-Driven Refactor
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.
-**Status:** Dev lane promoted (`PR #163` merged into `dev` and post-merge actions succeeded); `stage/main` promotion pending.
+**Status:** Completed (archived in `completed/` by user direction on 2026-04-01; delivery evidence below preserves the prior lane state at closure time).
 **Owners:** Flutter Team, Laravel Team
 **Objective:** Remove map icon/color hardcoding and establish a type-driven + projection-consolidated visual contract for map POIs, with filter visuals kept configuration-driven.
 **Promotion lane path:** `dev -> stage -> main`
@@ -41,7 +41,7 @@
 ## Promotion Evidence (Required)
 | Workstream | Local Branch / Commit | PR to `dev` | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Map Icon/Color Refactor | `feature/v1-map-icon-color-config @ 9134aa07` | `https://github.com/belluga/belluga_now_front/pull/163 (merged -> dev @ 6fbe0195)` | `<pending>` | `<pending>` | `🟣 Lane-Promoted (dev)` |
+| Map Icon/Color Refactor | `feature/v1-map-icon-color-config @ 9134aa07` | `https://github.com/belluga/belluga_now_front/pull/163 (merged -> dev @ 6fbe0195)` | `<pending at archival time>` | `<pending at archival time>` | `Archived in completed after dev-lane promotion` |
 
 ---
 

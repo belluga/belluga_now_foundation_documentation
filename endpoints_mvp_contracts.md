@@ -433,6 +433,52 @@
   - nearest-first ordering by computed `distance_meters`.
 - Client filters are narrowing-only (cannot broaden beyond backend policy).
 
+### `GET /account_profiles/{account_profile_slug}`
+**Purpose:** Tenant-public direct detail lookup for account profile consumer routes such as `/parceiro/:slug`.  
+**Request (path):**
+- `account_profile_slug` (string, exact slug lookup)
+**Response (minimum):**
+```json
+{
+  "data": {
+    "id": "string",
+    "account_id": "string",
+    "profile_type": "string",
+    "display_name": "string",
+    "slug": "string",
+    "avatar_url": "string?",
+    "cover_url": "string?",
+    "bio": "string?",
+    "content": "object|array|string|null",
+    "taxonomy_terms": [{ "type": "string", "value": "string" }],
+    "agenda_occurrences": [
+      {
+        "event_id": "string",
+        "occurrence_id": "string",
+        "slug": "string",
+        "title": "string",
+        "date_time_start": "string",
+        "date_time_end": "string|null",
+        "location": { "name": "string?" },
+        "venue": { "id": "string", "display_name": "string" },
+        "artists": [{ "id": "string", "display_name": "string" }],
+        "thumb": { "data": { "url": "string?" } }
+      }
+    ],
+    "location": { "lat": 0.0, "lng": 0.0 },
+    "ownership_state": "tenant_owned|unmanaged|user_owned|null"
+  }
+}
+```
+**Notes:**
+- Backend performs exact slug lookup; client must not emulate detail by paging/scanning `/account_profiles`.
+- `agenda_occurrences` is a query-only projection derived from future/live published event occurrences associated with the profile; it is returned ordered by next occurrence time and may contain repeated `event_id` values when `occurrence_id` differs.
+- Backend always enforces:
+  - `is_active = true`;
+  - `profile_type` intersected with tenant registry where `capabilities.is_favoritable=true`;
+  - `visibility='public'` only.
+- Unknown, inactive, non-public, or non-favoritable slugs return `404`.
+
 ---
 
 ## 3) Invites (User + Account Profile)
@@ -1095,10 +1141,14 @@
       "venue": {
         "id": "string",
         "display_name": "string",
+        "slug": "string?",
+        "profile_type": "string?",
+        "avatar_url": "string?",
         "tagline": "string?",
         "hero_image_url": "string?",
         "logo_url": "string?",
-        "taxonomy_terms": [{ "type": "string", "value": "string" }]
+        "cover_url": "string?",
+        "taxonomy_terms": [{ "type": "string", "value": "string", "name": "string?" }]
       },
       "latitude": 0.0,
       "longitude": 0.0,
@@ -1112,7 +1162,28 @@
         }
       ],
       "artists": [
-        { "id": "string", "display_name": "string", "avatar_url": "string?", "highlight": false, "genres": ["string"] }
+        {
+          "id": "string",
+          "slug": "string?",
+          "profile_type": "string?",
+          "display_name": "string",
+          "avatar_url": "string?",
+          "cover_url": "string?",
+          "highlight": false,
+          "genres": ["string"],
+          "taxonomy_terms": [{ "type": "string", "value": "string", "name": "string?" }]
+        }
+      ],
+      "linked_account_profiles": [
+        {
+          "id": "string",
+          "slug": "string?",
+          "profile_type": "string",
+          "display_name": "string",
+          "avatar_url": "string?",
+          "cover_url": "string?",
+          "taxonomy_terms": [{ "type": "string", "value": "string", "name": "string?" }]
+        }
       ],
       "created_by": {
         "type": "string",
@@ -1177,10 +1248,14 @@ Not returned by `/agenda` and `/events/{event_id}`:
     "venue": {
       "id": "string",
       "display_name": "string",
+      "slug": "string?",
+      "profile_type": "string?",
+      "avatar_url": "string?",
       "tagline": "string?",
       "hero_image_url": "string?",
       "logo_url": "string?",
-      "taxonomy_terms": [{ "type": "string", "value": "string" }]
+      "cover_url": "string?",
+      "taxonomy_terms": [{ "type": "string", "value": "string", "name": "string?" }]
     },
     "latitude": 0.0,
     "longitude": 0.0,
@@ -1194,7 +1269,28 @@ Not returned by `/agenda` and `/events/{event_id}`:
       }
     ],
     "artists": [
-      { "id": "string", "display_name": "string", "avatar_url": "string?", "highlight": false, "genres": ["string"] }
+      {
+        "id": "string",
+        "slug": "string?",
+        "profile_type": "string?",
+        "display_name": "string",
+        "avatar_url": "string?",
+        "cover_url": "string?",
+        "highlight": false,
+        "genres": ["string"],
+        "taxonomy_terms": [{ "type": "string", "value": "string", "name": "string?" }]
+      }
+    ],
+    "linked_account_profiles": [
+      {
+        "id": "string",
+        "slug": "string?",
+        "profile_type": "string",
+        "display_name": "string",
+        "avatar_url": "string?",
+        "cover_url": "string?",
+        "taxonomy_terms": [{ "type": "string", "value": "string", "name": "string?" }]
+      }
     ],
     "created_by": {
       "type": "string",
@@ -1984,8 +2080,21 @@ Not returned by `/agenda` and `/events/{event_id}`:
     {
       "type": "string",
       "label": "string",
+      "labels": {
+        "singular": "string",
+        "plural": "string"
+      },
       "map_category": "string",
       "allowed_taxonomies": ["string"],
+      "visual": {
+        "mode": "icon|image",
+        "icon": "string?",
+        "color": "#RRGGBB?",
+        "icon_color": "#RRGGBB?",
+        "image_source": "avatar|cover|type_asset?",
+        "image_url": "https://...?"
+      },
+      "type_asset_url": "https://...?",
       "capabilities": {
         "is_favoritable": true,
         "is_poi_enabled": false
@@ -2002,8 +2111,19 @@ Not returned by `/agenda` and `/events/{event_id}`:
 {
   "type": "string",
   "label": "string",
+  "labels": {
+    "singular": "string",
+    "plural": "string"
+  },
   "map_category": "string?",
   "allowed_taxonomies": ["string"],
+  "visual": {
+    "mode": "icon|image",
+    "icon": "string?",
+    "color": "#RRGGBB?",
+    "icon_color": "#RRGGBB?",
+    "image_source": "avatar|cover|type_asset?"
+  },
   "capabilities": {
     "is_favoritable": true,
     "is_poi_enabled": false,
@@ -2016,6 +2136,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 }
 ```
 **Response:** same as GET item.
+**Multipart note:** when `visual.image_source=type_asset`, send file field `type_asset` via multipart; the response returns `visual.image_url` and `type_asset_url` when the canonical asset resolves.
 
 ### `PATCH /admin/api/v1/account_profile_types/{profile_type}`
 **Purpose:** Update account profile type.  
@@ -2025,6 +2146,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 - `type` is mutable on edit (slug rename).
 - When `type` changes, backend must enforce uniqueness and propagate `profile_type` to dependent `account_profiles`.
 - When `type` changes, backend must also update dependent map projection category for `ref_type=account_profile` POIs.
+- Multipart updates may send `_method=PATCH`, file field `type_asset`, and `remove_type_asset=true`.
 
 ### `DELETE /admin/api/v1/account_profile_types/{profile_type}`
 **Purpose:** Delete account profile type.  
@@ -2043,6 +2165,15 @@ Not returned by `/agenda` and `/events/{event_id}`:
       "type": "string",
       "label": "string",
       "allowed_taxonomies": ["string"],
+      "visual": {
+        "mode": "icon|image",
+        "icon": "string?",
+        "color": "#RRGGBB?",
+        "icon_color": "#RRGGBB?",
+        "image_source": "avatar|cover|type_asset?",
+        "image_url": "https://...?"
+      },
+      "type_asset_url": "https://...?",
       "capabilities": {
         "is_poi_enabled": true,
         "has_bio": true,
@@ -2064,6 +2195,13 @@ Not returned by `/agenda` and `/events/{event_id}`:
   "type": "string",
   "label": "string",
   "allowed_taxonomies": ["string"],
+  "visual": {
+    "mode": "icon|image",
+    "icon": "string?",
+    "color": "#RRGGBB?",
+    "icon_color": "#RRGGBB?",
+    "image_source": "avatar|cover|type_asset?"
+  },
   "capabilities": {
     "is_poi_enabled": true,
     "has_bio": true,
@@ -2075,6 +2213,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 }
 ```
 **Response:** same as GET item.
+**Multipart note:** when `visual.image_source=type_asset`, send file field `type_asset` via multipart; the response returns `visual.image_url` and `type_asset_url` when the canonical asset resolves.
 
 ### `PATCH /admin/api/v1/static_profile_types/{profile_type}`
 **Purpose:** Update static profile type.  
@@ -2084,11 +2223,80 @@ Not returned by `/agenda` and `/events/{event_id}`:
 - `type` is mutable on edit (slug rename).
 - When `type` changes, backend must enforce uniqueness and propagate `profile_type` to dependent `static_assets`.
 - When `type` changes, backend must update dependent map projection category for `ref_type=static` POIs using the resolved `map_category`.
+- Multipart updates may send `_method=PATCH`, file field `type_asset`, and `remove_type_asset=true`.
 
 **Static profile type note:** `map_category` is the source of truth for static asset map projection (`map_pois.category`).
 
 ### `DELETE /admin/api/v1/static_profile_types/{profile_type}`
 **Purpose:** Delete static profile type.  
+**Response:**
+```json
+{}
+```
+
+### `GET /admin/api/v1/event_types`
+**Purpose:** List event type registry entries.  
+**Response:**
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "name": "string",
+      "slug": "string",
+      "description": "string?",
+      "visual": {
+        "mode": "icon|image",
+        "icon": "string?",
+        "color": "#RRGGBB?",
+        "icon_color": "#RRGGBB?",
+        "image_source": "cover|type_asset?",
+        "image_url": "https://...?"
+      },
+      "poi_visual": {
+        "mode": "icon|image",
+        "icon": "string?",
+        "color": "#RRGGBB?",
+        "icon_color": "#RRGGBB?",
+        "image_source": "cover|type_asset?",
+        "image_url": "https://...?"
+      },
+      "type_asset_url": "https://...?"
+    }
+  ]
+}
+```
+
+### `POST /admin/api/v1/event_types`
+**Purpose:** Create event type.  
+**Request (body):**
+```json
+{
+  "name": "string",
+  "slug": "string",
+  "description": "string?",
+  "visual": {
+    "mode": "icon|image",
+    "icon": "string?",
+    "color": "#RRGGBB?",
+    "icon_color": "#RRGGBB?",
+    "image_source": "cover|type_asset?"
+  }
+}
+```
+**Response:** same as GET item.
+**Multipart note:** when `visual.image_source=type_asset`, send file field `type_asset` via multipart; the response returns `visual.image_url`, `poi_visual.image_url`, and `type_asset_url` when the canonical asset resolves.
+
+### `PATCH /admin/api/v1/event_types/{event_type}`
+**Purpose:** Update event type.  
+**Request (body):** same as create (partial).  
+**Response:** same as GET item.
+**Notes:**
+- Multipart updates may send `_method=PATCH`, file field `type_asset`, and `remove_type_asset=true`.
+- `visual.image_source` is limited to `cover|type_asset`; `avatar` is invalid for event types.
+
+### `DELETE /admin/api/v1/event_types/{event_type}`
+**Purpose:** Delete event type.  
 **Response:**
 ```json
 {}

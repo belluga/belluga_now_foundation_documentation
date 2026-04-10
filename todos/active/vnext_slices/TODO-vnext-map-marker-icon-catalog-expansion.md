@@ -8,7 +8,7 @@
 ---
 
 ## References
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-icon-color-config.md`
+- `foundation_documentation/todos/completed/TODO-v1-map-icon-color-config.md`
 
 ## Scope (VNext)
 - Expand icon catalog beyond MVP groups for domains currently under-covered (for example nightlife, café/bakery, mobility/transport, family/kids, sports variants).

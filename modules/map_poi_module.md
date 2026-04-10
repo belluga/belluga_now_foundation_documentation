@@ -57,6 +57,7 @@ Transient map notices are `reason`-driven and only render when the reason has an
 - In soft-gate mode, the map uses the tenant default origin/fixed-reference path for that access instead of blocking the screen.
 - The map shows a dismissible top notice for that access only, reusing the approved fixed-location explanatory copy.
 - There is no separate `/location/not-live` surface in V1; map fallback behavior stays inside the map flow itself.
+- After the map target is active, back follows the shared tenant-public safe-back policy: `/mapa` returns to the previous route when history exists and otherwise falls back to `/`; `/mapa/poi` returns to previous history when present and otherwise falls back to `/mapa`.
 
 ## 3. Architecture Baseline: Server-Centric, Real-Time Ready
 
@@ -75,7 +76,7 @@ The primary mechanism for fetching POIs will be an on-demand process driven by t
 map_ui: {
   radius: { min_km: 1, default_km: 5, max_km: 50 },
   default_origin: { lat: Number, lng: Number, label: String? }, // optional
-  poi_time_window_days: { past: 1, future: 30 }, // optional
+  poi_time_window_days: { past: 0, future: 0 }, // optional
   events: { default_duration_hours: 3 }, // optional
   filters: [ // optional; ordered list used by /map/filters decoration
     { key: "culture", label: "Cultura", image_uri: "https://.../culture.png" }
@@ -156,7 +157,8 @@ For V1, we treat `map_pois` as a **materialized projection/read model** used by 
 Key properties:
 - `map_pois` is the map projection (geometry + category + tags + priority + deep-link reference).
 - For `ref_type=static`, `map_pois.category` is derived from `static_profile_types.map_category` (fallback to `static_assets.profile_type`). `static_assets.categories[]` is legacy metadata and must not drive map categorization.
-- `map_pois.visual` is projection-owned and resolved from type-level `poi_visual` + item media (`avatar_url`/`cover_url`) when applicable.
+- `map_pois.visual` is projection-owned and resolved from canonical type-level `visual` + resolved media source (`avatar_url`, `cover_url`, or canonical type-owned `type_asset`) when applicable.
+- For `ref_type=event`, `map_pois.visual` resolves from canonical `event_types.visual` / `poi_visual`; image-mode event POIs may resolve only from event cover/thumb media (`cover`) or the canonical type-owned asset (`type_asset`). `avatar` is invalid for events and must not be synthesized.
 - The record may carry optional `active_window_start_at` + `active_window_end_at` (nullable). We do **not** store `visible_from`/`visible_until`. Visibility windows are computed at query time using backend-owned tenant settings and the **user timezone** stored on the user profile.
 - Account Profile/Static Profile types control POI projection via capabilities. When `is_poi_enabled=false`, existing `map_pois` for that type are hard-deleted.
 
@@ -198,12 +200,13 @@ This ensures future events/campaigns do not appear immediately when created, whi
 
 - `mode=icon` requires `icon + color`.
 - `mode=image` requires `image_uri`.
+- `source=type_definition` covers icon visuals and canonical type-owned `type_asset` images; `source=item_media` covers `avatar|cover`.
 - Invalid/unresolvable visual inputs must clear/omit `visual`; Flutter applies one generic fallback marker path.
 
 **Projection refresh triggers (required):**
-- Item media change (`avatar_url`/`cover_url`) -> full POI re-materialization for affected refs.
+- Item media change (`avatar_url`/`cover_url`) -> full POI re-materialization for affected refs when the canonical source depends on item media.
 - Item type change (`profile_type`) -> full POI re-materialization for affected refs.
-- Type visual change (`poi_visual`) -> full POI re-materialization for all affected refs.
+- Type visual change (`visual`, including uploaded `type_asset`) -> full POI re-materialization for all affected refs.
 - Type `is_poi_enabled=true` -> full POI re-materialization for affected refs.
 - Type `is_poi_enabled=false` -> hard-delete affected POI projections.
 
@@ -383,8 +386,10 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 | `MAP-04` | Approved | Visibility windows are backend-owned and timezone-aware; clients do not hardcode time windows. | Consistent POI visibility and lower client drift risk. | Sections `3.6`, `4.1` |
 | `MAP-05` | Approved | Global `poi`-only deep links resolve through backend single-POI typed lookup (`ref_type` + `ref_id`) independent of viewport/origin list payloads. | Eliminates false not-found for valid POIs outside initial map payload windows. | Section `4.1` |
 | `MAP-06` | Approved | Deep-link startup gives URL POI intent (`poi`) higher orchestration priority than non-blocking startup refreshes; POI focus is prepared early and applied once map-ready conditions are met. | Reduces time-to-focus for direct-open/refresh links without changing architecture boundaries or fallback semantics. | Section `2` |
-| `MAP-07` | Approved | POI marker visuals are type-driven (`poi_visual`) and consolidated into projection-owned `map_pois.visual`; clients consume projection snapshot directly. | Removes runtime hardcoded visual coupling and keeps marker behavior deterministic across clients. | Sections `3.6`, `4.1` |
+| `MAP-07` | Approved | POI marker visuals are type-driven from canonical type `visual` and consolidated into projection-owned `map_pois.visual`; clients consume projection snapshot directly. | Removes runtime hardcoded visual coupling and keeps marker behavior deterministic across clients. | Sections `3.6`, `4.1` |
 | `MAP-08` | Approved | Disabling `is_poi_enabled` for a type hard-deletes affected projections; enabling or visual changes trigger full re-materialization. | Keeps projection state coherent with type capability/visual source of truth. | Section `3.6` |
+| `MAP-09` | Approved | Active map routes use shared tenant-public safe-back semantics: stack-first return wins; no-history fallback is `/` for `/mapa` and `/mapa` for `/mapa/poi`. | Keeps direct-open map flows resilient without sacrificing normal in-app return continuity. | Sections `2`, `4.1`, `6` |
+| `MAP-10` | Approved | Event POIs follow the same canonical type-visual model as account/static POIs; event image mode is limited to `cover` and `type_asset`, and projection rebuilds must preserve that rule. | Restores parity across POI types while preventing unsupported event-avatar fallbacks from leaking into map projection. | Sections `3.6`, `4.1`, `6` |
 
 ## 7. Tactical TODO Promotion Ledger
 
@@ -392,6 +397,8 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 | --- | --- | --- | --- | --- |
 | `TODO-v1-map-backend.md` | Map package extraction and backend contract ownership | Production-Ready | `1.1`, `3.6`, `4`, `6` | Package ownership complete (`belluga_map_pois`), including internal rebuild command. |
 | `TODO-v1-map-frontend.md` | Flutter map UX + filter/stacking consumption | In progress | `3.3`, `4.1`, `5` | Client contract alignment stream. |
-| `TODO-v1-map-icon-color-config.md` | Type-driven POI visuals + filter marker override + hard-delete/rematerialization contract | In progress | `3.6`, `4.1`, `6` | Local implementation and test coverage delivered; lane promotion pending. |
+| `TODO-v1-map-icon-color-config.md` | Type-driven POI visuals + filter marker override + hard-delete/rematerialization contract | Completed | `3.6`, `4.1`, `6` | Archived in `todos/completed`; canonical projection/visual contract remains promoted here. |
+| `TODO-v1-event-type-canonical-poi-visuals.md` | Event-type canonical visuals and event POI parity | In progress | `3.6`, `4.1`, `6` | Local implementation and automated coverage are in place; final closure still depends on manual public-map smoke. |
 | `TODO-v1-route-url-only-hydration-hardening.md` | URL-only route hydration + internal-only fallback hardening | Production-Ready | `4.1`, `6` | `poi + stack` + `poi`-only deterministic lookup delivered end-to-end. |
 | `TODO-v1-events-capability-map-poi.md` | Events capability decisions for POI projection | Promoted | `1.1`, `3.6`, `6` | Completed and promoted into module baseline. |
+| `TODO-v1-tenant-public-safe-back-navigation.md` | Shared tenant-public map back/fallback policy | Completed | `2`, `6` | Freezes `/mapa` and `/mapa/poi` no-history fallback behavior; archived from `active` during the 2026-04-09 MVP TODO cleanup after delivery confirmation. |

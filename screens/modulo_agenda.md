@@ -12,7 +12,7 @@
 - **Título da Página:** Agenda
 - **Barra de Busca:** `[🔎 Buscar por evento, artista ou local...]`
 - **Filtros de Categoria:** `[Ícone de Filtro 📊]`
-- **Navegação:** A Agenda não faz parte do Tab Bar. O botão de voltar leva para Home; se esta tela for a raiz (ex.: web direto), o voltar leva para Perfil.
+- **Navegação:** A Agenda não faz parte do Tab Bar. O voltar segue a política tenant-public de `pilha primeiro`: se houver rota anterior, volta para a origem real; se esta tela for a raiz (ex.: entrada direta), o fallback é `Perfil`.
 
 ### 1.2. Seção "Meus Eventos"
 *Um destaque para os eventos do próprio usuário.*
@@ -65,6 +65,7 @@
 ### 3.1. Estrutura da Página
 - **Componente:** Usará o template `ItemLandingPage` em versão imersiva.
 - **Roteamento canônico:** usar somente `/agenda/evento/:slug`, resolvendo internamente para `ImmersiveEventDetailRoute`. O termo "imersivo" permanece técnico (widget/implementação), não parte da URL pública.
+- **Tema Derivado do Hero:** a página imersiva deve resolver o `ColorScheme` ativo a partir da imagem hero/thumb via `ImagePaletteTheme`, preservando fallback determinístico para o tema ambiente quando não houver mídia ou a extração falhar.
 - **Call to Action (CTA):**
     - **Botão Fixo (Sticky):** `[Botão: Confirmar Presença]`
 

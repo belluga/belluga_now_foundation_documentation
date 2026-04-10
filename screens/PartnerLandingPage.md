@@ -9,6 +9,7 @@
 ### 1.1. Cabeçalho / Seção Hero
 - **Imagem de Capa:** Imagem de alta qualidade que preenche a parte superior da tela (40-50% da viewport).
 - **AppBar Transparente:** Sobrepõe a imagem de capa e contém um botão de "Voltar" com contraste dinâmico para garantir a visibilidade.
+- **Tema Derivado da Imagem:** A surface imersiva deve derivar o `ColorScheme` ativo a partir da imagem de capa por meio do wrapper compartilhado `ImagePaletteTheme`; se a capa não existir ou a extração falhar, o fallback deve ser o tema ambiente atual do app.
 - **Logo do Parceiro:** Sobrepõe a imagem de capa.
 - **Informações (Abaixo da Imagem):**
     - **Nome do Parceiro:** Fonte grande e proeminente.

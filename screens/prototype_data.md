@@ -259,6 +259,57 @@ Guar[APP]ari é uma plataforma de experiências que cria um **ecossistema simbi�
     - **Componente:** Grid de `[Card de Lojinha]` com Foto, Nome, Foco e Avaliação.
 - **Feed Unificado de Produtos:** Lista de `[Card de Produto]` com Imagem, Nome, Produtor e Preço.
 
+---
+
+## 2.4.1. Tela de Promoção Web para Beta Tester (`/baixe-o-app`)
+
+- **Contexto:** variante pré-MVP do boundary canônico de promoção web-to-app.
+- **Referência visual aprovada:** Stitch `Beta Tester (Sem Widget de Check)` + `Beta Tester (Formulário Limpo)`.
+- **Hero:** branding em runtime do tenant + headline de beta tester + texto curto explicando o piloto.
+- **Formulário:**
+  - `[Campo: Seu Nome]`
+  - `[Campo: E-mail]`
+  - `[Campo: WhatsApp]`
+  - `[Escolha: iOS | Android]`
+  - `[Textarea: O que não pode faltar para atender às suas expectativas?]`
+- **CTA principal:** `[Botão: Quero ser testador]`
+- **Conteúdo inferior:** carrossel horizontal de cards informativos reaproveitando o conteúdo antes exibido como checklist.
+- **Estado de sucesso:** card limpo com confirmação + `[Botão: Continuar Navegando]`
+- **Dismiss:** botão de fechar no topo e `Continuar Navegando` executam apenas `pop()`.
+
+### Contrato de mock / transporte
+
+- **Endpoint alvo:** `POST /api/v1/email/send`
+- **Payload:**
+```json
+{
+  "app_name": "Guarappari",
+  "submitted_fields": [
+    {
+      "label": "Seu Nome",
+      "value": "Maria"
+    },
+    {
+      "label": "E-mail",
+      "value": "maria@example.com"
+    },
+    {
+      "label": "WhatsApp",
+      "value": "27999999999"
+    },
+    {
+      "label": "Qual o seu sistema operacional?",
+      "value": "Android"
+    },
+    {
+      "label": "O que não pode faltar para atender às suas expectativas?",
+      "value": "Mapa confiável e agenda atualizada."
+    }
+  ]
+}
+```
+- **Regra:** backend não interpreta semântica dos campos; apenas preserva a ordem e renderiza os pares `label/value` no email transacional tenant-public.
+
 ### Tela da Página do Produtor ("Lojinha")
 - **Cabeçalho:** `[Banner/Foto do Local]`, Nome do produtor.
 - **Seção de Contexto:** História, Localização, Avaliação.

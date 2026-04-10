@@ -112,8 +112,8 @@ Deliver the Account Profile model and required contracts as a **project-specific
 **Notes:** MVP profile payloads exclude `engagement_metrics`; UI should hide or mark “coming soon”.
 
 ### D6) Derived/read‑only fields
-**Decision (Final):** `distance_meters` and `upcoming_event_ids` are **query‑only projections** (never stored).
-**Reasoning:** Distance comes from `$geoNear`; upcoming events come from event queries filtered by `account_profile_id`.
+**Decision (Final):** `distance_meters` and occurrence-first account-profile agenda projections are **query‑only projections** (never stored).
+**Reasoning:** Distance comes from `$geoNear`; agenda continuity comes from future/live `event_occurrences` queries associated with the profile and must preserve distinct occurrences even when the same event repeats.
 
 ### D7) Slug rules
 **Decision (Final):** slug unique per tenant across all profiles; generated from `display_name` on create.  

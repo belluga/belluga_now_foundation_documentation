@@ -61,6 +61,9 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 | `EVS-OPS-01` | Approved | Query runtime must not create indexes; required Mongo indexes are provisioned deterministically via tenant migration flow (Spatie `tenant_migration_paths`). | Avoids request-path index creation latency/failures and centralizes ops lifecycle in migrations. | `laravel-app/packages/belluga/belluga_events/database/migrations/2026_02_26_000300_create_event_occurrences_collection.php`, `.../2026_03_06_000500_add_event_occurrences_artists_taxonomy_terms_index.php` |
 | `EVS-MGMT-01` | Approved | Event-form candidate discovery uses typed, page-based `account_profile_candidates` queries (`artist` or `physical_host`) instead of mixed snapshots. | Keeps admin/account event forms aligned with paginator conventions and avoids preload truncation in large artist catalogs. | `foundation_documentation/endpoints_mvp_contracts.md`, Events candidate controller/request/adapter |
 | `EVS-ATT-01` | Approved | Attendance policy governance is tenant-owned under `settings.events.attendance`; Events validates create/update payloads against those tenant boundaries and persists the resolved event/occurrence policy. | Keeps account-profile event creation inside tenant business constraints while preserving occurrence-level runtime clarity. | Sections `3.1`, `5.2`, `7` |
+| `EVS-VIS-01` | Approved | Event types use canonical `visual` as source of truth, may expose `poi_visual` as compatibility mirror, and embedded `event.type` / `event_occurrence.type` snapshots must carry the canonical visual payload. | Eliminates legacy icon-only drift between event registry CRUD, admin flows, and downstream consumers such as map POI projection. | Sections `5.1`, `5.2`, `7` |
+| `EVS-UI-01` | Approved | Event detail read payloads expose additive `linked_account_profiles` projection inputs (slug, profile type, media, taxonomy summaries) so immersive event detail can render dynamic account-profile category tabs without request-time joins. Venue/location semantics remain owned by `Como Chegar`; grouped dynamic tabs replace only the old artist-only lineup surface, while `Sobre` renders `event.content` as HTML. Linked-profile cards remain route-driven by runtime slug and support favorite affordance without replacing direct profile navigation. Missing slug is a payload-contract failure; write paths must persist it correctly rather than relying on read-time repair. | Keeps immersive event detail occurrence-first while making linked account-profile categories first-class UI inputs, avoiding artist-only hardcoding, and preserving a stable event-detail contract for content/location tabs and linked-profile interactions. | Sections `5.1`, `7` |
+| `EVS-UI-02` | Approved | Tenant-public immersive event detail uses the shared safe-back policy: when no previous route exists, `/agenda/evento/:slug` falls back to `/agenda`; when history exists, the real previous route still wins. | Keeps direct-open/deep-link event detail resilient while preserving normal event-discovery continuity and in-app return behavior. | Sections `5.1`, `7` |
 
 ## 5. Contract Summary for Clients
 
@@ -68,7 +71,12 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 
 - Agenda/detail contracts are occurrence-first and include `event_id` + `occurrence_id`.
 - Event location contract is `location` + `place_ref`; venue projection is resolved from `place_ref` when applicable.
+- Event-type registry/read payloads expose canonical `visual` as source of truth and may emit `poi_visual` as compatibility mirror; embedded `event.type` and `event_occurrences[].type` snapshots must carry the canonical visual payload as well.
 - `event_parties` are event composition principals (artists/hosts/venues/etc.) with payload-driven `can_edit`.
+- Detail/read payloads may expose additive `linked_account_profiles[]` entries derived from event-party metadata and venue/artist projections. Each entry is an account-profile summary input for UI grouping and contains enough identity data for direct navigation and taxonomy-aware cards (`id`, `slug`, `profile_type`, `display_name`, media fields, taxonomy term summaries).
+- Public immersive event detail consumes those linked account profiles as grouped category tabs between the stable `Sobre` and `Como Chegar` tabs; `Sobre` renders `event.content` as HTML and `Como Chegar` owns venue/map/directions semantics for the event.
+- Linked-profile cards inside event detail remain route-driven by `linked_account_profiles[].slug`, may expose favorite affordance in parallel with direct card navigation, and must not rely on client-side lookup fallbacks or request-time repair when a payload is incomplete. Event create/update paths must keep `venue.slug`, `artists[].slug`, and `event_parties[].metadata.slug` aligned for new writes.
+- Tenant-public event detail back behavior is stack-first: if the route was entered from another in-app surface, back returns to that surface; if it was opened directly with no previous route, the approved fallback is `/agenda`.
 - Event-form account-profile candidate discovery is type-driven and page-based: `artist` returns artist profiles only, while `physical_host` returns POI-enabled profiles with valid coordinates.
 
 ### 5.2 Write model
@@ -77,6 +85,8 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 - `venue_id` is prohibited in write payloads.
 - Event description/content is optional (`content` is not required on create/update).
 - Event type description is optional in the event-type registry and in resolved event type payloads.
+- Event-type registry writes use canonical `visual` as source of truth; legacy `icon/color/icon_color` may still be emitted for compatibility but are not the authoritative editing contract.
+- Event-type `visual.mode=image` accepts only `cover` and `type_asset`; `avatar` is invalid for event types.
 - Event create/update must validate requested `attendance_policy` and optional `allow_occurrence_policy_override` against tenant-owned `settings.events.attendance` boundaries.
 - If tenant settings disable event override, Events persists the tenant default policy on the event.
 - If tenant settings allow event override, the event may choose one policy from tenant `allowed_policies`.
@@ -115,7 +125,9 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 | `TODO-v1-events-capability-map-poi.md` | Map POI capability decisions | Promoted | Sections 3, 4 | Completed and archived. |
 | `TODO-v1-events-package-phase-3.md` | Hardening/capability governance finalization | Promoted | Sections 3, 4 | Completed and archived. |
 | `TODO-v1-events-location-gating-and-tenant-default-origin.md` | Origin gating + agenda filter contract stabilization | Promoted | Sections 4, 5 | Current baseline: taxonomy/category/tag + geo filtering; text search removed for MVP. |
+| `TODO-v1-event-type-canonical-poi-visuals.md` | Canonical event-type visuals across registry CRUD, snapshots, and map POIs | In progress | Sections 4, 5 | Stable contract decisions are promoted; final closure still depends on manual admin/map smoke evidence. |
 | `TODO-v1-ticketing-package-integration.md` | Ticketing package integration stream | In progress | Sections 3, 4 | Active; ticket domain boundaries remain external to Events core. |
+| `TODO-v1-tenant-public-safe-back-navigation.md` | Shared tenant-public event-detail back/fallback policy | Completed | Sections 4, 5 | Freezes `/agenda/evento/:slug -> /agenda` when root-opened; archived from `active` during the 2026-04-09 MVP TODO cleanup after delivery confirmation. |
 
 ## 7. Relationship to Adjacent Modules
 

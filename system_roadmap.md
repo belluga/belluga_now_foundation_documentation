@@ -146,6 +146,7 @@ These roadmap phases extend the Flutter persona track and remain aligned with th
 - Invite landing (read-only): “You were invited by …” context + event summary.
 - Map browsing (read-only) for discovery; guide users into app for confirmations.
 - Install/Open-App CTA must preserve invite share code attribution (`code`), promote app conversion (`Baixe o App para Confirmar`), and use backend-resolved dynamic tenant store/open targets for Android and iOS. Handoff target is deterministic: only invite-landing context (`/invite` or `/convites`) with valid `code` uses `/invite?code=...`; otherwise use canonical `/`.
+- While the pre-MVP tester waitlist variant is active on `/baixe-o-app`, the promotion surface uses the approved Stitch-aligned form (`Seu Nome`, `E-mail`, `WhatsApp`, `SO`, `O que não pode faltar para atender às suas expectativas?`) and posts an ordered generic `submitted_fields` envelope to `POST /api/v1/email/send` so backend email delivery remains decoupled from Flutter form semantics.
 - Web invite surfaces cannot accept/decline invites in V1.
 - Web “unauthenticated” surfaces must not mint anonymous identities for invite conversion.
 

@@ -35,6 +35,7 @@
 - VNext map clustering beyond `exact_key` stack semantics.
 - Backend schema redesign for `map_pois` (already package-owned in backend TODO).
 - New map visual redesign; this slice is contract wiring + architecture adherence.
+- Plugin migration / Belluga-owned map surface work after contract parity is established. That remaining debt is promoted into `TODO-v1-map-visuals.md`.
 
 ## Operator-Reported Deviations (Session Log)
 - [x] ✅ `MAP-UX-01` Restore filter label behavior from previous UX baseline.
@@ -222,7 +223,8 @@
   - StaticAsset and Event are POI-enabled sources; Account/Account Profile is conditional per MVP scope.
 - [x] ✅ Production‑Ready If taxonomy filters are returned, render them under Map filters (grouped by taxonomy type).
 - [x] ✅ Production‑Ready MVP tiles: use public OpenStreetMap tiles (no key), with explicit limitation to dev + early MVP.
-- [ ] ⚪ Migrate map rendering from `free_map` to `flutter_map` to unblock `package_info_plus` upgrades.
+- [ ] 🟣 Lane-Promoted Migrate map rendering from `free_map` to `flutter_map` to unblock `package_info_plus` upgrades.
+  - Promoted into `TODO-v1-map-visuals.md` because camera/marker/cluster work now shares the same execution seam as the visual redesign and Belluga-owned map surface.
 - [x] ✅ Expose both map implementations via Menu actions (City map + Prototype) for comparison before removing one.
 - [x] ✅ Remove unused City map artifacts (routes/screens/widgets/controllers) after comparison decision.
 - [x] ✅ Rename remaining prototype map files/paths to production naming (remove “prototype”).

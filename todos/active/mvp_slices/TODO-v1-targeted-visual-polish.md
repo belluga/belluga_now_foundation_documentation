@@ -73,6 +73,7 @@
 - `D-12`: Entering search mode hides `Tocando agora`, `Perto de você`, and `Curadores`, leaving only filter + results list.
 - `D-13`: Discovery loading must avoid full-screen flicker/resets during search/filter changes; preserve stable layout with scoped loading indicators.
 - `D-14`: Search-active mode must hide `Descubra` heading + category chips. Before the first query, show a dedicated search-empty prompt state (no results grid).
+- `D-15`: Tenant-home agenda event cards may append an end-time label only when the event has an explicit backend-provided end timestamp; inferred/calculated fallback end times must not be surfaced as factual schedule text.
 
 ## Plan Review Gate (Medium)
 
@@ -144,12 +145,14 @@
 - [ ] ⚪ Keep this parent TODO synchronized with child per-screen TODO statuses.
 - [ ] ⚪ Ensure all seven child TODOs finish with no backend/API contract changes.
 - [ ] ⚪ Consolidate cross-screen visual consistency decisions after each child TODO approval.
+- [ ] ⚪ Keep the tenant-home agenda event-card schedule line factual: append end time only when the event carries an explicit end timestamp, never from inferred fallback duration.
 - [ ] ⚪ Run final cross-screen regression pass once all child TODOs are `✅ Production-Ready`.
 
 ## Acceptance Criteria
 - [ ] ⚪ All seven per-screen TODOs are completed and linked with evidence.
 - [ ] ⚪ No backend/API contract changes were introduced in the split execution.
 - [ ] ⚪ Cross-screen visual language is coherent and theme-driven.
+- [ ] ⚪ Tenant-home agenda event-card time labels remain factual and do not present inferred end times as if they were persisted event data.
 - [ ] ⚪ Critical tenant-public navigation paths remain regression-free.
 
 ## Definition of Done
