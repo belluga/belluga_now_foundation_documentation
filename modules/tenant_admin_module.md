@@ -163,6 +163,10 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with 
   - ordered target declaration defines first-invalid-target priority;
   - screens trigger scroll-to-first-invalid-target after applying a validation snapshot;
   - focus remains feature-owned and optional.
+- Back-governance rule:
+  - tenant-admin internal screens, forms, detail flows, and section subroutes must resolve visible/system back through the shared route-back helpers instead of owning raw `context.router.pop/maybePop` policy;
+  - shell section membership and no-history ownership must remain single-source and reusable by both shell chrome and route-back helpers;
+  - overlay/result-return flows may keep explicit local close semantics only when they are not the final owner of route policy.
 - First adopter:
   - `Contas -> Criar Conta` is the first tenant-admin adopter of this reusable validation pipeline in V1.
   - `Contas -> Listar Contas` and `Contas -> Criar Conta` must not share the same presentation controller instance or class.
@@ -2080,6 +2084,7 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TAD-06` | Approved | Deep-link credentials are tenant-owned under `settings.app_links`, while app identifiers are tenant-owned typed app domains (`/admin/api/v1/appdomains`). | Removes duplication of package/bundle identifiers from settings and keeps canonical ownership split between resolver identifiers and credentials. | Sections `3.6`, `4` (`PATCH /admin/api/v1/settings/values/app_links`, `GET/POST/DELETE /admin/api/v1/appdomains`) |
 | `TAD-07` | Approved | Type definitions own canonical `visual` independently of `is_poi_enabled`; disabling POI still requires destructive preview via projection-impact endpoint before hard-delete path. | Aligns tenant-admin type editing with shared consumer identity semantics while preserving map projection safeguards. | Section `4` (`account_profile_types/static_profile_types` + `map_poi_projection_impact`) |
 | `TAD-08` | Approved | Event types use the same canonical `visual` contract as other POI-capable type registries, but event image mode is restricted to `cover` and `type_asset`. | Keeps tenant-admin event-type editing aligned with shared POI visuals without inventing unsupported event-avatar semantics. | Sections `3.2`, `3.3`, `4` (`event_types`) |
+| `TAD-09` | Approved | Tenant-admin back behavior is centralized through one shared section registry plus typed route-back helpers; shell/forms/settings/details may not own raw `pop/maybePop` as final route policy. | Prevents section drift and web empty-history failures across `/admin` child flows. | Sections `2.2`, `3`, `5` |
 
 ## 6. Tactical TODO Promotion Ledger
 
@@ -2091,5 +2096,6 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TODO-v1-app-domain-app-links-convergence.md` | Converge app identifiers into typed app domains + credential-only `settings.app_links` | Completed | `3.6`, `4`, `5` | Canonical split delivered with validation and tests; resolver/association/admin contracts synchronized. |
 | `TODO-v1-map-icon-color-config.md` | Type-level visuals + filter marker override + projection impact preview integration | Completed | `4`, `5` | Archived in `todos/completed`; canonical field ownership now lives under `visual`, while projection impact and filter marker metadata remain unchanged. |
 | `TODO-v1-event-type-canonical-poi-visuals.md` | Event-type canonical visuals across Laravel, tenant-admin, and map projection parity | In progress | `3.2`, `3.3`, `4`, `5` | Local implementation and automated coverage are in place; final closure still depends on manual admin/map smoke. |
+| `TODO-v1-canonical-back-navigation-governance-cutover.md` | Canonical route-back governance across shell/forms/settings/details | In progress | `2.2`, `5` | Promotes the shared section registry + typed helper rule for tenant-admin internal routes. |
 | `TODO-vnext-tenant-user-account-profile-area.md` | Account/profile admin boundaries | In progress | `2`, `4`, `5` | Aligns account/profile CRUD contracts and scope. |
 | `TODO-v1-static-assets-media-parity-with-account-profiles.md` | Media parity and static assets admin flows | In progress | `4`, `5` | Syncs media endpoints and UX behavior. |

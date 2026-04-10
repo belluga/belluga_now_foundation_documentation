@@ -1,9 +1,9 @@
 # TODO (V1): Canonical Back Navigation Governance Cutover
 
 **Status:** Active
-**Current delivery stage:** `Pending`
-**Qualifiers:** `Approval-Pending`
-**Next exact step:** Freeze this tactical contract with the user and obtain explicit `APROVADO` before implementing the broader back-governance cutover.
+**Current delivery stage:** `Implementation`
+**Qualifiers:** `Approved`, `External-Review-Passed`
+**Next exact step:** Execute the validation lane: focused Flutter tests, analyzer, local web publish, browser verification, and Playwright against `https://guarappari.belluga.space`.
 **Owners:** Flutter Team
 **Objective:** Establish one canonical Flutter back-navigation contract for the real route/shell surfaces already drifting today so system/browser back, visible back buttons, and shared-shell controls stop inventing local behavior and stop causing reload-like empty-stack failures on web.
 **Promotion lane path:** `dev -> stage -> main`
@@ -138,6 +138,7 @@
   - manual browser validation,
   - Playwright validation against `https://guarappari.belluga.space`
 - `D-09`: The architecture must remain analyzer-friendly by making structure explicit first. Early Rules may require explicit metadata/policy usage and ban default raw back in shared widgets, but they must not guess semantic fallback correctness from AST alone.
+- `D-10`: The first objective Rule derived from this cutover is structural, not semantic. It enforces ownership shape (`RouteBackScope` / typed back helpers / injected back handlers / shared section registry) and explicitly exempts result-return or overlay-only gates until they are classified or migrated.
 
 ### Module Coherence
 
