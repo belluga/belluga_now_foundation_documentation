@@ -51,9 +51,13 @@ The map respects this same canonical policy:
 Transient map notices are `reason`-driven and only render when the reason has an associated copy.
 
 **Location Permission Gate (Guard).** Map routes keep `/location/permission` as the single canonical public location gate, but map entry is no longer a hard block:
-- Missing permission/service on `/mapa` or `/mapa/poi` redirects to `/location/permission`.
+- Direct URL/deep-link entry into `/mapa` or `/mapa/poi` remains guard-owned and redirects to `/location/permission` when permission/service is blocked.
+- Warm tenant-public entry from visible app chrome (for example the bottom navigation) must push `/location/permission` explicitly before attempting `/mapa`, because unresolved `guard -> redirectUntil(...)` does not commit a browser-history entry on web while the boundary is active.
+- Warm permission entry is a normal result-return route flow: `/location/permission` must `pop(result)` back to the caller, and the caller then pushes `/mapa` when the result is `granted` or `continueWithoutLocation`. The resulting stack must still behave as `home -> mapa`, not `home -> permission -> mapa`.
+- Warm cancel/dismiss pops back to the predecessor route when a real stack exists.
 - If the user grants permission, AutoRoute resumes the originally requested map target.
 - If the user chooses `Continuar sem localização`, AutoRoute still resumes the originally requested map target in soft-gate mode.
+- If the user dismisses/cancels the permission boundary, the flow returns to prior history when a real route stack exists; otherwise it deterministically falls back to `/` instead of leaving an empty/dead-end state.
 - In soft-gate mode, the map uses the tenant default origin/fixed-reference path for that access instead of blocking the screen.
 - The map shows a dismissible top notice for that access only, reusing the approved fixed-location explanatory copy.
 - There is no separate `/location/not-live` surface in V1; map fallback behavior stays inside the map flow itself.
