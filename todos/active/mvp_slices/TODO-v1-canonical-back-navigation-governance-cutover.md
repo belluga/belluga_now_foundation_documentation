@@ -3,7 +3,7 @@
 **Status:** Active
 **Current delivery stage:** `Local-Validated`
 **Qualifiers:** `Provisional`
-**Next exact step:** Consolidate documentation/rule wording around the finalized architecture (`root-only startup override + native warm browser back + centralized no-history fallback`) and prepare promotion-ready packaging.
+**Next exact step:** Keep documentation/rule wording aligned with the finalized architecture (`root-only startup override + native warm browser back + centralized no-history fallback`) and treat any new drift as cleanup only, not renewed architecture work.
 **Owners:** Flutter Team
 **Objective:** Establish one canonical Flutter back-navigation contract for the real route/shell surfaces already drifting today so system/browser back, visible back buttons, and shared-shell controls stop inventing local behavior and stop causing reload-like empty-stack failures on web, while keeping warm browser/device back native whenever real history exists and centralizing deterministic no-history fallback only for root-opened routes.
 **Promotion lane path:** `dev -> stage -> main`
@@ -70,7 +70,6 @@
 - `lib/application/application_contract.dart`
 - `lib/application/router/support/canonical_route_family.dart`
 - `lib/application/router/support/canonical_route_governance.dart`
-- `lib/application/router/support/canonical_route_history_state.dart`
 - `lib/application/router/support/canonical_route_meta.dart`
 - `lib/application/router/support/tenant_admin_safe_back.dart`
 - `lib/presentation/shared/widgets/immersive_detail_screen/immersive_detail_screen.dart`
@@ -176,7 +175,7 @@
 
 ## Implementation Snapshot
 
-- AutoRoute-native route-family governance now exists in source via `canonical_route_family.dart`, `canonical_route_meta.dart`, `canonical_route_history_state.dart`, and `canonical_route_governance.dart`.
+- AutoRoute-native route-family governance now exists in source via `canonical_route_family.dart`, `canonical_route_meta.dart`, and `canonical_route_governance.dart`.
 - App ingress/startup wiring now uses `AppStartupNavigationCoordinator` through `deepLinkBuilder`, limited to root-scoped startup override rather than generic history seeding.
 - Governed route metadata has been stamped across tenant-public, tenant-admin, landlord-area, account-workspace, promotion, invite, and auth route modules.
 - Screen/shell cutover is materially in place for tenant-public detail/root screens, promotion, invite flow, tenant-admin shell, landlord-area root, account-workspace placeholder, and identity-boundary auth screens.
@@ -184,7 +183,7 @@
   - route classification is now meta-only,
   - `tenant_admin_safe_back.dart` is a thin compatibility adapter only,
   - unconditional post-frame history flush was removed.
-- Remaining delivery work is concentrated in test-harness migration, full route-matrix validation, module-doc promotion, and Rule proposal framing.
+- Remaining delivery work is concentrated in documentation/rule consolidation and removal of abandoned-path leftovers; architecture, validation, and route-matrix coverage are already in place.
 
 ## Module Decision Baseline Snapshot
 
@@ -274,23 +273,23 @@
 - Evidence: `lib/application/router/support/tenant_admin_safe_back.dart`.
 - Impact: admin shell drift risk is materially lower, and future admin work must not rebuild section semantics outside the registry.
 
-### `F-04` Focused tests are still behind the new runtime contract
+### `F-04` Focused test harnesses now match the runtime contract
 
-- Several test harnesses still use shallow fake routers/route matches that do not expose `root`, `pathState`, or `toPageRouteInfo()` correctly for canonical governance.
-- Evidence: current failing/edited tests under `test/application/router/support/**` and `test/presentation/**`.
-- Impact: validation is currently blocked on test-harness migration, not on product architecture.
+- Canonical-governance tests now exercise route metadata, router-root behavior, warm permission entry, boundary dismissal, and governed-surface back policy with the same structural assumptions used in runtime.
+- Evidence: `test/application/router/support/canonical_route_governance_policy_test.dart`, `test/application/router/support/tenant_public_map_entry_flow_test.dart`, `test/presentation/shared/location_permission/screens/location_permission_screen_test.dart`, and the route-family widget tests updated in this branch.
+- Impact: future navigation regressions should be caught structurally instead of rediscovering the contract through manual browser debugging.
 
-### `F-05` Route-matrix validation remains incomplete
+### `F-05` Governed route-matrix validation is now present
 
-- The user-expanded acceptance criteria now require all governed routes, not only event detail, to be validated for warm navigation, cold entry/deeplink, and back behavior.
-- Evidence: current TODO scope vs in-progress focused test edits.
-- Impact: closure is invalid until the full governed route matrix is exercised.
+- The broadened acceptance criteria were executed across governed families through focused Flutter tests, browser/device validation, Playwright on `https://guarappari.belluga.space`, and Android app device validation.
+- Evidence: current branch validation record summarized in `Last confirmed truth`.
+- Impact: the remaining work is cleanup/consolidation, not unresolved navigation behavior.
 
-### `F-06` Browser/device back still needs end-to-end evidence
+### `F-06` Cleanup target is drift, not architecture
 
-- History seeding is wired in code, but Android browser/device back and browser gesture/back-stack behavior across cold entry still need empirical validation after publish.
-- Evidence: no completed manual/Playwright evidence bundle yet for `https://guarappari.belluga.space`.
-- Impact: delivery remains provisional until browser/device behavior is verified across the route matrix.
+- The residual risk is now contradictory wording or dead abandoned-path surfaces, not a missing back-policy design. In practice, the main drift identified after validation was stale documentation around warm map permission flow and stale naming inherited from the discarded history-seeding investigation path.
+- Evidence: `foundation_documentation/modules/map_poi_module.md`, `foundation_documentation/modules/flutter_client_experience_module.md`, and the no-op history-seeding coordinator previously left in `lib/application/router/support/canonical_route_governance.dart`.
+- Impact: delivery quality now depends on keeping the canonical narrative as clean as the runtime implementation.
 
 ---
 
@@ -350,7 +349,7 @@
    - cold URL/deeplink entry
    - visible app back
    - Android browser/device back
-   - browser gesture/history back where same-document seeding applies
+   - browser gesture/history back where warm in-app navigation created real history
 7. Run Playwright verification against `https://guarappari.belluga.space`.
 8. Promote the finalized canonical rule into module docs, resolve the active VNext governance ledger accordingly, and frame the follow-up structural Rule so it catches real regressions without false positives on overlays/result-return flows.
 
@@ -394,9 +393,9 @@
 
 Coverage notes:
 - Validation must cover both warm in-app navigation and cold-entry/deeplink entry for every governed family that can be opened that way.
-- The exact seeded ancestry remains family-specific and is owned by `canonical_route_governance.dart`; this TODO must validate those concrete chains rather than rely on route-name inference.
+- The exact no-history fallback remains family-specific and is owned by `canonical_route_governance.dart`; this TODO validates those concrete outcomes rather than relying on route-name inference.
 - Prefix ancestry is valid only for families whose URL topology already expresses the canonical parent chain; it must not override product-defined ancestry such as `home > event`.
-- Startup/deferred-link bootstrap stack seeding remains a deliberate exception, not the generic solution for browser-history cold entry.
+- Startup/deferred-link bootstrap remains a deliberate root-startup override via `deepLinkBuilder`, not a generic browser-history technique.
 
 ### Test Strategy
 
