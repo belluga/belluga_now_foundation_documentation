@@ -76,6 +76,8 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/settings/telemetry/{type}` | Tenant Admin | Remove telemetry integration by type. | Implemented | DELETE removes a single type. |
 | `/admin/api/v1/media/map-filter-image` | Tenant Admin | Upload tenant-scoped image used by `settings.map_ui.filters[].image_uri`. | Tested & Ready | Complements local-preferences map filter catalog editor; accepts authenticated multipart (`key`, `image`) and returns canonical `image_uri`. |
 | `/api/v1/media/map-filters/{key}` | Tenant | Canonical public delivery for map filter images. | Tested & Ready | Returns tenant-scoped image bytes with `ETag`/`Last-Modified`; legacy `/map-filters/{key}/image` remains compatibility alias. |
+| `/admin/api/v1/domains` | Tenant Admin | List/create tenant web domains. | Implemented | Tenant-scoped; landlord users only. Paged list includes `status` and timestamps; create accepts `path` and defaults `type=web`. |
+| `/admin/api/v1/domains/{domain_id}` | Tenant Admin | Delete/restore tenant domains. | Implemented | Soft delete + restore + force delete endpoints are live; UI currently uses delete + restore. |
 | `/admin/api/v1/organizations` | Tenant Admin | List organizations (grouping only). | Implemented | Tenant‑scoped; landlord users only. Paged response with org metadata. |
 | `/admin/api/v1/organizations` | Tenant Admin | Create organization. | Implemented | Tenant‑scoped; landlord users only. Minimal MVP fields: `name`, optional `description`. |
 | `/admin/api/v1/organizations/{organization_id}` | Tenant Admin | Organization detail. | Implemented | Tenant‑scoped; landlord users only. Returns org metadata. |

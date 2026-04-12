@@ -2,7 +2,7 @@
 **Version:** 1.0
 
 ## 1. Overview
-This document defines the tenant admin UI surfaces used to manage **Contas**, **Organizações**, and **Tipos de Perfil**, and **Taxonomias** for a tenant. The UI is built on top of the `tenant_admin_module.md` contracts and must enforce the domain rules in `domain_entities.md`, especially the bound **Account + Account Profile** creation flow and the **Profile Type Registry**, and the **Taxonomy Registry**.
+This document defines the tenant admin UI surfaces used to manage **Contas**, **Organizações**, **Tipos de Perfil**, **Taxonomias**, **Eventos**, and **Configurações (Domínios)** for a tenant. The UI is built on top of the `tenant_admin_module.md` contracts and must enforce the domain rules in `domain_entities.md`, especially the bound **Account + Account Profile** creation flow, the **Profile Type Registry**, the **Taxonomy Registry**, and the server-driven event-management list contract.
 
 ### 1.1 Canonical Scope and Host Boundary (V1)
 - `EnvironmentType` remains binary (`landlord | tenant`).
@@ -199,15 +199,50 @@ This document defines the tenant admin UI surfaces used to manage **Contas**, **
 - Delete taxonomy.
 - Open **Terms** for a selected taxonomy.
 
-**UI pattern:**
-- M3 card list with contextual menu actions.
-- M3 card form for create/edit.
-- Link or CTA to **Terms** list (next screen).
+---
 
-**Notes:**
-- Taxonomy entries are stored in `taxonomies`.
-- `icon` is a Material icon name string.
-- `color` is HEX `#RRGGBB`.
+### 2.8.1 Eventos — List
+**Route:** `/admin/events`  
+**Purpose:** Manage tenant events with server-driven operational filters and higher-signal cards.  
+**Primary actions:**
+- Filter by specific date, temporal buckets, venue, and related account profile.
+- Open create/edit flows.
+- Run legacy event-party audit/repair actions.
+
+**UI pattern:**
+- Filter bar with a specific-date chip, temporal chips, and venue/profile picker chips.
+- Event cards are grouped by date and reuse the home-list visual language: thumb-left cards, strong headline, related-profile chips, venue line, publication context, and updated timestamp.
+- Grouping is rebuilt from the accumulated ordered result after each page append; any filter change resets pagination to page `1` before regrouping.
+- Venue/profile picker chips use the paged server-driven `account_profile_candidates` selector rather than a local preloaded account-profile snapshot.
+
+**Constraints:**
+- Filter composition must stay server-driven through `/admin/api/v1/events`; local-only filtering of a preload snapshot is not canonical.
+- Exact venue and related-profile narrowing belongs to the dedicated filter chips, not local heuristics.
+- Venue filter must follow canonical venue semantics; related profile filter must follow non-venue event-party / linked-profile semantics.
+- Direct manager search is intentionally unsupported in this list surface.
+- Management cards and payloads must not depend on an artist-shaped admin key such as `artists`.
+
+---
+
+### 2.9 Configurações — Domínios
+**Route:** `/admin/settings/domains`  
+**Purpose:** Manage active tenant web domains used for tenant resolution.  
+**Primary actions:**
+- List active domains with status (`active`).
+- Add domain (path).
+- Delete domain (soft-delete).
+
+**UI pattern:**
+- M3 list with status chips for active/current-domain context.
+- Inline delete action for removable active domains.
+- Add domain CTA opens a small form or sheet (path only).
+
+**Constraints:**
+- Domain list is paginated (page-based).
+- Domain status must be read from backend (`/admin/api/v1/domains`).
+- The current UI relies on backend item identity (`id`) for delete actions and only reads active web domains.
+- Duplicate-domain validation must surface backend error messages without mutating the active list.
+- The current settings surface does not expose restore/force-delete; deleted-domain lifecycle requires a separate read contract.
 
 ---
 
