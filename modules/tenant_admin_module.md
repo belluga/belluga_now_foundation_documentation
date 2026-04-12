@@ -261,10 +261,10 @@ Create an organization (grouping only in MVP).
 ```
 
 ### `GET /admin/api/v1/events/account_profile_candidates`
-Page-based account-profile candidate discovery for the event form artist/physical-host pickers.
+Page-based account-profile candidate discovery for the event form related-account-profile and physical-host pickers.
 
 **Query Parameters**
-- `type`: `artist|physical_host` (required)
+- `type`: `related_account_profile|physical_host` (required)
 - `search`: `string?`
 - `page`: `int?`
 - `page_size` or `per_page`: `int?` (max `50`)
@@ -291,7 +291,7 @@ Page-based account-profile candidate discovery for the event form artist/physica
 ```
 
 **Notes**
-- `type=artist` supports the event-form artist picker.
+- `type=related_account_profile` supports the event-form related-account-profile picker and must not hardcode one specific dynamic profile type.
 - `type=physical_host` supports venue/host selection and returns only POI-enabled profiles with valid coordinates.
 - The account-scoped own-create mirror uses `/api/v1/accounts/{account_slug}/events/account_profile_candidates` with the same semantics.
 - Tenant-admin search must be server-driven and paginated; local-only filtering of a fixed preload snapshot is not canonical.

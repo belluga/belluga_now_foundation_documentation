@@ -2826,14 +2826,15 @@ Not returned by `/agenda` and `/events/{event_id}`:
         "logo_url": "string?",
         "taxonomy_terms": [{ "type": "string", "value": "string" }]
       },
-      "artist_ids": ["string"],
-      "artists": [
+      "linked_account_profiles": [
         {
           "id": "string",
+          "account_id": "string",
+          "profile_type": "string",
           "display_name": "string",
+          "slug": "string?",
           "avatar_url": "string?",
-          "highlight": false,
-          "genres": ["string"]
+          "cover_url": "string?"
         }
       ],
       "latitude": 0.0,
@@ -2883,7 +2884,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 **Purpose:** Page-based account-profile candidate discovery for event forms in management contexts. Tenant-admin uses `/admin/api/v1/events/account_profile_candidates`; account-scoped own-create uses `/api/v1/accounts/{account_slug}/events/account_profile_candidates`.
 
 **Request (query):**
-- `type`: `artist|physical_host` (required)
+- `type`: `related_account_profile|physical_host` (required)
 - `search`: `string?`
 - `page`: `int?`
 - `page_size` or `per_page`: `int?` (max `50`)
@@ -2910,7 +2911,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 ```
 
 **Rules**
-- `type=artist` returns only artist account profiles.
+- `type=related_account_profile` returns generic related account profiles and must not encode one specific dynamic profile type in the contract.
 - `type=physical_host` returns only POI-enabled account profiles with valid coordinates.
 - Search semantics are backend-owned and use canonical `like` matching on candidate fields (`display_name`, `slug`).
 - Event-form candidate discovery must remain page-based; clients must not depend on a one-shot fixed preload.
@@ -2936,7 +2937,6 @@ Not returned by `/agenda` and `/events/{event_id}`:
     "id": "string",
     "metadata": {}
   },
-  "artist_ids": ["string"],
   "type": {
     "name": "string",
     "slug": "string",
@@ -2997,14 +2997,15 @@ Not returned by `/agenda` and `/events/{event_id}`:
       "logo_url": "string?",
       "taxonomy_terms": [{ "type": "string", "value": "string" }]
     },
-    "artist_ids": ["string"],
-    "artists": [
+    "linked_account_profiles": [
       {
         "id": "string",
+        "account_id": "string",
+        "profile_type": "string",
         "display_name": "string",
+        "slug": "string?",
         "avatar_url": "string?",
-        "highlight": false,
-        "genres": ["string"]
+        "cover_url": "string?"
       }
     ],
     "latitude": 0.0,
@@ -3079,14 +3080,15 @@ Not returned by `/agenda` and `/events/{event_id}`:
       "logo_url": "string?",
       "taxonomy_terms": [{ "type": "string", "value": "string" }]
     },
-    "artist_ids": ["string"],
-    "artists": [
+    "linked_account_profiles": [
       {
         "id": "string",
+        "account_id": "string",
+        "profile_type": "string",
         "display_name": "string",
+        "slug": "string?",
         "avatar_url": "string?",
-        "highlight": false,
-        "genres": ["string"]
+        "cover_url": "string?"
       }
     ],
     "latitude": 0.0,
