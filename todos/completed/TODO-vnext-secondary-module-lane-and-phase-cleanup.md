@@ -4,6 +4,10 @@ Secondary Module Lane And Phase Cleanup
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
 
+## Closure Note
+- **Closed on:** `2026-04-18`
+- **Closure reason:** the secondary-module cleanup objective was materially delivered during the foundation authority reconciliation on `docs/foundation-authority-reconciliation`; this file remains as the historical record for that sub-slice.
+
 ## Context
 The main authority package, module-family rename, and current-state alignment for the primary implementation-steering modules are now checkpointed. The remaining drift identified by the latest review sits in secondary modules that still point at retired lane folders (`mvp_slices`), non-existent evidence paths (`concluded_but_active`), or old roadmap framing (`FCX-02`, `Phase N`) as if those were still current authority surfaces.
 

@@ -8,7 +8,7 @@
 
 **Feature framing support:** `foundation_documentation/artifacts/feature-briefs/account-profile-module-family-reconciliation.md`
 
-**Topology decision status (2026-04-18):** the first module-family topology decision is frozen in `foundation_documentation/todos/active/vnext/TODO-vnext-account-profile-module-family-topology-decision.md`: keep one real public account-profile catalog module with deferred capability-first `offer` planning, keep `account_workspace_module.md` as the canonical planning surface for future `account_workspace`, and treat `account_profile_analytics_capability.md` as a capability-planning surface rather than a default future standalone module.
+**Topology decision status (2026-04-18):** the first module-family topology decision is frozen in `foundation_documentation/todos/completed/TODO-vnext-account-profile-module-family-topology-decision.md`: keep one real public account-profile catalog module with deferred capability-first `offer` planning, keep `account_workspace_module.md` as the canonical planning surface for future `account_workspace`, and treat `account_profile_analytics_capability.md` as a capability-planning surface rather than a default future standalone module.
 
 ## Why
 
@@ -103,7 +103,7 @@ The following surfaces still carry legacy `partner` terminology and should be re
 
 ## Required Decisions
 
-- Freeze and later execute the `ST-01` topology decision already recorded in `TODO-vnext-account-profile-module-family-topology-decision.md`:
+- Freeze and later execute the `ST-01` topology decision already recorded in `foundation_documentation/todos/completed/TODO-vnext-account-profile-module-family-topology-decision.md`:
   - keep one real public account-profile catalog module (`account_profile_catalog_module.md` is the canonical authority file),
   - treat deferred `offer`/commercial as capability-first until implementation proves whether module promotion is warranted,
   - keep `account_workspace_module.md` as the canonical planning surface for future `account_workspace`,

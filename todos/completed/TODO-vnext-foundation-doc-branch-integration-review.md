@@ -4,6 +4,10 @@ Foundation Documentation Branch Integration Review
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
 
+## Closure Note
+- **Closed on:** `2026-04-18`
+- **Closure reason:** the branch-integration review objective was materially delivered during the foundation authority reconciliation on `docs/foundation-authority-reconciliation`; this file remains as the historical review record for that sub-slice.
+
 ## Context
 The structural authority reconciliation is now locally stabilized on `docs/foundation-authority-reconciliation`, but the original branch-reconciliation front still includes two `foundation_documentation` remote branches classified as `integrate`: `origin/feat/canonical-route-back-policies` and `origin/feat/tenant-admin-domain-management`. Before any cleanup or broader cross-repo branch decisions, this repository needs an explicit review of what those branches still contribute versus what the current authority line already absorbed or intentionally superseded.
 

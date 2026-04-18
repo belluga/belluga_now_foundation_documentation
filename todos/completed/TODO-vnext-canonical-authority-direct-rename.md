@@ -4,6 +4,10 @@ Canonical Authority Direct Rename
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
 
+## Closure Note
+- **Closed on:** `2026-04-18`
+- **Closure reason:** the canonical rename objective was materially delivered during the foundation authority reconciliation on `docs/foundation-authority-reconciliation`; this file remains as the historical execution record for that sub-slice.
+
 ## Context
 The module-family topology decision is now frozen: `partner_admin` is the future `account_workspace`, `partner_catalog_and_offer` remains the real public account-profile catalog authority, and `partner_analytics` is capability-first by default. The remaining problem is documentation topology drift: the legacy file names still leak obsolete authority language even where the canonical successor is already clear.
 
@@ -70,7 +74,7 @@ The module-family topology decision is now frozen: `partner_admin` is the future
 
 ## Validation Steps
 - [x] `git -C foundation_documentation diff --check`
-- [x] `rg -n "partner_admin_module\\.md|partner_analytics_module\\.md|partner_catalog_and_offer_module\\.md" foundation_documentation/project_constitution.md foundation_documentation/modules foundation_documentation/todos/active foundation_documentation/artifacts/feature-briefs -g '!foundation_documentation/todos/active/vnext/TODO-vnext-canonical-authority-direct-rename.md'`
+- [x] `rg -n "partner_admin_module\\.md|partner_analytics_module\\.md|partner_catalog_and_offer_module\\.md" foundation_documentation/project_constitution.md foundation_documentation/modules foundation_documentation/todos/active foundation_documentation/artifacts/feature-briefs -g '!foundation_documentation/todos/completed/TODO-vnext-canonical-authority-direct-rename.md'`
 - [x] `ls foundation_documentation/modules`
 - [x] Manual readback of the renamed docs confirms `account_workspace` stays a module/front and `offer`/`analytics` stay capability-first by default.
 
@@ -117,7 +121,7 @@ The module-family topology decision is now frozen: `partner_admin` is the future
 ## Module Decision Baseline Snapshot (Required Before APROVADO)
 - | Module Decision Ref | Current Module Decision | Planned Handling (`Preserve|Supersede (Intentional)|Out of Scope`) | Evidence |
 - | --- | --- | --- | --- |
-- | `ST-01 topology freeze` | `partner_admin -> account_workspace`; `offer`/`analytics` capability-first by default. | `Preserve` | `foundation_documentation/todos/active/vnext/TODO-vnext-account-profile-module-family-topology-decision.md` |
+- | `ST-01 topology freeze` | `partner_admin -> account_workspace`; `offer`/`analytics` capability-first by default. | `Preserve` | `foundation_documentation/todos/completed/TODO-vnext-account-profile-module-family-topology-decision.md` |
 
 ## Decision Baseline (Frozen Before Implementation)
 - [x] Canonical direct rename is allowed when the successor authority is already clear.

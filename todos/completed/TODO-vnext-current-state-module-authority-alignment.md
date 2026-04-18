@@ -4,6 +4,10 @@ Current-State Module Authority Alignment
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
 
+## Closure Note
+- **Closed on:** `2026-04-18`
+- **Closure reason:** the current-state authority alignment objective was materially delivered during the foundation authority reconciliation on `docs/foundation-authority-reconciliation`; this file remains as the historical record for that sub-slice.
+
 ## Context
 The top-level authority package is restored, the account-profile module-family topology is frozen, and the canonical authority rename checkpoint is complete. The remaining drift is no longer about missing constitutional authority or legacy filenames; it is now about selected module docs still describing older planning phases, pre-rename authority assumptions, or conceptual shapes that no longer match the current pre-MVP/runtime-backed state.
 
@@ -67,7 +71,7 @@ The top-level authority package is restored, the account-profile module-family t
 
 ## Validation Steps
 - [x] `git -C foundation_documentation diff --check`
-- [x] `rg -n "mvp_slices|Phase [0-9]+|later module-family rename slice|future rename pending|custom_object|live offers|poi_types" foundation_documentation/modules/flutter_client_experience_module.md foundation_documentation/modules/account_profile_catalog_module.md foundation_documentation/modules/map_poi_module.md -g '!foundation_documentation/todos/active/vnext/TODO-vnext-current-state-module-authority-alignment.md'`
+- [x] `rg -n "mvp_slices|Phase [0-9]+|later module-family rename slice|future rename pending|custom_object|live offers|poi_types" foundation_documentation/modules/flutter_client_experience_module.md foundation_documentation/modules/account_profile_catalog_module.md foundation_documentation/modules/map_poi_module.md -g '!foundation_documentation/todos/completed/TODO-vnext-current-state-module-authority-alignment.md'`
 - [x] Targeted code/doc readback confirms the touched contracts still match the current runtime-backed routes/endpoints they claim to govern.
 
 ## Profile Scope & Handoffs (Required Before `APROVADO`)

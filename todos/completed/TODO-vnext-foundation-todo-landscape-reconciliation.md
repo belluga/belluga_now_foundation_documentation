@@ -4,6 +4,10 @@ Foundation TODO Landscape Reconciliation
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
 
+## Closure Note
+- **Closed on:** `2026-04-18`
+- **Closure reason:** the TODO-landscape reconciliation objective was materially delivered during the foundation authority reconciliation on `docs/foundation-authority-reconciliation`; this file remains as the historical audit record for that sub-slice.
+
 ## Context
 The current `foundation_documentation/todos/` landscape is no longer fully coherent. `store_release_android/` and `fast_follow_required/` already express the intended near-term lanes, but `vnext/` has grown into a mixed surface containing real deferred programs, temporary reconciliation slices, support registries, one-off bug TODOs, and files with inconsistent naming/template posture. This creates avoidable noise when deciding what is current execution authority versus what is just backlog visibility.
 

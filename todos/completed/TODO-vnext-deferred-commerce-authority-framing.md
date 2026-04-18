@@ -4,6 +4,10 @@ Deferred Commerce Authority Framing
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
 
+## Closure Note
+- **Closed on:** `2026-04-18`
+- **Closure reason:** the deferred-commerce framing objective was materially delivered during the foundation authority reconciliation on `docs/foundation-authority-reconciliation`; this file remains as the historical record for that sub-slice.
+
 ## Context
 The foundation authority reconciliation already normalized the main current-state module surfaces. The remaining local drift is smaller and more specific: `transaction_bridge_module.md` still reads like a current runtime authority even though the current code-backed commerce surface is split across active Ticketing and Checkout planning streams, while adjacent invite analytics wording still implies a standalone analytics/CRM module that the current authority model explicitly treats as capability-first.
 

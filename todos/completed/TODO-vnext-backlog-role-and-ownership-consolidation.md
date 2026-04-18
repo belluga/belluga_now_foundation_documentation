@@ -4,6 +4,10 @@ VNext Backlog Role and Ownership Consolidation
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
 
+## Closure Note
+- **Closed on:** `2026-04-18`
+- **Closure reason:** the ownership-clarification objective was materially delivered during the foundation authority reconciliation on `docs/foundation-authority-reconciliation`; this file remains as the historical record for that sub-slice.
+
 ## Context
 The active `vnext/` lane is intentionally large, but several files still blur different kinds of authority: primary deferred program owners, support registries, historical scope-freeze notes, parking-lot capture, and temporary reconciliation sub-slices. The previous TODO-landscape audit froze that finding at the lane level. This slice applies only the safe follow-through inside the touched `vnext` TODOs themselves so readers stop mistaking supporting notes for parallel program owners.
 
@@ -131,7 +135,7 @@ The active `vnext/` lane is intentionally large, but several files still blur di
 
 ## Execution Plan (Required Before `APROVADO`)
 ### Touched Surfaces
-- `foundation_documentation/todos/active/vnext/TODO-vnext-backlog-role-and-ownership-consolidation.md`
+- `foundation_documentation/todos/completed/TODO-vnext-backlog-role-and-ownership-consolidation.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-foundation-authority-and-branch-reconciliation.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-test-hardening-program.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-test-hardening-defect-backlog.md`

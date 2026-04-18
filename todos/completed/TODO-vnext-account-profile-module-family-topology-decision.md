@@ -4,6 +4,10 @@ Account Profile Module Family Topology Decision
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
 
+## Closure Note
+- **Closed on:** `2026-04-18`
+- **Closure reason:** the topology decision objective was materially delivered during the foundation authority reconciliation on `docs/foundation-authority-reconciliation`; this file remains as the historical decision record for that sub-slice.
+
 ## Context
 The project now has a reconciled top-level authority baseline and a canonical domain-entity model that no longer treats `partner` as a current internal root noun. The ambiguity that motivated this slice was module-level: the legacy `partner_catalog_and_offer` / `partner_admin` / `partner_analytics` family, now normalized into `account_profile_catalog_module.md`, `account_workspace_module.md`, and `account_profile_analytics_capability.md`, still encoded older vocabulary and unclear future boundaries across public account-profile/static-asset surfaces, account workspace/admin concerns, and analytics.
 

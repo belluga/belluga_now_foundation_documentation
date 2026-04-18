@@ -1,7 +1,7 @@
 # Title
 Foundation Authority and Branch Reconciliation Baseline
 
-**Authority note (2026-04-18):** this TODO is the umbrella owner for the foundation authority-reconciliation cluster. Local-implemented child TODOs such as `TODO-vnext-current-state-module-authority-alignment.md`, `TODO-vnext-secondary-module-lane-and-phase-cleanup.md`, `TODO-vnext-deferred-commerce-authority-framing.md`, `TODO-vnext-foundation-doc-branch-integration-review.md`, `TODO-vnext-foundation-todo-landscape-reconciliation.md`, `TODO-vnext-module-authority-follow-up-sweep.md`, and `TODO-vnext-canonical-authority-direct-rename.md` are subordinate reconciliation sub-slices, not parallel long-lived program owners.
+**Authority note (2026-04-18):** this TODO is the umbrella owner for the foundation authority-reconciliation cluster. Completed child TODOs such as `TODO-vnext-current-state-module-authority-alignment.md`, `TODO-vnext-secondary-module-lane-and-phase-cleanup.md`, `TODO-vnext-deferred-commerce-authority-framing.md`, `TODO-vnext-foundation-doc-branch-integration-review.md`, `TODO-vnext-foundation-todo-landscape-reconciliation.md`, `TODO-vnext-module-authority-follow-up-sweep.md`, and `TODO-vnext-canonical-authority-direct-rename.md` are subordinate reconciliation sub-slices, not parallel long-lived program owners.
 
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`

@@ -4,6 +4,10 @@ Module Authority Follow-Up Sweep
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
 
+## Closure Note
+- **Closed on:** `2026-04-18`
+- **Closure reason:** the module follow-up sweep objective was materially delivered during the foundation authority reconciliation on `docs/foundation-authority-reconciliation`; this file remains as the historical record for that sub-slice.
+
 ## Context
 The first authority-reconciliation slice restored `project_constitution.md`, aligned the top-level authority docs, and classified the current branch topology. That slice explicitly stayed bounded and deferred the broader module/TODO cleanup. The next required step is a bounded follow-up sweep across the module docs and nearby summary surfaces that still carry stale lane references, missing-authority assumptions, or terminology/topology drift relative to the now-reconciled top-level authority.
 
