@@ -55,15 +55,15 @@ Record the current branch-relevance picture without executing cleanup. This arti
 
 | Branch | Evidence | Classification | Recommendation | Notes |
 | --- | --- | --- | --- | --- |
-| `origin/feat/canonical-route-back-policies` | Unique commits against `origin/main`: `59aedbe`, `0eb67e2`. | `integrate` | Fold the canonical navigation-governance changes into the next docs PR to `main` or supersede them explicitly if the new authority line already covers them. | Relevant, unmerged documentation work. |
-| `origin/feat/tenant-admin-domain-management` | Unique commits against `origin/main`: `f185b71`, `dfba8e7`, `369a37c`. | `integrate` | Review and merge/cherry-pick the still-relevant domain-management and event-party documentation into the current docs authority line. | Current working branch is already on this line. |
+| `origin/feat/canonical-route-back-policies` | Unique commits against `origin/main`: `59aedbe`, `0eb67e2`. | `integrate` | Review complete on the current canonical docs line: no direct cherry-pick is recommended; treat this branch as a superseded precursor once `docs/foundation-authority-reconciliation` reaches `main`. | See `artifacts/branch-audit-foundation-integrate-review-2026-04-18.md`. |
+| `origin/feat/tenant-admin-domain-management` | Unique commits against `origin/main`: `f185b71`, `dfba8e7`, `369a37c`. | `integrate` | Review complete on the current canonical docs line: the branch is already absorbed by `docs/foundation-authority-reconciliation`; no separate integration action is needed. | See `artifacts/branch-audit-foundation-integrate-review-2026-04-18.md`. |
 | `origin/feat/tenant-admin-event-parties-blocker` | Its unique commit `369a37c` is already contained in `origin/feat/tenant-admin-domain-management`. | `already-safe` | Treat as a narrower superseded branch once the superset branch is reconciled. | Keep only if the narrower branch is still needed for review context. |
 | `origin/feat/events-implementation` | No unique branch-side commits remained against `origin/main` in the comparison. | `already-safe` | No current reconciliation action required. | Historical line only. |
 | `origin/feat/events-ticketing-planning-baseline` | No unique branch-side commits remained against `origin/main` in the comparison. | `already-safe` | No current reconciliation action required. | Historical line only. |
 
 ## Recommended Next Moves
 
-1. Restore top-level project authority first (`project_constitution.md` + touched docs).
-2. Reconcile the `foundation_documentation` `integrate` branches into the docs mainline before attempting broad branch cleanup.
+1. Promote the current `foundation_documentation` authority line (`docs/foundation-authority-reconciliation`) toward `main`.
+2. After that promotion, reclassify the reviewed `foundation_documentation` `integrate` branches as absorbed/superseded and decide later cleanup; no further content import is currently required from them.
 3. Review `flutter-app` `fix/main-promotion-blockers-stage` and the rollback branches as an explicit release-history decision, not as cleanup noise.
 4. Leave actual cleanup/rebaseline execution to a later repo-specific pass after current documentation changes are reviewed and workspaces are clean.
