@@ -27,7 +27,7 @@
 
 - **Primary policy:** `../foundation_documentation/policies/query_path_guardrails.md`
 - **Primary module:** `../foundation_documentation/modules/flutter_client_experience_module.md`
-- **Secondary modules:** `../foundation_documentation/modules/partner_catalog_and_offer_module.md`, `../foundation_documentation/modules/events_module.md`
+- **Secondary modules:** `../foundation_documentation/modules/account_profile_catalog_module.md`, `../foundation_documentation/modules/events_module.md`
 
 ---
 

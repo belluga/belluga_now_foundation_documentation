@@ -39,18 +39,18 @@
 ## Module Anchors
 
 - **Primary:** `../foundation_documentation/modules/flutter_client_experience_module.md`
-- **Secondary:** `../foundation_documentation/modules/partner_catalog_and_offer_module.md`, `../foundation_documentation/modules/events_module.md`
+- **Secondary:** `../foundation_documentation/modules/account_profile_catalog_module.md`, `../foundation_documentation/modules/events_module.md`
 
 ### Canonical Coverage Status
 
 - `flutter_client_experience_module.md`: authoritative for controller-owned state, route/scope ownership, and Flutter testing discipline. No partial migration flag is declared for the touched surface.
-- `partner_catalog_and_offer_module.md`: authoritative for account-profile public detail contracts and consumer-facing identity semantics. No partial migration flag is declared for the touched surface.
+- `account_profile_catalog_module.md`: authoritative for account-profile public detail contracts and consumer-facing identity semantics. No partial migration flag is declared for the touched surface.
 - `events_module.md`: authoritative only for event-detail-to-profile continuity; no partial migration flag is declared for the touched entrypoint.
 
 ### Decision Consolidation Targets
 
 - Promote stable cross-screen/shared-shell decisions to `../foundation_documentation/modules/flutter_client_experience_module.md` only if this TODO changes durable shell or test-governance behavior.
-- Promote stable account-profile detail presentation/CTA decisions to `../foundation_documentation/modules/partner_catalog_and_offer_module.md` only if this TODO changes durable consumer-facing detail semantics beyond tactical polish.
+- Promote stable account-profile detail presentation/CTA decisions to `../foundation_documentation/modules/account_profile_catalog_module.md` only if this TODO changes durable consumer-facing detail semantics beyond tactical polish.
 
 ---
 
@@ -393,7 +393,7 @@
 | `flutter_client_experience_module.md` | `FCX-01` | Controllers own mutable state; widgets stay presentational. | Blocks logic drift into the screen while polishing UI. |
 | `flutter_client_experience_module.md` | `FCX-02` | Scope/subscope ownership must stay canonical. | Preserves `tenant / tenant_public` detail-route ownership. |
 | `flutter_client_experience_module.md` | `FCX-03` | Flutter consumes contracts through repositories/adapters. | Allows parser/repository adaptation without leaking transport details into the screen/controller. |
-| `partner_catalog_and_offer_module.md` | `PCO-01` | Account Profile is the canonical public identity layer. | Keeps the detail screen centered on account-profile public identity. |
+| `account_profile_catalog_module.md` | `PCO-01` | Account Profile is the canonical public identity layer. | Keeps the detail screen centered on account-profile public identity. |
 | `events_module.md` | `D3-03` | Events read contracts remain occurrence-first. | Agenda backfill must reuse current event projections instead of inventing a parallel event payload family. |
 
 ## Module Decision Consistency Matrix

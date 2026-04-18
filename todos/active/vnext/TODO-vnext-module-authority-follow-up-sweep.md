@@ -90,7 +90,7 @@ The first authority-reconciliation slice restored `project_constitution.md`, ali
 - **Why:** this sweep reconciles Bóora!/Belluga Now project authority surfaces after the constitution restoration. It does not define a reusable package boundary by itself.
 
 ## Canonical Module Anchors (Required Before APROVADO)
-- **Primary module doc:** `foundation_documentation/modules/partner_catalog_and_offer_module.md`
+- **Primary module doc:** `foundation_documentation/modules/account_profile_catalog_module.md`
 - **Secondary module docs (if any):**
   - `foundation_documentation/modules/tenant_admin_module.md`
   - `foundation_documentation/modules/map_poi_module.md`
@@ -117,7 +117,7 @@ The first authority-reconciliation slice restored `project_constitution.md`, ali
 
 ## Questions To Close
 - [x] Which touched files still act as practical entry points for future implementation and therefore deserve priority in this first module sweep?
-  Priority set used in this slice: `partner_catalog_and_offer_module.md`, `tenant_admin_module.md`, and the submodule summaries most likely to steer future implementation context.
+  Priority set used in this slice: `account_profile_catalog_module.md`, `tenant_admin_module.md`, and the submodule summaries most likely to steer future implementation context.
 
 ## Assumptions Preview (Required Before Plan Review)
 | Assumption ID | Assumption | Evidence | If False | Confidence (`High|Medium|Low`) | Handling (`Keep as Assumption|Promote to Decision|Block`) |
@@ -127,7 +127,7 @@ The first authority-reconciliation slice restored `project_constitution.md`, ali
 
 ## Execution Plan (Required Before `APROVADO`)
 ### Touched Surfaces
-- `foundation_documentation/modules/partner_catalog_and_offer_module.md`
+- `foundation_documentation/modules/account_profile_catalog_module.md`
 - `foundation_documentation/modules/tenant_admin_module.md`
 - `foundation_documentation/modules/map_poi_module.md`
 - `foundation_documentation/submodule_flutter-app_summary.md`

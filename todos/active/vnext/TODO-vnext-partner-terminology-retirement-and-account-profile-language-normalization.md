@@ -8,7 +8,7 @@
 
 **Feature framing support:** `foundation_documentation/artifacts/feature-briefs/account-profile-module-family-reconciliation.md`
 
-**Topology decision status (2026-04-18):** the first module-family topology decision is frozen in `foundation_documentation/todos/active/vnext/TODO-vnext-account-profile-module-family-topology-decision.md`: keep one real public account-profile catalog module with deferred capability-first `offer` planning, treat `partner_admin_module.md` as the legacy-named planning surface for future `account_workspace`, and treat `partner_analytics_module.md` as a capability-planning surface rather than a default future standalone module.
+**Topology decision status (2026-04-18):** the first module-family topology decision is frozen in `foundation_documentation/todos/active/vnext/TODO-vnext-account-profile-module-family-topology-decision.md`: keep one real public account-profile catalog module with deferred capability-first `offer` planning, keep `account_workspace_module.md` as the canonical planning surface for future `account_workspace`, and treat `account_profile_analytics_capability.md` as a capability-planning surface rather than a default future standalone module.
 
 ## Why
 
@@ -31,9 +31,9 @@ The following surfaces still carry legacy `partner` terminology and should be re
   - `endpoints_mvp_contracts.md`
   - `policies/web_to_app_promotion_policy.md`
 - Module docs:
-  - `modules/partner_catalog_and_offer_module.md`
-  - `modules/partner_admin_module.md`
-  - `modules/partner_analytics_module.md`
+  - `modules/account_profile_catalog_module.md`
+  - `modules/account_workspace_module.md`
+  - `modules/account_profile_analytics_capability.md`
   - `modules/flutter_client_experience_module.md`
   - `modules/system_architecture_principles.md`
   - `modules/task_and_reminder_module.md`
@@ -69,10 +69,10 @@ The following surfaces still carry legacy `partner` terminology and should be re
 
 ### 2. Module Surface Normalization
 
-- Decide and execute the future canonical names/boundaries for:
-  - `partner_catalog_and_offer_module.md`
-  - `partner_admin_module.md`
-  - `partner_analytics_module.md`
+- Sustain and extend the normalized names/boundaries for:
+  - `account_profile_catalog_module.md`
+  - `account_workspace_module.md`
+  - `account_profile_analytics_capability.md`
 - Determine whether those files should be:
   - renamed,
   - split,
@@ -104,10 +104,10 @@ The following surfaces still carry legacy `partner` terminology and should be re
 ## Required Decisions
 
 - Freeze and later execute the `ST-01` topology decision already recorded in `TODO-vnext-account-profile-module-family-topology-decision.md`:
-  - keep one real public account-profile catalog module (`partner_catalog_and_offer_module.md` future rename pending),
+  - keep one real public account-profile catalog module (`account_profile_catalog_module.md` is the canonical authority file),
   - treat deferred `offer`/commercial as capability-first until implementation proves whether module promotion is warranted,
-  - rename `partner_admin_module.md` into future `account_workspace`,
-  - treat `partner_analytics_module.md` as a capability-planning surface rather than a default future standalone module.
+  - keep `account_workspace_module.md` as the canonical planning surface for future `account_workspace`,
+  - treat `account_profile_analytics_capability.md` as a capability-planning surface rather than a default future standalone module.
 - Which existing `partner` usages are acceptable only as temporary public/product-facing aliases, and which must be removed from internal/project authority immediately in the VNext cleanup?
 - Should public account-profile URLs remain type-agnostic for permanence, or should any type-shaped route be treated only as a resolvable alias rather than the canonical link?
 

@@ -1,10 +1,10 @@
-# Documentation: Account Profile Analytics Module
+# Documentation: Account Profile Analytics Capability
 
 **Version:** 0.1 (placeholder)  
 **Date:** February 28, 2025  
 **Authors:** Delphi (Belluga Co-Engineering)
 
-**Authority note (2026-04-18):** this file is a legacy-named planning surface for a future analytics capability, not a standalone current runtime authority. Current analytics/privacy rules live in source modules such as `invite_and_social_loop_module.md`, while future workspace-facing dashboards belong under `account_workspace` unless implementation later proves a distinct module boundary.
+**Authority note (2026-04-18):** this file is the canonical planning surface for a future analytics capability, not a standalone current runtime authority. Current analytics/privacy rules live in source modules such as `invite_and_social_loop_module.md`, while future workspace-facing dashboards belong under `account_workspace` unless implementation later proves a distinct module boundary.
 
 ## 1. Purpose
 
@@ -16,7 +16,7 @@ This document retains open questions for future workspace-facing analytics, but 
   - `foundation_documentation/system_roadmap.md`
   - `foundation_documentation/submodule_laravel-app_summary.md`
 - Cross-module references:
-  - `foundation_documentation/modules/partner_catalog_and_offer_module.md`
+  - `foundation_documentation/modules/account_profile_catalog_module.md`
   - `foundation_documentation/modules/invite_and_social_loop_module.md`
   - `foundation_documentation/modules/transaction_bridge_module.md`
 - Tactical TODO streams:

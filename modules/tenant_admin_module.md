@@ -16,8 +16,8 @@ Canonical module contract for the Tenant Administration interface (`tenant_admin
   - `foundation_documentation/submodule_flutter-app_summary.md`
   - `foundation_documentation/policies/scope_subscope_governance.md`
 - Cross-module references:
-  - `foundation_documentation/modules/partner_catalog_and_offer_module.md`
-  - `foundation_documentation/modules/partner_admin_module.md` (legacy-named planning surface for future `account_workspace`)
+  - `foundation_documentation/modules/account_profile_catalog_module.md`
+  - `foundation_documentation/modules/account_workspace_module.md` (canonical planning surface for future `account_workspace`)
   - `foundation_documentation/modules/invite_and_social_loop_module.md`
   - `foundation_documentation/modules/map_poi_module.md`
   - `foundation_documentation/modules/events_module.md`

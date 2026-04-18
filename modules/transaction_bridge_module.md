@@ -14,7 +14,7 @@ The Transaction Bridge module (MOD-305) connects tenant experiences to the exter
   - `foundation_documentation/system_roadmap.md`
   - `foundation_documentation/submodule_laravel-app_summary.md`
 - Cross-module references:
-  - `foundation_documentation/modules/partner_catalog_and_offer_module.md`
+  - `foundation_documentation/modules/account_profile_catalog_module.md`
   - `foundation_documentation/modules/task_and_reminder_module.md`
   - `foundation_documentation/modules/agenda_and_action_planner_module.md`
 - Tactical TODO streams:

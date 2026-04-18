@@ -34,9 +34,9 @@
   - `foundation_documentation/modules/invite_and_social_loop_module.md`
   - `foundation_documentation/modules/map_poi_module.md`
   - `foundation_documentation/modules/onboarding_flow_module.md`
-  - `foundation_documentation/modules/partner_admin_module.md`
-  - `foundation_documentation/modules/partner_analytics_module.md`
-  - `foundation_documentation/modules/partner_catalog_and_offer_module.md`
+  - `foundation_documentation/modules/account_workspace_module.md`
+  - `foundation_documentation/modules/account_profile_analytics_capability.md`
+  - `foundation_documentation/modules/account_profile_catalog_module.md`
   - `foundation_documentation/modules/task_and_reminder_module.md`
   - `foundation_documentation/modules/tenant_admin_module.md`
   - `foundation_documentation/modules/tenant_home_composer_module.md`

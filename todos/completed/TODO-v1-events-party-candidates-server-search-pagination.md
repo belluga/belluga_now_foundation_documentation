@@ -45,7 +45,7 @@
 - **Secondary:**
   - `foundation_documentation/modules/tenant_admin_module.md`
   - `foundation_documentation/modules/flutter_client_experience_module.md`
-  - `foundation_documentation/modules/partner_catalog_and_offer_module.md`
+  - `foundation_documentation/modules/account_profile_catalog_module.md`
   - `foundation_documentation/endpoints_mvp_contracts.md`
   - `foundation_documentation/screens/modulo_tenant_admin.md`
 - **Promotion targets:**

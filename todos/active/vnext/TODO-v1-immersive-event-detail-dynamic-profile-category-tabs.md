@@ -34,19 +34,19 @@
 ## Module Anchors
 
 - **Primary:** `../foundation_documentation/modules/events_module.md`
-- **Secondary:** `../foundation_documentation/modules/flutter_client_experience_module.md`, `../foundation_documentation/modules/partner_catalog_and_offer_module.md`
+- **Secondary:** `../foundation_documentation/modules/flutter_client_experience_module.md`, `../foundation_documentation/modules/account_profile_catalog_module.md`
 
 ### Canonical Coverage Status
 
 - `events_module.md`: authoritative for immersive event-detail event/occurrence semantics and public event payload shape.
 - `flutter_client_experience_module.md`: authoritative for immersive shell behavior, shared widget semantics, and route/theme continuity.
-- `partner_catalog_and_offer_module.md`: authoritative for account-profile identity/card semantics reused by event-detail category cards.
+- `account_profile_catalog_module.md`: authoritative for account-profile identity/card semantics reused by event-detail category cards.
 
 ### Decision Consolidation Targets
 
 - Promote durable event-detail tab/card contract changes to `../foundation_documentation/modules/events_module.md`.
 - Promote stable shared-shell/widget reuse decisions to `../foundation_documentation/modules/flutter_client_experience_module.md`.
-- Promote only durable account-profile-card reuse rules to `../foundation_documentation/modules/partner_catalog_and_offer_module.md` if this lane materially changes cross-surface semantics.
+- Promote only durable account-profile-card reuse rules to `../foundation_documentation/modules/account_profile_catalog_module.md` if this lane materially changes cross-surface semantics.
 
 ---
 

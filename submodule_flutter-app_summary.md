@@ -70,7 +70,7 @@ Governance constraints:
 
 ## 5. Architectural Principle Alignment
 
-* **P-1 (Domain-First, Schema-Second):** Partially Aligned — Domain entities and value objects exist, but legacy partner-oriented subtype vocabulary in the Flutter layer (for example older influencer/curator naming) and engagement metrics still need stricter documentation traceability in foundation docs.
+* **P-1 (Domain-First, Schema-Second):** Partially Aligned — Domain entities and value objects exist, but legacy profile-subtype vocabulary in the Flutter layer (for example older influencer/curator naming) and engagement metrics still need stricter documentation traceability in foundation docs.
 * **P-3 (API-Centric Ecosystem):** Aligned — Runtime flows are Laravel-backed and bootstrapped through `/api/v1/environment`, with no runtime mock fallback.
 * **P-8 (Explicit Schemas):** Partially Aligned — Significant DTO coverage exists (app_data, schedule, invites, profile, map); remaining gaps are contract documentation depth and adapter completeness, not runtime mock databases.
 * **Appendix A (Flutter Tenets):** Partially Aligned — Feature-first organization and controller/stream patterns are present; continued tightening is needed to keep DTOs out of widgets and keep screen logic consistently controller-driven.
@@ -97,7 +97,7 @@ Governance constraints:
 * Profile module dependency wiring will be tightened to ensure `LandlordLoginController` is always registered when Profile routes are loaded (prevents GetIt resolution failures in device tests).
 * Architecture cleanup will introduce domain-level contracts for `AppDataRepository`, `PoiRepository`, `PushPresentationGate`, and `TelemetryQueue`, plus domain-owned `PoiQuery` to remove infrastructure/DAL dependencies from controllers.
 * Legacy mock content providers and legacy profile-detail audio playback are removed from MVP runtime scope; discovery/profile details remain account/account-profile driven.
-* Integration tests updated to use domain `PoiQuery` and the current legacy-named `PartnerProfileConfigBuilder`; device checklist shows all integration tests green after these updates.
+* Integration tests updated to use domain `PoiQuery` and the current legacy code symbol `PartnerProfileConfigBuilder`; device checklist shows all integration tests green after these updates.
 * `packages/belluga_form_validation/` is now the canonical internal Flutter package for reusable form-validation behavior: transport-agnostic `422` failure modeling, `field|group|global` target resolution, theme-dependent default widgets, and anchor/scroll helpers.
 * Tenant-admin account sync pattern established: account list/detail/form flows consume repository-owned canonical streams; detail controllers derive account state via repository watch (stable `id` first, slug fallback only while unresolved), avoiding manual cross-controller synchronization.
 * Tenant-admin account creation now uses a dedicated `TenantAdminAccountCreateController`, while `TenantAdminAccountsController` is list-only; both are registered as route-local factories so list/create no longer share controller state.

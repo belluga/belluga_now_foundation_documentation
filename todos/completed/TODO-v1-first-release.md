@@ -11,7 +11,7 @@
 
 ## References
 - Invites contract + limits: `foundation_documentation/modules/invite_and_social_loop_module.md`
-- Account Profile admin/workspace module (draft): `foundation_documentation/modules/partner_admin_module.md`
+- Account Profile admin/workspace module (draft): `foundation_documentation/modules/account_workspace_module.md`
 - Map/POI architecture: `foundation_documentation/modules/map_poi_module.md`
 - MVP scope gate (decisions): `foundation_documentation/todos/completed/TODO-mvp-scope-definition.md`
 - Roadmap tracking: `foundation_documentation/system_roadmap.md`
@@ -134,7 +134,7 @@ Suggested defaults (override per tenant + plan):
 - event/account/receiver invite-send limits are deferred to VNext (`max_invites_per_event_per_inviter`, `max_invites_per_day_per_account_profile`, `max_pending_invites_per_invitee`, `max_invites_to_same_invitee_per_30d`)
 
 ### 2.2 Account memberships (Deferred)
-- [ ] ⚪ Implement account memberships post‑MVP (draft spec in `foundation_documentation/modules/partner_admin_module.md`)
+- [ ] ⚪ Implement account memberships post‑MVP (draft spec in `foundation_documentation/modules/account_workspace_module.md`)
 
 ### 2.3 Event invite metrics (account-profile-facing dashboards, post‑MVP)
 - (Deferred to VNext)

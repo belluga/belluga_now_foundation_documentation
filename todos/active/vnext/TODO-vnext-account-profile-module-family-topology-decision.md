@@ -5,7 +5,7 @@ Account Profile Module Family Topology Decision
 - **Artifact type:** `tactical_execution_contract`
 
 ## Context
-The project now has a reconciled top-level authority baseline and a canonical domain-entity model that no longer treats `partner` as a current internal root noun. The remaining ambiguity is module-level: the current `partner_catalog_and_offer_module.md`, `partner_admin_module.md`, and `partner_analytics_module.md` family still encodes older vocabulary and unclear future boundaries across public account-profile/static-asset surfaces, account workspace/admin concerns, and analytics.
+The project now has a reconciled top-level authority baseline and a canonical domain-entity model that no longer treats `partner` as a current internal root noun. The ambiguity that motivated this slice was module-level: the legacy `partner_catalog_and_offer` / `partner_admin` / `partner_analytics` family, now normalized into `account_profile_catalog_module.md`, `account_workspace_module.md`, and `account_profile_analytics_capability.md`, still encoded older vocabulary and unclear future boundaries across public account-profile/static-asset surfaces, account workspace/admin concerns, and analytics.
 
 ## Framing Source & Story Slice
 - **Feature brief:** `foundation_documentation/artifacts/feature-briefs/account-profile-module-family-reconciliation.md`
@@ -25,7 +25,7 @@ The project now has a reconciled top-level authority baseline and a canonical do
 - **Next exact step:** checkpoint the frozen topology decision, then open the later rename/restructure slice only when `ST-02` is intentionally started.
 
 ## Scope
-- [x] Decide the canonical future names and roles for the current `partner_catalog_and_offer_module.md`, `partner_admin_module.md`, and `partner_analytics_module.md` family.
+- [x] Decide the canonical future names and roles for the current `account_profile_catalog_module.md`, `account_workspace_module.md`, and `account_profile_analytics_capability.md` family.
 - [x] Decide whether each current module should be preserved, renamed, merged, split, or retired.
 - [x] Record how this future module family relates to `tenant_admin`, `account_workspace`, public account-profile/static-asset surfaces, and analytics ownership.
 - [x] Leave route-path/public-copy alias decisions and execution-level renames to dedicated follow-up slices.
@@ -90,10 +90,10 @@ The project now has a reconciled top-level authority baseline and a canonical do
 - **Why:** this topology decision is specific to the current Belluga Now/Bóora! documentation and module family. It may later inform broader naming guidance, but the concrete module map and legacy file family are downstream project concerns.
 
 ## Canonical Module Anchors (Required Before APROVADO)
-- **Primary module doc:** `foundation_documentation/modules/partner_catalog_and_offer_module.md`
+- **Primary module doc:** `foundation_documentation/modules/account_profile_catalog_module.md`
 - **Secondary module docs (if any):**
-  - `foundation_documentation/modules/partner_admin_module.md`
-  - `foundation_documentation/modules/partner_analytics_module.md`
+  - `foundation_documentation/modules/account_workspace_module.md`
+  - `foundation_documentation/modules/account_profile_analytics_capability.md`
   - `foundation_documentation/modules/tenant_admin_module.md`
   - `foundation_documentation/project_constitution.md`
 - **Planned decision promotion targets (module sections):**
@@ -106,17 +106,17 @@ The project now has a reconciled top-level authority baseline and a canonical do
 - [x] `none`
 
 ## Decisions (Resolved Before Freeze)
-- [x] `D-01` `partner_catalog_and_offer_module.md` should remain one real authority for current public account-profile catalog/public-detail/discovery contracts. Its future handling is `Rename`: deferred `offer`/commercial concerns stay capability-first by default, and whether they later justify standalone module promotion is an implementation-time decision. (`No Prior Decision`)
-- [x] `D-02` `partner_admin_module.md` is the legacy-named planning surface for the future `account_workspace` authority. Its future handling is `Rename`, while current tenant-domain admin CRUD/registry contracts stay in `tenant_admin_module.md`. (`No Prior Decision`)
-- [x] `D-03` `partner_analytics_module.md` should not be defaulted to a future standalone module. Current file handling is `Merge` as a capability-planning surface under future `account_workspace` and source-module ownership, with later module promotion allowed only if implementation proves a real bounded context. (`No Prior Decision`)
+- [x] `D-01` The legacy `partner_catalog_and_offer` front resolves to `account_profile_catalog_module.md`, which remains one real authority for current public account-profile catalog/public-detail/discovery contracts. Deferred `offer`/commercial concerns stay capability-first by default, and whether they later justify standalone module promotion is an implementation-time decision. (`No Prior Decision`)
+- [x] `D-02` The legacy `partner_admin` front resolves to `account_workspace_module.md`, the canonical planning surface for the future `account_workspace` authority, while current tenant-domain admin CRUD/registry contracts stay in `tenant_admin_module.md`. (`No Prior Decision`)
+- [x] `D-03` The legacy `partner_analytics` front resolves to `account_profile_analytics_capability.md` and should not be defaulted to a future standalone module. It remains a capability-planning surface under future `account_workspace` and source-module ownership, with later module promotion allowed only if implementation proves a real bounded context. (`No Prior Decision`)
 
 ## Module Handling Table
 
-| Current File | Future Handling | Future Canonical Role | Current Evidence |
+| Legacy Front | Resolved Successor File | Resolved Handling | Canonical Role | Current Evidence |
 | --- | --- | --- | --- |
-| `partner_catalog_and_offer_module.md` | `Rename` | one module for account-profile catalog/public surfaces, while deferred `offer`/commercial concerns remain capability-first until implementation decides whether module promotion is justified | public `account_profiles` routes exist in Laravel; Flutter tenant-public account-profile discovery/detail is implemented; no comparable canonical `offers` runtime surface was found in the current code scan |
-| `partner_admin_module.md` | `Rename` | future `account_workspace` module (authenticated operator workspace), distinct from current `tenant_admin_module.md` | tenant-admin CRUD/contracts are already canonical in `tenant_admin_module.md`; Flutter already has placeholder `/workspace` routes; the user confirmed this front is `account_workspace` |
-| `partner_analytics_module.md` | `Merge` | future analytics capability planning owned under `account_workspace` and source modules by default, with optional later module promotion if implementation proves the boundary | file is explicitly placeholder-only; invite/account analytics/privacy rules already live in `invite_and_social_loop_module.md`; no standalone analytics module/runtime authority exists in the code scan |
+| `partner_catalog_and_offer` | `account_profile_catalog_module.md` | `Rename` | one module for account-profile catalog/public surfaces, while deferred `offer`/commercial concerns remain capability-first until implementation decides whether module promotion is justified | public `account_profiles` routes exist in Laravel; Flutter tenant-public account-profile discovery/detail is implemented; no comparable canonical `offers` runtime surface was found in the current code scan |
+| `partner_admin` | `account_workspace_module.md` | `Rename` | future `account_workspace` module (authenticated operator workspace), distinct from current `tenant_admin_module.md` | tenant-admin CRUD/contracts are already canonical in `tenant_admin_module.md`; Flutter already has placeholder `/workspace` routes; the user confirmed this front is `account_workspace` |
+| `partner_analytics` | `account_profile_analytics_capability.md` | `Merge` | future analytics capability planning owned under `account_workspace` and source modules by default, with optional later module promotion if implementation proves the boundary | file is explicitly placeholder-only; invite/account analytics/privacy rules already live in `invite_and_social_loop_module.md`; no standalone analytics module/runtime authority exists in the code scan |
 
 ## Module Decision Baseline Snapshot (Required Before APROVADO)
 - | Module Decision Ref | Current Module Decision | Planned Handling (`Preserve|Supersede (Intentional)|Out of Scope`) | Evidence |
@@ -125,9 +125,9 @@ The project now has a reconciled top-level authority baseline and a canonical do
 
 ## Decision Baseline (Frozen Before Implementation)
 - [x] Future module-family topology must be decided before broad rename/restructure execution begins.
-- [x] `partner_catalog_and_offer_module.md` remains the active authority file for current public account-profile contracts until the later rename slice is executed; deferred `offer` concerns stay capability-first by default.
-- [x] `partner_admin_module.md` is frozen as the legacy-named planning surface for future `account_workspace`, not as a current runtime authority.
-- [x] `partner_analytics_module.md` is frozen as a capability-planning surface, not as a standalone current runtime authority.
+- [x] `account_profile_catalog_module.md` remains the active authority file for current public account-profile contracts until the later rename slice is executed; deferred `offer` concerns stay capability-first by default.
+- [x] `account_workspace_module.md` is frozen as the canonical planning surface for future `account_workspace`, not as a current runtime authority.
+- [x] `account_profile_analytics_capability.md` is frozen as a capability-planning surface, not as a standalone current runtime authority.
 
 ## Questions To Close
 - [x] Which future module boundaries are semantically real, and which current module files are only historical placeholders?
@@ -136,21 +136,21 @@ The project now has a reconciled top-level authority baseline and a canonical do
 ## Assumptions Preview (Required Before Plan Review)
 | Assumption ID | Assumption | Evidence | If False | Confidence (`High|Medium|Low`) | Handling (`Keep as Assumption|Promote to Decision|Block`) |
 | --- | --- | --- | --- | --- | --- |
-| `A-01` | The current `partner_*` family is the correct place to start module reconciliation because it concentrates the largest remaining internal vocabulary/topology drift. | `TODO-vnext-partner-terminology-retirement...`, `project_constitution.md`, and the current module docs all point to this family. | The slice should be re-scoped before decisions are made. | `High` | `Keep as Assumption` |
+| `A-01` | The legacy `partner_*` family was the correct place to start module reconciliation because it concentrated the largest remaining internal vocabulary/topology drift. | `TODO-vnext-partner-terminology-retirement...`, `project_constitution.md`, and the current module docs all point to this family. | The slice should be re-scoped before decisions are made. | `High` | `Keep as Assumption` |
 | `A-02` | Public route alias decisions can remain separate from the module-family decision. | Existing VNext terminology TODO already separates route/copy permanence from internal language cleanup. | The TODO may need to split or block. | `High` | `Keep as Assumption` |
 
 ## Execution Plan (Required Before `APROVADO`)
 ### Touched Surfaces
-- `foundation_documentation/modules/partner_catalog_and_offer_module.md`
-- `foundation_documentation/modules/partner_admin_module.md`
-- `foundation_documentation/modules/partner_analytics_module.md`
+- `foundation_documentation/modules/account_profile_catalog_module.md`
+- `foundation_documentation/modules/account_workspace_module.md`
+- `foundation_documentation/modules/account_profile_analytics_capability.md`
 - `foundation_documentation/modules/tenant_admin_module.md`
 - `foundation_documentation/project_constitution.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-partner-terminology-retirement-and-account-profile-language-normalization.md`
 - this TODO file
 
 ### Ordered Steps
-1. Audit the current `partner_*` family and immediate dependencies against `domain_entities.md` and `project_constitution.md`.
+1. Audit the legacy `partner_*` family and immediate dependencies against `domain_entities.md` and `project_constitution.md`.
 2. Build one explicit handling table for each current module (`preserve/rename/merge/split/retire`).
 3. Freeze the topology decision in this TODO before any rename/restructure execution is opened.
 

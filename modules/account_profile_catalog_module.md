@@ -1,14 +1,14 @@
-# Documentation: Account Profile Catalog & Offer Module
+# Documentation: Account Profile Catalog Module
 
 **Version:** 1.0  
 **Date:** February 28, 2025  
 **Authors:** Delphi (Belluga Co-Engineering)
 
-**Authority note (2026-04-18):** despite the historical filename, this document is currently the authority for tenant-public account-profile catalog/detail/discovery contracts. The `offer` label should be read as a deferred planned capability, not as a separate current runtime authority; whether that capability later stays here or is promoted to its own module is an implementation-time decision.
+**Authority note (2026-04-18):** this document is currently the authority for tenant-public account-profile catalog/detail/discovery contracts. The deferred `offer` concern should be read as a planned capability, not as a separate current runtime authority; whether that capability later stays here or is promoted to its own module is an implementation-time decision.
 
 ## 1. Overview
 
-The Account Profile Catalog & Offer module (MOD-304) maintains the canonical representation of **account profiles** (restaurants, artists, guides, merchants) that operate within a tenant. In current project authority, this module is the real source for public account-profile catalog/detail/discovery contracts consumed by the Map & POI module, Tenant Home Composer, and Agenda Planner. Historical "offer graph" wording in this file should be read as deferred capability planning, not as a separate current runtime boundary.
+The Account Profile Catalog module (MOD-304) maintains the canonical representation of **account profiles** (restaurants, artists, guides, merchants) that operate within a tenant. In current project authority, this module is the real source for public account-profile catalog/detail/discovery contracts consumed by the Map & POI module, Tenant Home Composer, and Agenda Planner. Deferred offer/commercial wording in this file should be read as capability planning, not as a separate current runtime boundary.
 
 ### 1.1 Canonical Anchors
 

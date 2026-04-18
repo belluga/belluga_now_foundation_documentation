@@ -78,13 +78,14 @@ This project operates inside the broader Belluga ecosystem under the PACED reuse
 ### 4.2 Major Modules / Bounded Contexts
 
 - `flutter_client_experience_module`: cross-surface client architecture and presentation/runtime contracts.
+- `account_workspace_module`: future authenticated operator workspace for account-managed memberships, assets, and workspace-facing dashboards.
 - `tenant_admin_module`: tenant-domain administration, settings, onboarding, domains, organizations, and event operations.
 - `events_module`: public/admin event contracts, occurrence/detail behavior, and event-management dependencies.
 - `invite_and_social_loop_module`: invite lifecycle, share attribution, contact import, and web-to-app conversion boundaries.
 - `agenda_and_action_planner_module`: agenda feed, action planning, and geo-origin behavior.
 - `map_poi_module`: map projections, filters, near/lookup surfaces, and POI integration seams.
 - `onboarding_flow_module`: identity progression, auth entry, and first-run route behavior.
-- `partner_catalog_and_offer_module`: account-profile/static-asset catalog and public profile/static-asset surface contracts.
+- `account_profile_catalog_module`: account-profile/static-asset catalog and public profile/static-asset surface contracts, with deferred offer/commercial capability planning.
 
 ### 4.3 External Integrations
 
@@ -102,7 +103,7 @@ This project operates inside the broader Belluga ecosystem under the PACED reuse
 - Route/scope ownership is fixed by `foundation_documentation/policies/scope_subscope_governance.md`: `EnvironmentType` remains binary (`landlord|tenant`), approved main scopes are `site_public`, `landlord_area`, `tenant_public`, and `tenant_admin`, and `account_workspace` is the only approved subscope.
 - Laravel owns host-resolved HTTP/runtime contracts, settings persistence, and public edge well-known endpoints. Flutter runtime consumes Laravel-backed adapters only; runtime mock fallback is forbidden outside explicit test injection.
 - Tenant admin runs on tenant domains under the `tenant_admin` main scope while still using landlord identity principal in V1. `account_workspace` remains an adjacent tenant subscope and must not be treated as a tenant-admin alias.
-- `partner_catalog_and_offer_module.md` remains the current authority file for public account-profile catalog/detail contracts despite its historical filename. Its deferred `offer` concern is capability-first by default. `partner_admin_module.md` is the legacy-named planning surface for future `account_workspace`, while `partner_analytics_module.md` is a capability-planning surface rather than a standalone current runtime authority.
+- `account_profile_catalog_module.md` is the current authority file for public account-profile catalog/detail contracts. Its deferred `offer` concern is capability-first by default. `account_workspace_module.md` is the canonical planning surface for future `account_workspace`, while `account_profile_analytics_capability.md` is a capability-planning surface rather than a standalone current runtime authority.
 - `web-app` is a derived/compiled runtime surface. Route/navigation test sources and governance-changing route artifacts must be authored in source-owned repos/tools, not directly in `web-app`.
 - Branch reconciliation and cleanup are repo-specific decisions. `foundation_documentation` is evaluated against `origin/main`; the root repo, `flutter-app`, and `laravel-app` use `origin/dev` for normal preflight/rebaseline decisions.
 
@@ -134,7 +135,8 @@ This project operates inside the broader Belluga ecosystem under the PACED reuse
 | `foundation_documentation/modules/agenda_and_action_planner_module.md` | `tenant_public` | Defines agenda feed behavior, action planning, and origin policy. | events, home composer, map |
 | `foundation_documentation/modules/map_poi_module.md` | `tenant_public` with `tenant_admin` inputs | Defines POI projections, filters, near/lookup contracts, and map governance. | events, account-profile/static-asset catalog, static assets |
 | `foundation_documentation/modules/onboarding_flow_module.md` | `tenant_public` + web-to-app boundary | Defines identity progression, auth entry rules, and invite/deep-link onboarding continuity. | invite loop, environment/bootstrap, profile |
-| `foundation_documentation/modules/partner_catalog_and_offer_module.md` | `tenant_public`, `tenant_admin` | Defines account-profile/static-asset catalogs, public profile/static-asset surface contracts, and registry-driven visual rules. | tenant admin, map, events |
+| `foundation_documentation/modules/account_workspace_module.md` | `account_workspace` | Defines the future authenticated operator workspace for account memberships, invite metrics, and workspace-facing dashboards. | tenant admin, invites, account-profile catalog |
+| `foundation_documentation/modules/account_profile_catalog_module.md` | `tenant_public`, `tenant_admin` | Defines account-profile/static-asset catalogs, public profile/static-asset surface contracts, and registry-driven visual rules. | tenant admin, map, events |
 
 ## 9. Strategic Framing
 

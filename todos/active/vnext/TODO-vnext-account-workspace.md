@@ -12,7 +12,7 @@
 ---
 
 ## References
-- `foundation_documentation/modules/partner_admin_module.md`
+- `foundation_documentation/modules/account_workspace_module.md`
 - `foundation_documentation/todos/completed/TODO-v1-first-release.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-account-claim-flow.md`
 
@@ -26,7 +26,7 @@
 ## A) Backend Tasks
 
 ### A1) Account access + permissions (Deferred)
-- [ ] ⚪ Implement account memberships with roles + permission flags (draft in `foundation_documentation/modules/partner_admin_module.md`)
+- [ ] ⚪ Implement account memberships with roles + permission flags (draft in `foundation_documentation/modules/account_workspace_module.md`)
 - [ ] ⚪ Expose tenant workspace team-management flows on top of those memberships/permission contracts.
 - [ ] ⚪ Future workspace constraint: workspace permissions must preserve `Account Profile` as the canonical invite recipient surface and must not collapse recipient identity into raw `User`.
 - [ ] ⚪ Future workspace constraint: do not assume invite response authority is identical to invite issuance authority; memberships may need a distinct permission for responding on behalf of an Account Profile.

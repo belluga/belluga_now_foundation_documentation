@@ -18,17 +18,17 @@
 ## Module Anchors
 
 - **Primary:** `../foundation_documentation/modules/flutter_client_experience_module.md`
-- **Secondary:** `../foundation_documentation/modules/partner_catalog_and_offer_module.md`
+- **Secondary:** `../foundation_documentation/modules/account_profile_catalog_module.md`
 
 ### Canonical Coverage Status
 
 - `flutter_client_experience_module.md`: authoritative for home favorites strip behavior, shared visual-resolution rules, and Flutter-side projection boundaries.
-- `partner_catalog_and_offer_module.md`: authoritative for public account-profile identity semantics reused by home/discovery/detail surfaces.
+- `account_profile_catalog_module.md`: authoritative for public account-profile identity semantics reused by home/discovery/detail surfaces.
 
 ### Decision Consolidation Targets
 
 - Promote durable favorites-strip preview contract changes into `../foundation_documentation/modules/flutter_client_experience_module.md`.
-- Promote only stable account-profile identity semantics into `../foundation_documentation/modules/partner_catalog_and_offer_module.md` if the lane changes reusable public preview expectations.
+- Promote only stable account-profile identity semantics into `../foundation_documentation/modules/account_profile_catalog_module.md` if the lane changes reusable public preview expectations.
 
 ---
 

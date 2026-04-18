@@ -30,7 +30,7 @@ Establish the canonical tenant-admin onboarding write path for `EnvironmentType=
 - **Secondary module docs:**
   - `foundation_documentation/modules/flutter_client_experience_module.md`
   - `foundation_documentation/modules/system_architecture_principles.md`
-  - `foundation_documentation/modules/partner_catalog_and_offer_module.md`
+  - `foundation_documentation/modules/account_profile_catalog_module.md`
 - **Additional governing docs:**
   - `foundation_documentation/domain_entities.md`
   - `foundation_documentation/policies/scope_subscope_governance.md`
@@ -165,7 +165,7 @@ Establish the canonical tenant-admin onboarding write path for `EnvironmentType=
 | D-04 | Aligned | Preserve | `foundation_documentation/modules/system_architecture_principles.md:26-33`, `lib/presentation/tenant_admin/accounts/controllers/tenant_admin_accounts_controller.dart:419-449` | Account and Account Profile remain 1:1; current Flutter create flow already treats `name` as the shared initial label. |
 | D-05 | Supersede | Supersede | `foundation_documentation/modules/system_architecture_principles.md:31`, `foundation_documentation/domain_entities.md:116-119`, `app/Http/Api/v1/Requests/AccountStoreRequest.php:27-34` | Project docs currently say `ownership_state` is not required in payloads, while the live admin contract requires it. Implementation must update the docs before coding. |
 | D-06 | Aligned | Preserve | `foundation_documentation/modules/flutter_client_experience_module.md:77-98`, `foundation_documentation/todos/completed/TODO-flutter-forms-422-validation-wrapper.md:1-61` | Flutter needs structured, stable error envelopes; this TODO tightens the exact field keys for the onboarding form and separates legacy-route policy rejection from validation failure. |
-| D-07 | Aligned | Preserve | `foundation_documentation/modules/tenant_admin_module.md:878-895`, `foundation_documentation/modules/partner_catalog_and_offer_module.md:30-33` | Tenant-admin onboarding already expects optional media, and the catalog module already treats media as canonical account-profile metadata. |
+| D-07 | Aligned | Preserve | `foundation_documentation/modules/tenant_admin_module.md:878-895`, `foundation_documentation/modules/account_profile_catalog_module.md:30-33` | Tenant-admin onboarding already expects optional media, and the catalog module already treats media as canonical account-profile metadata. |
 | D-08 | Aligned | Preserve | `foundation_documentation/modules/flutter_client_experience_module.md:59-75`, `foundation_documentation/modules/system_architecture_principles.md:52-53` | Flutter orchestration must remain controller/repository-driven. |
 | D-09 | Supersede | Supersede | `lib/presentation/tenant_admin/accounts/screens/tenant_admin_account_detail_screen.dart:98-101`, `lib/presentation/tenant_admin/accounts/screens/tenant_admin_account_detail_screen.dart:316-322`, `lib/presentation/tenant_admin/account_profiles/screens/tenant_admin_account_profile_create_screen.dart:497` | Current tenant-admin UI still treats standalone profile creation as valid. This TODO explicitly removes that deviation. |
 

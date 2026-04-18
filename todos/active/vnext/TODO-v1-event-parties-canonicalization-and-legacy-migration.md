@@ -38,19 +38,19 @@
 ## Module Anchors
 
 - **Primary:** `../foundation_documentation/modules/events_module.md`
-- **Secondary:** `../foundation_documentation/modules/flutter_client_experience_module.md`, `../foundation_documentation/modules/partner_catalog_and_offer_module.md`
+- **Secondary:** `../foundation_documentation/modules/flutter_client_experience_module.md`, `../foundation_documentation/modules/account_profile_catalog_module.md`
 
 ### Canonical Coverage Status
 
 - `events_module.md`: authoritative for event/event-occurrence payload ownership, CRUD contracts, `event_parties`, and immersive event-detail linked-profile semantics.
 - `flutter_client_experience_module.md`: authoritative for Tenant Admin interaction affordances and public immersive linked-profile card behavior.
-- `partner_catalog_and_offer_module.md`: authoritative for Account Profile agenda/card semantics that may need cleanup once venue leaves `event_parties`.
+- `account_profile_catalog_module.md`: authoritative for Account Profile agenda/card semantics that may need cleanup once venue leaves `event_parties`.
 
 ### Decision Consolidation Targets
 
 - Promote canonical event write/read contract changes to `../foundation_documentation/modules/events_module.md`.
 - Promote Tenant Admin provisional button behavior and Flutter interaction consequences only if they become durable enough for `../foundation_documentation/modules/flutter_client_experience_module.md`.
-- Promote durable Account Profile agenda/counterpart exclusion cleanup only if this lane changes cross-surface semantics materially enough for `../foundation_documentation/modules/partner_catalog_and_offer_module.md`.
+- Promote durable Account Profile agenda/counterpart exclusion cleanup only if this lane changes cross-surface semantics materially enough for `../foundation_documentation/modules/account_profile_catalog_module.md`.
 - Update `../foundation_documentation/endpoints_mvp_contracts.md` if the admin migration endpoint/command-backed route is approved.
 
 ---
@@ -59,7 +59,7 @@
 
 - `../foundation_documentation/modules/events_module.md`
 - `../foundation_documentation/modules/flutter_client_experience_module.md`
-- `../foundation_documentation/modules/partner_catalog_and_offer_module.md`
+- `../foundation_documentation/modules/account_profile_catalog_module.md`
 - `../foundation_documentation/todos/active/vnext/TODO-v1-immersive-event-detail-dynamic-profile-category-tabs.md`
 - `lib/infrastructure/dal/dao/tenant_admin/tenant_admin_events_request_encoder.dart`
 - `lib/infrastructure/dal/dao/tenant_admin/tenant_admin_events_response_decoder.dart`
@@ -211,7 +211,7 @@
 - `../foundation_documentation/todos/active/vnext/TODO-v1-event-parties-canonicalization-and-legacy-migration.md`
 - `../foundation_documentation/modules/events_module.md`
 - `../foundation_documentation/modules/flutter_client_experience_module.md`
-- `../foundation_documentation/modules/partner_catalog_and_offer_module.md`
+- `../foundation_documentation/modules/account_profile_catalog_module.md`
 - `../foundation_documentation/endpoints_mvp_contracts.md` (if endpoint added)
 - `lib/domain/tenant_admin/**`
 - `lib/infrastructure/dal/dao/tenant_admin/**`

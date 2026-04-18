@@ -113,7 +113,7 @@ Tenant-public event, account-profile, and static-asset routes already inject rou
 - **Secondary module docs (if any):**
   - `foundation_documentation/modules/flutter_client_experience_module.md`
   - `foundation_documentation/modules/events_module.md`
-  - `foundation_documentation/modules/partner_catalog_and_offer_module.md`
+  - `foundation_documentation/modules/account_profile_catalog_module.md`
 - **Planned decision promotion targets (module sections):**
   - `tenant_admin_module.md` visual identity / branding ownership
   - `flutter_client_experience_module.md` tenant-public web bootstrap/public shell contract

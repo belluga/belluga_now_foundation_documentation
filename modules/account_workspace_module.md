@@ -1,14 +1,14 @@
-# Documentation: Account Profile Admin & Workspace Module
+# Documentation: Account Workspace Module
 
 **Version:** 0.1 (Placeholder)  
 **Date:** February 28, 2025  
 **Authors:** Delphi (Belluga Co-Engineering)
 
-**Authority note (2026-04-18):** this file is the legacy-named planning surface for the future `account_workspace` authority. It is not a standalone current runtime authority. Current tenant-domain admin contracts live in `foundation_documentation/modules/tenant_admin_module.md`, while this front documents the future authenticated operator workspace.
+**Authority note (2026-04-18):** this file is the canonical documentation surface for the future `account_workspace` authority. It is not a standalone current runtime surface yet. Current tenant-domain admin contracts live in `foundation_documentation/modules/tenant_admin_module.md`, while this front documents the future authenticated operator workspace.
 
 ## 1. Purpose
 
-Captures legacy planning notes for the future Account Workspace experience where account operators manage memberships, invites, assets, and workspace-facing dashboards. This file does not define a current runtime authority yet: tenant-domain admin CRUD/registry contracts are already canonicalized in `tenant_admin_module.md`, and this front remains the future authenticated operator/workspace module to be renamed/promoted later.
+Captures the planned Account Workspace experience where account operators manage memberships, invites, assets, and workspace-facing dashboards. This file does not define a current runtime authority yet: tenant-domain admin CRUD/registry contracts are already canonicalized in `tenant_admin_module.md`, while this front defines the future authenticated operator/workspace module.
 
 ### 1.1 Canonical Anchors
 
@@ -17,7 +17,7 @@ Captures legacy planning notes for the future Account Workspace experience where
   - `foundation_documentation/submodule_laravel-app_summary.md`
   - `foundation_documentation/submodule_flutter-app_summary.md`
 - Cross-module references:
-  - `foundation_documentation/modules/partner_catalog_and_offer_module.md`
+  - `foundation_documentation/modules/account_profile_catalog_module.md`
   - `foundation_documentation/modules/invite_and_social_loop_module.md`
   - `foundation_documentation/modules/tenant_admin_module.md`
 - Tactical TODO streams:
@@ -106,7 +106,7 @@ Even in V1, we must support operational reality:
 
 ## 3. Next Action
 
-Do not treat this file as current runtime authority. The next structural step is to rename/promote this planning surface into the future `account_workspace` authority while keeping current tenant-domain admin contracts inside `tenant_admin_module.md`.
+Do not treat this file as current runtime authority yet. The next structural step is to keep growing this canonical workspace surface while current tenant-domain admin contracts stay inside `tenant_admin_module.md`.
 
 ## 4. Canonical Decision Baseline
 
@@ -116,7 +116,7 @@ Do not treat this file as current runtime authority. The next structural step is
 | `PAD-02` | Approved | Membership model exists as post-MVP target; MVP keeps landlord/admin-assigned operations. | Avoids fake permissions while preserving auditability. | Sections `2.1 A`, `2.1 C` |
 | `PAD-03` | Approved | Invite metrics for workspace are host/account-profile scoped. | Supports gamification/challenges without cross-account leakage. | Section `2.1 B` |
 | `PAD-04` | Approved | Default workspace dashboards show aggregates and inviter-principal breakdowns first; raw invitee identity is restricted to explicit operational/audit lists. | Balances business visibility with privacy and tenant-safe handling. | Section `2.1 B` |
-| `PAD-05` | Approved | This file is the legacy-named planning surface for the future `account_workspace` authority; capability fronts referenced here remain capability-first unless implementation later proves a distinct module boundary. | Prevents placeholder content from being mistaken for current runtime authority while preserving the future workspace front. | Sections `1`, `3` |
+| `PAD-05` | Approved | This file is the canonical planning surface for the future `account_workspace` authority; capability fronts referenced here remain capability-first unless implementation later proves a distinct module boundary. | Prevents placeholder content from being mistaken for current runtime authority while preserving the future workspace front. | Sections `1`, `3` |
 
 ## 5. Tactical TODO Promotion Ledger
 
