@@ -70,7 +70,7 @@ Governance constraints:
 
 ## 5. Architectural Principle Alignment
 
-* **P-1 (Domain-First, Schema-Second):** Partially Aligned — Domain entities and value objects exist, but partner subtype vocabulary (e.g., influencer/curator) and engagement metrics still need stricter documentation traceability in foundation docs.
+* **P-1 (Domain-First, Schema-Second):** Partially Aligned — Domain entities and value objects exist, but legacy partner-oriented subtype vocabulary in the Flutter layer (for example older influencer/curator naming) and engagement metrics still need stricter documentation traceability in foundation docs.
 * **P-3 (API-Centric Ecosystem):** Aligned — Runtime flows are Laravel-backed and bootstrapped through `/api/v1/environment`, with no runtime mock fallback.
 * **P-8 (Explicit Schemas):** Partially Aligned — Significant DTO coverage exists (app_data, schedule, invites, profile, map); remaining gaps are contract documentation depth and adapter completeness, not runtime mock databases.
 * **Appendix A (Flutter Tenets):** Partially Aligned — Feature-first organization and controller/stream patterns are present; continued tightening is needed to keep DTOs out of widgets and keep screen logic consistently controller-driven.
@@ -91,13 +91,13 @@ Governance constraints:
 * Account profiles/discovery runtime now follows account/account-profile contracts and must consume Laravel-backed repositories only; no runtime mock dataset fallback is allowed.
 * `ModuleSettings` supports test-time backend builders, enabling targeted tests to swap mock/real adapters without changing production wiring.
 * Architecture adherence refactor in progress: move repository/infrastructure usage out of screens/widgets into controllers, remove DTO types from UI, and ensure presentation logic remains controller-owned (no API contract changes intended).
-* DTO factories removed from Flutter domain models; mapping is centralized in infrastructure DTO mappers (invites, schedule, user, thumb, partner).
+* DTO factories removed from Flutter domain models; mapping is centralized in infrastructure DTO mappers (invites, schedule, user, thumb, and legacy pre-normalization account-profile detail surfaces).
 * Custom lint coverage now also enforces domain `fromJson/fromMap` prohibition, domain primitive-field warnings, repository/service JSON parsing boundaries, repository inline DTO->Domain mapper prohibition, repository raw transport typing prohibition (`dynamic`/`Map<String, dynamic>` in repositories), and repository raw payload map boundary prohibition (`Map<String, Object?>` in repositories; currently branch-delta lane while root config remains disabled), plus `multi_public_class_file_warning` under `lib/**`.
 * Hard‑NO cleanup queued (FCX‑06): remove non-controller/cross-feature GetIt resolution from widgets/screens, eliminate Future/StreamBuilder usage in presentation, replace direct Navigator calls with router/controller-driven navigation, split multi‑widget files, and purge DTO dependencies from the domain layer.
 * Profile module dependency wiring will be tightened to ensure `LandlordLoginController` is always registered when Profile routes are loaded (prevents GetIt resolution failures in device tests).
 * Architecture cleanup will introduce domain-level contracts for `AppDataRepository`, `PoiRepository`, `PushPresentationGate`, and `TelemetryQueue`, plus domain-owned `PoiQuery` to remove infrastructure/DAL dependencies from controllers.
-* Partner-specific mock content providers and partner audio playback are removed from MVP runtime scope; discovery/profile details remain account/account-profile driven.
-* Integration tests updated to use domain `PoiQuery` and `PartnerProfileConfigBuilder`; device checklist shows all integration tests green after these updates.
+* Legacy mock content providers and legacy profile-detail audio playback are removed from MVP runtime scope; discovery/profile details remain account/account-profile driven.
+* Integration tests updated to use domain `PoiQuery` and the current legacy-named `PartnerProfileConfigBuilder`; device checklist shows all integration tests green after these updates.
 * `packages/belluga_form_validation/` is now the canonical internal Flutter package for reusable form-validation behavior: transport-agnostic `422` failure modeling, `field|group|global` target resolution, theme-dependent default widgets, and anchor/scroll helpers.
 * Tenant-admin account sync pattern established: account list/detail/form flows consume repository-owned canonical streams; detail controllers derive account state via repository watch (stable `id` first, slug fallback only while unresolved), avoiding manual cross-controller synchronization.
 * Tenant-admin account creation now uses a dedicated `TenantAdminAccountCreateController`, while `TenantAdminAccountsController` is list-only; both are registered as route-local factories so list/create no longer share controller state.

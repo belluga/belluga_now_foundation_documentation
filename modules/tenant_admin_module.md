@@ -24,7 +24,7 @@ Canonical module contract for the Tenant Administration interface (`tenant_admin
 - Tactical TODO streams:
   - `foundation_documentation/todos/completed/TODO-v1-tenant-admin-navigation-ia-events-priority.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-static-assets-media-parity-with-account-profiles.md`
+  - `foundation_documentation/todos/completed/TODO-v1-static-assets-media-parity-with-account-profiles.md`
 
 ## 2. Intended Responsibilities
 

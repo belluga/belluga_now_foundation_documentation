@@ -6,6 +6,8 @@
 **Date:** 2026-04-18  
 **Objective:** Retire `partner` as canonical internal project terminology and normalize foundation docs, module names, contracts, and implementation language around `Account`, `Account Profile`, and registry-driven `Profile Type`.
 
+**Feature framing support:** `foundation_documentation/artifacts/feature-briefs/account-profile-module-family-reconciliation.md`
+
 ## Why
 
 - The current canonical business model no longer recognizes `partner` as a valid current domain noun.
