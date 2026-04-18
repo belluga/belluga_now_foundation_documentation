@@ -36,6 +36,7 @@
 
 ### 3.1 Canonical Presentation Ownership Model (Governance)
 Canonical governance source:
+- `foundation_documentation/project_constitution.md`
 - `foundation_documentation/policies/scope_subscope_governance.md`
 - This policy is mandatory reading before any Flutter route/module/screen ownership change.
 
@@ -62,6 +63,7 @@ Governance constraints:
     * `analysis_options.yaml`: Lints/analysis rules expected to stay clean.
     * `lib/application/router/modular_app/module_settings.dart`: Global registrations, backend selection, and submodule route initialization.
     * `lib/application/configurations/belluga_constants.dart`: Derives API base/admin URLs from `AppData` (bootstrapped at startup).
+    * `foundation_documentation/project_constitution.md`: Project-level cross-stack authority and repo-boundary rules.
     * `foundation_documentation/` (symlink): Shared domain/roadmap source of truth.
 
 ---

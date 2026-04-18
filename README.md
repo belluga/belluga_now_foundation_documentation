@@ -2,6 +2,16 @@
 
 This repository is the source of truth for Belluga foundation documentation and tactical TODOs.
 
+## Canonical Authority
+
+- `project_mandate.md`
+- `domain_entities.md`
+- `project_constitution.md`
+- `system_roadmap.md`
+- `policies/*.md`
+- `modules/*.md`
+- `todos/active/*.md` and `todos/completed/*.md`
+
 ## Scope
 
 - Architecture and mandate documents
@@ -13,6 +23,13 @@ This repository is the source of truth for Belluga foundation documentation and 
 1. Edit docs in this repo and open a PR.
 2. Merge to `main` after review.
 3. In `belluga_now_docker`, update the submodule pointer to the latest `main` commit when code or infra depends on updated docs.
+
+Current active TODO lane directories are:
+- `todos/active/store_release_android/`
+- `todos/active/fast_follow_required/`
+- `todos/active/vnext/`
+
+Retired lane names such as `pre_mvp_*`, `mvp_*`, `cross-stack`, `mvp_slices`, and `mvp_closure` are historical only and must not be used for new active TODO authority.
 
 ## Submodule Update (belluga_now_docker)
 
@@ -44,6 +61,7 @@ completion_metadata: branch=feature/x, commit=abc1234
 - Treat this repo as project-specific context; do not move content into `delphi-ai/`.
 - Follow the TODO-driven execution method before any changes.
 - Create new tactical TODOs from `delphi-ai/templates/todo_template.md` (see `foundation_documentation/todos/README.md`).
+- Use `project_constitution.md` for project-level rules and cross-module invariants; keep module-local contracts inside `modules/*.md`.
 - `✅ Production‑Ready` TODO status requires Delivery Confidence Gate evidence (or explicit waiver rationale), with artifacts under `foundation_documentation/artifacts/tmp/<run-id>/...`.
 - Record branch + commit hash in TODOs when tasks are completed.
 

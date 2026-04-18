@@ -40,6 +40,7 @@
     * `config/multitenancy.php`: `DomainTenantFinder`, `SwitchMongoTenantDatabaseTask`, tenant/landlord connections.
     * `config/sanctum.php`: Sanctum token settings.
     * `bootstrap/app.php`: API route prefixes, middleware groups, and project route registration.
+    * `foundation_documentation/project_constitution.md`: Project-level cross-stack authority and repo-boundary rules.
 
 ---
 
@@ -64,6 +65,7 @@
 
 ### 6.1 Scope/Subscope Ownership Contract for Client-Facing Routes
 Canonical governance source:
+- `foundation_documentation/project_constitution.md`
 - `foundation_documentation/policies/scope_subscope_governance.md`
 - This policy is mandatory reading before changing route/module contracts consumed by Flutter/Web clients.
 

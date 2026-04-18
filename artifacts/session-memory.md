@@ -18,11 +18,12 @@
   - tactical TODO approvals or profile handoffs.
 
 ## Latest Session Continuity
-- **Last updated:** `2026-04-18 11:11 -03`
-- **Current active TODO:** `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
-- **Current active front:** Store-release documentation is now coherent enough for no-context handoff across the current Android-release lanes. The recommended execution order is to implement `phone-otp-auth-and-contact-match` first, then return to `web-to-app-conversion-gate` for the full install/deferred/auth-wall manual funnel closure.
-- **Last confirmed truth:** `TODO-store-release-minimal-friends-and-favorites-mvp.md` now carries the frozen contacts/favorites/friends business contract, plus explicit exploratory-only Quóa UX references for `/convites/compartilhar` and dedicated `contact_groups` management. `TODO-ios-universal-links-production-validation.md` was tightened for no-context handoff with frozen scope/dependency boundaries. `Convite Nativo` is explicitly not a reference for the invite-composer lane. Post-session deterministic validation passed for `TODO-store-release-web-to-app-conversion-gate.md`, but reported structural format drift in `TODO-store-release-minimal-friends-and-favorites-mvp.md`, `TODO-ios-universal-links-production-validation.md`, and `TODO-store-release-phone-otp-auth-and-contact-match.md` around canonical delivery-stage/qualifier encoding and missing gate sections.
-- **Next likely step:** Open `TODO-store-release-phone-otp-auth-and-contact-match.md` and execute the backend/Flutter phone-OTP cutover first; after that, resume `TODO-store-release-web-to-app-conversion-gate.md` to validate the complete promotion -> deferred -> restricted-action -> auth-wall funnel on Android.
+- **Last updated:** `2026-04-18 12:39 -03`
+- **Current active session model:** session-memory is now subordinate to the active TODO and stored under `foundation_documentation/sessions/`.
+- **Current active session artifact:** `foundation_documentation/sessions/session_20260418-foundation-authority-rebaseline_memory.md`
+- **Current active TODO:** `foundation_documentation/todos/active/vnext/TODO-vnext-foundation-authority-and-branch-reconciliation.md`
+- **Continuity boundary:** this aggregate file is now pointer-only. Tactical continuity must live in the active TODO or the session-specific memory file, not here.
+- **Transposition summary:** durable lane-model continuity already lives in `foundation_documentation/project_constitution.md`; release-lane continuity remains in the specific `store_release_android/` and `fast_follow_required/` TODOs instead of a shared rolling note here.
 
 ## Confirmed User Preferences
 - none
@@ -32,4 +33,4 @@
 
 ## Dependency References
 - **Dependency readiness register:** `foundation_documentation/artifacts/dependency-readiness.md`
-- **Relevant status carry-over:** backlog authority now uses the flattened active-lane model `store_release_android` + `fast_follow_required` + `vnext`; resume work should open those lane TODOs first and treat older lane names as historical drift only.
+- **Relevant status carry-over:** backlog authority uses the flattened active-lane model `store_release_android` + `fast_follow_required` + `vnext`; canonical authority for that rule now lives in `foundation_documentation/project_constitution.md`, not in this aggregate memory file.

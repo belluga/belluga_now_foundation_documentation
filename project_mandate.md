@@ -1,13 +1,11 @@
 # Documentation: Project Mandate
-**Version:** 1.0
+**Version:** 1.1
 
 ## 1. Project Overview
 
 * **Project Name:** "Bóora!"
 * **Domain:** Multi-tenant Hyperlocal Experience Platform (TravelTech / Local Commerce)
 * **High-Level Goal:** To establish a symbiotic digital ecosystem that connects residents, tourists, and local specialists (guides, artists, producers) through a multi-tenant platform for discovering and transacting local experiences, events, and products.
-
-**Tenant framing:** Guar[APP]ari is the first tenant implementation hosted on Bóora!.
 
 ---
 

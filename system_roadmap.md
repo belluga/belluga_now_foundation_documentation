@@ -1,26 +1,24 @@
 # Documentation: System Roadmap
-**Version:** 1.0
+**Version:** 1.1
 
 ## 1. Roadmap Overview
 
-This roadmap enumerates the foundational milestones for the Belluga ecosystem. It aligns Flutter and Laravel implementations around production contracts, with runtime clients consuming live backend adapters only.
+This roadmap enumerates the foundational milestones for the Bóora! project within the Belluga ecosystem. It aligns Flutter and Laravel implementations around production contracts, with runtime clients consuming live backend adapters only. Tenant rollout remains flexible: operational delivery and validation may start with one or multiple tenants in parallel, and improvements should be generalized across tenants whenever the boundary is truly shared.
 
-## 2. Current Milestones
+## 2. Current Strategic Horizons
 
-| Workstream | Milestone | Description | Target | Status | Owner |
-|------------|-----------|-------------|--------|--------|-------|
-| Flutter Client Experience | FCX-01 | Bootstrap DI container, theming, and StreamValue-based controller scaffolding. | 2025-02-28 | In Progress | Delphi |
-| Flutter Client Experience | FCX-02 | Lock endpoint response schemas (contract-first) for MVP flows. | 2025-03-05 | Planned | Delphi |
-| Flutter Client Experience | FCX-03 | Wire Laravel-backed repositories/services to tenant home, agenda, invites, map, and account profiles based on contracts. | 2025-03-12 | Planned | Delphi |
-| Flutter Client Experience | FCX-04 | Implement telemetry (Mixpanel) baseline for MVP flows. | 2025-03-19 | Planned | Delphi |
-| Flutter Client Experience | FCX-05 | Add location permission guard + permission screen for geo-dependent routes (map/nearby). | 2025-03-26 | Planned | Delphi |
-| Flutter Client Experience | FCX-06 | Eliminate Flutter architecture hard‑NO deviations (non-controller/cross-feature GetIt resolution in screens/widgets, DTOs in domain, Future/StreamBuilder in UI, direct Navigator usage, multi‑widget files). | 2025-04-01 | Planned | Delphi |
-| Platform Realtime | PRX-01 | Add SSE delta streams for app feeds (events, invites, POIs) to complement page-based pagination. | 2025-04-02 | Planned | Delphi |
-| Platform Routing & Scope | PRS-01 | Canonical environment scope reorganization (`landlord`/`tenant` + main scopes + `account_workspace` subscope), including host-aware `/home` and `/landlord` normalization and live web validation matrix. | 2026-02-24 | Tested & Ready | Delphi |
+| Horizon | Active Lane / Surface | Description | Status | Primary Sources |
+|---------|------------------------|-------------|--------|-----------------|
+| Android Release Readiness | `todos/active/store_release_android/` | Launch-critical release gate covering Android publication, web-to-app conversion continuity, auth method governance, and release confidence. | Active | Store-release TODO set, Flutter/Laravel modules |
+| Mandatory Fast Follow | `todos/active/fast_follow_required/` | Required post-release continuation for iOS universal links/deferred capture, QR-authenticated web posture, and related app/web continuation work. | Active | Fast-follow TODO set, `policies/web_to_app_promotion_policy.md` |
+| VNext Foundations | `todos/active/vnext/` | Deferred but approved architectural backlog for tenant user/account workspace, ticketing, domain management follow-up, richer event/detail behavior, and test hardening. | Active | VNext TODO set, module docs |
+| Project Authority Reconciliation | `project_constitution.md` + top-level authority docs | Keep project authority and branch decisions aligned with the current Delphi baseline before new medium/big work resumes. | In Progress | `project_constitution.md`, reconciliation TODO/brief, top-level authority docs |
 
-## 2.1 Documentation Integrity Gaps
-- `submodule_web-app_summary.md` is still missing and must be generated.
-- Existing submodule summaries must be kept synchronized with checked-out submodule commits at each documentation consolidation checkpoint.
+## 2.1 Documentation and Authority Integrity
+- `project_constitution.md` is the canonical project-level authority surface and must remain aligned with module docs, strategic lanes, and active TODOs.
+- Existing submodule summaries must be kept synchronized with checked-out submodule commits at each major documentation consolidation or release checkpoint.
+- Retired active-lane names such as `pre_mvp_*`, `mvp_*`, `cross-stack`, `mvp_slices`, and `mvp_closure` are historical only and must not be reintroduced into new active authority docs.
+- Branch reconciliation is repo-specific: `foundation_documentation` is evaluated against `origin/main`, while `belluga_now_docker`, `flutter-app`, and `laravel-app` use `origin/dev` for normal preflight/rebaseline decisions.
 
 ## 2.2 Scope/Subscope Governance (Mandatory)
 - Mandatory pre-read for route/module/screen work: `foundation_documentation/policies/scope_subscope_governance.md`.
