@@ -95,7 +95,7 @@ The active `vnext/` lane is intentionally large, but several files still blur di
   - `foundation_documentation/todos/active/vnext/TODO-vnext-foundation-authority-and-branch-reconciliation.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-test-hardening-program.md`
-  - `foundation_documentation/todos/active/vnext/TODO-vnext-centralized-back-navigation-governance.md`
+  - `foundation_documentation/todos/completed/TODO-v1-canonical-back-navigation-governance-cutover.md`
 - **Planned decision promotion targets (module sections):**
   - touched TODOs only in this slice
 - **Module decision consolidation targets (required):**
@@ -137,7 +137,7 @@ The active `vnext/` lane is intentionally large, but several files still blur di
 - `foundation_documentation/todos/active/vnext/TODO-vnext-test-hardening-defect-backlog.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-parking-lot.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
-- `foundation_documentation/todos/active/vnext/TODO-vnext-centralized-back-navigation-governance.md`
+- `foundation_documentation/todos/completed/TODO-v1-canonical-back-navigation-governance-cutover.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-location-permission-back-button-fix.md`
 
 ### Ordered Steps

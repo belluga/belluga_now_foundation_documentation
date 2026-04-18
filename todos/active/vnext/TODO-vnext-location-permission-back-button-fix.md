@@ -6,7 +6,7 @@ Location Permission Back Button Fix
 
 ## Role Note
 - This TODO is a localized regression slice under the broader back-navigation architecture front.
-- App-wide back-governance ownership remains `foundation_documentation/todos/active/vnext/TODO-vnext-centralized-back-navigation-governance.md`.
+- App-wide back-governance ownership now lives in `foundation_documentation/todos/completed/TODO-v1-canonical-back-navigation-governance-cutover.md` plus the promoted `flutter_client_experience_module.md` contract (`FCX-07`).
 - This file must not be read as the owner of the general back-navigation policy.
 
 ## Context

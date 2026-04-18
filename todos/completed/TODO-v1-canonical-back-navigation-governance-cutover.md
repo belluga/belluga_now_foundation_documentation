@@ -58,7 +58,7 @@
 - Promote tenant-admin shell-specific back behavior into `tenant_admin_module.md` only if this slice freezes durable shell-root fallback semantics there.
 - Promote invite/promotion-specific back semantics into secondary module docs only where they become durable route contracts.
 - Promote tenant-home/workspace transition semantics into `tenant_home_composer_module.md` only where this slice freezes durable ancestry or workspace-entry behavior.
-- Resolve the current active VNext ledger `foundation_documentation/todos/active/vnext/TODO-vnext-centralized-back-navigation-governance.md` by either superseding or closing it once this immediate cutover lands.
+- Resolved on `2026-04-18`: the former active VNext ledger now lives at `foundation_documentation/todos/completed/TODO-vnext-centralized-back-navigation-governance.md` as a historical precursor, no longer as an active owner.
 
 ---
 
@@ -66,7 +66,7 @@
 
 - `foundation_documentation/policies/scope_subscope_governance.md`
 - `foundation_documentation/todos/completed/TODO-v1-tenant-public-safe-back-navigation.md`
-- `foundation_documentation/todos/active/vnext/TODO-vnext-centralized-back-navigation-governance.md`
+- `foundation_documentation/todos/completed/TODO-vnext-centralized-back-navigation-governance.md`
 - `lib/application/application_contract.dart`
 - `lib/application/router/support/canonical_route_family.dart`
 - `lib/application/router/support/canonical_route_governance.dart`
@@ -232,7 +232,7 @@
 
 | Decision | Module Coherence | Change Intent | Evidence |
 | --- | --- | --- | --- |
-| `D-01` | `Aligned` | `Preserve` | `TODO-vnext-centralized-back-navigation-governance.md` already freezes the three route classes |
+| `D-01` | `Aligned` | `Preserve` | `TODO-vnext-centralized-back-navigation-governance.md` (now archived under `todos/completed/`) already froze the three route classes |
 | `D-02` | `Supersede` | `Intentional` | external critique rejected `app_root_exit` as a route class; tenant-home proves it is a no-history terminal outcome |
 | `D-03` | `Supersede` | `Intentional` | current shared widgets still hide raw `maybePop/pop`; this slice removes that ownership smell |
 | `D-04` | `Aligned` | `Preserve` | tenant-public safe-back contract in `flutter_client_experience_module.md` |
@@ -312,6 +312,7 @@
 ### Touched Surfaces
 
 - `foundation_documentation/todos/active/concluded_but_active/TODO-v1-canonical-back-navigation-governance-cutover.md`
+- `foundation_documentation/todos/completed/TODO-v1-canonical-back-navigation-governance-cutover.md`
 - `foundation_documentation/artifacts/dependency-readiness.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
 - secondary module docs only where durable route-specific back rules are frozen there (`tenant_admin`, `invite/social`, `onboarding`, `tenant_home_composer`)

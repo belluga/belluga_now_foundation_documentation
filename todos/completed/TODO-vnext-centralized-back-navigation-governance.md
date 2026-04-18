@@ -3,9 +3,11 @@
 **Authority note (2026-04-18):** this TODO is the primary deferred owner for app-wide back-navigation policy. One-off route regressions may use separate fix TODOs only when they explicitly defer broader governance ownership to this lane rather than acting as parallel policy owners.
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production-Ready`
-**Status:** Active
+**Status:** Completed (`superseded by delivered canonical cutover and promoted module contract`)
 **Owners:** Flutter Team
 **Objective:** Promote back navigation to a first-class architecture rule so every Flutter route uses a shared, deterministic back contract instead of ad-hoc `pop/removeLast` logic.
+
+**Resolution note (2026-04-18):** this ledger is no longer an active `vnext` owner. The delivered cutover now lives in `foundation_documentation/todos/completed/TODO-v1-canonical-back-navigation-governance-cutover.md`, and the canonical promoted contract lives in `foundation_documentation/modules/flutter_client_experience_module.md` (`FCX-07`). This file is retained only as the historical deferred-owner precursor that froze the route classes and early policy shape before delivery.
 
 ---
 
@@ -129,30 +131,25 @@
 
 ## Tasks
 
-- [ ] ⚪ Pending — Define the canonical app-wide back-navigation rule in module docs.
-- [ ] ⚪ Pending — Classify Flutter routes into `root-openable`, `internal-only`, or `modal/overlay`.
-- [ ] ⚪ Pending — Audit tenant-public routes still outside the centralized helper.
-- [ ] ⚪ Pending — Audit invite routes and freeze explicit fallback behavior for each one.
-- [ ] ⚪ Pending — Audit tenant-admin routes with custom back behavior.
-- [ ] ⚪ Pending — Audit shared screen shells/components for raw `pop/removeLast` ownership smells.
-- [ ] ⚪ Pending — Decide whether analyzer/lint enforcement is required for route-policy violations.
-- [ ] ⚪ Pending — Promote the final rule and route-classification matrix into canonical docs.
+- [x] ✅ Production-Ready — Canonical app-wide back-navigation rule was promoted through the delivered cutover and module contract.
+- [x] ✅ Production-Ready — Route classes were frozen and operationalized in the delivered cutover.
+- [x] ✅ Production-Ready — Tenant-public, invite, tenant-admin, shared-shell, and route-governance audit fronts were absorbed by the delivered cutover.
+- [x] ✅ Production-Ready — The finalized contract was promoted into canonical docs and runtime governance helpers.
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] ⚪ Pending — Every audited route class has a documented back-governance rule.
-- [ ] ⚪ Pending — Root-openable routes no longer depend on implicit stack assumptions.
-- [ ] ⚪ Pending — Invite flows are explicitly classified and no longer rely on ambiguous route-policy ownership.
-- [ ] ⚪ Pending — Shared shells no longer hide raw route-policy decisions in reusable widgets.
-- [ ] ⚪ Pending — The project has one durable source of truth for back behavior, not multiple lane-local conventions.
+- [x] ✅ Production-Ready — Every audited route class now has a documented back-governance rule through the delivered cutover and promoted module contract.
+- [x] ✅ Production-Ready — Root-openable routes no longer depend on implicit stack assumptions inside the canonical governance path.
+- [x] ✅ Production-Ready — Invite flows and shared shells are covered by the delivered cutover contract.
+- [x] ✅ Production-Ready — The project now has one promoted source of truth for back behavior (`flutter_client_experience_module.md` + delivered cutover).
 
 ---
 
 ## Definition of Done
 
-- [ ] ⚪ Pending — Canonical route-governance rule is written and approved.
-- [ ] ⚪ Pending — Route classification matrix is documented for the relevant app surfaces.
-- [ ] ⚪ Pending — Invite and tenant-admin route audits are completed or explicitly split into follow-up TODOs.
-- [ ] ⚪ Pending — Enforcement decision (process-only vs lint-backed) is frozen.
+- [x] ✅ Production-Ready — Canonical route-governance rule is written and approved.
+- [x] ✅ Production-Ready — Route classification matrix is documented for the relevant app surfaces.
+- [x] ✅ Production-Ready — Invite and tenant-admin route audits were absorbed by the delivered cutover.
+- [x] ✅ Production-Ready — The structural enforcement path is frozen in the promoted contract/cutover trail.
