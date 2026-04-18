@@ -141,11 +141,11 @@ Captures user actions taken from the home screen so ranking logic can adapt.
 
 ---
 
-## 6. Roadmap
+## 6. Current Strategic Posture
 
-1. **MVP (FCX-01/02):** Deferred; client composes home from independent endpoints (invites, agenda, map, discovery).
-2. **Phase 8 Dependency:** Integrate Multidimensional Insights snapshots to surface gamified leaderboards.
-3. **Phase 10 Alignment:** Receive backend-driven aggregation payloads to fully replace mock data while preserving the same schema.
+1. **Current posture:** the composer aggregate remains deferred; current home delivery still composes from independent invite, agenda, map, and discovery surfaces.
+2. **Deferred continuity:** future multidimensional insights snapshots may surface leaderboard-style social proof once that capability is promoted.
+3. **Deferred continuity:** backend-driven home aggregation may later replace client-side composition while preserving the same section schema.
 
 ## 7. Canonical Decision Baseline
 

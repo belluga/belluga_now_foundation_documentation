@@ -19,7 +19,7 @@ The Task & Reminder Orchestration module (MOD-306) governs every follow-up oblig
   - `foundation_documentation/modules/transaction_bridge_module.md`
 - Tactical TODO streams:
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
+  - `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`
 
 ---
 
@@ -93,7 +93,7 @@ Appends events (creation, acknowledgement, completion) for auditability.
     * `task.push.sent` – includes `channel`, `attempt`, and `payload_hash` for observability.
     * `task.completed` – fired when `/complete` is called; invite module listens to mark fulfillment steps done.
     * `task.expired` – emitted when due_at passes without completion; Invite module can translate this into `invite.attendance.no-show` or account profile escalations.
-    * `task.reminder.failed` – emitted if push delivery exhausts retries; Account Analytics logs these to highlight tasks requiring manual intervention.
+    * `task.reminder.failed` – emitted if push delivery exhausts retries; a future account/workspace analytics capability may log these to highlight tasks requiring manual intervention.
 
 ---
 
@@ -105,12 +105,12 @@ Appends events (creation, acknowledgement, completion) for auditability.
 
 ---
 
-## 7. Roadmap
+## 7. Current Strategic Posture
 
-1. **FCX-02:** Mock service generating deterministic follow-up tasks with simulated push payloads.
-2. **Phase 6:** Tie personalization rules into reminder scheduling (e.g., only remind users who favorited the account profile).
-3. **Phase 8:** Emit gamification events (streaks, points) when tasks are completed on time.
-4. **Phase 13:** Extend to notification multiplexing (email/SMS) while keeping the same task schema.
+1. **Current posture:** reminder orchestration remains a documented integration surface; store-release authority does not depend on a new standalone runtime for this module yet.
+2. **Deferred continuity:** personalization/favorites may later influence reminder scheduling when that capability is promoted into the active roadmap.
+3. **Deferred continuity:** task completion may emit richer gamification hooks when that capability becomes current project scope.
+4. **Deferred continuity:** delivery channels may expand beyond push/in-app without changing the canonical task schema.
 
 ## 8. Canonical Decision Baseline
 
@@ -124,5 +124,5 @@ Appends events (creation, acknowledgement, completion) for auditability.
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
-| `TODO-v1-invites-implementation.md` | Invite reminder/check-in integration and follow-up intents | In progress (non-blocking) | `2`, `5`, `8` | Deliberately deferred to attendance/check-in follow-up slices; invite delivery is complete without this integration. |
+| `TODO-v1-invites-implementation.md` | Invite reminder/check-in integration and follow-up intents | Completed | `2`, `5`, `8` | Invite delivery authority is complete; reminder/check-in follow-up remains deferred to later attendance-oriented slices. |
 | `TODO-store-release-android.md` | Android release orchestration priorities and hardening sequence | In progress | `4`, `7` | Current release-level authority for reminder-adjacent readiness and sequencing. |

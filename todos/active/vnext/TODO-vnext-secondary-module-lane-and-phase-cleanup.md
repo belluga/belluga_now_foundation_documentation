@@ -20,16 +20,16 @@ The main authority package, module-family rename, and current-state alignment fo
 - If execution reveals broader contract redesign or new module-boundary disputes, split that into another TODO instead of inflating this cleanup slice.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Pending`
-- **Qualifiers:** `none`
-- **Next exact step:** normalize stale lane/phase/evidence references in the selected secondary modules, then validate that the touched docs no longer imply retired tactical structures.
+- **Current delivery stage:** `Local-Implemented`
+- **Qualifiers:** `Docs-Validated`
+- **Next exact step:** checkpoint and push this secondary-module cleanup slice, then move the reconciliation audit to the next authority front.
 
 ## Scope
-- [ ] Update `task_and_reminder_module.md` so tactical links and roadmap framing stop depending on `mvp_slices` and `Phase N` wording.
-- [ ] Update `onboarding_flow_module.md` and `invite_and_social_loop_module.md` so invite-implementation references point to the completed/current authority path.
-- [ ] Update `agenda_and_action_planner_module.md` and `tenant_home_composer_module.md` so roadmap sections no longer present old `FCX-0x` / `Phase N` framing as current authority.
-- [ ] Replace any selected stale evidence links that point to retired or non-existent active paths (for example `concluded_but_active`) with current canonical evidence paths.
-- [ ] Keep product/runtime behavior, public aliases, and deeper contract redesign out of scope.
+- [x] Update `task_and_reminder_module.md` so tactical links and roadmap framing stop depending on `mvp_slices` and `Phase N` wording.
+- [x] Update `onboarding_flow_module.md` and `invite_and_social_loop_module.md` so invite-implementation references point to the completed/current authority path.
+- [x] Update `agenda_and_action_planner_module.md` and `tenant_home_composer_module.md` so roadmap sections no longer present old `FCX-0x` / `Phase N` framing as current authority.
+- [x] Replace any selected stale evidence links that point to retired or non-existent active paths (for example `concluded_but_active`) with current canonical evidence paths.
+- [x] Keep product/runtime behavior, public aliases, and deeper contract redesign out of scope.
 
 ## Delivery Status Semantics
 - `Pending`: no meaningful delivery milestone has been reached yet.
@@ -48,7 +48,7 @@ The main authority package, module-family rename, and current-state alignment fo
 ## Promotion Evidence (Required Before `🟣 Lane-Promoted` / `✅ Production-Ready`)
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Secondary module lane/phase cleanup | `docs/foundation-authority-reconciliation@<pending>` | `n/a` | `n/a` | `<pending>` | `pending` |
+| Secondary module lane/phase cleanup | `docs/foundation-authority-reconciliation@working-tree` | `n/a` | `n/a` | `<pending>` | `local-implemented` |
 
 ## Out of Scope
 - [ ] Do not redesign module boundaries or runtime ownership in this slice.
@@ -61,14 +61,15 @@ The main authority package, module-family rename, and current-state alignment fo
 - **Must update or split the TODO:** broad artifact-history cleanup, route/product policy changes, or code/runtime changes.
 
 ## Definition of Done
-- [ ] The selected secondary modules no longer point to retired `mvp_slices` paths or stale/non-existent active evidence paths.
-- [ ] The selected roadmap sections no longer depend on `FCX-0x` / `Phase N` framing as if it were current authority.
-- [ ] Deferred capabilities mentioned in touched modules remain documented, but are framed as deferred continuation rather than obsolete phase-era commitments.
+- [x] The selected secondary modules no longer point to retired `mvp_slices` paths or stale/non-existent active evidence paths.
+- [x] The selected roadmap sections no longer depend on `FCX-0x` / `Phase N` framing as if it were current authority.
+- [x] Deferred capabilities mentioned in touched modules remain documented, but are framed as deferred continuation rather than obsolete phase-era commitments.
 
 ## Validation Steps
-- [ ] `git -C foundation_documentation diff --check`
-- [ ] `rg -n "active/mvp_slices|Phase [0-9]+|FCX-0[12]|concluded_but_active" foundation_documentation/modules/task_and_reminder_module.md foundation_documentation/modules/onboarding_flow_module.md foundation_documentation/modules/invite_and_social_loop_module.md foundation_documentation/modules/agenda_and_action_planner_module.md foundation_documentation/modules/tenant_home_composer_module.md foundation_documentation/modules/flutter_client_experience_module.md`
-- [ ] Manual readback confirms the touched modules still make semantic sense after removing the stale lane/phase framing.
+- [x] `git -C foundation_documentation diff --check`
+- [x] `rg -n "active/mvp_slices|Phase [0-9]+|concluded_but_active" foundation_documentation/modules/task_and_reminder_module.md foundation_documentation/modules/onboarding_flow_module.md foundation_documentation/modules/invite_and_social_loop_module.md foundation_documentation/modules/agenda_and_action_planner_module.md foundation_documentation/modules/tenant_home_composer_module.md foundation_documentation/modules/flutter_client_experience_module.md`
+- [x] `rg -n "FCX-0[12]" foundation_documentation/modules/task_and_reminder_module.md foundation_documentation/modules/invite_and_social_loop_module.md foundation_documentation/modules/agenda_and_action_planner_module.md foundation_documentation/modules/tenant_home_composer_module.md`
+- [x] Manual readback confirms the touched modules still make semantic sense after removing the stale lane/phase framing.
 
 ## Profile Scope & Handoffs (Required Before `APROVADO`)
 - **Primary execution profile:** `strategic-cto`

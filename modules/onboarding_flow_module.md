@@ -18,7 +18,7 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
   - `foundation_documentation/modules/map_poi_module.md`
   - `foundation_documentation/modules/task_and_reminder_module.md`
 - Tactical TODO streams:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
+  - `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`

@@ -20,7 +20,7 @@ The Invite & Social Loop module (MOD-302) governs the tenant app virality engine
   - `foundation_documentation/modules/onboarding_flow_module.md`
   - `foundation_documentation/modules/transaction_bridge_module.md`
 - Tactical TODO streams:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
+  - `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
@@ -496,7 +496,7 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 
 ## 5. Gamification Hooks
 
-* **Streak Engine:** Maintains per-user streak documents with counters for consecutive days of invite engagement. Feeds Phase 8 Gamification Spine.
+* **Streak Engine:** Maintains per-user streak documents with counters for consecutive days of invite engagement. Feeds deferred gamification and insights surfaces when those capabilities are promoted.
 * **Shareable Badges:** Each accepted invite can mint a badge reference consumed by the Flutter badge component.
 * **Leaderboard Source Events:** Emits delta events to the Multidimensional Insights Service with payload `{model_key: "invite_conversion", topic_reference: {type: "user", id: sender_user_id}, metrics: {accepted_invites: 1}}`.
 
@@ -504,9 +504,9 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 
 ## 6. Roadmap Alignment
 
-* FCX-02 wires mocked repositories to this contract.
+* Current invite delivery already consumes the backend-owned contract directly; follow-up store-release and fast-follow slices should treat this module as the canonical authority surface rather than phase-era mock scaffolding.
 * Native-app external-contact share targets may use WhatsApp deep links as the preferred channel when available, with system-share fallback.
-* Account Profile Workspace fast-follow consumes `invite_edges` to expose referral funnels to account operators without duplicating logic. A dedicated Account Analytics module will aggregate invitation performance per plan, quota bucket, and channel to support billing and upsell strategies.
+* Account Profile Workspace fast-follow consumes `invite_edges` to expose referral funnels to account operators without duplicating logic. A future account/workspace analytics capability may aggregate invitation performance per plan, quota bucket, and channel to support billing and upsell strategies.
 
 ## 7. Canonical Decision Baseline
 

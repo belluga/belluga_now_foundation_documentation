@@ -203,11 +203,11 @@ Events use canonical `location` + `place_ref`; venue projection is resolved from
 
 ---
 
-## 6. Roadmap
+## 6. Current Strategic Posture
 
-1. **FCX-02:** Mocked agenda repository feeding Flutter controllers using static JSON snapshots.
-2. **Phase 6:** Introduce favorites/personalization, linking timeline nodes to saved POIs.
-3. **Phase 11:** Attach privacy and invite-status halos, reusing derived state to toggle exposure levels.
+1. **Current posture:** the agenda contract is already consumed through the current repository/controller boundary; this module should no longer frame its authority through mock-phase language.
+2. **Deferred continuity:** favorites/personalization may later enrich timeline nodes with saved-POI context when that capability is promoted.
+3. **Deferred continuity:** privacy and invite-status halos may reuse the same derived agenda state when those visibility capabilities become current scope.
 
 ## 7. Canonical Decision Baseline
 
@@ -222,7 +222,7 @@ Events use canonical `location` + `place_ref`; venue projection is resolved from
 | `AGD-07` | Approved | Repository-owned agenda/home aggregate streams are canonical backend-backed snapshots, not controller projection surfaces. Controllers may combine canonical event streams with invite/confirmation streams to derive local display state, but they must never publish those projections back into repository event streams or reconstruct aggregate truth from shared scratch pagination state. | Preserves single-writer ownership, avoids cross-surface pagination bleed, and keeps invite state as an orthogonal aggregate. | Section `3.4` + `foundation_documentation/todos/active/vnext/TODO-v1-home-agenda-canonical-stream-ownership-hardening.md` |
 | `AGD-08` | Approved | Query-scoped page state for schedule/search is repository-owned unless the aggregate itself is explicitly canonical. Shared scratch page streams/counters are forbidden, and backend page-envelope knowledge (`has_more`, page-result wrappers, raw builders), public cache/query snapshot wrappers (`*CacheSnapshot`), delegated pagination state (`hasMore...`), page-addressed contract APIs (`loadNext...Page()`), plus raw pagination controls (`page`, `pageSize`, cursors, limits) must remain repository-internal rather than exported from domain surfaces or repository contracts. Schedule consumers receive materialized domain items and semantic repository intents only. Repository-owned pagination/query helpers are private implementation details and must not be re-exposed through delegated helpers, support abstractions, or test double hooks. | Prevents controller cross-talk, keeps repository aggregates single-writer, and stops pagination-envelope/cache-snapshot fabrication or leakage outside repository ownership. | Section `3.4` + `foundation_documentation/todos/active/vnext/TODO-v1-home-agenda-canonical-stream-ownership-hardening.md` |
 | `AGD-09` | Approved | Home Agenda V1 may replace live device origin with the tenant default origin when the user is farther than the tenant-configured maximum Home radius from the tenant default origin, persisting that Home-only reference mode locally/device-side while keeping backend geo filtering authoritative for the final query. | Preserves useful Home results for out-of-city users without redefining generic agenda/search geo semantics. | Section `3.4` + `foundation_documentation/todos/completed/TODO-v1-home-location-origin-reference-mode.md` |
-| `AGD-10` | Approved | Home Agenda scroll-driven chrome must follow the real agenda-list scroll source. Any agenda-specific widget controller used for that chrome remains subtree-private, while shared radius preference continues to be repository-owned. | Prevents false outer-scroll bindings and blocks screen-controller or controller-relay workarounds for agenda-local chrome behavior. | Section `3.4` + `foundation_documentation/todos/active/vnext/TODO-v1-home-agenda-canonical-stream-ownership-hardening.md` + `foundation_documentation/todos/active/concluded_but_active/TODO-v1-events-radius-button-behavior.md` |
+| `AGD-10` | Approved | Home Agenda scroll-driven chrome must follow the real agenda-list scroll source. Any agenda-specific widget controller used for that chrome remains subtree-private, while shared radius preference continues to be repository-owned. | Prevents false outer-scroll bindings and blocks screen-controller or controller-relay workarounds for agenda-local chrome behavior. | Section `3.4` + `foundation_documentation/todos/active/vnext/TODO-v1-home-agenda-canonical-stream-ownership-hardening.md` + `foundation_documentation/todos/completed/TODO-v1-home-agenda-controller-boundary-plugin-rules.md` |
 
 ## 8. Tactical TODO Promotion Ledger
 
