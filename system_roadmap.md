@@ -1,9 +1,9 @@
 # Documentation: System Roadmap
-**Version:** 1.1
+**Version:** 1.2
 
 ## 1. Roadmap Overview
 
-This roadmap enumerates the foundational milestones for the Bóora! project within the Belluga ecosystem. It aligns Flutter and Laravel implementations around production contracts, with runtime clients consuming live backend adapters only. Tenant rollout remains flexible: operational delivery and validation may start with one or multiple tenants in parallel, and improvements should be generalized across tenants whenever the boundary is truly shared.
+This roadmap enumerates the foundational milestones for the Bóora! project within the Belluga ecosystem. It aligns Flutter and Laravel implementations around production contracts, with runtime clients consuming live backend adapters only. Tenant rollout remains flexible: operational delivery and validation may start with one or multiple tenants in parallel, and improvements should be generalized across tenants whenever the boundary is truly shared. Cold-start activation remains a recurring strategic concern: tenant bootstrap must continue to support curated supply, `unmanaged` account profiles, and later claim/self-management transitions for every new or expanding tenant.
 
 ## 2. Current Strategic Horizons
 
@@ -12,6 +12,7 @@ This roadmap enumerates the foundational milestones for the Bóora! project with
 | Android Release Readiness | `todos/active/store_release_android/` | Launch-critical release gate covering Android publication, web-to-app conversion continuity, auth method governance, and release confidence. | Active | Store-release TODO set, Flutter/Laravel modules |
 | Mandatory Fast Follow | `todos/active/fast_follow_required/` | Required post-release continuation for iOS universal links/deferred capture, QR-authenticated web posture, and related app/web continuation work. | Active | Fast-follow TODO set, `policies/web_to_app_promotion_policy.md` |
 | VNext Foundations | `todos/active/vnext/` | Deferred but approved architectural backlog for tenant user/account workspace, ticketing, domain management follow-up, richer event/detail behavior, and test hardening. | Active | VNext TODO set, module docs |
+| Tenant Bootstrap Repeatability | `project_mandate.md` + account/profile canonical docs | Preserve recurring cold-start strategy across tenants through curated supply, `unmanaged` account profiles, and later claim/self-management transitions without redefining the core domain model. | Active | `project_mandate.md`, `domain_entities.md`, `modules/tenant_admin_module.md`, `modules/partner_catalog_and_offer_module.md` |
 | Project Authority Reconciliation | `project_constitution.md` + top-level authority docs | Keep project authority and branch decisions aligned with the current Delphi baseline before new medium/big work resumes. | In Progress | `project_constitution.md`, reconciliation TODO/brief, top-level authority docs |
 
 ## 2.1 Documentation and Authority Integrity

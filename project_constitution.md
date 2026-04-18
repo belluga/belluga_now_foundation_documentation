@@ -1,9 +1,9 @@
 # Documentation: Project Constitution
-**Version:** 1.2
+**Version:** 1.3
 
 ## 1. Purpose
 
-- **Project purpose:** Establish the launch-ready architecture for the Bóora! project as a multi-tenant hyperlocal experience platform spanning tenant public discovery, invite-driven conversion, tenant administration, and landlord operations inside the broader Belluga ecosystem.
+- **Project purpose:** Establish the launch-ready architecture for the Bóora! project as a multi-tenant, multilateral hyperlocal experience platform spanning tenant public discovery, invite-driven conversion, tenant administration, and landlord operations inside the broader Belluga ecosystem.
 - **System boundary:** This project includes the `belluga_now_docker` orchestration root plus the attached `flutter-app`, `laravel-app`, `web-app`, and `foundation_documentation` repositories that together deliver runtime behavior, project authority, and promotion-lane governance. Other downstream ecosystems and Delphi itself are outside this project's canonical boundary.
 - **Inherited Delphi stack baseline:** This project inherits the PACED/Delphi `docker` namespace baseline: TODO-driven execution, profile-scoped governance, route/scope discipline, explicit module contracts, and project-specific authority living under `foundation_documentation/`.
 
@@ -97,6 +97,7 @@ This project operates inside the broader Belluga ecosystem under the PACED reuse
 - `foundation_documentation` is the canonical source of project docs and tactical TODOs. Code repositories do not become authority surfaces just because they implement behavior first.
 - `project_constitution.md` owns project-wide inter-module rules and deviations. Module docs own module-local contracts. TODOs, artifacts, and branch notes may support decisions but must not replace canonical authority.
 - Feature planning must include an explicit ecosystem-vs-local reuse judgment. Package extraction is encouraged where the boundary is credibly reusable, but project governance and tenant/product-specific flows must not be abstracted prematurely.
+- Cold-start tenant activation is a canonical recurring project posture, not a migration edge case. Tenant-curated supply, tenant-operated seed inventory, and `unmanaged` account profiles must remain supported across tenant admin, public discovery, onboarding, and future claim/self-management flows.
 - Route/scope ownership is fixed by `foundation_documentation/policies/scope_subscope_governance.md`: `EnvironmentType` remains binary (`landlord|tenant`), approved main scopes are `site_public`, `landlord_area`, `tenant_public`, and `tenant_admin`, and `account_workspace` is the only approved subscope.
 - Laravel owns host-resolved HTTP/runtime contracts, settings persistence, and public edge well-known endpoints. Flutter runtime consumes Laravel-backed adapters only; runtime mock fallback is forbidden outside explicit test injection.
 - Tenant admin runs on tenant domains under the `tenant_admin` main scope while still using landlord identity principal in V1. `account_workspace` remains an adjacent tenant subscope and must not be treated as a tenant-admin alias.
@@ -109,6 +110,7 @@ This project operates inside the broader Belluga ecosystem under the PACED reuse
 - The active tactical lane model is limited to `store_release_android`, `fast_follow_required`, and `vnext`. Historical lane names such as `pre_mvp_*`, `mvp_*`, `cross-stack`, `mvp_slices`, and `mvp_closure` must not be reintroduced into new active authority surfaces.
 - Stable cross-stack decisions must be promoted into canonical docs before a tactical TODO closes. Project-level rules belong here; module-local rules belong in module docs.
 - The ecosystem reuse doctrine is mandatory at planning time, but no feature becomes a package by default. Extraction happens only when the boundary is proven by real use and does not depend on project-only semantics.
+- Account ownership semantics are part of the recurring tenant-bootstrap model, not isolated admin metadata. `unmanaged` accounts represent valid seed supply for new or expanding tenants and may later transition into claimed/user-managed states without redefining the core entity model.
 - Invite/web-to-app continuation must preserve request intent and invite attribution across tenant web, app-store handoff, and app-entry flows; unresolved continuation may fall back only through explicitly approved product policy.
 - No new scope, subscope, or cross-module ownership boundary may be implied by implementation alone. Policy and canonical docs must be updated before such a change becomes authoritative.
 
