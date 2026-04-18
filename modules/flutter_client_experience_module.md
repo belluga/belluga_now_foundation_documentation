@@ -24,7 +24,7 @@
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-onboarding-identity-reconciliation-reflection.md`
   - `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-frontend.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
+  - `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`
   - `foundation_documentation/todos/completed/TODO-v1-map-frontend.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
 
@@ -33,7 +33,7 @@
 ### MOD-201: Flutter Client Experience Module
 
 * **Purpose Statement:** Establish the foundational Flutter application that orchestrates tenant and account/profile experiences through a clean architecture stack (presentation, domain, infrastructure) wired to Laravel-backed service contracts.
-* **Core Entities:** User, Account, Account Profile, Offering, Transaction.
+* **Core Entities:** User, Account, Account Profile, Event, Event Occurrence, Invite Edge, Favorite Edge.
 * **Key Workflows:** Adaptive onboarding, tenant home discovery, invite and social growth loop, agenda management, map exploration with POIs, authenticated profile utilities.
 * **External Dependencies:** AutoRoute (navigation), GetIt (DI container), StreamValue (reactive state wrapper), value_object_pattern, Firebase Cloud Messaging (future push integration), Laravel HTTP + SSE backends.
 * **Service-Level Objectives:** Screen state transitions <150 ms under cached/remote data; cold-start bootstrap <2.5 s on mid-range devices with backend available; navigation stack integrity with zero controller leaks; 100 % controller-stream parity (no orphaned state).
@@ -209,8 +209,8 @@ No-exception guardrails:
 |-------|------|-------------|----------|-------|
 | `_id` | ObjectId | Agenda item identifier. | Yes | |
 | `user_id` | ObjectId | User associated with the entry. | Yes | |
-| `schedulable_id` | ObjectId | Reference to offering/event. | Yes | |
-| `schedulable_type` | String | Type discriminator for the schedulable item. | Yes | Mirrors backend polymorphic type. |
+| `schedulable_id` | ObjectId | Reference to the scheduled source item (currently Event). | Yes | |
+| `schedulable_type` | String | Type discriminator for the schedulable item. | Yes | Current runtime contract is `event`; additive future values require explicit authority promotion before they become canonical. |
 | `start_time` | DateTime | Event start timestamp. | Yes | ISO-8601. |
 | `end_time` | DateTime | Event end timestamp. | No | Optional for instantaneous items. |
 | `status` | String | Participation state. | Yes | |
@@ -219,7 +219,7 @@ No-exception guardrails:
 
 **Field Definitions**
 
-* `schedulable_type`: Valid values are `event`, `experience`, `product_pickup`, `invite_task`.
+* `schedulable_type`: Current runtime value is `event`. Additional future schedulable kinds must not be treated as canonical until a later module decision promotes them explicitly.
 * `status`: Valid values are `upcoming`, `checked_in`, `cancelled`, `completed`.
 * `CtaDescriptorDocument.intent`: Valid values are `confirm`, `reschedule`, `share`, `review`.
 

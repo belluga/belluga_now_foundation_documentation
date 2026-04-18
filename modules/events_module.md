@@ -42,7 +42,7 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 
 ### 3.3 Out-of-scope boundaries
 
-- Invite transaction lifecycle ownership.
+- Invite lifecycle ownership.
 - Attendance entitlement/check-in ownership.
 - Checkout/payment gateway internals.
 

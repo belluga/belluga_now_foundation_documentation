@@ -30,7 +30,7 @@ The Account Profile Catalog module (MOD-304) maintains the canonical representat
 
 ## 2. Principles
 
-1. **Value Objects Everywhere:** Every textual or media attribute is wrapped in value objects (`AccountProfileNameValue`, `HeroImageValue`, `OfferPriceValue`) stored within the module so Flutter and Laravel layers never juggle raw primitives.
+1. **Value Objects Everywhere:** Current account-profile identity/media attributes should be expressed through dedicated value objects (for example `AccountProfileNameValue`, `HeroImageValue`, and related media/type value objects) so Flutter and Laravel layers do not juggle raw primitives across public/admin surfaces.
 2. **Deferred Commercial Capability Rule:** when the future offer/commercial capability is implemented, it must use explicit `available_windows` objects (dates, days of week, time ranges) so map/agenda projections can reason about current vs. future availability without ad hoc local logic.
 3. **Geo-Safe Modeling:** Account profile locations and POIs rely on normalized `geo_shapes` with both `lat/long` and `geohash` representations to align with the multi-tenant map stack.
 4. **Decoupled Media Storage:** Media metadata lives in this module, but binary assets are uploaded to landlord-managed storage buckets. Documents store signed URLs plus invariants (resolution, aspect ratio).
@@ -46,7 +46,7 @@ The Account Profile Catalog module (MOD-304) maintains the canonical representat
   "tenant_id": "ObjectId()",
   "legal_name": "String",
   "display_name": "String",
-  "account_profile_type": "String",
+  "profile_type": "String",
   "tagline": "String",
   "description": "String",
   "media": {
@@ -79,7 +79,7 @@ The Account Profile Catalog module (MOD-304) maintains the canonical representat
   "name": "String",
   "category": "String",
   "subcategories": ["String"],
-  "pricing`: {
+  "pricing": {
     "currency": "String",
     "amount": "Number",
     "pricing_model": "String"
@@ -142,17 +142,17 @@ Discovery runtime behavior for tenant-public account-profile listing is fixed as
 
 ## 5. Dependencies
 
-* **Map & POI Module:** Consumes account profile + offer data to render map markers.
+* **Map & POI Module:** Consumes account-profile public identity, location, and canonical type-visual inputs to materialize and render POI-linked discovery/detail entrypoints.
 * **Commercial Engine (external, deferred capability):** would provide pricing references when the later offer/commercial capability is implemented.
 * **Multidimensional Insights Service:** Supplies badge thresholds (e.g., “Top Account Profile of the Week”) that update `badges`.
 
 ---
 
-## 6. Roadmap
+## 6. Current Authority Posture
 
-* **Phase 5:** Aligns with Flutter FCX-02 to serve mocked account profile feeds.
-* **Phase 10:** Provides account-profile-driven home compositions and aggregated insights to Tenant Home Composer.
-* **Phase 12:** Powers the Account Profile Workspace module, reusing the same schema for account profile CRUD operations.
+* **Current runtime-backed authority:** tenant-public account-profile list, near, and slug-detail contracts are live/current and remain governed here.
+* **Current cross-module posture:** public discovery/detail contracts here feed map POI projection/read behavior, event-linked profile navigation, and tenant-home favorites/discovery surfaces.
+* **Deferred continuation:** future workspace-facing CRUD, analytics, and commercial capability expansion must reuse this account-profile substrate without being treated as already-current runtime authority.
 
 ## 7. Canonical Decision Baseline
 
@@ -167,7 +167,7 @@ Discovery runtime behavior for tenant-public account-profile listing is fixed as
 | `PCO-07` | Approved | Public/runtime account-profile type metadata is bootstrap-driven and additive: `label` remains the singular compatibility alias, while `labels.singular` / `labels.plural` are the canonical display fields for identity and grouped-category surfaces. | Allows shared account-profile/UI consumers to stop improvising singular/plural labels while keeping runtime reads cheap and tenant-admin source-of-truth aligned. | Sections `1`, `4`, `7` |
 | `PCO-08` | Approved | Tenant-public account-profile detail uses the shared safe-back policy: when no previous route exists, `/parceiro/:slug` falls back to `/descobrir`; when history exists, the real previous route still wins. | Keeps direct-open public account-profile detail resilient while preserving normal in-app source continuity from discovery, home, map, and event-linked profile flows. | Sections `1`, `4`, `7` |
 | `PCO-09` | Approved | Tenant-public account-profile discovery search mode hides the top discovery hierarchy chrome (`Tocando agora`, `Perto de você`, `Descubra`, and chips) while preserving the unfiltered base results grid until a non-empty query is entered. | Freezes the approved `/descobrir` search interaction so tactical TODO cleanup and future UI work do not reintroduce prompt-only empty-search behavior. | Sections `4.1`, `7` |
-| `PCO-10` | Approved | This file remains the active authority for current public account-profile contracts until the later module-family rename slice lands; the historical `offer` suffix indicates a deferred planned capability, not a separate current runtime surface. Whether that capability later becomes a standalone module is an implementation-time decision. | Keeps module authority honest without accidentally retiring a planned capability or forcing premature module promotion. | Sections `1`, `3.2`, `4` |
+| `PCO-10` | Approved | This file is the canonical current authority for public account-profile contracts after the module-family rename. Deferred `offer`/commercial planning remains capability-first by default and does not become a separate current runtime surface unless later implementation proves that boundary. | Keeps module authority aligned with the renamed canonical surface without accidentally turning deferred commercial planning into current runtime truth. | Sections `1`, `3.2`, `4` |
 
 ## 8. Tactical TODO Promotion Ledger
 
