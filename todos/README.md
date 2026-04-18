@@ -59,3 +59,27 @@ Legacy note:
 - if an older document still references those lane names, treat that as documentation drift and update the path in the same change that touches the TODO.
 
 When a TODO moves between horizons or execution phases, move the file to the matching lane and update any durable cross-references in the same change.
+
+## 5) VNext Hygiene
+
+`active/vnext/` exists to keep deferred work visible without polluting the current release lanes. It should stay explicit about what kind of authority each file owns.
+
+Use these role expectations:
+- `program owner`: a real deferred workstream that owns a distinct future capability, refactor, or follow-up front.
+- `support registry`: a supporting backlog/evidence file for another owner TODO. It must not silently become a second owner for the same program boundary.
+- `reconciliation sub-slice`: a temporary documentation/authority cleanup slice opened to normalize a bounded inconsistency. Once its result is promoted into canonical docs and no residual work remains, retire or reclassify it.
+- `parking lot`: residual idea capture only. Once a dedicated active TODO exists, the parking-lot entry should collapse to a brief cross-reference or be removed.
+
+Practical rules:
+- Do not open a new `vnext` TODO if an existing active TODO already owns the same program boundary and the new file would only duplicate ownership.
+- If multiple `vnext` files are clearly the same deferred program, consolidate them deliberately instead of keeping parallel partial owners.
+- If the work is release-critical or mandatory immediately after release, it does not belong in `vnext/`; use `store_release_android/` or `fast_follow_required/`.
+- When a `vnext` TODO is touched, make its role explicit in the title, purpose/objective, or scope notes when that clarity is missing.
+
+## 6) Naming Hygiene
+
+- Active TODO filenames must start with `TODO-`.
+- Prefer lane-explicit filenames such as `TODO-vnext-*`, `TODO-store-release-*`, and `TODO-fast-follow-*`.
+- If a legacy active file violates the naming rule, rename it the next time it is touched as part of otherwise safe work.
+- Update durable cross-references in the same change when a rename happens.
+- Do not let disposable local artifacts such as `artifacts/tmp/**` block safe naming cleanup in the canonical TODO tree.
