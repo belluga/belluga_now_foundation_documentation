@@ -30,7 +30,7 @@
 
 ## Final Block TODO References (Canonical for Block 2)
 - `foundation_documentation/todos/completed/TODO-v1-events-capability-map-poi.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-package-integration.md`
+- `foundation_documentation/todos/active/vnext/TODO-v1-ticketing-package-integration.md`
 
 ---
 

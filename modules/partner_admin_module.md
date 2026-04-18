@@ -20,8 +20,8 @@ Captures the intent to deliver an Account Profile Admin/Workspace experience whe
   - `foundation_documentation/modules/invite_and_social_loop_module.md`
   - `foundation_documentation/modules/tenant_admin_module.md`
 - Tactical TODO streams:
-  - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
+  - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
+  - `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`
 
 ## 2. Planned Scope (to be detailed later)
 
@@ -37,7 +37,7 @@ Captures the intent to deliver an Account Profile Admin/Workspace experience whe
 
 Even in V1, we must support operational reality:
 - Landlord/admin users create **account profiles** with a minimal free plan (so every event/participant has a stable `account_profile_id` from day one).
-- Multiple users can manage an account profile, and a user can manage multiple profiles.
+- The post-MVP compatibility target allows multiple users to manage an account profile, and a user to manage multiple profiles. MVP current posture remains landlord/admin-assigned operations only until memberships land.
 - Account profiles that create/host events need invite metrics per event (who invited, accepted counts, etc.) to power Challenges/Gamification.
 
 ### A) Account Profile Memberships (Deferred — post‑MVP)
@@ -75,6 +75,10 @@ Even in V1, we must support operational reality:
 **Status:** `invited`, `active`, `suspended`
 
 **Landlord override:** landlord users can be granted platform-level override permissions, but still record `issued_by_user_id` / audit fields when acting on behalf of account profiles. Memberships remain **deferred post‑MVP**.
+
+**Future workspace constraint (invite handling):**
+- Invite recipient identity remains Account Profile-scoped even when a human user acts on behalf of that profile.
+- When memberships land, do not assume `can_invite` automatically covers recipient-side accept/decline decisions; response authority may need its own explicit permission.
 
 ### B) Event Invite Metrics (Account Profile Facing)
 
@@ -117,4 +121,4 @@ Defer detailed documentation until the tenant modules (Map, Invite, Agenda, Tran
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
 | `TODO-vnext-tenant-user-account-profile-area.md` | Workspace scope and ownership model | In progress | `1.1`, `2.1`, `4` | Canonical stream for workspace boundary decisions. |
-| `TODO-v1-account-profile-ui.md` | Account profile management UX contract | In progress | `2`, `2.1 C` | UI flow authority for workspace minimum. |
+| `TODO-vnext-account-workspace.md` | Account workspace minimum and operator UX contract | In progress | `2`, `2.1 C` | UI flow authority for workspace minimum. |

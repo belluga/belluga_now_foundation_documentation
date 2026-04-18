@@ -5,7 +5,7 @@
 **Owners:** Backend Team
 **Objective:** Deliver the `qr_checkin` capability with occurrence-aware check-in flow, idempotency, and audit reliability under tenant/event capability governance.
 
-**Superseded by:** `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-package-integration.md`
+**Superseded by:** `foundation_documentation/todos/active/vnext/TODO-v1-ticketing-package-integration.md`
 **Reason:** Ticket-domain concerns were moved from Events capabilities to a dedicated package integration stream.
 
 ---

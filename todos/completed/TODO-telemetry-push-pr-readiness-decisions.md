@@ -17,7 +17,7 @@
   - `lib/infrastructure/dal/dao/laravel_backend/auth_backend/auth_backend.dart`
   - `lib/infrastructure/services/push/push_option_source_resolver.dart`
   - `lib/infrastructure/services/http/laravel_map_poi_http_service.dart`
-- [x] ✅ Production‑Ready — Map POI endpoint contract decision delegated to `foundation_documentation/todos/active/mvp_slices/TODO-v1-map.md` (see decision note there).
+- [x] ✅ Production‑Ready — Map POI endpoint contract decision delegated to `foundation_documentation/todos/completed/TODO-v1-map.md` (see decision note there).
 - [x] ✅ Production‑Ready — Anonymous identity bootstrap behavior: retry with bounded attempts (transient connectivity), then fail hard after retries; follow-up tasks tracked in `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-and-push.md`.
 - [x] ✅ Production‑Ready — Telemetry route params: deferred beyond the current release; no action required for this PR.
 - [x] ✅ Production‑Ready — Documentation sync: update `foundation_documentation/endpoints_mvp_contracts.md` and `foundation_documentation/system_roadmap.md` for:

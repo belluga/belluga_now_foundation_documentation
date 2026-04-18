@@ -7,7 +7,7 @@
 ---
 
 ## What we standardized (baseline expectations)
-- **NGINX `/storage/` alias correctness:** use `try_files $request_filename =404;` inside `location ^~ /storage/ { alias ... }` to avoid false 404s.
+- **NGINX `/storage/` alias correctness:** keep `location ^~ /storage/ { alias /var/www/storage/app/public/; ... }` alias-safe. Do not require `try_files $request_filename =404;` there; a 2026-04-15 runtime audit proved it can reintroduce false 404s for existing files.
 - **Env hygiene:** `.env` and `.env.testing` are local-only and must be ignored; repo should only contain sanitized examples (`.env.example`, `.env.testing.example` if applicable).
 - **Optional local DB:** the boilerplate supports an opt-in local Mongo replica set via Compose profile `local-db` (Atlas remains the default).
 

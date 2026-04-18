@@ -21,8 +21,10 @@ The Invite & Social Loop module (MOD-302) governs the tenant app virality engine
   - `foundation_documentation/modules/transaction_bridge_module.md`
 - Tactical TODO streams:
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
+  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
+  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 
 ### 1.2 Route/Subscope Matrix
 
@@ -65,7 +67,7 @@ Every invite is issued by an `inviter_principal`:
 - **MVP constraint:** account/profile invite issuance is admin-assigned (no memberships yet); account operators are explicitly linked by landlord/tenant admins.
 
 ### A1) Audience Eligibility (User vs Account Profile)
-- **User invites:** may target only imported contacts (hashed) or users already installed in the app.
+- **User invites:** may target users already installed in the app and matched contacts directly. Unmatched local contacts use the external share-code branch from native app rather than a canonical in-app invite edge.
 - **Account Profile invites:** may target followers/favorites for broader reach; direct user targeting is also allowed as needed.
 - **Share codes:** allowed for both inviter types; eligibility rules still apply (user shares only to their contacts, account profiles can share to followers/favorites audiences).
 
@@ -79,21 +81,28 @@ We never allow the same inviter to invite the same receiver to the same invite t
 - `occurrence_id = null` is allowed only as a compatibility shortcut for single-occurrence or intentionally event-scoped invite flows.
 
 **Uniqueness key:**
-`(tenant_id, event_id, occurrence_id | null, receiver_user_id, inviter_principal.kind, inviter_principal.id)`
+`(tenant_id, event_id, occurrence_id | null, receiver_account_profile_id, inviter_principal.kind, inviter_principal.id)`
 
 If a duplicate attempt occurs:
 - Backend responds with `already_invited` and no record is created.
 - Client surfaces “Já convidado”.
 
-### C) Credited Acceptance (One Credited Invite Per Receiver + Target)
-When a user accepts via invites, exactly **one** invite becomes the credited acceptance for that `(receiver_user_id, event_id, occurrence_id | null)` target.
+**Migration note (approved breaking change):**
+- The canonical recipient surface is `receiver_account_profile_id`, not raw `receiver_user_id`.
+- The release lane intentionally migrates existing user-targeted invite contracts, stored invite edges, and share materialization/acceptance flows to `receiver_account_profile_id`.
+- Backward compatibility with `receiver_user_id` targeting is not required for this migration.
+- Future memberships must authorize which acting user may send/respond on behalf of the recipient/sender Account Profile, but that actor authorization must not redefine the canonical recipient identity.
+
+### C) Credited Acceptance (One Credited Invite Per Receiver Surface + Target)
+When a user accepts via invites, exactly **one** invite becomes the credited acceptance for that `(receiver_account_profile_id, event_id, occurrence_id | null)` target.
 
 - UI must force explicit selection (“Aceitar convite de …” opens a selector dialog); **no default inviter selection** is applied.
 - On acceptance, the selected invite transitions to `accepted` with `credited_acceptance=true`. This flag marks which invite edge received attribution for the authenticated attendance confirmation; it is not a second attendance record.
-- All other invites for the same `(receiver_user_id, event_id, occurrence_id | null)` target transition to `superseded` with `supersession_reason=other_invite_credited` (still queryable for audit and reporting, but not counted as accepted conversions).
+- All other invites for the same `(receiver_account_profile_id, event_id, occurrence_id | null)` target transition to `superseded` with `supersession_reason=other_invite_credited` (still queryable for audit and reporting, but not counted as accepted conversions).
 - If the receiver confirms attendance directly for the same target without selecting a pending invite, pending invites for that target transition to `superseded` with `supersession_reason=direct_confirmation`.
 - Event-scoped compatibility flows must resolve the effective target reference before credit is assigned so multi-occurrence events never collapse unrelated attendance intents into one conversion.
 - Generic event confirmation surfaces must not silently choose a winning inviter when more than one pending inviter exists for the same target; attribution requires explicit selection.
+- Any legacy user-targeted acceptance behavior must be migrated to the same `receiver_account_profile_id`-keyed rule before release closure.
 
 ### D) Backend-Owned Limits (Tenant Settings + Enforcement)
 Invite limits are configured and enforced by the backend. Flutter:
@@ -121,6 +130,7 @@ The invite stack must be modeled as three separate axes:
    - `invite.created` is the creation event, not a persisted status.
    - A newly created invite starts with `status = pending`.
    - Invite status then evolves independently: `pending -> accepted | declined | expired` (plus audit/control variants such as `superseded`, `suppressed`).
+   - Invite acceptance is independent from event capacity or later fulfillment availability. Capacity/fulfillment may block downstream reservation or check-in behavior, but it does not redefine the social invite decision. Event expiry may still invalidate acceptance.
 
 2. **Attendance confirmation / reservation lifecycle**
    - Invite acceptance is a **social conversion**, not the entire attendance state machine.
@@ -142,7 +152,7 @@ The invite stack must be modeled as three separate axes:
    - Acceptance-to-attendance transition rule:
      - `free_confirmation_only`: accepting an invite records the social conversion and the authenticated attendance confirmation unless the user is already confirmed.
      - `paid_reservation_only`: accepting an invite records the social conversion only; `paid_reservation` exists only after the reservation/payment flow succeeds.
-     - `either`: accepting an invite records the social conversion first, then the system must resolve direct confirmation vs `paid_reservation` through explicit user choice or a backend default. This path exists only when the resolved event/occurrence policy is `either`.
+     - `either`: accepting an invite records the social conversion first, then the system must resolve direct confirmation vs `paid_reservation` through explicit user choice or a backend default. This path exists only when the resolved event/occurrence policy is `either`. This branch is deferred out of the store-release lane and is currently owned by `foundation_documentation/todos/active/vnext/TODO-vnext-event-checkin.md` until a dedicated participation/presence-confirmation owner exists.
 
 3. **Check-in lifecycle (arrival proof)**
    - Check-in is separate from both invite acceptance and attendance confirmation/reservation.
@@ -190,7 +200,7 @@ These decisions are now approved and complete the invite-module baseline. Friend
   - Approved direction: `superseded` is business-outcome closure and must carry explicit `supersession_reason` (`other_invite_credited`, `direct_confirmation`); `suppressed` remains reserved for policy/governance closure such as opt-out, abuse controls, or administrative blocking.
 
 - [x] 🟢 `INV-PD-09` Privacy exposure policy follows viewer-scoped exposure with aggregate fallback.
-  - Approved direction: `public` users may appear as `full_profile` in permitted invite/social-proof surfaces. `friends_only` users may appear as `full_profile` only when the target has explicitly approved the viewer through `favorite_edge(target -> viewer)`; reciprocal favorites are the product-level `friend` label, but not a separate visibility primitive. Unilateral contact matches and direct invite counterparties may receive at most `capped_profile` unless a target-owned favorite already grants `full_profile`. `capped_profile` excludes avatar/photo and specific accepted-event details; outside those relationships, users contribute only anonymized/aggregate counts.
+  - Approved direction: `public` users may appear as `full_profile` in permitted invite/social-proof surfaces. `friends_only` users may appear as `full_profile` only when the target has explicitly approved the viewer by favoriting the viewer's personal Account Profile; reciprocal favorites are the product-level `friend` label, but not a separate visibility primitive. Unilateral contact matches and direct invite counterparties may receive at most `capped_profile` unless a target-owned favorite already grants `full_profile`. `capped_profile` excludes avatar/photo and specific accepted-event details; outside those relationships, users contribute only anonymized/aggregate counts.
 
 - [x] 🟢 `INV-PD-10` Workspace visibility is permissioned and operationally scoped.
   - Approved direction: account workspace may view event-level aggregates for events it manages, inviter-principal metrics for inviter principals it owns, and issuer-user audit only for privileged roles. Raw invitee identity is excluded from default analytics dashboards and may appear only on explicit operational/audit lists where business handling requires it.
@@ -201,9 +211,39 @@ These decisions are now approved and complete the invite-module baseline. Friend
 - [x] 🟢 `INV-PD-12` Missions/challenges remain outside invite ownership.
   - Approved direction: invite conversions and attendance-confirmation signals are outbound behavior sources for `belluga_missions`; challenge definition, progress evaluation, and reward unlocks do not live inside the invite module.
 
+- [x] 🟢 `INV-PD-13` Contact matching is acquisition, not social approval.
+  - Approved direction: `phone_hash` identifies whether an imported contact corresponds to an existing person; the resolved person is rendered through that person's personal Account Profile. A successful `contact_match` makes the person visible in `Contatos` and invite-eligible without requiring favorite first.
+
+- [x] 🟢 `INV-PD-14` Contact groups are private, tag-like invite organization only.
+  - Approved direction: user-private `contact_groups` organize in-app inviteable recipients like tags, so the same recipient may belong to multiple groups. This includes inviteables reached through `contact_match`, `favorite_by_you`, `favorited_you`, or `friend`. Group membership does not grant richer exposure, favorite state, or friend state. Unmatched local contacts are not groupable. When multiple groups are selected for invite targeting, the effective recipient set is deduplicated by canonical recipient identity before invite creation and before quota counting.
+
+- [x] 🟢 `INV-PD-15` Inviteable type gating belongs to the profile-type registry.
+  - Approved direction: invite surfaces are gated by `account_profile_type.capabilities.is_inviteable`. This applies beyond personal profiles and allows `favorite_by_you` / `favorited_you` to become valid inviteable reasons whenever the resolved target type is both favoritable and inviteable. Non-personal favorites still do not derive `friend` by themselves.
+
+- [x] 🟢 `INV-PD-16` Contact discoverability is an instance privacy axis with permissive default.
+  - Approved direction: `discoverable_by_contacts` is separate from `privacy_mode`. It controls whether imported contact hashes may materialize `contact_match`, defaults to `true`, and may be persisted before a future privacy-settings UI exists. Restrictive profile visibility does not, by itself, disable contact discovery when this flag remains enabled.
+
+- [x] 🟢 `INV-PD-17` Inviteable list composition is unified, deduplicated, and filterable by relation type.
+  - Approved direction: `/convites/compartilhar` renders one deduplicated default list of inviteable entries, while preserving `source_tags` / `inviteable_reasons` so the UI can filter by relation types such as `contact_match`, `favorite_by_you`, `favorited_you`, and `friend` using the same chip/filter interaction pattern adopted by Discovery.
+
+- [x] 🟢 `INV-PD-18` Unmatched local contacts stay on an auxiliary native-share branch.
+  - Approved direction: unmatched local contacts are not canonical inviteable recipients. Native app may expose them only as app-local external share targets using the event invite code, preferring WhatsApp direct-share when available and falling back to the system share sheet. This branch is not part of the backend-computed inviteable list, relation filters, or `contact_groups`, and it does not exist on web.
+
+- [x] 🟢 `INV-PD-19` Invite composer interaction is action-first, not selection-first.
+  - Approved direction: `/convites/compartilhar` optimizes for one-tap invite actions. Person rows expose immediate invite/share CTAs; group rows expose primary `Convidar grupo` / `Convidar todos` and may optionally allow drill-in for member selection. A home-style horizontal group rail is not part of this screen baseline; richer group browsing may live in a future dedicated contacts/friends management surface.
+
+- [x] 🟢 `INV-PD-20` Identity materialization may reconcile prior contact imports without inventing new inviteable reasons.
+  - Approved direction: when a user's canonical phone identity materializes, backend may later reconcile that `phone_hash` against hashes previously imported by other users. This may materialize outbound `contact_match` for those existing viewers and may also feed a future inbound suggestion surface labeled `Talvez você conheça` for the newly identified user. The same reconciliation signal may later drive informational lifecycle notifications such as "a contact entered the app", but that future consumer is advisory only and must not create `Contato`, `inviteable_reason`, or group eligibility by itself. The inbound suggestion is not `Contato`, not an `inviteable_reason`, not groupable, and does not become inviteable until an explicit favorite promotes the relationship into the normal inviteable rules. Delivery ownership for this late-reconciliation/reflection path now lives in `TODO-vnext-onboarding-identity-reconciliation-reflection.md`, not in the release-critical contacts/favorites/friends lane.
+
+- [x] 🟢 `INV-PD-21` Contact-group CRUD is required, but composer is not the management surface.
+  - Approved direction: `contact_groups` must support create/rename/delete and membership management in V1, but that CRUD belongs to dedicated group-visualization or friends-management surfaces rather than `/convites/compartilhar`. Exact UX may be explored through Stitch studies without reopening the business contract.
+
+- [x] 🟢 `INV-PD-22` V1 group membership degrades by automatic removal.
+  - Approved direction: when an existing grouped recipient ceases to be inviteable, V1 removes that recipient from `contact_groups` automatically instead of retaining a disabled or hidden stale membership.
+
 ## 2.5 Deferred / Separate Exploration
 
-- Contacts, favorites, friendship semantics, and richer people-social-proof products remain intentionally outside this resolved baseline and are delegated to the future `belluga_connections` package (`TODO-vnext-connections-package.md`).
+- Contacts, favorites, friendship semantics, and private contact-group organization are no longer deferred out of the release baseline. Store-release execution now owns the minimal `contact_match -> favorite -> friend` core (`TODO-store-release-minimal-friends-and-favorites-mvp.md`), including reciprocal-friend derivation, user-private contact groups for invite targeting, and viewer-scoped exposure on invite/social-proof surfaces. Broader package extraction/convergence and non-release consumers may still continue separately after the release lane closes.
 - Future downstream result attribution beyond direct invite acceptance (for example level-based check-ins, promo requests, purchases, or offer claims generated by an invite tree) is delegated to `TODO-vnext-referral-result-attribution.md`. The approved direction is lineage snapshot + append-only activity facts + indexed aggregate projections, not request-path graph traversal.
 
 ## 3. Data Model
@@ -214,7 +254,7 @@ These decisions are now approved and complete the invite-module baseline. Friend
   "_id": "ObjectId()",
   "tenant_id": "ObjectId()",
   "sender_user_id": "ObjectId()",
-  "receiver_user_id": "ObjectId()",
+  "receiver_account_profile_id": "ObjectId()",
   "event_id": "ObjectId()",
   "occurrence_id": "ObjectId() | null",
   "invite_code": "String",
@@ -233,7 +273,7 @@ These decisions are now approved and complete the invite-module baseline. Friend
   "updated_at": "Date"
 }
 ```
-`status` ∈ {`pending`, `viewed`, `accepted`, `declined`, `superseded`, `expired`, `snoozed`, `suppressed`}. `channel` includes `whatsapp`, `in_app`, `qr`, `link`. `auto_expire_at` is derived from the related event/offer end time so invitations automatically close when the underlying experience has passed. `plan_charge_bucket` ties each invite to the account plan quota bucket used by billing (e.g., `core`, `premium_boost`), enabling per-plan limits.
+`status` ∈ {`pending`, `viewed`, `accepted`, `declined`, `superseded`, `expired`, `suppressed`}. `channel` includes `whatsapp`, `in_app`, `qr`, `link`. `auto_expire_at` is derived from the related event/offer end time so invitations automatically close when the underlying experience has passed. `plan_charge_bucket` ties each invite to the account plan quota bucket used by billing (e.g., `core`, `premium_boost`), enabling per-plan limits.
 
 Invite domain owns the social decision state only. Canonical attendance confirmation / reservation, check-in, and post-event attendance outcome live outside `invite_edges`. Invite feeds may project confirmation/reservation or attendance summaries for UX, but those projections are not source-of-truth.
 
@@ -249,6 +289,7 @@ Invite domain owns the social decision state only. Canonical attendance confirma
 ```
 `occurrence_id` is required for multi-occurrence runtime targets and remains nullable only for single-occurrence/event-scoped compatibility flows.
 `account_profile_id` is required when `inviter_principal.kind = account_profile` and must match the profile issuing the invite.
+`receiver_account_profile_id` is the canonical persisted recipient identity. Existing user-targeted invite storage must be migrated to this field; `receiver_user_id` is not part of the release contract.
 `supersession_reason` is set only when `status = superseded`. `suppressed` remains reserved for policy/governance closure.
 
 ### 3.2 `invite_actions`
@@ -265,15 +306,19 @@ Captures all user actions performed on an invite entry.
 ```
 
 ### 3.3 `friend_resumes`
-Authoritative viewer-scoped resume objects consumed by Flutter domain models. Long-term ownership should move to `belluga_connections`.
+Authoritative viewer-scoped resume objects consumed by Flutter domain models for matched contacts, favorites, and friends. The store-release lane owns the minimum runtime contract; any later package extraction must preserve this contract instead of redefining it.
 ```json
 {
   "_id": "ObjectId()",
   "user_id": "ObjectId()",
+  "profile_type": "String",
   "friend_display_name": "String",
   "avatar_url": "String",
   "match_label": "String",
   "profile_exposure_level": "aggregate_only|capped_profile|full_profile",
+  "source_tags": ["contact_match|favorite_by_you|favorited_you|friend"],
+  "is_inviteable": "Boolean",
+  "inviteable_reasons": ["contact_match|favorite_by_you|favorited_you|friend"],
   "highlight_flags": ["String"],
   "updated_at": "Date"
 }
@@ -312,9 +357,9 @@ To enforce both anti-spam policies and account plan limits, the module maintains
 | `/invites/share/{code}` | GET | Resolves share-code invite preview payload for unauthenticated/authenticated invite landing surfaces. |
 | `/invites/share/{code}/accept` | POST | Canonical anonymous-first share acceptance endpoint; resolves/materializes invite edge and applies acceptance atomically. |
 | `/invites/share/{code}/materialize` | POST | Creates or reuses the canonical invite edge for the authenticated user before any accept/decline action. |
-| `/contacts/import` | POST | Imports hashed contacts for friend matching and invite discovery. |
+| `/contacts/import` | POST | Imports hashed contacts for contact matching and inviteable acquisition. |
 
-**Deferred (post-MVP) endpoints:** `/invites/share/{code}/consume`, `/invites/{inviteCode}/resend`, `/invites/{inviteCode}/snooze`, `/invites/{inviteCode}/suppress-event`, `/invites/{inviteCode}/accept/import-contacts`, `/invites/{inviteCode}/attendance`.
+**Deferred (post-MVP) endpoints:** `/invites/share/{code}/consume`, `/invites/{inviteCode}/resend`, `/invites/{inviteCode}/suppress-event`, `/invites/{inviteCode}/accept/import-contacts`, `/invites/{inviteCode}/attendance`.
 
 ### 4.1 Native App Invite Contract
 
@@ -323,7 +368,16 @@ Native app is the full-fidelity invite client.
 - `GET /invites` returns grouped invite cards by canonical target, not a flat one-row-per-edge list.
 - Each grouped card must include stable `inviter_candidates[]` entries with `invite_id` so the app can enforce explicit inviter selection when multiple pending inviters exist for the same target.
 - `POST /invites` is the native direct-send mutation for existing users or matched contacts.
-- `POST /invites/{invite_id}/accept` accepts the selected invite edge, supersedes competing pending invites for the same `(receiver,target_ref)`, and returns the resolved `attendance_policy` plus next-step metadata (`none`, `free_confirmation_created`, `reservation_required`, `commitment_choice_required`, or `open_app_to_continue`).
+- Direct invite recipient identity is an approved breaking migration to the recipient Account Profile surface. Existing user-targeted direct-invite contracts, persisted invite edges, and share materialization/acceptance paths must migrate to `receiver_account_profile_id`; `receiver_user_id` is not part of the release contract.
+- `/convites/compartilhar` consumes one unified deduplicated inviteable list by default, not parallel duplicated sections per relation source. Relation/source tags stay attached to each row so Discovery-style filters can narrow the list without changing canonical recipient identity.
+- Native app may additionally expose unmatched local contacts as auxiliary `external_contact_share_targets`. These are app-local only, are not part of the canonical inviteable list or relation filters, do not belong to `contact_groups`, and should prefer WhatsApp direct-share when available with system-share fallback.
+- Future inbound discovery surfaces derived from identity-materialization reconciliation, such as `Talvez você conheça`, remain outside the canonical inviteable list and outside relation filters until the user creates an explicit favorite that yields a normal inviteable reason.
+- The same reconciliation event may later power informational notifications such as "a contact entered the app", but those notifications are discovery-only hints and must not create contact/inviteable/group state by themselves.
+- This late-reconciliation/reflection path is follow-up-owned by `TODO-vnext-onboarding-identity-reconciliation-reflection.md`; it is not part of the current release invite-composer delivery slice.
+- `/convites/compartilhar` is action-first: person rows should support immediate invite/share, while group rows should support immediate `Convidar grupo` / `Convidar todos` plus optional drill-in for member-level selection. The screen baseline does not include a home-style horizontal group rail.
+- `contact_groups` require CRUD in V1, but group creation/rename/delete does not belong to `/convites/compartilhar`; that management belongs to dedicated group/friends-management surfaces and the exact UX may be refined through Stitch studies.
+- When an existing grouped recipient ceases to be inviteable, V1 removes that recipient from `contact_groups` automatically instead of keeping a disabled stale entry.
+- `POST /invites/{invite_id}/accept` accepts the selected invite edge, supersedes competing pending invites for the same `(receiver_account_profile_id,target_ref)`, and returns the resolved `attendance_policy` plus next-step metadata (`none`, `free_confirmation_created`, `reservation_required`, `commitment_choice_required`, or `open_app_to_continue`).
 - `POST /invites/{invite_id}/decline` declines only the selected edge; it does not silently decline other pending inviter candidates for the same target.
 - Native app remains the trusted surface for grouped invite selection, invite inbox management, and any richer follow-up action beyond narrow web exceptions.
 
@@ -354,22 +408,25 @@ V1 requires tracking external shares (WhatsApp/Instagram/etc.) for **new users**
 - Backend records **share visits** and exposes preview payload with canonical invite identity.
 - App progressive-profiling flow accepts from preview via `/invites/share/{code}/accept` (anonymous-first, no forced login).
 - Authenticated continuation flows may still materialize attribution through `/invites/share/{code}/materialize` before decision when explicit pre-bind is required.
+- When share-code materialization or acceptance creates/reuses an invite edge, the persisted recipient target must be `receiver_account_profile_id`; migrating existing user-targeted share conversion is part of the release work.
 - Backend must prevent duplicate invite issuance to the same receiver+target+inviter principal (see Uniqueness rule); the share code is attribution, not a loophole to spam.
 
 ### 4.4 Web Promotion-Only + App Anonymous Acceptance (V1 Progressive Profiling)
 
 V1 uses web as read-only promotion and app as anonymous-first conversion:
 - Web invite landing resolves preview context from a single invite/share `code` and remains read-only.
-- Web invite landing exposes promotion CTA (`Baixe o App para Confirmar`) with `code` propagation to app/open-store paths.
-- Web handoff target is deterministic: only invite-landing context (`/invite` or `/convites`) with valid `code` uses `/invite?code=...`; missing/invalid `code` on either route falls back to canonical `/`.
+- Web invite landing exposes app-promotion CTA (`Baixe o App para Confirmar`) with invite attribution plus requested-route preservation to app/open-store paths.
+- Web handoff target is deterministic: invite landing preserves `/invite?code=...`; direct detail routes and guard-triggered promotions preserve the requested redirect path; canonical `/` remains fallback only when no valid continuation intent is available.
 - Store/open targets are resolved dynamically per tenant for Android and iOS (backend contract; no client hardcoded store URLs).
 - Web does not execute invite accept/decline mutations and does not expose grouped invite inbox/send flows.
-- Any tenant-public hard/auth gate reached on web must hand off to the canonical app-promotion route/screen and then into `/open-app`; web login continuation is not a V1 conversion path, and route-gated/action-gated boundaries must not diverge.
+- Web has no local contacts and therefore does not expose the native-app-only external-contact share branch or contact-group invite actions.
+- Any unauthenticated tenant-public hard/auth gate reached on web must hand off to the canonical app-promotion route/screen and then into `/open-app`; anonymous web login continuation is not a V1 conversion path, and route-gated/action-gated boundaries must not diverge.
+- Authenticated web is the normal authenticated web posture, but it is allowed only through QR login from an already promoted app identity; web-native email/password/social login is out of scope.
 - App entry via `/invite?code=...` must render invite-first preview and allow anonymous accept/decline without forced login.
-- Deferred install-path capture in V1 is Android-first; iOS deferred capture is explicitly VNext while installed-app universal links remain supported.
+- Deferred install-path capture in V1 is Android-first; iOS deferred capture is explicitly fast-follow required while installed-app universal links remain supported.
 - First-open unresolved capture must emit deferred-capture-failed telemetry and route deterministically to `/`.
 - The credited inviter remains the inviter principal bound to that `code` (no web-side multi-inviter selection).
-- After anonymous acceptance, app keeps feed/map navigation available; trust actions (`favorite`, `send_invite`, presence/check-in boundaries) are intercepted by Auth Wall.
+- The anonymous app baseline is explicit: invite preview, invite accept/decline, feed browsing, map browsing, and favorites may continue without forced login. Only the explicitly restricted actions (for example `send_invite`, identity-owned routes such as `/profile`, and presence/check-in boundaries) are intercepted by Auth Wall.
 - If a post-accept path requires richer fulfillment, handling remains app-owned; web does not expand to mutation surfaces.
 
 This preserves low-friction viral conversion while keeping trust boundaries explicit.
@@ -408,10 +465,10 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 - Flutter/web invite landing compatibility remains anchored on `/invite?code=...`; clients must preserve `code` through onboarding/install bootstrap so attribution is not lost.
 
 **Events**
-* Outbound: `invite.created`, `invite.accepted`, `invite.declined`, `invite.superseded`, `invite.accepted.contacts-import-triggered`, `invite.fulfillment.step-required`, `invite.fulfillment.step-completed`, `invite.attendance.confirmed`, `invite.attendance.unconfirmed`, `invite.attendance.no-show`, `invite.attendance.geo-confirmed`, `invite.expired`, `invite.reward-unlocked`, `invite.rate-limited`, `invite.plan-limit-reached`, `invite.snoozed`, `invite.suppressed`.
-* Inbound: `user.profile.updated` (refresh resumes), `agenda.action.completed` (to suggest invites tied to actions), `participation.presence_confirmation.recorded`, `participation.check_in.recorded`, `insights.rank.changed`, `task.completed` (so we can auto-unsnooze when reminders convert).
+* Outbound: `invite.created`, `invite.accepted`, `invite.declined`, `invite.superseded`, `invite.accepted.contacts-import-triggered`, `invite.fulfillment.step-required`, `invite.fulfillment.step-completed`, `invite.attendance.confirmed`, `invite.attendance.unconfirmed`, `invite.attendance.no-show`, `invite.attendance.geo-confirmed`, `invite.expired`, `invite.reward-unlocked`, `invite.rate-limited`, `invite.plan-limit-reached`, `invite.suppressed`.
+* Inbound: `user.profile.updated` (refresh resumes), `agenda.action.completed` (to suggest invites tied to actions), `participation.presence_confirmation.recorded`, `participation.check_in.recorded`, `insights.rank.changed`, `task.completed` (so fulfillment/task projections can refresh deterministically).
 * Analytics/CRM Integration: Every fulfillment intent (`invite.fulfillment.step-required`, e.g., pay deposit, upload document) is mirrored to the Account Analytics/CRM module along with contact info so account operators can track outstanding requirements. When tasks complete, the analytics module receives `invite.fulfillment.step-completed` events (emitted by Transaction Bridge or Task & Reminder). Attendance-related projections are driven by confirmation/reservation/check-in inputs; `invite.attendance.unconfirmed` is the default unresolved post-event state, while `invite.attendance.no-show` should be explicit/policy-driven rather than automatic. These events tie back to account KPIs and invite reward logic.
-* Task & Reminder Integration: `invite.snoozed` dispatches a `task.intent` payload `{ source_type: "invite", invite_id, reminder_type: "invite_followup" }` so MOD-306 can schedule pushes. When a user selects “Decide later,” remind them before the invite expires. As the event time approaches, the invite module emits a `task.intent` with `reminder_type: "invite_checkin"` targeting the invitee to complete the relevant attendance flow. That reminder may deep link to an attendance-confirmation, reservation, or check-in surface depending on policy. When the tenant shares venue coordinates, the participation/check-in flow may request passive location evidence; a successful geo-backed check-in should emit canonical participation events first, after which the invite module may project `invite.attendance.geo-confirmed` for social/account analytics. (Flutter reference: `native_geofence` package can be used during mock/prototype stages to monitor entry/exit events while keeping the invite module decoupled from the specific plugin.) Future enhancement: once we unlock account-profile-to-guest messaging, accepted invitees will be able to opt into push channels—or even lightweight chat rooms—so account profiles and invite trees can coordinate in real time. That capability is deferred beyond v1 and will reuse the Task/Reminder notification rails with additional consent checks.
+* Task & Reminder Integration: As the event time approaches, the invite module emits a `task.intent` with `reminder_type: "invite_checkin"` targeting the invitee to complete the relevant attendance flow. That reminder may deep link to an attendance-confirmation, reservation, or check-in surface depending on policy. When the tenant shares venue coordinates, the participation/check-in flow may request passive location evidence; a successful geo-backed check-in should emit canonical participation events first, after which the invite module may project `invite.attendance.geo-confirmed` for social/account analytics. (Flutter reference: `native_geofence` package can be used during mock/prototype stages to monitor entry/exit events while keeping the invite module decoupled from the specific plugin.) Future enhancement: once we unlock account-profile-to-guest messaging, accepted invitees will be able to opt into push channels—or even lightweight chat rooms—so account profiles and invite trees can coordinate in real time. That capability is deferred beyond v1 and will reuse the Task/Reminder notification rails with additional consent checks.
 
 ### 4.5 Metric / Privacy / Workspace Baseline
 
@@ -419,10 +476,20 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 - `presences_confirmed` is the product/analytics label for successful attendance confirmation or paid reservation activation, regardless of which attendance path produced it.
 - `check_ins`, `attendance_outcomes`, `invite_sent`, `share_visits`, and content views are secondary metrics and must not replace the north star in rankings or “Em Alta” logic.
 - Future micro-conversions attributable to an invite tree (for example `check_in.recorded`, `promo.requested`, `purchase.completed`) must be modeled as append-only activity facts with bounded lineage snapshots and consumed through indexed projections; they must not require recursive invite-tree reads on hot request paths.
+- `phone_hash` is identification-only; it never becomes a public people relation by itself.
+- Invite recipient identity is Account Profile-scoped: the canonical recipient is `receiver_account_profile_id`, while any acting user who sends or responds on behalf of that profile is separate audit/authorization context.
+- `contact_match` is the acquisition layer: it makes a person visible in `Contatos` and invite-eligible when the target remains `discoverable_by_contacts=true` and the resolved target type is `is_inviteable=true`, but it does not grant richer social approval on its own. Release delivery is anchored on explicit contact import. A later onboarding-owned follow-up may additionally reconcile newly canonical identities against hashes previously imported by the viewer.
 - `public` users may appear as `full_profile` in allowed social-proof surfaces.
-- `friends_only` users are `full_profile`-visible only when the target explicitly approved the viewer via `favorite_edge(target -> viewer)`; reciprocal favorites become the product-level `friend` label.
+- `friends_only` users are `full_profile`-visible only when the target explicitly approved the viewer by favoriting the viewer's personal Account Profile; reciprocal favorites become the product-level `friend` label.
 - unilateral contact matches and direct invite counterparties may receive at most `capped_profile` unless a target-owned favorite already grants `full_profile`; all others contribute only anonymized counts.
 - `capped_profile` must not expose avatar/photo or specific accepted-event history; non-approved contexts get only aggregate metrics/social proof.
+- Favorites on non-personal account profiles remain bookmark/affinity signals and do not derive `friend` semantics, but they may still become `inviteable` when the target type is `is_inviteable=true` and the viewer-scoped reason is `favorite_by_you` or `favorited_you`.
+- `discoverable_by_contacts` is the explicit privacy axis for hash-based discovery, defaults to `true`, and can remain enabled even when public profile visibility is restrictive.
+- `contact_groups` are user-private, tag-like organization over in-app inviteable recipients. The same recipient may belong to multiple groups, and multi-group invite selection must deduplicate recipients by canonical recipient identity before invite creation and quota counting. This grouping may include inviteables reached through `contact_match`, `favorite_by_you`, `favorited_you`, or `friend`. Unmatched local contacts are not groupable. Group CRUD is required in V1, but it belongs to dedicated group/friends-management surfaces rather than the invite composer.
+- Inviteable lists must preserve relation tags/reasons and render deduplicated by canonical recipient; default presentation shows all inviteable entries together, while UI filters only change which tags are visible.
+- Native app may expose unmatched local contacts as auxiliary local-share targets, but those entries remain outside the canonical inviteable list, outside relation filters, outside `contact_groups`, and absent on web.
+- When an inviteable recipient ceases to be inviteable, V1 removes the recipient from all `contact_groups` automatically instead of retaining disabled memberships.
+- Backend identity-materialization reconciliation may also feed a future inbound suggestion surface labeled `Talvez você conheça`, showing people who had already imported the user's hash. That inbound suggestion is discovery-only by default: it is not `Contato`, not an `inviteable_reason`, not groupable, and only enters the normal inviteable rules after explicit favorite. This future path is owned by `TODO-vnext-onboarding-identity-reconciliation-reflection.md`.
 - Workspace analytics are scoped to the managed event/account profile and expose raw invitee identity only on explicit operational/audit surfaces, never on default dashboards.
 
 ---
@@ -438,7 +505,7 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 ## 6. Roadmap Alignment
 
 * FCX-02 wires mocked repositories to this contract.
-* Phase 9 extends the module with swipe-style carousels and WhatsApp deep links.
+* Native-app external-contact share targets may use WhatsApp deep links as the preferred channel when available, with system-share fallback.
 * Account Profile Workspace fast-follow consumes `invite_edges` to expose referral funnels to account operators without duplicating logic. A dedicated Account Analytics module will aggregate invitation performance per plan, quota bucket, and channel to support billing and upsell strategies.
 
 ## 7. Canonical Decision Baseline
@@ -458,17 +525,32 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 | `INV-11` | Approved | Web invite behavior in V1 is promotion/read-only only; app owns anonymous-first invite acceptance and all trust-action mutations. | Preserves low-friction growth while preventing web from becoming a divergent second invite client. | Sections `2.4`, `4.4` |
 | `INV-12` | Approved | Default post-event unresolved outcome is `unconfirmed`; `no_show` and `manually_confirmed` are explicit policy/operator outcomes only. | Preserves fairness and analytics integrity. | Sections `2.4`, `4` |
 | `INV-13` | Approved | North-star mobilization metrics are `credited_invite_acceptances` + `presences_confirmed`, where `presences_confirmed` normalizes both free confirmations and paid reservations. | Keeps mandate, analytics, rankings, and missions aligned. | Sections `2.4`, `4.5` |
-| `INV-14` | Approved | Privacy exposure is viewer-scoped: `friends_only` users reach `full_profile` only when the target explicitly approves the viewer (for example via `favorite_edge(target -> viewer)`), `capped_profile` for unilateral/direct-counterparty contexts, otherwise aggregate/anonymized only. | Aligns social proof with the privacy-with-agency mandate while preserving simple contact-match UX and directional approval. | Sections `2.4`, `4.5` |
+| `INV-14` | Approved | Privacy exposure is viewer-scoped: `friends_only` users reach `full_profile` only when the target explicitly approves the viewer by favoriting the viewer's personal Account Profile, `capped_profile` for unilateral/direct-counterparty contexts, otherwise aggregate/anonymized only. | Aligns social proof with the privacy-with-agency mandate while preserving simple contact-match UX and directional approval. | Sections `2.4`, `4.5` |
 | `INV-15` | Approved | Workspace invite visibility is event/account-profile scoped and raw invitee identity is restricted to explicit operational/audit surfaces. | Protects tenant-safe business analytics without overexposing user identity. | Sections `2.4`, `4.5` |
 | `INV-16` | Approved | V1 Mongo read-model baseline is `invite_feed_projection` + `principal_social_metrics`; richer projections are evidence-driven additions. | Prevents premature read-model sprawl. | Section `2.4` |
 | `INV-17` | Approved | Challenges/missions consume invite and attendance behaviors from outside the invite module via `belluga_missions`. | Keeps reward logic decoupled from invite ownership. | Sections `2.4`, `4.5` |
 | `INV-18` | Approved | Future invite-tree result attribution must use bounded lineage snapshots + append-only activity facts + indexed aggregate projections, never request-path graph traversal. | Opens the door for 1st/2nd-level micro-conversion analytics while staying MongoDB-friendly. | Sections `2.5`, `4.5` |
 | `INV-19` | Approved | Invite terminal semantics distinguish `superseded` (business-outcome closure) from `suppressed` (policy/governance closure), with explicit `supersession_reason` when superseded. | Prevents attribution ambiguity and keeps policy blocking separate from causal loss. | Sections `2.1 C`, `2.2`, `3.1` |
+| `INV-20` | Approved | `contact_match` is acquisition-only: a match resolves the person through the personal Account Profile, makes the person visible in `Contatos`, and allows invite targeting without requiring favorite first. | Separates phone-hash identity resolution from social approval while preserving low-friction invite targeting. | Sections `2.4`, `4.5` |
+| `INV-21` | Approved | `contact_groups` are user-private tag-like groupings over in-app inviteable recipients; memberships are many-to-many and multi-group invite selection deduplicates canonical recipients before invite creation/quota counting. | Preserves simple invite organization without conflating groups with privacy or friendship semantics. | Sections `2.4`, `4.5` |
+| `INV-22` | Approved | Invite surfaces are gated by `account_profile_type.capabilities.is_inviteable`; `favorite_by_you` and `favorited_you` are valid inviteable reasons whenever the resolved target type is inviteable. | Keeps invite semantics in the registry instead of ad hoc type-specific rules. | Sections `2.4`, `4.5` |
+| `INV-23` | Approved | `discoverable_by_contacts` is a separate instance-level privacy axis for hash discovery, defaults to `true`, and may be persisted before the privacy-settings UI exists. | Makes “private but discoverable by contacts” explicit instead of accidental. | Sections `2.4`, `4.5` |
+| `INV-24` | Approved | `/convites/compartilhar` default presentation is one deduplicated inviteable list with Discovery-style relation filters built from preserved `source_tags` / `inviteable_reasons`. | Gives the client one coherent invite composer while preserving explainable filtering semantics. | Sections `2.4`, `4.1`, `4.5` |
+| `INV-25` | Approved | Unmatched local contacts are native-app-only external share targets, not canonical inviteable rows; they are not groupable, not relation-filtered, and not exposed on web. | Separates in-app relationships from local-only share affordances without losing the external invite path. | Sections `2.4`, `4.1`, `4.4`, `4.5` |
+| `INV-26` | Approved | `/convites/compartilhar` is action-first: rows prioritize immediate invite actions, groups support direct invite-all plus optional drill-in, and the screen baseline excludes a home-style horizontal group rail. | Keeps the invite composer lightweight and optimized for fast invite execution instead of selection-heavy browsing. | Sections `2.4`, `4.1` |
+| `INV-27` | Approved | Canonical identity materialization may reconcile prior imports into outbound `contact_match`, may feed a future inbound `Talvez você conheça` suggestion, and may later power informational "contact entered the app" notifications, but those inbound/discovery consumers are not `Contato` or inviteable until explicit favorite. | Preserves late-join reconciliation without polluting the inviteable/contact model or inventing a new implicit approval edge. | Sections `2.4`, `4.5` |
+| `INV-28` | Approved | `contact_groups` require CRUD in V1, but group management belongs to dedicated group/friends-management surfaces rather than `/convites/compartilhar`; exact UX may be refined via Stitch studies. | Keeps the invite composer lightweight while still freezing the required business capability. | Sections `2.4`, `4.1`, `4.5` |
+| `INV-29` | Approved | When a grouped recipient ceases to be inviteable, V1 removes that recipient from `contact_groups` automatically instead of retaining disabled memberships. | Favors the simplest lifecycle policy for the first version and avoids stale bulk-invite targets. | Sections `2.4`, `4.5` |
+| `INV-30` | Approved | The canonical invite recipient surface is `Account Profile`, not raw `User`; release delivery performs an explicit breaking migration of direct invites, persisted invite edges, and share materialization/acceptance away from `receiver_user_id`, while future memberships authorize acting users separately from recipient identity. | Makes the migration scope explicit and prevents legacy user-targeting from surviving as an accidental contract. | Sections `2.1 B`, `2.1 C`, `3.1`, `4.1`, `4.3`, `4.5` |
+| `INV-31` | Approved | Invite acceptance is independent from event capacity or later fulfillment availability; those constraints belong to downstream attendance/reservation/check-in flows and do not redefine the social invite decision. | Separates social conversion from fulfillment/capacity concerns and prevents invite semantics from being overloaded by operational availability. | Sections `2.2`, `4.1`, `4.5` |
+| `INV-32` | Approved | V1 invite lifecycle does not include `snooze` / `Decide later`; reminder follow-up for that branch is removed until a future contract explicitly reintroduces it. | Removes half-defined terminal states and keeps the release contract aligned with the actually supported lifecycle. | Sections `2.2`, `3.1`, `4`, `4.5` |
 
 ## 8. Tactical TODO Promotion Ledger
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
 | `TODO-v1-invites-implementation.md` | Invite backend/client flow hardening | Completed (2026-03-12) | `2.1`, `3`, `4` | Canonical stream for invite delivery decisions. |
-| `TODO-v1-web-to-app-policy.md` | Web promotion-only + app progressive profiling policy | In progress | `4.3`, `4.4` | Governs read-only web boundary, anonymous app acceptance, and attribution path. |
+| `TODO-store-release-web-to-app-conversion-gate.md` | Android release closure for web-to-app conversion path | In progress | `4.3`, `4.4` | Canonical policy is already promoted; this TODO owns the remaining release-gate validation and promotion-boundary readiness. |
+| `TODO-vnext-onboarding-identity-reconciliation-reflection.md` | Late identity-materialization reconciliation + advisory reflection surfaces | Pending follow-up | `2.4`, `4.1`, `4.5` | Owns post-onboarding reconciliation timing plus `Talvez você conheça` / informational lifecycle hints. |
+| `TODO-store-release-minimal-friends-and-favorites-mvp.md` | Store-release contacts/favorites/friends core | In progress | `2.5`, `3.3`, `4.5` | Promotes contact-match, reciprocal-friend, and viewer-scoped exposure behavior into the release lane without requiring full package convergence first. |
 | `TODO-vnext-referral-result-attribution.md` | Future lineage-based downstream result attribution | In progress | `2.5`, `4.5` | Defines Mongo-safe activity-fact and projection strategy for 1st/2nd-level invite-tree results. |

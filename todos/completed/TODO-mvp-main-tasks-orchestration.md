@@ -115,26 +115,26 @@
 ---
 
 ## Frontend Tasks (Flutter/Web)
-- [ ] ⚪ Orchestrator: `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+- [ ] ⚪ Orchestrator: `foundation_documentation/todos/active/concluded_but_active/TODO-v1-first-release.md`
 - [ ] ⚪ Test foundation: `foundation_documentation/todos/completed/TODO-v1-flutter-test-foundation.md`
 - [ ] ⚪ Events & Agenda: `foundation_documentation/todos/completed/TODO-v1-events-and-agenda.md`
 - [ ] ⚪ Invites (Flutter): `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
-- [ ] ⚪ Map: `foundation_documentation/todos/active/mvp_slices/TODO-v1-map.md`
-- [ ] ⚪ Account Profile UI (type-driven): `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
-- [ ] ⚪ Tenant/Admin area (MVP: Account + Account Profile creation): `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
-- [ ] ⚪ Web-to-app policy: `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md`
+- [ ] ⚪ Map: `foundation_documentation/todos/completed/TODO-v1-map.md`
+- [ ] ⚪ Public Account Profile Discovery UI: `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
+- [ ] ⚪ Tenant/Admin area (MVP: Account + Account Profile creation): `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
+- [ ] ⚪ Web-to-app conversion gate: `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - [ ] ⚪ Telemetry + push: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-and-push.md`
 - [ ] ⚪ UI/UX polish: `foundation_documentation/todos/completed/TODO-mvp-ui-polish.md`
 
 ---
 
 ## Backend Tasks
-- [ ] ⚪ Orchestrator: `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+- [ ] ⚪ Orchestrator: `foundation_documentation/todos/active/concluded_but_active/TODO-v1-first-release.md`
 - [ ] ⚪ Invites (API): `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
 - [ ] ⚪ Events & Agenda (API): `foundation_documentation/todos/completed/TODO-v1-events-and-agenda.md`
-- [ ] ⚪ Map/POI projection: `foundation_documentation/todos/active/mvp_slices/TODO-v1-map.md`
+- [ ] ⚪ Map/POI projection: `foundation_documentation/todos/completed/TODO-v1-map.md`
 - [ ] ⚪ Telemetry + push: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-and-push.md`
-- [ ] ⚪ Tenant/Admin area (accounts/assets/branding): `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
+- [ ] ⚪ Tenant/Admin area (accounts/assets/branding): `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
 
 ---
 

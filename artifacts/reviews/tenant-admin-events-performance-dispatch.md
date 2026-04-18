@@ -39,7 +39,7 @@
 Performance focus: query paths, filter composition, pagination, and hidden scan risk.
 
 ## Related TODO
-`../foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-admin-domain-management-and-events-ops.md`
+`../foundation_documentation/todos/active/concluded_but_active/TODO-v1-tenant-admin-domain-management-and-events-ops.md`
 
 ## Result Contract
 Each reviewer should answer in JSON compatible with `schemas/subagent_review_result.schema.json`.

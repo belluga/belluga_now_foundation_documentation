@@ -3,7 +3,7 @@
 **Non-authoritative audit packet.** Derived for reviewer context only.
 
 ## Governing TODO
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-admin-domain-management.md`
+- `foundation_documentation/todos/active/vnext/TODO-v1-tenant-admin-domain-management.md`
 
 ## Scope Summary
 - Added tenant-admin domain management (list/create/delete/restore) in Flutter settings.

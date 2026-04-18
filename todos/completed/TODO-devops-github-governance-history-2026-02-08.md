@@ -25,5 +25,5 @@
 
 ## Canonical Active Tracking
 - Active paid-plan governance task now lives in:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+  - `foundation_documentation/todos/active/concluded_but_active/TODO-v1-first-release.md`
   - Section: `6) DevOps Governance (Paid Plan)`

@@ -3,16 +3,16 @@
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
 **Status:** Completed  
 **Owners:** Backend Team + Delphi (Flutter)  
-**Objective:** Deprecated. Merged into `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`.
+**Objective:** Deprecated. Merged into `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`.
 **Note:** This file is retained for history; all work continues in the unified Account Profile UI slice.
 
 ---
 
 ## References
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+- `foundation_documentation/todos/active/concluded_but_active/TODO-v1-first-release.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-implementation.md`
 - `foundation_documentation/todos/active/TODO-vnext-parking-lot.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
+- `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
 
 ## Taxonomy Summary (MVP)
 - Account profiles (tenant-facing partner label) can carry multiple taxonomies (WordPress‑style). A Venue may have `cuisines` and also `music_genres`.

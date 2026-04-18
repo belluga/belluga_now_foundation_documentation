@@ -17,7 +17,7 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 - Program streams:
   - `foundation_documentation/todos/completed/TODO-v1-events-package-core.md`
   - `foundation_documentation/todos/completed/TODO-v1-events-package-phase-3.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-package-integration.md`
+  - `foundation_documentation/todos/active/vnext/TODO-v1-ticketing-package-integration.md`
 - Completed tactical decisions promoted here:
   - `foundation_documentation/todos/completed/TODO-v1-events-package-phase-1.md`
   - `foundation_documentation/todos/completed/TODO-v1-events-package-phase-2.md`
@@ -55,7 +55,7 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 | `D3-17` | Approved | Invite lifecycle fields are excluded from Events payloads. | Invite ownership stays outside Events; avoid payload coupling. | `belluga_events/README.md` (`Invite lifecycle data is out of Events scope`) |
 | `LOC-01..LOC-07` | Approved | Core location is mandatory with `location` + typed `place_ref`; `venue_id` write input removed. | Unified location semantics for `physical|online|hybrid`; map projection remains capability-level. | `foundation_documentation/todos/completed/TODO-v1-events-location-core-cutover.md` + package requests/tests |
 | `D3-18..D3-23` | Approved | `event_parties` represent event composition + ACL (`can_edit`), not attendees. | Clear separation from participation/ticketing domains. | `belluga_events/README.md` (`Terminology Boundary`) |
-| `D3-25` | Approved | Ticket-domain capabilities moved to ticketing package integration stream. | Keeps Events generic and decoupled while enabling dedicated ticketing evolution. | `foundation_documentation/todos/completed/TODO-v1-events-package-phase-3.md` + `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-package-integration.md` |
+| `D3-25` | Approved | Ticket-domain capabilities moved to ticketing package integration stream. | Keeps Events generic and decoupled while enabling dedicated ticketing evolution. | `foundation_documentation/todos/completed/TODO-v1-events-package-phase-3.md` + `foundation_documentation/todos/active/vnext/TODO-v1-ticketing-package-integration.md` |
 | `EVS-FILTER-01` | Approved | MVP agenda/events listing does not accept text search (`search` query parameter is prohibited). | Avoids unsupported Atlas/text runtime paths during MVP and keeps filtering deterministic. | `laravel-app/packages/belluga/belluga_events/src/Http/Api/v1/Requests/AgendaIndexRequest.php`, `.../EventIndexRequest.php` |
 | `EVS-FILTER-02` | Approved | Agenda filtering is taxonomy/category/tag + geo only, with taxonomy matching by slug pairs (`type`, `value`). | Aligns query path with tenant taxonomy registry and term slugs. | `laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php`, `laravel-app/app/Application/Taxonomies/TaxonomyValidationService.php` |
 | `EVS-OPS-01` | Approved | Query runtime must not create indexes; required Mongo indexes are provisioned deterministically via tenant migration flow (Spatie `tenant_migration_paths`). | Avoids request-path index creation latency/failures and centralizes ops lifecycle in migrations. | `laravel-app/packages/belluga/belluga_events/database/migrations/2026_02_26_000300_create_event_occurrences_collection.php`, `.../2026_03_06_000500_add_event_occurrences_artists_taxonomy_terms_index.php` |
@@ -73,21 +73,24 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 - Agenda/detail contracts are occurrence-first and include `event_id` + `occurrence_id`.
 - Event location contract is `location` + `place_ref`; venue projection is resolved from `place_ref` when applicable.
 - Event-type registry/read payloads expose canonical `visual` as source of truth and may emit `poi_visual` as compatibility mirror; embedded `event.type` and `event_occurrences[].type` snapshots must carry the canonical visual payload as well.
-- `event_parties` are event composition principals (artists/hosts/venues/etc.) with payload-driven `can_edit`.
-- Detail/read payloads may expose additive `linked_account_profiles[]` entries derived from event-party metadata and venue/artist projections. Each entry is an account-profile summary input for UI grouping and contains enough identity data for direct navigation and taxonomy-aware cards (`id`, `slug`, `profile_type`, `display_name`, media fields, taxonomy term summaries).
+- `event_parties` are the canonical composition contract for non-location account profiles only. Venue/local ownership remains on `location + place_ref`, and `venue` is a derived read projection rather than an event-party input.
+- Detail/read payloads expose ordered `linked_account_profiles[]` entries derived exclusively from `event_parties` metadata. Each entry is an account-profile summary input for UI grouping and contains enough identity data for direct navigation and taxonomy-aware cards (`id`, `slug`, `profile_type`, `display_name`, media fields, taxonomy term summaries).
 - Management/event-operations payloads must use `event_parties` plus `linked_account_profiles` for dynamic account-profile administration and must not require an artist-shaped key such as `artists`.
 - Tenant-admin event list operations use server-driven `date`, `temporal`, `venue_profile_id`, and `related_account_profile_id` as the canonical current manager filter set; `venue_profile_id` targets canonical venue ownership (`place_ref`), while `related_account_profile_id` targets non-venue `event_parties`/`linked_account_profiles`.
 - Direct text search is not part of the current tenant-admin manager surface; `search` is rejected on the admin request contract and must not drive the Flutter admin UX.
-- Tenant-admin event pagination is ordered by `date_time_start DESC`, `_id DESC` so date-grouped manager lists can regroup appended pages deterministically.
+- Tenant-admin event pagination is ordered by nearest start first (`date_time_start ASC`, `_id DESC`) so manager lists open with the soonest upcoming/default-visible event first while preserving deterministic tie-breaks across appended pages.
 - Public immersive event detail consumes those linked account profiles as grouped category tabs between the stable `Sobre` and `Como Chegar` tabs; `Sobre` renders `event.content` as HTML and `Como Chegar` owns venue/map/directions semantics for the event.
 - Linked-profile cards inside event detail remain route-driven by `linked_account_profiles[].slug`, may expose favorite affordance in parallel with direct card navigation, and must not rely on client-side lookup fallbacks or request-time repair when a payload is incomplete. Event create/update paths must keep `venue.slug` and `event_parties[].metadata.slug` aligned for new writes so derived read projections can resolve canonical identities.
 - Tenant-public event detail back behavior is stack-first: if the route was entered from another in-app surface, back returns to that surface; if it was opened directly with no previous route, the approved fallback is `/`.
 - Event-form account-profile candidate discovery is type-driven and page-based: `related_account_profile` returns generic related account profiles without hardcoding one specific dynamic profile type and excludes canonical venue profiles, while `physical_host` returns POI-enabled profiles with valid coordinates.
+- Public event-image resolution order is deterministic: `event.thumb` first, then `linked_account_profiles` in canonical array order, then `venue` media. Runtime callers must not fall back to legacy `artists`.
 
 ### 5.2 Write model
 
 - Event create/update accepts `occurrences[]` as schedule source.
 - `venue_id` is prohibited in write payloads.
+- `event_parties[]` write input is minimal and strict: clients may send only `party_ref_id` and optional `permissions.can_edit`. `party_type` and `metadata` are backend-owned, inferred/resolved from the referenced account profile, and rejected when client-supplied.
+- When `event_parties` is present on update, it replaces the full related-account set in request order. An omitted `event_parties` field preserves the stored related-account ordering.
 - Event description/content is optional (`content` is not required on create/update).
 - Event type description is optional in the event-type registry and in resolved event type payloads.
 - Event-type registry writes use canonical `visual` as source of truth; legacy `icon/color/icon_color` may still be emitted for compatibility but are not the authoritative editing contract.

@@ -41,4 +41,4 @@
 ## References
 - `foundation_documentation/todos/completed/TODO-v1-backend-context-and-identity.md`
 - `foundation_documentation/todos/completed/TODO-remove-tenant-backend-fallback.md`
-- `foundation_documentation/todos/active/vnext_slices/TODO-vnext-module-settings-refactor.md`
+- `foundation_documentation/todos/active/vnext/TODO-vnext-module-settings-refactor.md`

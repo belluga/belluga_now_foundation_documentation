@@ -19,8 +19,8 @@ The Account Profile Catalog & Offer module (MOD-304) maintains the canonical rep
   - `foundation_documentation/modules/partner_admin_module.md`
   - `foundation_documentation/modules/events_module.md`
 - Tactical TODO streams:
-  - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
+  - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
+  - `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-static-assets-media-parity-with-account-profiles.md`
 
 ---
@@ -114,6 +114,22 @@ Aggregated data served to authenticated account operators once the workspace lau
 **Events**
 * `account_profile.created`, `account_profile.updated`, `offer.published`, `offer.unavailable`, `offer.window.expired`.
 
+### 4.1 Tenant-Public Discovery Listing Contract
+
+**EnvironmentType:** `tenant`  
+**Main scope:** `tenant_public`  
+**Subscope:** `n/a`
+
+| Route | Host Context | EnvironmentType | Main Scope | Subscope | Guard/Identity |
+| --- | --- | --- | --- | --- | --- |
+| `/descobrir` | tenant | `tenant` | `tenant_public` | `n/a` | `TenantRouteGuard()` |
+
+Discovery runtime behavior for tenant-public account-profile listing is fixed as follows:
+- Default discovery hierarchy uses `Tocando agora` + `Perto de você` as the top composition, followed by `Descubra` with registry-driven single-select category chips.
+- Entering search mode hides `Tocando agora`, `Perto de você`, and the `Descubra` heading/chip chrome.
+- While search mode is active with an empty query, the unfiltered base discovery grid remains visible; text filtering begins only after the user types.
+- Discovery-side profile entrypoints continue to launch the canonical public account-profile detail route `/parceiro/:slug`; detail-route behavior is governed separately.
+
 ---
 
 ## 5. Dependencies
@@ -142,11 +158,12 @@ Aggregated data served to authenticated account operators once the workspace lau
 | `PCO-06` | Approved | Account-profile public identity uses surface-specific media precedence: hero/discovery backgrounds use `cover > avatar > type visuals`, compact rows use `avatar > cover > type visuals`, and shared identity-avatar blocks use the real avatar when present and otherwise fall back to the canonical `type visual` avatar surface. When a real avatar exists, the `type visual` becomes a badge overlay on that avatar instead of a textual label/chip. | Keeps discovery, nearby, home favorites previews, and partner detail semantically consistent while preserving the distinction between surface media, personal/avatar identity, and type identity. | Sections `1`, `4`, `7` |
 | `PCO-07` | Approved | Public/runtime account-profile type metadata is bootstrap-driven and additive: `label` remains the singular compatibility alias, while `labels.singular` / `labels.plural` are the canonical display fields for identity and grouped-category surfaces. | Allows shared account-profile/UI consumers to stop improvising singular/plural labels while keeping runtime reads cheap and tenant-admin source-of-truth aligned. | Sections `1`, `4`, `7` |
 | `PCO-08` | Approved | Tenant-public account-profile detail uses the shared safe-back policy: when no previous route exists, `/parceiro/:slug` falls back to `/descobrir`; when history exists, the real previous route still wins. | Keeps direct-open partner detail resilient while preserving normal in-app source continuity from discovery, home, map, and event-linked profile flows. | Sections `1`, `4`, `7` |
+| `PCO-09` | Approved | Tenant-public account-profile discovery search mode hides the top discovery hierarchy chrome (`Tocando agora`, `Perto de você`, `Descubra`, and chips) while preserving the unfiltered base results grid until a non-empty query is entered. | Freezes the approved `/descobrir` search interaction so tactical TODO cleanup and future UI work do not reintroduce prompt-only empty-search behavior. | Sections `4.1`, `7` |
 
 ## 8. Tactical TODO Promotion Ledger
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
 | `TODO-vnext-tenant-user-account-profile-area.md` | Account/profile scope and contracts | In progress | `1.1`, `3`, `7` | Main stream for account profile domain hardening. |
-| `TODO-v1-account-profile-ui.md` | CRUD/form contract parity with backend | In progress | `4`, `7` | Ensures UI flows follow canonical catalog payloads. |
+| `TODO-v1-public-account-profile-discovery-ui.md` | Tenant-public discovery/listing contract and discovery-side CTA polish | Completed | `4`, `4.1`, `7` | Discovery search-mode/listing contract and the remaining V1 polish were accepted as launch-ready; no further Discovery follow-up remains in this lane. |
 | `TODO-v1-tenant-public-safe-back-navigation.md` | Shared tenant-public partner-detail back/fallback policy | Completed | `4`, `7` | Freezes `/parceiro/:slug -> /descobrir` when root-opened; archived from `active` during the 2026-04-09 MVP TODO cleanup after delivery confirmation. |

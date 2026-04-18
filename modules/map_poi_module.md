@@ -57,6 +57,7 @@ Transient map notices are `reason`-driven and only render when the reason has an
 - In soft-gate mode, the map uses the tenant default origin/fixed-reference path for that access instead of blocking the screen.
 - The map shows a dismissible top notice for that access only, reusing the approved fixed-location explanatory copy.
 - There is no separate `/location/not-live` surface in V1; map fallback behavior stays inside the map flow itself.
+- When `/location/permission` is opened as a guarded interruption, visible back and system back must return the guarded `cancelled` outcome and dismiss the permission route if stack history exists; direct/no-history entry still falls back to `/`.
 - After the map target is active, back follows the shared tenant-public safe-back policy: `/mapa` returns to the previous route when history exists and otherwise falls back to `/`; `/mapa/poi` returns to previous history when present and otherwise falls back to `/mapa`.
 
 ## 3. Architecture Baseline: Server-Centric, Real-Time Ready
@@ -396,7 +397,7 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
 | `TODO-v1-map-backend.md` | Map package extraction and backend contract ownership | Production-Ready | `1.1`, `3.6`, `4`, `6` | Package ownership complete (`belluga_map_pois`), including internal rebuild command. |
-| `TODO-v1-map-frontend.md` | Flutter map UX + filter/stacking consumption | In progress | `3.3`, `4.1`, `5` | Client contract alignment stream. |
+| `TODO-v1-map-frontend.md` | Flutter map UX + filter/stacking consumption | Completed | `3.3`, `4.1`, `5` | Client contract-alignment slice closed; remaining plugin-surface migration moved to `foundation_documentation/todos/active/vnext/TODO-v1-map-visuals.md`. |
 | `TODO-v1-map-icon-color-config.md` | Type-driven POI visuals + filter marker override + hard-delete/rematerialization contract | Completed | `3.6`, `4.1`, `6` | Archived in `todos/completed`; canonical projection/visual contract remains promoted here. |
 | `TODO-v1-event-type-canonical-poi-visuals.md` | Event-type canonical visuals and event POI parity | In progress | `3.6`, `4.1`, `6` | Local implementation and automated coverage are in place; final closure still depends on manual public-map smoke. |
 | `TODO-v1-route-url-only-hydration-hardening.md` | URL-only route hydration + internal-only fallback hardening | Production-Ready | `4.1`, `6` | `poi + stack` + `poi`-only deterministic lookup delivered end-to-end. |

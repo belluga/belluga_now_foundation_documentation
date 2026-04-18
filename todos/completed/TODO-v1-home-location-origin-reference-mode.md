@@ -116,7 +116,7 @@ Dialog intent:
 
 ## 9. References
 - `foundation_documentation/todos/completed/TODO-v1-home-agenda-radius-persistence-and-sheet-polish.md`
-- `foundation_documentation/todos/active/vnext_slices/TODO-vnext-proximity-preferences-and-location-origin.md`
+- `foundation_documentation/todos/active/vnext/TODO-vnext-proximity-preferences-and-location-origin.md`
 - `foundation_documentation/modules/tenant_home_composer_module.md`
 - `foundation_documentation/modules/agenda_and_action_planner_module.md`
 - `foundation_documentation/todos/completed/TODO-v1-events-location-gating-and-tenant-default-origin.md`

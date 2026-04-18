@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/2026-04-15-home-agenda-radius-button-branch-audit-package-triple-audit-20260416T002717Z/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality/no-context-external-audit-lane"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Add one screen-level integration test for the home agenda scroll-to-compact transition and attach log-level browser-validation evidence before merge."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-83FD3756",
+      "severity": "medium",
+      "title": "Controller refactor lacks screen-level integration proof",
+      "rationale": "The package says the branch changed home screen scroll ownership, agenda scroll signaling, and radius compact-state propagation across tenant_home_screen.dart, tenant_home_controller.dart, home_agenda_section.dart, home_agenda_section_view.dart, and tenant_home_agenda_controller.dart, but the explicit test evidence listed is only one controller test file and one agenda app bar widget test. That is not enough to prove the ownership chain and compact-state transition work end-to-end in the actual home screen flow. Relevant package lines are 47-63 and 114-125.",
+      "suggested_action": "Add a screen-level widget or integration test that drives real home-screen scrolling and asserts compact and expanded radius transitions through the full ownership chain, then rerun the same targeted validation.",
+      "reviewer_labels": [
+        "test-quality/no-context-external-audit-lane"
+      ],
+      "source_finding_ids": [
+        "TQ-1"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-5EFF9F3B",
+      "severity": "low",
+      "title": "Browser validation evidence is not reproducible enough for audit closure",
+      "rationale": "The package claims Playwright validation against https://guarappari.belluga.space, but it does not include runner output, domain/scheme assertions, or backend-parity details. For a test-quality audit, that leaves residual risk that the browser check is only a smoke pass against a deployed environment rather than a reproducible compatibility signal. Relevant package lines are 106-112.",
+      "suggested_action": "Capture and attach the browser-test command output or runner artifact showing the exact domain, scheme, backend target, and assertion outcomes; if local parity matters for the TODO, run the same flow against the local backend and record it.",
+      "reviewer_labels": [
+        "test-quality/no-context-external-audit-lane"
+      ],
+      "source_finding_ids": [
+        "TQ-2"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

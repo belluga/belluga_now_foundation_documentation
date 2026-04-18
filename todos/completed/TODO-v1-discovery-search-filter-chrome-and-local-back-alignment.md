@@ -11,7 +11,7 @@
 
 ## Module Anchors
 - **Primary:** `foundation_documentation/modules/flutter_client_experience_module.md`
-- **Secondary:** `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`, `foundation_documentation/todos/active/mvp_slices/TODO-v1-targeted-visual-polish.md`
+- **Secondary:** `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`, `foundation_documentation/todos/completed/TODO-v1-targeted-visual-polish.md`
 
 ## Scope
 - Adjust only the Discovery screen chrome/state handling in `EnvironmentType=tenant`, `main scope=tenant_public`.
@@ -37,10 +37,10 @@
 - `foundation_documentation/policies/scope_subscope_governance.md`
 
 ## Relevant Prior Decisions
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
+- `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
   - Discovery heading/layout remains `Descubra` with category chips directly below, single-select.
   - Search mode hides `Tocando agora` / `Perto de você` and keeps result-list mode.
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-targeted-visual-polish.md`
+- `foundation_documentation/todos/completed/TODO-v1-targeted-visual-polish.md`
   - `D-09`: colors must come from current app theme tokens (`ThemeData`), not fixed design hex values.
   - `D-10`: Discovery feed heading above chips must be `Descubra`; chips stay directly below this heading with single-select behavior.
   - `D-12`: entering search mode hides top editorial sections.
@@ -49,8 +49,8 @@
 ## Module Decision Consistency Gate
 | Prior Decision Source | Decision | Handling | Evidence / Rationale |
 | --- | --- | --- | --- |
-| `TODO-v1-account-profile-ui.md` | `Descubra` + chips directly below, single-select | `Preserve` | Search action moves into that same header; heading/chips remain in place when idle |
-| `TODO-v1-account-profile-ui.md` | Search/filter mode hides `Tocando agora` / `Perto de você` | `Preserve` | No change to result-mode semantics |
+| `TODO-v1-public-account-profile-discovery-ui.md` | `Descubra` + chips directly below, single-select | `Preserve` | Search action moves into that same header; heading/chips remain in place when idle |
+| `TODO-v1-public-account-profile-discovery-ui.md` | Search/filter mode hides `Tocando agora` / `Perto de você` | `Preserve` | No change to result-mode semantics |
 | `TODO-v1-targeted-visual-polish.md` `D-09` | Theme-driven colors only | `Preserve` | Chip styling will stop forcing widget-local visual tokens |
 | `TODO-v1-targeted-visual-polish.md` `D-10` | `Descubra` remains heading above chips | `Preserve` | Only an action affordance is added to the heading row |
 | `TODO-v1-targeted-visual-polish.md` `D-12` + `D-14` | Search-active mode hides editorial sections and heading/chips | `Preserve` | Local back behavior follows strict `if/else`: active filter clears locally; no active filter pops route |

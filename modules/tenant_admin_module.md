@@ -23,7 +23,7 @@ Canonical module contract for the Tenant Administration interface (`tenant_admin
   - `foundation_documentation/modules/events_module.md`
 - Tactical TODO streams:
   - `foundation_documentation/todos/completed/TODO-v1-tenant-admin-navigation-ia-events-priority.md`
-  - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
+  - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-static-assets-media-parity-with-account-profiles.md`
 
 ## 2. Intended Responsibilities
@@ -194,6 +194,12 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with 
   - `/admin/settings/domains` → tenant web-domain management (active list/create/delete; deleted-domain lifecycle stays outside the current settings read flow)
   - `/admin/settings/environment-snapshot` → read-only environment diagnostics
 - The settings controller remains the state owner; each settings screen consumes only the relevant state slices and actions.
+- `/admin/settings/visual-identity` is the canonical owner of tenant runtime branding identity in V1:
+  - editing `Nome do tenant` persists the canonical tenant record used by `/api/v1/environment` and `manifest.json`;
+  - `favicon` is a dedicated `.ico` upload surface for browser-tab/bookmark identity only;
+  - `Icone PWA` remains a dedicated PNG source for manifest `/icon/...` outputs and must not be conflated with favicon;
+  - `public_web_metadata.default_title`, `public_web_metadata.default_description`, and `public_web_metadata.default_image` are the tenant-owned fallback metadata inputs for tenant-public HTML routes that do not already resolve route-specific Open Graph metadata;
+  - `public_web_metadata.default_image` uses the same canonical branding upload pipeline as the other branding assets, but it only participates in server-rendered OG/Twitter fallback metadata and must not be repurposed as favicon or PWA icon input.
 
 ### 3.7 Selected Tenant State Ownership (Shared Repository)
 
@@ -350,7 +356,7 @@ List tenant-admin events for operational management.
 - Legacy backend compatibility paths for `status`/`archived` may still exist for existing admin callers, but they are not canonical inputs for the current Flutter manager UX.
 - `venue_profile_id` matches canonical venue ownership (`place_ref.id` / `place_ref._id`).
 - `related_account_profile_id` matches canonical non-venue event-party ownership and its additive `linked_account_profiles` projection.
-- Stable pagination order is `date_time_start DESC`, `_id DESC`.
+- Stable pagination order is nearest start first: `date_time_start ASC`, `_id DESC`.
 - The Flutter tenant-admin list groups cards by local event date and uses an explicit manager-card contract for scanning:
   - `thumb`
   - `title`
@@ -359,6 +365,7 @@ List tenant-admin events for operational management.
   - `linked_account_profiles`
   - `publication.status`
   - `updated_at`
+- Non-published manager cards (`publication.status != published`) render with `70%` opacity so draft/scheduled/ended items remain visible but visually secondary to published inventory.
 - Grouping is rebuilt from the accumulated ordered result, and any filter change resets pagination to page `1` before regrouping.
 - Management payloads must not require an artist-shaped key such as `artists`; dynamic account-profile administration flows consume `event_parties` plus `linked_account_profiles`.
 
@@ -1972,7 +1979,7 @@ Update tenant-owned Resend delivery defaults used by tenant-public transactional
 ```
 
 ### `POST /api/v1/email/send`
-Tenant-public transactional email send endpoint used by the temporary web tester-waitlist flow.
+Tenant-public transactional email send endpoint kept only for legacy/non-release flows. It is not part of the current store-release web-to-app conversion contract, which promotes users to the app-promotion/store handoff instead of the temporary tester-waitlist path.
 
 **Request Schema**
 ```json

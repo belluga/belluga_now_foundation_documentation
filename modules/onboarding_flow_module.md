@@ -19,16 +19,20 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
   - `foundation_documentation/modules/task_and_reminder_module.md`
 - Tactical TODO streams:
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
+  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+  - `foundation_documentation/todos/active/vnext/TODO-vnext-onboarding-identity-reconciliation-reflection.md`
 
 ## 2. Entry Paths
 
 1. **Invite Acceptance Path**
     * Steps:
         * User lands via `inviteCode` deep link → sees invite context (sender, event, incentives).
-        * `Accept`/`Decline` actions are available in app with anonymous identity (progressive profiling). Auth is deferred until a trust action hits Auth Wall.
+        * `Accept`/`Decline` actions are available in app with anonymous identity (progressive profiling). Auth is deferred until a restricted action that truly requires authenticated identity hits Auth Wall.
+        * The anonymous app baseline stays explicit after that decision point: feed browsing, map browsing, and favorites remain available without forced login; `send_invite`, `/profile`, and presence/check-in remain authenticated boundaries.
         * Screen flows continue with:
-            1. Minimal identity capture (name + email/phone).
+            1. Minimal pre-auth profile context only when needed; authenticated upgrade, when required, is phone-OTP only.
             2. Contact import prompt (`import contacts to share with friends`) wired to Invite module’s endpoint.
             3. Optional “Find friends” preview from `friend_resumes` to encourage immediate viral sharing.
         * After contact import (or skip), user transitions to preference capture + location consent steps to personalize home/map.
@@ -39,7 +43,7 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
         * User declines invite (or arrives without one) → flows into preference capture wizard.
         * Prompts include “What are you looking for today?” categories, location consent, and optional contact import later in the flow.
     * Produced values feed the Map module (initial filters) and local home composition logic.
-    * Integration: When user declines an invite for an event, onboarding triggers `invite.suppressed` for that event and optionally suggests alternative events via home/map modules.
+    * Integration: When user declines an invite for an event, onboarding triggers `invite.declined` for that invite and optionally suggests alternative events via home/map modules.
 
 ## 3. Core Responsibilities
 
@@ -82,21 +86,27 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 6. **Gamification / Rewards**
     * Early completion badges (e.g., “Hometown Host”) and invite boosts for users who import contacts during onboarding.
 
+7. **Identity Materialization Reflection (Follow-up)**
+    * After a user's canonical phone identity becomes stable through the approved OTP/onboarding path, onboarding owns the follow-up handoff that may trigger late reconciliation against hashes previously imported by other viewers.
+    * This follow-up may later feed advisory reflection surfaces such as `Talvez você conheça` and informational lifecycle notifications like "contact entered the app".
+    * These reflection surfaces must remain discovery-only until explicit favorite promotes the relationship into the normal inviteable rules.
+
 ## 4. Integration with Invite Module
 
 * After `invite.accepted`, onboarding listens for `invite.accepted.contacts-import-triggered` to mark the contact-import step as completed automatically.
-* When `invite.suppressed` occurs, onboarding ensures future prompts respect the suppression but still directs the user to preference capture so they can find other events.
+* When `invite.declined` occurs, onboarding respects that decision and still directs the user to preference capture so they can find other events.
 * On finishing onboarding, emit `onboarding.completed` event referencing whether the user entered via invite or organic path. This helps Invites/Gamification calibrate rewards.
+* The follow-up lane `TODO-vnext-onboarding-identity-reconciliation-reflection.md` owns any late reconciliation/reflection behavior that should happen after canonical identity materialization. Invite/social modules remain the source of relationship rules, while onboarding owns the materialization handoff timing.
 
-## 5. Open Questions
+## 5. Current V1 Constraints
 
-1. Should we allow anonymous exploration (limited map access) before completing onboarding, or do we gate all main surfaces until preferences/location are captured?
-2. How do we handle invite acceptance when the event is full or expired mid-onboarding? (Fallback suggestions, auto-decline plus onboarding path.)
-3. Do we need separate onboarding variants for account/promoter roles, or do they share the same core flow with role selection prompts?
+1. Invite acceptance does not encode event capacity or later fulfillment availability. Capacity, reservation availability, and check-in feasibility are downstream concerns and must not redefine the social invite decision.
+2. If an invite is already expired when the user reaches the decision point, onboarding falls back to preference/discovery progression without auto-decline or suppression.
+3. V1 onboarding remains one tenant-public user flow. Account/promoter/workspace-specific onboarding variants are post-MVP and do not belong to the current release lane.
 
 ---
 
-*Next Action:* Flesh out collection schemas (`onboarding_sessions`, `preference_snapshots`), API details, and UI sequence diagrams once we finalize the answers above.
+*Next Action:* Flesh out collection schemas (`onboarding_sessions`, `preference_snapshots`), API details, and UI sequence diagrams under the frozen V1 constraints above.
 
 ## 6. Canonical Decision Baseline
 
@@ -105,10 +115,18 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 | `ONB-01` | Approved | Invite-first and organic paths share one onboarding state machine with contextual branching. | Prevents duplicated onboarding implementations. | Sections `2`, `3` |
 | `ONB-02` | Approved | Contact import and location consent are optional but produce follow-up task intents when skipped. | Guarantees recoverability without blocking acquisition. | Sections `3`, `4` |
 | `ONB-03` | Approved | Dynamic push onboarding answers are callback-driven (no plugin persistence). | Keeps onboarding plugin generic and stateless. | Section `3` |
+| `ONB-04` | Approved | Anonymous exploration remains allowed before onboarding completion on the V1 anonymous app baseline; onboarding steps may defer through task intents instead of gating feed/map/favorites. | Aligns onboarding with the web-to-app promotion policy and avoids reintroducing forced-auth/forced-onboarding friction. | Sections `2`, `3` |
+| `ONB-05` | Approved | Late identity-materialization reconciliation and its advisory reflection surfaces are onboarding-owned follow-up behavior. They may later trigger outbound reconciliation for prior importers, but inbound surfaces such as `Talvez você conheça` remain discovery-only until explicit favorite. | Keeps post-onboarding identity materialization aligned with onboarding lifecycle ownership without polluting release-critical social scope. | Sections `3`, `4` |
+| `ONB-06` | Approved | Normal invite refusal in onboarding maps to `invite.declined`; `invite.suppressed` remains reserved for policy/governance-only closure and is not the default user-decline outcome. | Keeps onboarding aligned with the canonical invite lifecycle semantics. | Sections `2`, `4` |
+| `ONB-07` | Approved | Invite acceptance is independent from event capacity/fulfillment availability; expired invite resolution falls back to onboarding progression without auto-decline or suppression. | Prevents onboarding from overloading invite semantics with downstream operational availability. | Sections `2`, `5` |
+| `ONB-08` | Approved | V1 onboarding is a shared tenant-public user flow; account/promoter/workspace-specific onboarding variants are post-MVP. | Removes role-specific onboarding ambiguity from the current release lane. | Section `5` |
 
 ## 7. Tactical TODO Promotion Ledger
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
 | `TODO-v1-invites-implementation.md` | Invite acceptance/contact-import flow contracts | Completed (2026-03-12) | `2`, `4`, `6` | Main authority for invite/onboarding boundary. |
-| `TODO-v1-first-release.md` | MVP onboarding sequencing and release posture | In progress | `3`, `5` | Tracks open onboarding questions at release level. |
+| `TODO-store-release-android.md` | Android release orchestration authority | In progress | `1.1`, `5`, `7` | Replaces the former MVP release orchestrator as the active sequencing authority. |
+| `TODO-store-release-phone-otp-auth-and-contact-match.md` | Phone-OTP upgrade and identity baseline | In progress | `2`, `6`, `7` | Freezes the authenticated upgrade path that onboarding must hand off into. |
+| `TODO-store-release-minimal-friends-and-favorites-mvp.md` | Minimal user-level friends/favorites release contract | In progress | `2`, `4` | Owns the release-facing friend preview/social-proof contract referenced by onboarding. |
+| `TODO-vnext-onboarding-identity-reconciliation-reflection.md` | Late identity-materialization reconciliation + advisory reflection surfaces | Pending follow-up | `3`, `4`, `6`, `7` | Owns post-onboarding reflection (`Talvez você conheça`, informational lifecycle hints) after canonical identity materialization. |

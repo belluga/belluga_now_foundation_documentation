@@ -27,7 +27,7 @@
 - `foundation_documentation/modules/events_module.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
 - `foundation_documentation/policies/scope_subscope_governance.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-event-parties-canonicalization-and-legacy-migration.md`
+- `foundation_documentation/todos/active/concluded_but_active/TODO-v1-event-parties-canonicalization-and-legacy-migration.md`
 - `laravel-app/routes/api/tenant_api_v1.php`
 - `laravel-app/app/Http/Api/v1/Controllers/DomainController.php`
 - `laravel-app/app/Application/Tenants/TenantDomainManagementService.php`

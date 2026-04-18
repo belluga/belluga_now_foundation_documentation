@@ -1,7 +1,7 @@
 # Final Audit Review Log: Tenant Admin Domain Management + Event Ops
 
 **Status:** Derived, non-authoritative checkpoint-B review log  
-**Related TODO:** `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-admin-domain-management-and-events-ops.md`  
+**Related TODO:** `foundation_documentation/todos/active/concluded_but_active/TODO-v1-tenant-admin-domain-management-and-events-ops.md`  
 **Bounded package:** `foundation_documentation/artifacts/tenant-admin-domain-events-audit-package.md`  
 **Prepared on:** `2026-04-12`
 

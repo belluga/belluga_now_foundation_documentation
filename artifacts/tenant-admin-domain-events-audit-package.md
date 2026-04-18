@@ -1,7 +1,7 @@
 # Audit Package: Tenant Admin Domain Management + Event Ops (Contract Hardening)
 
 **Status:** Derived, non-authoritative correctness and contract-hardening review packet  
-**Related TODO:** `foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-admin-domain-management-and-events-ops.md`  
+**Related TODO:** `foundation_documentation/todos/active/concluded_but_active/TODO-v1-tenant-admin-domain-management-and-events-ops.md`  
 **Audit review log:** `foundation_documentation/artifacts/reviews/tenant-admin-domain-events-final-audit-checkpoint-b.md`  
 **Prepared on:** `2026-04-12`
 

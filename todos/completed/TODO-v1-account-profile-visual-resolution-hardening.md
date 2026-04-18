@@ -34,8 +34,8 @@
 
 ## References
 
-- `../foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
-- `../foundation_documentation/todos/active/mvp_slices/TODO-v1-screen-account-profile-detail-polish.md`
+- `../foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
+- `../foundation_documentation/todos/active/store_release_android/TODO-v1-screen-public-account-profile-detail-polish.md`
 - `../foundation_documentation/todos/completed/TODO-v1-screen-discovery-performance-hardening.md`
 - `lib/domain/partners/account_profile_model.dart`
 - `lib/domain/partners/profile_type_registry.dart`

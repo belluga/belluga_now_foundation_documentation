@@ -10,7 +10,7 @@
 
 ## References
 - `foundation_documentation/todos/completed/TODO-v1-admin-discovery-map-small-fixes.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-frontend.md`
+- `foundation_documentation/todos/completed/TODO-v1-map-frontend.md`
 - `foundation_documentation/modules/map_poi_module.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
 - `foundation_documentation/modules/tenant_admin_module.md`
@@ -192,7 +192,7 @@
   - new icon coverage is additive (`append-only` catalog behavior).
 - VNext custom font readiness:
   - icon catalog must allow swapping icon glyph source (Material -> custom font) without changing stored keys.
-  - follow-up backlog: `foundation_documentation/todos/active/vnext_slices/TODO-vnext-map-marker-icon-catalog-expansion.md`.
+  - follow-up backlog: `foundation_documentation/todos/active/vnext/TODO-vnext-map-marker-icon-catalog-expansion.md`.
 
 ### K) Marker Icon Catalog Baseline (MVP)
 - Approved MVP groups:

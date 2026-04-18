@@ -1,7 +1,7 @@
 # TODO (V1): Invite Deep Link Identity-First Delivery (Guarappari)
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Completed (MVP scope closed; iOS production validation moved to VNext)  
+**Status:** Completed (MVP scope closed; iOS production validation moved to mandatory fast-follow)  
 **Owners:** Delphi (Flutter/Product) + Backend Team + Web/Infra Team  
 **Goal:** Ensure invite deep links (`/invite?code=...`) resolve with identity-first behavior, deterministic routing, and platform deep-link readiness (Android + iOS) for `guarappari`.
 
@@ -11,11 +11,11 @@
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
 - `foundation_documentation/policies/web_to_app_promotion_policy.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md`
+- `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `foundation_documentation/endpoints_mvp_contracts.md`
 - `foundation_documentation/system_roadmap.md`
 - `foundation_documentation/artifacts/tmp/web_to_app_invite_handoff_2026-03-14.md`
-- `foundation_documentation/todos/active/vnext_slices/TODO-vnext-ios-universal-links-production-validation.md`
+- `foundation_documentation/todos/active/fast_follow_required/TODO-ios-universal-links-production-validation.md`
 
 ---
 
@@ -64,8 +64,8 @@
 - Marketing attribution model redesign beyond preserving inviter principal continuity.
 - New social surfaces or web inbox parity.
 
-## VNext Handoff (iOS)
-- iOS runtime/manual verification was intentionally moved to `TODO-vnext-ios-universal-links-production-validation.md`.
+## Fast-Follow Handoff (iOS)
+- iOS runtime/manual verification was intentionally moved to `TODO-ios-universal-links-production-validation.md`.
 - MVP closure for this TODO is based on Android/Web production readiness plus deterministic backend/Flutter test coverage.
 
 ---
@@ -228,7 +228,7 @@
 ### D) iOS Universal Links (Guarappari)
 - [x] ✅ Configure associated domains entitlements for `guarappari.belluga.space`.
 - [x] ✅ Persist typed iOS bundle identifier (`app_ios`) + `team_id`/`paths` (`settings.app_links.ios`) as canonical source for `/.well-known/apple-app-site-association`.
-- [x] ✅ Moved iOS runtime verification evidence capture to `TODO-vnext-ios-universal-links-production-validation.md`.
+- [x] ✅ Moved iOS runtime verification evidence capture to `TODO-ios-universal-links-production-validation.md`.
 
 ### E) Infra / Web Fallback
 - [x] ✅ Ensure nginx/runtime serves both `.well-known` files in production lane.
@@ -247,7 +247,7 @@
 - [x] ✅ Add Flutter integration regression test for anonymous event confirm -> signup -> authenticated confirm, asserting a single immersive route instance (back returns to agenda, no duplicate event stack).
 - [x] ✅ Add Playwright readonly smoke coverage for `/manifest.json` + `/.well-known/*` contracts on landlord/tenant URLs (edge/runtime path, non-HTML fallback).
 - [x] ✅ Capture manual evidence for Android installed-app open behavior and fallback when app is not installed.
-- [x] ✅ Moved iOS manual evidence capture to `TODO-vnext-ios-universal-links-production-validation.md`.
+- [x] ✅ Moved iOS manual evidence capture to `TODO-ios-universal-links-production-validation.md`.
 
 ---
 
@@ -265,7 +265,7 @@
 - [x] ✅ Invite acceptance supersedes competing invites with `supersession_reason = other_invite_credited`.
 - [x] ✅ Direct authenticated event confirmation with pending invites supersedes those invites with `supersession_reason = direct_confirmation` and does not implicitly credit any inviter.
 - [x] ✅ Android App Link opens native app for guarappari when installed.
-- [x] ✅ iOS Universal Link runtime validation moved to `TODO-vnext-ios-universal-links-production-validation.md`.
+- [x] ✅ iOS Universal Link runtime validation moved to `TODO-ios-universal-links-production-validation.md`.
 - [x] ✅ `.well-known/assetlinks.json` and `.well-known/apple-app-site-association` are deployable via canonical infra path.
 
 ---
@@ -296,7 +296,7 @@
 - [x] ✅ `fvm flutter analyze`.
 - [x] ✅ `fvm dart run custom_lint`.
 - [x] ✅ Android manual: browser click on `/invite?code=...` with app installed and not installed.
-- [x] ✅ iOS manual runtime validation moved to `TODO-vnext-ios-universal-links-production-validation.md`.
+- [x] ✅ iOS manual runtime validation moved to `TODO-ios-universal-links-production-validation.md`.
 - [x] ✅ Web fallback: code preserved through login handoff (`AuthRouteGuard` + auth-login round-trip integration test).
 - [x] ✅ Backend feature tests: anonymous attendance confirm rejected; authenticated confirm still succeeds.
 - [x] ✅ Flutter tests: anonymous event-detail confirm redirects to login and does not call persistence path.
@@ -316,7 +316,7 @@
 | `D-03` | `Adherent` | `flutter-app/lib/presentation/tenant_public/invites/screens/invite_flow_screen/widgets/invite_flow_coordinator.dart` | Product-approved silent-home fallback remains deterministic when invite list is empty. |
 | `D-04` | `Adherent` | `flutter-app/lib/application/router/modular_app/modules/invites_module.dart`, `flutter-app/test/application/router/modules/invites_module_test.dart`, `flutter-app/test/presentation/tenant/invites/screens/invite_flow_screen/invite_flow_screen_test.dart` | `/invite` is tenant-guarded preview-first; `/convites` and `/convites/compartilhar` remain tenant+auth guarded. |
 | `D-05` | `Adherent` | `flutter-app/android/app/src/main/AndroidManifest.xml`, `laravel-app/app/Application/Branding/DeepLinkAssociationService.php`, `laravel-app/tests/Api/v1/Tenants/Branding/ApiV1WellKnownAssociationTest.php`, `flutter-app/test/platform/deep_link_platform_config_test.dart`, `foundation_documentation/artifacts/tmp/android_app_links_validation_2026-03-19.md` | App Links wiring + endpoint payload contracts + manual ADB validation are complete (`get-app-links` verified, installed-app deep link opens `MainActivity`, non-installed deep link falls back to browser while preserving URL). |
-| `D-06` | `Deferred (VNext)` | `flutter-app/ios/Runner/Runner.entitlements`, `flutter-app/ios/Runner.xcodeproj/project.pbxproj`, `laravel-app/app/Application/Branding/DeepLinkAssociationService.php`, `laravel-app/tests/Api/v1/Tenants/Branding/ApiV1WellKnownAssociationTest.php`, `flutter-app/test/platform/deep_link_platform_config_test.dart`, `foundation_documentation/todos/active/vnext_slices/TODO-vnext-ios-universal-links-production-validation.md` | Universal Links wiring + payload source + regression tests are complete in code; runtime/manual iOS validation is explicitly tracked in VNext. |
+| `D-06` | `Deferred (Fast-Follow)` | `flutter-app/ios/Runner/Runner.entitlements`, `flutter-app/ios/Runner.xcodeproj/project.pbxproj`, `laravel-app/app/Application/Branding/DeepLinkAssociationService.php`, `laravel-app/tests/Api/v1/Tenants/Branding/ApiV1WellKnownAssociationTest.php`, `flutter-app/test/platform/deep_link_platform_config_test.dart`, `foundation_documentation/todos/active/fast_follow_required/TODO-ios-universal-links-production-validation.md` | Universal Links wiring + payload source + regression tests are complete in code; runtime/manual iOS validation is explicitly tracked in mandatory fast-follow. |
 | `D-07` | `Adherent` | `docker/nginx/prod.conf.template`, `docker/nginx/local.conf.template`, `laravel-app/routes/web.php`, `laravel-app/app/Application/Branding/DeepLinkAssociationService.php`, `laravel-app/tests/Api/v1/Tenants/Branding/ApiV1WellKnownAssociationTest.php`, `laravel-app/tests/Api/v1/Admin/ApiV1WellKnownAssociationAdminTest.php`, `flutter-app/test/platform/deep_link_platform_config_test.dart`, `tools/flutter/web_app_tests/deeplink_contract.spec.js` | Canonical runtime serving path is endpoint-based (no public static shadow files), host-resolved, and regression-tested for non-HTML payloads in both unit/feature and edge-level Playwright smoke layers. |
 | `D-08` | `Adherent` | `laravel-app/tests/Api/v1/Tenants/Branding/ApiV1WellKnownAssociationTest.php`, `flutter-app/lib/presentation/tenant_admin/settings/widgets/tenant_admin_settings_app_links_section.dart` | Scope remains guarappari-only in configured credentials/paths (`com.guarappari.app`, guarappari invite paths/domains). |
 | `D-09` | `Adherent` | `laravel-app/tests/Feature/Invites/InvitesFlowTest.php`, `flutter-app/test/application/router/**`, `flutter-app/test/presentation/tenant/invites/screens/invite_flow_screen/**`, `flutter-app/test/platform/deep_link_platform_config_test.dart`, `flutter-app/integration_test/feature_invite_deeplink_auth_roundtrip_test.dart`, `flutter-app/integration_test/feature_invite_flow_share_code_bootstrap_test.dart` | Automated backend/unit/widget/integration coverage executed successfully, including regression for preview-first auth round-trip without auto-accept/home fallback; only OS-level manual checks remain pending. |

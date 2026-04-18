@@ -118,16 +118,16 @@
 **V1 scope note:** Android deferred install capture is required in MVP. iOS deferred install capture remains VNext and returns deterministic `not_captured` in V1.
 
 ### `GET /open-app` (web handoff route)
-**Purpose:** Canonical web promotion/hard-gate handoff route; backend resolves tenant-dynamic store/open destination while preserving deterministic invite attribution rules.
+**Purpose:** Canonical web promotion/hard-gate handoff route; backend resolves tenant-dynamic store/open destination while preserving deterministic invite attribution and continuation-intent rules.
 **Request (query):**
-- `path` (`/invite|/convites|/` + arbitrary incoming values normalized by backend policy)
+- `path` (`string`) requested continuation route normalized by backend policy (`/invite`, `/convites`, public detail routes, auth-owned routes, and other guard-triggered paths may all enter this normalization)
 - `code` (`string?`)
 - `store_channel` (`string?`)
 - `platform_target` (`android|ios?`) optional explicit override for web promotion surfaces that render separate store choices; when absent, backend may fall back to user-agent detection.
 
 **Response:** `302` redirect (`Location` header) to:
 - dynamic Android/iOS store URL with attribution payload when store target is configured; or
-- deterministic in-domain fallback open target (`/invite?code=...` only for invite-landing context with valid `code`; otherwise `/`).
+- deterministic in-domain fallback open target (`/invite?code=...` for invite-landing context with valid `code`, the preserved redirect path when continuation intent is valid for app restore, otherwise `/`).
 
 **Channel rule (V1):** Web tenant-public hard gates (`favorite`, `send_invite`, attendance boundary attempts) must resolve through this handoff route and must not continue through web auth/login conversion.
 
@@ -172,6 +172,12 @@
     "secondary_seed_color": "#RRGGBB",
     "brightness_default": "light|dark"
   },
+  "branding_assets": {
+    "favicon": {
+      "has_dedicated_asset": true,
+      "uses_pwa_fallback": false
+    }
+  },
   "telemetry": {
     "trackers": [
       {
@@ -203,6 +209,7 @@
       "allowed_taxonomies": ["string"],
       "capabilities": {
         "is_favoritable": true,
+        "is_inviteable": true,
         "is_poi_enabled": false
       }
     }
@@ -233,13 +240,15 @@
 **Field Definitions**
 - `type`: `landlord`, `tenant`.
 - `theme_data_settings.brightness_default`: `light`, `dark`.
+- `branding_assets.favicon.has_dedicated_asset`: `true` when `/favicon.ico` resolves to a dedicated `.ico` asset.
+- `branding_assets.favicon.uses_pwa_fallback`: `true` when `/favicon.ico` currently falls back to the PWA icon chain instead of a dedicated `.ico`.
 - `telemetry.trackers[].type`: `mixpanel`, `firebase`, `webhook`.
 - `telemetry.location_freshness_minutes`: Integer minutes; defaults to 5 when omitted.
 - `settings.map_ui.default_origin.lat`: Tenant default origin latitude used when user location is unavailable.
 - `settings.map_ui.default_origin.lng`: Tenant default origin longitude used when user location is unavailable.
 - `settings.map_ui.default_origin.label`: Optional human-friendly label for the default origin.
 - `settings.map_ui.radius.min_km`: Minimum radius bound for map/agenda filters (km).
-- `profile_types`: Tenant profile type registry entries used to drive profile UI + favorites.
+- `profile_types`: Tenant profile type registry entries used to drive profile UI, favorites, and inviteable-surface eligibility.
 - `settings.map_ui.radius.default_km`: Default radius for map/agenda filters (km).
 - `settings.map_ui.radius.max_km`: Maximum radius bound for map/agenda filters (km).
 - `settings.map_ui.filters[]`: Ordered map filter catalog used by tenant-admin and map filter discovery payload decoration.
@@ -247,7 +256,7 @@
 - `settings.map_ui.filters[].label`: Tenant-facing display label override for the filter key.
 - `settings.map_ui.filters[].image_uri`: Optional image URL rendered in map filter button surfaces.
 
-**Branding assets:** use default paths `GET /logo-light.png`, `/logo-dark.png`, `/icon-light.png`, `/icon-dark.png` (no direct URLs in this payload).
+**Branding assets:** use default paths `GET /logo-light.png`, `/logo-dark.png`, `/icon-light.png`, `/icon-dark.png`. These file-like URLs are backend-owned tenant-aware routes, not bundle-local static assets, so ingress must route them to Laravel before any local-file fallback.
 
 ---
 
@@ -286,6 +295,56 @@
 **Field Definitions**
 - `user_level`: `basic`, `verified`.
 - `privacy_mode`: `public`, `friends_only`.
+
+### `POST /favorites`
+**Purpose:** Create or idempotently persist a favorite edge for the current identity.  
+**Auth:** Sanctum token required (registered or anonymous identity).  
+**Request (body):**
+```json
+{
+  "target_id": "string",
+  "registry_key": "account_profile",
+  "target_type": "account_profile"
+}
+```
+**Response (minimum):**
+```json
+{
+  "status": "favorited",
+  "target_id": "string",
+  "registry_key": "account_profile",
+  "target_type": "account_profile"
+}
+```
+**Notes:**
+- Anonymous identities are allowed in the V1 anonymous-app baseline and may create favorites without forcing authenticated upgrade.
+- Request is idempotent for the same identity + registry + target tuple.
+- This section documents the current registry-backed account-profile favorites lane (`registry_key=account_profile`). The store-release people-relationship lane may reuse the same favorite primitive for personal Account Profiles, but its invite/privacy/friend semantics must not be inferred from this payload shape by default.
+
+### `DELETE /favorites`
+**Purpose:** Remove a favorite edge for the current identity.  
+**Auth:** Sanctum token required (registered or anonymous identity).  
+**Request (body):**
+```json
+{
+  "target_id": "string",
+  "registry_key": "account_profile",
+  "target_type": "account_profile"
+}
+```
+**Response (minimum):**
+```json
+{
+  "status": "unfavorited",
+  "target_id": "string",
+  "registry_key": "account_profile",
+  "target_type": "account_profile"
+}
+```
+**Notes:**
+- Anonymous identities are allowed in the V1 anonymous-app baseline and may remove favorites without forcing authenticated upgrade.
+- Request is idempotent for the same identity + registry + target tuple.
+- This section documents the current registry-backed account-profile favorites lane (`registry_key=account_profile`). The store-release people-relationship lane may reuse the same favorite primitive for personal Account Profiles, but its invite/privacy/friend semantics must not be inferred from this payload shape by default.
 
 ### `GET /favorites`
 **Purpose:** Return user favorites with registry-backed snapshot ordering for Home and other account-profile contexts.  
@@ -334,8 +393,9 @@
   - block A: `next_event_occurrence_at` ascending,
   - block B: `last_event_occurrence_at` descending when next is null,
   - block C: `favorited_at` descending when both event dates are null.
-- Anonymous identities return `200` with `items=[]` and `has_more=false`.
+- Anonymous identities are part of the V1 anonymous-app baseline and must read back their own favorites with the same payload shape/order rules as authenticated users. `200` with `items=[]` and `has_more=false` is valid only when the current anonymous identity truly has no favorites.
 - Snapshot persistence is tenant-isolated by database; payload intentionally omits `tenant_id`.
+- This section documents the current registry-backed account-profile favorites lane (`registry_key=account_profile`). The store-release people-relationship lane may reuse the same favorite primitive for personal Account Profiles, but its invite/privacy/friend semantics must not be inferred from this payload shape by default.
 - Registry/migration guardrails:
   - `registry_key` is required snake_case.
   - `snapshot_collection` can be omitted (fallback `favoritable_snapshots`) or explicitly provided.
@@ -555,7 +615,7 @@
   "account_profile_id": "string?",
   "recipients": [
     {
-      "receiver_user_id": "string?",
+      "receiver_account_profile_id": "string?",
       "contact_hash": "string?"
     }
   ],
@@ -571,20 +631,24 @@
     "occurrence_id": "string?"
   },
   "created": [
-    { "invite_id": "string", "receiver_user_id": "string?" }
+    { "invite_id": "string", "receiver_account_profile_id": "string" }
   ],
   "already_invited": [
-    { "receiver_user_id": "string?" }
+    { "receiver_account_profile_id": "string" }
   ],
   "blocked": [
-    { "receiver_user_id": "string?", "reason": "suppressed" }
+    { "receiver_account_profile_id": "string", "reason": "suppressed" }
   ]
 }
 ```
 **Notes:**
 - `account_profile_id` is required when the sender is acting as `inviter_principal.kind = account_profile`.
-- Each recipient must provide either `receiver_user_id` or `contact_hash`.
-- Duplicate invite prevention follows the canonical uniqueness key `(tenant_id, event_id, occurrence_id | null, receiver_user_id, inviter_principal.kind, inviter_principal.id)` and returns `already_invited` instead of creating a new edge.
+- The canonical direct-invite recipient is `receiver_account_profile_id`.
+- Each recipient must provide either `receiver_account_profile_id` or `contact_hash`.
+- This is an approved breaking release-contract migration: legacy `receiver_user_id` targeting is retired and current implementations must migrate to `receiver_account_profile_id`.
+- When recipients are composed from multiple user-private `contact_groups`, the effective recipient set must be deduplicated before invite creation and before quota counting by canonical recipient identity.
+- Duplicate invite prevention follows the canonical uniqueness key `(tenant_id, event_id, occurrence_id | null, receiver_account_profile_id, inviter_principal.kind, inviter_principal.id)` and returns `already_invited` instead of creating a new edge.
+- Future account-workspace memberships may authorize different acting users on behalf of the same recipient/sender Account Profile, but that authorization context must not redefine canonical recipient identity.
 - Sender/global quota rejections must return deterministic `429` payloads:
 ```json
 {
@@ -630,9 +694,11 @@
 **Notes:**
 - This endpoint is the canonical app mutation path after explicit inviter selection.
 - Anonymous app identities are allowed in V1 progressive profiling and must preserve inviter attribution semantics.
-- Backend must supersede competing pending invites for the same `(receiver,target_ref)` when acceptance succeeds.
+- Invite acceptance is independent from event capacity or later fulfillment availability. Those concerns belong to downstream attendance/reservation/check-in flows; only lifecycle validity such as `expired` blocks acceptance at this contract layer.
+- Backend must supersede competing pending invites for the same `(receiver_account_profile_id,target_ref)` when acceptance succeeds.
 - Superseded invites must use `status = superseded` with `supersession_reason = other_invite_credited`.
 - `next_step` is the canonical contract field for post-acceptance follow-up semantics across native acceptance and future authenticated workspace continuations.
+- Future account-workspace memberships may authorize which acting user responds on behalf of the recipient Account Profile; this endpoint must remain compatible with that separation between recipient identity and acting user authority.
 
 ### `POST /invites/{invite_id}/decline`
 **Purpose:** Decline the selected direct invite from native app.  
@@ -658,6 +724,7 @@
 ```
 **Notes:**
 - Declining one invite edge does not implicitly decline other inviter candidates for the same target.
+- Future account-workspace memberships may authorize which acting user responds on behalf of the recipient Account Profile; this endpoint must remain compatible with that separation between recipient identity and acting user authority.
 
 ### `GET /invites/settings`
 **Purpose:** Invite quotas + UX messaging limits.  
@@ -703,7 +770,7 @@
 }
 ```
 **Eligibility Rules (MVP):**
-- **User invites:** only to imported contacts (hashed) or existing app users.
+- **User invites:** direct native invite edges are only for existing app users / matched contacts. Unmatched local contacts use the native external-share branch instead of a canonical direct invite edge.
 - **Account Profile invites:** may target followers/favorites for broader reach; direct user targeting allowed as needed.
 - When `inviter_principal.kind = account_profile`, `account_profile_id` is **required** and must belong to the inviter’s account/tenant context.
 - Anti-spam rejections must return deterministic `429` payloads:
@@ -924,14 +991,15 @@
 **Tracking Notes:**
 - `share_visit` is tracked separately from invites; it does **not** count as an accepted invite.
 - `POST /invites/share/{code}/materialize` only materializes attribution; it does **not** count as `invite_accepted`.
-- Invite landing must resolve preview context via `GET /invites/share/{code}` and preserve original deep-link query (`/invite?code=...`) through store/app handoff.
+- Invite acceptance is independent from event capacity or later fulfillment availability. Those concerns belong to downstream attendance/reservation/check-in flows; only lifecycle validity such as `expired` blocks acceptance at this contract layer.
+- Invite landing must resolve preview context via `GET /invites/share/{code}` and preserve the original deep-link query plus any valid requested continuation intent through store/app handoff.
 - Store/open handoff targets must be resolved dynamically per tenant for Android+iOS; clients must not hardcode store URLs.
-- Handoff target selection is deterministic and context-aware: preserve `/invite?code=...` only when current route context is invite landing (`/invite` or `/convites`) with valid `code`; all other contexts use canonical `/`.
+- Handoff target selection is deterministic and context-aware: preserve `/invite?code=...` when current route context is invite landing (`/invite` or `/convites`) with valid `code`; preserve the requested redirect path when promotion started from a direct detail route or a guard-triggered target and that continuation intent is valid for app restore; fall back to canonical `/` only when no valid continuation intent exists.
 - App anonymous flow accepts from preview using canonical `POST /invites/share/{code}/accept` (no forced pre-materialize step).
 - First-open resolver must be deterministic: captured `code` routes to invite flow; unresolved capture routes to `/` and emits `app_deferred_deep_link_capture_failed` (`store_channel` when available).
 - Materialized/inbox flows continue through canonical invite mutation endpoints `POST /invites/{invite_id}/accept|decline`.
 - Web remains promotion/read-only in V1: no accept/decline mutations, no inbox browsing, no multi-inviter selector, no direct invite send, no presence confirmation, and no check-in.
-- Web tenant-public hard/auth gates must not continue via web login; they must promote app handoff with `code` preservation.
+- Web tenant-public hard/auth gates must not continue via web login; they must promote app handoff with invite-attribution preservation plus requested-route preservation when applicable.
 
 ### `POST /test-support/invites/bootstrap` (`stage` only, non-product)
 **Purpose:** Provision deterministic invite fixtures for deployed compatibility tests against `stage`.  
@@ -993,7 +1061,7 @@
   "invites": [
     {
       "invite_id": "string",
-      "receiver_user_id": "string",
+      "receiver_account_profile_id": "string",
       "status": "pending|accepted|declined|superseded|expired",
       "credited_acceptance": true,
       "supersession_reason": "string?"
@@ -1001,6 +1069,9 @@
   ]
 }
 ```
+**Notes:**
+- Fixture-state payloads expose the canonical recipient as `receiver_account_profile_id`.
+- Test-support fixtures must validate the migrated Account-Profile-targeted contract only; legacy `receiver_user_id` payloads are not part of the release contract.
 
 ### `POST /test-support/invites/cleanup` (`stage` only, non-product)
 **Purpose:** Remove deterministic invite fixtures for a prior `run_id`.  
@@ -1024,13 +1095,17 @@
 - **Primary invite paths:**
 - **Direct invite (existing user):** server creates a per-recipient invite and sends push. Source = `direct_invite`.
   - **Share link:** server issues a `code` via `POST /invites/share`; no per-recipient record until acceptance. Source = `share_url`.
-- **Acceptance rules:** only one credited accepted invite per invitee per canonical target. Direct native acceptance requires explicit inviter selection through `invite_id`; share-code acceptance binds to the code’s inviter principal.
+- **Acceptance rules:** only one credited accepted invite exists per recipient Account Profile per canonical target. Direct native acceptance requires explicit inviter selection through `invite_id`; share-code acceptance binds to the code’s inviter principal. Legacy user-targeted invite semantics must be migrated to this Account-Profile-targeted rule.
 - **Tracking:** `share_visit` is analytics-only. `invite_sent` and `invite_accepted` should include a `source` (`direct_invite`, `share_url`). The project north-star metrics are `credited_invite_acceptances` and normalized `presences_confirmed` (successful free confirmations or paid reservations).
-- **Contacts/Friends (MVP):** no reciprocal social graph or favorite-based visibility model is implemented on MVP invite flows. Hashed contact matches are the only discovery/targeting surface here; raw PII is never stored.
-- **Delivery fallback:** if a contact hash matches an existing user, send push; if no match, use a share URL (e.g., WhatsApp deep link) with the invite `code`.
+- **Recipient identity migration:** the business recipient surface is `Account Profile`. Direct invite APIs, stored invite edges, and share-materialized invite flows must migrate to `receiver_account_profile_id`; backward compatibility with `receiver_user_id` is not required.
+- **Contacts/Friends (MVP):** hashed contact matches remain the canonical acquisition path for contacts and invite targeting. In the current MVP/release baseline, `contact_match` materializes from explicit `/contacts/import`: a successful match makes the person visible in `Contatos` and already invite-eligible when the resolved profile type is `is_inviteable=true`. `discoverable_by_contacts` is a separate privacy axis from public profile visibility and defaults to allowing contact discovery until a later privacy-settings surface changes it. Favorites on favoritable profiles may also contribute inviteability (`favorite_by_you`, `favorited_you`), while reciprocal favorites between personal Account Profiles derive `friend`. User-private `contact_groups` organize in-app inviteable recipients with many-to-many membership, including entries surfaced through `contact_match`, `favorite_by_you`, `favorited_you`, and `friend`; unmatched local contacts are not groupable. Group CRUD is required, but the invite composer is not the management surface; exact management UX may be refined separately. In V1, when a recipient ceases to be inviteable, their `contact_group` memberships are removed automatically. Raw PII is never stored server-side.
+- **Inviteable projection (MVP):** `/convites/compartilhar` consumes one unified in-app inviteable list, deduplicated by canonical recipient before rendering. Entries preserve relation/source metadata (`contact_match`, `favorite_by_you`, `favorited_you`, `friend`) so the client can filter by relation type without duplicating rows.
+- **External-contact share branch (native app only):** unmatched local contacts may be surfaced as per-contact external share targets that launch WhatsApp direct-share when available, otherwise the system share sheet. These entries are not part of the canonical inviteable list, relation filters, or `contact_groups`, and they do not exist on web.
+- **Onboarding follow-up note:** a separate follow-up (`TODO-vnext-onboarding-identity-reconciliation-reflection.md`) may later add identity-materialization reconciliation after OTP/onboarding completion, including a discovery-only inbound suggestion surface labeled `Talvez você conheça`. That follow-up must not create `Contato`, `inviteable_reason`, or group eligibility by itself; only explicit favorite may later promote the relationship into the normal inviteable rules.
+- **Delivery fallback:** if a contact hash matches an existing user, send push / canonical in-app invite. If no match, use the native-app external share action with the invite `code`. No dedicated per-contact backend tracking lane is required beyond canonical share-code analytics.
 
 ### `POST /contacts/import`
-**Purpose:** Import hashed contacts for friend suggestions and invite matching.  
+**Purpose:** Import hashed contacts for contact matching, contacts-list composition, and invite targeting.  
 **Request (body):**
 ```json
 {
@@ -1049,8 +1124,12 @@
       "contact_hash": "string",
       "type": "phone|email",
       "user_id": "string",
-      "display_name": "string?",
-      "avatar_url": "string?"
+      "resume": {
+        "friend_display_name": "string?",
+        "avatar_url": "string?",
+        "match_label": "string?",
+        "profile_exposure_level": "aggregate_only|capped_profile|full_profile"
+      }
     }
   ],
   "unmatched_count": 0
@@ -1059,6 +1138,16 @@
 **Field Definitions**
 - `contacts[].type`: `phone`, `email`.
 - `matches[].type`: `phone`, `email`.
+- `matches[].user_id`: canonical matched person identifier. Clients should render the person through the matched personal Account Profile rather than through raw contact data.
+- `matches[].resume.profile_exposure_level`: `aggregate_only`, `capped_profile`, `full_profile`.
+- `matches[].resume.avatar_url`: must be omitted/null unless the resolved exposure level permits photo/avatar disclosure. `capped_profile` and `aggregate_only` must not expose avatar/photo.
+- A successful match is enough to place the entry in `Contatos` and make it invite-eligible when the resolved profile type is `is_inviteable=true`; favorite is optional and is not a prerequisite for invite.
+- `/contacts/import` remains the viewer-driven acquisition ingress for the MVP/release baseline. A separate onboarding follow-up may later add post-materialization reconciliation without requiring the same viewer to resubmit identical contacts.
+- `unmatched_count`: number of imported local contacts that did not resolve to an in-app match. These may feed the native-app external-share branch, but they do not become backend-managed inviteable rows by themselves.
+- `contact_groups` are user-private, tag-like organization layered above in-app inviteable recipients. The same recipient may belong to multiple groups, including recipients surfaced through `contact_match`, `favorite_by_you`, `favorited_you`, and `friend`; unmatched local contacts are not groupable. Group CRUD is required but belongs to dedicated group/friends-management surfaces rather than the invite composer.
+- When bulk invite selection is composed from multiple contact groups, deduplicate by canonical recipient identity before quota counting and invite creation.
+- When an existing grouped recipient ceases to be inviteable, V1 removes that recipient from all contact groups automatically instead of retaining a disabled membership.
+- This endpoint is the contact-acquisition ingress only. `/convites/compartilhar` may merge contact matches with other inviteable sources such as `favorite_by_you`, `favorited_you`, and `friend` before building the final deduplicated inviteable list. Any later onboarding-owned reflection surface such as `Talvez você conheça` remains outside that inviteable list until explicit favorite.
 
 ---
 
@@ -2958,14 +3047,17 @@ Not returned by `/agenda` and `/events/{event_id}`:
   },
   "event_parties": [
     {
-      "party_type": "string",
       "party_ref_id": "string",
-      "permissions": { "can_edit": true },
-      "metadata": {}
+      "permissions": { "can_edit": true }
     }
   ]
 }
 ```
+**Write contract notes:**
+- `event_parties[]` request rows are strict: clients send only `party_ref_id` and optional `permissions.can_edit`.
+- `party_type` and `metadata` are backend-generated from the referenced account profile and rejected when supplied by clients.
+- When `event_parties` is present on `PATCH`, it replaces the related-account set in request order. When omitted, stored ordering is preserved.
+
 **Response:**
 ```json
 {

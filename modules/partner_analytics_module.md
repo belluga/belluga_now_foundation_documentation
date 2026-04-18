@@ -19,8 +19,8 @@ This document will eventually define the Account Profile Analytics module respon
   - `foundation_documentation/modules/invite_and_social_loop_module.md`
   - `foundation_documentation/modules/transaction_bridge_module.md`
 - Tactical TODO streams:
-  - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+  - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
+  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
 
 ## 2. Topics to Address (Future Session)
 

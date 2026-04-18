@@ -33,6 +33,6 @@
     "findings[].candidate_rule_level (optional)",
     "findings[]"
   ],
-  "todo_path": "../foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-admin-domain-management-and-events-ops.md",
+  "todo_path": "../foundation_documentation/todos/active/mvp_closure/TODO-v1-tenant-admin-domain-management-and-events-ops.md",
   "goal": "Performance audit for tenant-admin domain/events slice"
 }

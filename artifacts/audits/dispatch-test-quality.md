@@ -36,7 +36,7 @@
 - `findings[]`
 
 ## Related TODO
-`foundation_documentation/todos/active/mvp_slices/TODO-v1-tenant-admin-domain-management.md`
+`foundation_documentation/todos/active/vnext/TODO-v1-tenant-admin-domain-management.md`
 
 ## Result Contract
 Each reviewer should answer in JSON compatible with `schemas/subagent_review_result.schema.json`.

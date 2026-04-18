@@ -13,7 +13,7 @@
 - `foundation_documentation/modules/flutter_client_experience_module.md`
 - `foundation_documentation/endpoints_mvp_contracts.md`
 - `foundation_documentation/policies/scope_subscope_governance.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-frontend.md`
+- `foundation_documentation/todos/completed/TODO-v1-map-frontend.md`
 
 ## Canonical Module Anchors
 - **Primary module:** `foundation_documentation/modules/tenant_admin_module.md`

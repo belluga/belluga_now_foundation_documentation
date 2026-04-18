@@ -641,3 +641,32 @@ Execution scope note:
 
 ## Completion Note
 - `2026-03-07`: The rule set is closed as governance baseline. `tenant_canonical_domain_required` was the final rule added in this cycle, and the rule/plugin + CI surfaces were validated clean before promotion. Remaining application debt is no longer rule-definition work and must be tracked separately when it appears.
+
+## Post-Completion Addendum
+
+### 2026-04-15 — Home/Agenda controller-boundary extraction
+
+**Context**
+- The Home radius-button investigation exposed a boundary gap that the closed lint baseline did not state explicitly enough: widget-controller privacy, controller-to-controller prohibition, repository ownership for shared settings, and single-scroll-truth were being inferred instead of frozen.
+
+**Frozen governance additions**
+- Widget controllers are subtree-private. A parent screen, sibling widget, or other controller must not resolve a descendant widget controller.
+- Controller-to-controller dependencies are forbidden. Shared state or orchestration must flow through repository contracts, never controller relay.
+- Shared or persisted UI settings belong to repositories as repository-owned streams; controllers consume those streams directly instead of proxying another controller.
+- Scroll-reactive behavior must bind to the same scroll source that moves the rendered content.
+- Borrowed UI controllers remain caller-owned; receiving widgets/controllers must not dispose them or shadow them with competing controllers for the same behavior.
+
+**Candidate rule inventory extension**
+- `screen_descendant_widget_controller_resolution_forbidden` (`P1`) — forbid screens/parents from resolving descendant widget controllers.
+- `controller_controller_dependency_forbidden` (`P0`) — forbid controllers from depending on other controllers.
+- `widget_controller_singleton_registration_forbidden` (`P1`) — require widget controllers to stay widget-scoped/factory-managed unless an explicit canonical exception exists.
+- `shared_setting_repository_ownership_required` (`P0`, governance-first) — require repository-owned streams for shared/persisted settings.
+- `scroll_reaction_same_source_required` (`P1`, governance-first) — require compact/pagination/reset behavior to observe the same scroll source as the rendered content.
+- `borrowed_ui_controller_ownership_required` (`P1`) — forbid callees from disposing or shadowing borrowed UI controllers.
+
+**Canonical evidence promoted**
+- `foundation_documentation/modules/flutter_client_experience_module.md` (`2.1.1`, `7`)
+- `foundation_documentation/modules/agenda_and_action_planner_module.md` (`3.4`, `7`)
+- `foundation_documentation/todos/active/vnext/TODO-v1-home-agenda-canonical-stream-ownership-hardening.md`
+- `foundation_documentation/todos/active/concluded_but_active/TODO-v1-events-radius-button-behavior.md`
+- `flutter-app/tool/belluga_analysis_plugin/docs/rules.md`

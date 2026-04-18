@@ -90,7 +90,7 @@ Deliver the Account Profile model and required contracts as a **project-specific
 ### D1) Profile type enum (API canonical values)
 **Decision (Final):** **No hardcoded enum in code.** Profile types are defined by a **Profile Type Registry** (flat, WP‑like) sourced from tenant settings. The registry is the sole source of truth. **No inheritance is used in V1** (`parent_type` is omitted).
 **Implications:** UI, API validation, and projections must reference the registry, not compile‑time enums.
-**MVP registry types:** `personal`, `artist`, `venue`, `restaurant`, `experience_provider`. Additional types (e.g., `influencer`, `curator`) are deferred to VNext (tracked in `foundation_documentation/todos/active/vnext_slices/TODO-vnext-account-profile-types.md`).
+**MVP registry types:** `personal`, `artist`, `venue`, `restaurant`, `experience_provider`. Additional types (e.g., `influencer`, `curator`) are deferred to VNext (tracked in `foundation_documentation/todos/active/vnext/TODO-vnext-account-profile-types.md`).
 
 ### D2) Account Profile required fields
 **Decision (Final):** `account_id`, `profile_type`, `display_name`, `slug` (server‑generated, immutable).
@@ -133,7 +133,7 @@ Deliver the Account Profile model and required contracts as a **project-specific
 
 ### D10) Operator linkage in MVP
 **Decision:** **Deferred to VNext.**  
-Track in `foundation_documentation/todos/active/vnext_slices/TODO-vnext-account-claim-flow.md`.
+Track in `foundation_documentation/todos/active/vnext/TODO-vnext-account-claim-flow.md`.
 
 ### D11) Profile Type Registry (WP‑like, typed)
 **Decision (Final):** Use a typed `profile_type_registry` (like WP custom post types) that defines labels, allowed taxonomies, capabilities, and default UI modules. **No inheritance is used in V1** (`parent_type` is omitted). The Account Profile model remains strongly‑typed (no freeform meta).

@@ -18,7 +18,7 @@ The Task & Reminder Orchestration module (MOD-306) governs every follow-up oblig
   - `foundation_documentation/modules/invite_and_social_loop_module.md`
   - `foundation_documentation/modules/transaction_bridge_module.md`
 - Tactical TODO streams:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
   - `foundation_documentation/todos/active/mvp_slices/TODO-v1-invites-implementation.md`
 
 ---
@@ -87,11 +87,11 @@ Appends events (creation, acknowledgement, completion) for auditability.
 
 ## 5. Events
 
-* **Inbound Intents:** `booking.pending_confirmation`, `booking.deposit_pending`, `invite.unshared`, `invite.followup`, `invite.checkin`, `invite.fulfillment.step-required`, `account_profile.requirement.assigned`, `transaction.refund.pending`. Each intent payload specifies `{ reminder_type, source_reference, due_at }` so scheduling is consistent.
+* **Inbound Intents:** `booking.pending_confirmation`, `booking.deposit_pending`, `invite.unshared`, `invite.checkin`, `invite.fulfillment.step-required`, `account_profile.requirement.assigned`, `transaction.refund.pending`. Each intent payload specifies `{ reminder_type, source_reference, due_at }` so scheduling is consistent.
 * **Outbound:** 
     * `task.reminder.scheduled` – emitted after deduplication; Agenda subscribes to render dated items.
     * `task.push.sent` – includes `channel`, `attempt`, and `payload_hash` for observability.
-    * `task.completed` – fired when `/complete` is called; invite module listens to auto-unsnooze or mark fulfillment steps done.
+    * `task.completed` – fired when `/complete` is called; invite module listens to mark fulfillment steps done.
     * `task.expired` – emitted when due_at passes without completion; Invite module can translate this into `invite.attendance.no-show` or account profile escalations.
     * `task.reminder.failed` – emitted if push delivery exhausts retries; Account Analytics logs these to highlight tasks requiring manual intervention.
 
@@ -125,4 +125,4 @@ Appends events (creation, acknowledgement, completion) for auditability.
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
 | `TODO-v1-invites-implementation.md` | Invite reminder/check-in integration and follow-up intents | In progress (non-blocking) | `2`, `5`, `8` | Deliberately deferred to attendance/check-in follow-up slices; invite delivery is complete without this integration. |
-| `TODO-v1-first-release.md` | MVP orchestration priorities and hardening sequence | In progress | `4`, `7` | Tracks release-level readiness for reminders. |
+| `TODO-store-release-android.md` | Android release orchestration priorities and hardening sequence | In progress | `4`, `7` | Current release-level authority for reminder-adjacent readiness and sequencing. |

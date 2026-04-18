@@ -18,11 +18,11 @@
   - tactical TODO approvals or profile handoffs.
 
 ## Latest Session Continuity
-- **Last updated:** `2026-04-11 21:03 -03`
-- **Current active TODO:** `foundation_documentation/todos/active/mvp_slices/TODO-v1-canonical-back-navigation-governance-cutover.md`
-- **Current active front:** Production promotion of the canonical back-navigation cutover is complete; the next session should start either from cleanup-only documentation/rule drift around that TODO or from the preserved Docker branch residue that blocked a fully clean rebaseline.
-- **Last confirmed truth:** Flutter, web, and docker were promoted through `main` successfully on `2026-04-11`; `belluga_now_front`, `belluga_now_web`, and `belluga_now_docker` production-lane runs finished green; local `flutter-app` and `docker` checkouts were returned to updated `dev`; Docker still intentionally preserves residual non-lane branches plus two local untracked PNG artifacts under `tools/flutter/web_app_smoke_runner/`.
-- **Next likely step:** Decide whether the remaining Docker-only branches (`feat/canonical-route-back-policies`, `feature/map-visuals-and-safe-back`, `bot/submodule-sync-stage-20260409-1900-reconcilemain`) should be archived, merged, or discarded, then finish repository hygiene.
+- **Last updated:** `2026-04-18 11:11 -03`
+- **Current active TODO:** `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
+- **Current active front:** Store-release documentation is now coherent enough for no-context handoff across the current Android-release lanes. The recommended execution order is to implement `phone-otp-auth-and-contact-match` first, then return to `web-to-app-conversion-gate` for the full install/deferred/auth-wall manual funnel closure.
+- **Last confirmed truth:** `TODO-store-release-minimal-friends-and-favorites-mvp.md` now carries the frozen contacts/favorites/friends business contract, plus explicit exploratory-only Quóa UX references for `/convites/compartilhar` and dedicated `contact_groups` management. `TODO-ios-universal-links-production-validation.md` was tightened for no-context handoff with frozen scope/dependency boundaries. `Convite Nativo` is explicitly not a reference for the invite-composer lane. Post-session deterministic validation passed for `TODO-store-release-web-to-app-conversion-gate.md`, but reported structural format drift in `TODO-store-release-minimal-friends-and-favorites-mvp.md`, `TODO-ios-universal-links-production-validation.md`, and `TODO-store-release-phone-otp-auth-and-contact-match.md` around canonical delivery-stage/qualifier encoding and missing gate sections.
+- **Next likely step:** Open `TODO-store-release-phone-otp-auth-and-contact-match.md` and execute the backend/Flutter phone-OTP cutover first; after that, resume `TODO-store-release-web-to-app-conversion-gate.md` to validate the complete promotion -> deferred -> restricted-action -> auth-wall funnel on Android.
 
 ## Confirmed User Preferences
 - none
@@ -32,4 +32,4 @@
 
 ## Dependency References
 - **Dependency readiness register:** `foundation_documentation/artifacts/dependency-readiness.md`
-- **Relevant status carry-over:** `gh` authentication and GitHub promotion pipelines were healthy during `dev -> stage -> main`; deployed browser targets used for validation were healthy during stage and production navigation smoke on `2026-04-11`.
+- **Relevant status carry-over:** backlog authority now uses the flattened active-lane model `store_release_android` + `fast_follow_required` + `vnext`; resume work should open those lane TODOs first and treat older lane names as historical drift only.

@@ -18,8 +18,8 @@ The Transaction Bridge module (MOD-305) connects tenant experiences to the exter
   - `foundation_documentation/modules/task_and_reminder_module.md`
   - `foundation_documentation/modules/agenda_and_action_planner_module.md`
 - Tactical TODO streams:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-package-integration.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+  - `foundation_documentation/todos/active/vnext/TODO-v1-ticketing-package-integration.md`
+  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
 
 ---
 

@@ -31,11 +31,11 @@
 ## References
 - `delphi-ai/templates/todo_template.md`
 - `foundation_documentation/todos/README.md`
-- `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-frontend.md`
-- `foundation_documentation/todos/active/vnext_slices/TODO-vnext-search-performance-hardening.md`
-- `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-public-resilience-and-error-continuity.md`
+- `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
+- `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
+- `foundation_documentation/todos/completed/TODO-v1-map-frontend.md`
+- `foundation_documentation/todos/active/vnext/TODO-vnext-search-performance-hardening.md`
+- `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-public-resilience-and-error-continuity.md`
 - `foundation_documentation/modules/tenant_admin_module.md`
 - `foundation_documentation/modules/map_poi_module.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
