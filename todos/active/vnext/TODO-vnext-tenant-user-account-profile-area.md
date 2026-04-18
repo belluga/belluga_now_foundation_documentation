@@ -1,4 +1,5 @@
 # TODO (VNext): Tenant User Area — Account Profile Area
+**Role note (2026-04-18):** this file preserves the V1 scope freeze and historical planning context for the tenant/admin account-profile area. It is not the primary post-MVP owner for account workspace delivery, operator claim flow, or profile-type expansion.
 **Version:** 1.0
 **Owner:** Delphi
 **Date:** 2026-01-17
@@ -18,7 +19,7 @@ Establish the VNext delivery stream for the tenant/admin Account Profile area (a
 - Document the VNext delivery scope for tenant/admin Account Profile area work.
 - Preserve current MVP behavior; no expansion of account/profile/organization management surfaces in V1.
 - Align with the current store-release auth/profile lanes: only the phone-OTP auth cutover and main `Perfil` polish are in MVP scope.
-- Keep this TODO as the canonical VNext stream for this area.
+- Keep this TODO as the canonical V1 scope-freeze/support note for this area while dedicated VNext owner TODOs carry the deferred implementation fronts.
 
 ## Out of Scope
 - Tenant/admin Account Profile area implementation in V1.
@@ -59,7 +60,7 @@ Establish the VNext delivery stream for the tenant/admin Account Profile area (a
 - Switching modes performs a **full navigation reset** into the target shell (no mixed history).
 - UI must clearly indicate the active mode (banner + badge) and allow “Exit Admin Mode”.
 
-## VNext Ownership (Authoritative for Deferred Work)
+## Primary Deferred Owners
 - Account workspace and account-profile-area delivery: `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`.
 - Operator claim/user-owned expansion: `foundation_documentation/todos/active/vnext/TODO-vnext-account-claim-flow.md`.
 - Additional profile types and profile-area expansion: `foundation_documentation/todos/active/vnext/TODO-vnext-account-profile-types.md`.

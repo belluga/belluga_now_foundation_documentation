@@ -1,5 +1,7 @@
 # TODO (VNext): Test Hardening Defect Backlog
 
+**Role note (2026-04-18):** this file is a support registry, not a primary program owner. The owning delivery lane remains `TODO-vnext-test-hardening-program.md`, and any product-logic fix discovered here must live in its own dedicated fix TODO.
+
 **Status:** Active  
 **Owners:** Backend Team + Flutter Team + Platform  
 **Purpose:** Capture functional defects discovered while executing `TODO-vnext-test-hardening-program.md` so product-logic fixes are handled in dedicated TODOs.

@@ -1,5 +1,7 @@
 # TODO (VNext): Centralized Back Navigation Governance
 
+**Authority note (2026-04-18):** this TODO is the primary deferred owner for app-wide back-navigation policy. One-off route regressions may use separate fix TODOs only when they explicitly defer broader governance ownership to this lane rather than acting as parallel policy owners.
+
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production-Ready`
 **Status:** Active
 **Owners:** Flutter Team
@@ -154,4 +156,3 @@
 - [ ] ⚪ Pending — Route classification matrix is documented for the relevant app surfaces.
 - [ ] ⚪ Pending — Invite and tenant-admin route audits are completed or explicitly split into follow-up TODOs.
 - [ ] ⚪ Pending — Enforcement decision (process-only vs lint-backed) is frozen.
-

@@ -1,5 +1,7 @@
 # TODO (VNext Parking Lot): Deferred Features / Avoid Losing Functionality
 
+**Role note (2026-04-18):** this file is residual idea capture only. It is not a primary owner when a dedicated active TODO already exists for the same deferred program boundary.
+
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
 **Status:** Active  
 **Owner:** Delphi  

@@ -4,6 +4,11 @@ Location Permission Back Button Fix
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
 
+## Role Note
+- This TODO is a localized regression slice under the broader back-navigation architecture front.
+- App-wide back-governance ownership remains `foundation_documentation/todos/active/vnext/TODO-vnext-centralized-back-navigation-governance.md`.
+- This file must not be read as the owner of the general back-navigation policy.
+
 ## Context
 The tenant-public location-permission boundary screen has one inconsistent back behavior: the visible app back button does not close the screen, while device back and browser back already behave as expected. This breaks the shared tenant-public back contract and creates a dead control in a boundary surface.
 

@@ -1,11 +1,13 @@
 # Title
 Foundation Authority and Branch Reconciliation Baseline
 
+**Authority note (2026-04-18):** this TODO is the umbrella owner for the foundation authority-reconciliation cluster. Local-implemented child TODOs such as `TODO-vnext-current-state-module-authority-alignment.md`, `TODO-vnext-secondary-module-lane-and-phase-cleanup.md`, `TODO-vnext-deferred-commerce-authority-framing.md`, `TODO-vnext-foundation-doc-branch-integration-review.md`, `TODO-vnext-foundation-todo-landscape-reconciliation.md`, `TODO-vnext-module-authority-follow-up-sweep.md`, and `TODO-vnext-canonical-authority-direct-rename.md` are subordinate reconciliation sub-slices, not parallel long-lived program owners.
+
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
 
 ## Context
-The current Delphi method has moved ahead of this project's documentation and governance posture. The most material symptom is that `foundation_documentation/project_constitution.md` is still missing, while top-level docs and TODOs continue to rely on scattered assumptions, stale lane references, and repeated "constitution missing" caveats. At the same time, the current branch topology includes real unmerged work in `flutter-app` and `foundation_documentation`, so cleanup or rebaseline work cannot proceed safely without an explicit classification step.
+The current Delphi method had moved ahead of this project's documentation and governance posture when this slice was opened. The most material symptom at that point was that `foundation_documentation/project_constitution.md` was still missing, while top-level docs and TODOs relied on scattered assumptions, stale lane references, and repeated "constitution missing" caveats. At the same time, the branch topology contained real unmerged work in `flutter-app` and `foundation_documentation`, so cleanup or rebaseline work could not proceed safely without an explicit classification step.
 This authority-reconciliation slice now also absorbs the PACED Level 0 re-baselining requirements that were introduced after the original approval: explicit ecosystem reuse analysis, TODO-linked session memory identity, and deterministic readiness for `Ecosystem Impact Analysis`.
 
 ## Framing Source & Story Slice
@@ -23,7 +25,7 @@ This authority-reconciliation slice now also absorbs the PACED Level 0 re-baseli
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Local-Implemented`
 - **Qualifiers:** `Blocked`
-- **Next exact step:** review the restored authority docs and branch matrix on `foundation_documentation:feat/tenant-admin-domain-management`, then decide the separate Operational/DevOps remediation and later branch-action follow-up.
+- **Next exact step:** keep this TODO as the umbrella owner until the current docs branch is promoted to `main`, while any residual work outside this cluster is split into dedicated follow-up TODOs.
 
 ## Scope
 - [x] Author `foundation_documentation/project_constitution.md` from the current canonical evidence and current Delphi/PACED baseline.
@@ -49,7 +51,7 @@ This authority-reconciliation slice now also absorbs the PACED Level 0 re-baseli
 - **Last confirmed truth:** `project_constitution.md` now exists; top-level authority docs are updated; `flutter-app` still has real blocking rollback/release-history branches; `foundation_documentation` still has relevant unmerged doc branches against `origin/main`.
 
 ## Execution Lane Tracking (Required)
-- **Local implementation branches:** `foundation_documentation:feat/tenant-admin-domain-management`
+- **Local implementation branches:** `foundation_documentation:docs/foundation-authority-reconciliation`
 - **Promotion lane path:** `repo-specific: root/flutter/laravel use dev -> stage; foundation_documentation uses main`
 - **Lane-promoted threshold for this TODO:** `repo-specific`
 - **Production-ready threshold for this TODO:** `repo-specific`
@@ -57,8 +59,8 @@ This authority-reconciliation slice now also absorbs the PACED Level 0 re-baseli
 ## Promotion Evidence (Required Before `🟣 Lane-Promoted` / `✅ Production-Ready`)
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Constitution + touched authority docs | `feat/tenant-admin-domain-management@working-tree` | `n/a` | `n/a` | `pending` | `local-implemented` |
-| Branch reconciliation matrix | `feat/tenant-admin-domain-management@working-tree` | `n/a` | `n/a` | `pending` | `local-implemented` |
+| Constitution + touched authority docs | `docs/foundation-authority-reconciliation@working-tree` | `n/a` | `n/a` | `pending` | `local-implemented` |
+| Branch reconciliation matrix | `docs/foundation-authority-reconciliation@working-tree` | `n/a` | `n/a` | `pending` | `local-implemented` |
 
 ## Out of Scope
 - [ ] Do not run safe local cleanup, remote deletion, or repo rebaseline execution in this TODO.

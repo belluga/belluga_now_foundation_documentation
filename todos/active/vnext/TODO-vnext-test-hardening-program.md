@@ -1,5 +1,7 @@
 # TODO (VNext): Test Hardening Program (High-Confidence Regression Safety)
 
+**Authority note (2026-04-18):** this TODO is the primary deferred owner for test-hardening delivery. `TODO-vnext-test-hardening-defect-backlog.md` is a support registry for discovered functional defects and must not be treated as a parallel owner of the same program boundary.
+
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production-Ready`.
 **Status:** Active (`Planning`)  
 **Owners:** Backend Team + Flutter Team + Platform  
