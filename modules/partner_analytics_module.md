@@ -4,9 +4,11 @@
 **Date:** February 28, 2025  
 **Authors:** Delphi (Belluga Co-Engineering)
 
+**Authority note (2026-04-18):** this file is a legacy-named planning surface for a future analytics capability, not a standalone current runtime authority. Current analytics/privacy rules live in source modules such as `invite_and_social_loop_module.md`, while future workspace-facing dashboards belong under `account_workspace` unless implementation later proves a distinct module boundary.
+
 ## 1. Purpose
 
-This document will eventually define the Account Profile Analytics module responsible for consolidating invite performance, offer conversions, and plan usage so account operators see actionable KPIs and the commercial engine can enforce quotas/upsells. It is currently a placeholder to capture open questions and ensure we revisit the topic.
+This document retains open questions for future workspace-facing analytics, but it does not define a separate current module boundary. Analytics remains capability-first: ownership stays subordinate to source modules plus future `account_workspace` read surfaces unless implementation later justifies promotion to its own module.
 
 ### 1.1 Canonical Anchors
 
@@ -14,12 +16,12 @@ This document will eventually define the Account Profile Analytics module respon
   - `foundation_documentation/system_roadmap.md`
   - `foundation_documentation/submodule_laravel-app_summary.md`
 - Cross-module references:
-  - `foundation_documentation/modules/partner_admin_module.md`
   - `foundation_documentation/modules/partner_catalog_and_offer_module.md`
   - `foundation_documentation/modules/invite_and_social_loop_module.md`
   - `foundation_documentation/modules/transaction_bridge_module.md`
 - Tactical TODO streams:
   - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
+  - `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
 
 ## 2. Topics to Address (Future Session)
@@ -33,7 +35,7 @@ This document will eventually define the Account Profile Analytics module respon
 
 ---
 
-*Next steps:* Revisit this document during the Account Profile Workspace planning phase to turn these bullet points into a full module spec (Overview, Principles, Schemas, APIs, Events).
+*Next steps:* do not expand this file into a standalone module spec by default. Re-home the still-valid workspace-facing analytics requirements under `account_workspace` and keep source-of-truth analytics/privacy contracts in their source modules, promoting to a dedicated module only if implementation proves the boundary.
 
 ## 3. Canonical Decision Baseline
 
@@ -41,6 +43,7 @@ This document will eventually define the Account Profile Analytics module respon
 | --- | --- | --- | --- | --- |
 | `PAN-01` | Approved | Module remains placeholder in MVP and is not a runtime authority yet. | Prevents premature contracts leaking into implementation. | Section `1` |
 | `PAN-02` | Approved | Analytics ownership is aggregate-only and fed by invite/catalog/transaction modules. | Preserves clean source-of-truth boundaries. | Section `2` |
+| `PAN-03` | Approved | This file represents a future analytics capability, not a default standalone module. Future analytics should stay subordinate to source modules plus `account_workspace` read surfaces unless implementation later proves a distinct bounded context. | Prevents fake standalone authority for analytics before a real bounded context exists while preserving the planned capability. | Sections `1`, `2` |
 
 ## 4. Tactical TODO Promotion Ledger
 

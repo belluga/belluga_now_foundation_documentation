@@ -20,15 +20,15 @@ The project now has a reconciled top-level authority baseline and a canonical do
 - If execution reveals that deciding topology already requires broad module rewrites or public route/product-copy decisions, stop and split the follow-up rather than inflating this TODO.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Pending`
+- **Current delivery stage:** `Local-Implemented`
 - **Qualifiers:** `none`
-- **Next exact step:** audit the current `partner_*` module family and map each file to one future handling (`preserve/rename/merge/split/retire`).
+- **Next exact step:** checkpoint the frozen topology decision, then open the later rename/restructure slice only when `ST-02` is intentionally started.
 
 ## Scope
-- [ ] Decide the canonical future names and roles for the current `partner_catalog_and_offer_module.md`, `partner_admin_module.md`, and `partner_analytics_module.md` family.
-- [ ] Decide whether each current module should be preserved, renamed, merged, split, or retired.
-- [ ] Record how this future module family relates to `tenant_admin`, `account_workspace`, public account-profile/static-asset surfaces, and analytics ownership.
-- [ ] Leave route-path/public-copy alias decisions and execution-level renames to dedicated follow-up slices.
+- [x] Decide the canonical future names and roles for the current `partner_catalog_and_offer_module.md`, `partner_admin_module.md`, and `partner_analytics_module.md` family.
+- [x] Decide whether each current module should be preserved, renamed, merged, split, or retired.
+- [x] Record how this future module family relates to `tenant_admin`, `account_workspace`, public account-profile/static-asset surfaces, and analytics ownership.
+- [x] Leave route-path/public-copy alias decisions and execution-level renames to dedicated follow-up slices.
 
 ## Delivery Status Semantics
 - `Pending`: no meaningful delivery milestone has been reached yet.
@@ -47,7 +47,7 @@ The project now has a reconciled top-level authority baseline and a canonical do
 ## Promotion Evidence (Required Before `🟣 Lane-Promoted` / `✅ Production-Ready`)
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Module-family topology decision | `docs/foundation-authority-reconciliation@<pending>` | `n/a` | `n/a` | `<pending>` | `pending` |
+| Module-family topology decision | `docs/foundation-authority-reconciliation@working-tree` | `n/a` | `n/a` | `<pending>` | `local-implemented` |
 
 ## Out of Scope
 - [ ] Do not execute broad module-file renames in this TODO.
@@ -60,14 +60,14 @@ The project now has a reconciled top-level authority baseline and a canonical do
 - **Must update or split the TODO:** file renames, broad cross-reference rewrites, route/copy redesign, or runtime/code migrations.
 
 ## Definition of Done
-- [ ] The current `partner_*` module family is mapped to an explicit future handling for each file (`preserve/rename/merge/split/retire`).
-- [ ] The project has a documented canonical future module-family direction using current internal nouns (`Account`, `Account Profile`, `Profile Type`, `Static Asset`, `Account Workspace`, `Account Profile Analytics`) where applicable.
-- [ ] Follow-up execution slices are explicit for rename/restructure work that remains after the decision.
+- [x] The current `partner_*` module family is mapped to an explicit future handling for each file (`preserve/rename/merge/split/retire`).
+- [x] The project has a documented canonical future authority direction using current internal nouns (`Account`, `Account Profile`, `Profile Type`, `Static Asset`, `Account Workspace`) and capability-first planning where applicable.
+- [x] Follow-up execution slices are explicit for rename/restructure work that remains after the decision.
 
 ## Validation Steps
-- [ ] `git -C foundation_documentation diff --check`
-- [ ] `rg -n "partner_catalog_and_offer_module|partner_admin_module|partner_analytics_module|account_workspace" foundation_documentation/project_constitution.md foundation_documentation/modules/*.md foundation_documentation/todos/active/vnext/TODO-vnext-partner-terminology-retirement-and-account-profile-language-normalization.md`
-- [ ] Decision output is internally coherent with `domain_entities.md`, `project_constitution.md`, and the selected module docs.
+- [x] `git -C foundation_documentation diff --check`
+- [x] `rg -n "partner_catalog_and_offer_module|partner_admin_module|partner_analytics_module|account_workspace" foundation_documentation/project_constitution.md foundation_documentation/modules/*.md foundation_documentation/todos/active/vnext/TODO-vnext-partner-terminology-retirement-and-account-profile-language-normalization.md`
+- [x] Decision output is internally coherent with `domain_entities.md`, `project_constitution.md`, and the selected module docs.
 
 ## Profile Scope & Handoffs (Required Before `APROVADO`)
 - **Primary execution profile:** `strategic-cto`
@@ -103,12 +103,20 @@ The project now has a reconciled top-level authority baseline and a canonical do
   - the active TODO first; later promotion to touched module docs and constitution after approval/freeze
 
 ## Decision Pending (Resolve Before Freeze)
-- [ ] `D-01` Should `partner_catalog_and_offer_module` remain one future module, or split into narrower account-profile/static-asset vs offer/transaction concerns?
-- [ ] `D-02` Should `partner_admin_module` survive as a separate future module, or fold into `account_workspace` and/or `tenant_admin`?
-- [ ] `D-03` Should `partner_analytics_module` survive as its own module, or become an analytics concern subordinate to workspace/admin flows?
+- [x] `none`
 
 ## Decisions (Resolved Before Freeze)
-- [ ] `none`
+- [x] `D-01` `partner_catalog_and_offer_module.md` should remain one real authority for current public account-profile catalog/public-detail/discovery contracts. Its future handling is `Rename`: deferred `offer`/commercial concerns stay capability-first by default, and whether they later justify standalone module promotion is an implementation-time decision. (`No Prior Decision`)
+- [x] `D-02` `partner_admin_module.md` is the legacy-named planning surface for the future `account_workspace` authority. Its future handling is `Rename`, while current tenant-domain admin CRUD/registry contracts stay in `tenant_admin_module.md`. (`No Prior Decision`)
+- [x] `D-03` `partner_analytics_module.md` should not be defaulted to a future standalone module. Current file handling is `Merge` as a capability-planning surface under future `account_workspace` and source-module ownership, with later module promotion allowed only if implementation proves a real bounded context. (`No Prior Decision`)
+
+## Module Handling Table
+
+| Current File | Future Handling | Future Canonical Role | Current Evidence |
+| --- | --- | --- | --- |
+| `partner_catalog_and_offer_module.md` | `Rename` | one module for account-profile catalog/public surfaces, while deferred `offer`/commercial concerns remain capability-first until implementation decides whether module promotion is justified | public `account_profiles` routes exist in Laravel; Flutter tenant-public account-profile discovery/detail is implemented; no comparable canonical `offers` runtime surface was found in the current code scan |
+| `partner_admin_module.md` | `Rename` | future `account_workspace` module (authenticated operator workspace), distinct from current `tenant_admin_module.md` | tenant-admin CRUD/contracts are already canonical in `tenant_admin_module.md`; Flutter already has placeholder `/workspace` routes; the user confirmed this front is `account_workspace` |
+| `partner_analytics_module.md` | `Merge` | future analytics capability planning owned under `account_workspace` and source modules by default, with optional later module promotion if implementation proves the boundary | file is explicitly placeholder-only; invite/account analytics/privacy rules already live in `invite_and_social_loop_module.md`; no standalone analytics module/runtime authority exists in the code scan |
 
 ## Module Decision Baseline Snapshot (Required Before APROVADO)
 - | Module Decision Ref | Current Module Decision | Planned Handling (`Preserve|Supersede (Intentional)|Out of Scope`) | Evidence |
@@ -116,10 +124,14 @@ The project now has a reconciled top-level authority baseline and a canonical do
 - | `feature-brief ST-01` | The future topology and naming of the `partner_*` module family is still unresolved. | `Supersede (Intentional)` | `foundation_documentation/artifacts/feature-briefs/account-profile-module-family-reconciliation.md` |
 
 ## Decision Baseline (Frozen Before Implementation)
-- [ ] Future module-family topology must be decided before broad rename/restructure execution begins.
+- [x] Future module-family topology must be decided before broad rename/restructure execution begins.
+- [x] `partner_catalog_and_offer_module.md` remains the active authority file for current public account-profile contracts until the later rename slice is executed; deferred `offer` concerns stay capability-first by default.
+- [x] `partner_admin_module.md` is frozen as the legacy-named planning surface for future `account_workspace`, not as a current runtime authority.
+- [x] `partner_analytics_module.md` is frozen as a capability-planning surface, not as a standalone current runtime authority.
 
 ## Questions To Close
-- [ ] Which future module boundaries are semantically real, and which current module files are only historical placeholders?
+- [x] Which future module boundaries are semantically real, and which current module files are only historical placeholders?
+  Real current/future authority direction: public account-profile catalog/public-detail contracts plus a future `account_workspace` module. Capability-first planned fronts such as `analytics` and `offer` remain subordinate until implementation proves a need for separate module promotion.
 
 ## Assumptions Preview (Required Before Plan Review)
 | Assumption ID | Assumption | Evidence | If False | Confidence (`High|Medium|Low`) | Handling (`Keep as Assumption|Promote to Decision|Block`) |

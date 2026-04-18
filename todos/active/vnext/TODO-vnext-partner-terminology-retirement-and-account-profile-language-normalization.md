@@ -8,6 +8,8 @@
 
 **Feature framing support:** `foundation_documentation/artifacts/feature-briefs/account-profile-module-family-reconciliation.md`
 
+**Topology decision status (2026-04-18):** the first module-family topology decision is frozen in `foundation_documentation/todos/active/vnext/TODO-vnext-account-profile-module-family-topology-decision.md`: keep one real public account-profile catalog module with deferred capability-first `offer` planning, treat `partner_admin_module.md` as the legacy-named planning surface for future `account_workspace`, and treat `partner_analytics_module.md` as a capability-planning surface rather than a default future standalone module.
+
 ## Why
 
 - The current canonical business model no longer recognizes `partner` as a valid current domain noun.
@@ -74,7 +76,7 @@ The following surfaces still carry legacy `partner` terminology and should be re
 - Determine whether those files should be:
   - renamed,
   - split,
-  - merged into already-canonical module fronts such as `account_workspace`.
+  - absorbed into canonical successor authorities or capability homes such as `account_workspace`.
 - Ensure `project_constitution.md` module map and dependency references stay aligned after the rename/boundary cleanup.
 
 ### 3. Contract and Implementation Vocabulary Alignment
@@ -101,9 +103,11 @@ The following surfaces still carry legacy `partner` terminology and should be re
 
 ## Required Decisions
 
-- What are the final canonical replacement names for the three `partner_*` module files?
-- Does `partner_catalog_and_offer_module` still represent one coherent module after the terminology cleanup, or should it split into narrower account-profile/static-asset concerns?
-- Should `partner_admin_module` survive as a separate placeholder, or should its future state fold into `account_workspace` terminology and ownership?
+- Freeze and later execute the `ST-01` topology decision already recorded in `TODO-vnext-account-profile-module-family-topology-decision.md`:
+  - keep one real public account-profile catalog module (`partner_catalog_and_offer_module.md` future rename pending),
+  - treat deferred `offer`/commercial as capability-first until implementation proves whether module promotion is warranted,
+  - rename `partner_admin_module.md` into future `account_workspace`,
+  - treat `partner_analytics_module.md` as a capability-planning surface rather than a default future standalone module.
 - Which existing `partner` usages are acceptable only as temporary public/product-facing aliases, and which must be removed from internal/project authority immediately in the VNext cleanup?
 - Should public account-profile URLs remain type-agnostic for permanence, or should any type-shaped route be treated only as a resolvable alias rather than the canonical link?
 

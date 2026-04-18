@@ -4,9 +4,11 @@
 **Date:** February 28, 2025  
 **Authors:** Delphi (Belluga Co-Engineering)
 
+**Authority note (2026-04-18):** despite the historical filename, this document is currently the authority for tenant-public account-profile catalog/detail/discovery contracts. The `offer` label should be read as a deferred planned capability, not as a separate current runtime authority; whether that capability later stays here or is promoted to its own module is an implementation-time decision.
+
 ## 1. Overview
 
-The Account Profile Catalog & Offer module (MOD-304) maintains the canonical representation of **account profiles** (restaurants, artists, guides, merchants) that operate within a tenant. It exposes the offer graph consumed by the Map & POI module, Tenant Home Composer, and Agenda Planner. The module sits between account-facing tooling (future Account Profile Workspace) and consumer experiences, enforcing validation, media standards, and availability lifecycles.
+The Account Profile Catalog & Offer module (MOD-304) maintains the canonical representation of **account profiles** (restaurants, artists, guides, merchants) that operate within a tenant. In current project authority, this module is the real source for public account-profile catalog/detail/discovery contracts consumed by the Map & POI module, Tenant Home Composer, and Agenda Planner. Historical "offer graph" wording in this file should be read as deferred capability planning, not as a separate current runtime boundary.
 
 ### 1.1 Canonical Anchors
 
@@ -16,10 +18,11 @@ The Account Profile Catalog & Offer module (MOD-304) maintains the canonical rep
 - Cross-module references:
   - `foundation_documentation/modules/map_poi_module.md`
   - `foundation_documentation/modules/tenant_home_composer_module.md`
-  - `foundation_documentation/modules/partner_admin_module.md`
+  - `foundation_documentation/modules/tenant_admin_module.md`
   - `foundation_documentation/modules/events_module.md`
 - Tactical TODO streams:
   - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
+  - `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`
   - `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
   - `foundation_documentation/todos/completed/TODO-v1-static-assets-media-parity-with-account-profiles.md`
 
@@ -28,7 +31,7 @@ The Account Profile Catalog & Offer module (MOD-304) maintains the canonical rep
 ## 2. Principles
 
 1. **Value Objects Everywhere:** Every textual or media attribute is wrapped in value objects (`AccountProfileNameValue`, `HeroImageValue`, `OfferPriceValue`) stored within the module so Flutter and Laravel layers never juggle raw primitives.
-2. **Availability Windows:** Offers declare explicit `available_windows` objects (dates, days of week, time ranges) to guarantee map and agenda projections can reason about current vs. future availability.
+2. **Deferred Commercial Capability Rule:** when the future offer/commercial capability is implemented, it must use explicit `available_windows` objects (dates, days of week, time ranges) so map/agenda projections can reason about current vs. future availability without ad hoc local logic.
 3. **Geo-Safe Modeling:** Account profile locations and POIs rely on normalized `geo_shapes` with both `lat/long` and `geohash` representations to align with the multi-tenant map stack.
 4. **Decoupled Media Storage:** Media metadata lives in this module, but binary assets are uploaded to landlord-managed storage buckets. Documents store signed URLs plus invariants (resolution, aspect ratio).
 
@@ -67,7 +70,7 @@ The Account Profile Catalog & Offer module (MOD-304) maintains the canonical rep
 }
 ```
 
-### 3.2 `offers`
+### 3.2 Historical Deferred Offer Shape (Not Current Runtime Authority)
 ```json
 {
   "_id": "ObjectId()",
@@ -96,8 +99,10 @@ The Account Profile Catalog & Offer module (MOD-304) maintains the canonical rep
 }
 ```
 
-### 3.3 `account_profile_dashboards`
-Aggregated data served to authenticated account operators once the workspace launches. Stores metrics, insights references, and invite stats.
+This schema is retained as deferred capability planning residue. No current Laravel/Flutter runtime authority was found for a dedicated `offers` surface in the present code scan, so the offer/commercial concern remains capability-first until implementation decides whether it stays under this authority or is promoted elsewhere.
+
+### 3.3 Historical Deferred Workspace Dashboard Shape (Not Current Runtime Authority)
+Aggregated dashboard data remains a future authenticated workspace-facing read concern. It is retained here only as planning residue until a later `account_workspace` authority absorbs it.
 
 ---
 
@@ -108,11 +113,14 @@ Aggregated data served to authenticated account operators once the workspace lau
 | `/api/v1/account_profiles` | GET | Tenant-public list constrained to favoritable + `visibility='public'` account profiles. |
 | `/api/v1/account_profiles/near` | GET | Tenant-public distance-ordered account profiles for Discovery nearby surfaces (`is_favoritable=true` + `is_poi_enabled=true` + `visibility='public'`, nearest-first). |
 | `/api/v1/account_profiles/{account_profile_slug}` | GET | Detailed account profile summary for consumer experiences via direct slug lookup (`is_active=true` + `visibility='public'` + favoritable type), including query-only ordered `agenda_occurrences` for agenda continuity. |
-| `/api/v1/offers` | GET | Offer catalog filtered by account profile, category, availability window. |
-| `/api/v1/offers/{offerId}` | PATCH | Admin/account operator operation to update descriptions or windows (behind auth). |
 
 **Events**
-* `account_profile.created`, `account_profile.updated`, `offer.published`, `offer.unavailable`, `offer.window.expired`.
+* Current runtime authority: `account_profile.created`, `account_profile.updated`.
+* Deferred only: `offer.published`, `offer.unavailable`, `offer.window.expired` are historical planning events and are not current runtime authority.
+
+**Deferred only (not current runtime authority)**
+- `/api/v1/offers`
+- `/api/v1/offers/{offerId}`
 
 ### 4.1 Tenant-Public Discovery Listing Contract
 
@@ -135,7 +143,7 @@ Discovery runtime behavior for tenant-public account-profile listing is fixed as
 ## 5. Dependencies
 
 * **Map & POI Module:** Consumes account profile + offer data to render map markers.
-* **Commercial Engine (external):** Provides pricing references when offers tie to real inventory or booking flows.
+* **Commercial Engine (external, deferred capability):** would provide pricing references when the later offer/commercial capability is implemented.
 * **Multidimensional Insights Service:** Supplies badge thresholds (e.g., “Top Account Profile of the Week”) that update `badges`.
 
 ---
@@ -159,6 +167,7 @@ Discovery runtime behavior for tenant-public account-profile listing is fixed as
 | `PCO-07` | Approved | Public/runtime account-profile type metadata is bootstrap-driven and additive: `label` remains the singular compatibility alias, while `labels.singular` / `labels.plural` are the canonical display fields for identity and grouped-category surfaces. | Allows shared account-profile/UI consumers to stop improvising singular/plural labels while keeping runtime reads cheap and tenant-admin source-of-truth aligned. | Sections `1`, `4`, `7` |
 | `PCO-08` | Approved | Tenant-public account-profile detail uses the shared safe-back policy: when no previous route exists, `/parceiro/:slug` falls back to `/descobrir`; when history exists, the real previous route still wins. | Keeps direct-open public account-profile detail resilient while preserving normal in-app source continuity from discovery, home, map, and event-linked profile flows. | Sections `1`, `4`, `7` |
 | `PCO-09` | Approved | Tenant-public account-profile discovery search mode hides the top discovery hierarchy chrome (`Tocando agora`, `Perto de você`, `Descubra`, and chips) while preserving the unfiltered base results grid until a non-empty query is entered. | Freezes the approved `/descobrir` search interaction so tactical TODO cleanup and future UI work do not reintroduce prompt-only empty-search behavior. | Sections `4.1`, `7` |
+| `PCO-10` | Approved | This file remains the active authority for current public account-profile contracts until the later module-family rename slice lands; the historical `offer` suffix indicates a deferred planned capability, not a separate current runtime surface. Whether that capability later becomes a standalone module is an implementation-time decision. | Keeps module authority honest without accidentally retiring a planned capability or forcing premature module promotion. | Sections `1`, `3.2`, `4` |
 
 ## 8. Tactical TODO Promotion Ledger
 

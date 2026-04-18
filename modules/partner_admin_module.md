@@ -4,9 +4,11 @@
 **Date:** February 28, 2025  
 **Authors:** Delphi (Belluga Co-Engineering)
 
+**Authority note (2026-04-18):** this file is the legacy-named planning surface for the future `account_workspace` authority. It is not a standalone current runtime authority. Current tenant-domain admin contracts live in `foundation_documentation/modules/tenant_admin_module.md`, while this front documents the future authenticated operator workspace.
+
 ## 1. Purpose
 
-Captures the intent to deliver an Account Profile Admin/Workspace experience where landlords and account operators can manage invites, offers, media, and analytics. This module will be defined once the tenant-facing experience is fully specified so requirements flow from actual consumer workflows.
+Captures legacy planning notes for the future Account Workspace experience where account operators manage memberships, invites, assets, and workspace-facing dashboards. This file does not define a current runtime authority yet: tenant-domain admin CRUD/registry contracts are already canonicalized in `tenant_admin_module.md`, and this front remains the future authenticated operator/workspace module to be renamed/promoted later.
 
 ### 1.1 Canonical Anchors
 
@@ -16,7 +18,6 @@ Captures the intent to deliver an Account Profile Admin/Workspace experience whe
   - `foundation_documentation/submodule_flutter-app_summary.md`
 - Cross-module references:
   - `foundation_documentation/modules/partner_catalog_and_offer_module.md`
-  - `foundation_documentation/modules/partner_analytics_module.md`
   - `foundation_documentation/modules/invite_and_social_loop_module.md`
   - `foundation_documentation/modules/tenant_admin_module.md`
 - Tactical TODO streams:
@@ -28,7 +29,7 @@ Captures the intent to deliver an Account Profile Admin/Workspace experience whe
 1. **Invite Campaign Management:** Create/share invites, monitor quotas, handle suppression lists.
 2. **Offer & Media Authoring:** CRUD for account profiles, offers, availability windows, photo/video galleries.
 3. **Task Inbox:** View/respond to user tasks (document requests, payment approvals, attendance confirmations).
-4. **Analytics Dashboards:** Surface metrics from the Account Profile Analytics module (conversion funnels, attendance, plan usage).
+4. **Analytics Dashboards:** Surface account-profile analytics capabilities (conversion funnels, attendance, plan usage) inside the workspace without assuming they must start as a standalone module.
 5. **Notification Center:** Configure account-profile alerts (when quotas hit limits, when attendees check-in, etc.).
 
 ---
@@ -105,7 +106,7 @@ Even in V1, we must support operational reality:
 
 ## 3. Next Action
 
-Defer detailed documentation until the tenant modules (Map, Invite, Agenda, Transaction Bridge) stabilize. Account workspace requirements will be inferred directly from the data contracts and events defined there.
+Do not treat this file as current runtime authority. The next structural step is to rename/promote this planning surface into the future `account_workspace` authority while keeping current tenant-domain admin contracts inside `tenant_admin_module.md`.
 
 ## 4. Canonical Decision Baseline
 
@@ -115,6 +116,7 @@ Defer detailed documentation until the tenant modules (Map, Invite, Agenda, Tran
 | `PAD-02` | Approved | Membership model exists as post-MVP target; MVP keeps landlord/admin-assigned operations. | Avoids fake permissions while preserving auditability. | Sections `2.1 A`, `2.1 C` |
 | `PAD-03` | Approved | Invite metrics for workspace are host/account-profile scoped. | Supports gamification/challenges without cross-account leakage. | Section `2.1 B` |
 | `PAD-04` | Approved | Default workspace dashboards show aggregates and inviter-principal breakdowns first; raw invitee identity is restricted to explicit operational/audit lists. | Balances business visibility with privacy and tenant-safe handling. | Section `2.1 B` |
+| `PAD-05` | Approved | This file is the legacy-named planning surface for the future `account_workspace` authority; capability fronts referenced here remain capability-first unless implementation later proves a distinct module boundary. | Prevents placeholder content from being mistaken for current runtime authority while preserving the future workspace front. | Sections `1`, `3` |
 
 ## 5. Tactical TODO Promotion Ledger
 

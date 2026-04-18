@@ -17,7 +17,7 @@ Canonical module contract for the Tenant Administration interface (`tenant_admin
   - `foundation_documentation/policies/scope_subscope_governance.md`
 - Cross-module references:
   - `foundation_documentation/modules/partner_catalog_and_offer_module.md`
-  - `foundation_documentation/modules/partner_admin_module.md`
+  - `foundation_documentation/modules/partner_admin_module.md` (legacy-named planning surface for future `account_workspace`)
   - `foundation_documentation/modules/invite_and_social_loop_module.md`
   - `foundation_documentation/modules/map_poi_module.md`
   - `foundation_documentation/modules/events_module.md`
@@ -29,7 +29,7 @@ Canonical module contract for the Tenant Administration interface (`tenant_admin
 ## 2. Intended Responsibilities
 
 1. **Account Profile Lifecycle Management:** Approve/reject account profile applications, assign plan tiers, manage verification flags.
-2. **Account Profile Analytics Overview:** Monitor account profile performance (invites, attendance, revenue) using aggregate data from Account Profile Analytics.
+2. **Account Profile Analytics Overview:** Monitor account profile performance (invites, attendance, revenue) using aggregate analytics capabilities sourced from invites, events, transactions, and future workspace-facing dashboards, without assuming a standalone analytics module by default.
 3. **Tenant Configuration:** Define map regions, featured campaigns, rule sets for the Tenant Home Composer, and policy settings (invite quotas, suppression rules).
 4. **Compliance & Auditing:** View audit trails (invite Fulfillment steps, attendance confirmations) and respond to data-access requests.
 5. **Government/Institutional Reporting:** Generate reports for city stakeholders (tourism impact, local business engagement, account profile mix).
