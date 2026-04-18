@@ -84,7 +84,7 @@ This project operates inside the broader Belluga ecosystem under the PACED reuse
 - `agenda_and_action_planner_module`: agenda feed, action planning, and geo-origin behavior.
 - `map_poi_module`: map projections, filters, near/lookup surfaces, and POI integration seams.
 - `onboarding_flow_module`: identity progression, auth entry, and first-run route behavior.
-- `partner_catalog_and_offer_module`: account-profile/static-asset catalog and public partner surface contracts.
+- `partner_catalog_and_offer_module`: account-profile/static-asset catalog and public profile/static-asset surface contracts.
 
 ### 4.3 External Integrations
 
@@ -126,13 +126,13 @@ This project operates inside the broader Belluga ecosystem under the PACED reuse
 | Module Doc | Scope | Why It Exists | Key Dependencies |
 | --- | --- | --- | --- |
 | `foundation_documentation/modules/flutter_client_experience_module.md` | `landlord_area`, `tenant_public`, `tenant_admin`, `account_workspace` | Defines client architecture, route ownership, auth/product posture, and runtime consumption rules. | `submodule_flutter-app_summary.md`, events, invites, map, tenant admin |
-| `foundation_documentation/modules/tenant_admin_module.md` | `tenant_admin` | Defines tenant-domain admin IA, settings, onboarding, domains, organizations, and events/admin boundaries. | Flutter/Laravel summaries, events, partner catalog, map |
+| `foundation_documentation/modules/tenant_admin_module.md` | `tenant_admin` | Defines tenant-domain admin IA, settings, onboarding, domains, organizations, and events/admin boundaries. | Flutter/Laravel summaries, events, account-profile/static-asset catalog, map |
 | `foundation_documentation/modules/events_module.md` | `tenant_public`, `tenant_admin` | Defines public event consumption, admin event management, and event-related contracts. | invites, map, tenant admin |
 | `foundation_documentation/modules/invite_and_social_loop_module.md` | `tenant_public` + web-to-app boundary | Defines invite lifecycle, share attribution, contact import, and anonymous-first conversion rules. | onboarding, events, Flutter client |
 | `foundation_documentation/modules/agenda_and_action_planner_module.md` | `tenant_public` | Defines agenda feed behavior, action planning, and origin policy. | events, home composer, map |
-| `foundation_documentation/modules/map_poi_module.md` | `tenant_public` with `tenant_admin` inputs | Defines POI projections, filters, near/lookup contracts, and map governance. | events, partner catalog, static assets |
+| `foundation_documentation/modules/map_poi_module.md` | `tenant_public` with `tenant_admin` inputs | Defines POI projections, filters, near/lookup contracts, and map governance. | events, account-profile/static-asset catalog, static assets |
 | `foundation_documentation/modules/onboarding_flow_module.md` | `tenant_public` + web-to-app boundary | Defines identity progression, auth entry rules, and invite/deep-link onboarding continuity. | invite loop, environment/bootstrap, profile |
-| `foundation_documentation/modules/partner_catalog_and_offer_module.md` | `tenant_public`, `tenant_admin` | Defines account-profile/static-asset catalogs, partner public surfaces, and registry-driven visual rules. | tenant admin, map, events |
+| `foundation_documentation/modules/partner_catalog_and_offer_module.md` | `tenant_public`, `tenant_admin` | Defines account-profile/static-asset catalogs, public profile/static-asset surface contracts, and registry-driven visual rules. | tenant admin, map, events |
 
 ## 9. Strategic Framing
 

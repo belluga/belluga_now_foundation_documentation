@@ -8,7 +8,7 @@
 
 This document defines the **project-specific architectural principles** for the Bóora! platform. These principles **extend** (do not replace) the agnostic core rules in `delphi-ai/system_architecture_principles.md`.
 
-Bóora! is the platform. Guar[APP]ari is a **tenant** hosted on the platform and serves as the first reference implementation.
+Bóora! is the platform. Tenant brands are hosted on the platform and must not be confused with the platform itself.
 
 ---
 
@@ -21,13 +21,13 @@ Bóora! is the platform. Guar[APP]ari is a **tenant** hosted on the platform and
 
 ## 3. Platform & Tenant Model
 
-1. **Platform vs Tenant:** Bóora! operates as a multi-tenant platform. Each tenant has its own domain, branding, and content scope. Guar[APP]ari is one tenant, not the platform itself.
+1. **Platform vs Tenant:** Bóora! operates as a multi-tenant platform. Each tenant has its own domain, branding, and content scope. A tenant brand is one tenant, not the platform itself.
 2. **Tenant-Scoped APIs:** All tenant data is served via tenant-scoped APIs; landlord/global APIs remain separated by routing and authorization.
-3. **Account vs Account Profile (Partner Label):** Accounts are the administrative permission boundary. Every Account has **exactly one Account Profile** (1:1). The Account Profile is the public identity surface; “Partner” remains a tenant-facing label applied to Account Profiles (for B2B providers).
+3. **Account vs Account Profile:** Accounts are the administrative permission boundary. Every Account has **exactly one Account Profile** (1:1). The Account Profile is the public identity surface. Public or tenant-facing labels may vary by product/copy decision, but the canonical internal model remains `Account + Account Profile + Profile Type`.
 4. **Typed Profile Registry (WP‑like, not WP‑meta):** Account Profiles use a **Profile Type Registry** (similar to WordPress custom post types) that defines labels, allowed taxonomies, capabilities (e.g., `is_favoritable`, `is_inviteable`, `is_poi_enabled`), and default UI modules per type. **No inheritance is used in V1** (`parent_type` is omitted). **MVP registry types:** `personal`, `artist`, `venue`, `restaurant`, `experience_provider`. The model remains strongly typed—no freeform meta tables.
 5. **Registry Fetch + Cache (Online‑First, No Hardcoded Fallback):** The registry is fetched from `/api/v1/environment.profile_types` at runtime and cached locally. The client boots from cache and refreshes asynchronously. **Hardcoded fallbacks are not allowed**; if no cache exists and fetch fails, the UI must surface an explicit error and avoid type‑dependent flows.
 6. **Taxonomy Scope (No Inheritance):** Taxonomies apply only to the type they are declared on. If a taxonomy should apply to multiple types, it must be explicitly listed for each type.
-7. **Organization (Optional, Grouping Only in MVP):** Organizations group **accounts belonging to the same real‑world entity** (tenant, sponsor, hotel group, multi‑location brand). Organizations are **optional**; most accounts will not belong to any org. MVP usage is grouping only (no memberships/billing yet). Example: Tenant org “Guarappari” groups `Guarappari` + `Tiggro` accounts.
+7. **Organization (Optional, Grouping Only in MVP):** Organizations group **accounts belonging to the same real‑world entity** (tenant, sponsor, hotel group, multi‑location brand). Organizations are **optional**; most accounts will not belong to any org. MVP usage is grouping only (no memberships/billing yet). Example: one tenant organization may group multiple accounts operated under the same local umbrella brand.
 8. **Ownership State (Single Flag):** Accounts carry a single conceptual `ownership_state`: `tenant_owned`, `unmanaged`, or `user_owned`. This is the canonical discriminator; `managed_by` is derived, not stored. **MVP note:** for tenant-admin manual onboarding (`POST /admin/api/v1/account_onboardings`), `ownership_state` is a required create intent (`tenant_owned|unmanaged`); read payloads continue returning the derived effective state. **Unmanaged accounts must be standalone** (no org). Tenant‑owned accounts may be standalone or grouped under an org. User‑owned accounts are typically standalone in MVP.
 9. **Permissions + Action Context:** Account roles/ACL remain the permission boundary. **Account Profile actions require `account_profile_id`** in the request, but authorization is resolved through Account membership. This keeps boilerplate permissions intact while enforcing profile-specific context (invites, map, offers, push).
 10. **Account Profile Location (Optional):** `account_profile.location` is **optional**. Only profiles with a valid geospatial location participate in geo indexes and map queries. Profiles without location must be ignored by geo filters and never block index creation.
@@ -43,7 +43,7 @@ Bóora! is the platform. Guar[APP]ari is a **tenant** hosted on the platform and
 1. **Page-Based Lists + SSE Deltas:** All lists are page-based; realtime updates are delivered via SSE delta streams that never replace the list contract.
 2. **Independent Requests for Home:** No aggregated home endpoint in MVP. The client composes home using independent requests (invites, agenda, discovery, map).
 3. **Invite Attribution:** Share codes are attribution tokens. Authenticated share entry must first materialize a canonical invite edge via `/invites/share/{code}/materialize`; only then may the client call `/invites/{invite_id}/accept|decline`. Materialization records source = `share_url`, and uniqueness rules prevent duplicate invite issuance to the same person/event.
-4. **Taxonomy-Ready Discovery:** Account profiles (partner label) support multi-taxonomy terms (`{type, value}`), and discovery filters can target taxonomy terms in addition to categories/tags.
+4. **Taxonomy-Ready Discovery:** Account profiles support multi-taxonomy terms (`{type, value}`), and discovery filters can target taxonomy terms in addition to categories/tags.
 
 ---
 
@@ -56,7 +56,7 @@ Bóora! is the platform. Guar[APP]ari is a **tenant** hosted on the platform and
 
 ## 6. Documentation Rules (Project-Specific)
 
-1. **Naming:** Bóora! is the platform; Guar[APP]ari is a tenant.
+1. **Naming:** Bóora! is the platform; tenant brands must be described as tenants, not as the platform.
 2. **Module Docs:** Use tenant-accurate wording (e.g., “tenant app users”) unless describing tenant-specific UI or copy.
 3. **Tenant-Specific Assets:** Marketing collateral and screen copy may remain tenant-specific.
 
