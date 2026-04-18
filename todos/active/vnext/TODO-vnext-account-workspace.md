@@ -1,15 +1,54 @@
-# TODO (VNext): Account Workspace (Accounts + Events + Assets)
+# Title
+Account Workspace (Accounts + Events + Assets)
+
+## Artifact Identity
+- **Artifact type:** `tactical_execution_contract`
 
 **Authority note (2026-04-17):** this TODO is the single deferred owner for authenticated account-workspace delivery referenced by the V1 web-to-app policy. Post-MVP workspace event management, memberships/team management, and invite metrics dashboards should be tracked here rather than duplicated in `TODO-vnext-parking-lot.md`.
 
-**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Active  
-**MVP Note:** The MVP tenant/admin capability is limited to Account + Account Profile creation (see `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`). The Account Workspace is post‑MVP.
-**Future workspace constraint:** current invite contracts already freeze `Account Profile` as the canonical recipient surface. Workspace memberships/permissions must layer acting-user authority on top of that identity instead of redefining invite ownership around raw `User`.
+## Context
+The full Account Workspace is explicitly post-MVP. The current MVP tenant/admin capability is limited to Account + Account Profile creation (see `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`). Current invite contracts already freeze `Account Profile` as the canonical recipient surface, so future workspace memberships/permissions must layer acting-user authority on top of that identity instead of redefining invite ownership around raw `User`.
+
+## Framing Source & Story Slice
+- **Feature brief:** `direct-to-todo`
+- **Primary story ID:** `n/a`
+- **Why this is the right current slice:** this TODO keeps one durable owner for post-MVP workspace delivery instead of scattering the boundary across parking-lot notes or adjacent account/profile TODOs.
+- **Direct-to-TODO rationale (required when `Feature brief = direct-to-todo`):** the workspace boundary is already explicit and deferred; this file exists to preserve that owner until implementation becomes current.
+
+## Contract Boundary
+- This TODO defines the deferred workspace delivery boundary for accounts, events, assets, branding, memberships/team management, and workspace-scoped dashboards.
+- Adjacent deferred TODOs such as account claim flow or profile-type expansion may evolve in parallel, but they do not replace this TODO as the primary owner for authenticated account-workspace delivery.
+
+## Delivery Status Canon (Required)
+- **Current delivery stage:** `Pending`
+- **Qualifiers:** `Planning-Ready`, `Deferred-Owner`
+- **Next exact step:** keep this TODO as the single post-MVP workspace owner and open dedicated execution slices only when workspace delivery becomes current.
+
+## Scope
+- [ ] Define workspace access/permissions and team-management boundaries.
+- [ ] Define workspace-owned account, asset, event, and branding operations.
+- [ ] Define the authenticated workspace navigation/pages and dashboard expectations.
+- [ ] Preserve the MVP boundary: Account Workspace remains post-MVP and must not absorb current store-release scope.
+
+## Execution Lane Tracking (Required)
+- **Local implementation branches:** `flutter-app:<planned>`, `laravel-app:<planned>`, `foundation_documentation:<planned>`
+- **Promotion lane path:** `dev -> stage -> main`
+- **Lane-promoted threshold for this TODO:** `dev`
+- **Production-ready threshold for this TODO:** `stage`
+
+## Promotion Evidence (Required Before `🟣 Lane-Promoted` / `✅ Production-Ready`)
+| Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
+| --- | --- | --- | --- | --- | --- |
+| Account Workspace deferred program owner | `pending` | `pending` | `pending` | `pending` | `Pending` |
+
+## Out of Scope
+- [ ] MVP tenant/admin Account + Account Profile creation flows that already belong to the current V1 boundary.
+- [ ] User claim/ownership transition logic owned by `TODO-vnext-account-claim-flow.md`.
+- [ ] Registry/profile-type expansion owned by `TODO-vnext-account-profile-types.md`.
+- [ ] Forcing all workspace child capabilities into one execution/approval cycle.
+
 **Owners:** Backend Team + Delphi (Flutter)  
 **Objective:** Deliver the Account Workspace (post‑MVP) for managing accounts, events, assets, tenant branding, memberships/team management, and workspace-scoped operational dashboards such as invite metrics. MVP only includes the Tenant User Area for Account + Account Profile creation.
-
----
 
 ## References
 - `foundation_documentation/modules/account_workspace_module.md`
@@ -73,7 +112,7 @@
 
 ---
 
-## C) Acceptance Criteria
+## Definition of Done
 
 - [ ] ⚪ Account workspace users can manage accounts, assets, and events within permissions.
 - [ ] ⚪ Account workspace users can edit branding information (About/logo/icon/colors).
