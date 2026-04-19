@@ -49,7 +49,7 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - [ ] Deliver a minimal friends/favorites MVP slice that matches current business scope without pulling the full `belluga_connections` package into the Android gate.
 - [ ] Treat canonical user-owned proximity/origin preferences as release-relevant so Home uses a stable, user-controlled location-origin contract rather than remaining device-local only.
 - [ ] Treat canonical Laravel image-flow hardening as publication-critical so release surfaces do not ship with non-canonical public media URLs or host-bound image drift.
-- [ ] Treat definitive CORS ownership convergence as publication-critical so browser/admin/runtime API access no longer depends on a temporary split owner model.
+- [x] Treat definitive CORS ownership convergence as publication-critical so browser/admin/runtime API access no longer depends on a temporary split owner model.
 - [ ] Treat tenant settings read-path optimization as publication-critical where environment/settings bootstrap cost or drift can degrade release confidence.
 - [ ] Treat critical-journey regression gates as publication-critical so Android publication confidence is backed by deterministic cross-stack evidence rather than partial/manual assumptions.
 - [ ] Treat legacy `artists` eradication from public event/runtime contracts as publication-critical so the release app ships on the canonical linked-profile event model rather than on a deprecated read projection.
@@ -75,7 +75,7 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 | Minimal friends/favorites MVP | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Proximity preferences + location origin | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Canonical image-flow hardening | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| CORS ownership convergence | `pending` | `pending` | `pending` | `pending` | `Pending` |
+| CORS ownership convergence | `delivered in child TODO` | `n/a` | `n/a` | `n/a` | `✅ Production-Ready` |
 | Tenant settings read-path optimization | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Critical journey regression gates | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Event `artists` eradication | `pending` | `pending` | `pending` | `pending` | `Pending` |
