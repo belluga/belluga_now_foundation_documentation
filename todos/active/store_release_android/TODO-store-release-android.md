@@ -53,7 +53,7 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - [ ] Treat tenant settings read-path optimization as publication-critical where environment/settings bootstrap cost or drift can degrade release confidence.
 - [ ] Treat critical-journey regression gates as publication-critical so Android publication confidence is backed by deterministic cross-stack evidence rather than partial/manual assumptions.
 - [ ] Treat legacy `artists` eradication from public event/runtime contracts as publication-critical so the release app ships on the canonical linked-profile event model rather than on a deprecated read projection.
-- [ ] Treat event `content` save-time sanitization as publication-critical so unsupported rich-text markup is stripped canonically on backend save and never implied as accepted by the frontend editing UX.
+- [x] Treat event `content` save-time sanitization as publication-critical so unsupported rich-text markup is stripped canonically on backend save and never implied as accepted by the frontend editing UX.
 - [ ] Keep profile/account-profile support work only when it directly strengthens invites/favorites/publication confidence.
 - [ ] Keep an explicit Android publication-readiness lane and refine its repo-owned versus external-console ownership boundary.
 - [ ] Keep this TODO as the authoritative orchestrator that supersedes the older `TODO-v1-first-release.md` milestone framing.
@@ -79,7 +79,7 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 | Tenant settings read-path optimization | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Critical journey regression gates | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Event `artists` eradication | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| Event content save sanitization | `pending` | `pending` | `pending` | `pending` | `Pending` |
+| Event content save sanitization | `delivered in child TODO` | `n/a` | `n/a` | `n/a` | `✅ Production-Ready` |
 | Android publication readiness | `pending` | `pending` | `pending` | `pending` | `Pending` |
 
 ## Out of Scope
