@@ -15,8 +15,12 @@ This repository is the source of truth for Belluga foundation documentation and 
 ## Scope
 
 - Architecture and mandate documents
-- Module, screen, and policy docs
+- Module and policy docs
 - Tactical TODOs under `todos/active/` and `todos/completed/`
+
+Legacy note:
+- historical `pitch/` and `screens/` trees are not canonical authority surfaces.
+- if a future screen-study workflow returns, it must be reintroduced intentionally with an explicit authority model instead of reviving the retired legacy folders by default.
 
 ## Workflow
 

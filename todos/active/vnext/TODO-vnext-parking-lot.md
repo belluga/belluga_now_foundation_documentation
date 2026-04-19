@@ -21,15 +21,12 @@
 ## A) Profile & Utilities (Deferred)
 
 - **Wallet / Guar[APP]ari Pay** (balance + statement + cashbacks)
-  - Source reference: `foundation_documentation/screens/modulo_perfil_e_utilidades.md`
   - Triage: `Keep residual`
   - Notes: defer until payment/ledger contracts are implemented and a stable Transaction Bridge read-model exists. `TODO-vnext-checkout-package-integration.md` is only adjacent dependency context; it does not own wallet/balance/cashback semantics.
 - **Purchases & Reservations history**
-  - Source reference: `foundation_documentation/screens/modulo_perfil_e_utilidades.md`
   - Triage: `Keep residual`
   - Notes: depends on Transaction Bridge + booking lifecycles and account-profile-side fulfillment. No current active TODO owns the user-facing history surface.
 - **Premium plan management**
-  - Source reference: `foundation_documentation/screens/modulo_perfil_e_utilidades.md`
   - Triage: `Keep residual`
   - Notes: depends on subscription/billing system + entitlements delivery. No current subscription/billing owner exists in `vnext`.
 
