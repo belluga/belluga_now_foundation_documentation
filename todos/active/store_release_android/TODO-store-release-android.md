@@ -31,11 +31,11 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-proximity-preferences-and-location-origin.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-belluga-media-canonical-image-flow-hardening.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-cors-ownership-unification.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-cors-ownership-unification.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-tenant-settings-optimization.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-critical-journey-regression-gates.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-event-artists-eradication.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-event-content-save-sanitization.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-event-content-save-sanitization.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android-publication-readiness.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-qr-login-web-auth.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-ios-universal-links-production-validation.md`
@@ -49,11 +49,11 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - [ ] Deliver a minimal friends/favorites MVP slice that matches current business scope without pulling the full `belluga_connections` package into the Android gate.
 - [ ] Treat canonical user-owned proximity/origin preferences as release-relevant so Home uses a stable, user-controlled location-origin contract rather than remaining device-local only.
 - [ ] Treat canonical Laravel image-flow hardening as publication-critical so release surfaces do not ship with non-canonical public media URLs or host-bound image drift.
-- [ ] Treat definitive CORS ownership convergence as publication-critical so browser/admin/runtime API access no longer depends on a temporary split owner model.
+- [x] Treat definitive CORS ownership convergence as publication-critical so browser/admin/runtime API access no longer depends on a temporary split owner model.
 - [ ] Treat tenant settings read-path optimization as publication-critical where environment/settings bootstrap cost or drift can degrade release confidence.
 - [ ] Treat critical-journey regression gates as publication-critical so Android publication confidence is backed by deterministic cross-stack evidence rather than partial/manual assumptions.
 - [ ] Treat legacy `artists` eradication from public event/runtime contracts as publication-critical so the release app ships on the canonical linked-profile event model rather than on a deprecated read projection.
-- [ ] Treat event `content` save-time sanitization as publication-critical so unsupported rich-text markup is stripped canonically on backend save and never implied as accepted by the frontend editing UX.
+- [x] Treat event `content` save-time sanitization as publication-critical so unsupported rich-text markup is stripped canonically on backend save and never implied as accepted by the frontend editing UX.
 - [ ] Keep profile/account-profile support work only when it directly strengthens invites/favorites/publication confidence.
 - [ ] Keep an explicit Android publication-readiness lane and refine its repo-owned versus external-console ownership boundary.
 - [ ] Keep this TODO as the authoritative orchestrator that supersedes the older `TODO-v1-first-release.md` milestone framing.
@@ -75,11 +75,11 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 | Minimal friends/favorites MVP | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Proximity preferences + location origin | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Canonical image-flow hardening | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| CORS ownership convergence | `pending` | `pending` | `pending` | `pending` | `Pending` |
+| CORS ownership convergence | `see promotion_lane child TODO` | `pending` | `pending` | `pending` | `🟧 Local-Implemented` |
 | Tenant settings read-path optimization | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Critical journey regression gates | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Event `artists` eradication | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| Event content save sanitization | `pending` | `pending` | `pending` | `pending` | `Pending` |
+| Event content save sanitization | `see promotion_lane child TODO` | `pending` | `pending` | `pending` | `🟧 Local-Implemented` |
 | Android publication readiness | `pending` | `pending` | `pending` | `pending` | `Pending` |
 
 ## Out of Scope
@@ -103,11 +103,11 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - [x] A dedicated phone OTP identity child TODO exists and is linked here as a publication-critical blocker.
 - [x] A dedicated proximity preferences + location-origin child TODO exists under `active/store_release_android/`.
 - [x] A dedicated canonical image-flow hardening child TODO exists under `active/store_release_android/`.
-- [x] A dedicated CORS ownership child TODO exists under `active/store_release_android/`.
+- [x] A dedicated CORS ownership child TODO exists under `promotion_lane/store_release_android/`.
 - [x] A dedicated tenant settings optimization child TODO exists under `active/store_release_android/`.
 - [x] A dedicated critical-journey regression-gates child TODO exists under `active/store_release_android/`.
 - [x] A dedicated event `artists` eradication child TODO exists under `active/store_release_android/`.
-- [x] A dedicated event content save-sanitization child TODO exists under `active/store_release_android/`.
+- [x] A dedicated event content save-sanitization child TODO exists under `promotion_lane/store_release_android/`.
 
 ## Validation Steps
 - [x] TODO inventory updated so current publication-critical work is discoverable from this file.
@@ -120,11 +120,11 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - [x] Child TODO for phone OTP identity + contact matching exists under `active/store_release_android/`.
 - [x] Child TODO for proximity preferences + location-origin exists under `active/store_release_android/`.
 - [x] Child TODO for canonical image-flow hardening exists under `active/store_release_android/`.
-- [x] Child TODO for definitive CORS ownership convergence exists under `active/store_release_android/`.
+- [x] Child TODO for definitive CORS ownership convergence exists under `promotion_lane/store_release_android/`.
 - [x] Child TODO for tenant settings optimization exists under `active/store_release_android/`.
 - [x] Child TODO for critical-journey regression gates exists under `active/store_release_android/`.
 - [x] Child TODO for event `artists` eradication exists under `active/store_release_android/`.
-- [x] Child TODO for event content save sanitization exists under `active/store_release_android/`.
+- [x] Child TODO for event content save sanitization exists under `promotion_lane/store_release_android/`.
 
 ## Profile Scope & Handoffs (Required Before `APROVADO`)
 - **Primary execution profile:** `operational-coder`
