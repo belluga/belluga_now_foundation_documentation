@@ -1,15 +1,34 @@
 # TODO (Store Release): CORS Ownership Unification (Definitive)
 
-**Classification note (2026-04-18):** this moved from VNext into the Android store-release lane because browser/runtime parity needed a single canonical CORS owner. The implementation is now closed: Laravel owns CORS canonically, and Nginx no longer injects or normalizes ACAO.
+**Classification note (2026-04-18):** this moved from VNext into the Android store-release lane because browser/runtime parity needed a single canonical CORS owner. The implementation is validated and promoted through `dev`: Laravel owns CORS canonically, and Nginx no longer injects or normalizes ACAO, but `stage`/`main` promotion remains open.
 
-**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`  
-**Status:** Completed (`implementation and validation closed on 2026-04-19`)  
-**Current delivery stage:** `Completed`
-**Next exact step:** `n/a`
+**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [x] 🟣 Lane-Promoted` · `- [ ] ✅ Production-Ready`
+**Status:** Lane-Promoted. The canonical CORS ownership change is implemented, validated, and promoted through `dev`, but this TODO must stay active until the same slice is promoted through `stage` and the later `main` follow-up is real.
 **Owners:** DevOps + Laravel API + Flutter Platform
+
+## Artifact Identity
+- **Artifact type:** `tactical_execution_contract`
+
+## Delivery Status Canon
+- **Current delivery stage:** `Lane-Promoted`
+- **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Browser-Compatibility`
+- **Next exact step:** promote the already-dev-merged Laravel/root slices through `stage`, rerun the CORS verification suite against the published `stage` hosts, and leave `main` explicit as pending until that promotion actually starts.
 
 ## Objective
 Eliminate CORS drift and duplicated headers by establishing a **single canonical CORS owner** for API responses in all environments.
+
+## Execution Lane Tracking
+- **Local implementation branches:** `laravel-app:worker/store-release-cors-laravel`, `belluga_now_docker:worker/store-release-cors-root`, `foundation_documentation:worker/store-release-cors-docs`
+- **Promotion lane path:** `dev -> stage -> main`
+- **Lane-promoted threshold for this TODO:** `dev`
+- **Production-ready threshold for this TODO:** `stage`
+
+## Promotion Evidence
+| Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
+| --- | --- | --- | --- | --- | --- |
+| Backend canonical CORS ownership | `worker/store-release-cors-laravel@c3c91cea8a6b` | https://github.com/belluga/belluga_now_backend/pull/156 | `<pending>` | `<pending>` | `🟣 Lane-Promoted to dev on 2026-04-19 via PR #156; Laravel is the canonical CORS owner, but stage/main promotion is still pending.` |
+| Edge/Nginx CORS ownership removal | `worker/store-release-cors-root@ab63990766d9` | https://github.com/belluga/belluga_now_docker/pull/501 | `<pending>` | `<pending>` | `🟣 Lane-Promoted to dev on 2026-04-19 via PR #501; Nginx no longer injects ACAO in dev, but stage/main promotion is still pending.` |
+| Documentation authority | `worker/store-release-cors-docs@0fae56791abf` | `n/a (foundation docs repo is not promoted through dev/stage/main lanes)` | `n/a` | `n/a` | `Local docs authority was updated on 2026-04-19; the remaining promotion work for this TODO is the downstream stage/main follow-up tracked above.` |
 
 ## Delivered Scope
 - [x] Define one CORS owner for API routes (`/api/*`, `/admin/api/*`, account-scoped routes).
@@ -49,5 +68,5 @@ Eliminate CORS drift and duplicated headers by establishing a **single canonical
   - `NAV_LANDLORD_URL='https://belluga.space' NAV_TENANT_URL='https://guarappari.belluga.space' PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true bash tools/flutter/run_web_navigation_smoke.sh readonly` -> `5 passed`
 - Final sequential validation passed twice after fixture repair and tenant bootstrap stabilization.
 
-## Closure Note
-The temporary split owner model is removed. Canonical ownership now sits in Laravel, and the edge only forwards requests without competing CORS headers.
+## Current State Note
+The temporary split owner model is removed in the delivered implementation. Canonical ownership now sits in Laravel, and the edge only forwards requests without competing CORS headers; what remains is lane promotion and published verification beyond `dev`.

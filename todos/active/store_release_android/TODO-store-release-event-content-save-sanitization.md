@@ -4,8 +4,8 @@
 
 **Scope authority note (2026-04-18):** this TODO is the direct delivery authority for canonical sanitization of event `content` on the save path. `foundation_documentation/todos/completed/TODO-v1-event-detail-about-rich-media-contract.md` remains closed for the contract decision itself; this lane exists because the implementation still needs explicit backend-guaranteed sanitization plus frontend/editor alignment.
 
-**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.
-**Status:** Production-Ready. The product rule is frozen, save-time sanitization is implemented, the Flutter editor/runtime are aligned, and the relevant validation suite is green.
+**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [x] 🟣 Lane-Promoted` · `- [ ] ✅ Production-Ready`.
+**Status:** Lane-Promoted. The product rule is frozen, save-time sanitization is implemented, the Flutter editor/runtime are aligned, and the Laravel/Flutter slices were promoted through `dev` on 2026-04-19; `stage`/`main` remain pending, so this TODO is not `Production-Ready` yet.
 **Owners:** Flutter Team, Laravel Team
 **Goal:** make event-description content canonical and safe by sanitizing unsupported markup at save time on the backend, while also sanitizing/preventing unsupported markup on the frontend so the editing UX never suggests false acceptance.
 
@@ -41,9 +41,9 @@ What is still missing is the implementation guarantee. Today the public runtime 
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Validation-Closed`
+- **Current delivery stage:** `Lane-Promoted`
 - **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Content-Safety`
-- **Next exact step:** promotion only. No further implementation work remains for this slice on the reconciled local branches.
+- **Next exact step:** promote the already-dev-merged Laravel/Flutter slices through `stage`, rerun the published event-content smoke against the `stage` lane, and keep `main` explicit as pending until that later promotion starts.
 
 ## References
 
@@ -159,7 +159,7 @@ What is still missing is the implementation guarantee. Today the public runtime 
 
 ## Execution Lane Tracking
 
-- **Local implementation branches:** `flutter-app:orchestrator/store-release-precritical-flutter`, `laravel-app:orchestrator/store-release-precritical-laravel`, `belluga_now_docker:orchestrator/store-release-precritical-root`, `foundation_documentation:orchestrator/store-release-precritical-docs`
+- **Local implementation branches:** `flutter-app:worker/store-release-sanitize-flutter`, `laravel-app:worker/store-release-sanitize-laravel`, `foundation_documentation:worker/store-release-sanitize-docs`
 - **Promotion lane path:** `dev -> stage -> main`
 - **Lane-promoted threshold for this TODO:** `dev`
 - **Production-ready threshold for this TODO:** `stage`
@@ -168,6 +168,6 @@ What is still missing is the implementation guarantee. Today the public runtime 
 
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Backend event-content save sanitization | `orchestrator/store-release-precritical-laravel` | `not-published` | `not-published` | `not-published` | `Merged into reconciliation branch; safe-runner tests green and published browser mutation smoke passed` |
-| Frontend editor sanitization / prevention | `orchestrator/store-release-precritical-flutter` | `not-published` | `not-published` | `not-published` | `Merged into reconciliation branch; widget tests and analyzer green` |
-| Docs/tests/runtime alignment | `orchestrator/store-release-precritical-root` + `foundation_documentation:orchestrator/store-release-precritical-docs` | `not-published` | `not-published` | `not-published` | `Reconciled local build published; readonly smoke and TODO-specific published mutation smoke green` |
+| Backend event-content save sanitization | `worker/store-release-sanitize-laravel@a8c412f4d227` | https://github.com/belluga/belluga_now_backend/pull/156 | `<pending>` | `<pending>` | `🟣 Lane-Promoted to dev on 2026-04-19 via PR #156; safe-runner tests and published browser mutation smoke are already recorded above, but stage/main promotion is still pending.` |
+| Frontend editor sanitization / prevention | `worker/store-release-sanitize-flutter@97afa920f658` | https://github.com/belluga/belluga_now_front/pull/234 | `<pending>` | `<pending>` | `🟣 Lane-Promoted to dev on 2026-04-19 via PR #234; widget tests and analyzer are green, but stage/main promotion is still pending.` |
+| Documentation authority and local published-smoke evidence | `worker/store-release-sanitize-docs@522ab758d128` | `n/a (foundation docs repo is not promoted through dev/stage/main lanes)` | `n/a` | `n/a` | `Local docs authority and published validation evidence were recorded on 2026-04-19; the remaining lane work for this TODO is the downstream stage/main promotion tracked above.` |
