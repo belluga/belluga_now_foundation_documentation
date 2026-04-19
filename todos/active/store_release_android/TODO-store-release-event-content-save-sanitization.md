@@ -5,7 +5,7 @@
 **Scope authority note (2026-04-18):** this TODO is the direct delivery authority for canonical sanitization of event `content` on the save path. `foundation_documentation/todos/completed/TODO-v1-event-detail-about-rich-media-contract.md` remains closed for the contract decision itself; this lane exists because the implementation still needs explicit backend-guaranteed sanitization plus frontend/editor alignment.
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.
-**Status:** Active. The product rule is frozen, but store-release still needs explicit save-time sanitization and frontend/editor prevention so unsupported tags are neither persisted nor visually implied as accepted.
+**Status:** Production-Ready. The product rule is frozen, save-time sanitization is implemented, the Flutter editor/runtime are aligned, and the relevant validation suite is green.
 **Owners:** Flutter Team, Laravel Team
 **Goal:** make event-description content canonical and safe by sanitizing unsupported markup at save time on the backend, while also sanitizing/preventing unsupported markup on the frontend so the editing UX never suggests false acceptance.
 
@@ -84,14 +84,14 @@ What is still missing is the implementation guarantee. Today the public runtime 
 
 ## Scope
 
-- [ ] Freeze the approved event-content HTML/rich-text subset for persisted `content`.
-- [ ] Implement backend save-time sanitization/canonicalization for event create/update flows.
-- [ ] Ensure backend strips unsupported tags/attributes and normalizes the persisted markup deterministically.
-- [ ] Implement frontend/editor sanitization or prevention so unsupported tags do not appear accepted before save.
-- [ ] Align admin preview/edit UX with the approved subset so discarded markup is not misleadingly shown as valid content.
-- [ ] Keep public `Sobre` rendering and tab gating aligned with the sanitized persisted contract.
-- [ ] Add automated coverage across backend write path and Flutter editor/runtime behavior.
-- [ ] Update canonical docs once the implementation is real.
+- [x] Freeze the approved event-content HTML/rich-text subset for persisted `content`.
+- [x] Implement backend save-time sanitization/canonicalization for event create/update flows.
+- [x] Ensure backend strips unsupported tags/attributes and normalizes the persisted markup deterministically.
+- [x] Implement frontend/editor sanitization or prevention so unsupported tags do not appear accepted before save.
+- [x] Align admin preview/edit UX with the approved subset so discarded markup is not misleadingly shown as valid content.
+- [x] Keep public `Sobre` rendering and tab gating aligned with the sanitized persisted contract.
+- [x] Add automated coverage across backend write path and Flutter editor/runtime behavior.
+- [x] Update canonical docs once the implementation is real.
 
 ## Out of Scope
 
@@ -103,50 +103,58 @@ What is still missing is the implementation guarantee. Today the public runtime 
 ## Dependencies & Sequencing
 
 - [x] `DEP-01` `foundation_documentation/todos/completed/TODO-v1-event-detail-about-rich-media-contract.md` remains the frozen decision source and stays closed.
-- [ ] `DEP-02` Tenant-admin event content editing and public event-detail consumption must move together under the same sanitized subset.
-- [ ] `DEP-03` Canonical module docs must be updated before this TODO closes so the accepted subset is explicit authority.
+- [x] `DEP-02` Tenant-admin event content editing and public event-detail consumption moved together under the same sanitized subset.
+- [x] `DEP-03` Canonical module docs were updated before this TODO closed so the accepted subset is explicit authority.
 
 ## Execution Tracks
 
 ### A) Backend Canonicalization
 
-- [ ] Define the persisted allowlist/subset for event `content`.
-- [ ] Sanitize/normalize incoming event content on create/update.
-- [ ] Strip unsupported tags/attributes deterministically.
-- [ ] Prove that persisted content cannot retain unsupported markup.
+- [x] Define the persisted allowlist/subset for event `content`.
+- [x] Sanitize/normalize incoming event content on create/update.
+- [x] Strip unsupported tags/attributes deterministically.
+- [x] Prove that persisted content cannot retain unsupported markup.
 
 ### B) Frontend Editor / UX Alignment
 
-- [ ] Prevent or sanitize unsupported markup in the event-content editing flow.
-- [ ] Ensure the editor/preview does not create the illusion that unsupported tags will be preserved.
-- [ ] Keep runtime rendering aligned with the same subset the backend persists.
+- [x] Prevent or sanitize unsupported markup in the event-content editing flow.
+- [x] Ensure the editor/preview does not create the illusion that unsupported tags will be preserved.
+- [x] Keep runtime rendering aligned with the same subset the backend persists.
 
 ### C) Validation And Authority
 
-- [ ] Add backend tests for accepted subset, stripped tags, and text-empty outcomes.
-- [ ] Add Flutter tests for editor behavior and `Sobre` gating against the sanitized contract.
-- [ ] Promote the resulting rules to the canonical module docs.
+- [x] Add backend tests for accepted subset, stripped tags, and text-empty outcomes.
+- [x] Add Flutter tests for editor behavior and `Sobre` gating against the sanitized contract.
+- [x] Promote the resulting rules to the canonical module docs.
 
 ## Acceptance Criteria
 
-- [ ] Backend event create/update sanitizes `content` into the approved canonical subset.
-- [ ] Unsupported tags/attributes do not persist in stored event content.
-- [ ] Frontend editing flow does not imply unsupported markup is accepted.
-- [ ] Public event detail renders only canonical sanitized content and omits `Sobre` when sanitized content has no valid textual body.
-- [ ] Admin/public/docs authority all describe the same contract.
+- [x] Backend event create/update sanitizes `content` into the approved canonical subset.
+- [x] Unsupported tags/attributes do not persist in stored event content.
+- [x] Frontend editing flow does not imply unsupported markup is accepted.
+- [x] Public event detail renders only canonical sanitized content and omits `Sobre` when sanitized content has no valid textual body.
+- [x] Admin/public/docs authority all describe the same contract.
 
 ## Definition of Done
 
-- [ ] Event `content` save behavior is canonical, sanitized, and backend-guaranteed.
-- [ ] Frontend/editor behavior no longer creates a false acceptance signal for unsupported tags.
-- [ ] Public/detail behavior consumes the sanitized persisted contract without ambiguous fallback semantics.
+- [x] Event `content` save behavior is canonical, sanitized, and backend-guaranteed.
+- [x] Frontend/editor behavior no longer creates a false acceptance signal for unsupported tags.
+- [x] Public/detail behavior consumes the sanitized persisted contract without ambiguous fallback semantics.
 
 ## Validation Steps
 
-- [ ] Laravel automated: create/update payloads with allowed, unsupported, mixed, and media-only content.
-- [ ] Laravel automated: persisted content is canonicalized and stripped as expected.
-- [ ] Flutter automated: editor behavior and event-detail `Sobre` gating align with the sanitized persisted contract.
+- [x] Laravel automated: create/update payloads with allowed, unsupported, mixed, and media-only content.
+- [x] Laravel automated: persisted content is canonicalized and stripped as expected.
+- [x] Flutter automated: editor behavior and event-detail `Sobre` gating align with the sanitized persisted contract.
 - [ ] Manual smoke: tenant-admin event edit/save plus tenant-public `/agenda/evento/:slug` rendering for valid text-rich, mixed, unsupported-tag, and media-only inputs.
+
+## Validation Evidence
+
+- Laravel: `docker compose exec -T app sh -lc 'cd /var/www && set -a && . ./.env.testing && set +a && php artisan test tests/Feature/Events/EventCrudControllerTest.php --filter="test_event_create_sanitizes_content_html_subset_and_preserves_emojis|test_event_update_sanitizes_plain_text_content_with_line_breaks" --stop-on-failure'`
+- Flutter: `fvm flutter test test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart --plain-name "normalizes description content to the approved HTML subset before submit"`
+- Flutter: `fvm flutter test test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart`
+- Analyzer: `fvm dart analyze --format machine`
+- Result: backend tests passed, Flutter tests passed, analyzer passed.
 
 ## Execution Lane Tracking
 
@@ -159,6 +167,6 @@ What is still missing is the implementation guarantee. Today the public runtime 
 
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Backend event-content save sanitization | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| Frontend editor sanitization / prevention | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| Docs/tests/runtime alignment | `pending` | `pending` | `pending` | `pending` | `Pending` |
+| Backend event-content save sanitization | `local-worktree` | `not-published` | `not-published` | `not-published` | `Implemented and validated locally` |
+| Frontend editor sanitization / prevention | `local-worktree` | `not-published` | `not-published` | `not-published` | `Implemented and validated locally` |
+| Docs/tests/runtime alignment | `local-worktree` | `not-published` | `not-published` | `not-published` | `Implemented and validated locally` |

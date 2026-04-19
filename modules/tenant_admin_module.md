@@ -368,6 +368,7 @@ List tenant-admin events for operational management.
 - Non-published manager cards (`publication.status != published`) render with `70%` opacity so draft/scheduled/ended items remain visible but visually secondary to published inventory.
 - Grouping is rebuilt from the accumulated ordered result, and any filter change resets pagination to page `1` before regrouping.
 - Management payloads must not require an artist-shaped key such as `artists`; dynamic account-profile administration flows consume `event_parties` plus `linked_account_profiles`.
+- Tenant-admin event edit/create uses the same approved `event.content` subset as the public event detail contract: `<p>`, `<br>`, `<h1-6>`, `<ul>`, `<ol>`, `<li>`, `<blockquote>`, `<strong>`, `<em>`, and `<s>`. Unsupported markup is stripped on save, and emojis remain plain text.
 
 ### `GET /admin/api/v1/events/account_profile_candidates`
 Page-based account-profile candidate discovery for the event form pickers and the tenant-admin manager venue/related-profile filter pickers.
