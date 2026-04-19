@@ -159,7 +159,7 @@ What is still missing is the implementation guarantee. Today the public runtime 
 
 ## Execution Lane Tracking
 
-- **Local implementation branches:** `flutter-app:worker/store-release-sanitize-flutter`, `laravel-app:worker/store-release-sanitize-laravel`, `foundation_documentation:worker/store-release-sanitize-docs`
+- **Local implementation branches:** `flutter-app:orchestrator/store-release-precritical-flutter@97afa920f658`, `laravel-app:orchestrator/store-release-precritical-laravel@a8c412f4d227`, `belluga_now_docker:repair/bot-next-version-store-release-precritical@a322a91b7d8d`, `foundation_documentation:orchestrator/store-release-precritical-docs@0181a931c5dc`
 - **Promotion lane path:** `dev -> stage -> main`
 - **Lane-promoted threshold for this TODO:** `dev`
 - **Production-ready threshold for this TODO:** `stage`
@@ -168,6 +168,6 @@ What is still missing is the implementation guarantee. Today the public runtime 
 
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Backend event-content save sanitization | `worker/store-release-sanitize-laravel@a8c412f4d227` | https://github.com/belluga/belluga_now_backend/pull/156 | `<pending>` | `<pending>` | `🟣 Lane-Promoted to dev on 2026-04-19 via PR #156; safe-runner tests and published browser mutation smoke are already recorded above, but stage/main promotion is still pending.` |
-| Frontend editor sanitization / prevention | `worker/store-release-sanitize-flutter@97afa920f658` | https://github.com/belluga/belluga_now_front/pull/234 | `<pending>` | `<pending>` | `🟣 Lane-Promoted to dev on 2026-04-19 via PR #234; widget tests and analyzer are green, but stage/main promotion is still pending.` |
-| Documentation authority and local published-smoke evidence | `worker/store-release-sanitize-docs@522ab758d128` | `n/a (foundation docs repo is not promoted through dev/stage/main lanes)` | `n/a` | `n/a` | `Local docs authority and published validation evidence were recorded on 2026-04-19; the remaining lane work for this TODO is the downstream stage/main promotion tracked above.` |
+| Backend event-content save sanitization | `orchestrator/store-release-precritical-laravel@a8c412f4d227` | https://github.com/belluga/belluga_now_backend/pull/156 | `<pending>` | `<pending>` | `🟣 Lane-Promoted to dev on 2026-04-19 via PR #156; safe-runner tests and published browser mutation smoke are already recorded above, but stage/main promotion is still pending.` |
+| Frontend editor sanitization / prevention | `orchestrator/store-release-precritical-flutter@97afa920f658` | https://github.com/belluga/belluga_now_front/pull/234 | `<pending>` | `<pending>` | `🟣 Lane-Promoted to dev on 2026-04-19 via PR #234; widget tests, analyzer, and the dev post-merge run are green, but stage/main promotion is still pending.` |
+| Docker submodule reconciliation for promoted Flutter/Laravel SHAs | `repair/bot-next-version-store-release-precritical@a322a91b7d8d` | https://github.com/belluga/belluga_now_docker/pull/502 | `<pending>` | `<pending>` | `🟣 Lane-Promoted to dev on 2026-04-19 via PR #502; root dev now pins the promoted Flutter/Laravel commits for this slice, while stage/main remain pending.` |

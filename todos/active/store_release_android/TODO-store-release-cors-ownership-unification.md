@@ -14,11 +14,22 @@
 - **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Browser-Compatibility`
 - **Next exact step:** promote the already-dev-merged Laravel/root slices through `stage`, rerun the CORS verification suite against the published `stage` hosts, and leave `main` explicit as pending until that promotion actually starts.
 
+## References
+- `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+- `foundation_documentation/submodule_laravel-app_summary.md`
+- `foundation_documentation/endpoints_mvp_contracts.md`
+
+## Canonical Module Anchors
+- **Primary module doc:** `foundation_documentation/submodule_laravel-app_summary.md`
+- **Secondary module docs:**
+  - `foundation_documentation/endpoints_mvp_contracts.md`
+  - `foundation_documentation/project_constitution.md`
+
 ## Objective
 Eliminate CORS drift and duplicated headers by establishing a **single canonical CORS owner** for API responses in all environments.
 
 ## Execution Lane Tracking
-- **Local implementation branches:** `laravel-app:worker/store-release-cors-laravel`, `belluga_now_docker:worker/store-release-cors-root`, `foundation_documentation:worker/store-release-cors-docs`
+- **Local implementation branches:** `laravel-app:orchestrator/store-release-precritical-laravel@c3c91cea8a6b`, `belluga_now_docker:orchestrator/store-release-precritical-root@ab63990766d9`, `belluga_now_docker:repair/bot-next-version-store-release-precritical@a322a91b7d8d`, `foundation_documentation:orchestrator/store-release-precritical-docs@0181a931c5dc`
 - **Promotion lane path:** `dev -> stage -> main`
 - **Lane-promoted threshold for this TODO:** `dev`
 - **Production-ready threshold for this TODO:** `stage`
@@ -26,9 +37,9 @@ Eliminate CORS drift and duplicated headers by establishing a **single canonical
 ## Promotion Evidence
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Backend canonical CORS ownership | `worker/store-release-cors-laravel@c3c91cea8a6b` | https://github.com/belluga/belluga_now_backend/pull/156 | `<pending>` | `<pending>` | `🟣 Lane-Promoted to dev on 2026-04-19 via PR #156; Laravel is the canonical CORS owner, but stage/main promotion is still pending.` |
-| Edge/Nginx CORS ownership removal | `worker/store-release-cors-root@ab63990766d9` | https://github.com/belluga/belluga_now_docker/pull/501 | `<pending>` | `<pending>` | `🟣 Lane-Promoted to dev on 2026-04-19 via PR #501; Nginx no longer injects ACAO in dev, but stage/main promotion is still pending.` |
-| Documentation authority | `worker/store-release-cors-docs@0fae56791abf` | `n/a (foundation docs repo is not promoted through dev/stage/main lanes)` | `n/a` | `n/a` | `Local docs authority was updated on 2026-04-19; the remaining promotion work for this TODO is the downstream stage/main follow-up tracked above.` |
+| Backend canonical CORS ownership | `orchestrator/store-release-precritical-laravel@c3c91cea8a6b` | https://github.com/belluga/belluga_now_backend/pull/156 | `<pending>` | `<pending>` | `🟣 Lane-Promoted to dev on 2026-04-19 via PR #156; Laravel is the canonical CORS owner and the dev post-merge run is green, but stage/main promotion is still pending.` |
+| Edge/Nginx CORS ownership removal | `orchestrator/store-release-precritical-root@ab63990766d9` | https://github.com/belluga/belluga_now_docker/pull/501 | `<pending>` | `<pending>` | `🟣 Lane-Promoted to dev on 2026-04-19 via PR #501; Nginx no longer injects ACAO in dev, but stage/main promotion is still pending.` |
+| Docker submodule reconciliation for promoted Laravel SHA | `repair/bot-next-version-store-release-precritical@a322a91b7d8d` | https://github.com/belluga/belluga_now_docker/pull/502 | `<pending>` | `<pending>` | `🟣 Lane-Promoted to dev on 2026-04-19 via PR #502; root dev now pins the promoted Laravel SHA together with the companion Flutter promotion, while stage/main remain pending.` |
 
 ## Delivered Scope
 - [x] Define one CORS owner for API routes (`/api/*`, `/admin/api/*`, account-scoped routes).

@@ -75,11 +75,11 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 | Minimal friends/favorites MVP | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Proximity preferences + location origin | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Canonical image-flow hardening | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| CORS ownership convergence | `delivered in child TODO` | `n/a` | `n/a` | `n/a` | `✅ Production-Ready` |
+| CORS ownership convergence | `child TODO + docker gitlink reconciliation` | `backend: #156; docker: #501; gitlinks: #502` | `<pending>` | `<pending>` | `🟣 Lane-Promoted` |
 | Tenant settings read-path optimization | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Critical journey regression gates | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Event `artists` eradication | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| Event content save sanitization | `delivered in child TODO` | `n/a` | `n/a` | `n/a` | `✅ Production-Ready` |
+| Event content save sanitization | `child TODO + docker gitlink reconciliation` | `backend: #156; flutter: #234; gitlinks: #502` | `<pending>` | `<pending>` | `🟣 Lane-Promoted` |
 | Android publication readiness | `pending` | `pending` | `pending` | `pending` | `Pending` |
 
 ## Out of Scope

@@ -62,6 +62,7 @@
 * **Canonical media delivery (tenant public):** `/api/v1/media/map-filters/{key}`, `/api/v1/media/account-profiles/{account_profile_id}/{avatar|cover}`, `/api/v1/media/static-assets/{static_asset_id}/{avatar|cover}` return tenant-scoped image bytes with cache validators (`ETag`, `Last-Modified`), while legacy web paths are compatibility aliases only.
 * **Tenant-admin onboarding-only create contract:** `POST /admin/api/v1/account_onboardings` is the canonical manual create path (account + default role template + account_profile). Legacy `POST /admin/api/v1/accounts` and `POST /admin/api/v1/account_profiles` are project-policy rejections (`409`, `error_code=tenant_admin_onboarding_required`, `meta.use_endpoint=/admin/api/v1/account_onboardings`).
 * **Authentication Method:** Laravel Sanctum tokens with abilities; wildcard abilities are sanitized/expanded in auth services.
+* **Canonical API CORS ownership:** `config/cors.php` is the single CORS authority for `/api/*`, `/admin/api/*`, and account-scoped API routes. Nginx/edge layers must forward preflight and response headers without appending competing ACAO/credential headers.
 
 ### 6.1 Scope/Subscope Ownership Contract for Client-Facing Routes
 Canonical governance source:
