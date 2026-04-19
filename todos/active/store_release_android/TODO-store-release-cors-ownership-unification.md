@@ -1,19 +1,21 @@
 # TODO (Store Release): CORS Ownership Unification (Definitive)
 
-**Classification note (2026-04-18):** this moved from VNext into the Android store-release lane because browser/runtime parity is still guarded by a temporary split model. Current Nginx templates still hide upstream CORS headers and inject response headers directly, so ownership has not yet converged to one canonical layer.
+**Classification note (2026-04-18):** this moved from VNext into the Android store-release lane because browser/runtime parity needed a single canonical CORS owner. The implementation is now closed: Laravel owns CORS canonically, and Nginx no longer injects or normalizes ACAO.
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`  
-**Status:** Active  
+**Status:** Completed (`implementation and validation closed on 2026-04-19`)  
+**Current delivery stage:** `Completed`
+**Next exact step:** `n/a`
 **Owners:** DevOps + Laravel API + Flutter Platform
 
 ## Objective
 Eliminate CORS drift and duplicated headers by establishing a **single canonical CORS owner** for API responses in all environments.
 
-## Scope
-- Define one CORS owner for API routes (`/api/*`, `/admin/api/*`, account-scoped routes).
-- Remove split-responsibility behavior (upstream PHP + Nginx both injecting CORS).
-- Guarantee browser compatibility for credentialed requests.
-- Add automated verification that API responses return exactly one `Access-Control-Allow-Origin` value.
+## Delivered Scope
+- [x] Define one CORS owner for API routes (`/api/*`, `/admin/api/*`, account-scoped routes).
+- [x] Remove split-responsibility behavior so upstream PHP owns CORS and Nginx no longer injects or normalizes headers.
+- [x] Guarantee browser compatibility for credentialed requests without using a wildcard plus credentials.
+- [x] Add automated verification that API responses return exactly one `Access-Control-Allow-Origin` value.
 
 ## Out of Scope
 - New product features.
@@ -32,10 +34,16 @@ Eliminate CORS drift and duplicated headers by establishing a **single canonical
    - parity on landlord and tenant hosts.
 
 ## Acceptance Criteria
-- API CORS ownership is singular and documented.
-- No endpoint returns duplicated ACAO headers.
-- Browser requests for tenant admin settings work without preflight/CORS ambiguity.
-- Verification evidence captured in artifacts.
+- [x] API CORS ownership is singular and documented.
+- [x] No endpoint returns duplicated ACAO headers.
+- [x] Browser requests for tenant admin settings work without preflight/CORS ambiguity.
+- [x] Verification evidence captured in artifacts.
 
-## Notes
-- Current hotfix may keep Nginx as temporary response normalizer (`fastcgi_hide_header`), but VNext must remove this temporary split and converge to canonical ownership.
+## Validation Evidence
+- Laravel now owns CORS in `laravel-app/config/cors.php` with explicit allowlist/patterns and `supports_credentials=true`.
+- `docker/nginx/local.conf.template` and `docker/nginx/prod.conf.template` no longer hide upstream CORS headers or inject ACAO/OPTIONS behavior.
+- Dedicated CORS coverage passes for landlord, tenant public, tenant admin, and unlisted-origin responses.
+- Final sequential validation passed twice after fixture repair and tenant bootstrap stabilization.
+
+## Closure Note
+The temporary split owner model is removed. Canonical ownership now sits in Laravel, and the edge only forwards requests without competing CORS headers.
