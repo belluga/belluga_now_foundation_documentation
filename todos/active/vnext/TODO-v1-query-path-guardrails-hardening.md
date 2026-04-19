@@ -56,7 +56,7 @@ The goal of this TODO is to turn those lessons into durable guardrails and to tr
 
 ---
 
-## Audit Outcome Snapshot (`2026-04-03`)
+## Audit Outcome Snapshot (`2026-04-03`, revalidated `2026-04-18`)
 
 ### Analyzer / Tooling
 
@@ -66,8 +66,8 @@ The goal of this TODO is to turn those lessons into durable guardrails and to tr
 
 ### Highest-Severity Runtime Findings
 
-- `High`: [user_events_repository.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/infrastructure/repositories/user_events_repository.dart#L95) still paginates through the confirmed-events feed to synthesize `fetchMyEvents()` in runtime.
-- `High`: [tenant_admin_events_controller.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_admin/events/controllers/tenant_admin_events_controller.dart#L846) still preloads all physical-host candidates via `fetchAllEventAccountProfileCandidates()` for an interactive form path.
+- `High`: [user_events_repository.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/infrastructure/repositories/user_events_repository.dart#L93) still synthesizes `fetchMyEvents()` from [schedule_repository.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/infrastructure/repositories/schedule_repository.dart#L410), which loops confirmed-events pages at runtime instead of using a direct canonical contract.
+- `High`: [tenant_admin_events_controller.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_admin/events/controllers/tenant_admin_events_controller.dart#L1068) still preloads all physical-host candidates via [tenant_admin_events_repository_contract.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/domain/repositories/tenant_admin_events_repository_contract.dart#L298) `fetchAllEventAccountProfileCandidates()` for an interactive form path.
 - `Medium`: multiple abstract repository contracts still define page APIs by loading full collections and slicing locally:
   - [tenant_admin_accounts_repository_contract.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/domain/repositories/tenant_admin_accounts_repository_contract.dart#L106)
   - [tenant_admin_account_profiles_repository_contract.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/domain/repositories/tenant_admin_account_profiles_repository_contract.dart#L154)
@@ -75,7 +75,7 @@ The goal of this TODO is to turn those lessons into durable guardrails and to tr
   - [tenant_admin_organizations_repository_contract.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/domain/repositories/tenant_admin_organizations_repository_contract.dart#L86)
   - [tenant_admin_static_assets_repository_contract.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/domain/repositories/tenant_admin_static_assets_repository_contract.dart#L90)
   - [tenant_admin_taxonomies_repository_contract.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/domain/repositories/tenant_admin_taxonomies_repository_contract.dart#L102)
-- `Medium`: backend public search still uses `like/regex` without a stronger indexed strategy in:
+- `Medium`: backend search/candidate lookup still uses `like/regex` without a stronger indexed strategy in:
   - [AccountProfileQueryService.php](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Application/AccountProfiles/AccountProfileQueryService.php#L413)
   - [EventQueryService.php](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php#L661)
   - [AccountProfileResolverAdapter.php](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Integration/Events/AccountProfileResolverAdapter.php#L139)
@@ -112,11 +112,11 @@ The goal of this TODO is to turn those lessons into durable guardrails and to tr
 ### Flutter
 
 1. `UserEventsRepository`
-   - [user_events_repository.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/infrastructure/repositories/user_events_repository.dart#L95)
-   - issue: loops through confirmed agenda pages to synthesize a local list.
+   - [user_events_repository.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/infrastructure/repositories/user_events_repository.dart#L93)
+   - issue: `fetchMyEvents()` still delegates to [schedule_repository.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/infrastructure/repositories/schedule_repository.dart#L410), which loops confirmed agenda pages to synthesize a local list.
 
 2. `TenantAdminEventsController`
-   - [tenant_admin_events_controller.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_admin/events/controllers/tenant_admin_events_controller.dart#L846)
+   - [tenant_admin_events_controller.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_admin/events/controllers/tenant_admin_events_controller.dart#L1068)
    - issue: interactive preload of all physical-host candidates.
 
 3. Abstract repository contracts embedding local pagination fallback:
@@ -139,8 +139,8 @@ The goal of this TODO is to turn those lessons into durable guardrails and to tr
 ### Laravel
 
 1. `AccountProfileResolverAdapter`
-   - [AccountProfileResolverAdapter.php](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Integration/Events/AccountProfileResolverAdapter.php#L120)
-   - issue: still materializes broad profile lists and relies on `like`-search for candidate discovery; needs review for stricter direct/indexed paths.
+   - [AccountProfileResolverAdapter.php](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Integration/Events/AccountProfileResolverAdapter.php#L148)
+   - issue: candidate lookup is paginated, but still relies on `like`-search for discovery instead of a stricter direct/index-backed contract for interactive selection flows.
 
 2. Public search paths with MVP exception boundary:
    - [AccountProfileQueryService.php](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Application/AccountProfiles/AccountProfileQueryService.php#L413)
@@ -156,9 +156,9 @@ The goal of this TODO is to turn those lessons into durable guardrails and to tr
 - `tenant_public.discovery`
   - preload bug already fixed in its own lane; now governed by `QPG-02`.
 - `tenant_public.schedule`
-  - public slug/detail path is corrected; remaining schedule-adjacent runtime violation is now concentrated in [user_events_repository.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/infrastructure/repositories/user_events_repository.dart#L95), not the repository itself.
+  - public slug/detail path is corrected; the remaining schedule-adjacent violation is the confirmed-events page loop behind [user_events_repository.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/infrastructure/repositories/user_events_repository.dart#L93) and [schedule_repository.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/infrastructure/repositories/schedule_repository.dart#L410).
 - `tenant_public.user_events`
-  - still violates `QPG-02` / `QPG-04` in [user_events_repository.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/infrastructure/repositories/user_events_repository.dart#L95).
+  - still violates `QPG-02` / `QPG-04` in [user_events_repository.dart](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/infrastructure/repositories/user_events_repository.dart#L93).
 - `tenant_admin.*` form/catalog controllers
   - multiple screens still violate `QPG-02` by hydrating entire registries/taxonomies/profile-type catalogs at init time instead of using direct/paged contracts.
 
@@ -171,7 +171,7 @@ The goal of this TODO is to turn those lessons into durable guardrails and to tr
 - `event search`
   - current regex path in [EventQueryService.php](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php#L661) violates the new rule set and must be split into its own remediation lane.
 - `event candidate resolution`
-  - [AccountProfileResolverAdapter.php](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Integration/Events/AccountProfileResolverAdapter.php#L139) still needs a direct/index-backed contract for interactive candidate lookup.
+  - [AccountProfileResolverAdapter.php](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Integration/Events/AccountProfileResolverAdapter.php#L148) still needs a direct/index-backed contract for interactive candidate lookup.
 
 ---
 

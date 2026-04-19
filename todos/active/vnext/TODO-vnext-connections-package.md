@@ -2,7 +2,11 @@
 
 **Classification note (2026-04-16):** the full package remains VNext. A smaller release-critical subset is now tracked separately in `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md` so the Android release gate does not silently absorb the entire package.
 
-**Scope boundary note (2026-04-18):** the release-facing business semantics are no longer ambiguous. Store release now owns the canonical `contact_match -> favorite -> friend` subset, `discoverable_by_contacts`, inviteable-reason rules, in-app inviteable grouping via `contact_groups`, and the native-app-only external-share branch for unmatched local contacts. This VNext TODO must not redefine those semantics; it owns package extraction/convergence and broader non-release consumers only.
+**Scope boundary note (2026-04-18):** the release-facing business semantics are no longer ambiguous. Store release now owns the canonical `contact_match -> favorite -> friend` subset, `discoverable_by_contacts`, inviteable-reason rules, in-app inviteable grouping via `contact_groups`, the native-app-only external-share branch for unmatched local contacts, and the required release-facing contact-management behavior for `Contatos` and `/convites/compartilhar`. This VNext TODO must not redefine those semantics; it owns package extraction/convergence and broader non-release consumers only.
+
+**Current-state clarification (2026-04-18):** this TODO is not delivered just because the release subset is now well-defined. The package objective remains open because the repo still has no dedicated `laravel-app/packages/belluga/belluga_connections` package boundary; current behavior is still distributed across existing packages and app-owned modules.
+
+**Naming review note (2026-04-18):** reevaluate the package name when execution starts. If the extracted boundary is truly centered on contact acquisition, contact-match lifecycle, and invite-facing contact management only, `contacts` may be the more faithful package name. Keep `connections` only if the execution slice still legitimately owns the broader relationship/exposure graph beyond contact management.
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production-Ready`.  
 **Status:** Active  

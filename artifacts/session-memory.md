@@ -21,7 +21,8 @@
 - **Last updated:** `2026-04-18 12:39 -03`
 - **Current active session model:** session-memory is now subordinate to the active TODO and stored under `foundation_documentation/sessions/`.
 - **Current active session artifact:** `foundation_documentation/sessions/session_20260418-foundation-authority-rebaseline_memory.md`
-- **Current active TODO:** `foundation_documentation/todos/active/vnext/TODO-vnext-foundation-authority-and-branch-reconciliation.md`
+- **Current active TODO:** `none currently pinned`
+- **Last closed authority TODO:** `foundation_documentation/todos/completed/TODO-vnext-foundation-authority-and-branch-reconciliation.md`
 - **Continuity boundary:** this aggregate file is now pointer-only. Tactical continuity must live in the active TODO or the session-specific memory file, not here.
 - **Transposition summary:** durable lane-model continuity already lives in `foundation_documentation/project_constitution.md`; release-lane continuity remains in the specific `store_release_android/` and `fast_follow_required/` TODOs instead of a shared rolling note here.
 

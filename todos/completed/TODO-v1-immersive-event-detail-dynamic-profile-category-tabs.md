@@ -1,10 +1,10 @@
 # TODO (V1): Immersive Event Detail Dynamic Profile Category Tabs
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.
-**Status:** Active
-**Current delivery stage:** `Local-Implemented`
-**Qualifiers:** `Blocker-Resolved`, `Dynamic-Tabs-Implemented`, `Followup-Implemented`, `Automated-Validated`, `Runtime-Followup-Implemented`, `Contract-Hardened`, `Manual-Smoke-Pending`
-**Next exact step:** Implement the empty-content follow-up so blank/effectively empty `event.content` omits `Sobre` entirely, then run manual smoke on `/agenda/evento/:slug` covering the strict linked-profile slug contract, content-present vs content-blank cases, card navigation + favorite action, the confirmed/unconfirmed footer gate, and returning from dynamic tabs to `Sobre`.
+**Status:** Completed (`delivery confirmation synced on 2026-04-18`)
+**Current delivery stage:** `Completed`
+**Qualifiers:** `Blocker-Resolved`, `Dynamic-Tabs-Implemented`, `Followup-Implemented`, `Automated-Validated`, `Runtime-Followup-Implemented`, `Contract-Hardened`, `Delivery-Confirmed`, `Closure-Synced`
+**Next exact step:** None. Archived to `todos/completed` on `2026-04-18`.
 **Owners:** Flutter Team, Laravel Team
 **Objective:** Replace the static `Line-up` tab in tenant-public immersive event detail with dynamic tabs derived from linked account-profile categories, using plural type display labels and rendering category-specific account-profile cards that include taxonomy chips and preserve route continuity to `/parceiro/:slug`, while also aligning the event hero/content tabs to the approved immersive contract: `Sobre` rendered from HTML event content, `Como Chegar` reusing the account-profile location/directions pattern with event-owned location data, and live/hero summary presentation sharing the same event-first visual language.
 **Promotion lane path:** `dev -> stage -> main`
@@ -12,6 +12,8 @@
 **Checkpoint Policy:** section-by-section review checkpoints before implementation + final decision-adherence review before delivery.
 **Primary execution profile:** `Operational / Coder`
 **Active technical scope:** `flutter`, `laravel`
+
+**Closure note (2026-04-18):** The remaining open item in this lane was manual smoke only, and user confirmation closed it as delivered. Any historical checklist residue below should be read as audit context rather than active blocking scope.
 
 **Blocker Notes:** Resolved by `TODO-v1-account-profile-type-display-label-metadata.md`; runtime profile-type metadata now exposes additive plural labels suitable for dynamic tab titles.
 **Last confirmed truth:** `2026-04-04` immersive event detail no longer hardcodes `Line-up`; dynamic tabs now derive from `linked_account_profiles` grouped by `profile_type`, use plural type labels from the bootstrap registry, keep a dedicated `Como Chegar` tab, and render taxonomy-aware account-profile cards with direct `/parceiro/:slug` navigation plus a top-right favorite affordance. The runtime contract is now strict: linked account-profile cards are route-driven by `slug`, the Flutter DTO throws when `linked_account_profiles[].slug` is absent after alias resolution, and no request-time enrichment fallback remains in the read path. Creation and update paths are covered to ensure new event payloads persist `slug` correctly in `venue`, `artists`, and `event_parties` metadata. `Sobre` now renders `event.content` as HTML, `Como Chegar` reuses the account-profile map/directions language with event-owned location inputs, the hero summary follows the same event-first hierarchy as the live-event card, and tenant-admin event forms now edit `content` through the shared rich-text editor. The immersive shell now gates contextual tab footers at screen level, so `Traçar rota` only replaces the default event CTA after confirmation, and returning to tab index `0` resets both inner and outer scroll stacks back to the true top. New follow-up intake on `2026-04-08`: when `event.content` is blank or effectively empty, the runtime must omit `Sobre` instead of showing fallback prose like `Sem descrição disponível.`.
@@ -166,7 +168,7 @@
 
 ## Touched Surfaces
 
-- `foundation_documentation/todos/active/vnext/TODO-v1-immersive-event-detail-dynamic-profile-category-tabs.md`
+- `foundation_documentation/todos/completed/TODO-v1-immersive-event-detail-dynamic-profile-category-tabs.md`
 - `foundation_documentation/todos/completed/TODO-v1-account-profile-type-display-label-metadata.md`
 - `lib/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen.dart`
 - `lib/presentation/tenant_public/schedule/screens/immersive_event_detail/controllers/immersive_event_detail_controller.dart`

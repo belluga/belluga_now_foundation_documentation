@@ -18,7 +18,7 @@
 - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
 - `foundation_documentation/todos/completed/TODO-v1-targeted-visual-polish.md`
 - `foundation_documentation/todos/completed/TODO-v1-account-profile-media-uploads.md`
-- `foundation_documentation/todos/active/vnext/TODO-vnext-account-profile-types.md`
+- `foundation_documentation/todos/completed/TODO-vnext-account-profile-types.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`
 - `lib/presentation/tenant/partners/models/partner_profile_config.dart`
 
@@ -54,7 +54,7 @@
 - Full memberships/roles system.
 - Store/commerce modules and external links.
 - Account Workspace (post‑MVP).
-- Additional account profile types (post‑MVP; tracked in `TODO-vnext-account-profile-types.md`).
+- Generic additional account-profile-type expansion is no longer tracked as a separate active owner; future evolution should be capability-first and tied to concrete follow-up slices when needed.
 
 ---
 
@@ -90,7 +90,7 @@
 - [x] ✅ Exclude `externalLinks`, `supportedEntities`, commerce/store modules in MVP.
 
 ### B3) Post‑MVP type placeholders
-- [ ] ⚪ Deferred to VNext: Define additional Account Profile types once module requirements are specified (tracked in `TODO-vnext-account-profile-types.md`).
+- [ ] ⚪ Deferred to VNext: any future profile evolution should open under capability-specific or feature-specific TODOs once module requirements are explicit.
 
 ### B4) Favorites behavior (MVP)
 - [x] ✅ Keep Favorites strip in Home as the entrypoint.

@@ -1,6 +1,10 @@
 # Title
 Foundation Authority and Branch Reconciliation Baseline
 
+## Closure Note
+- **Closed on:** `2026-04-18`
+- **Closure reason:** the documentation reconciliation objective is now materially complete. Constitution recovery, top-level authority normalization, TODO-lane reconciliation, reuse audit, and the branch-classification baseline were all delivered on `docs/foundation-authority-reconciliation`. Any later branch cleanup, promotion, or operational rebaseline remains separate follow-up work rather than keeping this umbrella TODO artificially open.
+
 **Authority note (2026-04-18):** this TODO is the umbrella owner for the foundation authority-reconciliation cluster. Completed child TODOs such as `TODO-vnext-current-state-module-authority-alignment.md`, `TODO-vnext-secondary-module-lane-and-phase-cleanup.md`, `TODO-vnext-deferred-commerce-authority-framing.md`, `TODO-vnext-foundation-doc-branch-integration-review.md`, `TODO-vnext-foundation-todo-landscape-reconciliation.md`, `TODO-vnext-module-authority-follow-up-sweep.md`, and `TODO-vnext-canonical-authority-direct-rename.md` are subordinate reconciliation sub-slices, not parallel long-lived program owners.
 
 ## Artifact Identity
@@ -24,8 +28,8 @@ This authority-reconciliation slice now also absorbs the PACED Level 0 re-baseli
 
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Local-Implemented`
-- **Qualifiers:** `Blocked`
-- **Next exact step:** keep this TODO as the umbrella owner until the current docs branch is promoted to `main`, while any residual work outside this cluster is split into dedicated follow-up TODOs.
+- **Qualifiers:** `Docs-Validated`
+- **Next exact step:** checkpoint and push the reconciled foundation-documentation baseline on `docs/foundation-authority-reconciliation`.
 
 ## Scope
 - [x] Author `foundation_documentation/project_constitution.md` from the current canonical evidence and current Delphi/PACED baseline.
@@ -42,13 +46,6 @@ This authority-reconciliation slice now also absorbs the PACED Level 0 re-baseli
 - `Production-Ready`: final required lane threshold is complete and confidence gates are satisfied.
 - `Provisional`: delivery is intentionally partial/incomplete but useful for unblocking dependent work.
 - `Blocked`: work cannot currently proceed; `Blocker Notes` become mandatory.
-
-## Blocker Notes (Required if `Qualifiers` includes `Blocked`)
-- **Blocker:** broader project recalibration is still not closable because the setup doctor reports a separate manual-remediation track for the nginx storage-alias invariant, and the branch matrix now requires explicit follow-up decisions before cleanup work starts.
-- **Why blocked now:** this authority-restoration slice is locally implemented, but the repo cannot yet be treated as fully normalized and cleanup-ready.
-- **What unblocks it:** a separate Operational/DevOps remediation decision for the storage-alias invariant plus explicit follow-up decisions on the `integrate` / `preserve-for-later` branches recorded in the branch matrix.
-- **Owner / source:** Operational/DevOps follow-up from `project_recalibration_doctor.sh` plus user/reviewer decisions on the branch matrix.
-- **Last confirmed truth:** `project_constitution.md` now exists; top-level authority docs are updated; `flutter-app` still has real blocking rollback/release-history branches; `foundation_documentation` still has relevant unmerged doc branches against `origin/main`.
 
 ## Execution Lane Tracking (Required)
 - **Local implementation branches:** `foundation_documentation:docs/foundation-authority-reconciliation`
@@ -125,7 +122,7 @@ This authority-reconciliation slice now also absorbs the PACED Level 0 re-baseli
 | `TODO-vnext-belluga-form-validation-package-hardening-and-publish.md` | `Package candidate` | `high` | TODO already targets a stable reusable validation boundary and possible external/internal publish path. | `shared Flutter package boundary` |
 | `TODO-vnext-connections-package.md` | `Package candidate` | `high` | TODO explicitly defines `belluga_connections` as a dedicated Laravel package. | `laravel-app/packages/belluga/belluga_connections` |
 | `TODO-v1-ticketing-package-integration.md` | `Package candidate` | `high` | TODO explicitly establishes ticketing as a dedicated Laravel package with capability splits. | `laravel-app/packages/belluga/belluga_ticketing` |
-| `TODO-vnext-belluga-media-canonical-image-flow-hardening.md` | `Package candidate` | `medium-high` | TODO hardens all Laravel image flows around `belluga_media` and explicit wrappers. | `laravel-app/packages/belluga/belluga_media` |
+| `TODO-store-release-belluga-media-canonical-image-flow-hardening.md` | `Package candidate` | `medium-high` | TODO hardens all Laravel image flows around `belluga_media` and explicit wrappers. | `laravel-app/packages/belluga/belluga_media` |
 
 ## Session Identity & Memory Rebaseline
 - **Active session ID:** `20260418-foundation-authority-rebaseline`

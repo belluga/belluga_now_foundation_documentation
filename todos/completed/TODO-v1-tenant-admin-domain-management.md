@@ -1,5 +1,6 @@
-# Title
-Tenant Admin Domain Management (List/Create/Delete/Restore)
+# TODO (V1): Tenant Admin Domain Management (List/Create/Delete/Restore)
+
+**Superseded note (2026-04-18):** this standalone domain-management TODO is no longer the canonical authority for the tenant-admin domains slice. The real V1 delivery was absorbed by `foundation_documentation/todos/completed/TODO-v1-tenant-admin-domain-management-and-events-ops.md`, which intentionally narrowed the approved tenant-domain scope to active-domain `list/create/delete` and deferred deleted-domain `restore/force-delete` out of the V1 lane. Media-library or gallery reuse was never part of this TODO; shared admin picker reuse is already closed in `foundation_documentation/todos/completed/TODO-vnext-tenant-admin-media-library-reuse.md`, while future gallery capability remains separate.
 
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
@@ -20,9 +21,14 @@ Tenant admins need to manage tenant domains from the admin settings surface. Tod
 - If any assumption or plan step changes `Scope`, `Out of Scope`, `Definition of Done`, required validation semantics, public contract, or frozen decisions, update the TODO contract first and request renewed approval before execution continues.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Pending`
-- **Qualifiers:** `none`
-- **Next exact step:** Ingest applicable rules/workflows, create feature branches, and start implementation.
+- **Current delivery stage:** `Completed`
+- **Qualifiers:** `Superseded-By-Canonical-Lane`, `Historical-Reference`
+- **Next exact step:** None. Archived to `todos/completed` on `2026-04-18`.
+
+**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production-Ready`.
+**Status:** Superseded (absorbed by canonical tenant-admin domains + events lane)
+**Owners:** Flutter Team, Laravel Team, Documentation
+**Objective:** Preserve the historical narrower domain-management-only slice that existed before the canonical tenant-admin delivery was re-baselined into the broader `tenant-admin-domain-management-and-events-ops` authority.
 
 ## Scope
 - [ ] Add tenant-admin API read contract to list active + deleted domains (`GET /admin/api/v1/domains`) with status and tests.

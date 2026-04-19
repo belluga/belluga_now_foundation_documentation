@@ -1,4 +1,8 @@
-# TODO (VNext): Tenant Settings Query Optimization (Materialized Settings)
+# TODO (Store Release): Tenant Settings Query Optimization (Materialized Settings)
+
+**Classification note (2026-04-18):** this moved from VNext into the Android store-release lane because app bootstrap and tenant-admin settings now depend on hot read paths that should not keep growing by live aggregation during release hardening.
+
+**Current-state clarification (2026-04-18):** `belluga_settings` and the settings-kernel routes are already real runtime infrastructure. The remaining gap is not “settings do not exist”; it is that consumer read paths still aggregate live state instead of reading from one materialized snapshot/document.
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
 **Status:** Active  

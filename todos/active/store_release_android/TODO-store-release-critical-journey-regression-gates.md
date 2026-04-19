@@ -1,6 +1,7 @@
-# TODO (VNext): Test Hardening Program (High-Confidence Regression Safety)
+# TODO (Store Release): Critical Journey Regression Gates
 
-**Authority note (2026-04-18):** this TODO is the primary deferred owner for test-hardening delivery. `TODO-vnext-test-hardening-defect-backlog.md` is a support registry for discovered functional defects and must not be treated as a parallel owner of the same program boundary.
+**Authority note (2026-04-18):** this TODO is one open hardening slice for the remaining critical-journey regression gates. It is not a standing "continuous program" owner for PACED-wide method evolution.
+**Classification note (2026-04-18):** this moved from VNext into `store_release_android` because the remaining journey gates now act as release blockers for Android publication confidence rather than as generic background hardening.
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production-Ready`.
 **Status:** Active (`Planning`)  
@@ -13,7 +14,7 @@
 ---
 
 ## Goal
-Establish a strict automated test baseline where critical regressions are caught before delivery, with explicit cross-stack evidence (backend contract + Flutter behavior + Web navigation) and no permissive pass conditions.
+Establish the strict automated regression baseline required for Android store release, with explicit cross-stack evidence (backend contract + Flutter behavior + Web navigation) and no permissive pass conditions.
 
 ---
 
@@ -34,7 +35,7 @@ Establish a strict automated test baseline where critical regressions are caught
 ## References
 - `foundation_documentation/todos/completed/TODO-v1-flutter-test-foundation.md`
 - `foundation_documentation/todos/completed/TODO-v1-events-location-gating-and-tenant-default-origin.md`
-- `foundation_documentation/todos/active/vnext/TODO-vnext-test-hardening-defect-backlog.md`
+- `foundation_documentation/todos/completed/TODO-vnext-test-hardening-defect-backlog.md`
 - Skill baseline:
   - `/home/elton/.codex/skills/public/test-creation-standard/SKILL.md`
   - `/home/elton/.codex/skills/public/test-orchestration-suite/SKILL.md`
@@ -65,8 +66,8 @@ Establish a strict automated test baseline where critical regressions are caught
 - This TODO is restricted to test quality, coverage, and orchestration hardening.
 - If a test exposes a functional defect in product logic:
   - do not fix product logic under this TODO,
-  - register the defect in `TODO-vnext-test-hardening-defect-backlog.md`,
   - open a dedicated fix TODO for the defect (MVP/VNext or ephemeral lane, as eligible),
+  - record the blocking defect/evidence directly in this TODO while the gate remains blocked,
   - mark the affected hardening stage as `blocked` until the fix TODO is approved and completed.
 - Non-functional testability helpers are allowed when they do not change runtime behavior (for example stable widget keys).
 

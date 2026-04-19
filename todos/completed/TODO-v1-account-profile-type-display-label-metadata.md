@@ -50,7 +50,7 @@
 
 ## References
 
-- `foundation_documentation/todos/active/vnext/TODO-vnext-account-profile-types.md`
+- `foundation_documentation/todos/completed/TODO-vnext-account-profile-types.md`
 - `../foundation_documentation/modules/account_profile_catalog_module.md`
 - `../foundation_documentation/modules/tenant_admin_module.md`
 - `../foundation_documentation/modules/events_module.md`

@@ -37,7 +37,7 @@ Establish a deterministic V1 execution lane to:
 - `foundation_documentation/submodule_flutter-app_summary.md`
 - `tool/belluga_custom_lint/docs/rules.md`
 - `foundation_documentation/todos/completed/TODO-v1-admin-discovery-map-small-fixes.md`
-- `foundation_documentation/todos/active/vnext/TODO-vnext-telemetry-architecture-review.md`
+- `foundation_documentation/todos/completed/TODO-vnext-telemetry-architecture-review.md`
 
 ## Applicable Rule/Workflow Sources
 - `delphi-ai/skills/rule-docker-shared-todo-driven-execution-model-decision/SKILL.md`

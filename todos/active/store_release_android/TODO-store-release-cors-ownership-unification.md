@@ -1,4 +1,6 @@
-# TODO (VNext): CORS Ownership Unification (Definitive)
+# TODO (Store Release): CORS Ownership Unification (Definitive)
+
+**Classification note (2026-04-18):** this moved from VNext into the Android store-release lane because browser/runtime parity is still guarded by a temporary split model. Current Nginx templates still hide upstream CORS headers and inject response headers directly, so ownership has not yet converged to one canonical layer.
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`  
 **Status:** Active  

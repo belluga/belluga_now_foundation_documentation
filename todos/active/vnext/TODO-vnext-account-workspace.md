@@ -17,7 +17,7 @@ The full Account Workspace is explicitly post-MVP. The current MVP tenant/admin 
 
 ## Contract Boundary
 - This TODO defines the deferred workspace delivery boundary for accounts, events, assets, branding, memberships/team management, and workspace-scoped dashboards.
-- Adjacent deferred TODOs such as account claim flow or profile-type expansion may evolve in parallel, but they do not replace this TODO as the primary owner for authenticated account-workspace delivery.
+- Adjacent deferred TODOs such as account claim flow or future capability-specific profile evolution may evolve in parallel, but they do not replace this TODO as the primary owner for authenticated account-workspace delivery.
 
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Pending`
@@ -44,7 +44,7 @@ The full Account Workspace is explicitly post-MVP. The current MVP tenant/admin 
 ## Out of Scope
 - [ ] MVP tenant/admin Account + Account Profile creation flows that already belong to the current V1 boundary.
 - [ ] User claim/ownership transition logic owned by `TODO-vnext-account-claim-flow.md`.
-- [ ] Registry/profile-type expansion owned by `TODO-vnext-account-profile-types.md`.
+- [ ] Generic profile-type expansion is not a separate deferred owner anymore; future expansion should be capability-first and tied to concrete feature TODOs.
 - [ ] Forcing all workspace child capabilities into one execution/approval cycle.
 
 **Owners:** Backend Team + Delphi (Flutter)  

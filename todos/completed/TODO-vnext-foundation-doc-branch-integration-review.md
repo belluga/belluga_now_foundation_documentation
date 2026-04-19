@@ -116,7 +116,7 @@ The structural authority reconciliation is now locally stabilized on `docs/found
 - | Module Decision Ref | Current Module Decision | Planned Handling (`Preserve|Supersede (Intentional)|Out of Scope`) | Evidence |
 - | --- | --- | --- | --- |
 - | `branch-reconciliation-matrix-2026-04-18.md` | `origin/feat/canonical-route-back-policies` and `origin/feat/tenant-admin-domain-management` are currently classified as `integrate`. | `Preserve` | branch matrix artifact |
-- | `TODO-vnext-foundation-authority-and-branch-reconciliation.md` | Branch relevance must be explicit before cleanup or rebaseline work starts. | `Preserve` | master reconciliation TODO |
+- | `TODO-vnext-foundation-authority-and-branch-reconciliation.md` | Branch relevance must be explicit before cleanup or rebaseline work starts. | `Preserve` | historical master reconciliation TODO |
 
 ## Decision Baseline (Frozen Before Implementation)
 - [x] This slice produces reviewed classification, not branch operations.

@@ -5,6 +5,11 @@
 **Owner:** Delphi
 **Date:** 2026-02-17
 
+## Current-State Clarification
+- **Repository scan (2026-04-18):** this is still not delivered.
+- Current deploy automation runs landlord and tenant migrations directly in `.github/scripts/deploy_stage_over_ssh.sh` without a preceding database backup/snapshot step.
+- Existing `disk snapshot` logs in deploy/rollback scripts are host disk-budget diagnostics, not recoverable Mongo backup/snapshot evidence.
+
 ## Goal
 Before running any landlord/tenant migrations during automated `stage`/`main` deploy, capture a recoverable backup/snapshot of the database(s), so a bad migration can be rolled back operationally.
 
@@ -39,4 +44,3 @@ Before running any landlord/tenant migrations during automated `stage`/`main` de
 ## Validation Steps
 - [ ] ⚪ Pending Dry-run in stage: verify snapshot step runs and migrations still run after.
 - [ ] ⚪ Pending Dry-run in main: verify deploy is blocked when backup credentials are missing.
-

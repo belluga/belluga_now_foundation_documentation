@@ -1,5 +1,5 @@
 # Session Memory: 20260418-foundation-authority-rebaseline
-- **Linked TODO:** foundation_documentation/todos/active/vnext/TODO-vnext-foundation-authority-and-branch-reconciliation.md
+- **Linked TODO:** foundation_documentation/todos/completed/TODO-vnext-foundation-authority-and-branch-reconciliation.md
 - **Started At:** 2026-04-18T12:39:34.569691
 - **Status:** ACTIVE
 

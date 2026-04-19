@@ -667,6 +667,6 @@ Execution scope note:
 **Canonical evidence promoted**
 - `foundation_documentation/modules/flutter_client_experience_module.md` (`2.1.1`, `7`)
 - `foundation_documentation/modules/agenda_and_action_planner_module.md` (`3.4`, `7`)
-- `foundation_documentation/todos/active/vnext/TODO-v1-home-agenda-canonical-stream-ownership-hardening.md`
+- `foundation_documentation/todos/completed/TODO-v1-home-agenda-canonical-stream-ownership-hardening.md`
 - `foundation_documentation/todos/active/concluded_but_active/TODO-v1-events-radius-button-behavior.md`
 - `flutter-app/tool/belluga_analysis_plugin/docs/rules.md`

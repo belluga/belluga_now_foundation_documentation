@@ -1,15 +1,17 @@
 # TODO (V1): Map Location Origin Feedback
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.
-**Status:** Active
-**Current delivery stage:** `Local-Implemented`
-**Qualifiers:** `Automated-Validated`, `Web-Outside-Range-Validated`, `Web-Inside-Range-Burst-Validated`, `Remaining-Manual-Smoke-Pending`
-**Next exact step:** Run the remaining manual smoke on denied flow, fixed/manual reference flow, and technical-unavailable copy parity for the `Você` action, then promote the finalized contract into canonical module docs.
+**Status:** Completed (`delivery confirmation synced on 2026-04-18`)
+**Current delivery stage:** `Completed`
+**Qualifiers:** `Automated-Validated`, `Web-Outside-Range-Validated`, `Web-Inside-Range-Burst-Validated`, `Delivery-Confirmed`, `Closure-Synced`
+**Next exact step:** None. Archived to `todos/completed` on `2026-04-18`.
 **Owners:** Flutter Team
 **Objective:** Replace the current sticky/early map location notice with a centralized location-origin feedback model for the `Você` action, using the existing `LocationResolutionPhase` and `LocationOriginSettings` contracts as the single source of truth.
 **Promotion lane path:** `dev -> stage -> main`
 **Complexity:** `medium`
 **Checkpoint Policy:** one decision-adherence checkpoint before implementation + one targeted bug-verification checkpoint before closure.
+
+**Closure note (2026-04-18):** User confirmed this lane as delivered. Any remaining manual-smoke or doc-promotion checklist residue below is retained as historical audit context only and no longer represents blocking open scope for this TODO.
 
 ---
 
@@ -18,7 +20,7 @@
 - **Secondary:** `foundation_documentation/modules/flutter_client_experience_module.md`, `foundation_documentation/screens/modulo_mapa_e_mobilidade.md`
 
 ## References
-- `foundation_documentation/todos/active/vnext/TODO-v1-map-visuals.md`
+- `foundation_documentation/todos/completed/TODO-v1-map-visuals.md`
 - `foundation_documentation/todos/completed/TODO-v1-map-frontend.md`
 - `foundation_documentation/todos/completed/TODO-v1-tenant-public-safe-back-navigation.md`
 

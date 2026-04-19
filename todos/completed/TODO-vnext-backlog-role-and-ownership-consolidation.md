@@ -96,9 +96,9 @@ The active `vnext/` lane is intentionally large, but several files still blur di
 ## Canonical Module Anchors (Required Before APROVADO)
 - **Primary module doc:** `foundation_documentation/todos/README.md`
 - **Secondary module docs (if any):**
-  - `foundation_documentation/todos/active/vnext/TODO-vnext-foundation-authority-and-branch-reconciliation.md`
+  - `foundation_documentation/todos/completed/TODO-vnext-foundation-authority-and-branch-reconciliation.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`
-  - `foundation_documentation/todos/active/vnext/TODO-vnext-test-hardening-program.md`
+  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-critical-journey-regression-gates.md`
   - `foundation_documentation/todos/completed/TODO-v1-canonical-back-navigation-governance-cutover.md`
 - **Planned decision promotion targets (module sections):**
   - touched TODOs only in this slice
@@ -136,13 +136,13 @@ The active `vnext/` lane is intentionally large, but several files still blur di
 ## Execution Plan (Required Before `APROVADO`)
 ### Touched Surfaces
 - `foundation_documentation/todos/completed/TODO-vnext-backlog-role-and-ownership-consolidation.md`
-- `foundation_documentation/todos/active/vnext/TODO-vnext-foundation-authority-and-branch-reconciliation.md`
-- `foundation_documentation/todos/active/vnext/TODO-vnext-test-hardening-program.md`
-- `foundation_documentation/todos/active/vnext/TODO-vnext-test-hardening-defect-backlog.md`
+- `foundation_documentation/todos/completed/TODO-vnext-foundation-authority-and-branch-reconciliation.md`
+- `foundation_documentation/todos/active/store_release_android/TODO-store-release-critical-journey-regression-gates.md`
+- `foundation_documentation/todos/completed/TODO-vnext-test-hardening-defect-backlog.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-parking-lot.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
 - `foundation_documentation/todos/completed/TODO-v1-canonical-back-navigation-governance-cutover.md`
-- `foundation_documentation/todos/active/vnext/TODO-vnext-location-permission-back-button-fix.md`
+- `foundation_documentation/todos/completed/TODO-vnext-location-permission-back-button-fix.md`
 
 ### Ordered Steps
 1. Add explicit role/authority notes to the touched owner/support/non-owner TODOs.

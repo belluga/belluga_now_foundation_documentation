@@ -4,6 +4,8 @@
 
 **Scope authority note (2026-04-17):** this TODO is the direct delivery authority for the store-release friends/favorites subset. It promotes the business-core behavior that cannot wait for the full `belluga_connections` package, while keeping the broader package convergence and non-release surfaces in `foundation_documentation/todos/active/vnext/TODO-vnext-connections-package.md`.
 
+**Contact-management note (2026-04-18):** release-facing contact management is not deferred to the package TODO. This store-release lane owns the required product behavior for `Contatos`, `contact_match` acquisition/composition, invite-facing contact grouping, and the user-visible contact-management rules needed by `/convites/compartilhar` and adjacent release surfaces. The VNext package TODO owns only later extraction/convergence into a dedicated package boundary.
+
 **Historical filename note (2026-04-17):** this artifact remains stored under the legacy `friends-and-favorites` filename for continuity, but the canonical release scope is now the explicit `contact_match -> favorite -> friend` people-relationship baseline plus private `contact_groups` for invite organization.
 
 **Canonical state note (2026-04-17):** `phone_hash` exists only to identify a matched person. Within this release lane, `contact_match` acquisition is owned by explicit `/contacts/import`: that match makes the person visible in `Contatos` and already invite-eligible. `favorite` is the explicit relation on the matched person's personal Account Profile. `friend` is derived from reciprocal favorites. `contact_groups` are user-private, tag-like organization over all in-app inviteable recipients and do not alter privacy or friendship semantics; this includes inviteables reached through `contact_match`, `favorite_by_you`, `favorited_you`, and `friend`. Unmatched local contacts may surface only through the app-local external-share branch; they are not part of the canonical inviteable list and are not groupable. Onboarding-driven late identity-materialization reconciliation plus its derived reflection surfaces (`Talvez você conheça`, informational "contact entered the app") are tracked separately in `foundation_documentation/todos/active/vnext/TODO-vnext-onboarding-identity-reconciliation-reflection.md`.
@@ -31,6 +33,7 @@
 - This TODO owns the store-release contacts/favorites/friends core.
 - It is explicitly smaller than the full `belluga_connections` package.
 - It must deliver real behavior, not just scoping language.
+- It is still the business owner for release-facing contact management, even where the eventual package boundary remains deferred.
 - If execution starts pulling in broad people discovery, chat, generic social feed, or workspace analytics, stop and split that work back into VNext.
 
 ## Delivery Status Canon
@@ -83,7 +86,7 @@
 - [x] `D-06` `POST /contacts/import` remains the canonical acquisition path for contact-match suggestions and invite targeting. Raw contact PII must not be stored server-side.
 - [x] `D-07` Favorites on personal Account Profiles carry the people relationship semantics in this lane. Favorites on non-personal account profiles remain bookmark/affinity signals and must not derive friend state or richer people exposure by themselves.
 - [x] `D-08` Personal-profile favorite semantics and reciprocal friend derivation depend on stable authenticated identity and therefore must align with the phone-OTP baseline. This TODO must not invent anonymous people-graph semantics.
-- [x] `D-09` The full `belluga_connections` package remains VNext authority for package convergence, broad people discovery, richer graph consumers, and non-release surfaces. Store release may deliver the minimal business contract without full package extraction.
+- [x] `D-09` The full `belluga_connections` package remains VNext authority for package convergence, broad people discovery, richer graph consumers, and non-release surfaces. Store release still owns the release-critical contact-management behavior and may deliver the minimal business contract without full package extraction.
 - [x] `D-10` The approved viewer-scoped exposure baseline promoted from the module lane is:
   - `public` target user -> `full_profile` on permitted invite/social-proof surfaces;
   - `friends_only` target user + target previously favorited the viewer's personal Account Profile -> `full_profile`;
@@ -139,6 +142,7 @@
 - [ ] Deliver viewer-scoped people exposure resolution for release surfaces using `aggregate_only | capped_profile | full_profile`.
 - [ ] Keep `POST /contacts/import` as the source for contact-match acquisition, contacts-list composition, and invite targeting.
 - [ ] Make `contact_match` enough to place a person in `Contatos` and allow invite targeting without requiring favorite first.
+- [ ] Deliver the release-facing contact-management rules and surfaces needed for `Contatos`, inviteable composition, and private group organization without waiting for a dedicated package extraction.
 - [ ] Introduce user-private `contact_groups` with tag semantics so the same contact may belong to multiple groups without changing social state.
 - [ ] Keep `contact_groups` scoped to in-app inviteable recipients only; unmatched local contacts must stay outside groups.
 - [ ] Deliver `contact_groups` CRUD in dedicated group-visualization or friends-management surfaces, not inside `/convites/compartilhar`.
@@ -178,6 +182,7 @@
 ### B) Contact Match, Groups, And Invite Surface
 - [ ] Preserve `POST /contacts/import` as the canonical contact-match acquisition path.
 - [ ] Make matched contacts render as invite-eligible `Contatos` even before favorite is created.
+- [ ] Keep `Contatos` and release-facing contact management as explicit store-release behavior, not as a package-only follow-up concern.
 - [ ] Make inviteable eligibility depend on both viewer-scoped relation reasons and `profile_type.capabilities.is_inviteable`.
 - [ ] Introduce private `contact_groups` with tag semantics for contact organization and bulk invite selection.
 - [ ] Migrate duplicate detection, credited-acceptance semantics, direct-invite recipient resolution, persisted invite edges, and share-code materialization/acceptance to canonical `receiver_account_profile_id` behavior.
@@ -208,6 +213,7 @@
 - [ ] Mutual personal-profile favorites produce deterministic friend derivation with no separate request workflow.
 - [ ] Release invite/social-proof surfaces resolve people visibility through the frozen viewer-scoped exposure levels.
 - [ ] A matched contact is visible in `Contatos` and inviteable without prior favorite.
+- [ ] Release-facing contact management for `Contatos` and private contact organization is delivered as product behavior even if package convergence remains deferred.
 - [ ] `favorite_by_you` and `favorited_you` can make a profile inviteable when its type is `is_inviteable=true`, without implying `Contato`.
 - [ ] Contact groups behave as private tags over in-app inviteable recipients, allow multi-group membership, may combine relations such as `contact_match`, `favorite_by_you`, `favorited_you`, and `friend`, and deduplicate recipients before invite creation/quota counting.
 - [ ] Users can create, rename, and delete contact groups through dedicated management surfaces without turning `/convites/compartilhar` into a management screen.
@@ -224,6 +230,7 @@
 
 - [ ] The store-release contacts/favorites/friends core is explicitly implemented as a business-complete MVP slice.
 - [ ] The release no longer depends on the broad VNext package TODO to explain mandatory social behavior.
+- [ ] The release no longer depends on the broad VNext package TODO to justify required contact-management behavior for `Contatos` and `/convites/compartilhar`.
 - [ ] The relationship between `contact_match`, `discoverable_by_contacts`, personal-profile favorites, reciprocal friends, inviteable reasons, contact groups, non-personal account-profile favorites, and viewer-scoped exposure is explicit in code and docs.
 - [ ] Remaining non-release package work stays clearly in `TODO-vnext-connections-package.md`.
 

@@ -12,7 +12,7 @@ Derived artifact for external audit only. Not a source of truth.
 - Governing TODO:
   - `foundation_documentation/todos/active/concluded_but_active/TODO-v1-events-radius-button-behavior.md`
 - Related companion TODOs touched by the branch:
-  - `foundation_documentation/todos/active/vnext/TODO-v1-home-agenda-canonical-stream-ownership-hardening.md`
+  - `foundation_documentation/todos/completed/TODO-v1-home-agenda-canonical-stream-ownership-hardening.md`
   - `foundation_documentation/todos/active/concluded_but_active/TODO-v1-home-agenda-controller-boundary-plugin-rules.md`
 
 ## Why this branch is broader than the button UI

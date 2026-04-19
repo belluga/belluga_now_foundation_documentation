@@ -1,10 +1,10 @@
 # TODO (V1): Event Parties Canonicalization and Legacy Migration
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.
-**Status:** Active
-**Current delivery stage:** `Local-Implemented`
-**Qualifiers:** `Scope-Frozen`, `CRUD-Matrix-Automated-Validated`, `Archived-Legacy-Repair-Automated-Validated`, `Manual-Smoke-Pending`
-**Next exact step:** Fix the newly surfaced tenant-admin regressions before resuming manual smoke: preserve selected related account-profile summaries while the admin form hydrates candidate pages, switch admin event default ordering to nearest start first, and dim non-published admin cards to 70% opacity; then rerun focused validation and return to the archived/legacy smoke checklist.
+**Status:** Completed (`canonical event_parties cutover archived on 2026-04-18; legacy artists read projection explicitly tolerated outside write/admin contracts`)
+**Current delivery stage:** `Completed`
+**Qualifiers:** `Scope-Frozen`, `CRUD-Matrix-Automated-Validated`, `Archived-Legacy-Repair-Automated-Validated`, `Delivery-Confirmed`, `Closure-Synced`
+**Next exact step:** None. Archived to `todos/completed` on `2026-04-18`.
 **Owners:** Flutter Team, Laravel Team
 **Objective:** Establish `event_parties` as the canonical event-composition contract for non-location account profiles across event CRUD, immersive event detail, tenant-admin write flows, and the touched runtime callers; remove `artists` as a behavior-driving source for linked account-profile logic; keep location semantics canonical through `location + place_ref` with `venue` only as a read projection; and deliver a transitional legacy-repair flow (`Verificar Eventos Legados`) plus reusable reconciliation script/service that backfills invalid historical events by materializing canonical artist `event_parties` metadata (including `slug`) from persisted legacy artist/account-profile references.
 **Promotion lane path:** `dev -> stage -> main`
@@ -14,8 +14,10 @@
 **Active technical scope:** `flutter`, `laravel`
 **Security / Operational Risk Level:** `high`
 
-**Blocker Notes:** No external blocker. The hard-cutover baseline is implemented locally, but real-tenant validation exposed unresolved CRUD lifecycle/test-hardening debt before promotion.
-**Last confirmed truth:** `2026-04-14` the canonical write path remains correct, but manual tenant-admin usage exposed three bounded regressions that must be closed before promotion: (1) the event form can temporarily lose the selected related-account profile summaries and show raw ids with `Perfil não disponível na lista atual` after async candidate hydration replaces the local known-profile set, even though saving still emits the correct canonical `event_parties` ids; (2) tenant-admin event list default ordering still follows the older descending-start contract instead of nearest start first; and (3) non-published admin event cards still render with full-strength chrome instead of the intended 70% faded-out treatment. The previously landed canonical guarantees remain intact: strict `event_parties` writes (`party_ref_id` + optional `permissions.can_edit` only), backend-owned metadata generation, ordered replace semantics, archived legacy repair coverage, and public hero fallback order `event.thumb -> linked_account_profiles -> venue` with no legacy `artists` fallback in the touched callers. The next round must harden these admin-only regressions with focused Flutter/Laravel tests plus local navigation validation before manual archived/legacy smoke resumes.
+**Closure note (2026-04-18):** the core objective of this lane is now closed. Canonical tenant-admin writes use `event_parties`, Laravel rejects legacy `artist_ids`, admin payloads and Flutter admin surfaces consume `event_parties` / `linked_account_profiles`, the legacy summary/repair flow is live and tested, and tenant-admin default ordering now follows nearest-start-first. This closure does **not** claim that `artists` disappeared from every persisted/read surface in the system: some public payloads and repair-oriented flows may still materialize `artists` as a legacy or compatibility read projection. What is closed here is the contract migration: `artists` is no longer the canonical composition contract and no longer the admin/write input for event-linked account profiles. Historical notes below remain as audit context only and should not be read as active blocker ownership for this archived TODO.
+
+**Blocker Notes:** No external blocker.
+**Last confirmed truth:** `2026-04-18` the core cutover guarantees are in place and covered in code/tests: strict `event_parties` writes (`party_ref_id` + optional `permissions.can_edit` only), backend-owned metadata generation, ordered replace semantics, archived legacy repair coverage, nearest-start-first tenant-admin ordering, tenant-admin form preservation of selected related-account profile summaries, and public hero fallback order `event.thumb -> linked_account_profiles -> venue` with no legacy `artists` fallback in the touched admin/runtime callers. Legacy/public read payloads may still expose derived `artists` summaries for compatibility, but those projections are no longer behavior-driving inputs for the touched admin/runtime contract.
 
 ---
 
@@ -60,7 +62,7 @@
 - `../foundation_documentation/modules/events_module.md`
 - `../foundation_documentation/modules/flutter_client_experience_module.md`
 - `../foundation_documentation/modules/account_profile_catalog_module.md`
-- `../foundation_documentation/todos/active/vnext/TODO-v1-immersive-event-detail-dynamic-profile-category-tabs.md`
+- `../foundation_documentation/todos/completed/TODO-v1-immersive-event-detail-dynamic-profile-category-tabs.md`
 - `lib/infrastructure/dal/dao/tenant_admin/tenant_admin_events_request_encoder.dart`
 - `lib/infrastructure/dal/dao/tenant_admin/tenant_admin_events_response_decoder.dart`
 - `lib/presentation/tenant_admin/events/controllers/tenant_admin_events_controller.dart`
@@ -99,7 +101,7 @@
 
 - Untouched modules/surfaces that are not on the execution path of this lane, unless they break due to the canonical cutover and therefore become mandatory repair work.
 - Redesign of the tenant-admin event form UX beyond what is required to emit canonical `event_parties`.
-- Automatic background resync on future `AccountProfile.slug` changes after event creation; that remains tracked in `TODO-vnext-account-profile-slug-projection-resync.md`.
+- Future slug mutability/public-link strategy after event creation remains tracked in `TODO-vnext-account-profile-public-path-strategy.md`.
 - Multilingual display-label work or unrelated event card polish.
 - Silent request-time repair/read fallback for missing slug.
 
@@ -208,7 +210,7 @@
 
 ## Touched Surfaces
 
-- `../foundation_documentation/todos/active/vnext/TODO-v1-event-parties-canonicalization-and-legacy-migration.md`
+- `../foundation_documentation/todos/completed/TODO-v1-event-parties-canonicalization-and-legacy-migration.md`
 - `../foundation_documentation/modules/events_module.md`
 - `../foundation_documentation/modules/flutter_client_experience_module.md`
 - `../foundation_documentation/modules/account_profile_catalog_module.md`

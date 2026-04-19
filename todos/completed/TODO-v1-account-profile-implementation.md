@@ -90,7 +90,7 @@ Deliver the Account Profile model and required contracts as a **project-specific
 ### D1) Profile type enum (API canonical values)
 **Decision (Final):** **No hardcoded enum in code.** Profile types are defined by a **Profile Type Registry** (flat, WP‑like) sourced from tenant settings. The registry is the sole source of truth. **No inheritance is used in V1** (`parent_type` is omitted).
 **Implications:** UI, API validation, and projections must reference the registry, not compile‑time enums.
-**MVP registry types:** `personal`, `artist`, `venue`, `restaurant`, `experience_provider`. Additional types (e.g., `influencer`, `curator`) are deferred to VNext (tracked in `foundation_documentation/todos/active/vnext/TODO-vnext-account-profile-types.md`).
+**MVP registry types:** `personal`, `artist`, `venue`, `restaurant`, `experience_provider`. Generic "expand profile types" is no longer tracked as a separate active owner; future evolution is capability-first and should open under concrete capability/feature TODOs when needed.
 
 ### D2) Account Profile required fields
 **Decision (Final):** `account_id`, `profile_type`, `display_name`, `slug` (server‑generated, immutable).

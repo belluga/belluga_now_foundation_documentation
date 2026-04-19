@@ -13,7 +13,7 @@
 
 ## Module Anchors
 - **Primary:** `foundation_documentation/modules/tenant_admin_module.md`
-- **Secondary:** `foundation_documentation/todos/active/vnext/TODO-vnext-telemetry-architecture-review.md`
+- **Secondary:** `foundation_documentation/todos/completed/TODO-vnext-telemetry-architecture-review.md`
 
 ## Scope
 - Diagnose the current tenant-admin telemetry integration save flow, including the current Mixpanel form.

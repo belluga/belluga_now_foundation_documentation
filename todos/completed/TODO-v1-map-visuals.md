@@ -1,10 +1,10 @@
 # TODO (V1): Map Visuals
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.
-**Status:** Active
-**Current delivery stage:** `Local-Implemented`
-**Qualifiers:** `Location-Origin-Feedback-Implemented`, `Belluga-Map-Surface-Implemented`, `Overlay-Split-Implemented`, `Filter-Result-Set-Continuity-Implemented`, `Event-Timing-Contract-Implemented`, `Event-Dominance-Backend-Implemented`, `Event-Details-Media-Hydration-Implemented`, `Static-Asset-Detail-Hydration-Implemented`, `Share-Invite-Semantics-Implemented`, `Public-Web-Metadata-Implemented`, `Build-and-Playwright-Validated-Locally`, `Inside-Range-Live-Burst-Validated`, `Manual-Tenant-Host-Smoke-Partial`
-**Next exact step:** Run tenant-host manual smoke for the locally implemented `WEB-004`/`WEB-005` refinements (`Próximos eventos`, date-aware upcoming labels in the event-result dock, and restored `account_profile|static` selected-card hydration parity), then retarget the lane to the remaining selected-card/share follow-ups.
+**Status:** Completed (`delivery confirmation synced on 2026-04-18`)
+**Current delivery stage:** `Completed`
+**Qualifiers:** `Location-Origin-Feedback-Implemented`, `Belluga-Map-Surface-Implemented`, `Overlay-Split-Implemented`, `Filter-Result-Set-Continuity-Implemented`, `Event-Timing-Contract-Implemented`, `Event-Dominance-Backend-Implemented`, `Event-Details-Media-Hydration-Implemented`, `Static-Asset-Detail-Hydration-Implemented`, `Share-Invite-Semantics-Implemented`, `Public-Web-Metadata-Implemented`, `Build-and-Playwright-Validated-Locally`, `Inside-Range-Live-Burst-Validated`, `Delivery-Confirmed`, `Closure-Synced`
+**Next exact step:** None. Archived to `todos/completed` on `2026-04-18`.
 **Owners:** Flutter Team
 **Objective:** Deliver the tenant-public map visual experience and interaction-state polish in Flutter, including a Belluga-owned map surface, `free_map -> flutter_map` migration, tray states, selected-POI presentation, and cluster behavior, without changing backend/API contracts.
 **Promotion lane path:** `dev -> stage -> main`
@@ -15,6 +15,8 @@
 3. marker memory + camera offset + cluster interaction
 4. analyzer/test/build/playwright + decision adherence
 
+**Closure note (2026-04-18):** User confirmed this lane as delivered. Remaining unchecked checklist items below are preserved as historical execution residue and should not be read as active blocking scope for this archived TODO.
+
 ---
 
 ## Module Anchors
@@ -23,7 +25,7 @@
 
 ## References
 - `foundation_documentation/todos/completed/TODO-v1-map-frontend.md`
-- `foundation_documentation/todos/active/vnext/TODO-v1-map-location-origin-feedback.md`
+- `foundation_documentation/todos/completed/TODO-v1-map-location-origin-feedback.md`
 - `foundation_documentation/todos/completed/TODO-v1-tenant-public-safe-back-navigation.md`
 - `foundation_documentation/policies/scope_subscope_governance.md`
 

@@ -1,10 +1,10 @@
 # TODO (V1): Home Agenda Controller-Boundary Plugin Rules
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.
-**Status:** Active
-**Current delivery stage:** `Local-Validated`
-**Qualifiers:** `Docs-Frozen`, `Rule-Matrix-Green`, `Analyzer-Green`
-**Next exact step:** Close the slice or promote any follow-up debt as a separate TODO; implementation and local validation are complete.
+**Status:** Completed (`authority reconciled and closed on 2026-04-18`)
+**Current delivery stage:** `Completed`
+**Qualifiers:** `Docs-Frozen`, `Rule-Matrix-Green`, `Analyzer-Green`, `Closure-Synced`
+**Next exact step:** None.
 **Owners:** Flutter Team + Platform Governance
 **Objective:** Convert the newly frozen Home/Agenda controller-boundary rules into executable analyzer enforcement by implementing the first three plugin rules: forbid controller-to-controller dependencies, forbid screens/parents from resolving descendant widget controllers, and forbid widget-controller singleton registration leakage.
 **Promotion lane path:** `dev -> stage -> main`
@@ -34,8 +34,8 @@
 
 ## References
 
-- `foundation_documentation/todos/active/vnext/TODO-v1-home-agenda-canonical-stream-ownership-hardening.md`
-- `foundation_documentation/todos/active/concluded_but_active/TODO-v1-events-radius-button-behavior.md`
+- `foundation_documentation/todos/completed/TODO-v1-home-agenda-canonical-stream-ownership-hardening.md`
+- `foundation_documentation/todos/completed/TODO-v1-events-radius-button-behavior.md`
 - `foundation_documentation/todos/completed/TODO-v1-flutter-architecture-rules-consolidation-and-custom-lint.md`
 - `flutter-app/tool/belluga_analysis_plugin/lib/main.dart`
 - `flutter-app/tool/belluga_analysis_plugin/docs/rules.md`

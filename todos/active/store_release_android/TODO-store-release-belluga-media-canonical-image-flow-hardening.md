@@ -1,8 +1,13 @@
 # Title
-Belluga Media Canonical Image Flow Hardening
+Store Release: Belluga Media Canonical Image Flow Hardening
 
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
+
+## Classification Note
+- **Reclassified on:** `2026-04-18`
+- **Previous lane:** `foundation_documentation/todos/active/vnext/TODO-vnext-belluga-media-canonical-image-flow-hardening.md`
+- **Why this moved into store release:** canonical image ownership is no longer just package hardening. Public URLs, host normalization, cache behavior, OG/branding surfaces, and Flutter/Web-visible image continuity are publication-critical for the Android release lane.
 
 ## Context
 The branding/OG fallback regression exposed a broader architectural gap: Laravel image flows are not uniformly owned by `belluga_media`. Some paths already use canonical media services (`account profiles`, `static assets`, parts of `event/media`), while other paths still persist direct `Storage::disk('public')->url(...)` values, implement ad hoc public URL normalization, or serve legacy storage paths without a canonical media wrapper. That drift creates host/CORS/cache regressions, inconsistent public URLs, and review-time ambiguity about what the “right” media pipeline is.
@@ -23,8 +28,8 @@ This slice exists to harden the rule at the architecture level: image flows are 
 
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Pending`
-- **Qualifiers:** `none`
-- **Next exact step:** User prioritizes this VNext slice for execution after current MVP/regression lanes.
+- **Qualifiers:** `Release-Critical`, `Cross-Stack`
+- **Next exact step:** execute the media-flow inventory and freeze the approved wrapper boundary so remaining non-canonical image paths do not ship into the Android store-release candidate.
 
 ## Scope
 - [ ] Inventory every current Laravel product image flow and classify it as `belluga_media-compliant`, `wrapper-compliant`, or `non-compliant`.
@@ -265,5 +270,5 @@ This slice exists to harden the rule at the architecture level: image flows are 
 | Source | Why It Applies Now | Must Preserve | Must Avoid | Execution Impact |
 | --- | --- | --- | --- | --- |
 | `laravel-app/packages/belluga/belluga_media/README.md` | Canonical media ownership contract already exists there. | Shared media primitives and URL normalization semantics. | Reintroducing image-specific ad hoc persistence/URL code. | Defines the architecture target for every audited flow. |
-| `foundation_documentation/todos/active/vnext/TODO-vnext-laravel-package-guardrails-and-skill-convergence.md` | This slice overlaps package/guardrail convergence semantics. | Deterministic repo enforcement and skill/workflow vocabulary sync. | Prompt-only governance without CI enforcement. | Media hardening rules should complement, not bypass, the broader package guardrail strategy. |
+| `foundation_documentation/todos/completed/TODO-vnext-laravel-package-guardrails-and-skill-convergence.md` | This slice overlaps package/guardrail convergence semantics. | Deterministic repo enforcement and skill/workflow vocabulary sync. | Prompt-only governance without CI enforcement. | Media hardening rules should complement, not bypass, the broader package guardrail strategy. |
 | `foundation_documentation/todos/completed/tenant-public-branding-metadata-fallback.md` | The current branding regression is the concrete defect that exposed the broader rule gap. | The verified root cause and regression evidence. | Recasting the issue as branding-only. | Supplies the first concrete migration/evidence case for this VNext slice. |

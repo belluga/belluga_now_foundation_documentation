@@ -1,10 +1,19 @@
-# TODO (VNext): Proximity Preferences and "My Location" Origin
+# TODO (Store Release): Proximity Preferences and "My Location" Origin
 **Version:** 1.0
 **Owner:** Delphi
 **Date:** 2026-03-31
 
+## Classification Note
+- **Reclassified on:** `2026-04-18`
+- **Previous lane:** `foundation_documentation/todos/active/vnext/TODO-vnext-proximity-preferences-and-location-origin.md`
+- **Why this moved into store release:** the current runtime baseline is already real and continuously relevant to every tenant experience. The remaining gap is now treated as release-relevant product hardening: make the origin/radius preference a canonical user-owned setting instead of leaving it device-local only.
+
+## Clarification Note
+- **Current V1/runtime baseline is already delivered:** the app resolves effective origin through the existing local/default/fixed-location service and persists Home preference locally.
+- **This TODO remains open only for the next layer:** identity-backed persistence, anonymous-to-authenticated merge, and a profile-owned editor for that preference model.
+
 ## Objective
-Establish the VNext stream that moves Home proximity preferences from device-local persistence to identity-backed settings and introduces a first-class **"Minha localização"** setting owned by the user Profile area.
+Establish the store-release follow-up stream that moves Home proximity preferences from the already-delivered device-local persistence baseline to identity-backed settings and introduces a first-class **"Minha localização"** setting owned by the user Profile area.
 
 This setting must allow the user to choose between:
 - using real-time device location, or
@@ -55,7 +64,7 @@ The product goal is to support scenarios such as a user who is **planning a futu
 
 ## Decisions
 - V1 local/device-only radius persistence is preserved as the current MVP behavior.
-- VNext proximity preferences must be identity-backed and survive anonymous-to-authenticated merge.
+- Release follow-up proximity preferences must be identity-backed and survive anonymous-to-authenticated merge.
 - The user-facing editor for these preferences belongs to the Profile area, not to the Home header/info dialog.
 - The user must be able to choose whether “my location” means:
   - live device location, or
@@ -63,10 +72,10 @@ The product goal is to support scenarios such as a user who is **planning a futu
 - The user must be able to prefer a fixed/manual reference location even when the current live device location is inside the tenant-supported range; V1 automatic classification must not become the permanent VNext constraint.
 - A manually selected place is a valid primary origin for Home proximity experiences; this is not a fallback-only mode.
 - The first rollout affects **Home only**; other geo consumers stay on their current rules until a dedicated follow-up promotes shared behavior.
-- VNext still owns the broader user-controlled origin model (especially manual map-picked reference origin and backend-backed persistence).
+- This release lane now owns the broader user-controlled origin model (especially manual map-picked reference origin and backend-backed persistence).
 - Persisted user preference for selected radius remains distinct from tenant-configured min/default/max bounds.
 - When `user_fixed_location` is active, we may evaluate a direct toggle/action from the map snackbar/banner to switch back to live location without routing through the full settings editor.
-- VNext should move location-origin user-facing copy/messages out of hardcoded Flutter strings and into environment/backend-provided contract fields, while preserving a deterministic Flutter fallback path during rollout or partial-backend adoption.
+- This release lane should move location-origin user-facing copy/messages out of hardcoded Flutter strings and into environment/backend-provided contract fields, while preserving a deterministic Flutter fallback path during rollout or partial-backend adoption.
 
 ## Open Decisions To Close Later
 - Canonical backend owner/package for user proximity settings.

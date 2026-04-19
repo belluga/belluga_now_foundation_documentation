@@ -37,7 +37,7 @@ Snapshot source:
 | Role | Description | Representative Files |
 | --- | --- | --- |
 | `program owner` | Real deferred workstream with its own scope boundary. | `TODO-vnext-account-workspace.md`, `TODO-v1-ticketing-package-integration.md`, `TODO-v1-tenant-admin-domain-management.md`, `TODO-vnext-connections-package.md` |
-| `support registry` | Supporting backlog/evidence for another owner TODO. | `TODO-vnext-test-hardening-defect-backlog.md` supports `TODO-vnext-test-hardening-program.md` |
+| `support registry` | Supporting backlog/evidence for another owner TODO. | `TODO-vnext-test-hardening-defect-backlog.md` supports `TODO-store-release-critical-journey-regression-gates.md` |
 | `reconciliation sub-slice` | Temporary normalization front for documentation or authority cleanup. | `TODO-vnext-current-state-module-authority-alignment.md`, `TODO-vnext-secondary-module-lane-and-phase-cleanup.md`, `TODO-vnext-deferred-commerce-authority-framing.md`, `TODO-vnext-foundation-doc-branch-integration-review.md`, `TODO-vnext-foundation-todo-landscape-reconciliation.md` |
 | `parking lot` | Residual idea capture, not a primary program owner. | `TODO-vnext-parking-lot.md` |
 | `one-off local fix / isolated doc item` | Narrow item that should still obey naming and ownership rules. | `TODO-vnext-location-permission-back-button-fix.md` |

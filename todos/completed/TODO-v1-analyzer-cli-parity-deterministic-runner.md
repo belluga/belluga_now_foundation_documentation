@@ -1,9 +1,14 @@
 # TODO (V1): Analyzer CLI Parity + Deterministic Runner
 
+**Superseded note (2026-04-18):** this TODO captured the false-clean analyzer incident while the team still believed the durable fix would require a dedicated explicit-file deterministic runner. The current canonical solution is different: the repo now treats root `fvm dart analyze --format machine` as the only architecture gate, pairs it with `bash ./scripts/reset_analyzer_state.sh` for analyzer-state recovery, and keeps `bash tool/belluga_analysis_plugin/bin/validate_rule_matrix.sh` as the fixture anti-regression gate. CI, repo-local docs, and the Flutter bootloader instructions are aligned to that contract, so this TODO is archived as historical incident context rather than an active delivery lane.
+
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Active (Awaiting Approval)
+**Status:** Superseded (root analyzer contract restored; explicit-file runner not adopted)
+**Current delivery stage:** `Completed`
+**Qualifiers:** `Canonical-Contract-Promoted`, `CI-Aligned`, `Historical-Incident-Reference`
+**Next exact step:** None. Archived to `todos/completed` on `2026-04-18`.
 **Owners:** Flutter Team + Platform Governance
-**Objective:** Eliminate false-clean analyzer results in CLI by establishing one deterministic command for local and CI that matches relevant VS Code diagnostics without hardcoded file lists.
+**Objective:** Preserve the historical analyzer-parity incident and the abandoned explicit-file runner direction that predated the restored root-analyzer contract.
 
 ---
 

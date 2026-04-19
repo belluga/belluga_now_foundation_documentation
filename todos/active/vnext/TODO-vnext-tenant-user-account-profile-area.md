@@ -63,7 +63,7 @@ Establish the VNext delivery stream for the tenant/admin Account Profile area (a
 ## Primary Deferred Owners
 - Account workspace and account-profile-area delivery: `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`.
 - Operator claim/user-owned expansion: `foundation_documentation/todos/active/vnext/TODO-vnext-account-claim-flow.md`.
-- Additional profile types and profile-area expansion: `foundation_documentation/todos/active/vnext/TODO-vnext-account-profile-types.md`.
+- Future profile evolution is capability-first and should open under concrete feature/capability TODOs rather than under a generic profile-type expansion owner.
 
 > The sections below are retained as historical design and contract notes for VNext planning. They are not active MVP implementation scope.
 

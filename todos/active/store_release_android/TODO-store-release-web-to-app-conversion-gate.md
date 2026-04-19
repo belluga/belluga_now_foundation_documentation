@@ -1,11 +1,11 @@
 # TODO (Store Release): Web-to-App Conversion Gate
 
-**Scope authority note (2026-04-17):** canonical policy definition now lives in `foundation_documentation/policies/web_to_app_promotion_policy.md` plus the promoted module contracts. This TODO no longer owns baseline policy authoring; it owns the remaining Android-release closure gates for that policy: replace the current pre-MVP guard experience with real app promotion, preserve redirect intent through promotion/deferred flow, run real-device store/deferred validation, and verify KPI sink integrity.
+**Scope authority note (2026-04-17):** canonical policy definition now lives in `foundation_documentation/policies/web_to_app_promotion_policy.md` plus the promoted module contracts. This TODO no longer owns baseline policy authoring; it owns the remaining Android-release closure gates for that policy: replace the current pre-MVP guard experience with real app promotion, preserve redirect intent through promotion/deferred flow, and run real-device store/deferred validation. Cross-flow funnel-metrics validation is tracked in `TODO-store-release-funnel-metrics-validation.md`, but any missing event implementation remains owned by the concrete flow TODO that needs it.
 
-**Classification note (2026-04-16):** this TODO was migrated into `active/store_release_android/` because it owns the real open device/store/deferred-link/KPI gates for Android publication confidence.
+**Classification note (2026-04-16):** this TODO was migrated into `active/store_release_android/` because it owns the real open device/store/deferred-link closure gates for Android publication confidence. Cross-flow release metrics proof now lives in the dedicated sibling funnel-validation TODO.
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
-**Status:** Active. Canonical policy, route hardening, backend deep-link packageization, and most Flutter implementation are already delivered. Remaining store-release closure is now narrow but real: (1) replace the current `testerWaitlist` guard experience on `/baixe-o-app` with real app promotion/store handoff, (2) preserve redirect intent beyond invite-only flows so event/detail and guarded-route intent survives install/open, (3) run real-device install/store/deferred validation, and (4) validate KPI funnel integrity in the telemetry sink.
+**Status:** Active. Canonical policy, route hardening, backend deep-link packageization, and most Flutter implementation are already delivered. Remaining store-release closure is now narrow but real: (1) replace the current `testerWaitlist` guard experience on `/baixe-o-app` with real app promotion/store handoff, (2) preserve redirect intent beyond invite-only flows so event/detail and guarded-route intent survives install/open, and (3) run real-device install/store/deferred validation. Telemetry matrix/KPI proof remains required for release, but it is now tracked in a dedicated sibling TODO.
 **Owners:** Delphi (Product/Flutter) + Backend Team + Web Team + Data Team  
 **Goal:** close the Android store-release web-to-app conversion gate by validating the anonymous-first invite funnel end to end while keeping anonymous web strictly showcase/read-only, preserving route intent across promotion, and enforcing only the explicitly restricted app actions behind authenticated identity.
 
@@ -51,6 +51,7 @@
 - `foundation_documentation/modules/flutter_client_experience_module.md`
 - `foundation_documentation/endpoints_mvp_contracts.md`
 - `foundation_documentation/todos/completed/TODO-v1-first-release.md`
+- `foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-qr-login-web-auth.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md` (deferred authenticated workspace scopes)
@@ -212,7 +213,7 @@ Rationale: maximize top-of-funnel invite conversion with lowest entry friction w
 - [ ] ⚪ Anonymous favorites are exercisable without forced login and reflect correctly in favorites read surfaces for the current anonymous identity.
 - [x] ✅ Auth Wall is triggered for the implemented restricted actions; favorites are not treated as blanket auth-gated by this contract and physical check-in remains VNext.
 - [x] ✅ Identity merge path at registration preserves invite ownership artifacts (`InviteEdge`, `InviteFeedProjection`, `InviteOutboxEvent`) through merge.
-- [ ] 🟡 Tracking events are emitted in app/web runtime, but KPI funnel validation in telemetry sink remains open.
+- [ ] 🟡 Tracking events are emitted in app/web runtime, but the release funnel-metrics proof remains open in `TODO-store-release-funnel-metrics-validation.md`.
 
 ---
 
@@ -226,7 +227,7 @@ Rationale: maximize top-of-funnel invite conversion with lowest entry friction w
 - [x] ✅ Backend automated: anonymous accept path, idempotent replay, anti-spam/rate-limit, and merge ownership preservation are covered.
 - [x] ✅ Flutter automated: auth wall interception, invite flow behavior, deferred-link capture (backend resolver contract), and deterministic route override/fallback guards are covered.
 - [ ] ⚪ Flutter automated: anonymous favorite toggle/readback coverage for discovery, account-profile detail, and immersive linked-profile entrypoints.
-- [ ] ⚪ Data validation: event stream integrity for inverted funnel and deduplication checks.
+- [ ] ⚪ Data validation: event stream integrity for inverted funnel and deduplication checks, coordinated through `TODO-store-release-funnel-metrics-validation.md`.
 
 ### G1) Latest Automated Evidence (2026-03-30)
 - [x] ✅ Flutter: `fvm dart analyze --format machine` (clean), `fvm flutter test test/application/router/guards/auth_route_guard_test.dart` (4 passed), `fvm flutter test test/presentation/common/auth/screens/auth_login_screen/auth_login_effects_test.dart` (3 passed), `fvm flutter test test/infrastructure/repositories/invites_repository_test.dart test/infrastructure/repositories/invites_repository_push_payload_test.dart test/presentation/tenant/invites/screens/invite_flow_screen/controllers/invite_flow_controller_test.dart` (15 passed).
@@ -267,7 +268,7 @@ Rationale: maximize top-of-funnel invite conversion with lowest entry friction w
 3. **Run H6 manual install/deferred matrix (Android MVP).**
    - Required: real device/browser where external store launch + first-open attribution can be asserted.
    - Exit criteria: invite link or guarded/detail-route promotion -> install/open -> deferred capture -> intended target -> anonymous accept/continuation -> restricted action -> auth wall.
-4. **Finalize H5 data pipeline validation on top of H6 evidence.**
+4. **Finalize the sibling telemetry matrix/KPI validation lane on top of H6 evidence.**
    - Required: telemetry sink/query access for funnel verification.
    - Exit criteria: end-to-end event integrity + dedupe checks for `web_open_app_clicked`, `web_install_clicked`, deferred capture events, anonymous accept, auth wall, signup.
 5. **Perform final DoD sweep (Section F) only after steps 1-4.**
@@ -302,10 +303,10 @@ Rationale: maximize top-of-funnel invite conversion with lowest entry friction w
 - [x] ✅ Validate map/web trust-action surfaces remain read-only in V1 and hard gates hand off to app promotion (no web login continuation).
 - [x] ✅ Publish source/runtime evidence and generated artifact scan note.
 
-### H5) Phase 4 — Data/Telemetry + KPI Funnel
+### H5) Phase 4 — Data/Telemetry + KPI Funnel (Tracked In Sibling TODO)
 - [x] ✅ Emit required events end-to-end in runtime instrumentation: `web_invite_landing_opened`, `web_open_app_clicked`, `web_install_clicked`, `app_deferred_deep_link_captured`, `app_deferred_deep_link_capture_failed`, `app_anonymous_invite_accepted`, `app_auth_wall_triggered`, `app_signup_completed`.
 - [x] ✅ Add deduplication/idempotency strategy for funnel events (accept/auth wall/signup).
-- [ ] ⚪ Validate KPI pipeline stages: Landing -> Install -> Deferred Capture -> Anonymous Accept -> Auth Wall -> Signup.
+- [ ] ⚪ Validate KPI pipeline stages: Landing -> Install -> Deferred Capture -> Anonymous Accept -> Auth Wall -> Signup via `TODO-store-release-funnel-metrics-validation.md`.
 
 ### H6) Phase 5 — Final Validation and DoD Closure
 - [ ] ⚪ Run manual validation matrix (Web/App first-open/install/deep-link/auth-wall flow).
