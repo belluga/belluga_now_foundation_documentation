@@ -41,9 +41,9 @@ What is still missing is the implementation guarantee. Today the public runtime 
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Implementation-Ready`
+- **Current delivery stage:** `Validation-Closed`
 - **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Content-Safety`
-- **Next exact step:** define the approved event-content allowlist/canonical subset, then implement backend save-time sanitization and frontend/editor prevention with aligned tests.
+- **Next exact step:** promotion only. No further implementation work remains for this slice on the reconciled local branches.
 
 ## References
 
@@ -146,19 +146,20 @@ What is still missing is the implementation guarantee. Today the public runtime 
 - [x] Laravel automated: create/update payloads with allowed, unsupported, mixed, and media-only content.
 - [x] Laravel automated: persisted content is canonicalized and stripped as expected.
 - [x] Flutter automated: editor behavior and event-detail `Sobre` gating align with the sanitized persisted contract.
-- [ ] Manual smoke: tenant-admin event edit/save plus tenant-public `/agenda/evento/:slug` rendering for valid text-rich, mixed, unsupported-tag, and media-only inputs.
+- [x] Manual smoke: tenant-admin event edit/save plus tenant-public `/agenda/evento/:slug` rendering for valid text-rich, mixed, unsupported-tag, and media-only inputs.
 
 ## Validation Evidence
 
-- Laravel: `docker compose exec -T app sh -lc 'cd /var/www && set -a && . ./.env.testing && set +a && php artisan test tests/Feature/Events/EventCrudControllerTest.php --filter="test_event_create_sanitizes_content_html_subset_and_preserves_emojis|test_event_update_sanitizes_plain_text_content_with_line_breaks" --stop-on-failure'`
-- Flutter: `fvm flutter test test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart --plain-name "normalizes description content to the approved HTML subset before submit"`
-- Flutter: `fvm flutter test test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart`
-- Analyzer: `fvm dart analyze --format machine`
-- Result: backend tests passed, Flutter tests passed, analyzer passed.
+- Laravel: `./laravel-app/scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Events/EventCrudControllerTest.php --filter='test_event_create_sanitizes_content_html_subset_and_preserves_emojis|test_event_create_strips_media_only_content_to_empty_string|test_event_update_sanitizes_plain_text_content_with_line_breaks' --stop-on-failure` -> `3 passed`.
+- Flutter: `fvm flutter test test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart` -> passed, including editor normalization and `Sobre` omission/fallback coverage.
+- Analyzer: `fvm dart analyze --format machine` -> exit `0`.
+- Published build: `./scripts/build_web.sh ../web-app dev` -> succeeded and republished the reconciled bundle used by browser validation.
+- Published readonly smoke: `NAV_LANDLORD_URL='https://belluga.space' NAV_TENANT_URL='https://guarappari.belluga.space' PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true bash tools/flutter/run_web_navigation_smoke.sh readonly` -> `5 passed`.
+- Published manual mutation smoke (2026-04-19): Playwright/Chromium validated the published tenant on `https://guarappari.belluga.space` by authenticating a landlord test user in-browser, patching `content` on tenant-admin event `evento-longo`, refetching the admin payload, and checking the public `/agenda/evento/evento-longo` route for four cases: valid rich text, mixed unsupported tags plus emoji, unsupported-tag text only, and media-only markup. Response payload, persisted payload, and public rendering matched the canonical contract in all four cases, emojis were preserved, `Sobre` disappeared for media-only markup, and the original event content was restored after the run. Screenshots were captured under `tools/flutter/web_app_smoke_runner/test-results/event-content-*.png`.
 
 ## Execution Lane Tracking
 
-- **Local implementation branches:** `flutter-app:<planned>`, `laravel-app:<planned>`, `belluga_now_docker:<planned>`
+- **Local implementation branches:** `flutter-app:orchestrator/store-release-precritical-flutter`, `laravel-app:orchestrator/store-release-precritical-laravel`, `belluga_now_docker:orchestrator/store-release-precritical-root`, `foundation_documentation:orchestrator/store-release-precritical-docs`
 - **Promotion lane path:** `dev -> stage -> main`
 - **Lane-promoted threshold for this TODO:** `dev`
 - **Production-ready threshold for this TODO:** `stage`
@@ -167,6 +168,6 @@ What is still missing is the implementation guarantee. Today the public runtime 
 
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Backend event-content save sanitization | `local-worktree` | `not-published` | `not-published` | `not-published` | `Implemented and validated locally` |
-| Frontend editor sanitization / prevention | `local-worktree` | `not-published` | `not-published` | `not-published` | `Implemented and validated locally` |
-| Docs/tests/runtime alignment | `local-worktree` | `not-published` | `not-published` | `not-published` | `Implemented and validated locally` |
+| Backend event-content save sanitization | `orchestrator/store-release-precritical-laravel` | `not-published` | `not-published` | `not-published` | `Merged into reconciliation branch; safe-runner tests green and published browser mutation smoke passed` |
+| Frontend editor sanitization / prevention | `orchestrator/store-release-precritical-flutter` | `not-published` | `not-published` | `not-published` | `Merged into reconciliation branch; widget tests and analyzer green` |
+| Docs/tests/runtime alignment | `orchestrator/store-release-precritical-root` + `foundation_documentation:orchestrator/store-release-precritical-docs` | `not-published` | `not-published` | `not-published` | `Reconciled local build published; readonly smoke and TODO-specific published mutation smoke green` |
