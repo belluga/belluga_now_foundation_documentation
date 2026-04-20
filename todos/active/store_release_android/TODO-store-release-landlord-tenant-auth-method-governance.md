@@ -48,6 +48,21 @@ The repository already contains a generic settings kernel with landlord and tena
   - Evidence: `../laravel-app/app/Http/Api/v1/Controllers/AuthControllerAccount.php`
   - Evidence: `../laravel-app/app/Http/Api/v1/Controllers/PasswordRegistrationController.php`
 
+## Package-First Assessment
+- Query executed: `bash delphi-ai/tools/query_packages.sh --project-root /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker --search "auth method tenant settings environment resolver phone otp"`
+- Relevant packages found: none
+- READMEs read: `n/a`
+- Decision: local implementation inside the existing Laravel host app + `belluga_settings` kernel integration points
+- Tier: `Local`
+- Rationale: the repo already has the required generic settings-kernel primitives; this lane needs a host-level governance contract, effective resolver, and runtime exposure rather than a new proprietary package.
+
+## Contract Clarifications (Frozen For Execution)
+- [x] This lane is a `contract-and-backend` slice. It freezes governance and runtime exposure, but it does **not** switch the current tenant-public login UX or auth enforcement away from email/password in this TODO.
+- [x] `/api/v1/environment` exposure in this lane is preparatory runtime truth for downstream consumers. The downstream Belluga OTP TODO remains the authority that will make the app/runtime behavior consume the effective `phone_otp` contract.
+- [x] Admin-consumer scope in this lane means existing settings-kernel API exposure plus deterministic backend provisioning evidence. It does **not** require new Flutter/admin UI in this TODO.
+- [x] Belluga release-tenant pinning must be deterministic and backend-owned. This TODO cannot close on namespace registration alone; it must prove how the release tenant receives effective `phone_otp` through persisted settings or a controlled provisioning path.
+- [x] Landlord/tenant inheritance rules are owned by the settings patch-guard plus effective resolver, not by downstream clients.
+
 ## Scope
 - [ ] Define a canonical tenant-public auth-method registry contract for the generic platform, with initial release-relevant entries including `password` and `phone_otp`.
 - [ ] Define landlord-owned settings for which tenant-public auth methods are available in the deployment.
@@ -89,6 +104,7 @@ The repository already contains a generic settings kernel with landlord and tena
 - [ ] Effective tenant-public auth-method resolution is available to runtime/admin consumers through a canonical backend contract.
 - [ ] Belluga release configuration can resolve deterministically to `phone_otp` without turning that product choice into a platform-wide boilerplate rule.
 - [ ] The downstream Belluga phone-OTP TODO is explicitly unblocked by this artifact rather than continuing to redefine generic auth policy.
+- [ ] This TODO leaves current email/password tenant-public auth enforcement explicitly unchanged until the downstream Belluga OTP lane consumes the frozen effective contract.
 
 ## Validation Steps
 - [ ] Backend tests prove effective-resolution rules for:
@@ -96,6 +112,9 @@ The repository already contains a generic settings kernel with landlord and tena
   - tenant override allowed with valid subset;
   - tenant override rejected when it includes non-landlord methods.
 - [ ] Backend tests prove runtime/admin consumers receive the effective auth-method contract.
+- [ ] Backend tests prove persisted landlord + tenant settings resolve through the production resolver path into `/api/v1/environment`.
+- [ ] Backend tests prove current email/password tenant-public auth behavior remains intentionally unchanged in this lane even when the effective runtime contract resolves to `phone_otp`.
+- [ ] Backend evidence proves Belluga release-tenant pinning is deterministic via persisted settings or a controlled provisioning path rather than implicit defaults.
 - [ ] TODO references are updated so `TODO-store-release-phone-otp-auth-and-contact-match.md` is explicitly blocked by this TODO until closure.
 - [ ] Belluga release orchestration reflects this TODO as an upstream publication blocker.
 
@@ -134,12 +153,17 @@ The repository already contains a generic settings kernel with landlord and tena
 - [x] `D-06` When tenant customization is enabled, effective tenant-public auth methods equal the tenant-selected subset of the landlord-configured set.
 - [x] `D-07` Belluga Android release remains pinned to effective `phone_otp` for tenant-public auth even if the generic platform also supports `password`.
 - [x] `D-08` Contact-match and release-social baseline requirements remain tied to verified phone identity; generic auth configurability does not relax that dependency for Belluga release.
+- [x] `D-09` This TODO publishes the governance contract and runtime exposure only; current email/password tenant-public auth enforcement remains unchanged until `TODO-store-release-phone-otp-auth-and-contact-match.md` lands.
+- [x] `D-10` Admin-consumer exposure in this TODO is satisfied by backend settings-kernel APIs and deterministic provisioning evidence; new Flutter/admin UI remains deferred.
+- [x] `D-11` Belluga release-tenant effective `phone_otp` must be proven through persisted settings or a controlled backend provisioning path, not by undocumented convention.
 
 ## Decision Baseline (Frozen Before Implementation)
 - [x] `D-01` Landlord owns tenant-public auth-method availability.
 - [x] `D-02` Tenant editing is optional and landlord-controlled.
 - [x] `D-03` Tenant enabled methods must always be a subset of landlord-available methods.
 - [x] `D-04` Belluga store-release runtime remains effectively `phone_otp`.
+- [x] `D-05` Runtime exposure in this lane is preparatory and must not silently imply immediate login-path enforcement changes.
+- [x] `D-06` Existing settings-kernel admin APIs are sufficient for this lane; Flutter/admin UI consumption remains downstream unless explicit evidence proves otherwise.
 
 ## Verified Repository Assumptions
 | Assumption ID | Assumption | Evidence | If False | Confidence (`High|Medium|Low`) | Handling (`Keep as Assumption|Promote to Decision|Block`) |
@@ -156,13 +180,19 @@ The repository already contains a generic settings kernel with landlord and tena
 - `laravel-app/app/Providers/PackageIntegration/SettingsIntegrationServiceProvider.php`
 - `laravel-app/app/Integration/Settings/**`
 - `laravel-app/app/Application/Environment/EnvironmentResolverService.php`
-- `laravel-app/routes/api/**`
-- `flutter-app/lib/**` only if runtime/admin consumers must decode the new effective auth-method contract in this lane
+- `laravel-app/app/Models/Tenants/TenantSettings.php`
+- `laravel-app/tests/Feature/Settings/SettingsKernelControllerTest.php`
+- `laravel-app/tests/Api/v1/Tenants/Branding/ApiV1EnvironmentApiTest.php`
+- `flutter-app/lib/**` remains out of scope unless planning evidence proves an immediate consumer update is required in this lane
 
 ### Ordered Steps
-1. Freeze the generic auth-governance decisions and link this TODO as the upstream blocker for the downstream Belluga OTP lane.
-2. Add the canonical settings namespace(s) and effective-resolution logic for landlord and optional tenant override behavior.
-3. Expose the effective tenant-public auth-method contract to the relevant runtime/admin consumers.
-4. Pin Belluga release configuration to effective `phone_otp` without removing generic `password` capability from the platform.
-5. Update downstream TODO/docs so Belluga OTP execution resumes as a product-specific effective-configuration cutover rather than a generic platform redesign.
+1. Freeze the invariant matrix for landlord availability, tenant-edit enablement, subset containment, normalization, and empty-set behavior before any code changes.
+2. Add the canonical auth-governance namespace definitions plus patch-guard ownership for landlord availability and optional tenant subset editing.
+3. Add one backend-owned effective resolver that merges landlord and tenant state without requiring clients to reproduce precedence rules.
+4. Expose the effective tenant-public auth-method contract through `/api/v1/environment` and existing admin settings-kernel APIs, while keeping current email/password auth routes intentionally unchanged in this lane.
+5. Prove deterministic Belluga release-tenant pinning to effective `phone_otp` through persisted settings or a controlled backend provisioning path.
+6. Update downstream TODO/docs so Belluga OTP execution resumes as a product-specific effective-configuration cutover rather than a generic platform redesign.
 
+### Worker Ownership
+- `laravel-auth-governance`: settings namespace registration, patch guard, effective resolver, environment exposure, and backend tests.
+- `orchestrator`: TODO/doc consolidation, dependency edge updates, Belluga release-tenant provisioning evidence, and final validation.

@@ -21,6 +21,31 @@ The previous event-parties lane correctly closed the canonical cutover: tenant-a
 
 This remaining residue is not just harmless historical storage. The current release app still consumes `artists` through Flutter DTOs, event models, account-profile agenda parsing, map/event projections, discovery live-now logic, upcoming-event cards, favorites/public-web helpers, occurrence sync projections, search/index assumptions, tests, and fixtures. That means the store-release lane still carries a legacy event contract that the project has already rejected as canonical.
 
+## Package-First Assessment
+- Query executed: `bash delphi-ai/tools/query_packages.sh --project-root /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker --search "event artists linked account profiles favorites public web metadata"`
+- Relevant packages found: none
+- READMEs read: `n/a`
+- Decision: local cross-stack implementation across the existing Laravel host app, `belluga_events`, and Flutter app
+- Tier: `Local`
+- Rationale: the residue is project-local and spread across existing runtime contracts, projections, and docs; no proprietary package currently owns this release-specific eradication slice.
+
+## Contract Delta Freeze (Required Before Implementation)
+| Legacy Surface | Required Result In This Lane | Replacement Source / Rule |
+| --- | --- | --- |
+| Public Laravel event payload `artists` | Remove from release-facing current payload contract | `linked_account_profiles` and explicit counterpart semantics derived from canonical `event_parties` |
+| Event-occurrence projection `artists` | Stop persisting as release-facing runtime ownership | canonical linked-profile/counterpart data only |
+| Discovery `Tocando agora` | Stop depending on `event.artists` for visibility/cards | canonical non-venue linked profiles / counterpart projection |
+| Upcoming event cards | Stop rendering `artists` chips as the release contract | counterpart chips derived from canonical linked profiles |
+| Map event marker/card imagery + tags | Stop reading `artists` | `event.thumb`, canonical linked profiles, then venue/runtime fallbacks per module contract |
+| Account-profile agenda counterpart summary | Stop parsing/storing artist-shaped agenda projection | counterpart summaries derived from canonical linked profiles |
+| Favorites/public-web helpers | Stop querying `artists.*` | canonical linked-profile or venue ownership only |
+
+## Temporary Source Of Truth For Workers
+- [x] Shared Flutter event-contract files have one owner in this lane. No parallel worker may redefine DTO/domain semantics independently.
+- [x] Laravel may dual-serve additive canonical data only long enough to migrate release readers safely.
+- [x] Laravel ownership removal for `artists` cannot start until a parity gate proves release readers, sync paths, and snapshot paths are clean.
+- [x] Docs remain the final authoritative promotion target, but this freeze section is the pre-implementation execution authority while module docs still contain contradictions.
+
 ## Framing Source & Story Slice
 
 - **Feature brief:** `direct-to-todo`
@@ -143,6 +168,7 @@ This remaining residue is not just harmless historical storage. The current rele
 - [x] `DEP-01` `foundation_documentation/todos/completed/TODO-v1-event-parties-canonicalization-and-legacy-migration.md` remains the prerequisite canonical cutover and stays closed.
 - [ ] `DEP-02` Any touched release surfaces under `store_release_android` that currently rely on event cards/live-now/account-profile agenda behavior must be kept aligned as this lane lands.
 - [ ] `DEP-03` Canonical module docs must be updated before this TODO closes so the eradicated contract becomes authoritative and historical notes stop reintroducing `artists`.
+- [ ] `DEP-04` A parity gate must pass before Laravel removes `artists` ownership from emitted payloads, persisted occurrence projections, or helper queries.
 
 ## Execution Tracks
 
@@ -154,11 +180,11 @@ This remaining residue is not just harmless historical storage. The current rele
 - [ ] Rewrite touched search/taxonomy/index/query behavior away from `artists.*` ownership where it still drives the release runtime.
 - [ ] Update fixtures and backend tests to assert the new canonical public/read contract.
 
-### B) Flutter Domain And Runtime Cleanup
+### B) Flutter Unified Reader Migration
 
-- [ ] Remove `artists` from schedule/event DTOs, domain models, and touched supporting projections.
-- [ ] Refactor public consumers now reading `event.artists` to canonical linked-profile/counterpart semantics.
-- [ ] Keep card/list/map behavior release-stable while removing the legacy field.
+- [ ] Freeze and land the shared event contract seam (`DTO` + domain + shared projections) under one owner before downstream consumer work diverges.
+- [ ] Refactor all touched Flutter readers, including discovery, upcoming cards, map, and account-profile agenda, to canonical linked-profile/counterpart semantics.
+- [ ] Keep card/list/map/account-profile behavior release-stable while removing the legacy field.
 - [ ] Update Flutter tests/factories so new event payloads no longer rely on `artists`.
 
 ### C) Documentation And Authority Consolidation
@@ -176,6 +202,7 @@ This remaining residue is not just harmless historical storage. The current rele
 - [ ] Favorites/public-web helper paths no longer depend on `artists`.
 - [ ] Touched search/taxonomy/runtime contracts no longer encode `artists.*` as current ownership.
 - [ ] Canonical module/docs authority describes the resulting release contract without ambiguity.
+- [ ] A parity gate proves release readers and helper paths are clean before Laravel removes the residual `artists` ownership paths.
 
 ## Definition of Done
 
@@ -185,6 +212,11 @@ This remaining residue is not just harmless historical storage. The current rele
 
 ## Validation Steps
 
+- [ ] Pre-removal parity gate:
+  - shared Flutter event contract is frozen and migrated under one owner;
+  - artists-free Laravel payload fixtures exist for touched release surfaces;
+  - release Flutter readers render correctly from artists-free fixtures;
+  - favorites/public-web/sync paths no longer require `artists`.
 - [ ] Laravel automated: public event payloads and occurrence projections are correct after `artists` removal.
 - [ ] Laravel automated: favorites/public-web/search/taxonomy behavior remains correct after the contract cutover.
 - [ ] Flutter automated: discovery live-now, upcoming-event cards, account-profile agenda, and map/event consumers remain correct without `artists`.
@@ -205,3 +237,17 @@ This remaining residue is not just harmless historical storage. The current rele
 | Laravel public/read/runtime `artists` eradication | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Flutter DTO/domain/runtime `artists` eradication | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Docs/tests/search/taxonomy/favorites reconciliation | `pending` | `pending` | `pending` | `pending` | `Pending` |
+
+## Execution Plan (Critique-Reconciled)
+### Ordered Steps
+1. Freeze the contract delta above and keep it as the temporary worker authority until module docs are updated.
+2. Land additive Laravel read/query support so canonical linked-profile/counterpart data is sufficient for release readers.
+3. Land the shared Flutter event contract seam and all touched Flutter readers under one unified worker ownership.
+4. Run the parity gate and prove artists-free fixtures, reader stability, and snapshot/sync cleanliness.
+5. Remove Laravel `artists` emission, persistence, and helper/query ownership only after the parity gate passes.
+6. Finish docs, indexes, fixtures, and regression follow-through.
+
+### Worker Ownership
+- `laravel-worker-artists-additive-20260419`: Laravel additive read/query work, helper/query cleanup, and backend tests through the parity gate.
+- `flutter-worker-artists-unified-20260419`: shared Flutter event contract seam plus all touched release readers, including account-profile agenda.
+- `orchestrator`: contract freeze maintenance, docs, fixtures/index follow-through, parity review, and final reconciliation.
