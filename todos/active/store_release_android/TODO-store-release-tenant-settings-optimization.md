@@ -152,6 +152,9 @@ This TODO exists to freeze the canonical read-model direction: keep settings ker
 - [x] `D-TSO-08` The current `/api/v1/environment` contract is preserved in the first rollout.
 - [x] `D-TSO-09` The approved `/environment` snapshot scope is full bootstrap payload, not settings-only.
 - [x] `D-TSO-10` Host/origin-sensitive fields are resolved via a thin overlay over the snapshot, not full live aggregation.
+- [x] `D-TSO-11` The no-TTL model requires a canonical tenant-scoped full-rebuild repair path for missing snapshots, persistent version drift, dropped-trigger suspicion, or rebuild failure, with before/after recovery evidence captured explicitly.
+- [x] `D-TSO-12` The first rollout is behavior-preserving behind the existing public contract; backing-read-path changes do not count as a public-contract change unless payload shape or externally observable semantics change.
+- [x] `D-TSO-13` Snapshot cutover is not approval-clean without explicit parity validation between current live output and snapshot-backed output across representative host/origin contexts plus last-valid fallback behavior.
 
 ## Questions To Close
 - [ ] Does tenant-admin `environment-snapshot` become a direct consumer of the same derived document or a diagnostics view over the same rebuild metadata?
@@ -175,22 +178,25 @@ This TODO exists to freeze the canonical read-model direction: keep settings ker
 
 ### Ordered Steps
 1. Inventory the exact hot-read consumers inside the approved first rollout boundary (`/api/v1/environment` + tenant-admin bootstrap/settings hot reads).
-2. Freeze the current `/api/v1/environment` contract inventory so the first rollout optimizes the backing read path without forcing contract reduction.
+2. Freeze the current `/api/v1/environment` contract inventory and the behavior-preserving contract stance for the first rollout so optimization does not imply silent payload/semantic drift.
 3. Define the derived snapshot schema, ownership boundary, and rebuild trigger catalog for that boundary, including the full approved bootstrap payload rather than a settings-only subset.
 4. Define atomic rebuild, fail-soft read behavior, freshness/version metadata, and the thin host/origin-sensitive overlay that remains outside the stored snapshot.
-5. Map approved consumers to the new snapshot so they stop live aggregation work on hot paths while preserving the current public contract.
-6. Promote the decision set into module/docs surfaces and package bounded implementation tracks for orchestration.
+5. Freeze the canonical full-rebuild repair contract for missed triggers, dropped events, missing snapshots, and rebuild failures, including escalation conditions and operator-visible recovery evidence.
+6. Add explicit parity-validation coverage comparing current live output and snapshot-backed output across approved host/origin contexts and last-valid fallback behavior before cutover is treated as safe.
+7. Map approved consumers to the new snapshot so they stop live aggregation work on hot paths while preserving the current public contract.
+8. Promote the decision set into module/docs surfaces and package bounded implementation tracks for orchestration.
 
 ### Test Strategy
 - **Strategy:** `test-first`
 - **Why:** read-model regressions often stay invisible until runtime unless query/read-path, fallback, and stale-snapshot behavior are asserted explicitly.
-- **Fail-first target(s) (when required):** Laravel feature/integration coverage for rebuild triggers, last-valid snapshot fallback, and hot-read consumers switching to the derived document; Flutter/backend-consumer parsing tests where payloads become versioned/derived.
+- **Fail-first target(s) (when required):** Laravel feature/integration coverage for rebuild triggers, canonical full-rebuild recovery, last-valid snapshot fallback, and contract-parity between current/live and snapshot-backed outputs across representative host/origin contexts; Flutter/backend-consumer parsing tests where payloads become versioned/derived.
 
 ### Runtime / Rollout Notes
 - Rebuild operations must not block tenant reads.
 - Snapshot replacement must be atomic.
 - The first rollout preserves the current `/api/v1/environment` payload shape; optimization happens behind the contract.
 - Host/origin-sensitive values may be finalized at read time, but only through a thin overlay over the derived snapshot.
+- Missed-trigger or rebuild-failure suspicion must converge on the canonical tenant-scoped full-rebuild repair path instead of leaving the system indefinitely on stale last-known-good data.
 - Consumer rollout should remain boundary-driven so performance work does not become an unbounded repo sweep.
 
 ## Plan Review Gate (Review of the Execution Plan; required for `medium|big`; abbreviated for low-risk `small`)
@@ -267,7 +273,9 @@ This TODO exists to freeze the canonical read-model direction: keep settings ker
 ### Failure Modes & Edge Cases
 - [ ] The derived snapshot becomes a second write surface instead of a read-only projection.
 - [ ] Rebuild failure blocks tenant reads instead of serving the last valid snapshot.
+- [ ] Dropped events, missing trigger coverage, or persistent version drift leave the system stale with no deterministic repair path.
 - [ ] The first slice silently expands beyond the approved hot-read boundary.
+- [ ] Snapshot-backed output diverges from the current `/api/v1/environment` result on a host/origin variant and the cutover proceeds without an explicit parity gate catching it.
 - [ ] Consumer payloads diverge because some hot paths still aggregate live state while others use the snapshot.
 - [ ] The implementation materializes only `settings.*` and leaves `profile_types`, branding, or domain contributors live, producing only partial impact on `/api/v1/environment`.
 - [ ] Request-sensitive overlay logic grows into a second hidden aggregator and erodes most of the expected read-path gain.
@@ -298,7 +306,7 @@ Use exact trigger names and exact enum values only.
 | `complexity` | `medium` | Cross-checks the TODO complexity section. |
 | `blast_radius` | `cross-stack` | Laravel runtime + Flutter/bootstrap consumers are both affected. |
 | `behavioral_change_or_bugfix` | `yes` | Read-path behavior changes materially even if source-of-truth writes stay the same. |
-| `changes_public_contract` | `yes` | Hot-read payload sourcing/freshness semantics are public-consumer relevant. |
+| `changes_public_contract` | `no` | First rollout is explicitly behavior-preserving behind the existing payload contract; sourcing changes stay internal to the read path. |
 | `touches_auth_or_tenant` | `yes` | Tenant-scoped bootstrap/settings consumers are central to the slice. |
 | `touches_runtime_or_infra` | `yes` | Async rebuild jobs/runtime freshness behavior are in scope. |
 | `touches_tests` | `yes` | Read-path, rebuild, and fallback tests are mandatory. |
@@ -327,6 +335,9 @@ Use exact trigger names and exact enum values only.
 - **Canonical multi-lane audit protocol (when required):** `audit-protocol-triple-review`
 - **Audit session / round evidence (when protocol used):** `pending post-implementation`
 - **Critique lenses:** `correctness`, `performance`, `structural-soundness`, `risk`
-- **Critique status:** `not_run`
-- **Findings summary:** `none yet`
-- **Evidence / reference:** `n/a`
+- **Critique status:** `findings_integrated`
+- **Findings summary:** integrated three critique corrections before execution approval:
+  - froze the canonical full-rebuild repair path for the no-TTL snapshot model (`D-TSO-11`; ordered step `5`)
+  - aligned the audit baseline with the approved behavior-preserving contract stance (`D-TSO-12`; trigger `changes_public_contract=no`)
+  - made contract-parity validation an explicit pre-cutover gate (`D-TSO-13`; ordered step `6`)
+- **Evidence / reference:** `.delphi_orchestration/orch-20260420/reviews/tenant-settings/critique/merge.md`

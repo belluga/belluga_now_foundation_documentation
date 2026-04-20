@@ -126,10 +126,12 @@ This slice exists to harden the rule at the architecture level: image flows are 
 - [x] `D-IMG-00` Laravel image flows must not own persistence/public URL logic outside `belluga_media` or an approved wrapper over it.
 - [x] `D-IMG-01` Guardrails must enforce exactly one approved local wrapper integrated to `belluga_media`; no additional wrappers are acceptable.
 - [x] `D-IMG-02` Legacy public aliases must be removed; delivery must migrate persisted records/public URLs to the canonical media path instead of keeping alias façades alive.
+- [x] `D-IMG-03` Inventory does not auto-expand execution scope: once the repo audit finishes, the first migration batch must be frozen explicitly, and any newly discovered owner family/package-convergence work outside that frozen list requires TODO split or renewed approval before execution continues.
+- [x] `D-IMG-04` Alias removal and promotion are blocked until migration-evidence proves every in-scope persisted legacy reference/public URL was enumerated, rewritten to the canonical media path, or explicitly deferred into a named follow-up TODO.
 
 ## Questions To Close
 - [ ] Which current Laravel image flows are still non-compliant after the latest branding/public-web fix?
-- [ ] Which of those flows can migrate in one bounded slice without mixing new product behavior into the hardening work?
+- [ ] Which of those flows remain inside the first frozen migration batch after the post-inventory scope gate?
 
 ## Assumptions Preview (Required Before Plan Review)
 | Assumption ID | Assumption | Evidence | If False | Confidence (`High|Medium|Low`) | Handling (`Keep as Assumption|Promote to Decision|Block`) |
@@ -148,18 +150,22 @@ This slice exists to harden the rule at the architecture level: image flows are 
 
 ### Ordered Steps
 1. Audit all current Laravel image flows and classify compliance against `D-IMG-00`.
-2. Freeze the approved wrapper model and the deterministic guardrail boundary (`D-IMG-01`).
-3. Add/extend architecture guardrails that detect ad hoc image public URL generation or persistence outside approved services.
-4. Migrate remaining non-compliant flows in bounded batches and rewrite/backfill persisted legacy references so canonical media URLs become the only supported public path.
-5. Update foundation docs and Delphi skill/workflow references so the same rule vocabulary is used in repo and process surfaces.
+2. Freeze the exact in-slice non-compliant flow list, the first migration batch, and the explicit split threshold required by `D-IMG-03`; if inventory reveals broader package convergence or owner families outside that boundary, stop for TODO refresh/renewed approval instead of widening the slice ad hoc.
+3. Freeze the approved wrapper model and the deterministic guardrail boundary (`D-IMG-01`).
+4. Add/extend architecture guardrails that detect ad hoc image public URL generation or persistence outside approved services.
+5. Migrate remaining in-slice non-compliant flows in bounded batches and rewrite/backfill persisted legacy references so canonical media URLs become the only supported public path.
+6. Produce promotion-blocking migration evidence proving in-scope legacy persisted references/public URLs were enumerated and rewritten, with any unresolved owner captured in an explicit follow-up TODO before alias removal/promotion.
+7. Update foundation docs and Delphi skill/workflow references so the same rule vocabulary is used in repo and process surfaces.
 
 ### Test Strategy
 - **Strategy:** `test-first`
 - **Why:** The slice is guardrail/hardening work; each migrated non-compliant flow should land behind explicit RED coverage that proves the old bypass and the new canonical path.
-- **Fail-first target(s) (when required):** Guardrail tests for direct public URL bypasses and focused feature tests for any migrated image flow.
+- **Fail-first target(s) (when required):** Guardrail tests for direct public URL bypasses, focused feature tests for each migrated image flow, and explicit migration/backfill completeness evidence for persisted legacy references before alias removal.
 
 ### Runtime / Rollout Notes
+- Inventory results must freeze the first migration batch before implementation widens across newly discovered flows.
 - Persisted legacy records/public URLs may require one-time rewrite/backfill before promotion.
+- Alias removal cannot proceed on test success alone; promotion needs explicit migration-evidence for canonical rewrite completeness.
 - Public URL contract changes must be evaluated for cache/versioning behavior before promotion.
 
 ## Plan Review Gate (Review of the Execution Plan; required for `medium|big`; abbreviated for low-risk `small`)
@@ -234,6 +240,7 @@ This slice exists to harden the rule at the architecture level: image flows are 
   - **Recommendation:** `Option A`
 
 ### Failure Modes & Edge Cases
+- [ ] Inventory discovers additional owner families or package-level convergence work and execution silently absorbs them without a refreshed TODO boundary.
 - [ ] A new image slot persists `Storage::url(...)` directly because the single-wrapper rule is bypassed or not covered by guardrails.
 - [ ] Alias removal ships before already-saved records/public URLs are rewritten to the canonical media path.
 - [ ] A package or host module implements a second wrapper or custom normalization logic that “looks equivalent” but drifts from canonical cache/version behavior.
@@ -271,6 +278,7 @@ Use exact trigger names and exact enum values only.
 
 ### Residual Unknowns / Risks
 - [ ] The current non-compliant inventory is not yet frozen.
+- [ ] The first frozen migration batch versus deferred owner list is not yet closed.
 - [ ] Some existing image services may need package-level convergence work rather than host-only fixes.
 
 ## Additional Architectural Opinions (Required When Path Remains Materially Unclear)
@@ -292,9 +300,11 @@ Use exact trigger names and exact enum values only.
 - **Canonical multi-lane audit protocol (when required):** `audit-protocol-triple-review`
 - **Audit session / round evidence (when protocol used):** `pending post-implementation`
 - **Critique lenses:** `correctness`, `elegance`, `structural-soundness`, `risk`
-- **Critique status:** `not_run`
-- **Findings summary:** `none yet`
-- **Evidence / reference:** `n/a`
+- **Critique status:** `findings_integrated`
+- **Findings summary:** integrated two critique corrections before execution approval:
+  - added the mandatory post-inventory scope-freeze gate (`D-IMG-03`; ordered step `2`)
+  - added the promotion-blocking migration-evidence gate for alias removal/backfill completeness (`D-IMG-04`; ordered step `6`)
+- **Evidence / reference:** `.delphi_orchestration/orch-20260420/reviews/media/critique/merge.md`
 
 ## Rules Acknowledgement / Ingestion (Required After `APROVADO` and Before Execution)
 | Source | Why It Applies Now | Must Preserve | Must Avoid | Execution Impact |

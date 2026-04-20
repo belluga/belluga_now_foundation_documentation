@@ -151,6 +151,8 @@ This blocker also captures the first explicit capability dependency case in the 
 - [x] `D-REF-06` Stored entity references become disabled/ineligible when prerequisites later fail.
 - [x] `D-REF-07` Manual-coordinate references are outside the dependent-capability rule.
 - [x] `D-REF-08` Cross-stack tests for the dependency rule are mandatory in this blocker.
+- [x] `D-REF-09` The authoritative contract home for the reusable fixed-reference core and provenance/disabled-resolution schema is the location-origin section in `foundation_documentation/modules/agenda_and_action_planner_module.md` (`Section 3.4`, promoted during implementation of this blocker); other module docs must reference that section instead of redefining the contract.
+- [x] `D-REF-10` Entity-reference resolution must preserve coordinate snapshot + provenance and expose the minimal cross-stack disabled contract: `reference_status`, `reference_status_reason`, and `blocked_capability_key` when prerequisite failure disables the stored reference.
 
 ## Questions To Close
 - [x] No additional product decision is currently blocking this narrower contract freeze; downstream UI-hosting decisions remain owned by the main proximity TODO.
@@ -174,8 +176,8 @@ This blocker also captures the first explicit capability dependency case in the 
 
 ### Ordered Steps
 1. Record package-first evidence and freeze the reusable boundary for fixed-reference logic.
-2. Freeze the canonical source taxonomy and entity-reference provenance schema.
-3. Freeze dependent-capability semantics for selection, persistence, and read-time resolution.
+2. Freeze the canonical source taxonomy and entity-reference provenance schema, and name the single authoritative contract home required by `D-REF-09` (`agenda_and_action_planner_module.md`, `Section 3.4`).
+3. Freeze dependent-capability semantics for selection, persistence, and read-time resolution, including the minimal disabled-resolution payload required by `D-REF-10`.
 4. Define the fail-first test inventory across Laravel and Flutter.
 5. Update the main proximity TODO so orchestration consumes this blocker instead of redefining it.
 
@@ -186,6 +188,7 @@ This blocker also captures the first explicit capability dependency case in the 
 
 ### Runtime / Rollout Notes
 - Entity-backed fixed references must degrade to `disabled` when their source type no longer satisfies prerequisites.
+- Disabled entity references must retain provenance plus the minimal status/reason payload so downstream consumers can explain why the stored reference is no longer eligible.
 - Manual-coordinate references remain independent of source-type capabilities.
 - The main proximity TODO may keep hotel selection UX deferred, but it must not redefine the reusable contract later.
 
@@ -234,7 +237,7 @@ This blocker also captures the first explicit capability dependency case in the 
 - [ ] A type is saved with `is_reference_location_enabled=true` while `is_poi_enabled=false`, and downstream queries still expose it as eligible.
 - [ ] A user saves a hotel as fixed origin, the hotel type later loses POI/reference eligibility, and the stored origin still resolves as active instead of disabled.
 - [ ] The core hardcodes `account_profile` semantics instead of using the generic provenance fields needed for future entity sources.
-- [ ] The UI cannot explain why a fixed origin is disabled because the source provenance was not preserved alongside the coordinate snapshot.
+- [ ] The UI cannot explain why a fixed origin is disabled because the source provenance or the minimal disabled status/reason payload was not preserved alongside the coordinate snapshot.
 
 ## Package-First Assessment
 - **Canonical method:** `package-first-verification`
@@ -299,9 +302,11 @@ Use exact trigger names and exact enum values only.
 - **Canonical multi-lane audit protocol (when required):** `audit-protocol-triple-review`
 - **Audit session / round evidence (when protocol used):** `pending post-implementation`
 - **Critique lenses:** `correctness`, `structural-soundness`, `risk`
-- **Critique status:** `not_run`
-- **Findings summary:** `none yet`
-- **Evidence / reference:** `n/a`
+- **Critique status:** `findings_integrated`
+- **Findings summary:** integrated two critique corrections before execution approval:
+  - named `agenda_and_action_planner_module.md` as the single authoritative contract home for the reusable fixed-reference core (`D-REF-09`; ordered step `2`)
+  - froze the minimal disabled-resolution payload for preserved provenance plus disabled reason signaling (`D-REF-10`; ordered step `3`)
+- **Evidence / reference:** `.delphi_orchestration/orch-20260420/reviews/reference-location/critique/merge.md`
 
 ## Rules Acknowledgement / Ingestion (Required After `APROVADO` and Before Execution)
 | Source | Why It Applies Now | Must Preserve | Must Avoid | Execution Impact |
