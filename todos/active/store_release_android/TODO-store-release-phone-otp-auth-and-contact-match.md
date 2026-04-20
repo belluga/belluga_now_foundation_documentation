@@ -4,8 +4,8 @@ Store Release Phone OTP Auth And Contact Match
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
 
-## Blocker Note
-This TODO is now explicitly blocked by `foundation_documentation/todos/active/store_release_android/TODO-store-release-landlord-tenant-auth-method-governance.md`. The downstream Belluga release contract still requires verified phone identity for contact matching, but the generic Laravel baseline must first support landlord-owned auth-method governance with optional tenant-level selection instead of treating `phone_otp` as a platform-wide hardcoded rule.
+## Upstream Baseline Note
+The generic landlord/tenant auth-method governance baseline is now delivered in `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-landlord-tenant-auth-method-governance.md`. This downstream Belluga release TODO still requires verified phone identity for contact matching, but it must now consume that frozen generic contract instead of redefining platform auth policy.
 
 ## Context
 The release-critical friends/invites loop depends on deterministic contact matching. The current Belluga release direction is to use phone-based contact hashes so imported address books can resolve existing users without storing raw contact data. That only becomes effective if the resolved tenant-public authenticated identity for the release tenant is anchored on a verified phone number. The current codebase still exposes tenant-public email/password auth in Flutter and Laravel, while the invite flow already assumes app-owned anonymous identity and later authenticated upgrade/merge. The generic Laravel baseline, however, must remain capable of multiple authentication methods under landlord/tenant governance rather than collapsing into a Belluga-only rule.
@@ -25,20 +25,20 @@ This TODO also absorbs the former standalone auth-entry polish slice: the MVP no
 - If execution broadens into generic social graph, workspace analytics, or web-authenticated scope, stop and split that work into fast-follow or VNext lanes.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Blocked`
-- **Qualifiers:** `Business-Core`, `Cross-Stack`, `Release-Critical`, `Blocked-By-Upstream-Auth-Governance`
-- **Next exact step:** close `foundation_documentation/todos/active/store_release_android/TODO-store-release-landlord-tenant-auth-method-governance.md`, then resume Belluga-specific backend/Flutter auth cutover against the frozen contract below.
+- **Current delivery stage:** `Implementation-Ready`
+- **Qualifiers:** `Business-Core`, `Cross-Stack`, `Release-Critical`, `Upstream-Baseline-Ready`
+- **Next exact step:** resume Belluga-specific backend/Flutter auth cutover against `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-landlord-tenant-auth-method-governance.md` and the frozen contract below.
 
-## Blocker Notes
-- Upstream blocker: `foundation_documentation/todos/active/store_release_android/TODO-store-release-landlord-tenant-auth-method-governance.md`
-- Why blocked: the current downstream TODO still phrases `phone_otp` as if it were a global tenant-public platform rule. The Laravel boilerplate must first expose landlord-owned auth-method availability, optional tenant-level selection, and effective runtime resolution before Belluga can safely pin its release tenant to `phone_otp`.
-- Unblock condition: the upstream TODO freezes and implements the generic settings/runtime contract so this TODO can proceed as a Belluga-specific effective-configuration cutover instead of a boilerplate redesign.
+## Upstream Baseline Status
+- Upstream baseline: `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-landlord-tenant-auth-method-governance.md`
+- Current state: the generic auth-method governance contract is merged to `dev` and no longer blocks this TODO's local planning or execution.
+- Consumption rule: Belluga-specific OTP work must now consume the frozen generic settings/runtime contract instead of reopening platform-level auth-governance decisions.
 
 ## Dependencies & Sequencing
-- [ ] `DEP-00` `foundation_documentation/todos/active/store_release_android/TODO-store-release-landlord-tenant-auth-method-governance.md` is a hard blocker. This TODO cannot proceed until the generic landlord/tenant auth-method governance contract is frozen and implemented.
+- [x] `DEP-00` `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-landlord-tenant-auth-method-governance.md` is now satisfied as the frozen upstream baseline for Belluga-specific OTP execution.
 
 ## Scope
-- [ ] After upstream auth governance closes, replace Belluga tenant-public release behavior from legacy email/password entry to effective `phone-first OTP`.
+- [ ] Replace Belluga tenant-public release behavior from legacy email/password entry to effective `phone-first OTP`.
 - [ ] Own the former auth-entry polish scope inside the new phone-entry and OTP verification screens instead of tracking visual quality in a separate sign-in/sign-up TODO.
 - [ ] Keep `POST /api/v1/anonymous/identities` and the anonymous-first invite conversion flow as the pre-auth foundation.
 - [ ] Define verified phone as the canonical tenant-public identity anchor used for contact-directory matching.
@@ -85,7 +85,7 @@ This TODO also absorbs the former standalone auth-entry polish slice: the MVP no
 ## Validation Steps
 - [x] TODO is linked from `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`.
 - [x] Dependency edge to `TODO-store-release-minimal-friends-and-favorites-mvp.md` is explicit.
-- [ ] Upstream auth-governance blocker closes first and exposes the effective Belluga tenant-public auth-method contract.
+- [x] Upstream auth-governance baseline is delivered in `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-landlord-tenant-auth-method-governance.md` and exposes the effective Belluga tenant-public auth-method contract.
 - [ ] Backend feature tests cover OTP challenge, OTP verify, cooldown/TTL/rate-limit behavior, anonymous-to-authenticated merge, and contact-hash matching after verification.
 - [ ] Flutter tests cover phone-entry -> OTP verify -> authenticated state transition, auth-wall continuation, and anonymous invite conversion continuity.
 - [ ] Flutter tests and manual smoke cover phone-entry/OTP validation errors, backend-error readability, loading/disabled CTA behavior, and keyboard-safe small-width layout.
@@ -123,7 +123,7 @@ This TODO also absorbs the former standalone auth-entry polish slice: the MVP no
 
 ## References
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-landlord-tenant-auth-method-governance.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-landlord-tenant-auth-method-governance.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
 - `foundation_documentation/modules/onboarding_flow_module.md`
@@ -163,12 +163,12 @@ This TODO also absorbs the former standalone auth-entry polish slice: the MVP no
 | --- | --- | --- | --- | --- | --- |
 | `A-01` | The existing anonymous-first invite conversion flow remains the correct pre-auth foundation; this TODO only changes the authenticated upgrade path. | roadmap + invite module explicitly preserve anonymous identity and anonymous share acceptance in app. | The scope broadens into onboarding/invite redesign rather than auth cutover. | `High` | `Keep as Assumption` |
 | `A-02` | Backend already materializes `phone_hashes` for users and `/contacts/import` already matches on phone hash. | `tests/Feature/Invites/InvitesFlowTest.php` covers `phone_hashes` materialization and phone contact import matches. | The release-critical matching path would need foundational backend work beyond this planned auth slice. | `High` | `Keep as Assumption` |
-| `A-03` | Tenant-public Flutter and Laravel auth are still coupled to email/password and there is no generic auth-method governance namespace yet, so this TODO remains blocked until that upstream baseline closes. | Flutter `AuthRepositoryContract` + Laravel auth backend/routes still expose email/password login/register; settings kernel has no auth-method namespace today. | The migration effort is smaller than expected and this TODO can be narrowed during planning. | `High` | `Block` |
+| `A-03` | Generic auth-method governance is now established upstream, but tenant-public Flutter and Laravel auth still require a Belluga-specific phone-OTP cutover. | `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-landlord-tenant-auth-method-governance.md` + current Flutter `AuthRepositoryContract` and Laravel auth backend/routes still expose email/password login/register. | The remaining auth cutover is smaller than expected and this TODO can be narrowed during planning. | `High` | `Keep as Assumption` |
 | `A-04` | Landlord/admin authentication can remain separate without weakening the tenant-public MVP contract. | tenant-public auth routes live separately from admin auth routes and current product direction only changes tenant-public conversion. | This TODO would widen into cross-scope auth redesign and should be split. | `High` | `Keep as Assumption` |
 
 ## Execution Plan (Required Before `APROVADO`)
 ### Touched Surfaces
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-landlord-tenant-auth-method-governance.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-landlord-tenant-auth-method-governance.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/todos/completed/TODO-v1-screen-signin-signup-polish.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
@@ -182,8 +182,8 @@ This TODO also absorbs the former standalone auth-entry polish slice: the MVP no
 
 ### Ordered Steps
 1. Keep the dependency edge explicit from the store-release orchestrator, the minimal friends/favorites lane, and `TODO-store-release-landlord-tenant-auth-method-governance.md`.
-2. Wait for the upstream auth-governance TODO to close before making code changes under this downstream lane.
-3. After the blocker closes, implement the canonical doc/API contract changes already frozen here (`phone OTP`, anonymous merge preservation, hardened contact-hash language, provider ownership, web boundary preservation).
+2. Use the delivered upstream auth-governance TODO as the frozen baseline before making code changes under this downstream lane.
+3. Implement the canonical doc/API contract changes already frozen here (`phone OTP`, anonymous merge preservation, hardened contact-hash language, provider ownership, web boundary preservation).
 4. Introduce backend tenant-public phone OTP contract (`challenge`, `verify`, and resend semantics), including TTL/cooldown/rate limits, merge behavior, and token issuance.
 5. Implement backend dispatcher integration with provider-agnostic service boundaries, WhatsApp-preferred send routing, and SMS fallback behavior.
 6. Refactor Flutter tenant-public auth repositories/routes/screens from legacy email/password entry to phone + OTP entry while preserving auth-wall redirect semantics, anonymous invite continuity, and the absorbed auth-entry polish baseline.

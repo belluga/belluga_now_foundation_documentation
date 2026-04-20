@@ -4,8 +4,8 @@
 
 **Scope authority note (2026-04-18):** this TODO is the direct delivery authority for full `artists` retirement in the store-release lane. `foundation_documentation/todos/completed/TODO-v1-event-parties-canonicalization-and-legacy-migration.md` remains closed for the canonical write/admin cutover; this lane exists because the audit proved that legacy `artists` still persists in read/runtime surfaces and should no longer remain in the release contract.
 
-**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.
-**Status:** Active. Canonical write/admin migration is already closed, but public/read/runtime eradication of legacy `artists` is still open across Laravel payloads, occurrence projections, Flutter domain models, and release-facing consumers.
+**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [x] 🟣 Lane-Promoted` · `- [ ] ✅ Production-Ready`.
+**Status:** Lane-Promoted. Laravel and Flutter eradication merged to `dev` on April 20, 2026 through backend PR #157 and frontend PR #235; remaining work is `stage`/`main` promotion plus foundation-docs publication on `main`.
 **Owners:** Delphi, Flutter Team, Laravel Team
 **Goal:** eliminate `artists` as a persisted or behavior-driving event contract in store-release surfaces by moving all remaining consumers to canonical `event_parties`, `linked_account_profiles`, venue/place-ref ownership, or explicit counterpart projections derived from those canonical sources.
 
@@ -17,9 +17,9 @@
 
 ## Context
 
-The previous event-parties lane correctly closed the canonical cutover: tenant-admin writes use `event_parties`, Laravel rejects `artist_ids`, and admin/runtime paths touched in that lane no longer treat `artists` as canonical input. During the reconciliation audit, we confirmed a second problem: `artists` still survives in public/read/runtime behavior and in repair-oriented outputs.
+The previous event-parties lane correctly closed the canonical cutover: tenant-admin writes use `event_parties`, Laravel rejects `artist_ids`, and admin/runtime paths touched in that lane no longer treated `artists` as canonical input. During the reconciliation audit, we confirmed a second problem: `artists` still survived in public/read/runtime behavior and in repair-oriented outputs.
 
-This remaining residue is not just harmless historical storage. The current release app still consumes `artists` through Flutter DTOs, event models, account-profile agenda parsing, map/event projections, discovery live-now logic, upcoming-event cards, favorites/public-web helpers, occurrence sync projections, search/index assumptions, tests, and fixtures. That means the store-release lane still carries a legacy event contract that the project has already rejected as canonical.
+This residue was not just harmless historical storage. At the start of this lane, the release app still consumed `artists` through Flutter DTOs, event models, account-profile agenda parsing, map/event projections, discovery live-now logic, upcoming-event cards, favorites/public-web helpers, occurrence sync projections, search/index assumptions, tests, and fixtures. This TODO has since landed the cross-stack eradication and now remains in promotion follow-through only.
 
 ## Package-First Assessment
 - Query executed: `bash delphi-ai/tools/query_packages.sh --project-root /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker --search "event artists linked account profiles favorites public web metadata"`
@@ -62,9 +62,9 @@ This remaining residue is not just harmless historical storage. The current rele
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Implementation-Ready`
-- **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Contract-Eradication`
-- **Next exact step:** execute a bounded Laravel + Flutter cutover that removes `artists` from public/runtime payload ownership and updates all touched release surfaces to canonical linked-profile/counterpart semantics.
+- **Current delivery stage:** `Lane-Promoted`
+- **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Contract-Eradication`, `Foundation-Docs-Main-Pending`
+- **Next exact step:** promote the dev-merged Laravel + Flutter eradication beyond `dev`, publish the foundation-docs follow-through on `main`, and keep stage/main validation aligned with the artists-free contract.
 
 ## References
 
@@ -121,7 +121,7 @@ This remaining residue is not just harmless historical storage. The current rele
 - [x] `D-07` The earlier event-parties TODO remains closed; this lane is the explicit follow-on eradication pass, not a reopening of the admin/write migration.
 - [x] `D-08` Repair and legacy-canonicalization flows may continue to read historical `artists` only as migration input while the lane is in progress, but the completed state requires that repair outputs no longer repopulate or preserve `artists` as runtime/public contract.
 
-## Current Audit Snapshot
+## Pre-Implementation Audit Snapshot (2026-04-18)
 
 ### Laravel residue
 
@@ -147,14 +147,14 @@ This remaining residue is not just harmless historical storage. The current rele
 
 ## Scope
 
-- [ ] Remove `artists` from Laravel public event/detail/list payloads and replace all touched consumers with canonical linked-profile/counterpart data.
-- [ ] Stop persisting `artists` as event-occurrence read projection output for release-facing runtime behavior.
-- [ ] Remove `artists` dependence from public-web metadata, favorites integration, favorite snapshots, and any other touched runtime helper still reading it.
-- [ ] Remove `artists` from Flutter `EventDTO`, `EventModel`, and touched event/account-profile/map projections.
-- [ ] Refactor discovery live-now, upcoming-event cards, account-profile agenda, and map/event marker/card behavior to use canonical counterpart semantics instead of `artists`.
-- [ ] Replace artist-shaped search/taxonomy/query assumptions with canonical linked-profile/counterpart ownership where required by the touched release surfaces.
-- [ ] Update tests, fixtures, and module/docs authority so the resulting release contract no longer treats `artists` as a current runtime field.
-- [ ] Keep the eradication bounded to store-release relevance; if a non-release surface still needs later cleanup after the public/runtime path is safe, open explicit follow-up rather than silently widening this lane.
+- [x] Remove `artists` from Laravel public event/detail/list payloads and replace all touched consumers with canonical linked-profile/counterpart data.
+- [x] Stop persisting `artists` as event-occurrence read projection output for release-facing runtime behavior.
+- [x] Remove `artists` dependence from public-web metadata, favorites integration, favorite snapshots, and any other touched runtime helper still reading it.
+- [x] Remove `artists` from Flutter `EventDTO`, `EventModel`, and touched event/account-profile/map projections.
+- [x] Refactor discovery live-now, upcoming-event cards, account-profile agenda, and map/event marker/card behavior to use canonical counterpart semantics instead of `artists`.
+- [x] Replace artist-shaped search/taxonomy/query assumptions with canonical linked-profile/counterpart ownership where required by the touched release surfaces.
+- [x] Update tests, fixtures, and module/docs authority so the resulting release contract no longer treats `artists` as a current runtime field.
+- [x] Keep the eradication bounded to store-release relevance; if a non-release surface still needs later cleanup after the public/runtime path is safe, open explicit follow-up rather than silently widening this lane.
 
 ## Out of Scope
 
@@ -166,66 +166,72 @@ This remaining residue is not just harmless historical storage. The current rele
 ## Dependencies & Sequencing
 
 - [x] `DEP-01` `foundation_documentation/todos/completed/TODO-v1-event-parties-canonicalization-and-legacy-migration.md` remains the prerequisite canonical cutover and stays closed.
-- [ ] `DEP-02` Any touched release surfaces under `store_release_android` that currently rely on event cards/live-now/account-profile agenda behavior must be kept aligned as this lane lands.
-- [ ] `DEP-03` Canonical module docs must be updated before this TODO closes so the eradicated contract becomes authoritative and historical notes stop reintroducing `artists`.
-- [ ] `DEP-04` A parity gate must pass before Laravel removes `artists` ownership from emitted payloads, persisted occurrence projections, or helper queries.
+- [x] `DEP-02` Any touched release surfaces under `store_release_android` that currently rely on event cards/live-now/account-profile agenda behavior were kept aligned as this lane landed.
+- [x] `DEP-03` Canonical module docs and TODO authority were updated before this TODO moved to `promotion_lane/` so the eradicated contract remains authoritative.
+- [x] `DEP-04` A parity gate passed before Laravel removed `artists` ownership from emitted payloads, persisted occurrence projections, or helper queries.
 
 ## Execution Tracks
 
 ### A) Laravel Contract And Persistence Cleanup
 
-- [ ] Remove `artists` from public event read payload generation and replace affected public consumers with canonical linked-profile/counterpart data.
-- [ ] Stop writing `artists` into event-occurrence projections used by release-facing runtime paths.
-- [ ] Remove `artists` dependence from public-web metadata and favorites snapshot/helpers.
-- [ ] Rewrite touched search/taxonomy/index/query behavior away from `artists.*` ownership where it still drives the release runtime.
-- [ ] Update fixtures and backend tests to assert the new canonical public/read contract.
+- [x] Remove `artists` from public event read payload generation and replace affected public consumers with canonical linked-profile/counterpart data.
+- [x] Stop writing `artists` into event-occurrence projections used by release-facing runtime paths.
+- [x] Remove `artists` dependence from public-web metadata and favorites snapshot/helpers.
+- [x] Rewrite touched search/taxonomy/index/query behavior away from `artists.*` ownership where it still drives the release runtime.
+- [x] Update fixtures and backend tests to assert the new canonical public/read contract.
 
 ### B) Flutter Unified Reader Migration
 
-- [ ] Freeze and land the shared event contract seam (`DTO` + domain + shared projections) under one owner before downstream consumer work diverges.
-- [ ] Refactor all touched Flutter readers, including discovery, upcoming cards, map, and account-profile agenda, to canonical linked-profile/counterpart semantics.
-- [ ] Keep card/list/map/account-profile behavior release-stable while removing the legacy field.
-- [ ] Update Flutter tests/factories so new event payloads no longer rely on `artists`.
+- [x] Freeze and land the shared event contract seam (`DTO` + domain + shared projections) under one owner before downstream consumer work diverges.
+- [x] Refactor all touched Flutter readers, including discovery, upcoming cards, map, and account-profile agenda, to canonical linked-profile/counterpart semantics.
+- [x] Keep card/list/map/account-profile behavior release-stable while removing the legacy field.
+- [x] Update Flutter tests/factories so new event payloads no longer rely on `artists`.
 
 ### C) Documentation And Authority Consolidation
 
-- [ ] Promote the resulting read-model rules to `events_module.md` and the touched secondary module docs.
-- [ ] Update or annotate any release-facing TODO/module text that still assumes artist-driven live-now/cards/search after the cutover lands.
-- [ ] Keep the closed event-parties TODO accurate as historical context without letting it imply full eradication happened earlier than it did.
+- [x] Promote the resulting read-model rules to `events_module.md` and the touched secondary module docs.
+- [x] Update or annotate any release-facing TODO/module text that still assumes artist-driven live-now/cards/search after the cutover lands.
+- [x] Keep the closed event-parties TODO accurate as historical context without letting it imply full eradication happened earlier than it did.
 
 ## Acceptance Criteria
 
-- [ ] Public Laravel event payloads used by the release app no longer expose `artists` as a current runtime field.
-- [ ] Event-occurrence projections used by release-facing read paths no longer persist or depend on `artists`.
-- [ ] Flutter event DTO/domain models and touched projections no longer carry `artists`.
-- [ ] Discovery live-now, upcoming-event cards, account-profile agenda, and map/event surfaces behave correctly without reading `artists`.
-- [ ] Favorites/public-web helper paths no longer depend on `artists`.
-- [ ] Touched search/taxonomy/runtime contracts no longer encode `artists.*` as current ownership.
-- [ ] Canonical module/docs authority describes the resulting release contract without ambiguity.
-- [ ] A parity gate proves release readers and helper paths are clean before Laravel removes the residual `artists` ownership paths.
+- [x] Public Laravel event payloads used by the release app no longer expose `artists` as a current runtime field.
+- [x] Event-occurrence projections used by release-facing read paths no longer persist or depend on `artists`.
+- [x] Flutter event DTO/domain models and touched projections no longer carry `artists`.
+- [x] Discovery live-now, upcoming-event cards, account-profile agenda, and map/event surfaces behave correctly without reading `artists`.
+- [x] Favorites/public-web helper paths no longer depend on `artists`.
+- [x] Touched search/taxonomy/runtime contracts no longer encode `artists.*` as current ownership.
+- [x] Canonical module/docs authority describes the resulting release contract without ambiguity.
+- [x] A parity gate proves release readers and helper paths are clean before Laravel removes the residual `artists` ownership paths.
 
 ## Definition of Done
 
-- [ ] The store-release app can run its touched public event/account-profile/map flows without any `artists` field in the active event contract.
-- [ ] No touched Flutter or Laravel release surface still treats `artists` as input, persisted projection, or behavior-driving fallback.
-- [ ] Historical migration context remains documented, but the current canonical and runtime authority no longer tolerates `artists` as present-state behavior.
+- [x] The store-release app can run its touched public event/account-profile/map flows without any `artists` field in the active event contract.
+- [x] No touched Flutter or Laravel release surface still treats `artists` as input, persisted projection, or behavior-driving fallback.
+- [x] Historical migration context remains documented, but the current canonical and runtime authority no longer tolerates `artists` as present-state behavior.
 
 ## Validation Steps
 
-- [ ] Pre-removal parity gate:
+- [x] Pre-removal parity gate:
   - shared Flutter event contract is frozen and migrated under one owner;
   - artists-free Laravel payload fixtures exist for touched release surfaces;
   - release Flutter readers render correctly from artists-free fixtures;
   - favorites/public-web/sync paths no longer require `artists`.
-- [ ] Laravel automated: public event payloads and occurrence projections are correct after `artists` removal.
-- [ ] Laravel automated: favorites/public-web/search/taxonomy behavior remains correct after the contract cutover.
-- [ ] Flutter automated: discovery live-now, upcoming-event cards, account-profile agenda, and map/event consumers remain correct without `artists`.
-- [ ] Flutter automated: DTO/domain decoding fails fast or stays aligned with the new canonical payload shape, with no silent legacy fallback.
-- [ ] Manual smoke: Home/Discovery live-now, Events list/detail entrypoints, Public Account Profile agenda, Map event markers/cards, and any touched favorites/public metadata behavior all remain stable after the cutover.
+- [x] Laravel automated: public event payloads and occurrence projections are correct after `artists` removal.
+- [x] Laravel automated: favorites/public-web/search/taxonomy behavior remains correct after the contract cutover.
+- [x] Flutter automated: discovery live-now, upcoming-event cards, account-profile agenda, and map/event consumers remain correct without `artists`.
+- [x] Flutter automated: DTO/domain decoding fails fast or stays aligned with the new canonical payload shape, with no silent legacy fallback.
+- [x] Manual smoke: Home/Discovery live-now, Events list/detail entrypoints, Public Account Profile agenda, Map event markers/cards, and any touched favorites/public metadata behavior all remain stable after the cutover.
+
+## Validation Evidence
+
+- Backend dev promotion: `https://github.com/belluga/belluga_now_backend/pull/157` merged to `dev` on April 20, 2026 with `3` PR checks passed; the PR scope explicitly covered tenant-public auth governance plus Laravel `artists` cleanup.
+- Flutter dev promotion: `https://github.com/belluga/belluga_now_front/pull/235` merged to `dev` on April 20, 2026 with `5` PR checks passed; the PR validation explicitly listed `fvm dart analyze --format machine`, targeted Flutter tests, and readonly web navigation smoke.
+- Foundation docs follow-through: this TODO moved to `promotion_lane/store_release_android/` and the active orchestrator/dependency references were reconciled locally on April 19, 2026; foundation-docs publication on `main` still remains pending.
 
 ## Execution Lane Tracking
 
-- **Local implementation branches:** `flutter-app:<planned>`, `laravel-app:<planned>`, `belluga_now_docker:<planned>`
+- **Local implementation branches:** `flutter-app:delphi/flutter-reconcile-store-release-20260419 -> dev @ 72560cf`, `laravel-app:delphi/laravel-reconcile-store-release-20260419 -> dev @ da78fa8`, `foundation_documentation:local promotion-lane realignment (2026-04-19)`
 - **Promotion lane path:** `dev -> stage -> main`
 - **Lane-promoted threshold for this TODO:** `dev`
 - **Production-ready threshold for this TODO:** `stage`
@@ -234,9 +240,9 @@ This remaining residue is not just harmless historical storage. The current rele
 
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Laravel public/read/runtime `artists` eradication | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| Flutter DTO/domain/runtime `artists` eradication | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| Docs/tests/search/taxonomy/favorites reconciliation | `pending` | `pending` | `pending` | `pending` | `Pending` |
+| Laravel public/read/runtime `artists` eradication | `belluga_now_backend:delphi/laravel-reconcile-store-release-20260419 -> dev @ da78fa8` | `https://github.com/belluga/belluga_now_backend/pull/157 (merged -> dev on 2026-04-20)` | `pending` | `pending` | `Lane-Promoted; 3 PR checks passed` |
+| Flutter DTO/domain/runtime `artists` eradication | `belluga_now_front:delphi/flutter-reconcile-store-release-20260419 -> dev @ 72560cf` | `https://github.com/belluga/belluga_now_front/pull/235 (merged -> dev on 2026-04-20)` | `pending` | `pending` | `Lane-Promoted; 5 PR checks passed` |
+| Docs/tests/search/taxonomy/favorites reconciliation | `belluga_now_backend:delphi/laravel-reconcile-store-release-20260419 -> dev @ da78fa8` + `belluga_now_front:delphi/flutter-reconcile-store-release-20260419 -> dev @ 72560cf` + `foundation_documentation:local promotion-lane realignment (2026-04-19)` | `https://github.com/belluga/belluga_now_backend/pull/157 (merged -> dev on 2026-04-20)` + `https://github.com/belluga/belluga_now_front/pull/235 (merged -> dev on 2026-04-20)` | `pending` | `pending` | `Lane-Promoted for code paths; foundation docs main follow-through pending` |
 
 ## Execution Plan (Critique-Reconciled)
 ### Ordered Steps
