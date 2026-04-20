@@ -29,7 +29,7 @@ This slice exists to harden the rule at the architecture level: image flows are 
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Pending`
 - **Qualifiers:** `Release-Critical`, `Cross-Stack`
-- **Next exact step:** execute the media-flow inventory and freeze the approved wrapper boundary so remaining non-canonical image paths do not ship into the Android store-release candidate.
+- **Next exact step:** execute the media-flow inventory and run the required critique packet so the implementation orchestration starts from an audited non-compliant inventory and a frozen media rule set.
 
 ## Scope
 - [ ] Inventory every current Laravel product image flow and classify it as `belluga_media-compliant`, `wrapper-compliant`, or `non-compliant`.
@@ -64,7 +64,7 @@ This slice exists to harden the rule at the architecture level: image flows are 
 - [ ] Non-image binary/public asset flows unless they are explicitly routed through image/media semantics in product contracts.
 
 ## Bounded But Elastic Guardrails
-- **May stay inside this TODO:** Media-flow inventory, guardrail additions, host-wrapper creation, route alias convergence, legacy-URL compatibility bridges, doc/skill alignment, and test coverage required to enforce the rule.
+- **May stay inside this TODO:** Media-flow inventory, guardrail additions, host-wrapper creation, one-time persisted-record/public-URL migrations, doc/skill alignment, and test coverage required to enforce the rule.
 - **Must update or split the TODO:** New product media capabilities, reusable media library UX, or broader storage/provider architecture changes.
 
 ## Definition of Done
@@ -76,7 +76,7 @@ This slice exists to harden the rule at the architecture level: image flows are 
 
 ## Validation Steps
 - [ ] Run Laravel guardrail suite (`composer run lint:strict` and any dedicated architecture guardrail commands added by this slice).
-- [ ] Run focused Laravel unit/feature suites covering migrated image flows and legacy compatibility aliases.
+- [ ] Run focused Laravel unit/feature suites covering migrated image flows and persisted-record/public-URL continuity after alias removal.
 - [ ] Re-run affected Flutter/web compatibility checks only where client-visible public URL behavior changes.
 
 ## External Dependency Readiness (Required When External Systems Matter)
@@ -112,21 +112,20 @@ This slice exists to harden the rule at the architecture level: image flows are 
 - **Module decision consolidation targets (required):**
   - `foundation_documentation/submodule_laravel-app_summary.md#media--public-asset-ownership`
 
-## Decision Pending (Resolve Before Freeze)
-- [ ] `D-IMG-01` Decide the exact guardrail boundary for “approved wrapper”: whether every host wrapper must delegate to `belluga_media` through a shared primitive/service contract, or whether narrowly-scoped transitional wrappers can remain while migrations are in progress.
-
 ## Decisions (Resolved Before Freeze)
 - [x] `D-IMG-00` All Laravel product image flows must use `belluga_media` directly or an explicit host-owned wrapper built on top of it. Direct `Storage::disk('public')->url(...)`, ad hoc public URL normalization, or image-specific controller/trait persistence outside that path are no longer acceptable as canonical architecture. Module ref: `No Prior Decision` (user directive captured on 2026-04-15).
+- [x] `D-IMG-01` The only approved wrapper is one explicit local host library that delegates to the Laravel package boundary (`belluga_media`) through shared canonical primitives/services. Additional host wrappers, feature-scoped wrappers, or transitional parallel wrappers are forbidden. This local wrapper may later be promoted to a global reusable surface, but this TODO must enforce the single-wrapper rule now. Module ref: `No Prior Decision` (user decision captured on 2026-04-20).
+- [x] `D-IMG-02` Legacy public aliases are not approved as part of the target architecture for this slice. Delivery must remove them rather than preserve alias façades, and any already-persisted legacy references must be migrated/backfilled onto canonical media URLs instead of keeping a parallel compatibility path. Module ref: `No Prior Decision` (user decision captured on 2026-04-20).
 
 ## Module Decision Baseline Snapshot (Required Before APROVADO)
-- | Module Decision Ref | Current Module Decision | Planned Handling (`Preserve|Supersede (Intentional)|Out of Scope`) | Evidence |
-- | --- | --- | --- | --- |
-- | `No Prior Decision` | No explicit cross-cutting media hardening rule currently states that all Laravel image flows must route through `belluga_media`. | `Supersede (Intentional)` | Repo audit and branding/OG regression analysis on `2026-04-15`; `laravel-app/packages/belluga/belluga_media/README.md`; current host/media service inventory |
+| Module Decision Ref | Current Module Decision | Planned Handling (`Preserve|Supersede (Intentional)|Out of Scope`) | Evidence |
+| --- | --- | --- | --- |
+| `No Prior Decision` | No explicit cross-cutting media hardening rule currently states that all Laravel image flows must route through `belluga_media`. | `Supersede (Intentional)` | Repo audit and branding/OG regression analysis on `2026-04-15`; `laravel-app/packages/belluga/belluga_media/README.md`; current host/media service inventory |
 
 ## Decision Baseline (Frozen Before Implementation)
 - [x] `D-IMG-00` Laravel image flows must not own persistence/public URL logic outside `belluga_media` or an approved wrapper over it.
-- [ ] `D-IMG-01` Guardrails must distinguish approved wrappers from ad hoc bypasses in a deterministic way.
-- [ ] `D-IMG-02` Public legacy aliases may remain only as compatibility façades over canonical media ownership, never as separate source-of-truth flows.
+- [x] `D-IMG-01` Guardrails must enforce exactly one approved local wrapper integrated to `belluga_media`; no additional wrappers are acceptable.
+- [x] `D-IMG-02` Legacy public aliases must be removed; delivery must migrate persisted records/public URLs to the canonical media path instead of keeping alias façades alive.
 
 ## Questions To Close
 - [ ] Which current Laravel image flows are still non-compliant after the latest branding/public-web fix?
@@ -151,7 +150,7 @@ This slice exists to harden the rule at the architecture level: image flows are 
 1. Audit all current Laravel image flows and classify compliance against `D-IMG-00`.
 2. Freeze the approved wrapper model and the deterministic guardrail boundary (`D-IMG-01`).
 3. Add/extend architecture guardrails that detect ad hoc image public URL generation or persistence outside approved services.
-4. Migrate remaining non-compliant flows in bounded batches, preserving legacy compatibility aliases only as façades over canonical ownership.
+4. Migrate remaining non-compliant flows in bounded batches and rewrite/backfill persisted legacy references so canonical media URLs become the only supported public path.
 5. Update foundation docs and Delphi skill/workflow references so the same rule vocabulary is used in repo and process surfaces.
 
 ### Test Strategy
@@ -160,7 +159,7 @@ This slice exists to harden the rule at the architecture level: image flows are 
 - **Fail-first target(s) (when required):** Guardrail tests for direct public URL bypasses and focused feature tests for any migrated image flow.
 
 ### Runtime / Rollout Notes
-- Legacy public URLs may need compatibility façades during migration.
+- Persisted legacy records/public URLs may require one-time rewrite/backfill before promotion.
 - Public URL contract changes must be evaluated for cache/versioning behavior before promotion.
 
 ## Plan Review Gate (Review of the Execution Plan; required for `medium|big`; abbreviated for low-risk `small`)
@@ -206,9 +205,9 @@ This slice exists to harden the rule at the architecture level: image flows are 
 
 - **Issue ID:** `ARCH-IMG-02`
   - **Severity:** `medium`
-  - **Evidence:** Some flows may already have host-specific wrappers or legacy aliases that cannot be removed atomically without compatibility planning.
-  - **Why it matters now:** The rule must be hard enough to block regressions but practical enough to migrate existing surfaces in bounded slices.
-  - **Option A (Recommended):** Allow only explicit, documented wrappers that delegate to `belluga_media`, with migration inventory and owner.
+  - **Evidence:** Some flows may already have host-specific wrappers or persisted legacy public URLs that cannot be retired safely without explicit migration/backfill planning.
+  - **Why it matters now:** The rule must be hard enough to block regressions while still accounting for already-saved legacy references that would break if aliases disappear without data migration.
+  - **Option A (Recommended):** Allow only the single approved wrapper over `belluga_media`, remove aliases, and treat legacy references as migration/backfill work owned by this slice.
     - **Effort:** `medium`
     - **Risk:** `low`
     - **Blast radius:** `module`
@@ -235,9 +234,40 @@ This slice exists to harden the rule at the architecture level: image flows are 
   - **Recommendation:** `Option A`
 
 ### Failure Modes & Edge Cases
-- [ ] A new image slot persists `Storage::url(...)` directly because the wrapper/guardrail boundary is ambiguous.
-- [ ] A migrated flow changes public URLs but drops legacy compatibility for already-saved records.
-- [ ] A package or host module implements custom normalization logic that “looks equivalent” but drifts from canonical cache/version behavior.
+- [ ] A new image slot persists `Storage::url(...)` directly because the single-wrapper rule is bypassed or not covered by guardrails.
+- [ ] Alias removal ships before already-saved records/public URLs are rewritten to the canonical media path.
+- [ ] A package or host module implements a second wrapper or custom normalization logic that “looks equivalent” but drifts from canonical cache/version behavior.
+
+## Audit Trigger Matrix
+Populate this matrix before critique or delivery-side audit decisions are treated as authoritative.
+Use exact trigger names and exact enum values only.
+
+- **Canonical method:** `wf-docker-audit-escalation-method`
+- **Guard command:** `python3 delphi-ai/tools/audit_escalation_guard.py --todo <todo-path> [--json-output <artifact-path>]`
+- **Latest TEACH evidence / artifact:** `audit_escalation_guard.py` => `status: ready`, `Overall outcome: go`, fingerprint `0e217d6e9691` (`2026-04-20`)
+
+| Trigger | Value | Notes |
+| --- | --- | --- |
+| `complexity` | `medium` | Cross-checks the existing complexity classification. |
+| `blast_radius` | `cross-stack` | Public media URLs affect Laravel ownership plus Flutter/Web-visible continuity. |
+| `behavioral_change_or_bugfix` | `yes` | This slice hardens behavior and closes a real regression class. |
+| `changes_public_contract` | `yes` | Canonical public URL behavior and allowed wrappers are contract-visible. |
+| `touches_auth_or_tenant` | `no` | No auth/tenant-access rule change is required by the TODO contract itself. |
+| `touches_runtime_or_infra` | `yes` | Media serving/cache/version behavior and runtime routing are in scope. |
+| `touches_tests` | `yes` | Guardrail and migrated-flow tests are part of the slice. |
+| `critical_user_journey` | `yes` | Broken image ownership is publication-critical for release surfaces. |
+| `release_or_promotion_critical` | `yes` | This TODO is explicitly in the store-release lane. |
+| `high_severity_plan_review_issue` | `yes` | `ARCH-IMG-01` is high severity. |
+| `explicit_three_lane_request` | `no` | Triple external audit is not explicitly required right now. |
+
+### Derived Audit Floor
+- `Critique`: `required` before `APROVADO` via `wf-docker-independent-critique-method`.
+- `Security review`: `recommended` before completion via `security-adversarial-review`.
+- `Performance/concurrency`: `required` via `wf-docker-performance-concurrency-validation-method`.
+- `Verification debt`: `required` before completion via `verification-debt-audit`.
+- `Test-quality audit`: `required` before completion via `wf-docker-independent-test-quality-audit-method`.
+- `Final review`: `required` before completion via `wf-docker-independent-final-review-method`.
+- `Triple review`: `required` before completion via `audit-protocol-triple-review` and additive only; it does not replace critique.
 
 ### Residual Unknowns / Risks
 - [ ] The current non-compliant inventory is not yet frozen.
@@ -251,16 +281,16 @@ This slice exists to harden the rule at the architecture level: image flows are 
 - **Subagent mandate (when available):** `no`
 - **Required lenses:** `correctness`, `structural-soundness`
 
-## Independent No-Context Critique Gate (Required for `big`; conditional for `medium/high-impact`)
-- **Critique decision:** `recommended`
-- **Why this decision:** Cross-module guardrail work can easily become over-broad or under-specified.
+## Independent No-Context Critique Gate (Deterministic Floor From Audit Escalation)
+- **Critique decision:** `required`
+- **Why this decision:** The TEACH audit floor classified this TODO as expanded-risk due to cross-stack/public-contract/runtime/release-critical signals plus a high-severity plan-review issue.
 - **Impact signals in scope:** `cross-module blast radius`, `public contract/schema/api`
 - **Package mode:** `bounded-summary`
 - **Package minimum contents:** `frozen baseline`, `approved scope boundary`, `issue cards`, `residual risks`
 - **Critique isolation mode:** `fresh no-context auxiliary reviewer`
-- **Subagent mandate (when available):** `no`
-- **Canonical multi-lane audit protocol (when required):** `n/a`
-- **Audit session / round evidence (when protocol used):** `n/a`
+- **Subagent mandate (when available):** `yes`
+- **Canonical multi-lane audit protocol (when required):** `audit-protocol-triple-review`
+- **Audit session / round evidence (when protocol used):** `pending post-implementation`
 - **Critique lenses:** `correctness`, `elegance`, `structural-soundness`, `risk`
 - **Critique status:** `not_run`
 - **Findings summary:** `none yet`
