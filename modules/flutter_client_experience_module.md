@@ -293,6 +293,7 @@ No-exception guardrails:
 * **Tracing:** Session traces captured with Firebase Performance; spans named `Controller::<Action>` (e.g., `TenantHomeController::loadHome`).
 * **Alerts:** Crash-free sessions threshold ≥99%; analytics anomaly detection (invite acceptance drop >20 % triggers alert).
 * **Telemetry Context:** `/api/v1/environment` returns `telemetry.location_freshness_minutes` (default 5) to gate location context enrichment on emitted events.
+* **Sentry Failure Reporting Contract:** Flutter may keep a recovered user-facing flow quiet, but unexpected caught failures must not disappear locally. Touched catch paths are classified as `expected_control_flow`, `recoverable_reported`, or `fatal_reported`; `recoverable_reported` and `fatal_reported` paths must call the project-owned Sentry reporter or `Sentry.captureException` before recovery/propagation. `debugPrint` inside a catch block without capture or rethrow is forbidden by `flutter_sentry_unreported_debug_print_catch_forbidden`; intentional `expected_control_flow` bypasses must be explicit in code/review evidence when touched.
 
 #### 2.7 Testing Strategy
 

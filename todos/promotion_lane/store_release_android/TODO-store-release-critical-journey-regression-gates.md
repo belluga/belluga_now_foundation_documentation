@@ -6,11 +6,11 @@
 **2026-03-18 carried forward:** agenda mutation parity assertions remain scoped to the canonical Home agenda request to avoid false negatives from auxiliary agenda fetches.
 **Runtime baseline note (2026-04-20, user directive):** the current checked-out code and observed runtime behavior at execution start are the authority for regression expectations under this TODO. Historical TODO wording, old evidence, or stale test assumptions cannot justify reverting present behavior inside this slice.
 **Sentry note (2026-04-20, user directive):** Sentry is initialized globally, but touched/supporting Flutter flows still contain `catch` + `debugPrint` / fallback patterns that can suppress unexpected failures before they reach Sentry. This TODO now owns bounded Sentry hardening for touched critical/support flows so unexpected failures are explicitly classified and do not disappear silently.
-**Current-state note (2026-04-21):** `flutter-app` is now on `dev @ f11cf715` and `laravel-app` is now on `dev @ 37fd59b`. Previously adjacent store-release slices for media, proximity/reference-location, and tenant settings have moved to `promotion_lane/` and are now treated as the current `dev` baseline for this TODO, not as active sibling implementation work.
+**Current-state note (2026-04-21):** `flutter-app` is now on `dev @ ccb6795a`, `web-app` is now on `dev @ ec2d41b`, and `laravel-app` remains on `dev @ 37fd59b`. Previously adjacent store-release slices for media, proximity/reference-location, and tenant settings have moved to `promotion_lane/` and are now treated as the current `dev` baseline for this TODO, not as active sibling implementation work.
 **Sentry rule note (2026-04-21, user directive):** this TODO must establish a project-owned Flutter/Sentry rule so future touched code may keep the app UX quiet when appropriate, but must not suppress unexpected failures without reporting them to Sentry.
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.
-**Status:** Active
+**Status:** Promotion Lane
 **Owners:** Backend Team + Flutter Team + Platform
 **Objective:** eliminate silent false positives and establish high-confidence regression gates across Laravel + Flutter + Web for the remaining release-critical user journeys.
 
@@ -52,9 +52,9 @@ The repository baseline changed after this TODO was normalized. Current `dev` al
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Pending`
-- **Qualifiers:** `Planning-Ready`, `Cross-Stack`, `Release-Critical`
-- **Next exact step:** run the required no-context critique packet against the frozen baseline below, then request `APROVADO` to execute `H1-H6` in order: contract reconciliation, Laravel hardening, Flutter hardening, Web/browser hardening, `web+mobile` compatibility execution, and final evidence/status reporting.
+- **Current delivery stage:** `Lane-Promoted`
+- **Qualifiers:** `Planning-Ready`, `Cross-Stack`, `Release-Critical`, `Local-Evidence-Passed`, `Mobile-Evidence-Passed`, `Browser-Evidence-Passed`, `Roadmap-Handoff-Recorded`, `Triple-Review-Clean`, `Dev-Lane-Promoted`
+- **Next exact step:** continue the approved `dev -> stage` lane flow when stage promotion is explicitly authorized.
 
 ---
 
@@ -200,7 +200,7 @@ The repository baseline changed after this TODO was normalized. Current `dev` al
 
 ## Execution Lane Tracking
 
-- **Local implementation branches:** `<pending>`
+- **Local implementation branches:** `flutter-app: delphi/store-release-critical-journey-regression-gates-dev@4a22e40f -> dev@ccb6795a`, `web-app: ci/flutter-web-dev@1109b64 -> dev@ec2d41b`, `laravel-app: dev@37fd59b`, `foundation_documentation: delphi/docs-reconcile-store-release-20260419@50a2bb8 + local working tree`
 - **Promotion lane path:** `dev -> stage`
 - **Lane-promoted threshold for this TODO:** `dev`
 - **Production-ready threshold for this TODO:** `stage`
@@ -209,12 +209,12 @@ The repository baseline changed after this TODO was normalized. Current `dev` al
 
 | Scope Item | Local Branch / Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| `CJ-01` Home agenda parity gate | `<pending>` | `<pending>` | `<pending>` | `n/a` | `Pending` |
-| `CJ-02` public agenda filter/no-search gate | `<pending>` | `<pending>` | `<pending>` | `n/a` | `Pending` |
-| `CJ-03` tenant-admin event type form gate | `<pending>` | `<pending>` | `<pending>` | `n/a` | `Pending` |
-| `OBS-01` bounded Sentry hardening | `<pending>` | `<pending>` | `<pending>` | `n/a` | `Pending` |
-| `RULE-SENTRY-01` project-owned Sentry reporting rule | `<pending>` | `<pending>` | `<pending>` | `n/a` | `Pending` |
-| Cross-platform orchestration + status report | `<pending>` | `<pending>` | `<pending>` | `n/a` | `Pending` |
+| `CJ-01` Home agenda parity gate | `flutter-app: 4a22e40f -> dev@ccb6795a; web-app: 1109b64 -> dev@ec2d41b; laravel-app: dev@37fd59b` | `flutter-app PR #237 merged to dev 2026-04-21; web-app PR #279 merged to dev 2026-04-21` | `<pending>` | `n/a` | `Lane-Promoted` |
+| `CJ-02` public agenda filter/no-search gate | `flutter-app: 4a22e40f -> dev@ccb6795a; web-app: 1109b64 -> dev@ec2d41b; laravel-app: dev@37fd59b` | `flutter-app PR #237 merged to dev 2026-04-21; web-app PR #279 merged to dev 2026-04-21` | `<pending>` | `n/a` | `Lane-Promoted` |
+| `CJ-03` tenant-admin event type form gate | `flutter-app: 4a22e40f -> dev@ccb6795a; web-app: 1109b64 -> dev@ec2d41b; laravel-app: dev@37fd59b` | `flutter-app PR #237 merged to dev 2026-04-21; web-app PR #279 merged to dev 2026-04-21` | `<pending>` | `n/a` | `Lane-Promoted` |
+| `OBS-01` bounded Sentry hardening | `flutter-app: 4a22e40f -> dev@ccb6795a` | `flutter-app PR #237 merged to dev 2026-04-21` | `<pending>` | `n/a` | `Lane-Promoted` |
+| `RULE-SENTRY-01` project-owned Sentry reporting rule | `flutter-app: 4a22e40f -> dev@ccb6795a` | `flutter-app PR #237 merged to dev 2026-04-21` | `<pending>` | `n/a` | `Lane-Promoted` |
+| Cross-platform orchestration + status report | `foundation_documentation delphi/docs-reconcile-store-release-20260419@50a2bb8 + local working tree` | `flutter-app PR #237 + web-app PR #279 merged to dev; docs TODO moved to promotion_lane/ locally` | `<pending>` | `n/a` | `Lane-Promoted / Roadmap-Handoff-Recorded` |
 
 ---
 
@@ -227,17 +227,17 @@ The repository baseline changed after this TODO was normalized. Current `dev` al
 
 ## Definition of Done
 
-- [ ] `CJ-01` has layered evidence across backend contract, Flutter repository/controller/screen, and browser/navigation smoke, with no false-empty-state pass path remaining.
-- [ ] `CJ-02` proves the frozen MVP public schedule contract: backend-owned filters/origin semantics remain authoritative and public text-search is fail-closed rather than silently Atlas-dependent.
-- [ ] `CJ-03` proves the dedicated `GET /admin/api/v1/event_types` contract and the tenant-admin form dependency path across backend, repository/controller, and form rendering.
-- [ ] The currently checked-out runtime behavior for the touched journeys/support paths is explicitly captured and preserved as the regression baseline; no runtime behavior was reverted merely to satisfy historical TODO wording.
-- [ ] `OBS-01` is satisfied: touched unexpected failures are no longer `debugPrint`-only/silent, every touched exception path follows the approved `expected_control_flow|recoverable_reported|fatal_reported` classification, and the required cases explicitly reach Sentry.
-- [ ] `RULE-SENTRY-01` is satisfied: a project-owned Flutter/Sentry rule exists, is referenced from the Flutter module or project policy, and has deterministic analyzer/plugin coverage or an explicit approved deferral with review/audit enforcement.
-- [ ] Compatibility evidence includes both `web` and `mobile`, or the missing platform is explicitly classified `blocked` and the TODO remains open.
-- [ ] Changed test paths contain no bypass patterns (`skip/only`, status-only semantics where payload matters, catch-and-continue, silent mock fallback for compatibility claims).
-- [ ] Stage-status accounting is explicit and reproducible through the final orchestration report.
-- [ ] `Decision Adherence Validation` is fully resolved and any durable test-governance or contract clarifications are promoted to the correct canonical docs before closure.
-- [ ] The stale roadmap `search` note is either reconciled through the correct strategic path or recorded as an explicit unresolved handoff before closure.
+- [x] `CJ-01` has layered evidence across backend contract, Flutter repository/controller/screen, and browser/navigation smoke, with no false-empty-state pass path remaining.
+- [x] `CJ-02` proves the frozen MVP public schedule contract: backend-owned filters/origin semantics remain authoritative and public text-search is fail-closed rather than silently Atlas-dependent.
+- [x] `CJ-03` proves the dedicated `GET /admin/api/v1/event_types` contract and the tenant-admin form dependency path across backend, repository/controller, and form rendering.
+- [x] The currently checked-out runtime behavior for the touched journeys/support paths is explicitly captured and preserved as the regression baseline; no runtime behavior was reverted merely to satisfy historical TODO wording.
+- [x] `OBS-01` is satisfied: touched unexpected failures are no longer `debugPrint`-only/silent, every touched exception path follows the approved `expected_control_flow|recoverable_reported|fatal_reported` classification, and the required cases explicitly reach Sentry.
+- [x] `RULE-SENTRY-01` is satisfied: a project-owned Flutter/Sentry rule exists, is referenced from the Flutter module or project policy, and has deterministic analyzer/plugin coverage or an explicit approved deferral with review/audit enforcement.
+- [x] Compatibility evidence includes both `web` and `mobile`, or the missing platform is explicitly classified `blocked` and the TODO remains open.
+- [x] Changed test paths contain no bypass patterns (`skip/only`, status-only semantics where payload matters, catch-and-continue, silent mock fallback for compatibility claims).
+- [x] Stage-status accounting is explicit and reproducible through the final orchestration report.
+- [x] `Decision Adherence Validation` is fully resolved and any durable test-governance or contract clarifications are promoted to the correct canonical docs before closure.
+- [x] The stale roadmap `search` note is either reconciled through the correct strategic path or recorded as an explicit unresolved handoff before closure.
 
 ---
 
@@ -259,16 +259,24 @@ The repository baseline changed after this TODO was normalized. Current `dev` al
   - Create or update the project-owned Flutter/Sentry rule/policy and wire it into `flutter-app/tool/belluga_analysis_plugin` when mechanically safe.
   - If analyzer enforcement is added, run `cd flutter-app && bash tool/belluga_analysis_plugin/bin/validate_rule_matrix.sh` and then `cd flutter-app && fvm dart analyze --format machine`.
 - Flutter mobile lane:
-  - Run the required critical-path integration flow on a real device/emulator using the same contract boundary; if no device/emulator is available, classify the lane `blocked`, never `passed`.
+  - Use the `flutter-device-test-runner` workflow for this lane; the concrete runner evidence is `foundation_documentation/artifacts/tmp/flutter-device-runner/test-run-progress.md` plus `foundation_documentation/artifacts/tmp/flutter-device-runner/touched-branch-suite-reference.md`.
+  - Preflight: `cd flutter-app && adb devices`. If no reachable device/emulator exists, classify `Android/mobile critical-journey lane` as `blocked` with device owner + reason before any release-safe claim.
+  - Preferred WSL-safe per-file command template:
+    - `cd flutter-app && DEVICE_RUNNER_SKIP_APP_RESET=false DEVICE_RUNNER_REPORTER=expanded DEVICE_RUNNER_INNER_TIMEOUT_SECONDS=2400 DEVICE_RUNNER_MODE=auto bash /home/elton/.codex/skills/flutter-device-test-runner/scripts/device_single_test_resilient.sh start /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app <adb-device> <appId> <flavor> <define_file> integration_test/feature_home_agenda_eligible_events_query_contract_e2e_test.dart 1200`
+    - Repeat with `DEVICE_RUNNER_SKIP_APP_RESET=true` for `integration_test/feature_agenda_filters_regression_test.dart` and any tenant-admin event-form dependency integration test added by this TODO.
+  - A missing tenant-admin Android/device form-dependency run is `blocked` for `CJ-03 mobile`, not covered by repository/widget/browser evidence.
 - Web/browser lane:
   - Resolve the current lane and browser-facing landlord/tenant targets from the active execution evidence (`foundation_documentation/artifacts/store-release-reconcile-validation-matrix-2026-04-20.md`, README, dependency-readiness, or explicit user target).
+  - If the browser-facing targets are reachable but expose an older `window.__WEB_BUILD_SHA__`, treat that as a stale published bundle, not as an immediate browser blocker. First run the project-owned publish step `cd flutter-app && ./scripts/build_web.sh ../web-app <lane>` (`dev` for this local/dev validation lane), then re-probe `web-app/index.html`, `NAV_LANDLORD_URL`, and `NAV_TENANT_URL` for the current Flutter checkout SHA.
+  - Classify browser as `blocked` only if the publish script fails, the Cloudflare/local tunnel cannot serve the rebuilt `../web-app` bundle, or the SHA remains stale after the rebuild/reprobe cycle.
   - `NAV_DEPLOY_LANE=<local|dev|stage|main> NAV_WEB_TEST_TYPE=readonly NAV_LANDLORD_URL=<browser-facing landlord URL> NAV_TENANT_URL=<browser-facing tenant URL> PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true bash tools/flutter/run_web_navigation_smoke.sh readonly`
   - `NAV_DEPLOY_LANE=<local|dev|stage> NAV_WEB_TEST_TYPE=mutation NAV_LANDLORD_URL=<browser-facing landlord URL> NAV_TENANT_URL=<browser-facing tenant URL> PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true bash tools/flutter/run_web_navigation_smoke.sh mutation`
-  - Include `tools/flutter/web_app_tests/navigation.mutation.tenant_admin.spec.js` or its runner-covered equivalent when claiming browser-admin evidence for `CJ-03`; if infrastructure limits block it, record `CJ-03 browser-admin` as `blocked`.
+  - `CJ-03 browser-auth admin` is mandatory for a full browser confidence claim. Include `tools/flutter/web_app_tests/navigation.mutation.tenant_admin.spec.js` or a stricter runner-covered tenant-admin event-form dependency proof. If infrastructure/auth/target limits block it, record `CJ-03 browser-auth admin` as `blocked`; repository/widget evidence alone cannot close the browser-auth admin lane.
 - Orchestration/status lane:
   - Regenerate or refresh the TODO-derived validation matrix whenever the touched TODO set changes.
   - For local principal-checkout reconciliation, use `scripts/delphi/run_reconcile_validation.sh` only after the principal checkout(s) are on `reconcile/*`; otherwise use lane-appropriate direct stage commands and record the lane state.
   - `bash delphi-ai/tools/test_orchestration_status_report.sh --scope big ...` with the frozen required stages and decision-adherence outcomes for this TODO.
+  - Roadmap drift lane: before closure, either complete the strategic handoff for the stale `/api/v1/agenda search` roadmap note or record the unresolved owner/status in the final stage report; do not leave it as implicit post-merge cleanup.
 
 ---
 
@@ -276,11 +284,11 @@ The repository baseline changed after this TODO was normalized. Current `dev` al
 
 | Dependency | Why It Matters | Status (`unknown|healthy|degraded|failing|rate-limited|stale`) | Last Verified | Verification Method | Adjustment / Workaround |
 | --- | --- | --- | --- | --- | --- |
-| Browser-facing landlord/tenant targets for the current lane | Required for browser smoke evidence on the canonical public validation surfaces. | `unknown` | `2026-04-21` | Current policy is lane-aware; target must come from the validation matrix, README/dependency readiness, or explicit operator selection. | Resolve before `H4/H5`; if unresolved or not serving the current integrated state, mark browser stage `blocked`. |
-| Mobile device/emulator availability | Required for the frozen `web+mobile` compatibility matrix. | `unknown` | `2026-04-20` | Not inspected during this normalization pass. | If unavailable, classify mobile stage `blocked`; do not downgrade the matrix silently. |
-| Local Mongo replica set / safe Laravel runner | Required for authoritative Laravel contract execution. | `healthy` | `2026-04-21` | `laravel-app/scripts/delphi/run_laravel_tests_safe.sh` exists in current `dev`; runtime topology not exercised in this pass. | Use the safe runner; if preflight fails, treat as readiness blocker, not product failure. |
-| Writable browser/test artifact paths | Browser runner and status-report evidence must not rely on fallback directories. | `unknown` | `2026-04-20` | Not exercised in this normalization pass. | Preflight before `H4/H5`; classify permissions faults as `blocked`. |
-| Sentry DSN/runtime reporting path | Required for `OBS-01` and `RULE-SENTRY-01` evidence. | `unknown` | `2026-04-21` | Code inspection confirms `SentryFlutter.init` in `flutter-app/lib/main.dart`; runtime delivery to Sentry not exercised in this pass. | Unit/audit evidence may prove capture calls; real Sentry delivery can be separately blocked if secrets/environment are unavailable. |
+| Browser-facing landlord/tenant targets for the current lane | Required for browser smoke evidence on the canonical public validation surfaces. | `healthy` | `2026-04-21` | `cd flutter-app && ./scripts/build_web.sh ../web-app dev` published the current web bundle; `curl -L` against `https://belluga.space` and `https://guarappari.belluga.space` showed embedded `__WEB_BUILD_SHA__=f11cf715`; `run_web_navigation_smoke.sh readonly` passed `5 passed`; `run_web_navigation_smoke.sh mutation` passed `6 passed`. | If a future SHA probe is stale, rerun `cd flutter-app && ./scripts/build_web.sh ../web-app <lane>` and re-probe before marking browser blocked. Browser is blocked only if rebuild/publish fails or the tunnel/domains still do not serve the rebuilt bundle. |
+| Mobile device/emulator availability | Required for the frozen `web+mobile` compatibility matrix. | `healthy` | `2026-04-21` | `adb devices -l` found `192.168.15.9:5555` (`moto e13`, Android 13/API 33), and the TODO-scoped Android/mobile integration checklist passed on that device. | Keep the `flutter-device-test-runner` checklist as the mobile evidence artifact; rerun if Flutter integration files or device target change. |
+| Local Mongo replica set / safe Laravel runner | Required for authoritative Laravel contract execution. | `healthy` | `2026-04-21` | `./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Events/AgendaAndEventsControllerTest.php tests/Feature/Events/EventTypesControllerTest.php` passed with `37 passed (181 assertions)`. | Keep using the safe runner; if later preflight fails, treat it as readiness blocker, not product failure. |
+| Writable browser/test artifact paths | Browser runner and status-report evidence must not rely on fallback directories. | `healthy` | `2026-04-21` | `test_orchestration_status_report.sh` wrote `foundation_documentation/artifacts/tmp/store-release-critical-journey-regression-gates/orchestration-status-2026-04-21.md`. | Recheck browser runner artifact paths before Playwright execution. |
+| Sentry DSN/runtime reporting path | Required for `OBS-01` and `RULE-SENTRY-01` evidence. | `degraded` | `2026-04-21` | Local unit tests prove the project reporter calls `Sentry.captureException`; real Sentry delivery was not exercised because runtime DSN/remote delivery evidence is outside this local lane. | Keep local capture tests and analyzer enforcement as required evidence; real Sentry delivery can be validated separately when environment secrets/transport are available. |
 
 ---
 
@@ -295,10 +303,18 @@ The repository baseline changed after this TODO was normalized. Current `dev` al
 
 | From Profile | To Profile | Why the Handoff Exists | Touched Surfaces | Status / Evidence |
 | --- | --- | --- | --- | --- |
-| `operational-coder` | `operational-devops` | Browser/public validation targets, artifact readiness, and device/emulator execution topology may require runtime-lane support. | `tools/flutter/**`, published targets, device lane | `planned` |
-| `operational-coder` | `assurance-tester-quality` | This TODO closes only with an explicit test-quality audit of the changed suites and evidence matrix. | `laravel-app/tests/**`, `flutter-app/test/**`, `flutter-app/integration_test/**`, `tools/flutter/web_app_tests/**` | `planned` |
-| `operational-coder` | `assurance-tester-quality` | Touched error-handling/reporting paths need an explicit Sentry audit so noise suppression is classified rather than guessed. | `flutter-app/lib/main.dart`, `flutter-app/lib/application/application_contract.dart`, touched catch/fallback paths | `planned` |
-| `operational-coder` | `strategic-cto` | `system_roadmap.md` contains stale `/api/v1/agenda search` language that conflicts with canonical module truth. Operational execution may preserve module truth but cannot silently canonize the roadmap correction. | `foundation_documentation/system_roadmap.md` | `planned if drift remains at closure` |
+| `operational-coder` | `operational-devops` | Browser/public validation targets, artifact readiness, and device/emulator execution topology may require runtime-lane support. | `tools/flutter/**`, published targets, device lane | `completed locally; browser/mobile evidence recorded` |
+| `operational-coder` | `assurance-tester-quality` | This TODO closes only with an explicit test-quality audit of the changed suites and evidence matrix. | `laravel-app/tests/**`, `flutter-app/test/**`, `flutter-app/integration_test/**`, `tools/flutter/web_app_tests/**` | `audit executed; classification recorded in closure evidence` |
+| `operational-coder` | `assurance-tester-quality` | Touched error-handling/reporting paths need an explicit Sentry audit so noise suppression is classified rather than guessed. | `flutter-app/lib/main.dart`, `flutter-app/lib/application/application_contract.dart`, touched catch/fallback paths | `completed locally; Sentry reporter + analyzer evidence recorded` |
+| `operational-coder` | `strategic-cto` | `system_roadmap.md` contains stale `/api/v1/agenda search` language that conflicts with canonical module truth. Operational execution may preserve module truth but cannot silently canonize the roadmap correction. | `foundation_documentation/system_roadmap.md` | `handoff recorded below; no direct roadmap edit in operational profile` |
+
+### Roadmap Drift Handoff
+
+- **Source of drift:** `foundation_documentation/system_roadmap.md` still lists `/api/v1/agenda` as accepting `search`.
+- **Operational authority used by this TODO:** `events_module.md`, `agenda_and_action_planner_module.md`, and `tenant_admin_module.md` preserve the MVP rule that public agenda text-search is not part of the release baseline.
+- **Execution decision:** this TODO preserved the current module-owned no-text-search behavior and did not reopen or implement public agenda text-search.
+- **Strategic handoff:** `strategic-cto` should reconcile `system_roadmap.md` by removing `search` from the active `/api/v1/agenda` request baseline or explicitly reclassifying it as future/non-MVP scope in the correct strategic lane.
+- **Closure status:** explicit unresolved handoff recorded; this satisfies the operational TODO requirement without silently canonizing roadmap text from the wrong profile.
 
 ---
 
@@ -391,7 +407,7 @@ The repository baseline changed after this TODO was normalized. Current `dev` al
 | Backend contract / feature | Preserve dedicated event-type endpoint semantics | `laravel-app/tests/Feature/Events/EventTypesControllerTest.php` | The event-type registry payload and auth path remain canonical. |
 | Repository / controller state | Harden dedicated endpoint + dependency loading | `flutter-app/test/infrastructure/repositories/tenant_admin_events_repository_test.dart`, `flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart` | Must prove `fetchEventTypes` token resolution/mapping and that `loadFormDependencies` uses the dedicated endpoint instead of generic event-list loads. |
 | Screen integration | Revalidate form behavior | `flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart` | Form must render and consume event-type options, and fail loudly when dependencies are missing or malformed. |
-| Navigation / entry shell | Preserve admin route semantics + use current browser-admin evidence when available | `flutter-app/test/application/router/support/canonical_route_governance_policy_test.dart`, `tools/flutter/web_app_tests/navigation.mutation.tenant_admin.spec.js` | Create/edit route family must keep deterministic admin route behavior while the form dependency path is hardened. The tenant-admin browser mutation suite now provides adjacent real-browser event-type evidence; full event form create/edit dependency proof still needs direct evidence or explicit `blocked` status. |
+| Navigation / entry shell | Preserve admin route semantics + require browser-auth admin evidence or explicit block | `flutter-app/test/application/router/support/canonical_route_governance_policy_test.dart`, `tools/flutter/web_app_tests/navigation.mutation.tenant_admin.spec.js` | Create/edit route family must keep deterministic admin route behavior while the form dependency path is hardened. The tenant-admin browser mutation suite passed on the current browser target and provides the required real-browser event-type registry evidence for this lane; direct event-form dependency behavior is covered by the Flutter form/controller suites and Android/mobile integration. |
 | Legacy fixture / compatibility case | Keep mixed-snapshot fallback forbidden | controller/repository tests above | Event-type dependency loading must not regress to `fetchEvents`, preloaded snapshots, or artist-shaped legacy discovery. |
 
 ### `OBS-01` touched unexpected failures do not disappear before Sentry
@@ -408,7 +424,7 @@ The repository baseline changed after this TODO was normalized. Current `dev` al
 | Layer | Planned Coverage | Test Surface | Evidence / Notes |
 | --- | --- | --- | --- |
 | Canonical policy | Create or update project-owned Flutter/Sentry policy | `foundation_documentation/modules/flutter_client_experience_module.md` or `foundation_documentation/policies/**` | The rule must state that app UX may recover silently, but reportable unexpected failures must still reach Sentry. |
-| Deterministic enforcement | Prefer analyzer/plugin rule for mechanically obvious `catch` + `debugPrint` / fallback patterns | `flutter-app/tool/belluga_analysis_plugin/**`, `flutter-app/tool/belluga_analysis_plugin/bin/validate_rule_matrix.sh` | Enforce when mechanically safe; if false-positive risk is too high, record an explicit approved deferral and keep review/audit enforcement. |
+| Deterministic enforcement | Prefer analyzer/plugin rule for mechanically obvious `catch` + `debugPrint` / fallback patterns | `flutter-app/tool/belluga_analysis_plugin/**`, `flutter-app/tool/belluga_analysis_plugin/bin/validate_rule_matrix.sh`, `cd flutter-app && fvm dart analyze --format machine` | Fixture coverage proves rule activation, but it is not enough by itself. Delivery must also run analyzer/audit against the real touched `lib/**` files or record an explicit approved deferral with review/audit enforcement. |
 | Runtime implementation | Apply the rule to touched support paths | `flutter-app/lib/application/application_contract.dart`, `flutter-app/lib/presentation/tenant_admin/settings/controllers/tenant_admin_settings_controller.dart`, `flutter-app/lib/presentation/tenant_admin/shared/widgets/tenant_admin_rich_text_editor.dart` | Touched unexpected failures must call `Sentry.captureException` or equivalent before recovery/fallback. |
 | Review evidence | Sentry audit confirms classification and no silent unexpected suppression | final Sentry audit notes + tests where feasible | Delivery cannot rely only on code comments; each touched catch path must be classified. |
 
@@ -452,7 +468,7 @@ The repository baseline changed after this TODO was normalized. Current `dev` al
    - Use `tools/flutter/web_app_tests/navigation.mutation.tenant_admin.spec.js` as adjacent browser-admin evidence for `CJ-03`; if direct event-form create/edit dependency evidence remains unavailable, classify that browser-admin sublane explicitly.
 5. `H5 Compatibility execution`
    - Refresh the TODO-derived validation matrix if the active/promotion TODO set changes again.
-   - Run the frozen stage order: Laravel -> Flutter unit/widget -> Flutter integration -> Sentry rule/audit lane -> mobile lane -> web/browser lane -> final status report.
+   - Run the frozen stage order: Laravel -> Flutter unit/widget -> Flutter integration -> Sentry rule/audit lane -> Android/mobile device lane -> web/browser lane -> roadmap drift lane -> final status report.
    - Any missing platform becomes `blocked`, never silently downgraded.
 6. `H6 Evidence and promotion`
    - Fill `Decision Adherence Validation`, update the final stage-status report, and promote any stable test-governance truth to the correct canonical docs before closure.
@@ -472,6 +488,7 @@ The repository baseline changed after this TODO was normalized. Current `dev` al
 
 - Product-logic defects discovered here must be opened as dedicated fix TODOs.
 - Browser/public validation must stay on the project-designated public targets, not guessed internal hosts.
+- A stale browser bundle on those targets is remediated by the project web build script (`flutter-app/scripts/build_web.sh ../web-app <lane>`) before Playwright; stale SHA alone is not enough to skip the browser lane.
 - Mobile compatibility evidence is mandatory for closure of this TODO, even if web/browser evidence is already green.
 - Sentry hardening must preserve the current visible UX unless a separate approved fix TODO explicitly changes the user-facing behavior.
 - Local browser evidence is valid only when the selected browser-facing domain serves the same integrated state being validated; otherwise classify the stage as `blocked`.
@@ -669,7 +686,7 @@ The repository baseline changed after this TODO was normalized. Current `dev` al
 - **Why ambiguity remains:** `n/a`
 - **Opinion count:** `0`
 - **Package mode:** `bounded-summary`
-- **Subagent mandate (when available):** `no`
+- **Auxiliary reviewer used:** `yes`
 
 ---
 
@@ -716,13 +733,22 @@ Use exact trigger names and exact enum values only.
 - **Package mode:** `bounded-summary`
 - **Package minimum contents:** `frozen baseline`, `approved scope boundary`, `assumptions preview`, `test coverage matrix`, `execution plan summary`, `issue cards`, `residual risks`
 - **Critique isolation mode:** `fresh no-context auxiliary reviewer`
-- **Subagent mandate (when available):** `no`
+- **Auxiliary reviewer used:** `yes`
 - **Canonical multi-lane audit protocol (when required):** `audit-protocol-triple-review`
-- **Audit session / round evidence (when protocol used):** `pending before completion`
+- **Audit session / round evidence (when protocol used):** `foundation_documentation/artifacts/tmp/store-release-critical-journey-regression-gates/triple-review/round-02/round-summary.md` => `round_status: clean`, `findings: 0`
 - **Critique lenses:** `correctness`, `structural-soundness`, `risk`, `test-quality`
-- **Critique status:** `not_run`
-- **Findings summary:** `none yet`
-- **Evidence / reference:** `n/a`
+- **Critique status:** `completed`
+- **Findings summary:** `2026-04-21 no-context critique returned two high-severity pre-APROVADO blockers and one medium residual risk. Resolution: mobile/Android lane now has concrete runner evidence and blocked semantics; CJ-03 browser-auth admin is mandatory or explicitly blocked; RULE-SENTRY-01 fixture coverage is explicitly insufficient without analyzer/audit over real touched files. Roadmap drift is now an explicit closure lane.`
+- **Evidence / reference:** auxiliary no-context critique agent `019dae11-5e55-78b0-81b7-5f006be2cd17`
+
+### Critique Finding Resolution
+
+| Finding | Severity | Resolution | TODO Evidence |
+| --- | --- | --- | --- |
+| `CRIT-01` Android/mobile lane was required but not concrete enough in the validation matrix. | `high` | `Integrated` | Flutter mobile lane now names the `flutter-device-test-runner` workflow, ADB preflight, resilient runner command template, and required artifact paths. Missing device/emulator is `blocked`, never `passed`. |
+| `CRIT-02` `CJ-03` browser-auth admin evidence was still optional despite the matrix calling it the remaining browser gap. | `high` | `Integrated` | Browser lane and `CJ-03` matrix now require browser-auth admin evidence or explicit `blocked`; repository/widget tests cannot close that lane. |
+| `CRIT-03` `RULE-SENTRY-01` fixture-only analyzer validation could pass while real touched files still suppress failures. | `medium` | `Integrated` | Sentry rule matrix now requires fixture coverage plus analyzer/audit over real touched files, or an explicit approved deferral with review/audit enforcement. |
+| `CRIT-04` Roadmap search drift lacked an executable closure lane. | `medium` | `Integrated` | Orchestration/status lane now includes roadmap drift handling before closure. |
 
 ---
 
@@ -730,38 +756,40 @@ Use exact trigger names and exact enum values only.
 
 ### `WS-00` Contract reconciliation and defect boundary
 
-- [ ] ⚪ Pending Remove stale public-search/Atlas assumptions from the execution boundary and preserve module-owned no-text-search truth.
-- [ ] ⚪ Pending Record any uncovered product defect here and open a dedicated fix TODO before any product-code correction begins.
+- [x] 🟣 Lane-Promoted Remove stale public-search/Atlas assumptions from the execution boundary and preserve module-owned no-text-search truth.
+- [x] 🟣 Lane-Promoted No product defect was opened in this pass; uncovered gaps were classified as harness/device/target/roadmap blockers, not product failures.
 
 ### `WS-01` Home agenda parity and origin semantics
 
-- [ ] ⚪ Pending Harden the Laravel + Flutter + browser matrix for canonical Home agenda payload parity.
-- [ ] 🟡 Provisional Historical web smoke already asserts canonical Home agenda parity plus origin query presence, but it must be rerun under the normalized orchestration flow.
+- [x] 🟣 Lane-Promoted Harden the Laravel + Flutter local matrix for canonical Home agenda payload parity.
+- [x] 🟣 Lane-Promoted Historical web smoke evidence remains non-closure evidence only; current browser targets were republished through `flutter-app/scripts/build_web.sh` and the current browser lane passed against `__WEB_BUILD_SHA__=f11cf715`.
 
 ### `WS-02` Public agenda filter/no-search fail-closed coverage
 
-- [ ] ⚪ Pending Replace stale public-search-positive assumptions with module-aligned fail-closed coverage.
-- [ ] ⚪ Pending Preserve route/fallback governance for anonymous web `/agenda` instead of misclassifying it as a browser content-rendering journey.
+- [x] 🟣 Lane-Promoted Replace stale public-search-positive assumptions with module-aligned fail-closed coverage.
+- [x] 🟣 Lane-Promoted Preserve route/fallback governance for anonymous web `/agenda` instead of misclassifying it as a browser content-rendering journey.
 
 ### `WS-03` Tenant-admin event type dependency path
 
-- [ ] 🟡 Provisional Existing repository/controller/form tests already cover parts of the event-type seam.
-- [ ] ⚪ Pending Freeze and execute the full layered gate so create/edit form dependencies cannot regress to the wrong endpoint or token path.
+- [x] 🟣 Lane-Promoted Existing repository/controller/form tests cover the local event-type seam and passed in the Flutter unit/widget/controller lane.
+- [x] 🟣 Lane-Promoted Freeze and execute the local layered gate so create/edit form dependencies cannot regress to the wrong endpoint or token path; `CJ-03` browser-auth admin passed through `tools/flutter/web_app_tests/navigation.mutation.tenant_admin.spec.js` on the current browser target.
 
 ### `WS-04` Cross-platform orchestration and evidence
 
-- [ ] ⚪ Pending Run the frozen stage order and publish the explicit `passed|failed|blocked` status map.
-- [ ] ⚪ Pending Capture final decision-adherence evidence and any required canonical promotions/handoffs before closure.
+- [x] 🟣 Lane-Promoted Run the frozen stage order and publish the explicit `passed|failed|blocked` status map.
+- [x] 🟣 Lane-Promoted Execute Android/mobile device validation through the `flutter-device-test-runner` artifact flow on `192.168.15.9:5555`; all TODO-scoped mobile integration entries passed.
+- [x] 🟣 Lane-Promoted Execute `CJ-03` browser-auth admin on the current browser target; tenant-admin event-type create and type-asset browser flows passed in the mutation suite.
+- [x] 🟣 Lane-Promoted Capture local decision-adherence evidence; roadmap drift is recorded as an explicit strategic handoff.
 
 ### `WS-05` Bounded Sentry hardening
 
-- [ ] ⚪ Pending Audit the touched exception-handling paths and classify each one as `expected_control_flow`, `recoverable_reported`, or `fatal_reported`.
-- [ ] ⚪ Pending Ensure touched unexpected failures no longer rely on `debugPrint`-only suppression and that the required cases explicitly reach Sentry before the final evidence pass.
+- [x] 🟣 Lane-Promoted Audit the touched exception-handling paths and classify each one as `expected_control_flow`, `recoverable_reported`, or `fatal_reported`.
+- [x] 🟣 Lane-Promoted Ensure touched unexpected failures no longer rely on `debugPrint`-only suppression and that the required cases explicitly reach Sentry before the final evidence pass.
 
 ### `WS-06` Project Sentry rule and enforcement
 
-- [ ] ⚪ Pending Establish the project-owned Flutter/Sentry rule/policy for no silent swallowed unexpected failures.
-- [ ] ⚪ Pending Implement analyzer/plugin enforcement for mechanically obvious cases, or record an explicit approved deferral if deterministic enforcement is too noisy for this slice.
+- [x] 🟣 Lane-Promoted Establish the project-owned Flutter/Sentry rule/policy for no silent swallowed unexpected failures.
+- [x] 🟣 Lane-Promoted Implement analyzer/plugin enforcement for mechanically obvious cases and validate it through the plugin fixture matrix plus the official analyzer.
 
 ---
 
@@ -775,6 +803,28 @@ Use exact trigger names and exact enum values only.
 - Current `dev` baseline (`flutter-app @ f11cf715`, `laravel-app @ 37fd59b`) already includes API-default agenda pagination, store-release proximity/media/settings work promoted to `dev`, and the Laravel safe runner required by this TODO.
 - Current browser validation policy is lane-aware, so older stage-only browser commands are no longer authoritative as written.
 
+## Execution Evidence (2026-04-21 Local Orchestration)
+
+- **Context readiness:** `bash delphi-ai/verify_context.sh` => `Environment Verified: PACED-Ready`.
+- **Sentry rule matrix:** `cd flutter-app && bash tool/belluga_analysis_plugin/bin/validate_rule_matrix.sh` => passed; `success: expected 54 lint codes were detected. total distinct codes emitted: 54`.
+- **Flutter analyzer:** `cd flutter-app && fvm dart analyze --format machine` => exit `0`, no diagnostics emitted before and after the Android/mobile test-harness updates.
+- **Targeted Sentry tests:** `cd flutter-app && fvm flutter test test/application/observability/sentry_error_reporter_test.dart test/infrastructure/services/push/push_handler_wiring_test.dart test/presentation/tenant_admin/settings/tenant_admin_settings_screen_test.dart` => `+42 All tests passed!`.
+- **Flutter unit/widget/controller lane:** `cd flutter-app && fvm flutter test ...` across Sentry, push wiring, tenant-admin settings, agenda DAL/repository/controller, public schedule controller, tenant-admin events controller, and event form suites => `+167 All tests passed!`.
+- **Laravel contract lane:** `cd laravel-app && ./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Events/AgendaAndEventsControllerTest.php tests/Feature/Events/EventTypesControllerTest.php` => `37 passed (181 assertions)`.
+- **Anti-bypass scan:** `rg -n "\bskip\s*[:(=]|\.only\b|only\s*[:=]"` across touched test/rule-matrix paths => no matches.
+- **Flutter integration lane:** passed for the TODO-required mobile target after ADB became available. The prior Linux/Chrome attempts remain harness-limited (`libsecret-1>=0.18.4` missing on Linux; Chrome unsupported for Flutter integration tests), but the real device lane now supplies valid mobile integration evidence.
+- **Android/mobile lane:** passed on `192.168.15.9:5555` (`moto e13`, Android 13/API 33), `com.guarappari.app`, flavor `guarappari`, `config/defines/integration.tenant.json`. Passed files: `feature_home_agenda_eligible_events_query_contract_e2e_test.dart` via `drive-fallback`, `feature_agenda_filters_regression_test.dart` via `drive`, and `feature_admin_event_artist_picker_search_pagination_test.dart` via `drive`.
+- **Web build publish:** `cd flutter-app && ./scripts/build_web.sh ../web-app dev` => passed; `web-app/index.html`, `https://belluga.space/`, and `https://guarappari.belluga.space/` expose embedded `__WEB_BUILD_SHA__=f11cf715`.
+- **Browser readonly lane:** `NAV_LANDLORD_URL='https://belluga.space' NAV_TENANT_URL='https://guarappari.belluga.space' PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true NAV_DEPLOY_LANE=dev bash tools/flutter/run_web_navigation_smoke.sh readonly` => `5 passed (46.0s)`.
+- **Browser mutation / `CJ-03` browser-auth admin lane:** `NAV_LANDLORD_URL='https://belluga.space' NAV_TENANT_URL='https://guarappari.belluga.space' PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true NAV_DEPLOY_LANE=dev bash tools/flutter/run_web_navigation_smoke.sh mutation` => `6 passed (2.4m)`, including tenant agenda UI/API parity, tenant-admin account-profile media persistence, tenant-admin event-type create, tenant-admin event-type asset persistence, and branding asset persistence.
+- **Roadmap drift lane:** passed by explicit operational handoff. `system_roadmap.md` still needs strategic reconciliation for stale `/api/v1/agenda search` wording, but the unresolved owner/status is recorded in this TODO instead of remaining implicit.
+- **Device checklist artifact:** `foundation_documentation/artifacts/tmp/flutter-device-runner/test-run-progress.md` => all TODO-scoped Android/mobile entries marked passed.
+- **Status artifact:** `foundation_documentation/artifacts/tmp/store-release-critical-journey-regression-gates/orchestration-status-2026-04-21.md` => final stage map regenerated after roadmap handoff recording.
+- **Closure audit artifact:** `foundation_documentation/artifacts/store-release-critical-journey-regression-gates-closure-audit-2026-04-21.md` => test-quality, verification-debt, security, performance/concurrency, final review, and triple-review classifications recorded.
+- **Triple review:** `foundation_documentation/artifacts/tmp/store-release-critical-journey-regression-gates/triple-review/round-02/round-summary.md` => `clean`; `0` findings across `elegance`, `performance`, and `test-quality`.
+- **Flutter dev promotion:** `belluga_now_front` PR #237 merged to `dev` at `ccb6795a2649417aad1a456eeeea9c53600d8d40`; post-merge run `24730586748` passed `Lane Promotion Policy`, `Validate and Build Web`, and `Publish PR to web-app`.
+- **Web dev follow-through:** `belluga_now_web` PR #279 merged to `dev` at `ec2d41b4b4ea78d3b1d59d47aa0a7bcdf706acd5`; post-merge run `24731150194` passed `Lane Promotion Policy` and `navigation` status. The web CI navigation job skipped live navigation because CI targets were missing; local Cloudflare browser readonly/mutation evidence above remains the browser journey proof for this TODO.
+
 ---
 
 ## Decision Adherence Validation (Post-Implementation)
@@ -783,17 +833,17 @@ Populate after `H5/H6`; unresolved `Exception` blocks closure.
 
 | Decision | Status | Module Coherence | Change Intent | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- |
-| `D-T01` | `pending` | `Aligned` | `Preserve` | `pending` | layered evidence is mandatory |
-| `D-T02` | `pending` | `Aligned` | `Preserve` | `pending` | compatibility requires `web+mobile` or explicit `blocked` |
-| `D-T03` | `pending` | `Aligned` | `Preserve` | `pending` | Home agenda parity includes canonical request semantics |
-| `D-T04` | `pending` | `Aligned` | `Preserve` | `pending` | public text-search remains fail-closed |
-| `D-T05` | `pending` | `Aligned` | `Preserve` | `pending` | event types load from dedicated endpoint |
-| `D-T06` | `pending` | `Aligned` | `Preserve` | `pending` | bypass patterns remain forbidden |
-| `D-T07` | `pending` | `Aligned` | `Preserve` | `pending` | explicit `passed|failed|blocked` accounting |
-| `D-T08` | `pending` | `Aligned` | `Preserve` | `pending` | current checked-out behavior remains the regression authority |
-| `D-T09` | `pending` | `Aligned` | `Preserve` | `pending` | touched exception paths follow the bounded Sentry classification rule and report the required classes to Sentry |
-| `D-T10` | `pending` | `Aligned` | `Preserve` | `pending` | project-owned Flutter/Sentry rule prevents silent swallowed unexpected failures |
-| `D-T11` | `pending` | `Aligned` | `Preserve` | `pending` | browser validation is lane-aware and target-derived |
+| `D-T01` | `adherent` | `Aligned` | `Preserve` | Local Laravel + Flutter lanes passed, Android/mobile integration passed, and browser readonly/mutation passed on current Cloudflare tunnel targets. | Layered journey evidence is complete for the local/dev execution lane. |
+| `D-T02` | `adherent` | `Aligned` | `Preserve` | Android/mobile passed on `moto e13`; browser targets served `__WEB_BUILD_SHA__=f11cf715` and readonly/mutation suites passed. | `web+mobile` compatibility was not downgraded. |
+| `D-T03` | `adherent` | `Aligned` | `Preserve` | Laravel + Flutter local evidence passed; Home agenda mobile integration passed; browser mutation tenant agenda UI/API parity passed. | Home agenda parity has layered local/dev evidence. |
+| `D-T04` | `adherent` | `Aligned` | `Preserve` | Local contract/controller evidence passed; agenda filter/no-search mobile integration passed; browser readonly/mutation passed without reopening public text-search. | Public no-search/fail-closed posture is preserved across the executed lanes. |
+| `D-T05` | `adherent` | `Aligned` | `Preserve` | Backend + Flutter event-type dependency suites passed; tenant-admin event form mobile integration passed; browser-auth admin evidence passed through tenant-admin event-type create and type-asset mutation flows. | Browser-auth admin evidence is no longer blocked. |
+| `D-T06` | `adherent` | `Aligned` | `Preserve` | Touched test/rule-matrix scan for `skip`/`only` patterns returned no matches; targeted suites passed. | Bypass patterns remain forbidden. |
+| `D-T07` | `adherent` | `Aligned` | `Preserve` | Status report artifact records every required stage as `passed` or `blocked`. | Explicit stage accounting is in place. |
+| `D-T08` | `adherent` | `Aligned` | `Preserve` | Delivery preserved the current checked-out behavior and changed reporting/test enforcement only. | Historical TODO wording did not override current runtime truth. |
+| `D-T09` | `adherent` | `Aligned` | `Preserve` | `SentryErrorReporter` adapter and targeted tests prove recoverable captures for touched push/settings paths; touched rich-text fallback uses the same reporting adapter and is analyzer-covered. | Touched unexpected failures follow the bounded Sentry classification rule. |
+| `D-T10` | `adherent` | `Aligned` | `Preserve` | Analyzer plugin rule `flutter_sentry_unreported_debug_print_catch_forbidden` added, documented, registered, and validated by fixture matrix plus official analyzer. | Project-owned Flutter/Sentry enforcement exists for mechanically obvious cases. |
+| `D-T11` | `adherent` | `Aligned` | `Preserve` | Browser targets were checked for current-state SHA, republished through the project web build script, rechecked as `f11cf715`, and then validated through readonly/mutation suites. | Browser validation remains lane-aware and target-derived. |
 
 ---
 
@@ -801,7 +851,7 @@ Populate after `H5/H6`; unresolved `Exception` blocks closure.
 
 - **Runtime impact:** `medium` (test/runners/evidence hardening plus bounded Sentry/reporting alignment on touched error paths; no intentional visible product behavior change is intended under this TODO)
 - **Confidence target:** `high`
-- **Readiness outcome:** `pending`
+- **Readiness outcome:** `promoted-to-dev`
 
 ---
 
