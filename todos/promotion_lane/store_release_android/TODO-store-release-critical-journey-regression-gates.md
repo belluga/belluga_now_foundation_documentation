@@ -200,7 +200,7 @@ The repository baseline changed after this TODO was normalized. Current `dev` al
 
 ## Execution Lane Tracking
 
-- **Local implementation branches:** `flutter-app: delphi/store-release-critical-journey-regression-gates-dev@4a22e40f -> dev@ccb6795a`, `web-app: ci/flutter-web-dev@1109b64 -> dev@ec2d41b`, `laravel-app: dev@37fd59b`, `foundation_documentation: delphi/docs-reconcile-store-release-20260419@b426019`
+- **Local implementation branches:** `flutter-app: delphi/store-release-critical-journey-regression-gates-dev@4a22e40f -> dev@ccb6795a`, `web-app: ci/flutter-web-dev@1109b64 -> dev@ec2d41b`, `laravel-app: dev@37fd59b`, `foundation_documentation: delphi/docs-reconcile-store-release-20260419 (docs branch pushed)`
 - **Promotion lane path:** `dev -> stage`
 - **Lane-promoted threshold for this TODO:** `dev`
 - **Production-ready threshold for this TODO:** `stage`
@@ -214,7 +214,7 @@ The repository baseline changed after this TODO was normalized. Current `dev` al
 | `CJ-03` tenant-admin event type form gate | `flutter-app: 4a22e40f -> dev@ccb6795a; web-app: 1109b64 -> dev@ec2d41b; laravel-app: dev@37fd59b` | `flutter-app PR #237 merged to dev 2026-04-21; web-app PR #279 merged to dev 2026-04-21` | `<pending>` | `n/a` | `Lane-Promoted` |
 | `OBS-01` bounded Sentry hardening | `flutter-app: 4a22e40f -> dev@ccb6795a` | `flutter-app PR #237 merged to dev 2026-04-21` | `<pending>` | `n/a` | `Lane-Promoted` |
 | `RULE-SENTRY-01` project-owned Sentry reporting rule | `flutter-app: 4a22e40f -> dev@ccb6795a` | `flutter-app PR #237 merged to dev 2026-04-21` | `<pending>` | `n/a` | `Lane-Promoted` |
-| Cross-platform orchestration + status report | `foundation_documentation delphi/docs-reconcile-store-release-20260419@b426019` | `flutter-app PR #237 + web-app PR #279 merged to dev; docs TODO moved to promotion_lane/ and pushed to docs branch` | `<pending>` | `n/a` | `Lane-Promoted / Roadmap-Handoff-Recorded` |
+| Cross-platform orchestration + status report | `foundation_documentation delphi/docs-reconcile-store-release-20260419 (docs branch pushed)` | `flutter-app PR #237 + web-app PR #279 merged to dev; docs TODO moved to promotion_lane/ and pushed to docs branch` | `<pending>` | `n/a` | `Lane-Promoted / Roadmap-Handoff-Recorded` |
 
 ---
 
