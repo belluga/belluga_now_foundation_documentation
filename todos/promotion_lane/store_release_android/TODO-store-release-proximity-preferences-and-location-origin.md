@@ -27,9 +27,9 @@ This slice must preserve the delivered V1 behavior while defining the launch-rea
 - If any assumption or plan step changes `Scope`, `Out of Scope`, `Definition of Done`, required validation semantics, public contract, or frozen decisions, update the TODO contract first and request renewed approval before execution continues.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Blocked`
-- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Blocked`
-- **Next exact step:** freeze and approve `foundation_documentation/todos/active/store_release_android/TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md`, then resume orchestration for the remaining identity-backed proximity slice.
+- **Current delivery stage:** `Lane-Promoted`
+- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Blocker-Consumed`, `Principal-Checkout-Reconcile`
+- **Next exact step:** run final manual validation against the principal-checkout reconcile state, then move this TODO and its blocker dependency to `promotion_lane/` for `dev` follow-through.
 
 ## Scope
 - [ ] Define one canonical identity-owned preference model for Home proximity settings (`max_distance_meters` + location-origin mode/payload).
@@ -49,11 +49,11 @@ This slice must preserve the delivered V1 behavior while defining the launch-rea
 - `Blocked`: work cannot currently proceed; `Blocker Notes` become mandatory.
 
 ## Blocker Notes
-- [ ] `DEP-01` This TODO is blocked by `foundation_documentation/todos/active/store_release_android/TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md`, which now owns the reusable fixed-reference contract, generic entity provenance schema, and the first dependent-capability rule (`is_reference_location_enabled` depends on `is_poi_enabled`).
-- [ ] Orchestration for this TODO must not start until the blocker freezes read/write disable semantics for entity-backed references and the required cross-stack test floor.
+- [x] `DEP-01` This TODO was blocked by `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md`, which delivered the reusable fixed-reference contract, generic entity provenance schema, and the dependent-capability rule (`is_reference_location_enabled` depends on `is_poi_enabled`) now consumed locally in reconcile.
+- [x] Orchestration resumed only after the blocker froze read/write disable semantics for entity-backed references and the required cross-stack test floor.
 
 ## Execution Lane Tracking (Required)
-- **Local implementation branches:** `<pending>`
+- **Local implementation branches:** `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863; flutter-app: reconcile/delphi-store-release-20260420 @ fa31acca`
 - **Promotion lane path:** `dev -> stage`
 - **Lane-promoted threshold for this TODO:** `dev`
 - **Production-ready threshold for this TODO:** `stage`
@@ -61,7 +61,7 @@ This slice must preserve the delivered V1 behavior while defining the launch-rea
 ## Promotion Evidence (Required Before `🟣 Lane-Promoted` / `✅ Production-Ready`)
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Identity-backed Home proximity preference contract + merge path + profile editor baseline | `<pending>` | `<pending>` | `<pending>` | `n/a` | `Pending` |
+| Identity-backed Home proximity preference contract + merge path + profile editor baseline | `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863; flutter-app: reconcile/delphi-store-release-20260420 @ fa31acca` | `laravel-app: PR #158 (merged to dev 2026-04-21); flutter-app: PR #236 (merged to dev 2026-04-20)` | `<pending>` | `n/a` | `Lane-Promoted` |
 
 ## Out of Scope
 - [ ] Replacing the delivered V1 local/device persistence path before the identity-backed path exists.
@@ -71,7 +71,7 @@ This slice must preserve the delivered V1 behavior while defining the launch-rea
 - [ ] New public IA or unrelated profile-area redesign.
 
 ## Dependencies & Sequencing
-- [ ] `DEP-01` `foundation_documentation/todos/active/store_release_android/TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md` remains a hard blocker for the reusable fixed-reference core, entity provenance schema, and dependent-capability semantics that this TODO must consume.
+- [x] `DEP-01` `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md` delivered the reusable fixed-reference core, entity provenance schema, and dependent-capability semantics consumed by this TODO.
 - [ ] `DEP-02` The first user-facing rollout for this TODO may stay manual-coordinate first, but it must not bypass the blocker-owned entity-reference contract and test floor.
 
 ## Bounded But Elastic Guardrails

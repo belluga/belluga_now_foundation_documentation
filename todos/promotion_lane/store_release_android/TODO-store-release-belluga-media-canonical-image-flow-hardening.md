@@ -27,9 +27,9 @@ This slice exists to harden the rule at the architecture level: image flows are 
 - If any assumption or plan step changes `Scope`, `Out of Scope`, `Definition of Done`, required validation semantics, public contract, or frozen decisions, update the TODO contract first and request renewed approval before execution continues.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Pending`
-- **Qualifiers:** `Release-Critical`, `Cross-Stack`
-- **Next exact step:** execute the media-flow inventory and run the required critique packet so the implementation orchestration starts from an audited non-compliant inventory and a frozen media rule set.
+- **Current delivery stage:** `Lane-Promoted`
+- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Principal-Checkout-Reconcile`
+- **Next exact step:** use the principal-checkout reconcile state for final manual validation, then move this TODO to `promotion_lane/` for `dev` follow-through.
 
 ## Scope
 - [ ] Inventory every current Laravel product image flow and classify it as `belluga_media-compliant`, `wrapper-compliant`, or `non-compliant`.
@@ -47,7 +47,7 @@ This slice exists to harden the rule at the architecture level: image flows are 
 - `Blocked`: work cannot currently proceed; `Blocker Notes` become mandatory.
 
 ## Execution Lane Tracking (Required)
-- **Local implementation branches:** `<pending>`
+- **Local implementation branches:** `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863`
 - **Promotion lane path:** `dev -> stage`
 - **Lane-promoted threshold for this TODO:** `dev`
 - **Production-ready threshold for this TODO:** `stage`
@@ -55,7 +55,7 @@ This slice exists to harden the rule at the architecture level: image flows are 
 ## Promotion Evidence (Required Before `🟣 Lane-Promoted` / `✅ Production-Ready`)
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Canonical image-flow hardening rule + audit + migrations | `<pending>` | `<pending>` | `<pending>` | `n/a` | `Pending` |
+| Canonical image-flow hardening rule + audit + migrations | `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863` | `laravel-app: PR #158 (merged to dev 2026-04-21); flutter-app: PR #236 (merged to dev 2026-04-20)` | `<pending>` | `n/a` | `Lane-Promoted` |
 
 ## Out of Scope
 - [ ] Flutter/web local pick/crop UX changes by themselves.

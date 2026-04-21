@@ -306,7 +306,7 @@ The Flutter client must separate regression confidence from real compatibility e
 | UI-flow `integration_test` with fakes | AutoRoute/DI/StreamValue behavior under controlled doubles | No | local-safe + CI | These prove state-machine integrity only; they must never be reported as backend compatibility evidence. |
 | Repository / decoder contract tests | Flutter transport boundary (`preview`, `materialize`, `accept`, `decline`, malformed payloads, terminal states) | No | local-safe + CI | Required whenever invite payload shape changes. |
 | Real Flutter runtime compatibility suite | Real backend, real repositories, real controller/runtime behavior for invite critical paths | Yes | `stage` only | Must run against the deployed `stage` backend, not mocks or local doubles. |
-| Web/browser compatibility suite | Invite landing, preview, auth redirect preservation, fallback behavior, `.well-known`/deeplink artifacts | Yes for browser boundary | `stage` only for mutation; `readonly` can run on `stage|main` | Executed through `tools/flutter/run_web_navigation_smoke.sh`. |
+| Web/browser compatibility suite | Invite landing, preview, auth redirect preservation, fallback behavior, `.well-known`/deeplink artifacts | Yes for browser boundary | `readonly` can run on `local|dev|stage|main`; `mutation` can run on `local|dev|stage` and is forbidden on `main` | Executed through `tools/flutter/run_web_navigation_smoke.sh` and must target the browser-facing domain for the current lane. |
 | OS/device deep-link validation | Android App Links / iOS Universal Links open behavior | Manual evidence only | physical device/simulator | Never replaced by browser or repository tests. |
 
 **Invite-critical coverage baseline**
@@ -321,7 +321,7 @@ Invite flows must be proven in layers:
 
 | Environment | Required Invite Gates | Claim Allowed |
 | --- | --- | --- |
-| `dev` | Laravel local-safe invite tests + Flutter unit/widget/repository tests | Contract-safe locally, but not real deployed compatibility |
+| `dev` | Laravel local-safe invite tests + Flutter unit/widget/repository tests + optional Playwright `readonly|mutation` against the browser-facing dev domain | Contract-safe locally/dev, with optional real browser evidence outside `main` |
 | `stage` | Real Flutter runtime invite suite + Playwright/browser invite suite | Real deployed compatibility for invite critical paths |
 | `main` | Read-only smoke only | Production-readiness smoke, never mutation-backed compatibility proof |
 

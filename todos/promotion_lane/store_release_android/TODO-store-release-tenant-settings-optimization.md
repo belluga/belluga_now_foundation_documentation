@@ -27,9 +27,9 @@ This TODO exists to freeze the canonical read-model direction: keep settings ker
 - If any assumption or plan step changes `Scope`, `Out of Scope`, `Definition of Done`, required validation semantics, public contract, or frozen decisions, update the TODO contract first and request renewed approval before execution continues.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Pending`
-- **Qualifiers:** `Release-Critical`, `Cross-Stack`
-- **Next exact step:** inventory the approved narrow rollout boundary (`/api/v1/environment` + tenant-admin bootstrap/settings hot reads), then package the implementation slice for Laravel-first orchestration.
+- **Current delivery stage:** `Lane-Promoted`
+- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Principal-Checkout-Reconcile`
+- **Next exact step:** use the principal-checkout reconcile state for final manual validation, then move this TODO to `promotion_lane/` for `dev` follow-through.
 
 ## Scope
 - [ ] Define one canonical derived tenant snapshot/read model for hot settings/bootstrap consumers.
@@ -51,7 +51,7 @@ This TODO exists to freeze the canonical read-model direction: keep settings ker
 - `Blocked`: work cannot currently proceed; `Blocker Notes` become mandatory.
 
 ## Execution Lane Tracking (Required)
-- **Local implementation branches:** `<pending>`
+- **Local implementation branches:** `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863`
 - **Promotion lane path:** `dev -> stage`
 - **Lane-promoted threshold for this TODO:** `dev`
 - **Production-ready threshold for this TODO:** `stage`
@@ -59,7 +59,7 @@ This TODO exists to freeze the canonical read-model direction: keep settings ker
 ## Promotion Evidence (Required Before `🟣 Lane-Promoted` / `✅ Production-Ready`)
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Materialized tenant settings/environment read model + rebuild path + hot-read consumers | `<pending>` | `<pending>` | `<pending>` | `n/a` | `Pending` |
+| Materialized tenant settings/environment read model + rebuild path + hot-read consumers | `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863` | `laravel-app: PR #158 (merged to dev 2026-04-21); flutter-app: PR #236 (merged to dev 2026-04-20)` | `<pending>` | `n/a` | `Lane-Promoted` |
 
 ## Out of Scope
 - [ ] Replacing canonical settings-kernel write ownership with the snapshot/read model.

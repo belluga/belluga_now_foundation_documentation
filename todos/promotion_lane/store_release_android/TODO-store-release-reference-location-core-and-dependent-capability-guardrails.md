@@ -25,9 +25,9 @@ This blocker also captures the first explicit capability dependency case in the 
 - This TODO is **bounded but elastic** only inside the reusable reference-location contract, dependent capability rule, and their tests. If the work expands into end-user selection UX, broader trip-planning, or generic entity-picking IA, split or update the downstream TODO instead of stretching this blocker.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Pending`
-- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Blocker`
-- **Next exact step:** package the reusable reference-location contract, capability dependency rule, and required test floor so `TODO-store-release-proximity-preferences-and-location-origin.md` can resume from a frozen baseline.
+- **Current delivery stage:** `Lane-Promoted`
+- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Blocker-Delivered`, `Principal-Checkout-Reconcile`
+- **Next exact step:** keep the blocker available in the principal-checkout reconcile state for manual validation together with the consumer proximity slice, then move both TODOs to `promotion_lane/`.
 
 ## Scope
 - [ ] Define the reusable fixed-reference core as `package/lib-first`: local package or library boundary now, extraction-ready/global candidate later, while keeping host-app persistence/merge ownership outside the package.
@@ -48,7 +48,7 @@ This blocker also captures the first explicit capability dependency case in the 
 - `Blocked`: work cannot currently proceed; `Blocker Notes` become mandatory.
 
 ## Execution Lane Tracking (Required)
-- **Local implementation branches:** `<pending>`
+- **Local implementation branches:** `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863; flutter-app: reconcile/delphi-store-release-20260420 @ fa31acca`
 - **Promotion lane path:** `dev -> stage`
 - **Lane-promoted threshold for this TODO:** `dev`
 - **Production-ready threshold for this TODO:** `stage`
@@ -56,7 +56,7 @@ This blocker also captures the first explicit capability dependency case in the 
 ## Promotion Evidence (Required Before `🟣 Lane-Promoted` / `✅ Production-Ready`)
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Reusable reference-location core contract + dependent capability rule + test floor | `<pending>` | `<pending>` | `<pending>` | `n/a` | `Pending` |
+| Reusable reference-location core contract + dependent capability rule + test floor | `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863; flutter-app: reconcile/delphi-store-release-20260420 @ fa31acca` | `laravel-app: PR #158 (merged to dev 2026-04-21); flutter-app: PR #236 (merged to dev 2026-04-20)` | `<pending>` | `n/a` | `Lane-Promoted` |
 
 ## Out of Scope
 - [ ] Shipping the full Account Profile hotel CTA/editor UX in this blocker.
@@ -66,7 +66,7 @@ This blocker also captures the first explicit capability dependency case in the 
 - [ ] Account Profile ownership changes; the new relation remains user-owned preference state.
 
 ## Dependencies & Sequencing
-- [x] `DEP-01` This TODO is a hard blocker for `foundation_documentation/todos/active/store_release_android/TODO-store-release-proximity-preferences-and-location-origin.md`.
+- [x] `DEP-01` This TODO is a hard blocker for `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-proximity-preferences-and-location-origin.md`.
 - [ ] `DEP-02` If package naming or extraction strategy changes beyond a local incubated package/library boundary, update this TODO before implementation starts.
 
 ## Bounded But Elastic Guardrails
