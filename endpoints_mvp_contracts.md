@@ -1287,10 +1287,9 @@
         }
       ],
       "capabilities": {
-        "multiple_occurrences": {
-          "enabled": false,
-          "allow_multiple": false,
-          "max_occurrences": null
+        "map_poi": {
+          "enabled": true,
+          "discovery_scope": null
         }
       },
       "tags": ["string"],
@@ -1394,10 +1393,9 @@ Not returned by `/agenda` and `/events/{event_id}`:
       }
     ],
     "capabilities": {
-      "multiple_occurrences": {
-        "enabled": false,
-        "allow_multiple": false,
-        "max_occurrences": null
+      "map_poi": {
+        "enabled": true,
+        "discovery_scope": null
       }
     },
     "tags": ["string"],
@@ -2946,11 +2944,6 @@ Not returned by `/agenda` and `/events/{event_id}`:
         }
       ],
       "capabilities": {
-        "multiple_occurrences": {
-          "enabled": false,
-          "allow_multiple": false,
-          "max_occurrences": null
-        },
         "map_poi": {
           "enabled": true,
           "discovery_scope": null
@@ -3041,8 +3034,9 @@ Not returned by `/agenda` and `/events/{event_id}`:
     "publish_at": "2025-01-01T00:00:00Z?"
   },
   "capabilities": {
-    "multiple_occurrences": {
-      "enabled": false
+    "map_poi": {
+      "enabled": true,
+      "discovery_scope": null
     }
   },
   "event_parties": [
@@ -3120,11 +3114,6 @@ Not returned by `/agenda` and `/events/{event_id}`:
       }
     ],
     "capabilities": {
-      "multiple_occurrences": {
-        "enabled": false,
-        "allow_multiple": false,
-        "max_occurrences": null
-      },
       "map_poi": {
         "enabled": true,
         "discovery_scope": null
@@ -3203,11 +3192,6 @@ Not returned by `/agenda` and `/events/{event_id}`:
       }
     ],
     "capabilities": {
-      "multiple_occurrences": {
-        "enabled": false,
-        "allow_multiple": false,
-        "max_occurrences": null
-      },
       "map_poi": {
         "enabled": true,
         "discovery_scope": null

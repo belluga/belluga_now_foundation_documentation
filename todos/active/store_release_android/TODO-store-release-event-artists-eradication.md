@@ -4,8 +4,8 @@
 
 **Scope authority note (2026-04-18):** this TODO is the direct delivery authority for full `artists` retirement in the store-release lane. `foundation_documentation/todos/completed/TODO-v1-event-parties-canonicalization-and-legacy-migration.md` remains closed for the canonical write/admin cutover; this lane exists because the audit proved that legacy `artists` still persists in read/runtime surfaces and should no longer remain in the release contract.
 
-**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [x] 🟣 Lane-Promoted` · `- [ ] ✅ Production-Ready`.
-**Status:** Lane-Promoted. Laravel and Flutter eradication merged to `dev` on April 20, 2026 through backend PR #157 and frontend PR #235; remaining work is `stage`/`main` promotion plus foundation-docs publication on `main`.
+**Status legend:** `- [x] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [ ] ✅ Production-Ready`.
+**Status:** Reopened. Prior Laravel and Flutter PRs contain useful partial evidence, but retroactive audit on April 22, 2026 found current release-facing `artists` residues in code/tests/docs, so this TODO cannot remain in promotion lane.
 **Owners:** Delphi, Flutter Team, Laravel Team
 **Goal:** eliminate `artists` as a persisted or behavior-driving event contract in store-release surfaces by moving all remaining consumers to canonical `event_parties`, `linked_account_profiles`, venue/place-ref ownership, or explicit counterpart projections derived from those canonical sources.
 
@@ -62,9 +62,9 @@ This residue was not just harmless historical storage. At the start of this lane
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Lane-Promoted`
-- **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Contract-Eradication`, `Foundation-Docs-Main-Pending`
-- **Next exact step:** promote the dev-merged Laravel + Flutter eradication beyond `dev`, publish the foundation-docs follow-through on `main`, and keep stage/main validation aligned with the artists-free contract.
+- **Current delivery stage:** `Pending`
+- **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Contract-Eradication`, `Reopened-Functional-Gap`
+- **Next exact step:** remove or intentionally re-scope remaining release-facing `artists` read/runtime residues, then rebuild validation evidence and the Completion Evidence Matrix before promotion.
 
 ## References
 
@@ -147,13 +147,13 @@ This residue was not just harmless historical storage. At the start of this lane
 
 ## Scope
 
-- [x] Remove `artists` from Laravel public event/detail/list payloads and replace all touched consumers with canonical linked-profile/counterpart data.
-- [x] Stop persisting `artists` as event-occurrence read projection output for release-facing runtime behavior.
-- [x] Remove `artists` dependence from public-web metadata, favorites integration, favorite snapshots, and any other touched runtime helper still reading it.
-- [x] Remove `artists` from Flutter `EventDTO`, `EventModel`, and touched event/account-profile/map projections.
-- [x] Refactor discovery live-now, upcoming-event cards, account-profile agenda, and map/event marker/card behavior to use canonical counterpart semantics instead of `artists`.
-- [x] Replace artist-shaped search/taxonomy/query assumptions with canonical linked-profile/counterpart ownership where required by the touched release surfaces.
-- [x] Update tests, fixtures, and module/docs authority so the resulting release contract no longer treats `artists` as a current runtime field.
+- [ ] Remove `artists` from Laravel public event/detail/list payloads and replace all touched consumers with canonical linked-profile/counterpart data.
+- [ ] Stop persisting `artists` as event-occurrence read projection output for release-facing runtime behavior.
+- [ ] Remove `artists` dependence from public-web metadata, favorites integration, favorite snapshots, and any other touched runtime helper still reading it.
+- [ ] Remove `artists` from Flutter `EventDTO`, `EventModel`, and touched event/account-profile/map projections.
+- [ ] Refactor discovery live-now, upcoming-event cards, account-profile agenda, and map/event marker/card behavior to use canonical counterpart semantics instead of `artists`.
+- [ ] Replace artist-shaped search/taxonomy/query assumptions with canonical linked-profile/counterpart ownership where required by the touched release surfaces.
+- [ ] Update tests, fixtures, and module/docs authority so the resulting release contract no longer treats `artists` as a current runtime field.
 - [x] Keep the eradication bounded to store-release relevance; if a non-release surface still needs later cleanup after the public/runtime path is safe, open explicit follow-up rather than silently widening this lane.
 
 ## Out of Scope
@@ -195,33 +195,33 @@ This residue was not just harmless historical storage. At the start of this lane
 
 ## Acceptance Criteria
 
-- [x] Public Laravel event payloads used by the release app no longer expose `artists` as a current runtime field.
-- [x] Event-occurrence projections used by release-facing read paths no longer persist or depend on `artists`.
-- [x] Flutter event DTO/domain models and touched projections no longer carry `artists`.
-- [x] Discovery live-now, upcoming-event cards, account-profile agenda, and map/event surfaces behave correctly without reading `artists`.
-- [x] Favorites/public-web helper paths no longer depend on `artists`.
-- [x] Touched search/taxonomy/runtime contracts no longer encode `artists.*` as current ownership.
-- [x] Canonical module/docs authority describes the resulting release contract without ambiguity.
-- [x] A parity gate proves release readers and helper paths are clean before Laravel removes the residual `artists` ownership paths.
+- [ ] Public Laravel event payloads used by the release app no longer expose `artists` as a current runtime field.
+- [ ] Event-occurrence projections used by release-facing read paths no longer persist or depend on `artists`.
+- [ ] Flutter event DTO/domain models and touched projections no longer carry `artists`.
+- [ ] Discovery live-now, upcoming-event cards, account-profile agenda, and map/event surfaces behave correctly without reading `artists`.
+- [ ] Favorites/public-web helper paths no longer depend on `artists`.
+- [ ] Touched search/taxonomy/runtime contracts no longer encode `artists.*` as current ownership.
+- [ ] Canonical module/docs authority describes the resulting release contract without ambiguity.
+- [ ] A parity gate proves release readers and helper paths are clean before Laravel removes the residual `artists` ownership paths.
 
 ## Definition of Done
 
-- [x] The store-release app can run its touched public event/account-profile/map flows without any `artists` field in the active event contract.
-- [x] No touched Flutter or Laravel release surface still treats `artists` as input, persisted projection, or behavior-driving fallback.
-- [x] Historical migration context remains documented, but the current canonical and runtime authority no longer tolerates `artists` as present-state behavior.
+- [ ] The store-release app can run its touched public event/account-profile/map flows without any `artists` field in the active event contract.
+- [ ] No touched Flutter or Laravel release surface still treats `artists` as input, persisted projection, or behavior-driving fallback.
+- [ ] Historical migration context remains documented, but the current canonical and runtime authority no longer tolerates `artists` as present-state behavior.
 
 ## Validation Steps
 
-- [x] Pre-removal parity gate:
+- [ ] Pre-removal parity gate:
   - shared Flutter event contract is frozen and migrated under one owner;
   - artists-free Laravel payload fixtures exist for touched release surfaces;
   - release Flutter readers render correctly from artists-free fixtures;
   - favorites/public-web/sync paths no longer require `artists`.
-- [x] Laravel automated: public event payloads and occurrence projections are correct after `artists` removal.
-- [x] Laravel automated: favorites/public-web/search/taxonomy behavior remains correct after the contract cutover.
-- [x] Flutter automated: discovery live-now, upcoming-event cards, account-profile agenda, and map/event consumers remain correct without `artists`.
-- [x] Flutter automated: DTO/domain decoding fails fast or stays aligned with the new canonical payload shape, with no silent legacy fallback.
-- [x] Manual smoke: Home/Discovery live-now, Events list/detail entrypoints, Public Account Profile agenda, Map event markers/cards, and any touched favorites/public metadata behavior all remain stable after the cutover.
+- [ ] Laravel automated: public event payloads and occurrence projections are correct after `artists` removal.
+- [ ] Laravel automated: favorites/public-web/search/taxonomy behavior remains correct after the contract cutover.
+- [ ] Flutter automated: discovery live-now, upcoming-event cards, account-profile agenda, and map/event consumers remain correct without `artists`.
+- [ ] Flutter automated: DTO/domain decoding fails fast or stays aligned with the new canonical payload shape, with no silent legacy fallback.
+- [ ] Manual smoke: Home/Discovery live-now, Events list/detail entrypoints, Public Account Profile agenda, Map event markers/cards, and any touched favorites/public metadata behavior all remain stable after the cutover.
 
 ## Validation Evidence
 
@@ -240,9 +240,17 @@ This residue was not just harmless historical storage. At the start of this lane
 
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Laravel public/read/runtime `artists` eradication | `belluga_now_backend:delphi/laravel-reconcile-store-release-20260419 -> dev @ da78fa8` | `https://github.com/belluga/belluga_now_backend/pull/157 (merged -> dev on 2026-04-20)` | `pending` | `pending` | `Lane-Promoted; 3 PR checks passed` |
-| Flutter DTO/domain/runtime `artists` eradication | `belluga_now_front:delphi/flutter-reconcile-store-release-20260419 -> dev @ 72560cf` | `https://github.com/belluga/belluga_now_front/pull/235 (merged -> dev on 2026-04-20)` | `pending` | `pending` | `Lane-Promoted; 5 PR checks passed` |
-| Docs/tests/search/taxonomy/favorites reconciliation | `belluga_now_backend:delphi/laravel-reconcile-store-release-20260419 -> dev @ da78fa8` + `belluga_now_front:delphi/flutter-reconcile-store-release-20260419 -> dev @ 72560cf` + `foundation_documentation:local promotion-lane realignment (2026-04-19)` | `https://github.com/belluga/belluga_now_backend/pull/157 (merged -> dev on 2026-04-20)` + `https://github.com/belluga/belluga_now_front/pull/235 (merged -> dev on 2026-04-20)` | `pending` | `pending` | `Lane-Promoted for code paths; foundation docs main follow-through pending` |
+| Laravel public/read/runtime `artists` eradication | `belluga_now_backend:delphi/laravel-reconcile-store-release-20260419 -> dev @ da78fa8` | `https://github.com/belluga/belluga_now_backend/pull/157 (merged -> dev on 2026-04-20)` | `pending` | `pending` | `Reopened; PR evidence is partial and current code still has runtime residues` |
+| Flutter DTO/domain/runtime `artists` eradication | `belluga_now_front:delphi/flutter-reconcile-store-release-20260419 -> dev @ 72560cf` | `https://github.com/belluga/belluga_now_front/pull/235 (merged -> dev on 2026-04-20)` | `pending` | `pending` | `Reopened; PR evidence is partial and current code still has DTO/test residues` |
+| Docs/tests/search/taxonomy/favorites reconciliation | `belluga_now_backend:delphi/laravel-reconcile-store-release-20260419 -> dev @ da78fa8` + `belluga_now_front:delphi/flutter-reconcile-store-release-20260419 -> dev @ 72560cf` + `foundation_documentation:local promotion-lane realignment (2026-04-19)` | `https://github.com/belluga/belluga_now_backend/pull/157 (merged -> dev on 2026-04-20)` + `https://github.com/belluga/belluga_now_front/pull/235 (merged -> dev on 2026-04-20)` | `pending` | `pending` | `Reopened; docs/tests/search/taxonomy residues still need closure` |
+
+## Retroactive Audit Finding (2026-04-22)
+
+- **Audit outcome:** `reopened`
+- **Reason:** the prior `Lane-Promoted` marker was not substantiated by a Completion Evidence Matrix, and current code inspection still finds release-facing `artists` residues.
+- **Recovered evidence:** backend PR #157 and frontend PR #235 remain useful partial evidence and should be reused when closing the surviving sub-criteria.
+- **Blocking gaps found by `rg`:** `../laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php` still assigns `payload['artists']`; `../laravel-app/packages/belluga/belluga_events/src/Application/Events/EventOccurrenceSyncService.php` still derives an `artists` read projection; `../laravel-app/app/Application/PublicWeb/PublicWebMetadataService.php` and `../laravel-app/app/Providers/PackageIntegration/FavoritesIntegrationServiceProvider.php` still read `artists`; `lib/infrastructure/dal/dto/schedule/event_dto.dart` still decodes `artists`; tests and migrations still carry `artists.*` assumptions.
+- **Required closure before promotion:** decide whether any remaining `artists` paths are intentionally historical/migration-only, remove all release-facing runtime dependencies, rerun backend/Flutter/web navigation evidence, and add a Completion Evidence Matrix with one row per DoD/Validation criterion.
 
 ## Execution Plan (Critique-Reconciled)
 ### Ordered Steps

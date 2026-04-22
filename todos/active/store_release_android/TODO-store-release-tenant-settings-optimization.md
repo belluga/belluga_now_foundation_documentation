@@ -27,9 +27,9 @@ This TODO exists to freeze the canonical read-model direction: keep settings ker
 - If any assumption or plan step changes `Scope`, `Out of Scope`, `Definition of Done`, required validation semantics, public contract, or frozen decisions, update the TODO contract first and request renewed approval before execution continues.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Lane-Promoted`
-- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Principal-Checkout-Reconcile`
-- **Next exact step:** use the principal-checkout reconcile state for final manual validation, then move this TODO to `promotion_lane/` for `dev` follow-through.
+- **Current delivery stage:** `Pending`
+- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Reopened-Functional-Gap`, `Evidence-Incomplete`
+- **Next exact step:** prove the materialized snapshot/read-model implementation, rebuild triggers, fallback behavior, and parity before this TODO can return to `promotion_lane/`.
 
 ## Scope
 - [ ] Define one canonical derived tenant snapshot/read model for hot settings/bootstrap consumers.
@@ -59,7 +59,15 @@ This TODO exists to freeze the canonical read-model direction: keep settings ker
 ## Promotion Evidence (Required Before `🟣 Lane-Promoted` / `✅ Production-Ready`)
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Materialized tenant settings/environment read model + rebuild path + hot-read consumers | `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863` | `laravel-app: PR #158 (merged to dev 2026-04-21); flutter-app: PR #236 (merged to dev 2026-04-20)` | `<pending>` | `n/a` | `Lane-Promoted` |
+| Materialized tenant settings/environment read model + rebuild path + hot-read consumers | `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863` | `laravel-app: PR #158 (merged to dev 2026-04-21); flutter-app: PR #236 (merged to dev 2026-04-20)` | `<pending>` | `n/a` | `Reopened; implementation not demonstrated` |
+
+## Retroactive Audit Finding (2026-04-22)
+
+- **Audit outcome:** `reopened`
+- **Reason:** the prior `Lane-Promoted` marker was not substantiated by criterion-level evidence and the TODO still has open Scope, DoD, Validation, Plan Review, and residual-risk items.
+- **Recovered evidence:** there is tenant-admin diagnostic UI around an environment snapshot surface and the roadmap marks `/api/v1/environment` as implemented, but those artifacts do not prove the materialized read-model contract.
+- **Blocking gap:** inspection did not find sufficient evidence of a dedicated materialized/versioned snapshot, rebuild triggers, atomic replace semantics, freshness/version metadata, fail-soft last-valid fallback, or live-vs-snapshot parity validation.
+- **Required closure before promotion:** implement or prove the derived snapshot path, rebuild/fallback/parity tests, observability evidence, and a Completion Evidence Matrix with one row per DoD/Validation criterion.
 
 ## Out of Scope
 - [ ] Replacing canonical settings-kernel write ownership with the snapshot/read model.

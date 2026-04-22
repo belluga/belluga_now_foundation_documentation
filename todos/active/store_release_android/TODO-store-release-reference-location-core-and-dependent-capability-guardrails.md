@@ -25,9 +25,9 @@ This blocker also captures the first explicit capability dependency case in the 
 - This TODO is **bounded but elastic** only inside the reusable reference-location contract, dependent capability rule, and their tests. If the work expands into end-user selection UX, broader trip-planning, or generic entity-picking IA, split or update the downstream TODO instead of stretching this blocker.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Lane-Promoted`
-- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Blocker-Delivered`, `Principal-Checkout-Reconcile`
-- **Next exact step:** keep the blocker available in the principal-checkout reconcile state for manual validation together with the consumer proximity slice, then move both TODOs to `promotion_lane/`.
+- **Current delivery stage:** `Pending`
+- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Reopened-Functional-Gap`, `Blocker-Active`
+- **Next exact step:** implement and prove the disabled-resolution payload and cross-stack tests before downstream proximity work can treat this blocker as delivered.
 
 ## Scope
 - [ ] Define the reusable fixed-reference core as `package/lib-first`: local package or library boundary now, extraction-ready/global candidate later, while keeping host-app persistence/merge ownership outside the package.
@@ -56,7 +56,15 @@ This blocker also captures the first explicit capability dependency case in the 
 ## Promotion Evidence (Required Before `🟣 Lane-Promoted` / `✅ Production-Ready`)
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Reusable reference-location core contract + dependent capability rule + test floor | `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863; flutter-app: reconcile/delphi-store-release-20260420 @ fa31acca` | `laravel-app: PR #158 (merged to dev 2026-04-21); flutter-app: PR #236 (merged to dev 2026-04-20)` | `<pending>` | `n/a` | `Lane-Promoted` |
+| Reusable reference-location core contract + dependent capability rule + test floor | `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863; flutter-app: reconcile/delphi-store-release-20260420 @ fa31acca` | `laravel-app: PR #158 (merged to dev 2026-04-21); flutter-app: PR #236 (merged to dev 2026-04-20)` | `<pending>` | `n/a` | `Reopened; partial implementation evidence only` |
+
+## Retroactive Audit Finding (2026-04-22)
+
+- **Audit outcome:** `reopened`
+- **Reason:** the prior `Lane-Promoted` marker was not substantiated by criterion-level evidence, and the blocker still has open DoD/Validation checkboxes.
+- **Recovered evidence:** `is_reference_location_enabled` dependency on `is_poi_enabled` is present in the registry/services and covered by tests around `../laravel-app/app/Application/AccountProfiles/AccountProfileRegistryManagementService.php`, `../laravel-app/app/Application/AccountProfiles/AccountProfileRegistryService.php`, `../laravel-app/tests/Feature/AccountProfiles/AccountProfileTypesControllerTest.php`, and `../laravel-app/tests/Unit/Application/AccountProfiles/AccountProfileRegistryServiceTest.php`.
+- **Blocking gap:** the blocker decision `D-REF-10` requires disabled-resolution payload fields `reference_status`, `reference_status_reason`, and `blocked_capability_key`, but inspection did not find those fields in `../laravel-app/app/Application/ProximityPreferences/ProximityPreferenceService.php` or `lib/infrastructure/dal/dto/proximity_preference_dto.dart`.
+- **Required closure before promotion:** materialize the disabled-reference contract end to end, add Laravel + Flutter tests for read-time disable semantics, and add a Completion Evidence Matrix with one row per DoD/Validation criterion.
 
 ## Out of Scope
 - [ ] Shipping the full Account Profile hotel CTA/editor UX in this blocker.
@@ -66,7 +74,7 @@ This blocker also captures the first explicit capability dependency case in the 
 - [ ] Account Profile ownership changes; the new relation remains user-owned preference state.
 
 ## Dependencies & Sequencing
-- [x] `DEP-01` This TODO is a hard blocker for `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-proximity-preferences-and-location-origin.md`.
+- [x] `DEP-01` This TODO is a hard blocker for `foundation_documentation/todos/active/store_release_android/TODO-store-release-proximity-preferences-and-location-origin.md`.
 - [ ] `DEP-02` If package naming or extraction strategy changes beyond a local incubated package/library boundary, update this TODO before implementation starts.
 
 ## Bounded But Elastic Guardrails

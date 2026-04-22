@@ -128,6 +128,7 @@ The runtime already consumes REST APIs for on-demand queries and defines SSE com
 ### 3.5 Current Source Entities & Taxonomy Inputs
 - **Current source entities:** Account Profiles, Events, and Static Assets are the current source entities for map projection/runtime consumption.
 - **Taxonomies/Terms:** taxonomies and terms remain source-entity-owned classifications. Map consumers read the projected/filter-ready output rather than redefining taxonomy ownership locally.
+- **Taxonomy display snapshots:** projected `taxonomy_terms[]` preserve `{type, value, name, taxonomy_name, label?}` when source entities provide display snapshots. `taxonomy_terms_flat[]` remains the indexed/filter identity shape (`type:value`), and map queries never filter by display text.
 - **Usage:**
   - Account Profile projections may expose taxonomy-driven filters/categories derived from profile type and attached terms.
   - Static Asset projections use their static-profile-type and attached taxonomy data when those inputs are projected.
@@ -282,7 +283,7 @@ Response shape (example):
         - `max_distance_meters` (optional).
         - `categories[]`, `tags[]`, `taxonomy[]`, `search` (optional).
         - `page`, `page_size` (optional; default 10).
-    -   Response fields: `ref_type`, `ref_id`, `ref_slug`, `ref_path` (`/{ref_type}/{ref_slug}`), `title`, `subtitle?`, `category`, `location`, `distance_meters`, `updated_at`, `avatar_url?`, `cover_url?`, `visual?`, `badge?`, `time_start?`, `time_end?`, plus `tags[]` and `taxonomy_terms[]`.
+    -   Response fields: `ref_type`, `ref_id`, `ref_slug`, `ref_path` (`/{ref_type}/{ref_slug}`), `title`, `subtitle?`, `category`, `location`, `distance_meters`, `updated_at`, `avatar_url?`, `cover_url?`, `visual?`, `badge?`, `time_start?`, `time_end?`, plus `tags[]` and display-ready `taxonomy_terms[]` (`{type, value, name, taxonomy_name, label?}`).
 3.  **Filter Discovery Endpoint:** `GET /api/v1/map/filters`
     -   Returns all available categories and their associated tags to dynamically build the filter UI.
     -   Category payload can be decorated by `settings.map_ui.filters` (tenant-admin managed):
@@ -291,7 +292,7 @@ Response shape (example):
         - optional marker override (`override_marker`, `marker_override.mode`, `marker_override.icon`, `marker_override.color`, `marker_override.image_uri`);
         - normalized `query` payload (`source`, `types[]`, `categories[]`, `taxonomy[]`, `tags[]`) used by Flutter when applying a category.
         - configured list ordering first, with configured entries retained even when `count = 0`.
-    -   Taxonomy catalog is sourced from POI taxonomy aggregations and applied as advanced filters when needed.
+    -   Taxonomy catalog is sourced from POI taxonomy aggregations and applied as advanced filters when needed. Aggregated taxonomy terms must expose display-ready metadata (`name`, `taxonomy_name`, compatibility `label`) while retaining `type/value` as the query payload.
 4.  **POI Lookup Endpoint:** `GET /api/v1/map/pois/lookup`
     -   Purpose: deterministic lookup for a single POI by canonical typed reference, independent of viewport/origin.
     -   Parameters (query string):
@@ -327,6 +328,7 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 | `MAP-08` | Approved | Disabling `is_poi_enabled` for a type hard-deletes affected projections; enabling or visual changes trigger full re-materialization. | Keeps projection state coherent with type capability/visual source of truth. | Section `3.6` |
 | `MAP-09` | Approved | Active map routes use shared tenant-public safe-back semantics: stack-first return wins; no-history fallback is `/` for `/mapa` and `/mapa` for `/mapa/poi`. | Keeps direct-open map flows resilient without sacrificing normal in-app return continuity. | Sections `2`, `4.1`, `6` |
 | `MAP-10` | Approved | Event POIs follow the same canonical type-visual model as account/static POIs; event image mode is limited to `cover` and `type_asset`, and projection rebuilds must preserve that rule. | Restores parity across POI types while preventing unsupported event-avatar fallbacks from leaking into map projection. | Sections `3.6`, `4.1`, `6` |
+| `MAP-11` | Approved | Map POI taxonomy projections preserve display-ready taxonomy snapshots and keep `taxonomy_terms_flat` as the only indexed/filter key shape. | Allows map filter UI and nearby cards to show human labels without runtime taxonomy joins or display-key filtering. | Sections `3.5`, `4.1`, `6` |
 
 ## 7. Tactical TODO Promotion Ledger
 
@@ -338,4 +340,5 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 | `TODO-v1-event-type-canonical-poi-visuals.md` | Event-type canonical visuals and event POI parity | In progress | `3.6`, `4.1`, `6` | Local implementation and automated coverage are in place; final closure still depends on manual public-map smoke. |
 | `TODO-v1-route-url-only-hydration-hardening.md` | URL-only route hydration + internal-only fallback hardening | Production-Ready | `4.1`, `6` | `poi + stack` + `poi`-only deterministic lookup delivered end-to-end. |
 | `TODO-v1-events-capability-map-poi.md` | Events capability decisions for POI projection | Promoted | `1.1`, `3.6`, `6` | Completed and promoted into module baseline. |
+| `TODO-store-release-taxonomy-term-display-snapshots.md` | Display-ready taxonomy snapshots for Map POI projections and filter aggregation | In progress | `3.5`, `4.1`, `6` | Keeps map filtering on machine keys while exposing labels for UI chips/facets. |
 | `TODO-v1-tenant-public-safe-back-navigation.md` | Shared tenant-public map back/fallback policy | Completed | `2`, `6` | Freezes `/mapa` and `/mapa/poi` no-history fallback behavior; archived from `active` during the 2026-04-09 MVP TODO cleanup after delivery confirmation. |

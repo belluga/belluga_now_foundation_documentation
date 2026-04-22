@@ -27,9 +27,9 @@ This slice must preserve the delivered V1 behavior while defining the launch-rea
 - If any assumption or plan step changes `Scope`, `Out of Scope`, `Definition of Done`, required validation semantics, public contract, or frozen decisions, update the TODO contract first and request renewed approval before execution continues.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Lane-Promoted`
-- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Blocker-Consumed`, `Principal-Checkout-Reconcile`
-- **Next exact step:** run final manual validation against the principal-checkout reconcile state, then move this TODO and its blocker dependency to `promotion_lane/` for `dev` follow-through.
+- **Current delivery stage:** `Pending`
+- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Reopened-Dependency-Gap`, `Blocked-By-Reference-Location`
+- **Next exact step:** reconcile this TODO after the reference-location blocker closes its disabled-resolution payload and cross-stack evidence gaps.
 
 ## Scope
 - [ ] Define one canonical identity-owned preference model for Home proximity settings (`max_distance_meters` + location-origin mode/payload).
@@ -49,8 +49,8 @@ This slice must preserve the delivered V1 behavior while defining the launch-rea
 - `Blocked`: work cannot currently proceed; `Blocker Notes` become mandatory.
 
 ## Blocker Notes
-- [x] `DEP-01` This TODO was blocked by `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md`, which delivered the reusable fixed-reference contract, generic entity provenance schema, and the dependent-capability rule (`is_reference_location_enabled` depends on `is_poi_enabled`) now consumed locally in reconcile.
-- [x] Orchestration resumed only after the blocker froze read/write disable semantics for entity-backed references and the required cross-stack test floor.
+- [ ] `DEP-01` This TODO is blocked by `foundation_documentation/todos/active/store_release_android/TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md`, which was reopened on 2026-04-22 because the disabled-resolution payload and cross-stack evidence are incomplete.
+- [ ] Orchestration must resume only after the blocker proves read/write disable semantics for entity-backed references and the required cross-stack test floor.
 
 ## Execution Lane Tracking (Required)
 - **Local implementation branches:** `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863; flutter-app: reconcile/delphi-store-release-20260420 @ fa31acca`
@@ -61,7 +61,15 @@ This slice must preserve the delivered V1 behavior while defining the launch-rea
 ## Promotion Evidence (Required Before `🟣 Lane-Promoted` / `✅ Production-Ready`)
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Identity-backed Home proximity preference contract + merge path + profile editor baseline | `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863; flutter-app: reconcile/delphi-store-release-20260420 @ fa31acca` | `laravel-app: PR #158 (merged to dev 2026-04-21); flutter-app: PR #236 (merged to dev 2026-04-20)` | `<pending>` | `n/a` | `Lane-Promoted` |
+| Identity-backed Home proximity preference contract + merge path + profile editor baseline | `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863; flutter-app: reconcile/delphi-store-release-20260420 @ fa31acca` | `laravel-app: PR #158 (merged to dev 2026-04-21); flutter-app: PR #236 (merged to dev 2026-04-20)` | `<pending>` | `n/a` | `Reopened; dependent blocker incomplete` |
+
+## Retroactive Audit Finding (2026-04-22)
+
+- **Audit outcome:** `reopened`
+- **Reason:** the TODO depends on the reference-location blocker as delivered, but that blocker was reopened because the disabled-resolution payload is not yet demonstrably implemented.
+- **Recovered evidence:** the identity-backed preference path has meaningful implementation evidence in `lib/infrastructure/repositories/proximity_preferences_repository.dart`, `lib/infrastructure/dal/dao/laravel_backend/proximity_preferences_backend/laravel_proximity_preferences_backend.dart`, `lib/infrastructure/dal/dto/proximity_preference_dto.dart`, `lib/infrastructure/repositories/auth_repository.dart`, `lib/presentation/tenant_public/profile/screens/profile_screen/controllers/profile_screen_controller.dart`, and `lib/presentation/tenant_public/home/screens/tenant_home_screen/widgets/agenda_section/controllers/tenant_home_agenda_controller.dart`.
+- **Blocking gap:** this TODO cannot satisfy the DoD item requiring the blocker-owned reusable fixed-reference core and dependent-capability blocker to be satisfied until `TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md` returns to guard-green status.
+- **Required closure before promotion:** rerun the dependency check after the blocker closes, add direct repository/merge tests where missing, and add a Completion Evidence Matrix with one row per DoD/Validation criterion.
 
 ## Out of Scope
 - [ ] Replacing the delivered V1 local/device persistence path before the identity-backed path exists.
@@ -71,7 +79,7 @@ This slice must preserve the delivered V1 behavior while defining the launch-rea
 - [ ] New public IA or unrelated profile-area redesign.
 
 ## Dependencies & Sequencing
-- [x] `DEP-01` `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md` delivered the reusable fixed-reference core, entity provenance schema, and dependent-capability semantics consumed by this TODO.
+- [ ] `DEP-01` `foundation_documentation/todos/active/store_release_android/TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md` must deliver the reusable fixed-reference core, entity provenance schema, and dependent-capability semantics before this TODO can close.
 - [ ] `DEP-02` The first user-facing rollout for this TODO may stay manual-coordinate first, but it must not bypass the blocker-owned entity-reference contract and test floor.
 
 ## Bounded But Elastic Guardrails

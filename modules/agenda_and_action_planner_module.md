@@ -135,8 +135,13 @@ Events use canonical `location` + `place_ref`; venue projection is resolved from
       "date_time_end": "2025-01-01T00:00:00Z?",
       "occurrences": [
         {
+          "occurrence_id": "string",
+          "occurrence_slug": "string?",
           "date_time_start": "2025-01-01T00:00:00Z",
-          "date_time_end": "2025-01-01T00:00:00Z?"
+          "date_time_end": "2025-01-01T00:00:00Z?",
+          "is_selected": false,
+          "has_location_override": false,
+          "programming_count": 0
         }
       ],
       "artists": [
@@ -155,10 +160,9 @@ Events use canonical `location` + `place_ref`; venue projection is resolved from
         }
       ],
       "capabilities": {
-        "multiple_occurrences": {
-          "enabled": false,
-          "allow_multiple": false,
-          "max_occurrences": null
+        "map_poi": {
+          "enabled": true,
+          "discovery_scope": null
         }
       },
       "tags": ["string"],
@@ -220,6 +224,7 @@ Events use canonical `location` + `place_ref`; venue projection is resolved from
 | `AGD-05` | Approved | Local distance/radius filtering is forbidden in agenda/search render paths; backend geo filtering is authoritative. | Prevents divergent client/backend filtering behavior. | Section `3.4` + `foundation_documentation/endpoints_mvp_contracts.md` (`GET /agenda`, `GET /events/stream`) |
 | `AGD-06` | Approved | Persisted radius preference in V1 is Home-only: Home Agenda stores the selected `max_distance_meters` preference per user/device, but that preference does not automatically retune Event Search or other radius consumers until a dedicated alignment slice promotes a shared rule. When no preference exists yet, Home seeds the initial selected radius from the user-to-tenant-center distance clamped to the tenant-configured bounds. | Makes the temporary product asymmetry explicit and prevents accidental cross-surface behavior drift. | Section `3.4` + `foundation_documentation/todos/completed/TODO-v1-home-agenda-radius-persistence-and-sheet-polish.md` |
 | `AGD-07` | Approved | Repository-owned agenda/home aggregate streams are canonical backend-backed snapshots, not controller projection surfaces. Controllers may combine canonical event streams with invite/confirmation streams to derive local display state, but they must never publish those projections back into repository event streams or reconstruct aggregate truth from shared scratch pagination state. | Preserves single-writer ownership, avoids cross-surface pagination bleed, and keeps invite state as an orthogonal aggregate. | Section `3.4` + `foundation_documentation/todos/completed/TODO-v1-home-agenda-canonical-stream-ownership-hardening.md` |
+| `AGD-08` | Approved | Agenda/search/home event lists remain occurrence-first; each occurrence card may navigate to event detail with both event slug and selected occurrence id. Cards do not group sibling dates or render other-date summaries. | Keeps list performance and scanning behavior stable while allowing multi-date switching inside event detail. | Section `4` + `events_module.md` (`EVS-OCC-01`) |
 | `AGD-08` | Approved | Query-scoped page state for schedule/search is repository-owned unless the aggregate itself is explicitly canonical. Shared scratch page streams/counters are forbidden, and backend page-envelope knowledge (`has_more`, page-result wrappers, raw builders), public cache/query snapshot wrappers (`*CacheSnapshot`), delegated pagination state (`hasMore...`), page-addressed contract APIs (`loadNext...Page()`), plus raw pagination controls (`page`, `pageSize`, cursors, limits) must remain repository-internal rather than exported from domain surfaces or repository contracts. Schedule consumers receive materialized domain items and semantic repository intents only. Repository-owned pagination/query helpers are private implementation details and must not be re-exposed through delegated helpers, support abstractions, or test double hooks. | Prevents controller cross-talk, keeps repository aggregates single-writer, and stops pagination-envelope/cache-snapshot fabrication or leakage outside repository ownership. | Section `3.4` + `foundation_documentation/todos/completed/TODO-v1-home-agenda-canonical-stream-ownership-hardening.md` |
 | `AGD-09` | Approved | Home Agenda V1 may replace live device origin with the tenant default origin when the user is farther than the tenant-configured maximum Home radius from the tenant default origin, persisting that Home-only reference mode locally/device-side while keeping backend geo filtering authoritative for the final query. | Preserves useful Home results for out-of-city users without redefining generic agenda/search geo semantics. | Section `3.4` + `foundation_documentation/todos/completed/TODO-v1-home-location-origin-reference-mode.md` |
 | `AGD-10` | Approved | Home Agenda scroll-driven chrome must follow the real agenda-list scroll source. Any agenda-specific widget controller used for that chrome remains subtree-private, while shared radius preference continues to be repository-owned. | Prevents false outer-scroll bindings and blocks screen-controller or controller-relay workarounds for agenda-local chrome behavior. | Section `3.4` + `foundation_documentation/todos/completed/TODO-v1-home-agenda-canonical-stream-ownership-hardening.md` + `foundation_documentation/todos/completed/TODO-v1-home-agenda-controller-boundary-plugin-rules.md` |

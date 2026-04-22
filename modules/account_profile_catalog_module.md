@@ -23,6 +23,7 @@ The Account Profile Catalog module (MOD-304) maintains the canonical representat
 - Tactical TODO streams:
   - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`
+  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-account-profile-rich-text-fidelity.md`
   - `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
   - `foundation_documentation/todos/completed/TODO-v1-static-assets-media-parity-with-account-profiles.md`
 
@@ -114,6 +115,18 @@ Aggregated dashboard data remains a future authenticated workspace-facing read c
 | `/api/v1/account_profiles/near` | GET | Tenant-public distance-ordered account profiles for Discovery nearby surfaces (`is_favoritable=true` + `is_poi_enabled=true` + `visibility='public'`, nearest-first). |
 | `/api/v1/account_profiles/{account_profile_slug}` | GET | Detailed account profile summary for consumer experiences via direct slug lookup (`is_active=true` + `visibility='public'` + favoritable type), including query-only ordered `agenda_occurrences` for agenda continuity. |
 
+**Taxonomy term display snapshots**
+- Account Profile read payloads expose structured taxonomy terms as display-ready snapshots: `{type, value, name, taxonomy_name, label?}`.
+- `type`, `value`, and flattened `type:value` remain the only query/filter identities. `name`, `taxonomy_name`, and compatibility `label` are read/display metadata and must never become query keys.
+- When taxonomy or taxonomy-term display names change, tenant-scoped fanout/backfill must repair persisted/read-model snapshots idempotently. Legacy `{type, value}` documents remain readable through fallback until repaired.
+
+**Account Profile rich text fields**
+- `bio` and `content` are independent capability-backed long-form rich-text fields. `profile_types.capabilities.has_bio` controls whether `bio` is rendered/authored, and `profile_types.capabilities.has_content` controls whether `content` is rendered/authored.
+- Tenant-public `/parceiro/:slug` keeps one `Sobre` tab/shell. If both fields are present, `bio` renders first under the `Sobre` block label and `content` renders second under the `Conteúdo` block label. If only one field is present, the screen avoids a redundant nested heading and renders only the field body inside the tab.
+- Account Profile rich text uses the shared safe subset: `<p>`, `<br>`, `<h1-6>`, `<ul>`, `<ol>`, `<li>`, `<blockquote>`, `<strong>`, `<em>`, `<s>`, plus emoji/plain text. Links, underline, inline code, colors, arbitrary HTML, and embedded media are not part of the Store Release contract.
+- Legacy/plain-text values with newline breaks are canonicalized at render time so paragraph breaks and explicit line breaks remain visible.
+- Backend persistence validates a dedicated `100KB` sanitized-content cap per field for `bio` and `content`; this does not raise global short-description limits for unrelated fields.
+
 **Events**
 * Current runtime authority: `account_profile.created`, `account_profile.updated`.
 * Deferred only: `offer.published`, `offer.unavailable`, `offer.window.expired` are historical planning events and are not current runtime authority.
@@ -168,6 +181,8 @@ Discovery runtime behavior for tenant-public account-profile listing is fixed as
 | `PCO-08` | Approved | Tenant-public account-profile detail uses the shared safe-back policy: when no previous route exists, `/parceiro/:slug` falls back to `/descobrir`; when history exists, the real previous route still wins. | Keeps direct-open public account-profile detail resilient while preserving normal in-app source continuity from discovery, home, map, and event-linked profile flows. | Sections `1`, `4`, `7` |
 | `PCO-09` | Approved | Tenant-public account-profile discovery search mode hides the top discovery hierarchy chrome (`Tocando agora`, `Perto de você`, `Descubra`, and chips) while preserving the unfiltered base results grid until a non-empty query is entered. | Freezes the approved `/descobrir` search interaction so tactical TODO cleanup and future UI work do not reintroduce prompt-only empty-search behavior. | Sections `4.1`, `7` |
 | `PCO-10` | Approved | This file is the canonical current authority for public account-profile contracts after the module-family rename. Deferred `offer`/commercial planning remains capability-first by default and does not become a separate current runtime surface unless later implementation proves that boundary. | Keeps module authority aligned with the renamed canonical surface without accidentally turning deferred commercial planning into current runtime truth. | Sections `1`, `3.2`, `4` |
+| `PCO-11` | Approved | Account Profile `bio` and `content` are independent capability-backed long-form rich-text fields rendered inside the public `Sobre` shell with shared safe rich-text subset canonicalization and a dedicated `100KB` sanitized-content cap per field. | Fixes public detail/admin fidelity without turning unrelated short descriptions into page-sized content fields. | Sections `4`, `7` |
+| `PCO-12` | Approved | Account Profile taxonomy terms are read/display snapshots using `{type, value, name, taxonomy_name, label?}` while filters stay on machine keys (`type`, `value`, `type:value`). | Prevents slug rendering in public/admin UI without adding runtime taxonomy joins to list/detail reads. | Sections `4`, `7` |
 
 ## 8. Tactical TODO Promotion Ledger
 
@@ -176,3 +191,5 @@ Discovery runtime behavior for tenant-public account-profile listing is fixed as
 | `TODO-vnext-tenant-user-account-profile-area.md` | Account/profile scope and contracts | In progress | `1.1`, `3`, `7` | Main stream for account profile domain hardening. |
 | `TODO-v1-public-account-profile-discovery-ui.md` | Tenant-public discovery/listing contract and discovery-side CTA polish | Completed | `4`, `4.1`, `7` | Discovery search-mode/listing contract and the remaining V1 polish were accepted as launch-ready; no further Discovery follow-up remains in this lane. |
 | `TODO-v1-tenant-public-safe-back-navigation.md` | Shared tenant-public account-profile-detail back/fallback policy | Completed | `4`, `7` | Freezes `/parceiro/:slug -> /descobrir` when root-opened; archived from `active` during the 2026-04-09 MVP TODO cleanup after delivery confirmation. |
+| `TODO-store-release-account-profile-rich-text-fidelity.md` | Account Profile `bio`/`content` rich-text fidelity and long-form cap | In progress | `4`, `7` | Promotes the Store Release contract for independent capability-backed rich-text fields, public `Sobre` rendering, safe subset canonicalization, and `100KB` per-field sanitized-content validation. |
+| `TODO-store-release-taxonomy-term-display-snapshots.md` | Taxonomy term display snapshots for account/profile/event/static/map read models | In progress | `4`, `7` | Promotes display-ready taxonomy snapshots while preserving machine-key filtering and idempotent backfill/fanout. |

@@ -27,7 +27,7 @@ Out of scope:
 - Event Search radius persistence
 - Discovery persistence
 - backend/API changes
-- backend/DB-backed user proximity settings and manual "Minha localização" origin override (tracked in `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-proximity-preferences-and-location-origin.md`)
+- backend/DB-backed user proximity settings and manual "Minha localização" origin override (tracked in `foundation_documentation/todos/active/store_release_android/TODO-store-release-proximity-preferences-and-location-origin.md`)
 - new account/profile settings endpoint work
 - changing tenant-configured min/default/max radius contracts
 
@@ -59,7 +59,7 @@ Out of scope:
 ## 5. Risks / Notes
 - `AppDataRepositoryContract.maxRadiusMeters*` currently behaves like a persisted selected value even though the name suggests a bound. This slice must work with that legacy naming without breaking the configured upper bound semantics.
 - Home-only persistence is an intentional product asymmetry for V1 and must stay explicit in docs/tests.
-- V1 persistence is local/device-only. Backend/DB-backed proximity preferences plus a user-selectable "Minha localização" origin are deferred to `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-proximity-preferences-and-location-origin.md`.
+- V1 persistence is local/device-only. Backend/DB-backed proximity preferences plus a user-selectable "Minha localização" origin are deferred to `foundation_documentation/todos/active/store_release_android/TODO-store-release-proximity-preferences-and-location-origin.md`.
 
 ## 6. Delivery Outcome
 - Home Agenda radius now restores from persisted local/device preference, including anonymous sessions.

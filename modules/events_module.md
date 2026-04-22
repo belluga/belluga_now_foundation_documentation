@@ -37,7 +37,8 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 
 ### 3.2 Capability scope
 
-- Native Events capabilities remain in Events package (`multiple_occurrences`, `map_poi`).
+- Native Events capabilities remain in Events package only for optional behaviors such as `map_poi`.
+- Multiple occurrences are canonical Events behavior and are not tenant- or event-configurable.
 - Ticketing domain moved to dedicated package/program (`belluga_ticketing`), integrated by contracts/events.
 
 ### 3.3 Out-of-scope boundaries
@@ -65,6 +66,8 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 | `EVS-VIS-01` | Approved | Event types use canonical `visual` as source of truth, may expose `poi_visual` as compatibility mirror, and embedded `event.type` / `event_occurrence.type` snapshots must carry the canonical visual payload. | Eliminates legacy icon-only drift between event registry CRUD, admin flows, and downstream consumers such as map POI projection. | Sections `5.1`, `5.2`, `7` |
 | `EVS-UI-01` | Approved | Event detail read payloads expose additive `linked_account_profiles` projection inputs (slug, profile type, media, taxonomy summaries) so immersive event detail can render dynamic account-profile category tabs without request-time joins. Venue/location semantics remain owned by `Como Chegar`; grouped dynamic tabs replace only the old artist-only lineup surface, while `Sobre` renders the canonical sanitized `event.content` HTML subset. Unsupported tags are not valid persisted content, media-only / non-text markup does not count as valid `Sobre`, and emojis must survive as plain text through save-time sanitization and read-time rendering. Linked-profile cards remain route-driven by runtime slug and support favorite affordance without replacing direct profile navigation. Missing slug is a payload-contract failure; write paths must persist it correctly rather than relying on read-time repair. | Keeps immersive event detail occurrence-first while making linked account-profile categories first-class UI inputs, avoiding artist-only hardcoding, and preserving a stable event-detail contract for content/location tabs and linked-profile interactions. | Sections `5.1`, `5.2`, `7` |
 | `EVS-UI-02` | Approved | Tenant-public immersive event detail uses the shared safe-back policy: when no previous route exists, `/agenda/evento/:slug` falls back to `/`; when history exists, the real previous route still wins. | Keeps direct-open/deep-link event detail resilient while preserving normal in-app return continuity when the user arrived from discovery, home, or another routed surface. | Sections `5.1`, `7` |
+| `EVS-TAX-01` | Approved | Event and Event Occurrence taxonomy summaries are display-ready snapshots using `{type, value, name, taxonomy_name, label?}` while taxonomy filters remain slug-pair based. | Prevents slug display in event detail/list/linked-profile cards and keeps occurrence-first reads cheap in the document model. | Sections `5.1`, `5.4`, `7` |
+| `EVS-OCC-01` | Approved | Public event discovery remains occurrence-first, while event detail may carry a selected occurrence through `/agenda/evento/:slug?occurrence=<occurrence_id>`. Detail payloads expose all event occurrences with `is_selected`, effective related profiles, effective location, and occurrence-owned `programming_items`. If the selected occurrence is absent or stale, the backend repairs to the live/next/first deterministic fallback without changing event identity. | Supports multi-date event navigation without introducing an event-only detail screen and keeps document reads cheap by storing display-ready occurrence projections. | Sections `5.1`, `5.2`, `7` |
 
 ## 5. Contract Summary for Clients
 
@@ -75,6 +78,7 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 - Event-type registry/read payloads expose canonical `visual` as source of truth and may emit `poi_visual` as compatibility mirror; embedded `event.type` and `event_occurrences[].type` snapshots must carry the canonical visual payload as well.
 - `event_parties` are the canonical composition contract for non-location account profiles only. Venue/local ownership remains on `location + place_ref`, and `venue` is a derived read projection rather than an event-party input.
 - Detail/read payloads expose ordered `linked_account_profiles[]` entries derived exclusively from `event_parties` metadata. Each entry is an account-profile summary input for UI grouping and contains enough identity data for direct navigation and taxonomy-aware cards (`id`, `slug`, `profile_type`, `display_name`, media fields, taxonomy term summaries).
+- Event, Event Occurrence, venue, linked-profile, and compatibility artist taxonomy summaries expose display-ready taxonomy snapshots: `{type, value, name, taxonomy_name, label?}`. `name` is the canonical term display field, `taxonomy_name` is the group display field, and `label` is compatibility-only.
 - Management/event-operations payloads must use `event_parties` plus `linked_account_profiles` for dynamic account-profile administration and must not require an artist-shaped key such as `artists`.
 - Some public/read and repair-oriented surfaces may still emit legacy `artists[]` summaries as derived compatibility projections. Those read-only projections are not canonical composition inputs and must not be treated as admin/write contract ownership.
 - Tenant-admin event list operations use server-driven `date`, `temporal`, `venue_profile_id`, and `related_account_profile_id` as the canonical current manager filter set; `venue_profile_id` targets canonical venue ownership (`place_ref`), while `related_account_profile_id` targets non-venue `event_parties`/`linked_account_profiles`.
@@ -83,12 +87,19 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 - Public immersive event detail consumes those linked account profiles as grouped category tabs between the stable `Sobre` and `Como Chegar` tabs; `Sobre` renders the canonical sanitized `event.content` HTML subset and is omitted when that sanitized content has no valid textual body, while `Como Chegar` owns venue/map/directions semantics for the event.
 - Linked-profile cards inside event detail remain route-driven by `linked_account_profiles[].slug`, may expose favorite affordance in parallel with direct card navigation, and must not rely on client-side lookup fallbacks or request-time repair when a payload is incomplete. Event create/update paths must keep `venue.slug` and `event_parties[].metadata.slug` aligned for new writes so derived read projections can resolve canonical identities.
 - Tenant-public event detail back behavior is stack-first: if the route was entered from another in-app surface, back returns to that surface; if it was opened directly with no previous route, the approved fallback is `/`.
+- Multi-occurrence public detail keeps the event slug as route identity and carries selected occurrence identity through optional query metadata (`occurrence=<occurrence_id|occurrence_slug>`). The selected occurrence determines effective date/time, effective location, occurrence-owned related profiles, and conditional `Programação` content.
+- Detail occurrence arrays include one display-ready card input per occurrence/date. Each item exposes `occurrence_id`, `occurrence_slug`, `date_time_start`, `date_time_end`, `is_selected`, `has_location_override`, `own_linked_account_profiles`, `linked_account_profiles`, `programming_count`, and `programming_items` when present.
+- Effective occurrence related profiles are `event.event_parties + occurrence.event_parties`, deduplicated deterministically with event-level order first. Event-level summaries use `event.event_parties + all occurrence.event_parties`, deduplicated with event-level profiles before occurrence order.
+- Effective occurrence location resolves to `occurrence.location_override ?? event.location`; event-level location remains the canonical event location outside occurrence-specific date/detail/directions contexts.
+- `Programação` is occurrence-exclusive. It is rendered only for the selected occurrence when that occurrence has programming items ordered by time. A programming item contains `time`, optional `title`, and linked Account Profiles; title may fall back to the single linked profile display name only when exactly one profile is linked.
 - Event-form account-profile candidate discovery is type-driven and page-based: `related_account_profile` returns generic related account profiles without hardcoding one specific dynamic profile type and excludes canonical venue profiles, while `physical_host` returns POI-enabled profiles with valid coordinates.
 - Public event-image resolution order is deterministic: `event.thumb` first, then `linked_account_profiles` in canonical array order, then `venue` media. Runtime callers must not fall back to legacy `artists`.
 
 ### 5.2 Write model
 
 - Event create/update accepts `occurrences[]` as schedule source.
+- Occurrence write payloads may include occurrence-owned `event_parties`, optional `location` + `place_ref` override, and occurrence-owned `programming_items`. Omitted occurrence-owned fields on update preserve existing occurrence values; present fields replace their occurrence-scoped values in request order.
+- A programming item with more than one linked Account Profile must provide an explicit `title`; a single linked profile may omit `title` and use profile display name as the public fallback.
 - `venue_id` is prohibited in write payloads.
 - `event_parties[]` write input is minimal and strict: clients may send only `party_ref_id` and optional `permissions.can_edit`. `party_type` and `metadata` are backend-owned, inferred/resolved from the referenced account profile, and rejected when client-supplied.
 - When `event_parties` is present on update, it replaces the full related-account set in request order. An omitted `event_parties` field preserves the stored related-account ordering.
@@ -120,7 +131,7 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 - Filtering baseline is categorical + taxonomy + geo (`categories`, `tags`, `taxonomy`, origin/radius).
 - `live_now_only=true` is supported on `/agenda` to return only currently-running occurrences and is used by Discovery "Tocando agora" surfaces.
 - Consumer alignment note (Flutter Discovery MVP): the `Tocando agora` section is artist-driven and remains hidden when live-now payload has no artists, even if occurrences are currently live.
-- Taxonomy filters use typed slug pairs (`taxonomy[].type`, `taxonomy[].value`) across `taxonomy_terms`, `venue.taxonomy_terms`, and `artists.taxonomy_terms`.
+- Taxonomy filters use typed slug pairs (`taxonomy[].type`, `taxonomy[].value`) across `taxonomy_terms`, `venue.taxonomy_terms`, `linked_account_profiles.taxonomy_terms`, and compatibility `artists.taxonomy_terms`; display fields (`name`, `taxonomy_name`, `label`) are never query keys.
 - Runtime query services do not create indexes.
 - Required Mongo indexes are application-owned and provisioned through tenant migrations in the Spatie multitenancy flow.
 
@@ -138,6 +149,8 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 | `TODO-v1-event-type-canonical-poi-visuals.md` | Canonical event-type visuals across registry CRUD, snapshots, and map POIs | In progress | Sections 4, 5 | Stable contract decisions are promoted; final closure still depends on manual admin/map smoke evidence. |
 | `TODO-v1-ticketing-package-integration.md` | Ticketing package integration stream | In progress | Sections 3, 4 | Active; ticket domain boundaries remain external to Events core. |
 | `TODO-v1-tenant-public-safe-back-navigation.md` | Shared tenant-public event-detail back/fallback policy | Completed | Sections 4, 5 | Freezes `/agenda/evento/:slug -> /` when root-opened; archived from `active` during the 2026-04-09 MVP TODO cleanup after delivery confirmation. |
+| `TODO-store-release-taxonomy-term-display-snapshots.md` | Taxonomy term display snapshots across Events/Event Occurrences and linked profile summaries | In progress | Sections 4, 5, 6 | Promotes display-ready taxonomy snapshots while preserving slug-pair filtering and occurrence-first read performance. |
+| `TODO-store-release-event-multi-occurrence-ux-and-authoring-model.md` | Multi-occurrence selected-detail, occurrence-scoped related profiles/location overrides, and occurrence-exclusive Programação | In progress | Sections 4, 5, 6 | Promotes selected-occurrence detail semantics and occurrence-owned payload extensions while preserving occurrence-first discovery and event slug identity. |
 
 ## 7. Relationship to Adjacent Modules
 

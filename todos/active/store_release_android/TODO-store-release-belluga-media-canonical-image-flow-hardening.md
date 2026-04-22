@@ -27,9 +27,9 @@ This slice exists to harden the rule at the architecture level: image flows are 
 - If any assumption or plan step changes `Scope`, `Out of Scope`, `Definition of Done`, required validation semantics, public contract, or frozen decisions, update the TODO contract first and request renewed approval before execution continues.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Lane-Promoted`
-- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Principal-Checkout-Reconcile`
-- **Next exact step:** use the principal-checkout reconcile state for final manual validation, then move this TODO to `promotion_lane/` for `dev` follow-through.
+- **Current delivery stage:** `Pending`
+- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Reopened-Functional-Gap`, `Evidence-Incomplete`
+- **Next exact step:** close the reopened media-flow inventory and guardrail gaps, then rebuild the Completion Evidence Matrix before this TODO can return to `promotion_lane/`.
 
 ## Scope
 - [ ] Inventory every current Laravel product image flow and classify it as `belluga_media-compliant`, `wrapper-compliant`, or `non-compliant`.
@@ -55,7 +55,15 @@ This slice exists to harden the rule at the architecture level: image flows are 
 ## Promotion Evidence (Required Before `🟣 Lane-Promoted` / `✅ Production-Ready`)
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Canonical image-flow hardening rule + audit + migrations | `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863` | `laravel-app: PR #158 (merged to dev 2026-04-21); flutter-app: PR #236 (merged to dev 2026-04-20)` | `<pending>` | `n/a` | `Lane-Promoted` |
+| Canonical image-flow hardening rule + audit + migrations | `laravel-app: reconcile/delphi-store-release-20260420 @ f89e863` | `laravel-app: PR #158 (merged to dev 2026-04-21); flutter-app: PR #236 (merged to dev 2026-04-20)` | `<pending>` | `n/a` | `Reopened; partial PR evidence only` |
+
+## Retroactive Audit Finding (2026-04-22)
+
+- **Audit outcome:** `reopened`
+- **Reason:** the prior `Lane-Promoted` marker was not substantiated by criterion-level evidence and the TODO still has open Scope, Definition of Done, Validation Steps, Plan Review, and residual-risk items.
+- **Recovered evidence:** the `public_web_metadata.default_image` hardening path appears real and is backed by `../laravel-app/app/Application/Branding/BrandingPublicWebMediaService.php`, `../laravel-app/tests/Feature/Tenants/TenantBrandingControllerTest.php`, and `../laravel-app/tests/Feature/Tenants/PublicWebMetadataShellTest.php`.
+- **Blocking gap:** repository inspection still found non-canonical image storage/public URL paths outside the proved branding path, including `../laravel-app/app/Application/Media/MapFilterImageStorageService.php` and `../laravel-app/packages/belluga/belluga_events/src/Application/Events/EventMediaService.php`.
+- **Required closure before promotion:** freeze the inventory, migrate or explicitly defer every non-compliant flow, prove guardrails in CI, and add a Completion Evidence Matrix with one row per DoD/Validation criterion.
 
 ## Out of Scope
 - [ ] Flutter/web local pick/crop UX changes by themselves.
