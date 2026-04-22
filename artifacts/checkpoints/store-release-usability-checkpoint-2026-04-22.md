@@ -18,9 +18,9 @@
 ## Repository Checkpoint SHAs
 | Repository | Branch | Commit SHA | Push target | Included | Notes |
 | --- | --- | --- | --- | --- | --- |
-| `belluga_now_docker` | `orchestrator/store-release-usability-wave` | `22105cd44a7feefd5b38432443a222a592cbcc71` | `origin/orchestrator/store-release-usability-wave` | yes | Root Playwright/navigation harness checkpoint. |
-| `belluga_now_front` | `orchestrator/store-release-usability-wave` | `5b4fe35de1b767af339b8b9c1d9d6a392893c728` | `origin/orchestrator/store-release-usability-wave` | yes | Flutter client/package/admin/public implementation checkpoint. |
-| `belluga_now_backend` | `orchestrator/store-release-usability-wave` | `459690f7fa7787431c5ea11ce03e56bced3ab941` | `origin/orchestrator/store-release-usability-wave` | yes | Laravel package/API/query/projection implementation checkpoint. |
+| `belluga_now_docker` | `orchestrator/store-release-usability-wave` | `9c1a1c0b6e8fe53d96b79874ce831b0d1386f263` | `origin/orchestrator/store-release-usability-wave` | yes | Root Playwright/navigation harness checkpoint plus tracked ignore for local Claude bootloader artifacts. |
+| `belluga_now_front` | `orchestrator/store-release-usability-wave` | `b6c4e77c0fbb5e0da8f78393dc16870784024a9d` | `origin/orchestrator/store-release-usability-wave` | yes | Flutter client/package/admin/public implementation checkpoint plus tracked ignore for local Claude bootloader artifacts. |
+| `belluga_now_backend` | `orchestrator/store-release-usability-wave` | `e7a695d8d2f6fe31cc8c1b6728a04f314649059e` | `origin/orchestrator/store-release-usability-wave` | yes | Laravel package/API/query/projection implementation checkpoint plus tracked ignore for local Claude bootloader artifacts. |
 | `belluga_now_foundation_documentation` | `delphi/docs-reconcile-store-release-20260419` | Commit containing this manifest. | `origin/delphi/docs-reconcile-store-release-20260419` | yes | Includes TODOs, execution plan, module/contract docs, and this checkpoint manifest. |
 | `belluga_now_web` | `fix/nav-body-visible-timeout-20s` | `367bbb46961b168e559342538bee6f746e748b77` | none | no | Build output is intentionally excluded from this checkpoint. |
 | `delphi-ai` | `manus` | `ca1f1b6` | `origin/manus` | supporting-method | PACED method update for orchestration evidence, checkpoint manifests, and branch accumulation control. |
