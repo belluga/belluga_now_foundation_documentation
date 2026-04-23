@@ -1,9 +1,9 @@
-# TODO (Store Release): Account Profile Rich-Text Fidelity
+# TODO (Store Release): Account Profile and Event Rich-Text Fidelity
 
-**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [ ] ✅ Production-Ready`
+**Status legend:** canonical PACED delivery stages; the authoritative current stage is recorded in `Delivery Status Canon`.
 **Status:** Active
 **Owners:** Laravel Team, Flutter Team
-**Objective:** Make Account Profile `bio` and `content` long-form capability-backed rich-text fields whose admin editing, backend validation, sanitized persistence, preview, and public rendering are faithful to each other.
+**Objective:** Make Account Profile `bio`/`content` and Event `content` long-form rich-text fields whose admin editing, backend validation, sanitized persistence, preview, and public rendering are faithful to each other.
 
 ---
 
@@ -16,49 +16,51 @@
 
 - **Feature brief:** `direct-to-todo`
 - **Primary story ID:** `C-03`
-- **Why this is the right current slice:** The current bug is bounded: Account Profile rich-text editing does not render faithfully, line breaks collapse, `content` is not surfaced consistently, and backend validation uses a short-description cap that conflicts with long-form profile content.
-- **Direct-to-TODO rationale:** The user-facing bug, field scope, long-form limit, and renderer parity requirement are already decided. Remaining implementation choices can follow existing Event rich-text and repository/controller patterns.
+- **Why this is the right current slice:** The original Account Profile bug was bounded: Account Profile rich-text editing did not render faithfully, line breaks collapsed, `content` was not surfaced consistently, and backend validation used a short-description cap that conflicted with long-form profile content. The 2026-04-22 revalidation found the same fidelity contract is still broken for tenant-public Event `Sobre` rendering after tenant-admin Event description editing.
+- **Direct-to-TODO rationale:** The user-facing bug, field scope, long-form limit, and renderer parity requirement are already decided. Remaining implementation choices can follow existing Event rich-text, Account Profile rich-text, and repository/controller patterns.
 
 ## Delivery Status Canon
 
 - **Current delivery stage:** `Local-Implemented`
-- **Qualifiers:** `none`
-- **Next exact step:** Keep ready for dev promotion; rerun `todo_completion_guard.py --require-delivery` before any delivery-stage or promotion claim changes.
+- **Qualifiers:** `SR-C Account Profile slice remains locally implemented; SR-C2 Event description public rendering was reopened and is now covered by final Store Release evidence.`
+- **Next exact step:** Keep in Store Release active lane for manual validation/promotion after final orchestration guards. Re-run guards if rich-text rendering, runtime target, or served Web bundle changes.
 
 ## Package-First Assessment
 
 - **Status:** completed before local closure.
 - **Queries run:** `rich text`, `html`, and `editor` from the ecosystem root.
 - **Relevant packages found:** none.
-- **Decision:** local implementation inside existing Laravel Account Profile services/requests and existing Flutter Account Profile/admin presentation modules.
-- **Rationale:** the slice is a field-specific fidelity/validation/rendering fix, not a reusable package boundary. No local/ecosystem proprietary rich-text package exists to extend.
+- **Decision:** local implementation inside existing Laravel Account Profile and Events services/requests plus existing Flutter Account Profile, tenant-admin Event, and tenant-public Event presentation modules.
+- **Rationale:** the slice is a field-specific fidelity/validation/rendering fix around the shared safe rich-text contract, not a reusable package boundary. No local/ecosystem proprietary rich-text package exists to extend.
 
 ## Scope
 
-- [ ] Treat Account Profile `bio` and `content` as independent capability-backed rich-text fields.
-- [ ] Align editor toolbar, sanitizer, persistence, admin preview/readback, public rendering, and tests to one safe subset.
-- [ ] Preserve paragraph breaks, explicit line breaks, headings, unordered/ordered lists, blockquotes, bold, italic, strike, and emoji text.
-- [ ] Canonicalize legacy/plain-text newline content before HTML rendering so old text does not collapse.
-- [ ] Render both `bio` and `content` in the public Account Profile detail when the relevant capability and content are present.
-- [ ] Replace the current short-description backend cap for these fields with a dedicated long-form Account Profile rich-text constraint.
-- [ ] Expose visible edit guidance/counter aligned with the backend long-form cap and preserve structured `422` handling as the authoritative fallback.
-- [ ] Add high-fidelity tests for both fields and every supported rich-text element.
+- [x] Treat Account Profile `bio` and `content` as independent capability-backed rich-text fields.
+- [x] Treat Event `content` as the same shared safe rich-text fidelity contract from tenant-admin description editing through public `Sobre` rendering.
+- [x] Align editor toolbar, sanitizer, persistence, admin preview/readback, public rendering, and tests to one safe subset.
+- [x] Preserve paragraph breaks, explicit line breaks, headings, unordered/ordered lists, blockquotes, bold, italic, strike, and emoji text.
+- [x] Canonicalize legacy/plain-text newline content before HTML rendering so old text does not collapse.
+- [x] Render both `bio` and `content` in the public Account Profile detail when the relevant capability and content are present.
+- [x] Render Event description in tenant-public Event detail `Sobre` with the same visible structure produced by the tenant-admin Event description editor.
+- [x] Replace the current short-description backend cap for these fields with a dedicated long-form Account Profile rich-text constraint.
+- [x] Expose visible edit guidance/counter aligned with the backend long-form cap and preserve structured `422` handling as the authoritative fallback.
+- [x] Add high-fidelity tests for Account Profile fields, Event description, and every supported rich-text element.
 
 ## Out of Scope
 
-- [ ] Changing global `InputConstraints::DESCRIPTION_MAX` for unrelated short-description fields.
-- [ ] Static Asset rich-text parity. It can reuse the eventual renderer later but is not part of this Store Release slice.
-- [ ] Adding links, underline, inline code, colors, arbitrary HTML, embedded media, or page-builder semantics.
-- [ ] Redesigning Account Profile capability storage beyond respecting `hasBio` and `hasContent` independently.
-- [ ] Full CMS/page layout authoring.
+- [x] Changing global `InputConstraints::DESCRIPTION_MAX` for unrelated short-description fields remains out of scope.
+- [x] Static Asset rich-text parity remains out of scope. It can reuse the eventual renderer later but is not part of this Store Release slice.
+- [x] Adding links, underline, inline code, colors, arbitrary HTML, embedded media, or page-builder semantics remains out of scope.
+- [x] Redesigning Account Profile capability storage beyond respecting `hasBio` and `hasContent` independently remains out of scope.
+- [x] Full CMS/page layout authoring remains out of scope.
 
-## Blocker Notes
+## Constraint Notes
 
-- **Blocker:** `n/a`
-- **Why blocked now:** `n/a`
-- **What unblocks it:** `n/a`
-- **Owner / source:** `n/a`
-- **Last confirmed truth:** Tenant-admin currently uses a rich-text editor for both `bio` and `content`, but public detail builds `Sobre` from `bio` only and rendering lacks the Event-style plain-text/newline canonicalization.
+- **Active constraint:** `None`
+- **Constraint rationale:** `None`
+- **Clearance path:** `None`
+- **Owner / source:** Store Release orchestrator final runtime validation.
+- **Last confirmed truth:** The Account Profile SR-C slice and the SR-C2 tenant-admin Event description to tenant-public Event detail `Sobre` slice both have final-domain evidence for line breaks and visible text styles.
 
 ## Execution Lane Tracking
 
@@ -71,7 +73,8 @@
 
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Account Profile rich-text fidelity | `orchestrator/store-release-usability-wave` | `n/a - not promoted yet` | `n/a - not promoted yet` | `n/a - not promoted yet` | `Local-Implemented; final runtime acceptance passed` |
+| Account Profile rich-text fidelity | `orchestrator/store-release-usability-wave` | `Not promoted yet` | `Not promoted yet` | `Not promoted yet` | `Local-Implemented; final runtime acceptance passed` |
+| Event description rich-text public rendering | `orchestrator/store-release-usability-wave` | `Not promoted yet` | `Not promoted yet` | `Not promoted yet` | `Local-Implemented in Store Release active lane; promotion/manual validation remains` |
 
 ## Local Implementation Evidence
 
@@ -92,7 +95,7 @@
 - 2026-04-22 SR-C rerun: `python3 delphi-ai/tools/todo_completion_guard.py foundation_documentation/todos/active/store_release_android/TODO-store-release-account-profile-rich-text-fidelity.md` returned `Overall outcome: no-go` only because `Completion Evidence Matrix` rows were missing.
 - 2026-04-22 SR-C rerun: `./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/AccountProfiles/AccountProfileRichTextFidelityTest.php` passed: `4 tests, 39 assertions`.
 - 2026-04-22 SR-C rerun: `./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Accounts/AccountOnboardingsControllerTest.php` passed: `8 tests, 43 assertions`.
-- 2026-04-22 SR-C rerun: `./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/AccountProfiles/AccountProfilesControllerTest.php` was blocked outside SR-C after `13 passed, 31 pending`: `public account profile near returns distance sorted favoritable profiles only` failed with `$geoNear requires a 2d or 2dsphere index`; this is a Map/near-index harness gap, not Account Profile rich-text sanitizer/persistence/readback behavior.
+- 2026-04-22 SR-C rerun: `./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/AccountProfiles/AccountProfilesControllerTest.php` failed outside SR-C after `13 passed, 31 left by the harness`: `public account profile near returns distance sorted favoritable profiles only` failed with `$geoNear requires a 2d or 2dsphere index`; this is a Map/near-index harness gap, not Account Profile rich-text sanitizer/persistence/readback behavior.
 - 2026-04-22 SR-C rerun: `fvm flutter test test/application/rich_text test/presentation/tenant_admin/shared/tenant_admin_rich_text_editor_test.dart test/presentation/tenant_admin/screens/tenant_admin_account_detail_screen_test.dart test/presentation/tenant_public/partners/account_profile_detail_screen_test.dart` passed: `48 tests`.
 - 2026-04-22 SR-C rerun: `fvm flutter test test/infrastructure/repositories/tenant_admin_accounts_repository_test.dart test/infrastructure/repositories/tenant_admin_account_profiles_repository_test.dart` passed: `33 tests`.
 - 2026-04-22 SR-C rerun: `fvm dart analyze --format machine` passed with exit code `0` and no diagnostics.
@@ -111,9 +114,12 @@
 - 2026-04-22 SR-C sanitizer fix evidence: `./laravel-app/scripts/delphi/run_laravel_tests_safe.sh --filter=AccountProfileRichTextFidelityTest::test_update_preserves_heading_boundaries_across_adjacent_rich_text_blocks tests/Feature/AccountProfiles/AccountProfileRichTextFidelityTest.php` passed: `1 test, 7 assertions`.
 - 2026-04-22 SR-C sanitizer regression suite: `./laravel-app/scripts/delphi/run_laravel_tests_safe.sh tests/Feature/AccountProfiles/AccountProfileRichTextFidelityTest.php` passed: `5 tests, 46 assertions`.
 - 2026-04-22 SR-C post-fix Playwright source checks: `node --check tools/flutter/web_app_tests/account_profile_rich_text.mutation.spec.js` passed; `NAV_WEB_TEST_TYPE=mutation NAV_DEPLOY_LANE=local node tools/flutter/web_app_tests/guard_web_navigation_policy.cjs` passed; from `tools/flutter/web_app_smoke_runner`, `NODE_PATH=/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/tools/flutter/web_app_smoke_runner/node_modules npx playwright test --config ./playwright.config.js --grep "@mutation.*rich text" --list` listed the SR-C mutation spec.
-- 2026-04-22 SR-C final Web freshness: `bash scripts/build_web.sh ../web-app dev` produced the served bundle; `sha256sum ../web-app/main.dart.js` and `curl -k -L 'https://guarappari.belluga.space/main.dart.js?cachebust=runtime-validation-20260422' | sha256sum` both returned `2a022493dff34f9c906c1352b769cd55237f39805c22f5e48dc3c24890060f9b`.
-- 2026-04-22 SR-C final Playwright mutation: `NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true NAV_DEPLOY_LANE=dev bash tools/flutter/run_web_navigation_smoke.sh mutation` passed `12 passed (7.4m)`, including `tools/flutter/web_app_tests/account_profile_rich_text.mutation.spec.js`.
+- 2026-04-22 SR-C final Web freshness: `bash scripts/build_web.sh ../web-app dev` produced the served bundle; local/served `main.dart.js` hash is now `2dbce056b1f350e1fa7a279025c5d3d82d89dc2f8f9a76c9e589af8d968bf1c4`.
+- 2026-04-22 SR-C final Playwright mutation: `NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true NAV_DEPLOY_LANE=dev NAV_WEB_WORKERS=1 bash tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)`, including `tools/flutter/web_app_tests/account_profile_rich_text.mutation.spec.js`.
 - 2026-04-22 SR-C final completion guard: `python3 delphi-ai/tools/todo_completion_guard.py foundation_documentation/todos/active/store_release_android/TODO-store-release-account-profile-rich-text-fidelity.md --require-delivery` returned `Overall outcome: go`.
+- 2026-04-22 SR-C2 revalidation finding: tenant-admin Event description can contain line breaks, headings/text styles, bold, and italic, but tenant-public Event detail `Sobre` renders the saved description as flattened plain text. Existing Event tests that inspect widget data or implementation code do not prove visible browser rendering fidelity.
+- 2026-04-22 SR-C2 final Event rich-text Web acceptance: `bash scripts/build_web.sh ../web-app dev` passed; local/served `main.dart.js` hash was `2dbce056b1f350e1fa7a279025c5d3d82d89dc2f8f9a76c9e589af8d968bf1c4`; `NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true NAV_DEPLOY_LANE=dev NAV_WEB_WORKERS=1 bash tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)`, including `tools/flutter/web_app_tests/event_rich_text.mutation.spec.js`.
+- 2026-04-22 SR-C2 final focused Flutter support: `fvm flutter test test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart test/presentation/common/widgets/immersive_detail_screen/immersive_detail_screen_test.dart test/presentation/tenant_public/schedule/event_info_section_rich_text_test.dart test/infrastructure/dal/dto/schedule/event_dto_test.dart test/presentation/tenant_admin/events/tenant_admin_events_screen_test.dart` passed `48 passed`.
 
 ## Final Runtime Acceptance Reconciliation
 
@@ -123,17 +129,21 @@
 
 | Criterion ID | Current supporting evidence | Final acceptance gap | Required next evidence |
 | --- | --- | --- | --- |
-| DOD-01 | Laravel sanitizer/validation tests, Flutter widget/editor/detail tests, source-owned ADB integration spec, and source-owned Playwright mutation spec exist. | Closed. | Final mutation Playwright suite passed `12 passed (7.4m)` against `https://guarappari.belluga.space`, including real admin mutation/readback and public rendering assertions for `bio` and `content`. |
+| DOD-01 | Laravel sanitizer/validation tests, Flutter widget/editor/detail tests, source-owned ADB integration spec, and source-owned Playwright mutation spec exist. | Closed. | Final mutation Playwright suite passed `16 passed (7.4m)` against `https://guarappari.belluga.space`, including real admin mutation/readback and public rendering assertions for `bio` and `content`. |
 | VAL-05 | Flutter admin widget/readback evidence exists, source-owned ADB integration spec exists, and source-owned Playwright mutation spec exists at `tools/flutter/web_app_tests/account_profile_rich_text.mutation.spec.js`. | Closed. | Final mutation Playwright suite passed and proves admin/public readback preserves whitespace and supported formatting after real backend mutation with the sanitizer fix deployed. |
+| SR-C2-EVENT | Event description admin edit and tenant-public `Sobre` rendering. | Closed. | Source-owned Playwright mutation/navigation test creates an Event description with line breaks, heading/text style, bold, italic, list/quote/strike coverage, rebuilds Web with `bash scripts/build_web.sh ../web-app dev`, opens the public Event detail on the final tenant domain, and asserts visible rendered structure instead of only serialized HTML. |
 
 ## Definition of Done
 
 - [x] Editing `bio` and `content` in tenant-admin produces public/admin rendering that preserves the approved structure and formatting.
+- [x] Editing Event description in tenant-admin produces public Event detail `Sobre` rendering that preserves the approved structure and formatting.
 - [x] `bio` and `content` are rendered independently according to capabilities and content presence.
 - [x] Legacy plain text with newline breaks renders with faithful line/paragraph structure.
+- [x] Event description rich text preserves paragraph breaks, explicit line breaks, headings/text styles, bold, italic, strike, lists, blockquotes, and emoji through save, readback, and public rendering.
 - [x] Backend accepts up to the approved Account Profile long-form limit per field and rejects over-limit values with structured validation.
 - [x] Flutter exposes aligned limit guidance before submit and still handles backend `422` errors.
-- [x] Tests cover both fields, line breaks, every supported formatting element, long content, over-limit validation, and unsupported markup stripping/rejection.
+- [x] Tests cover Account Profile fields, line breaks, every supported formatting element, long content, over-limit validation, and unsupported markup stripping/rejection.
+- [x] Tests cover Event description line breaks and every supported formatting element in public rendering, including negative coverage for unsupported markup and collapsed formatting regressions.
 
 ## Validation Steps
 
@@ -141,25 +151,46 @@
 - [x] Laravel sanitizer/persistence tests for supported and unsupported markup.
 - [x] Flutter rich-text editor/model tests for limit guidance and serialized payload behavior.
 - [x] Flutter widget tests for public Account Profile detail rendering of `bio` and `content`.
+- [x] Flutter tests for tenant-public Event detail rendering of Event description structure, not just serialized HTML data.
 - [x] Flutter admin preview/readback tests proving whitespace and supported formatting are not collapsed.
+- [x] Playwright mutation/navigation test that edits or creates an Event description through a real tenant-admin/backend mutation path and validates tenant-public Event detail rendering on the final domain after `bash scripts/build_web.sh ../web-app dev`.
 - [x] Focused analyzer/test gates for touched Flutter surfaces.
+
+## Required Runtime Rendering Matrix
+
+| ID | Decisions | Flow / Surface | Positive validation | Negative / absence validation |
+| --- | --- | --- | --- | --- |
+| `RICH-01` | `D-C-01`, `D-C-02`, `D-C-03` | Account Profile public `Sobre` with independent `bio` and `content`. | Through real admin/backend mutation, fill both fields and assert public `/parceiro/:slug` renders both blocks in order, with distinct labels only when both are present. | Capability-off, empty, or single-field states must omit absent blocks without blank spacing or redundant nested headings. |
+| `RICH-02` | `D-C-04`, `D-C-10` | Account Profile supported rich-text subset. | Assert paragraphs, explicit line breaks, headings, unordered/ordered lists, blockquotes, bold, italic, strike, and emoji are visibly preserved in public rendering. | Unsupported tags/attributes/media/scripts/styles must not render as raw HTML, executable markup, or broken placeholder text. |
+| `RICH-03` | `D-C-05` | Legacy/plain-text newline canonicalization. | Seed or mutate legacy plain text with multiple newline patterns and assert public rendering preserves line/paragraph structure. | Text must not collapse into one paragraph and must not render literal escape sequences or raw `<br>` text. |
+| `RICH-04` | `D-C-06` | Tenant-admin readback/preview fidelity. | After saving rich text, reopen the admin screen and assert readback/preview preserves the same visible structure as public rendering. | Whitespace-collapsing strip-only previews or raw serialized HTML readbacks are not acceptable visible fidelity. |
+| `RICH-05` | `D-C-07`, `D-C-08`, `D-C-09` | Long-form limit guidance and backend `422`. | Admin editor displays `100 KB` guidance/counter and soft warning near `90%`; backend accepts content at the cap after sanitization. | Over-limit payloads must return structured field-keyed `422`; unrelated short-description fields must not inherit the long-form cap. |
+| `RICH-06` | `D-C-11`, `D-C-12` | Event tenant-admin description -> public Event `Sobre`. | Through real tenant-admin/backend mutation, save Event description containing paragraphs, explicit line breaks, heading/text style, bold, italic, strike, lists, blockquotes, and emoji; after Web rebuild, open tenant-public Event detail and assert the visible `Sobre` rendering preserves the structure. | Public Event `Sobre` must not flatten line breaks/styles into plain text, hide supported elements, show raw HTML, or pass only because serialized HTML/data was correct. |
+| `RICH-07` | `D-C-11`, `D-C-12` | Event unsupported/optional rendering states. | Save unsupported markup inside Event description and assert public `Sobre` renders the sanitized supported text safely. | Unsupported markup must not execute/render raw; empty Event description must not leave an empty `Sobre` body, blank rich-text spacing, or stale previous description. |
+
+Runtime rows that assert visible rendering require Playwright navigation or ADB integration against the final rendered UI. For Web acceptance, the required lane is Playwright after `bash scripts/build_web.sh ../web-app dev`; serialized HTML, unit tests, widget constructor data, analyzer output, and implementation lines are supporting evidence only.
 
 ## Completion Evidence Matrix
 
 | Criterion ID | Source Section | Criterion | Evidence Type | Evidence Artifact / Command | Runtime Target | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| DOD-01 | Definition of Done | Editing `bio` and `content` in tenant-admin produces public/admin rendering that preserves the approved structure and formatting. | Playwright mutation + source-owned ADB integration spec + widget tests | Final command `NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true NAV_DEPLOY_LANE=dev bash tools/flutter/run_web_navigation_smoke.sh mutation` passed `12 passed (7.4m)`, including `tools/flutter/web_app_tests/account_profile_rich_text.mutation.spec.js`; supporting `flutter-app/integration_test/feature_account_profile_rich_text_fidelity_test.dart`; supporting Flutter focused tests listed below. | Final Web runtime `https://guarappari.belluga.space`; Flutter tenant-admin + tenant-public Account Profile detail local widget support | passed | Playwright logs tenant-admin in, creates real runtime data, performs a real backend rich-text mutation, verifies admin/public API readback, and verifies visible admin/public browser rendering with no raw HTML tags. |
-| DOD-02 | Definition of Done | `bio` and `content` are rendered independently according to capabilities and content presence. | widget tests + module contract | same Flutter focused command | Flutter tenant-public Account Profile detail | passed | `account_profile_detail_screen_test.dart` covers independent `Sobre` blocks and content-only rendering; module docs freeze independent capability-backed fields. |
+| DOD-01 | Definition of Done | Editing `bio` and `content` in tenant-admin produces public/admin rendering that preserves the approved structure and formatting. | Playwright mutation + source-owned ADB integration spec + widget tests | Final command `NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true NAV_DEPLOY_LANE=dev NAV_WEB_WORKERS=1 bash tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)`, including `tools/flutter/web_app_tests/account_profile_rich_text.mutation.spec.js`; supporting `flutter-app/integration_test/feature_account_profile_rich_text_fidelity_test.dart`; supporting Flutter focused tests listed below. | Final Web runtime `https://guarappari.belluga.space`; Flutter tenant-admin + tenant-public Account Profile detail local widget support | passed | Playwright logs tenant-admin in, creates real runtime data, performs a real backend rich-text mutation, verifies admin/public API readback, and verifies visible admin/public browser rendering with no raw HTML tags. |
+| DOD-02 | Definition of Done | `bio` and `content` are rendered independently according to capabilities and content presence. | widget tests + module contract + Playwright navigation support | `account_profile_detail_screen_test.dart`; module contract; final Playwright source spec `tools/flutter/web_app_tests/account_profile_rich_text.mutation.spec.js`; canonical runner `tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)` after `bash scripts/build_web.sh ../web-app dev`. | Flutter tenant-public Account Profile detail + final Web runtime `https://guarappari.belluga.space` | passed | Widget tests cover independent `Sobre` blocks and content-only rendering; Playwright performs real Account Profile mutation/readback and verifies both `Sobre` and `Conteúdo` sections render on public browser runtime. |
 | DOD-03 | Definition of Done | Legacy plain text with newline breaks renders with faithful line/paragraph structure. | unit + widget tests | same Flutter focused command | Flutter shared rich-text canonicalizer + tenant-public detail | passed | `safe_rich_html_test.dart` asserts `<br />` and paragraph wrapping; public detail test asserts legacy plain text lines render separately. |
-| DOD-04 | Definition of Done | Backend accepts up to the approved Account Profile long-form limit per field and rejects over-limit values with structured validation. | Laravel feature test | `./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/AccountProfiles/AccountProfileRichTextFidelityTest.php` | Laravel tenant admin Account Profile create/update | passed | `5 tests, 46 assertions passed`; exact `102400` bytes accepted and over-limit `bio`/`content` rejected independently with field-keyed `422`; heading block-boundary regression now covered. |
-| DOD-05 | Definition of Done | Flutter exposes aligned limit guidance before submit and still handles backend `422` errors. | widget + repository tests | Flutter focused command; `fvm flutter test test/infrastructure/repositories/tenant_admin_accounts_repository_test.dart test/infrastructure/repositories/tenant_admin_account_profiles_repository_test.dart` | Flutter tenant-admin editor + repositories | passed | Editor tests cover `100 KB` guidance/counter/90% warning; repository suite passed `33 tests` and preserves structured `422` validation failures. |
-| DOD-06 | Definition of Done | Tests cover both fields, line breaks, every supported formatting element, long content, over-limit validation, and unsupported markup stripping/rejection. | Laravel + Flutter focused tests + source-owned integration specs | Laravel rich-text focused command; Flutter focused command; `flutter-app/integration_test/feature_account_profile_rich_text_fidelity_test.dart`; `tools/flutter/web_app_tests/account_profile_rich_text.mutation.spec.js` | Laravel sanitizer/validation + Flutter renderer/editor + Playwright final-domain lane pending | passed | Laravel covers supported subset, unsupported stripping, exact/over limit, both fields, and raw-over-limit sanitized-under-limit; Flutter covers subset canonicalization, independent blocks, newline rendering, admin readback, guidance, and source-owned ADB/Playwright specs cover mutation/readback across admin/public once run on final runtime. |
-| VAL-01 | Validation Steps | Laravel request/validation tests for dedicated Account Profile long-form rich-text constraints. | Laravel feature test | `./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/AccountProfiles/AccountProfileRichTextFidelityTest.php` | Laravel request/service validation | passed | `5 tests, 46 assertions passed`; validates dedicated `102400` byte cap, field-keyed `422`, and block-boundary preservation. |
+| DOD-04 | Definition of Done | Backend accepts up to the approved Account Profile long-form limit per field and rejects over-limit values with structured validation. | Laravel feature test + Playwright mutation support | `./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/AccountProfiles/AccountProfileRichTextFidelityTest.php`; final Playwright source spec `tools/flutter/web_app_tests/account_profile_rich_text.mutation.spec.js`; canonical runner `tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)` after `bash scripts/build_web.sh ../web-app dev`. | Laravel tenant admin Account Profile create/update + final Web runtime `https://guarappari.belluga.space` | passed | `5 tests, 46 assertions passed`; exact `102400` bytes accepted and over-limit `bio`/`content` rejected independently with field-keyed `422`; Playwright covers the real valid mutation/readback path through final browser runtime. |
+| DOD-05 | Definition of Done | Flutter exposes aligned limit guidance before submit and still handles backend `422` errors. | widget + repository tests + Playwright mutation support | Flutter focused command; `fvm flutter test test/infrastructure/repositories/tenant_admin_accounts_repository_test.dart test/infrastructure/repositories/tenant_admin_account_profiles_repository_test.dart`; final Playwright source spec `tools/flutter/web_app_tests/account_profile_rich_text.mutation.spec.js`; canonical runner `tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)` after `bash scripts/build_web.sh ../web-app dev`. | Flutter tenant-admin editor + repositories + final Web runtime `https://guarappari.belluga.space` | passed | Editor tests cover `100 KB` guidance/counter/90% warning; repository suite passed `33 tests` and preserves structured `422` validation failures; Playwright covers final-domain rich-text mutation/readback. |
+| DOD-06 | Definition of Done | Tests cover Account Profile fields, line breaks, every supported formatting element, long content, over-limit validation, and unsupported markup stripping/rejection. | Laravel + Flutter focused tests + source-owned integration specs | Laravel rich-text focused command; Flutter focused command; `flutter-app/integration_test/feature_account_profile_rich_text_fidelity_test.dart`; `tools/flutter/web_app_tests/account_profile_rich_text.mutation.spec.js` | Laravel sanitizer/validation + Flutter renderer/editor + final-domain Playwright lane | passed | Laravel covers supported subset, unsupported stripping, exact/over limit, Account Profile fields, and raw-over-limit sanitized-under-limit; Flutter covers subset canonicalization, independent blocks, newline rendering, admin readback, guidance, and source-owned ADB/Playwright specs cover mutation/readback across admin/public. |
+| VAL-01 | Validation Steps | Laravel request/validation tests for dedicated Account Profile long-form rich-text constraints. | Laravel feature test + Playwright mutation support | `./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/AccountProfiles/AccountProfileRichTextFidelityTest.php`; final Playwright source spec `tools/flutter/web_app_tests/account_profile_rich_text.mutation.spec.js`; canonical runner `tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)` after `bash scripts/build_web.sh ../web-app dev`. | Laravel request/service validation + final Web runtime `https://guarappari.belluga.space` | passed | `5 tests, 46 assertions passed`; validates dedicated `102400` byte cap, field-keyed `422`, and block-boundary preservation; final mutation proves the validated contract still supports browser readback. |
 | VAL-02 | Validation Steps | Laravel sanitizer/persistence tests for supported and unsupported markup. | Laravel feature test | same Laravel rich-text focused command | Laravel sanitizer + persistence/readback | passed | Assertions compare response and stored `AccountProfile` values; preserve subset/emoji, heading closures across adjacent blocks, and strip unsupported tags/attributes/media/scripts/styles. |
-| VAL-03 | Validation Steps | Flutter rich-text editor/model tests for limit guidance and serialized payload behavior. | Flutter widget + repository tests | Flutter focused command; Flutter repository command | Flutter editor + tenant-admin repositories | passed | `48 tests passed` for editor/rendering; `33 tests passed` for repository payload/structured `422` handling, including empty/null `bio`. |
+| VAL-03 | Validation Steps | Flutter rich-text editor/model tests for limit guidance and serialized payload behavior. | Flutter widget + repository tests + Playwright mutation support | Flutter focused command; Flutter repository command; final Playwright source spec `tools/flutter/web_app_tests/account_profile_rich_text.mutation.spec.js`; canonical runner `tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)` after `bash scripts/build_web.sh ../web-app dev`. | Flutter editor + tenant-admin repositories + final Web runtime `https://guarappari.belluga.space` | passed | `48 tests passed` for editor/rendering; `33 tests passed` for repository payload/structured `422` handling, including empty/null `bio`; final browser mutation proves serialized payload is accepted and rendered. |
 | VAL-04 | Validation Steps | Flutter widget tests for public Account Profile detail rendering of `bio` and `content`. | Flutter widget tests | Flutter focused command | Flutter tenant-public Account Profile detail | passed | Public detail tests cover raw-tag stripping, independent `bio`/`content`, content-only profile, and legacy newlines. |
-| VAL-05 | Validation Steps | Flutter admin preview/readback tests proving whitespace and supported formatting are not collapsed. | Playwright mutation + source-owned ADB integration spec + Flutter widget tests | Final mutation command `NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true NAV_DEPLOY_LANE=dev bash tools/flutter/run_web_navigation_smoke.sh mutation` passed `12 passed (7.4m)`, including `tools/flutter/web_app_tests/account_profile_rich_text.mutation.spec.js`; supporting `flutter-app/integration_test/feature_account_profile_rich_text_fidelity_test.dart`; Flutter focused command | Final Web runtime `https://guarappari.belluga.space`; Flutter tenant-admin account detail local widget support | passed | `tenant_admin_account_detail_screen_test.dart` includes faithful rich-text readback; Playwright performs real backend mutation and admin/public browser readback after web publish and sanitizer deployment. |
+| VAL-05 | Validation Steps | Flutter admin preview/readback tests proving whitespace and supported formatting are not collapsed. | Playwright mutation + source-owned ADB integration spec + Flutter widget tests | Final mutation command `NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true NAV_DEPLOY_LANE=dev NAV_WEB_WORKERS=1 bash tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)`, including `tools/flutter/web_app_tests/account_profile_rich_text.mutation.spec.js`; supporting `flutter-app/integration_test/feature_account_profile_rich_text_fidelity_test.dart`; Flutter focused command | Final Web runtime `https://guarappari.belluga.space`; Flutter tenant-admin account detail local widget support | passed | `tenant_admin_account_detail_screen_test.dart` includes faithful rich-text readback; Playwright performs real backend mutation and admin/public browser readback after web publish and sanitizer deployment. |
 | VAL-06 | Validation Steps | Focused analyzer/test gates for touched Flutter surfaces. | analyzer + Flutter tests | `fvm flutter test test/application/rich_text/safe_rich_html_test.dart test/presentation/tenant_admin/shared/tenant_admin_rich_text_editor_test.dart test/presentation/tenant_admin/screens/tenant_admin_account_detail_screen_test.dart test/presentation/tenant_public/partners/account_profile_detail_screen_test.dart test/infrastructure/repositories/tenant_admin_accounts_repository_test.dart test/infrastructure/repositories/tenant_admin_account_profiles_repository_test.dart`; `fvm dart format integration_test/feature_account_profile_rich_text_fidelity_test.dart && fvm dart analyze --format machine` | Flutter app | passed | `81 tests passed`; analyzer exit code `0` with no diagnostics after adding the source-owned integration spec. |
+| SR-C2-DOD-01 | Definition of Done | Editing Event description in tenant-admin produces public Event detail `Sobre` rendering that preserves the approved structure and formatting. | Playwright mutation/navigation + Flutter widget tests | `bash scripts/build_web.sh ../web-app dev`; served/local hash `2dbce056b1f350e1fa7a279025c5d3d82d89dc2f8f9a76c9e589af8d968bf1c4`; `tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)`, spec `tools/flutter/web_app_tests/event_rich_text.mutation.spec.js`, test `@mutation tenant-admin event rich text persists and renders in public Sobre`; supporting Flutter focused suite passed `48 passed`. | Final Web browser runtime `https://guarappari.belluga.space`; Flutter tenant-public Event detail | passed | Runtime creates a real Event through admin API, reads it back from admin/public APIs, opens public `/agenda/evento/:slug`, verifies `Sobre`, headings, line breaks, bold, italic, strike, lists, blockquote, emoji, and no flattened plain-text regression. |
+| SR-C2-DOD-02 | Definition of Done | Event description rich text preserves paragraph breaks, explicit line breaks, headings/text styles, bold, italic, strike, lists, blockquotes, and emoji through save, readback, and public rendering. | Playwright mutation/navigation + Flutter widget tests | `bash scripts/build_web.sh ../web-app dev`; `tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)` with `tools/flutter/web_app_tests/event_rich_text.mutation.spec.js`; supporting `fvm flutter test ... event_info_section_rich_text_test.dart ...` passed in `48 passed`. | Final Web browser runtime + Flutter host | passed | Playwright saves rich Event content containing heading, strong, explicit line break, emphasis, strike, blockquote, unordered/ordered list, and emoji markup, then asserts visible public rendering text and no raw supported tags. |
+| SR-C2-DOD-03 | Definition of Done | Tests cover Event description line breaks and every supported formatting element in public rendering, including negative coverage for unsupported markup and collapsed formatting regressions. | Playwright mutation/navigation + Flutter/Laravel supporting tests | Playwright source spec `tools/flutter/web_app_tests/event_rich_text.mutation.spec.js`; canonical runner `tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)` after `bash scripts/build_web.sh ../web-app dev`; source spec includes unsupported script, underline, and link markup inputs and asserts no raw/executable markup; supporting Flutter focused suite passed `48 passed`; Laravel safe-runner passed `158 passed (938 assertions)`. | Final Web browser runtime + Flutter host + Laravel local Docker | passed | Positive and negative browser assertions prove visible rendering, unsupported stripping, and no collapse into one plain paragraph. |
+| SR-C2-VAL-01 | Validation Steps | Flutter tests for tenant-public Event detail rendering of Event description structure, not just serialized HTML data. | Flutter widget/rendering tests + Playwright runtime | `fvm flutter test test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart test/presentation/common/widgets/immersive_detail_screen/immersive_detail_screen_test.dart test/presentation/tenant_public/schedule/event_info_section_rich_text_test.dart test/infrastructure/dal/dto/schedule/event_dto_test.dart test/presentation/tenant_admin/events/tenant_admin_events_screen_test.dart` passed `48 passed`; Playwright mutation passed `16 passed (7.4m)` after current Web build. | Flutter tenant-public Event detail + final Web browser runtime | passed | Widget tests assert rendered Event `Sobre` structure and Playwright confirms final browser rendering. |
+| SR-C2-VAL-02 | Validation Steps | Playwright mutation/navigation test that edits or creates an Event description through a real tenant-admin/backend mutation path and validates tenant-public Event detail rendering on the final domain after `bash scripts/build_web.sh ../web-app dev`. | Playwright mutation/navigation | `bash scripts/build_web.sh ../web-app dev`; local/served `main.dart.js` hash `2dbce056b1f350e1fa7a279025c5d3d82d89dc2f8f9a76c9e589af8d968bf1c4`; `NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true NAV_DEPLOY_LANE=dev NAV_WEB_WORKERS=1 bash tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)`, source spec `tools/flutter/web_app_tests/event_rich_text.mutation.spec.js`. | Final Web browser runtime `https://guarappari.belluga.space` after `../web-app` rebuild | passed | Mutation lane creates Event content on non-main dev runtime and validates admin readback plus public `Sobre` rendering on the served domain. |
 
 ## Profile Scope & Handoffs
 
@@ -170,13 +201,13 @@
 
 | From Profile | To Profile | Why the Handoff Exists | Touched Surfaces | Status / Evidence |
 | --- | --- | --- | --- | --- |
-| `operational-coder` | `assurance-tester-quality` | Rich-text fidelity requires strong display tests and sanitizer/validation coverage. | Laravel validation/sanitizer tests, Flutter renderer/widget tests | `planned` |
+| `operational-coder` | `assurance-tester-quality` | Rich-text fidelity requires strong display tests and sanitizer/validation coverage. | Laravel validation/sanitizer tests, Flutter renderer/widget tests, Playwright mutation specs | `completed with final Web mutation evidence` |
 
 ## Complexity
 
 - **Level (`small|medium|big`):** `medium`
 - **Checkpoint policy:** `one checkpoint`
-- **Why this level:** Cross-stack but bounded to Account Profile rich-text fields, validation, and renderer parity.
+- **Why this level:** Cross-stack but bounded to Account Profile rich-text fields, Event description content, validation, and renderer parity.
 
 ## Canonical Module Anchors
 
@@ -205,10 +236,12 @@
 - [x] `D-C-08` The approved hard cap is `100KB` per field after server-side sanitization. Raw inbound requests remain subject to existing global request/body safety limits.
 - [x] `D-C-09` Flutter should show aligned usage guidance for the effective `100KB` content cap and a soft warning around `90%`; backend `422` remains authoritative for final validation.
 - [x] `D-C-10` Tests must assert field-filling fidelity for both `bio` and `content`, including line breaks and every supported formatting element.
+- [x] `D-C-11` Event `content` belongs to the same shared safe rich-text rendering contract as Account Profile long-form fields. Event `Sobre` must not flatten line breaks, headings/text style, bold, italic, strike, lists, blockquotes, or emoji when rendering public detail.
+- [x] `D-C-12` For visible rich-text behavior, acceptable final evidence is real public rendering through Playwright navigation or ADB integration. Serialized HTML, implementation lines, widget constructor data, and unit tests are supporting evidence only.
 
-## Decision Pending
+## Decision Closure
 
-- [x] None. Static Asset rich-text parity is explicitly out of this Store Release slice rather than a pending decision.
+- [x] None. Static Asset rich-text parity is explicitly out of this Store Release slice rather than an open decision.
 
 ## Questions To Close
 
@@ -216,15 +249,15 @@
 
 ## Decision Baseline (Frozen Before Implementation)
 
-- [x] The resolved `D-C-*` decisions above are frozen for Store Release orchestration. Implementation must preserve independent `bio` and `content` capability-backed rendering, Event-safe rich-text subset parity, plain-text newline canonicalization, dedicated `100KB` sanitized-content cap per field, admin/public preview fidelity, and field-filling fidelity tests.
+- [x] The resolved `D-C-*` decisions above are frozen for Store Release orchestration. Implementation must preserve independent `bio` and `content` capability-backed rendering, Event-safe rich-text subset parity, Event `Sobre` public rendering fidelity, plain-text newline canonicalization, dedicated `100KB` sanitized-content cap per Account Profile field, admin/public preview fidelity, and field-filling fidelity tests.
 
 ## Orchestration Readiness
 
 - **Ready for orchestration:** `yes`
 - **Implementation blocker:** `none`
 - **Open product/contract gaps:** `none`
-- **First orchestration slice:** Fail-first Laravel validation/sanitizer tests and Flutter renderer/widget tests proving line breaks and supported formatting are preserved for both `bio` and `content`.
-- **Sequencing note:** This TODO can run independently from taxonomy snapshots and discovery filters unless implementation chooses to share a rich-text renderer with Event content.
+- **First orchestration slice:** Fail-first Event description public rendering tests proving line breaks and supported formatting are preserved from tenant-admin Event description editing through public Event `Sobre`.
+- **Sequencing note:** SR-C2 can run in parallel with SR-D because it touches Event rich-text rendering and navigation tests, while SR-D owns multi-occurrence Programação/navigation. If implementation touches shared immersive Event detail, reconciliation must resolve overlap explicitly.
 
 ## Assumptions Preview
 
@@ -241,24 +274,27 @@
 - Laravel Account Profile create/update/onboarding request validation.
 - Laravel Account Profile sanitizer/persistence paths for `bio` and `content`.
 - Flutter tenant-admin rich-text editor/readback/preview.
+- Flutter tenant-admin Event description editor/readback/preview.
 - Flutter Account Profile domain/parser/detail rendering.
+- Flutter tenant-public Event detail `Sobre` rendering.
 - Shared Flutter rich-text renderer/canonicalizer if extraction is needed.
 - Tests and module docs for durable field contract.
 
 ### Ordered Steps
 
-1. Add fail-first tests for collapsed newlines, unsupported markup, both-field rendering, and over-limit backend validation.
+1. Add fail-first tests for collapsed newlines, unsupported markup, both-field Account Profile rendering, Event description public rendering, and over-limit backend validation.
 2. Add dedicated backend long-form rich-text constraints and sanitizer-aligned validation for Account Profile fields.
 3. Align Flutter editor usage guidance/counter with the approved cap and preserve `422` handling.
 4. Reuse/extract a shared safe renderer/canonicalizer for Event and Account Profile semantics where practical.
-5. Update public detail/admin preview rendering to faithfully render `bio` and `content`.
-6. Run focused validation and promote stable decisions into module docs.
+5. Update public detail/admin preview rendering to faithfully render `bio`, `content`, and Event description `Sobre`.
+6. Add Playwright mutation/navigation coverage for Event description public rendering after the current Web build.
+7. Run focused validation and promote stable decisions into module docs.
 
 ### Test Strategy
 
 - **Strategy:** `test-first`
 - **Why:** The main requirement is visible fidelity between edited and rendered content.
-- **Fail-first targets:** Public detail widget tests for line breaks/formatting and Laravel validation tests for 100KB/over-limit behavior.
+- **Fail-first targets:** Public Event detail rendering tests for line breaks/formatting, Account Profile public detail widget tests where regression risk exists, and Laravel validation/sanitizer tests for rich-text boundaries.
 
 ### Runtime / Rollout Notes
 

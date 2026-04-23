@@ -98,8 +98,9 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 ### 5.2 Write model
 
 - Event create/update accepts `occurrences[]` as schedule source.
-- Occurrence write payloads may include occurrence-owned `event_parties`, optional `location` + `place_ref` override, and occurrence-owned `programming_items`. Omitted occurrence-owned fields on update preserve existing occurrence values; present fields replace their occurrence-scoped values in request order.
+- Occurrence write payloads may include occurrence-owned `event_parties` and occurrence-owned `programming_items`. Occurrence-level `location`/`place_ref` overrides are not part of the approved Store Release model; item-level programação locations use structured Account Profile/Map POI references instead. Omitted occurrence-owned fields on update preserve existing occurrence values; present fields replace their occurrence-scoped values in request order.
 - A programming item with more than one linked Account Profile must provide an explicit `title`; a single linked profile may omit `title` and use profile display name as the public fallback.
+- A programação item may optionally reference an Account Profile that owns the Map POI used as that item's location; free-text location is not a source-of-truth field.
 - `venue_id` is prohibited in write payloads.
 - `event_parties[]` write input is minimal and strict: clients may send only `party_ref_id` and optional `permissions.can_edit`. `party_type` and `metadata` are backend-owned, inferred/resolved from the referenced account profile, and rejected when client-supplied.
 - When `event_parties` is present on update, it replaces the full related-account set in request order. An omitted `event_parties` field preserves the stored related-account ordering.
@@ -150,7 +151,7 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 | `TODO-v1-ticketing-package-integration.md` | Ticketing package integration stream | In progress | Sections 3, 4 | Active; ticket domain boundaries remain external to Events core. |
 | `TODO-v1-tenant-public-safe-back-navigation.md` | Shared tenant-public event-detail back/fallback policy | Completed | Sections 4, 5 | Freezes `/agenda/evento/:slug -> /` when root-opened; archived from `active` during the 2026-04-09 MVP TODO cleanup after delivery confirmation. |
 | `TODO-store-release-taxonomy-term-display-snapshots.md` | Taxonomy term display snapshots across Events/Event Occurrences and linked profile summaries | In progress | Sections 4, 5, 6 | Promotes display-ready taxonomy snapshots while preserving slug-pair filtering and occurrence-first read performance. |
-| `TODO-store-release-event-multi-occurrence-ux-and-authoring-model.md` | Multi-occurrence selected-detail, occurrence-scoped related profiles/location overrides, and occurrence-exclusive Programação | In progress | Sections 4, 5, 6 | Promotes selected-occurrence detail semantics and occurrence-owned payload extensions while preserving occurrence-first discovery and event slug identity. |
+| `TODO-store-release-event-multi-occurrence-ux-and-authoring-model.md` | Multi-occurrence selected-detail, occurrence-scoped related profiles, and occurrence-exclusive Programação with item-level location references | In progress | Sections 4, 5, 6 | Promotes selected-occurrence detail semantics and occurrence-owned payload extensions while preserving occurrence-first discovery and event slug identity. |
 
 ## 7. Relationship to Adjacent Modules
 

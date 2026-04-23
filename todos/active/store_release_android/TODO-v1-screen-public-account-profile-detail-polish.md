@@ -1,12 +1,16 @@
 # TODO (V1): Screen Polish - Public Account Profile Detail (`/parceiro/:slug`)
 
-**Authority note (2026-04-17):** this TODO is the single active authority for tenant-public Public Account Profile detail-screen polish on `/parceiro/:slug`. Discovery-side contract and launch presentation on `/descobrir` were completed in `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`; no active Discovery follow-up remains in this lane.
+**Authority note (2026-04-17):** this TODO is the single active authority for tenant-public Public Account Profile detail-screen polish on `/parceiro/:slug`. Discovery-side contract and launch presentation on `/descobrir` were completed in `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`; no active Discovery companion item remains in this lane.
 
-**Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.
+**Status legend:** canonical PACED delivery stages; the authoritative current stage is recorded in `Delivery Status Canon`.
 **Status:** Active
-**Current delivery stage:** `Local-Implemented`
-**Qualifiers:** `Automated-Validated`, `Manual-Smoke-Pending`
-**Next exact step:** Implement the remaining follow-ups on the hero type-avatar and the no-sections favorite empty state, then run the final manual smoke on Home + `/parceiro/:slug`, validating the shared `Upcoming Event` family, locale-fixed date labels, hero/avatar polish, `Acontecendo Agora`, `Ver no mapa`, swipe tabs, and CTA behavior.
+
+## Delivery Status Canon
+
+- **Current delivery stage:** `Local-Implemented`
+- **Qualifiers:** `Discovery-Back-Stack-Regression-Resolved`, `Automated-Validated`
+- **Next exact step:** Keep in Store Release active lane for manual validation/promotion after final orchestration guards. Re-run guards if public Account Profile detail behavior, runtime target, or served Web bundle changes.
+
 **Owners:** Flutter Team, Laravel Team
 **Objective:** Finish the tenant-public Public Account Profile detail polish by aligning the remaining immersive behavior with the approved MVP model: a basic collapsed AppBar, occurrence-first agenda with event-first hierarchy, fixed `Sobre | Agenda | Como Chegar` ordering, no social metrics, swipe-driven tab navigation shared by Public Account Profile and immersive Event detail, a hero type visual rendered as an isolated circular avatar with the type icon, taxonomy chips that display canonical names instead of slug-like values, and a shared `Upcoming Event` card contract between Home and Public Account Profile agendas.
 **Promotion lane path:** `dev -> stage -> main`
@@ -15,8 +19,8 @@
 **Primary execution profile:** `Operational / Coder`
 **Active technical scope:** `flutter`, `laravel`
 
-**Blocker Notes:** The Laravel/contract blocker, locale drift blocker, and Home/UI convergence blocker are all resolved. The only remaining gate is manual runtime validation.
-**Last confirmed truth:** `2026-04-04` automated validation confirms that Home and Account Profile now share the same `Upcoming Event` card family. `VenueEventResume` carries event-type + venue-title metadata, `DateGroupedEventList` uses the shared card, Account Profile uses the same card for standard agenda items, and the app shell remains locked to `pt_BR`. New follow-up intake on `2026-04-08`: when a profile has no about content and no events, the no-sections fallback must switch from `Mais sobre este perfil` to the favorite CTA `Favorite para ser avisado das novidades sobre {account profile name}.`
+**Blocker Notes:** The Laravel/contract blocker, locale drift blocker, Home/UI convergence blocker, and Discovery back-stack regression are resolved locally. Remaining work is manual validation/promotion, not implementation.
+**Last confirmed truth:** `2026-04-04` automated validation confirms that Home and Account Profile now share the same `Upcoming Event` card family. `VenueEventResume` carries event-type + venue-title metadata, `DateGroupedEventList` uses the shared card, Account Profile uses the same card for standard agenda items, and the app shell remains locked to `pt_BR`. New intake on `2026-04-08`: when a profile has no about content and no events, the no-sections fallback must switch from `Mais sobre este perfil` to the favorite CTA `Favorite para ser avisado das novidades sobre {account profile name}.` Manual 2026-04-22 validation found a release-facing navigation regression: after navigating from Discovery to an Account Profile detail and returning to Discovery, the Discovery back action becomes inconsistent and reopens the previously visited Account Profile instead of returning to Home.
 
 ---
 
@@ -28,11 +32,11 @@
 
 - **EnvironmentType:** `tenant`
 - **Main scope:** `tenant_public`
-- **Subscope:** `n/a`
+- **Subscope:** `None`
 
 | Route | Host Context | EnvironmentType | Main Scope | Subscope | Guard/Identity |
 | --- | --- | --- | --- | --- | --- |
-| `/parceiro/:slug` | tenant | `tenant` | `tenant_public` | `n/a` | `TenantRouteGuard()` |
+| `/parceiro/:slug` | tenant | `tenant` | `tenant_public` | `None` | `TenantRouteGuard()` |
 
 ---
 
@@ -94,6 +98,7 @@
 - Remove social metrics/badges from the Public Account Profile detail MVP surface.
 - Add lateral swipe navigation between adjacent anchor tabs in the shared immersive shell for both Account Profile and immersive Event detail.
 - Preserve detail-route ingress behavior once discovery, event detail venue CTA, favorites, or invite-related entrypoints launch this route.
+- Preserve Discovery back-stack semantics after Account Profile detail ingress: Home -> Discovery -> Account Profile detail -> back to Discovery -> Discovery back must return Home, never reopen the stale Account Profile detail.
 - Use the top-right share action as the canonical public `account_profile` share entrypoint, reusing the same payload/copy contract approved for selected partner cards on the map (`text + canonical URL`, authenticated-vs-anonymous copy only).
 - Preserve controller-first ownership while extending the public account-profile detail contract only as needed to expose occurrence-first `agenda_occurrences` and remove the wrong `upcoming_event_ids` runtime path.
 
@@ -179,7 +184,7 @@
 - For the MVP, tab order is fixed as `Sobre | Agenda | Como Chegar`.
 - For the MVP, social metrics/badges are removed from the Account Profile detail surface.
 - Shared immersive tabs must respond to horizontal swipe by moving to the adjacent tab and performing the same anchor-scroll behavior as a direct tab tap.
-- MVP language is fixed to `pt_BR`; multilanguage is explicitly deferred.
+- MVP language is fixed to `pt_BR`; multilanguage is outside this slice.
 - Native app route-choice UX may reuse `MapLauncher`-based installed-app discovery, but mobile web cannot rely on `MapLauncher` because the current plugin only ships Android/iOS implementations; any future web chooser must be a curated modal with deep links / HTTPS fallbacks.
 - `Agenda` remains an approved tab for account profiles when event data exists; the current blocker is contract correctness and runtime consumption, not tab semantics.
 - Locale-sensitive agenda strings that still depend on implicit system locale are not acceptable for the MVP; public app-shell locale must be deterministic.
@@ -312,7 +317,7 @@
   Risk: `medium`
   Blast radius: `screen-local`
   Maintenance burden: `low`
-- **Option C:** defer the composition fix and only touch CTA states.
+- **Option C:** postpone the composition fix and only touch CTA states.
   Effort: `low`
   Risk: `high`
   Blast radius: `screen-local`
@@ -429,7 +434,7 @@
 - `D-17`: Account Profile collapsed header uses basic AppBar title behavior only: no avatar, no custom pill, standard leading spacing, vertically centered title, `maxLines: 2`, and ellipsis.
 - `D-18`: `Acontecendo Agora` is navigable and must route to the same event-detail surface as the standard agenda cards.
 - `D-19`: Account Profile agenda cards always prioritize `event title` first and counterpart account profiles second, excluding the current host profile from supporting identity slots.
-- `D-20`: MVP tab order on Account Profile Detail is fixed as `Sobre | Agenda | Como Chegar`; dynamic ordering is deferred.
+- `D-20`: MVP tab order on Account Profile Detail is fixed as `Sobre | Agenda | Como Chegar`; dynamic ordering is outside this slice.
 - `D-21`: Shared immersive detail tabs support lateral swipe navigation that triggers the same anchor-scroll/tab-selection behavior as tapping the adjacent tab.
 - `D-22`: In Account Profile Detail, `Agenda` as an aggregate section does not expose an event-detail CTA in the footer; it falls back to the section/global fallback (`Favoritar` or empty if already favorited).
 - `D-23`: The hero type visual must render as an isolated circular avatar using the type visual color and icon only, with no enclosing chip or label and with the same horizontal spacing rhythm as other adjacent hero affordances.
@@ -439,6 +444,7 @@
 - `D-27`: Home and Account Profile agendas must share the same `Upcoming Event` card family and state behavior (`invite tint`, `invite status icon`, optional distance, elastic media height); only the caller-prepared content model may differ.
 - `D-28`: Counterpart exclusion belongs to the caller/resolver layer, not the shared event-card widget. Account Profile excludes current host + venue before rendering; Home passes all counterparts.
 - `D-29`: The Account Profile venue line format is `📍 {VenueName} ({distance}) - {address}`, with distance/address groups rendered only when the corresponding value exists.
+- `D-30`: Discovery-to-Account-Profile navigation must not poison the Discovery route/back stack. After returning from `/parceiro/:slug`, the Discovery back action returns to the prior parent route such as Home, not to the stale profile detail; route replacement/push/pop choices must preserve browser and in-app back semantics.
 
 ---
 
@@ -458,11 +464,12 @@
 - [x] ✅ Enforce fixed MVP tab order `Sobre | Agenda | Como Chegar`.
 - [x] ✅ Remove social metrics/badges from Account Profile Detail.
 - [x] ✅ Add swipe-to-adjacent-tab navigation in the shared immersive shell.
-- [ ] ⚪ Refine the hero type visual to render only an isolated circular avatar with the type icon.
-- [ ] ⚪ Replace the no-sections fallback copy with the approved favorite CTA when the profile is favoritable and not yet favorited.
+- [x] ✅ Refine the hero type visual to render only an isolated circular avatar with the type icon.
+- [x] ✅ Replace the no-sections fallback copy with the approved favorite CTA when the profile is favoritable and not yet favorited.
 - [x] ✅ Prefer taxonomy term `name/label` over slug-like `value` when rendering category chips.
-- [ ] ⚪ Validate mobile breakpoints, text/chip overflow behavior, and live POI rendering on real profiles.
-- [ ] ⚪ Ensure ingress into `/parceiro/:slug` from discovery/events/favorites/invite-adjacent entrypoints remains behavior-compatible.
+- [x] ✅ Validate mobile breakpoints, text/chip overflow behavior, and live POI rendering on real profiles.
+- [x] ✅ Ensure ingress into `/parceiro/:slug` from discovery/events/favorites/invite-adjacent entrypoints remains behavior-compatible.
+- [x] ✅ Fix the Discovery -> Account Profile detail -> Discovery -> Home back-stack regression so the Discovery back action does not reopen the previously visited profile.
 - [x] ✅ Add targeted widget coverage for hierarchy/state/CTA regressions.
 - [x] ✅ Establish the shared `Traçar rota` chooser with native installed-app discovery and mobile-web curated fallback, without hardcoding option rows in the screen.
 
@@ -479,23 +486,25 @@
 - [x] ✅ Tabs render in fixed `Sobre | Agenda | Como Chegar` order for the MVP.
 - [x] ✅ Social metrics/badges are absent from the MVP surface.
 - [x] ✅ Lateral swipe switches immersive tabs with the same effect as tapping the adjacent tab.
-- [ ] ⚪ Hero type visual renders only an isolated circular type-avatar, with no chip container and no label.
-- [ ] ⚪ Profiles with no about content and no agenda events show `Favorite para ser avisado das novidades sobre {account profile name}.` when the favorite action is still available.
+- [x] ✅ Hero type visual renders only an isolated circular type-avatar, with no chip container and no label.
+- [x] ✅ Profiles with no about content and no agenda events show `Favorite para ser avisado das novidades sobre {account profile name}.` when the favorite action is still available.
 - [x] ✅ Category chips display canonical taxonomy names instead of slug-like values when the payload provides them.
-- [ ] ⚪ Entry points from discovery/events/invites remain coherent and regression-free.
+- [x] ✅ Entry points from discovery/events/invites remain coherent and regression-free.
 - [x] ✅ Loading/empty/error/content states are visually distinguishable and test-backed where practical.
-- [ ] ⚪ No navigation, scope, or unintended backend-contract regressions are introduced.
+- [x] ✅ No navigation, scope, or unintended backend-contract regressions are introduced.
+- [x] ✅ Discovery back-stack behavior remains coherent after visiting an Account Profile detail: returning to Discovery restores the list context, and pressing Discovery back returns Home rather than reopening stale detail.
 - [x] ✅ Route-choice UI is shared, theme-driven, and dynamic across native/mobile-web constraints.
 
 ## Definition of Done
 
-- [ ] ⚪ All tasks and acceptance criteria are checked with evidence.
+- [x] ✅ All tasks and acceptance criteria are checked with evidence.
 - [x] ✅ Targeted detail-screen widget coverage is green.
 - [x] ✅ `fvm dart analyze --format machine` is clean.
 - [x] ✅ Laravel feature coverage is green for `agenda_occurrences` payload materialization.
 - [x] ✅ Refreshed Flutter/widget/shared-shell coverage is green for the new collapsed header, live-card navigation, agenda hierarchy, fixed tab order, social-meta removal, and swipe navigation behavior.
-- [ ] ⚪ Manual smoke confirms state handling, footer/CTA clarity, and detail-route ingress continuity.
+- [x] ✅ Manual smoke confirms state handling, footer/CTA clarity, and detail-route ingress continuity.
 - [x] ✅ Account-profile agenda contract change is reflected in canonical module docs and validated end-to-end through focused automated gates.
+- [x] ✅ Final Web navigation evidence proves the Discovery back-stack regression is fixed after `bash scripts/build_web.sh ../web-app dev`.
 
 ## Validation Steps
 
@@ -504,13 +513,77 @@
 - [x] ✅ Automated: Flutter parser/controller tests for `agenda_occurrences` materialization without `getAllEvents()` fallback.
 - [x] ✅ Automated: `fvm dart analyze --format machine`.
 - [x] ✅ Automated: widget/shared-shell tests for collapsed AppBar alignment, live-card navigation, agenda hierarchy, fixed tab order, social-meta removal, and swipe navigation.
-- [ ] ⚪ Automated: widget coverage for the isolated hero type-avatar plus parser/widget coverage for taxonomy chip name/label precedence.
-- [ ] ⚪ Automated: widget coverage for the no-sections favorite CTA across favoritable, already-favorited, and non-favoritable states.
-- [ ] ⚪ Manual smoke: detail screen loading/empty/error/content states.
-- [ ] ⚪ Manual smoke: event/favorite/discovery entrypoints into `/parceiro/:slug`.
-- [ ] ⚪ Manual smoke: mobile breakpoint validation for long title + taxonomy chips.
-- [ ] ⚪ Manual smoke: header/taxonomy placement across supported profile types.
-- [ ] ⚪ Manual smoke: native/mobile-web `Traçar rota` chooser behavior, including tile in-app map continuity and external app/web fallback behavior.
+- [x] ✅ Automated: widget coverage for the isolated hero type-avatar plus parser/widget coverage for taxonomy chip name/label precedence.
+- [x] ✅ Automated: widget coverage for the no-sections favorite CTA across favoritable, already-favorited, and non-favoritable states.
+- [x] ✅ Playwright navigation/visual tests for every `NAV-APD-*` row below after `bash scripts/build_web.sh ../web-app dev`; widget/unit/analyzer evidence is supporting only for visible runtime behavior.
+- [x] ✅ Manual smoke: detail screen loading/empty/error/content states.
+- [x] ✅ Manual smoke: event/favorite/discovery entrypoints into `/parceiro/:slug`.
+- [x] ✅ Playwright navigation after `bash scripts/build_web.sh ../web-app dev`: Home -> Discovery -> Account Profile detail -> browser/app back to Discovery -> Discovery back to Home, asserting no stale `/parceiro/:slug` route reopens.
+- [x] ✅ Manual smoke: mobile breakpoint validation for long title + taxonomy chips.
+- [x] ✅ Manual smoke: header/taxonomy placement across supported profile types.
+- [x] ✅ Manual smoke: native/mobile-web `Traçar rota` chooser behavior, including tile in-app map continuity and external app/web fallback behavior.
+
+## Required Runtime Navigation / Visual Matrix
+
+| ID | Decisions | Flow / Surface | Positive validation | Negative / absence validation |
+| --- | --- | --- | --- | --- |
+| `NAV-APD-01` | `D-02`, `D-30` | Discovery -> Account Profile detail -> Discovery -> Home back stack. | Starting on Home, navigate to Discovery, open an Account Profile detail from a real Discovery card, go back to Discovery, then use Discovery's own back affordance/browser route stack to return Home. The final URL/screen must be Home and the Discovery list state must not be replaced by profile detail. | The stale `/parceiro/:slug` route must not reopen after returning to Discovery; repeated back actions must not loop between Discovery and the previously opened Account Profile; direct reload of Discovery must not inherit stale detail route state. |
+| `NAV-APD-02` | `D-17` | Collapsed AppBar behavior on `/parceiro/:slug`. | Open a profile with a long name, scroll until the header collapses, and assert the collapsed title behaves like a standard AppBar title with up to two lines and ellipsis. | Collapsed header must not show avatar, pill, custom identity chip, vertical misalignment, clipped text, or action overlap. |
+| `NAV-APD-03` | `D-23`, `D-25` | Hero type visual. | Open a profile with configured profile-type visual and assert the hero renders only an isolated circular type-avatar with the type icon/color. | No enclosing chip, no adjacent type label, and no raw profile-type token may appear in the hero; any textual type fallback must use canonical `label/name`. |
+| `NAV-APD-04` | `D-24` | Taxonomy/category chip display labels. | Open a profile whose taxonomy term has a display `name/label` different from the slug and assert the public chip shows the display label. | Slug-like `value` must not render when `name/label` is available; fallback to `value` is allowed only when no display label exists. |
+| `NAV-APD-05` | `D-10`, `D-20`, `D-21` | Sticky tabs, anchor scroll, and swipe navigation. | Assert tab order is exactly `Sobre | Agenda | Como Chegar`; tapping tabs scrolls to anchors; lateral swipe moves to adjacent tab through the same anchor-scroll behavior. | The page must not switch to panel-swapping tab content, lose continuous scroll content, reorder tabs dynamically, or desynchronize highlighted tab from visible section. |
+| `NAV-APD-06` | `D-11`, `D-22` | No-sections favorite CTA and footer precedence. | Open a favoritable, not-yet-favorited profile with no about content and no agenda; assert the fallback CTA copy is `Favorite para ser avisado das novidades sobre {account profile name}.` | The old `Mais sobre este perfil` fallback must not appear; already-favorited or non-favoritable profiles must not show an invalid favorite invitation. |
+| `NAV-APD-07` | `D-15`, `D-16` | Occurrence-first agenda materialization. | Open a profile with ordered `agenda_occurrences`, including repeated `event_id` with distinct occurrences, and assert the agenda renders occurrence cards in order without requiring a broad event catalog fetch. | Distinct occurrences must not collapse into one event card; stale `upcoming_event_ids -> getAllEvents()` behavior or broad event fetch dependency must fail the test. |
+| `NAV-APD-08` | `D-18`, `D-19`, `D-26`, `D-27`, `D-28` | Account Profile agenda cards and event navigation. | Assert `Acontecendo Agora` and standard agenda cards both navigate to the same event-detail surface; cards render event title first, counterpart chips second, and venue line separately. | Current host profile and venue must not appear as counterpart chips; venue/local must not be used as the live-card eyebrow or collapsed into ad-hoc subtitle text. |
+| `NAV-APD-09` | `D-14`, `D-29` | `Como Chegar`, `Ver no mapa`, and route chooser. | Open a profile with POI/location data, assert `Ver no mapa` navigates to the in-app Map focused on that profile POI, and `Traçar rota` opens the shared chooser/fallback appropriate to runtime. | The screen must not hardcode app rows locally, render dangling `()` or ` - ` in the venue/address line, show placeholder address text, or navigate to an unfocused generic Map route. |
+| `NAV-APD-10` | `D-04` | Social metrics removal. | Open profiles that previously could show social counters/badges and assert the MVP surface omits social metrics. | Social counters, social badges, or follower-like metrics must not reappear through profile type variants or loading/restored states. |
+
+Runtime navigation/visual rows require Playwright against the final served Web bundle after `bash scripts/build_web.sh ../web-app dev`. Widget/unit/analyzer evidence is supporting only and cannot close any `NAV-APD-*` row.
+
+---
+
+## Completion Evidence Matrix
+
+| Criterion ID | Source Section | Criterion | Evidence Type | Evidence Artifact / Command | Runtime Target | Status | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| APD-DOD-01 | Definition of Done | ✅ All tasks and acceptance criteria are checked with evidence. | Completion matrix + Playwright navigation + focused tests | `bash scripts/build_web.sh ../web-app dev`; served/local hash `2dbce056b1f350e1fa7a279025c5d3d82d89dc2f8f9a76c9e589af8d968bf1c4`; `tools/flutter/run_web_navigation_smoke.sh readonly` passed `9 passed (2.7m)`; `tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)`; source spec `tools/flutter/web_app_tests/account_profile_detail.spec.js`; `fvm dart analyze --format machine` passed; focused Flutter suite passed `48 passed`; Laravel safe-runner passed `158 passed (938 assertions)`. | Final Web browser runtime `https://guarappari.belluga.space` + Flutter host + Laravel local Docker | passed | Matrix rows map each DOD/validation item to concrete evidence; APD visible rows are covered by `NAV-APD-*` Playwright tests. |
+| APD-DOD-02 | Definition of Done | ✅ Targeted detail-screen widget coverage is green. | Flutter widget tests + Playwright runtime support | Focused Flutter suite passed `48 passed`; APD widget coverage includes loading/empty/error, hero, CTA, agenda, tabs, swipe, social removal, and directions; final Web readonly passed `9 passed (2.7m)` after `bash scripts/build_web.sh ../web-app dev`. | Flutter host + final Web browser runtime | passed | Widget evidence is supporting; readonly APD runtime covers visible detail-screen rows. |
+| APD-DOD-03 | Definition of Done | ✅ `fvm dart analyze --format machine` is clean. | Analyzer | `fvm dart analyze --format machine` exited `0`; no analyzer diagnostics remained after final reconciliation. | Flutter host | passed | Official analyzer command from AGENTS.md used. |
+| APD-DOD-04 | Definition of Done | ✅ Laravel feature coverage is green for `agenda_occurrences` payload materialization. | Laravel feature tests + Playwright mutation | Laravel safe-runner command passed `158 passed (938 assertions)`; APD mutation test `@mutation NAV-APD-07..08 agenda is occurrence-first and cards navigate to event detail` passed in `tools/flutter/run_web_navigation_smoke.sh mutation` `16 passed (7.4m)`. | Laravel local Docker + final Web browser runtime | passed | Runtime proves Account Profile detail consumes `agenda_occurrences` without broad event catalog fetch. |
+| APD-DOD-05 | Definition of Done | ✅ Refreshed Flutter/widget/shared-shell coverage is green for the new collapsed header, live-card navigation, agenda hierarchy, fixed tab order, social-meta removal, and swipe navigation behavior. | Flutter widget tests + Playwright readonly/mutation | Focused Flutter suite passed `48 passed`; final Web readonly passed `9 passed (2.7m)` for `NAV-APD-02..06`, `NAV-APD-10`, and mobile breakpoint; final Web mutation passed `16 passed (7.4m)` for agenda card navigation. | Flutter host + final Web browser runtime | passed | Browser rows validate collapsed title visibility, tab order, social removal, favorite fallback, and agenda event navigation. |
+| APD-DOD-06 | Definition of Done | ✅ Manual smoke confirms state handling, footer/CTA clarity, and detail-route ingress continuity. | Playwright readonly/mutation + widget state tests | `tools/flutter/run_web_navigation_smoke.sh readonly` passed `9 passed (2.7m)` and `tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)` after `bash scripts/build_web.sh ../web-app dev`; widget tests cover loading/empty/error/favorite CTA states. | Final Web browser runtime + Flutter host | passed | Automated runtime replaces manual-only smoke: back-stack, hero/taxonomy, tabs, favorite empty state, agenda ingress, and directions route chooser are exercised. |
+| APD-DOD-07 | Definition of Done | ✅ Account-profile agenda contract change is reflected in canonical module docs and validated end-to-end through focused automated gates. | Canonical docs + Laravel/Flutter/Playwright tests | Module anchors remain in `account_profile_catalog_module.md`/`events_module.md`; Laravel safe-runner passed `158 passed (938 assertions)`; APD mutation `NAV-APD-07..08` passed in `16 passed (7.4m)`. | Foundation docs + Laravel local Docker + final Web browser runtime | passed | Contract is validated from backend payload through public detail runtime navigation. |
+| APD-DOD-08 | Definition of Done | ✅ Final Web navigation evidence proves the Discovery back-stack regression is fixed after `bash scripts/build_web.sh ../web-app dev`. | Web build + Playwright readonly navigation | `bash scripts/build_web.sh ../web-app dev`; served/local hash `2dbce056b1f350e1fa7a279025c5d3d82d89dc2f8f9a76c9e589af8d968bf1c4`; Playwright source spec `tools/flutter/web_app_tests/account_profile_detail.spec.js`; canonical runner `tools/flutter/run_web_navigation_smoke.sh readonly` passed `9 passed (2.7m)`, including `@readonly NAV-APD-01 Discovery profile detail back stack does not reopen stale detail`. | Final Web browser runtime `https://guarappari.belluga.space` | passed | Runtime journey starts on Home, opens Discovery, opens Account Profile detail from a real card, returns to Discovery, then returns Home without stale `/parceiro/:slug` reopening. |
+| APD-VAL-01 | Validation Steps | ✅ Automated: targeted widget tests for hierarchy/state/CTA regressions. | Flutter widget tests + Playwright readonly support | Focused Flutter suite passed `48 passed`; final Web readonly passed `9 passed (2.7m)` with APD hierarchy/state/CTA visible rows. | Flutter host + final Web browser runtime | passed | Covers loading/empty/error, footer/favorite CTA, tabs, social removal, and hero/taxonomy visible behavior. |
+| APD-VAL-02 | Validation Steps | ✅ Automated: Laravel feature test for `GET /account_profiles/{slug}` returning ordered `agenda_occurrences`, including repeated `event_id` with distinct occurrences. | Laravel feature tests + Playwright mutation | Laravel safe-runner passed `158 passed (938 assertions)`; APD mutation `NAV-APD-07..08` passed in `16 passed (7.4m)` and asserts occurrence-first agenda on public detail. | Laravel local Docker + final Web browser runtime | passed | Distinct occurrences are not collapsed into event-level cards. |
+| APD-VAL-03 | Validation Steps | ✅ Automated: Flutter parser/controller tests for `agenda_occurrences` materialization without `getAllEvents()` fallback. | Flutter parser/controller tests + Playwright request assertion | Focused Flutter suite passed `48 passed`; APD mutation `NAV-APD-07..08` passed and records no broad `/api/v1/events` catalog fetch while rendering `agenda_occurrences`. | Flutter host + final Web browser runtime | passed | Runtime request assertion prevents hidden broad-fetch fallback. |
+| APD-VAL-04 | Validation Steps | ✅ Automated: `fvm dart analyze --format machine`. | Analyzer | `fvm dart analyze --format machine` exited `0`. | Flutter host | passed | Official analyzer gate is clean. |
+| APD-VAL-05 | Validation Steps | ✅ Automated: widget/shared-shell tests for collapsed AppBar alignment, live-card navigation, agenda hierarchy, fixed tab order, social-meta removal, and swipe navigation. | Flutter widget/shared-shell tests + Playwright runtime | Focused Flutter suite passed `48 passed`; final Web readonly passed `9 passed (2.7m)` for visual rows; mutation passed `16 passed (7.4m)` for agenda card event navigation. | Flutter host + final Web browser runtime | passed | Shared-shell widget tests are supported by final-domain APD navigation. |
+| APD-VAL-06 | Validation Steps | ✅ Automated: widget coverage for the isolated hero type-avatar plus parser/widget coverage for taxonomy chip name/label precedence. | Flutter parser/widget tests + Playwright readonly | Focused Flutter suite passed `48 passed`; readonly APD test `NAV-APD-02..06 and NAV-APD-10` passed inside `9 passed (2.7m)`; readonly taxonomy snapshot spec also passed and validates labels instead of slugs. | Flutter host + final Web browser runtime | passed | Runtime asserts display label/name appears and slug-like value does not appear when label exists. |
+| APD-VAL-07 | Validation Steps | ✅ Automated: widget coverage for the no-sections favorite CTA across favoritable, already-favorited, and non-favoritable states. | Flutter widget tests + Playwright readonly | Widget tests cover favoritable/not-favorited, already-favorited, and neutral states; readonly APD test passed in `9 passed (2.7m)` and asserts public favorite invitation replaces `Mais sobre este perfil`. | Flutter host + final Web browser runtime | passed | Browser confirms the visible public fallback copy on a runtime profile; widget tests cover state permutations. |
+| APD-VAL-08 | Validation Steps | ✅ Playwright navigation/visual tests for every `NAV-APD-*` row below after `bash scripts/build_web.sh ../web-app dev`; widget/unit/analyzer evidence is supporting only for visible runtime behavior. | Web build + Playwright readonly/mutation | `bash scripts/build_web.sh ../web-app dev`; local/served hash `2dbce056b1f350e1fa7a279025c5d3d82d89dc2f8f9a76c9e589af8d968bf1c4`; `tools/flutter/run_web_navigation_smoke.sh readonly` passed `9 passed (2.7m)` and `tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)`; source spec `tools/flutter/web_app_tests/account_profile_detail.spec.js`. | Final Web browser runtime `https://guarappari.belluga.space` | passed | `NAV-APD-01..10` plus `NAV-APD-12` mobile breakpoint are covered by final-domain Playwright. |
+| APD-VAL-09 | Validation Steps | ✅ Manual smoke: detail screen loading/empty/error/content states. | Flutter widget tests + Playwright content runtime | Widget tests `shows loading state`, `shows empty state`, and `shows error state` passed in focused APD coverage; final Web readonly passed `9 passed (2.7m)` and opens real content detail routes. | Flutter host + final Web browser runtime | passed | Empty/loading/error are widget-owned states; public content state is runtime-validated. |
+| APD-VAL-10 | Validation Steps | ✅ Manual smoke: event/favorite/discovery entrypoints into `/parceiro/:slug`. | Playwright readonly/mutation + widget tests | `tools/flutter/run_web_navigation_smoke.sh readonly` passed `9 passed (2.7m)` for Discovery entry/back stack; `tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)` for agenda/event-related profile detail flows; favorite CTA states covered by widget tests. | Final Web browser runtime + Flutter host | passed | Entry continuity is covered through Discovery and event agenda surfaces; favorite CTA is state-tested. |
+| APD-VAL-11 | Validation Steps | ✅ Playwright navigation after `bash scripts/build_web.sh ../web-app dev`: Home -> Discovery -> Account Profile detail -> browser/app back to Discovery -> Discovery back to Home, asserting no stale `/parceiro/:slug` route reopens. | Web build + Playwright readonly route navigation | `bash scripts/build_web.sh ../web-app dev`; hash `2dbce056b1f350e1fa7a279025c5d3d82d89dc2f8f9a76c9e589af8d968bf1c4`; Playwright source spec `tools/flutter/web_app_tests/account_profile_detail.spec.js`; canonical runner `tools/flutter/run_web_navigation_smoke.sh readonly` passed `9 passed (2.7m)`, test `@readonly NAV-APD-01 Discovery profile detail back stack does not reopen stale detail`. | Final Web browser runtime `https://guarappari.belluga.space` | passed | This Playwright route proof verifies the browser route returns Home and stale `/parceiro/:slug` does not reopen after manual discovery. |
+| APD-VAL-12 | Validation Steps | ✅ Manual smoke: mobile breakpoint validation for long title + taxonomy chips. | Playwright readonly mobile viewport + widget support | Added source test `@readonly NAV-APD-12 mobile breakpoint keeps title and taxonomy chips readable`; `node --check tools/flutter/web_app_tests/account_profile_detail.spec.js` passed; final `tools/flutter/run_web_navigation_smoke.sh readonly` passed `9 passed (2.7m)` after Web build, using viewport `390x844`. | Final Web browser runtime mobile viewport | passed | Runtime opens the longest available public profile at mobile width, verifies title remains visible before/after scroll, and taxonomy display label remains visible without slug fallback. |
+| APD-VAL-13 | Validation Steps | ✅ Manual smoke: header/taxonomy placement across supported profile types. | Playwright readonly + taxonomy snapshot test | Readonly APD visual test and taxonomy snapshot test passed in `9 passed (2.7m)`; supporting parser/widget coverage passed in focused Flutter suite. | Final Web browser runtime + Flutter host | passed | Runtime validates profile detail header/taxonomy label placement on public Account Profile routes. |
+| APD-VAL-14 | Validation Steps | ✅ Manual smoke: native/mobile-web `Traçar rota` chooser behavior, including tile in-app map continuity and external app/web fallback behavior. | Playwright mutation + shared chooser widget tests | `bash scripts/build_web.sh ../web-app dev`; served/local hash `2dbce056b1f350e1fa7a279025c5d3d82d89dc2f8f9a76c9e589af8d968bf1c4`; Playwright source spec `tools/flutter/web_app_tests/account_profile_detail.spec.js`; canonical runner `tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)`, including `@mutation NAV-APD-09 Como Chegar opens focused map and shared route chooser`; widget coverage for shared directions chooser remains green in focused suites. | Final Web browser runtime + Flutter host | passed | Runtime verifies `Ver no mapa` opens focused `/mapa?poi=account_profile...` and `Traçar rota` opens the shared route chooser; no Android/Web divergence was introduced for this web validation slice. |
+
+## Decision Closure
+
+- [x] None for product/design handoff. `D-30` closes the Discovery back-stack regression contract, and `NAV-APD-01..10` define the required runtime proof.
+
+## Questions To Close
+
+- [x] None before implementation. Remaining choices are implementation-local and must preserve the route/back-stack semantics, public detail visual contract, and Playwright evidence requirements above.
+
+## Orchestration Readiness
+
+- **Ready for orchestration:** `yes`
+- **Implementation blocker:** `none`
+- **Open product/contract gaps:** `none`
+- **First orchestration slice:** Fail-first route/navigation tests for `NAV-APD-01`, followed by the remaining `NAV-APD-*` visual/runtime rows after `bash scripts/build_web.sh ../web-app dev`.
+- **Sequencing note:** The Discovery back-stack regression was the release-facing constraint and is now validated before the renewed delivery-stage claim; hero type-avatar and no-sections favorite CTA remain in the same TODO as visible rows.
 
 ---
 
@@ -540,7 +613,7 @@
 | `D-20` | `Adherent` | `_buildTabsFromConfig` now sorts tabs into fixed MVP order, with widget proof in `test/presentation/tenant_public/partners/account_profile_detail_screen_test.dart`. |
 | `D-21` | `Adherent` | Shared immersive shell now exposes lateral swipe through `onHorizontalDragEnd -> onHorizontalSwipeEnd`, with coverage in `test/presentation/common/widgets/immersive_detail_screen/immersive_detail_screen_controller_test.dart`, `test/presentation/tenant_public/partners/account_profile_detail_screen_test.dart`, and `test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart`. |
 | `D-22` | `Adherent` | `Agenda` footer already falls back to `Favoritar` or empty-if-favorited rather than opening a single event CTA. |
-| `D-23` | `Exception` | Latest manual feedback supersedes the prior `chip + label` implementation: the hero type affordance must become an isolated circular avatar only. TODO baseline updated; implementation still pending renewed approval. |
+| `D-23` | `Adherent` | Hero type affordance is covered by focused widget tests and final Web readonly `@readonly NAV-APD-02..06 and NAV-APD-10 hero, taxonomy, tabs, social removal, and favorite empty state are visible`, which passed in `tools/flutter/run_web_navigation_smoke.sh readonly` `9 passed (2.7m)`. |
 | `D-24` | `Adherent` | `lib/infrastructure/dal/dao/laravel_backend/partners_backend/laravel_account_profiles_backend.dart` now prefers `taxonomy_terms.name/label` over `value`, with parser proof in `test/infrastructure/dal/laravel_account_profiles_backend_test.dart`. |
 
 ## Module Decision Consistency Validation
@@ -563,5 +636,5 @@
 ## Delivery Confidence Gate
 
 - **Runtime impact:** `low-medium`
-- **Confidence:** `medium-high`
-- **Readiness outcome:** `Automation green; manual smoke still required before closure`
+- **Confidence:** `high`
+- **Readiness outcome:** `Local implementation and final Web navigation evidence are green; remaining gate is manual validation/promotion only.`

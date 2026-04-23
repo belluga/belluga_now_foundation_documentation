@@ -2,11 +2,17 @@
 
 ## Artifact Identity
 - **Artifact type:** `orchestration_execution_plan`
-- **Status:** `Approved`
+- **Status:** `Superseded`
 - **Created:** `2026-04-21`
 - **Governing workflow / skill:** `delphi-ai/workflows/docker/subagent-worktree-reconciliation-method.md`
 - **Template:** `delphi-ai/templates/orchestration_execution_plan_template.md`
 - **Approval token required before execution:** `APROVADO`
+
+## Supersession Notice
+
+- **Superseded on:** `2026-04-22`
+- **Superseded by:** `foundation_documentation/artifacts/execution-plans/store-release-event-programming-navigation-orchestration-plan.md`
+- **Reason:** the SR-D multi-occurrence contract was reopened and superseded. The current approved product contract removes the public `Datas` tab, removes occurrence-level location overrides, moves occurrence/date navigation into `Programação`, adds programação item Account Profile/Map POI locations, and requires a fresh itemized Playwright `NAV-*` matrix. Historical evidence in this artifact must not be used as current SR-D delivery evidence.
 
 ## Authority Boundary
 - The governing TODOs define **WHAT** must be delivered and what counts as done.
