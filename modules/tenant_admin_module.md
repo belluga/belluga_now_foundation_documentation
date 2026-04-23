@@ -419,7 +419,9 @@ List tenant-admin events for operational management.
 - Tenant-admin event create/edit renders shared event fields first and occurrence management after those event sections. The first occurrence remains the baseline created with the event; adding a second date switches the occurrence section from inline fields to a vertical occurrence-card list plus add-date affordance.
 - Occurrence editors own occurrence-scoped date/time, additional related Account Profiles, and occurrence-exclusive `Programação`. Event title, content, media, type, publication status, and taxonomies remain shared event-level fields for Store Release.
 - Occurrence cards summarize date/time, occurrence-owned related profiles, and programming count so operators can scan multi-date events before opening the occurrence editor.
-- Occurrence `Programação` items are ordered by time and include `time`, optional `title`, linked Account Profiles, and optional structured location references to an Account Profile/Map POI. More than one linked profile requires an explicit title; a single linked profile may supply the display fallback.
+- Occurrence `Programação` items are ordered by time and include `time`, optional `title`, linked occurrence-owned Account Profiles, and optional structured location references to an Account Profile/Map POI. More than one linked profile requires an explicit title; a single linked profile may supply the display fallback.
+- Programação item editors must only list Account Profiles already linked to that occurrence. The UI may offer an inline shortcut to add a new profile to the occurrence and immediately preselect it in the item, but Programação does not become an independent second authoring surface for profiles.
+- Removing an occurrence-owned Account Profile while any programação item still references it is invalid and must be blocked until those item references are cleared.
 
 ### `GET /admin/api/v1/events/account_profile_candidates`
 Page-based account-profile candidate discovery for the event form pickers and the tenant-admin manager venue/related-profile filter pickers.
