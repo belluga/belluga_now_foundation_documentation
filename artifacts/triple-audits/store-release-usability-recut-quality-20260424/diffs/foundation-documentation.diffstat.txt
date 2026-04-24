@@ -1,0 +1,271 @@
+ README.md                                          |  24 +-
+ ...audit-foundation-integrate-review-2026-04-18.md |  85 ++
+ .../branch-reconciliation-matrix-2026-04-18.md     |  69 ++
+ ...tore-release-usability-checkpoint-2026-04-22.md |  54 ++
+ .../store-release-usability-followup-2026-04-23.md |  48 +
+ ...nt-programming-navigation-orchestration-plan.md | 219 +++++
+ ...ich-text-public-rendering-orchestration-plan.md | 198 +++++
+ ...ility-followup-guardrails-orchestration-plan.md | 381 ++++++++
+ ...ease-usability-four-todos-orchestration-plan.md | 311 +++++++
+ .../store-release-usability-orchestration-plan.md  | 222 +++++
+ ...account-profile-module-family-reconciliation.md |  56 ++
+ ...undation-authority-and-branch-reconciliation.md |  55 ++
+ .../mvp-with-app-backlog-realignment.md            | 157 ++++
+ .../tenant-admin-domain-and-events-management.md   |  58 ++
+ .../tenant-admin-domain-event-management.md        |  47 +
+ .../feed-descobrir-stitch.png                      | Bin 88774 -> 0 bytes
+ .../feed_descobrir_ajustes_finais.html             | 329 -------
+ .../feed_descobrir_ajustes_finais.png              | Bin 61732 -> 0 bytes
+ .../feed_descobrir_busca_vazio.html                | 164 ----
+ .../feed_descobrir_busca_vazio.png                 | Bin 38851 -> 0 bytes
+ artifacts/refactor_screens_references/invite.png   | Bin 6648976 -> 0 bytes
+ ...admin-domain-events-final-audit-checkpoint-b.md |  98 +++
+ .../tenant-admin-events-endpoint-performance.md    |  52 ++
+ artifacts/session-memory.md                        |  37 +
+ ...ey-regression-gates-closure-audit-2026-04-21.md |  72 ++
+ ...lease-reconcile-validation-matrix-2026-04-20.md |  56 ++
+ .../tenant-admin-domain-events-audit-package.md    | 280 ++++++
+ artifacts/todo-landscape-review-2026-04-18.md      |  62 ++
+ domain_entities.md                                 | 430 +++++----
+ endpoints_mvp_contracts.md                         | 212 +++--
+ local_packages.yaml                                |  22 +
+ mock_roadmap.md                                    |  84 +-
+ ....md => account_profile_analytics_capability.md} |  17 +-
+ modules/account_profile_catalog_module.md          | 195 ++++
+ ...admin_module.md => account_workspace_module.md} |  26 +-
+ modules/agenda_and_action_planner_module.md        |  29 +-
+ modules/events_module.md                           |  52 +-
+ modules/flutter_client_experience_module.md        |  69 +-
+ modules/invite_and_social_loop_module.md           | 148 +++-
+ modules/map_poi_module.md                          | 108 +--
+ modules/onboarding_flow_module.md                  |  42 +-
+ modules/partner_catalog_and_offer_module.md        | 152 ----
+ modules/system_architecture_principles.md          |  18 +-
+ modules/task_and_reminder_module.md                |  26 +-
+ modules/tenant_admin_module.md                     | 316 ++++++-
+ modules/tenant_home_composer_module.md             |  20 +-
+ modules/transaction_bridge_module.md               |  50 +-
+ pitch/pitch.md                                     |  31 -
+ pitch/pitch_deck.md                                | 976 ---------------------
+ pitch/pitch_visual_prompt_framework.md             | 338 -------
+ policies/web_to_app_promotion_policy.md            |  76 +-
+ project_constitution.md                            | 161 ++++
+ project_mandate.md                                 |  15 +-
+ screens/ItemLandingPage.md                         |  39 -
+ screens/PartnerLandingPage.md                      |  40 -
+ screens/app_promotion_tester_waitlist.md           | 107 ---
+ screens/eventos/modulo_eventos.md                  |  96 --
+ screens/eventos/partner_musician_001.png           | Bin 453631 -> 0 bytes
+ screens/eventos/partner_musician_002.png           | Bin 611355 -> 0 bytes
+ screens/eventos/partner_musician_003.png           | Bin 616297 -> 0 bytes
+ screens/home.md                                    | 108 ---
+ screens/modulo_agenda.md                           | 115 ---
+ screens/modulo_guias_e_experiencias.md             |  64 --
+ screens/modulo_landlord_app.md                     |  71 --
+ screens/modulo_loja.md                             |  69 --
+ screens/modulo_mapa_e_mobilidade.md                |  88 --
+ screens/modulo_onboarding.md                       |  47 -
+ screens/modulo_parceiro_onboarding_perfil.md       | 156 ----
+ screens/modulo_perfil_e_utilidades.md              |  66 --
+ screens/modulo_promoter_bi.md                      | 146 ---
+ screens/modulo_promoter_plataforma.md              | 282 ------
+ screens/modulo_tenant_admin.md                     | 310 -------
+ screens/pending_invites/pending_invites_001.png    | Bin 638680 -> 0 bytes
+ screens/profiles_other/discovery.png               | Bin 585770 -> 0 bytes
+ screens/profiles_other/discovery_cards.png         | Bin 493378 -> 0 bytes
+ .../partner_guia_provedor_001.png                  | Bin 515225 -> 0 bytes
+ .../local_store/partner_local_store_001.png        | Bin 475692 -> 0 bytes
+ .../parceiro/musico/partner_musician_001.png       | Bin 535700 -> 0 bytes
+ .../parceiro/musico/partner_musician_002.png       | Bin 505420 -> 0 bytes
+ .../restaurante/partner_restaurant_001.png         | Bin 471148 -> 0 bytes
+ screens/profiles_other/perfil_other_module.md      |  80 --
+ screens/profiles_other/users/user_basic_001.png    | Bin 429437 -> 0 bytes
+ screens/profiles_other/users/user_curador_001.png  | Bin 466414 -> 0 bytes
+ .../profiles_other/users/user_influencer_001.png   | Bin 597714 -> 0 bytes
+ screens/prototype_data.md                          | 436 ---------
+ ...60418-foundation-authority-rebaseline_memory.md |  16 +
+ submodule_flutter-app_summary.md                   |  10 +-
+ submodule_laravel-app_summary.md                   |   2 +
+ system_roadmap.md                                  |  57 +-
+ todos/README.md                                    |  58 ++
+ .../TODO-fast-follow-obligatory.md                 |  73 ++
+ ...DO-ios-universal-links-production-validation.md | 109 +++
+ .../fast_follow_required/TODO-qr-login-web-auth.md | 173 ++++
+ .../TODO-v1-domain-primitives-vo-hardening.md      | 266 ------
+ ...DO-v1-event-detail-about-rich-media-contract.md |  70 --
+ ...-agenda-canonical-stream-ownership-hardening.md | 110 ---
+ .../mvp_slices/TODO-v1-screen-profile-polish.md    |  54 --
+ ...e-release-account-profile-rich-text-fidelity.md | 320 +++++++
+ ...-store-release-android-publication-readiness.md | 104 +++
+ .../TODO-store-release-android.md                  | 194 ++++
+ ...belluga-media-canonical-image-flow-hardening.md | 322 +++++++
+ ...TODO-store-release-event-artists-eradication.md | 267 ++++++
+ ...vent-multi-occurrence-ux-and-authoring-model.md | 486 ++++++++++
+ ...nsactional-consistency-and-reconcile-removal.md | 180 ++++
+ ...TODO-store-release-funnel-metrics-validation.md | 182 ++++
+ ...e-laravel-job-scheduler-canonical-guardrails.md | 170 ++++
+ ...re-release-minimal-friends-and-favorites-mvp.md | 279 ++++++
+ ...ore-release-phone-otp-auth-and-contact-match.md | 203 +++++
+ ...se-proximity-preferences-and-location-origin.md | 351 ++++++++
+ ...ion-core-and-dependent-capability-guardrails.md | 326 +++++++
+ ...tore-release-taxonomy-term-display-snapshots.md | 278 ++++++
+ ...O-store-release-tenant-settings-optimization.md | 351 ++++++++
+ ...tore-release-typed-discovery-filters-package.md | 459 ++++++++++
+ ...tore-release-usability-bug-convergence-recut.md |  98 +++
+ ...DO-store-release-web-to-app-conversion-gate.md} | 159 ++--
+ .../TODO-v1-screen-events-polish.md                |   2 +-
+ .../TODO-v1-screen-invite-polish.md                |   2 +-
+ ...screen-public-account-profile-detail-polish.md} | 169 +++-
+ .../TODO-v1-screen-user-profile-polish.md          |  63 ++
+ .../TODO-v1-query-path-guardrails-hardening.md     |  26 +-
+ .../TODO-v1-ticketing-package-integration.md       |  64 +-
+ .../active/vnext/TODO-vnext-account-claim-flow.md  |  64 ++
+ .../TODO-vnext-account-profile-media-gallery.md    |   0
+ ...O-vnext-account-profile-public-path-strategy.md |  35 +
+ todos/active/vnext/TODO-vnext-account-workspace.md | 119 +++
+ .../TODO-vnext-ai-operational-guides.md            |   0
+ ...orm-validation-package-hardening-and-publish.md |   3 +
+ .../TODO-vnext-checkout-package-integration.md     |   2 +-
+ .../TODO-vnext-connections-package.md              |  20 +-
+ ...eploy-artifact-rollforward-and-rollback-path.md |   0
+ .../TODO-vnext-deploy-pre-migration-backup.md      |   6 +-
+ .../TODO-vnext-event-checkin.md                    |   3 +
+ ...-vnext-flutter-domain-topology-normalization.md |  75 ++
+ ...undation-legacy-pitch-and-screens-retirement.md | 258 ++++++
+ ...s-runtime-version-upgrade-no-behavior-change.md |   2 +-
+ ...TODO-vnext-map-marker-icon-catalog-expansion.md |   0
+ .../TODO-vnext-missions-package.md                 |   0
+ .../TODO-vnext-module-settings-refactor.md         |   0
+ .../TODO-vnext-multilanguage-foundation.md         |   2 +-
+ ...nboarding-identity-reconciliation-reflection.md |  79 ++
+ todos/active/vnext/TODO-vnext-parking-lot.md       | 126 +++
+ ...t-and-account-profile-language-normalization.md | 141 +++
+ ...vnext-promotion-experience-runtime-selection.md |   2 +-
+ .../TODO-vnext-raw-dto-domain-parse-hardening.md   |   0
+ .../TODO-vnext-referral-result-attribution.md      |   0
+ .../TODO-vnext-route-paths-refactor.md             |   2 +-
+ .../TODO-vnext-search-performance-hardening.md     |   0
+ ...-public-environment-trusted-proxy-regression.md |   0
+ ...enant-public-resilience-and-error-continuity.md |   0
+ .../TODO-vnext-tenant-user-account-profile-area.md |  30 +-
+ .../TODO-vnext-ticketing-capability-seating.md     |   2 +-
+ ...vnext-ticketing-capability-waitlist-presales.md |   6 +-
+ .../vnext_slices/TODO-vnext-account-claim-flow.md  |  32 -
+ ...vnext-account-profile-slug-projection-resync.md |  27 -
+ .../TODO-vnext-account-profile-types.md            |  49 --
+ .../vnext_slices/TODO-vnext-account-workspace.md   |  72 --
+ .../TODO-vnext-cors-ownership-unification.md       |  39 -
+ .../TODO-vnext-endpoint-scope-separation.md        |  37 -
+ ...xt-ios-universal-links-production-validation.md |  52 --
+ ...vel-package-guardrails-and-skill-convergence.md | 321 -------
+ .../active/vnext_slices/TODO-vnext-parking-lot.md  | 115 ---
+ ...xt-proximity-preferences-and-location-origin.md |  76 --
+ .../TODO-vnext-telemetry-architecture-review.md    |  45 -
+ .../TODO-vnext-tenant-admin-media-library-reuse.md |  59 --
+ .../TODO-vnext-tenant-settings-optimization.md     |  48 -
+ .../TODO-vnext-test-hardening-defect-backlog.md    |  29 -
+ .../TODO-vnext-test-hardening-program.md           | 291 ------
+ ...O-account-profile-transaction-unified-create.md |   4 +-
+ ...-devops-github-governance-history-2026-02-08.md |   2 +-
+ .../TODO-flutter-forms-422-validation-wrapper.md   |  12 +-
+ todos/completed/TODO-ios-store-fast-follow.md      |  61 ++
+ .../completed/TODO-mvp-main-tasks-orchestration.md |  16 +-
+ todos/completed/TODO-mvp-scope-definition.md       |   6 +-
+ .../TODO-telemetry-push-pr-readiness-decisions.md  |   2 +-
+ ...account-profile-artist-favorites-and-profile.md |   6 +-
+ .../TODO-v1-account-profile-implementation.md      |   4 +-
+ .../TODO-v1-account-profile-media-uploads.md       |   4 +-
+ ...-account-profile-type-display-label-metadata.md |  10 +-
+ .../TODO-v1-account-profile-venue-profile.md       |   4 +-
+ ...-account-profile-visual-resolution-hardening.md |  10 +-
+ .../TODO-v1-admin-discovery-map-small-fixes.md     |  10 +-
+ ...-v1-analyzer-cli-parity-deterministic-runner.md |   9 +-
+ todos/completed/TODO-v1-api-security-hardening.md  |   4 +-
+ ...screen-branding-and-adaptive-store-selection.md |   4 +-
+ .../TODO-v1-backend-wiring-consolidation.md        |   2 +-
+ ...canonical-back-navigation-governance-cutover.md |   9 +-
+ .../TODO-v1-deeplink-host-resolved-well-known.md   |  12 +-
+ ...earch-filter-chrome-and-local-back-alignment.md |  10 +-
+ .../TODO-v1-domain-primitives-vo-hardening.md      |  46 +
+ .../TODO-v1-environment-scope-reorganization.md    |   4 +-
+ ...DO-v1-event-detail-about-rich-media-contract.md |  41 +
+ ...arties-canonicalization-and-legacy-migration.md |  30 +-
+ .../TODO-v1-event-type-canonical-poi-visuals.md    |   2 +-
+ todos/completed/TODO-v1-events-capability-combo.md |   2 +-
+ .../TODO-v1-events-capability-inventory.md         |   2 +-
+ .../completed/TODO-v1-events-capability-limits.md  |   2 +-
+ ...vents-capability-participant-student-binding.md |   2 +-
+ .../TODO-v1-events-capability-pricing-fees.md      |   2 +-
+ .../TODO-v1-events-capability-qr-checkin.md        |   2 +-
+ todos/completed/TODO-v1-events-package-phase-3.md  |   2 +-
+ ...ts-party-candidates-server-search-pagination.md |   2 +-
+ .../TODO-v1-events-radius-button-behavior.md       | 286 ++++++
+ ...-favorites-account-profile-visual-enrichment.md |   8 +-
+ .../TODO-v1-first-release.md                       |  32 +-
+ .../TODO-v1-first-run-boilerplate-alignment.md     |   2 +-
+ .../TODO-v1-fix-branding-logo-storage-404.md       |   6 +-
+ .../TODO-v1-flutter-architecture-debt-burndown.md  |   2 +-
+ ...itecture-rules-consolidation-and-custom-lint.md |  29 +
+ .../completed/TODO-v1-flutter-merge-fix-analyze.md |   2 +-
+ ...-agenda-canonical-stream-ownership-hardening.md |  45 +
+ ...home-agenda-controller-boundary-plugin-rules.md | 246 ++++++
+ ...e-agenda-radius-persistence-and-sheet-polish.md |   4 +-
+ .../TODO-v1-home-location-origin-reference-mode.md |   2 +-
+ ...e-event-detail-dynamic-profile-category-tabs.md |  20 +-
+ .../TODO-v1-immersive-image-derived-theme.md       |   2 +-
+ ...O-v1-invite-deeplink-identity-first-delivery.md |  20 +-
+ ...v1-local-web-tenant-admin-origin-consistency.md |   8 +-
+ .../TODO-v1-map-frontend.md                        |  13 +-
+ todos/completed/TODO-v1-map-icon-color-config.md   |   4 +-
+ .../TODO-v1-map-location-origin-feedback.md        |  14 +-
+ .../TODO-v1-map-visuals.md                         |  14 +-
+ .../mvp_slices => completed}/TODO-v1-map.md        |  10 +-
+ ...TODO-v1-module-doc-consolidation-all-modules.md |   6 +-
+ .../TODO-v1-pre-mvp-web-small-fixes-intake.md      |  60 +-
+ .../TODO-v1-profile-type-capabilities-matrix.md    |   8 +-
+ ...TODO-v1-profile-type-visual-canonicalization.md |  14 +-
+ ...TODO-v1-public-account-profile-discovery-ui.md} | 112 +--
+ ...DO-v1-screen-discovery-performance-hardening.md |   2 +-
+ todos/completed/TODO-v1-screen-discovery-polish.md |  14 +-
+ .../TODO-v1-screen-invite-friends-polish.md        |   9 +-
+ .../TODO-v1-screen-signin-signup-polish.md         |   9 +-
+ .../TODO-v1-targeted-visual-polish.md              |  36 +-
+ todos/completed/TODO-v1-telemetry-and-push.md      |   2 +-
+ .../TODO-v1-tenant-admin-data-layer-rebuild.md     |   2 +-
+ ...enant-admin-domain-management-and-events-ops.md | 411 +++++++++
+ .../TODO-v1-tenant-admin-domain-management.md      | 185 ++++
+ .../TODO-v1-tenant-admin-events-temporal-filter.md |   2 +-
+ .../TODO-v1-tenant-admin-map-ui-filters-editor.md  |   2 +-
+ ...nant-admin-telemetry-integration-persistence.md |   2 +-
+ ...-v1-tenant-branding-name-and-web-icon-parity.md | 234 +++++
+ .../TODO-v1-tenant-public-safe-back-navigation.md  |   4 +-
+ ...c-ui-polish-batch-auth-profile-events-invite.md |  28 +-
+ ...DO-v1-tenant-public-web-desktop-mobile-frame.md |   6 +-
+ .../TODO-v1-ticketing-capability-promotions.md     |   2 +-
+ ...ODO-v1-ticketing-capability-transfer-reissue.md |   2 +-
+ ...DO-v1-web-anon-tenant-public-route-hardening.md |   2 +-
+ .../TODO-v1-web-bootstrap-branding-continuity.md   | 232 +++++
+ ...ount-profile-module-family-topology-decision.md | 177 ++++
+ .../completed/TODO-vnext-account-profile-types.md  |  25 +
+ ...ext-backlog-role-and-ownership-consolidation.md | 169 ++++
+ ...TODO-vnext-canonical-authority-direct-rename.md | 174 ++++
+ ...vnext-centralized-back-navigation-governance.md |  36 +-
+ ...ext-current-state-module-authority-alignment.md | 172 ++++
+ ...DO-vnext-deferred-commerce-authority-framing.md | 167 ++++
+ .../TODO-vnext-endpoint-scope-separation.md        |  22 +
+ ...undation-authority-and-branch-reconciliation.md | 366 ++++++++
+ ...ext-foundation-doc-branch-integration-review.md | 164 ++++
+ ...ext-foundation-todo-landscape-reconciliation.md | 164 ++++
+ ...vel-package-guardrails-and-skill-convergence.md |  22 +
+ ...DO-vnext-location-permission-back-button-fix.md |  25 +
+ .../TODO-vnext-module-authority-follow-up-sweep.md | 162 ++++
+ ...next-secondary-module-lane-and-phase-cleanup.md | 172 ++++
+ .../TODO-vnext-telemetry-architecture-review.md    |  27 +
+ .../TODO-vnext-tenant-admin-media-library-reuse.md |  23 +
+ .../TODO-vnext-test-hardening-defect-backlog.md    |  19 +
+ .../tenant-public-branding-metadata-fallback.md    | 312 +++++++
+ ...ODO-store-release-cors-ownership-unification.md |  76 ++
+ ...re-release-critical-journey-regression-gates.md | 899 +++++++++++++++++++
+ ...tore-release-event-content-save-sanitization.md | 173 ++++
+ ...lease-landlord-tenant-auth-method-governance.md | 220 +++++
+ 270 files changed, 16410 insertions(+), 7240 deletions(-)

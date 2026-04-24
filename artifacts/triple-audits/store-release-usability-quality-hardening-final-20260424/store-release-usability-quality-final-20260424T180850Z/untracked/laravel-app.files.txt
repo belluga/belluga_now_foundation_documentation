@@ -1,0 +1,2 @@
+app/Application/DiscoveryFilters/DiscoveryFilterPublicCatalogService.php
+tests/Feature/Events/EventQueryPerformanceGuardrailTest.php

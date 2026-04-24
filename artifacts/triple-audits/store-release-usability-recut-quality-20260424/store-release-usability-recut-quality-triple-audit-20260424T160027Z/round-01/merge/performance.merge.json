@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-recut-quality-20260424/store-release-usability-recut-quality-triple-audit-20260424T160027Z/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "performance"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "mixed",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not promote until the backend query-shape findings are either corrected or backed by load/query-count evidence. Prioritize fixing event admin occurrence filtering and formatter N+1 behavior, then cap or lazy-load discovery taxonomy catalog terms."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-C31EDE26",
+      "severity": "high",
+      "title": "Occurrence-first admin event filtering plucks all matching occurrence event ids before pagination",
+      "rationale": "The EventQueryService diff replaces root event temporal filtering with resolveManagementOccurrenceEventIds(), which queries EventOccurrence, orders by starts_at, plucks every matching event_id, uniques them in PHP, then applies a large whereIn('_id', ...) to the Event query. For common admin filters such as future or date buckets, every page now does work proportional to all matching occurrences, not the requested page size. This is a hidden performance regression for Event admin and can create large in-memory arrays and large Mongo $in predicates.",
+      "suggested_action": "Make the occurrence-first list query bounded at the database/page boundary. Either paginate from EventOccurrence as the primary source and hydrate parent events in bulk, maintain indexed next/temporal occurrence projection fields on Event, or use a bounded aggregation/distinct strategy with explicit indexes. Add a query-count or load-shaped test fixture with many events and occurrences.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PERF-001"
+      ],
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-C5A8EFA8",
+      "severity": "high",
+      "title": "Management event formatting adds per-event occurrence queries",
+      "rationale": "formatManagementEvent() now calls resolveOccurrenceOwnedEventParties($event), which performs an EventOccurrence query per event, while resolveEventOccurrences($event) also queries occurrences per formatted event. A normal admin events page can therefore issue multiple occurrence queries per row after the page has already been selected. This is a classic N+1 shape and directly affects the Event admin surfaces called out by the package.",
+      "suggested_action": "Bulk-load occurrences for the page of event ids once, group them by event_id, and pass the grouped rows into the formatter for both occurrence summaries and occurrence-owned parties. Add a regression test or instrumentation assertion that event admin pagination does not perform per-row occurrence lookups.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PERF-002"
+      ],
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-4BF49069",
+      "severity": "medium",
+      "title": "Discovery filter catalogs fetch and render every term for each allowed taxonomy",
+      "rationale": "DiscoveryFiltersController builds taxonomy_options by loading all TaxonomyTerm rows for every allowed taxonomy with an unbounded get(), and the Flutter DiscoveryFilterBar renders those terms as chips. That is operationally fragile for launch tenants with large taxonomy catalogs: Home and Discovery boot can receive a large catalog payload and build a large widget tree even when the user has only selected one primary type.",
+      "suggested_action": "Introduce a catalog size budget: cap initial taxonomy terms, lazy-load terms after primary selection, or add a term-search endpoint per taxonomy/type scope. Add tests or evidence for maximum catalog payload size and widget build behavior under a large taxonomy fixture.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PERF-003"
+      ],
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

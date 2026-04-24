@@ -1,0 +1,397 @@
+ .../web_app_tests/discovery_filters.spec.js        | 302 +++++++--------------
+ 1 file changed, 92 insertions(+), 210 deletions(-)
+diff --git a/tools/flutter/web_app_tests/discovery_filters.spec.js b/tools/flutter/web_app_tests/discovery_filters.spec.js
+index f154579..2f9c4fb 100644
+--- a/tools/flutter/web_app_tests/discovery_filters.spec.js
++++ b/tools/flutter/web_app_tests/discovery_filters.spec.js
+@@ -167,7 +167,7 @@ async function clickUntilFilteredRequest({
+ }) {
+   let lastError = null;
+   for (let attempt = 0; attempt < attempts; attempt += 1) {
+-    await locator.first().click();
++    await activateSemanticToggle(locator.first());
+     try {
+       return await waitForTrackedFilteredRequest(tracker, message, 12000);
+     } catch (error) {
+@@ -473,108 +473,6 @@ async function loginTenantAdmin(api, baseUrl) {
+   };
+ }
+ 
+-function storageSafeToken(raw) {
+-  const normalized = String(raw || '').trim().toLowerCase();
+-  if (!normalized) {
+-    return 'default';
+-  }
+-  return normalized.replace(/[^a-z0-9._-]+/g, '_');
+-}
+-
+-function discoveryFilterSelectionStorageKey(baseUrl, surface) {
+-  const tenantKey = storageSafeToken(new URL(baseUrl).host);
+-  const surfaceKey = storageSafeToken(surface);
+-  return `discovery_filter_selection_${tenantKey}_${surfaceKey}`;
+-}
+-
+-function discoveryFilterSelectionSnapshot({
+-  primaryKeys = [],
+-  taxonomyTerms = {},
+-}) {
+-  return JSON.stringify({
+-    primary_keys: normalizeList(primaryKeys).map(String),
+-    taxonomy_terms: Object.fromEntries(
+-      Object.entries(taxonomyTerms)
+-        .map(([key, values]) => [String(key), normalizeList(values).map(String)])
+-        .filter(([, values]) => values.length > 0),
+-    ),
+-  });
+-}
+-
+-async function writeFlutterSecureStorageEntries(page, entries) {
+-  await page.evaluate(async ({ entries }) => {
+-    if (!['http:', 'https:'].includes(window.location.protocol)) {
+-      return;
+-    }
+-
+-    const publicKey = 'FlutterSecureStorage';
+-    const storage = window.localStorage;
+-    const algorithm = { name: 'AES-GCM', length: 256 };
+-
+-    const bytesToBase64 = (bytes) => {
+-      let binary = '';
+-      const chunkSize = 0x8000;
+-      for (let index = 0; index < bytes.length; index += chunkSize) {
+-        binary += String.fromCharCode(
+-          ...bytes.subarray(index, index + chunkSize),
+-        );
+-      }
+-      return window.btoa(binary);
+-    };
+-
+-    const base64ToBytes = (value) => {
+-      const binary = window.atob(value);
+-      const bytes = new Uint8Array(binary.length);
+-      for (let index = 0; index < binary.length; index += 1) {
+-        bytes[index] = binary.charCodeAt(index);
+-      }
+-      return bytes;
+-    };
+-
+-    const getEncryptionKey = async () => {
+-      const stored = storage.getItem(publicKey);
+-      if (stored) {
+-        return window.crypto.subtle.importKey(
+-          'raw',
+-          base64ToBytes(stored),
+-          algorithm,
+-          false,
+-          ['encrypt', 'decrypt'],
+-        );
+-      }
+-
+-      const generated = await window.crypto.subtle.generateKey(
+-        algorithm,
+-        true,
+-        ['encrypt', 'decrypt'],
+-      );
+-      const exported = new Uint8Array(
+-        await window.crypto.subtle.exportKey('raw', generated),
+-      );
+-      storage.setItem(publicKey, bytesToBase64(exported));
+-      return generated;
+-    };
+-
+-    const encryptionKey = await getEncryptionKey();
+-    const encoder = new TextEncoder();
+-
+-    for (const [key, value] of Object.entries(entries)) {
+-      const iv = window.crypto.getRandomValues(new Uint8Array(12));
+-      const encrypted = new Uint8Array(
+-        await window.crypto.subtle.encrypt(
+-          { name: 'AES-GCM', iv },
+-          encryptionKey,
+-          encoder.encode(value),
+-        ),
+-      );
+-      storage.setItem(
+-        `${publicKey}.${key}`,
+-        `${bytesToBase64(iv)}.${bytesToBase64(encrypted)}`,
+-      );
+-    }
+-  }, { entries });
+-}
+-
+ async function ensureRuntimeDiscoveryFilters(baseUrl) {
+   const api = await createApiContext(baseUrl);
+   const session = await loginTenantAdmin(api, baseUrl);
+@@ -810,6 +708,13 @@ function filterActionPattern(baseLabel) {
+   return new RegExp(`(${baseLabel}|Filtros ativos)`, 'i');
+ }
+ 
++function filterOption(panel, label) {
++  const pattern = labelPattern(label);
++  return panel
++    .getByRole('button', { name: pattern })
++    .or(panel.getByRole('switch', { name: pattern }));
++}
++
+ async function expectAccessibleGroupContains(locator, text) {
+   await expect(locator).toHaveAccessibleName(
+     accessibleTextPattern(text),
+@@ -817,27 +722,11 @@ async function expectAccessibleGroupContains(locator, text) {
+   );
+ }
+ 
+-async function waitForPanelTextState(
+-  panel,
+-  { includes = [], excludes = [], description = 'filter panel' },
+-) {
+-  await expect
+-    .poll(
+-      async () => {
+-        const text = (await panel.textContent()) || '';
+-        return (
+-          includes.every((value) => text.includes(value)) &&
+-          excludes.every((value) => !text.includes(value))
+-        );
+-      },
+-      {
+-        message: `${description} did not reach the expected text state.`,
+-        timeout: appBootTimeoutMs,
+-      },
+-    )
+-    .toBe(true);
+-
+-  return (await panel.textContent()) || '';
++async function expectAccessibleGroupNotContains(locator, text, timeoutMs = 5000) {
++  await expect(locator).not.toHaveAccessibleName(
++    accessibleTextPattern(text),
++    { timeout: timeoutMs },
++  );
+ }
+ 
+ async function createTaxonomy(
+@@ -1317,9 +1206,9 @@ test('@mutation Home filters honor Event Type taxonomy compatibility, hide zero-
+   try {
+     session = await loginTenantAdmin(api, baseUrl);
+     const unique = Date.now();
+-    const typeALabel = `HD10 Show ${unique}`;
+-    const typeBLabel = `HD10 Talk ${unique}`;
+-    const typeCLabel = `HD10 Empty ${unique}`;
++    const typeALabel = `AAA HD10 Show ${unique}`;
++    const typeBLabel = `AAB HD10 Talk ${unique}`;
++    const typeCLabel = `AAC HD10 Empty ${unique}`;
+     const taxonomyA = await createTaxonomy(api, baseUrl, session.token, {
+       slug: `hd10-music-${unique}`,
+       name: `Genero Musical ${unique}`,
+@@ -1372,12 +1261,6 @@ test('@mutation Home filters honor Event Type taxonomy compatibility, hide zero-
+       `hd10-empty-${unique}`,
+     ]));
+ 
+-    const homeSurface = 'home.events';
+-    const selectionStorageKey = discoveryFilterSelectionStorageKey(
+-      baseUrl,
+-      homeSurface,
+-    );
+-
+     await openTenantPath(page, baseUrl, '/');
+     const filterAction = page.getByRole('button', {
+       name: filterActionPattern('Filtrar eventos'),
+@@ -1387,69 +1270,71 @@ test('@mutation Home filters honor Event Type taxonomy compatibility, hide zero-
+ 
+     const panel = filterPanel(page, /Painel de filtros de eventos/i);
+     await expect(panel).toBeVisible({ timeout: appBootTimeoutMs });
+-    await waitForPanelTextState(panel, {
+-      includes: [typeALabel, typeBLabel, typeCLabel],
+-      excludes: [taxonomyA.name, taxonomyB.name, `Rock ${unique}`, `Chef ${unique}`],
+-      description: 'home events filter panel before selecting a primary type',
++    await expect(filterOption(panel, typeALabel))
++      .toBeVisible({ timeout: appBootTimeoutMs });
++    await expect(filterOption(panel, typeBLabel))
++      .toBeVisible({ timeout: appBootTimeoutMs });
++    await expect(filterOption(panel, typeCLabel))
++      .toBeVisible({ timeout: appBootTimeoutMs });
++    await expectAccessibleGroupNotContains(panel, taxonomyA.name);
++    await expectAccessibleGroupNotContains(panel, taxonomyB.name);
++    await expect(filterOption(panel, `Rock ${unique}`))
++      .toHaveCount(0, { timeout: 5000 });
++    await expect(filterOption(panel, `Chef ${unique}`))
++      .toHaveCount(0, { timeout: 5000 });
++
++    const homeShowTracker = trackFilteredRequests(page, '/api/v1/agenda', {
++      name: 'type',
++      value: `hd10-show-${unique}`,
+     });
+-
+-    await writeFlutterSecureStorageEntries(page, {
+-      [selectionStorageKey]: discoveryFilterSelectionSnapshot({
+-        primaryKeys: [`hd10-show-${unique}`],
+-      }),
++    await clickUntilFilteredRequest({
++      locator: filterOption(panel, typeALabel),
++      tracker: homeShowTracker,
++      message: 'Home primary filter click must trigger agenda request for selected Event Type',
+     });
+-    await page.reload({ waitUntil: 'domcontentloaded' });
+-    await assertAppBooted(page);
+-    await enableAccessibilityIfNeeded(page);
+-    await filterAction.click();
++    homeShowTracker.dispose();
+     await expect(page.getByRole('button', { name: /Filtros ativos/i })).toBeVisible({
+       timeout: appBootTimeoutMs,
+     });
+     await expect(panel).toBeVisible({ timeout: appBootTimeoutMs });
+     await expectAccessibleGroupContains(panel, taxonomyA.name);
+-    await expect(
+-      panel.getByRole('button', { name: labelPattern(`Rock ${unique}`) }),
+-    ).toBeVisible({ timeout: appBootTimeoutMs });
+-    await expect(panel.getByText(taxonomyB.name, { exact: true }))
+-      .toHaveCount(0, { timeout: appBootTimeoutMs });
++    await expect(filterOption(panel, `Rock ${unique}`))
++      .toBeVisible({ timeout: appBootTimeoutMs });
++    await expectAccessibleGroupNotContains(panel, taxonomyB.name, appBootTimeoutMs);
+ 
+-    await writeFlutterSecureStorageEntries(page, {
+-      [selectionStorageKey]: discoveryFilterSelectionSnapshot({
+-        primaryKeys: [`hd10-talk-${unique}`],
+-      }),
++    const homeTalkTracker = trackFilteredRequests(page, '/api/v1/agenda', {
++      name: 'type',
++      value: `hd10-talk-${unique}`,
+     });
+-    await page.reload({ waitUntil: 'domcontentloaded' });
+-    await assertAppBooted(page);
+-    await enableAccessibilityIfNeeded(page);
+-    await filterAction.click();
++    await clickUntilFilteredRequest({
++      locator: filterOption(panel, typeBLabel),
++      tracker: homeTalkTracker,
++      message: 'Home primary filter switch must trigger agenda request for the next Event Type',
++    });
++    homeTalkTracker.dispose();
+     await expect(panel).toBeVisible({ timeout: appBootTimeoutMs });
+     await expectAccessibleGroupContains(panel, taxonomyB.name);
+-    await expect(
+-      panel.getByRole('button', { name: labelPattern(`Chef ${unique}`) }),
+-    ).toBeVisible({ timeout: appBootTimeoutMs });
+-    await expect(panel.getByText(taxonomyA.name, { exact: true }))
+-      .toHaveCount(0, { timeout: appBootTimeoutMs });
++    await expect(filterOption(panel, `Chef ${unique}`))
++      .toBeVisible({ timeout: appBootTimeoutMs });
++    await expectAccessibleGroupNotContains(panel, taxonomyA.name, appBootTimeoutMs);
+ 
+-    await writeFlutterSecureStorageEntries(page, {
+-      [selectionStorageKey]: discoveryFilterSelectionSnapshot({
+-        primaryKeys: [`hd10-empty-${unique}`],
+-      }),
++    const homeEmptyTracker = trackFilteredRequests(page, '/api/v1/agenda', {
++      name: 'type',
++      value: `hd10-empty-${unique}`,
+     });
+-    await page.reload({ waitUntil: 'domcontentloaded' });
+-    await assertAppBooted(page);
+-    await enableAccessibilityIfNeeded(page);
+-    await filterAction.click();
++    await clickUntilFilteredRequest({
++      locator: filterOption(panel, typeCLabel),
++      tracker: homeEmptyTracker,
++      message: 'Home zero-taxonomy primary click must still trigger agenda request',
++    });
++    homeEmptyTracker.dispose();
+     await expect(panel).toBeVisible({ timeout: appBootTimeoutMs });
+-    await expect(panel.getByText(taxonomyA.name, { exact: true }))
++    await expectAccessibleGroupNotContains(panel, taxonomyA.name, appBootTimeoutMs);
++    await expectAccessibleGroupNotContains(panel, taxonomyB.name, appBootTimeoutMs);
++    await expect(filterOption(panel, `Rock ${unique}`))
+       .toHaveCount(0, { timeout: appBootTimeoutMs });
+-    await expect(panel.getByText(taxonomyB.name, { exact: true }))
++    await expect(filterOption(panel, `Chef ${unique}`))
+       .toHaveCount(0, { timeout: appBootTimeoutMs });
+-    await expect(
+-      panel.getByRole('button', { name: labelPattern(`Rock ${unique}`) }),
+-    ).toHaveCount(0, { timeout: appBootTimeoutMs });
+-    await expect(
+-      panel.getByRole('button', { name: labelPattern(`Chef ${unique}`) }),
+-    ).toHaveCount(0, { timeout: appBootTimeoutMs });
+ 
+     await assertNoCriticalBrowserFailures(collectors);
+   } finally {
+@@ -1476,8 +1361,8 @@ test('@mutation Profile Discovery excludes non-favoritable types and keeps selec
+   try {
+     session = await loginTenantAdmin(api, baseUrl);
+     const unique = Date.now();
+-    const visibleTypeLabel = `HD12 Visivel ${unique}`;
+-    const hiddenTypeLabel = `HD12 Oculto ${unique}`;
++    const visibleTypeLabel = `AAA HD12 Visivel ${unique}`;
++    const hiddenTypeLabel = `ZZZ HD12 Oculto ${unique}`;
+     const taxonomy = await createTaxonomy(api, baseUrl, session.token, {
+       slug: `hd12-cuisine-${unique}`,
+       name: `Cozinha ${unique}`,
+@@ -1517,12 +1402,6 @@ test('@mutation Profile Discovery excludes non-favoritable types and keeps selec
+     expect(typeOptions.map((option) => option.value)).toContain(`hd12-visible-${unique}`);
+     expect(typeOptions.map((option) => option.value)).not.toContain(`hd12-hidden-${unique}`);
+ 
+-    const discoverySurface = 'discovery.account_profiles';
+-    const selectionStorageKey = discoveryFilterSelectionStorageKey(
+-      baseUrl,
+-      discoverySurface,
+-    );
+-
+     await openTenantPath(page, baseUrl, '/descobrir');
+     await expect(page.getByText('Descubra', { exact: true }))
+       .toBeVisible({ timeout: appBootTimeoutMs });
+@@ -1535,31 +1414,34 @@ test('@mutation Profile Discovery excludes non-favoritable types and keeps selec
+ 
+     const panel = filterPanel(page, /Painel de filtros de perfis/i);
+     await expect(panel).toBeVisible({ timeout: appBootTimeoutMs });
+-    const initialPanelText = await waitForPanelTextState(panel, {
+-      description: 'Discovery filters panel before restored selection',
+-      includes: [visibleTypeLabel],
+-      excludes: [hiddenTypeLabel, taxonomy.name, `Japonesa ${unique}`],
+-    });
+-    expect(initialPanelText).not.toContain(taxonomy.name);
+-    expect(initialPanelText).not.toContain(`Japonesa ${unique}`);
++    await expect(filterOption(panel, visibleTypeLabel))
++      .toBeVisible({ timeout: appBootTimeoutMs });
++    await expect(filterOption(panel, hiddenTypeLabel))
++      .toHaveCount(0, { timeout: 5000 });
++    await expectAccessibleGroupNotContains(panel, taxonomy.name);
++    await expect(filterOption(panel, `Japonesa ${unique}`))
++      .toHaveCount(0, { timeout: 5000 });
+ 
+-    await writeFlutterSecureStorageEntries(page, {
+-      [selectionStorageKey]: discoveryFilterSelectionSnapshot({
+-        primaryKeys: [`hd12-visible-${unique}`],
+-      }),
++    const discoveryTracker = trackFilteredRequests(
++      page,
++      '/api/v1/account_profiles',
++      {
++        name: 'profile_type',
++        value: `hd12-visible-${unique}`,
++      },
++    );
++    await clickUntilFilteredRequest({
++      locator: filterOption(panel, visibleTypeLabel),
++      tracker: discoveryTracker,
++      message: 'Discovery primary filter click must trigger account profile request for selected type',
+     });
+-    await page.reload({ waitUntil: 'domcontentloaded' });
+-    await assertAppBooted(page);
+-    await enableAccessibilityIfNeeded(page);
+-    await filterAction.click();
++    discoveryTracker.dispose();
+     await expect(panel).toBeVisible({ timeout: appBootTimeoutMs });
+-    const panelText = await waitForPanelTextState(panel, {
+-      description: 'Discovery filters panel after restored selection',
+-      includes: [`Japonesa ${unique}`],
+-      excludes: [hiddenTypeLabel],
+-    });
+-    expect(panelText).toContain(`Japonesa ${unique}`);
+-    expect(panelText).not.toContain(hiddenTypeLabel);
++    await expectAccessibleGroupContains(panel, taxonomy.name);
++    await expect(filterOption(panel, `Japonesa ${unique}`))
++      .toBeVisible({ timeout: appBootTimeoutMs });
++    await expect(filterOption(panel, hiddenTypeLabel))
++      .toHaveCount(0, { timeout: 5000 });
+ 
+     await assertNoCriticalBrowserFailures(collectors);
+   } finally {

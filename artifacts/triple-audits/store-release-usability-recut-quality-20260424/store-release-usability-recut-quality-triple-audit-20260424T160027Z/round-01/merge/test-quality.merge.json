@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-recut-quality-20260424/store-release-usability-recut-quality-triple-audit-20260424T160027Z/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality-audit-no-context"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Address the medium browser integration gap before promotion, or explicitly narrow the evidence claim to restored-selection rendering plus unit/controller coverage. Keep the existing unit/widget/API tests; add one live browser click-through proof for Home and one for Discovery that selects a primary filter/taxonomy through UI and asserts the resulting backend request or visible filtered outcome."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-E00685D2",
+      "severity": "medium",
+      "title": "Home/Discovery browser tests bypass the real filter selection integration path",
+      "rationale": "The Playwright filter checks seed selected primary filters by writing encrypted FlutterSecureStorage entries, reload the app, then assert panel text. That proves restored-selection rendering and taxonomy compatibility, but it does not prove that a user can click a primary filter, persist the selection through the app wiring, and trigger the expected backend query. Unit/widget/controller tests cover parts of this, but the live browser evidence can still pass if screen wiring between user tap, selection persistence, and request dispatch regresses.",
+      "suggested_action": "Add live browser assertions that click the seeded Home and Discovery primary filters through the UI, optionally click a taxonomy term, and wait for the real schedule/account-profile API request containing the expected type/taxonomy query values. Keep direct storage seeding only for a separate restored-state test.",
+      "reviewer_labels": [
+        "test-quality-audit-no-context"
+      ],
+      "source_finding_ids": [
+        "TQA-01"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-ADF7C217",
+      "severity": "low",
+      "title": "Navigation matrix declaration test can inflate behavioral pass counts",
+      "rationale": "The added Playwright test for the NAV-01..NAV-23 matrix validates that a constant list contains ids, titles, and proof text. That is useful metadata hygiene, but it is not product behavior and can be misleading if counted alongside mutation/browser behavior passes.",
+      "suggested_action": "Keep the matrix check as metadata validation, but ensure evidence reports distinguish it from behavioral browser coverage. Prefer excluding declaration-only tests from release behavior pass counts.",
+      "reviewer_labels": [
+        "test-quality-audit-no-context"
+      ],
+      "source_finding_ids": [
+        "TQA-02"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}
