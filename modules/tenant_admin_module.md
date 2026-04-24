@@ -2009,7 +2009,7 @@ Update tenant-owned Resend delivery defaults used by tenant-public transactional
   "token": "re_xxxxxxxxx",
   "from": "Belluga <noreply@belluga.space>",
   "to": [
-    "admin@bellugasolutions.com.br"
+    "admin@example.com"
   ],
   "cc": [],
   "bcc": [],
@@ -2030,7 +2030,7 @@ Update tenant-owned Resend delivery defaults used by tenant-public transactional
     "token": "re_xxxxxxxxx",
     "from": "Belluga <noreply@belluga.space>",
     "to": [
-      "admin@bellugasolutions.com.br"
+      "admin@example.com"
     ],
     "cc": [],
     "bcc": [],
