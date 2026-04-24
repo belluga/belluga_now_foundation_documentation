@@ -3,7 +3,7 @@
 **Status legend:** canonical PACED delivery stages; the authoritative current stage is recorded in `Delivery Status Canon`.
 **Status:** Active
 **Owners:** Laravel Team, Flutter Team
-**Objective:** Make Account Profile `bio`/`content` and Event `content` long-form rich-text fields whose admin editing, backend validation, sanitized persistence, preview, and public rendering are faithful to each other.
+**Objective:** Make Account Profile `bio`/`content`, Event `content`, and Static Asset `bio`/`content` long-form rich-text fields whose admin editing, backend validation, sanitized persistence, preview, and public rendering are faithful to each other.
 
 ---
 
@@ -21,9 +21,9 @@
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Local-Implemented`
-- **Qualifiers:** `SR-C Account Profile slice remains locally implemented; SR-C2 Event description public rendering was reopened and is now covered by final Store Release evidence.`
-- **Next exact step:** Keep in Store Release active lane for manual validation/promotion after final orchestration guards. Re-run guards if rich-text rendering, runtime target, or served Web bundle changes.
+- **Current delivery stage:** `Reopened-Bug-Recut-Required`
+- **Qualifiers:** `SR-C Account Profile slice remains locally implemented, but manual validation on 2026-04-24 found that the Event description long-form contract is not closed: tenant-admin Event content can still hit backend 422 validation.max.string and lacks adequate visible size/limit guidance before submit. Renewed delivery requires a recut of Event content limit/guidance plus regression proof that Account Profile bio/content remain aligned.`
+- **Next exact step:** Resolve `BUG-SR-RECUT-02` and `BUG-SR-RECUT-04` from `TODO-store-release-usability-bug-convergence-recut.md`, update this TODO's evidence matrix with item-specific mutation/navigation proof, then rerun guards before any delivery claim.
 
 ## Package-First Assessment
 
@@ -49,18 +49,18 @@
 ## Out of Scope
 
 - [x] Changing global `InputConstraints::DESCRIPTION_MAX` for unrelated short-description fields remains out of scope.
-- [x] Static Asset rich-text parity remains out of scope. It can reuse the eventual renderer later but is not part of this Store Release slice.
+- [x] Static Asset rich-text parity was pulled into the 2026-04-24 bug recut because the same tenant-admin long-form guidance contract would otherwise advertise 100KB while the backend still enforced the old short-description limit.
 - [x] Adding links, underline, inline code, colors, arbitrary HTML, embedded media, or page-builder semantics remains out of scope.
 - [x] Redesigning Account Profile capability storage beyond respecting `hasBio` and `hasContent` independently remains out of scope.
 - [x] Full CMS/page layout authoring remains out of scope.
 
 ## Constraint Notes
 
-- **Active constraint:** `None`
-- **Constraint rationale:** `None`
-- **Clearance path:** `None`
+- **Active constraint:** `BUG-SR-RECUT-02`, `BUG-SR-RECUT-04`
+- **Constraint rationale:** Tenant-admin Event description editing still exposed a backend `422 validation.max.string` failure and lacked visible size/limit guidance; non-visible review found Static Asset rich text had the same backend/UI contract mismatch.
+- **Clearance path:** Align Event `content` and Static Asset `bio/content` with the approved 100KB rich-text contract, show visible guidance/counter, prove below-limit save/reopen/public render, prove over-limit feedback, and prove Account Profile `bio`/`content` remain unaffected.
 - **Owner / source:** Store Release orchestrator final runtime validation.
-- **Last confirmed truth:** The Account Profile SR-C slice and the SR-C2 tenant-admin Event description to tenant-public Event detail `Sobre` slice both have final-domain evidence for line breaks and visible text styles.
+- **Last confirmed truth:** Account Profile rich-text fidelity still has supporting evidence, but the Event content long-form limit/guidance portion is reopened by manual validation. Previous Event `Sobre` rendering evidence remains supporting only until the limit/guidance recut passes.
 
 ## Execution Lane Tracking
 
@@ -120,6 +120,8 @@
 - 2026-04-22 SR-C2 revalidation finding: tenant-admin Event description can contain line breaks, headings/text styles, bold, and italic, but tenant-public Event detail `Sobre` renders the saved description as flattened plain text. Existing Event tests that inspect widget data or implementation code do not prove visible browser rendering fidelity.
 - 2026-04-22 SR-C2 final Event rich-text Web acceptance: `bash scripts/build_web.sh ../web-app dev` passed; local/served `main.dart.js` hash was `2dbce056b1f350e1fa7a279025c5d3d82d89dc2f8f9a76c9e589af8d968bf1c4`; `NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true NAV_DEPLOY_LANE=dev NAV_WEB_WORKERS=1 bash tools/flutter/run_web_navigation_smoke.sh mutation` passed `16 passed (7.4m)`, including `tools/flutter/web_app_tests/event_rich_text.mutation.spec.js`.
 - 2026-04-22 SR-C2 final focused Flutter support: `fvm flutter test test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart test/presentation/common/widgets/immersive_detail_screen/immersive_detail_screen_test.dart test/presentation/tenant_public/schedule/event_info_section_rich_text_test.dart test/infrastructure/dal/dto/schedule/event_dto_test.dart test/presentation/tenant_admin/events/tenant_admin_events_screen_test.dart` passed `48 passed`.
+- 2026-04-24 recut focused Flutter support: `fvm flutter test test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart` passed `23 passed`; `fvm flutter test test/presentation/tenant_admin/shared/tenant_admin_rich_text_editor_test.dart` passed `2 passed`; `fvm flutter test test/presentation/tenant_admin/static_assets/tenant_admin_static_asset_edit_screen_test.dart` passed `7 passed`, including Static Asset create/edit 100KB guidance.
+- 2026-04-24 recut Laravel support: `./laravel-app/scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Events/EventCrudControllerTest.php --filter 'event_content_limit_is_100kb_after_sanitization|management_show_preserves_single_occurrence_programming_and_occurrence_profiles|event_update_multipart_preserves_occurrence_owned_profiles_and_programming'` passed `3 tests, 25 assertions`; `./laravel-app/scripts/delphi/run_laravel_tests_safe.sh tests/Feature/StaticAssets/StaticAssetsControllerTest.php --filter 'static_asset_rich_text_limit_is_100kb_and_sanitized_per_field'` passed `1 test, 6 assertions`.
 
 ## Final Runtime Acceptance Reconciliation
 
@@ -241,7 +243,7 @@ Runtime rows that assert visible rendering require Playwright navigation or ADB 
 
 ## Decision Closure
 
-- [x] None. Static Asset rich-text parity is explicitly out of this Store Release slice rather than an open decision.
+- [x] `D-C-13` Static Asset `bio` and `content` follow the same tenant-admin rich-text limit/guidance/sanitization contract as Account Profile and Event long-form fields.
 
 ## Questions To Close
 
