@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-06/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "round-06-test-quality-no-context-auditor"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Tighten the APD web helper before treating the web navigation lane as final proof of the new named profile-card semantics. Keep Android marked as blocked/accepted debt unless a real device or emulator run is added before Android-specific release claims."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-A0EE6713",
+      "severity": "medium",
+      "title": "APD web navigation test still accepts legacy profile-card accessible names",
+      "rationale": "The package states Discovery profile cards and nearby row items now expose named semantic buttons as `Abrir perfil <name>`, and Flutter widget tests assert that exact semantic label. However, the release-gating APD Playwright helper first searches for `Abrir perfil <prefix>` and then falls back to a generic role button named only by the profile prefix or a grouped button. A deployed regression that removes the canonical `Abrir perfil` label but leaves a profile-name-only button could still pass this navigation test, weakening the web lane as evidence for the announced accessibility/tappability contract.",
+      "suggested_action": "Remove the legacy profile-name/group fallback from the release-gating APD helper, or gate it behind a non-release exception. The web test should require the canonical `getByRole('button', { name: /Abrir perfil <name>/ })` target when validating this hardened behavior.",
+      "reviewer_labels": [
+        "round-06-test-quality-no-context-auditor"
+      ],
+      "source_finding_ids": [
+        "R06-TQ-01"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-7BBC87E8",
+      "severity": "low",
+      "title": "Android remains blocked rather than independently validated",
+      "rationale": "The package correctly reports no connected Android device or emulator and does not claim Android passed. Because the hardening includes Flutter UI/navigation changes that are expected to ship in store contexts, the absence of Android integration evidence remains a platform residual risk even though the package accepts web navigation as sufficient for behavior without specified Android/Web divergence.",
+      "suggested_action": "Keep Android explicitly marked as blocked/accepted debt in release evidence, and run the credential-gated real tenant-admin login plus relevant affected integration coverage on a real device or emulator before making Android-specific release confidence claims.",
+      "reviewer_labels": [
+        "round-06-test-quality-no-context-auditor"
+      ],
+      "source_finding_ids": [
+        "R06-TQ-02"
+      ],
+      "category": "residual_risk",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "none",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

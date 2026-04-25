@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "performance-security"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "mixed",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Resolve the two findings before treating the final hardening pass as clean. Keep the existing validation evidence, but add targeted regression tests for raw rich-text size rejection before sanitizer work and stale/missing taxonomy_terms_flat repair on already-snapshotted account profiles."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-1DF1450B",
+      "severity": "medium",
+      "title": "Taxonomy snapshot repair can skip stale flat taxonomy projections",
+      "rationale": "TaxonomySnapshotBackfillService only writes taxonomy_terms_flat inside the branch where taxonomy_terms changed at app/Application/Taxonomies/TaxonomySnapshotBackfillService.php:87-93. If an AccountProfile already has resolved taxonomy_terms but taxonomy_terms_flat is missing or stale, the service increments skipped at line 96 and never repairs the flat field. Public profile filtering now depends on taxonomy_terms_flat at app/Application/AccountProfiles/AccountProfileQueryService.php:641, so this can silently exclude valid profiles from public filters even after running the advertised repair.",
+      "suggested_action": "When refreshFlatTerms is true, compute the expected flat projection from resolved terms and compare it independently against the current taxonomy_terms_flat. Save when either taxonomy_terms or taxonomy_terms_flat changes, and add a test for a snapshot-complete profile with missing/stale flat terms.",
+      "reviewer_labels": [
+        "performance-security"
+      ],
+      "source_finding_ids": [
+        "perf-sec-002"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "flat-taxonomy-projection-repair-independent-of-snapshot-change"
+    },
+    {
+      "finding_id": "F-209DE8B6",
+      "severity": "medium",
+      "title": "Account-profile rich text is unbounded until after DOM parsing",
+      "rationale": "AccountProfileStoreRequest, AccountProfileUpdateRequest, and AccountOnboardingStoreRequest now validate bio/content only as strings at app/Http/Api/v1/Requests/AccountProfileStoreRequest.php:32, app/Http/Api/v1/Requests/AccountProfileUpdateRequest.php:32, and app/Http/Api/v1/Requests/AccountOnboardingStoreRequest.php:32. The 100 KB limit is applied only after AccountProfileRichTextSanitizer calls sanitize at app/Application/AccountProfiles/AccountProfileRichTextSanitizer.php:26, which builds a DOMDocument in app/Support/RichText/SafeRichTextHtmlSanitizer.php:42. Oversized HTML can therefore consume parser CPU/memory before rejection, creating an avoidable request-amplification/DoS surface.",
+      "suggested_action": "Reject raw bio/content above the agreed byte budget in FormRequest validation or before calling DOMDocument, then keep the post-sanitization limit as a second guard. Cover create, update, and onboarding with oversized raw HTML tests.",
+      "reviewer_labels": [
+        "performance-security"
+      ],
+      "source_finding_ids": [
+        "perf-sec-001"
+      ],
+      "category": "security",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "rich-text-raw-size-before-dom-parse"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+M	.gitignore
+M	tools/flutter/run_web_navigation_smoke.sh
+A	tools/flutter/web_app_tests/account_profile_detail.spec.js
+A	tools/flutter/web_app_tests/account_profile_rich_text.mutation.spec.js
+A	tools/flutter/web_app_tests/discovery_filters.spec.js
+A	tools/flutter/web_app_tests/event_rich_text.mutation.spec.js
+M	tools/flutter/web_app_tests/guard_web_navigation_policy.cjs
+A	tools/flutter/web_app_tests/navigation.mutation.event_occurrences.spec.js
+M	tools/flutter/web_app_tests/navigation.mutation.tenant_admin.spec.js
+M	tools/flutter/web_app_tests/navigation.spec.js
+A	tools/flutter/web_app_tests/runtime_discovery_filters_followup.cjs
+A	tools/flutter/web_app_tests/support/tenant_admin_auth.js
+A	tools/flutter/web_app_tests/taxonomy_display_snapshots.spec.js

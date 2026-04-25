@@ -1,0 +1,82 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260424/final-clean-rerun-20260425T011637Z/triple-audit-session/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "elegance",
+  "overall_assessment": "Mixed. The package is feature-complete and heavily validated, but the elegance gate is not clean: several new seams still duplicate orchestration, JSON canonicalization, and event occurrence projection rules across layers.",
+  "recommended_path": "Resolve the structural duplication before closing the elegance lane. Prefer narrow extractions of shared coordinators/codecs/projection helpers over a broad rewrite.",
+  "performance_position": "acceptable",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "acceptable",
+  "findings": [
+    {
+      "finding_id": "ELEGANCE-001",
+      "severity": "medium",
+      "title": "Discovery filter surface orchestration is duplicated across public controllers",
+      "rationale": "The patch adds nearly identical catalog loading, persisted-selection snapshot conversion, repair, equality comparison, persistence, and panel visibility flow to both DiscoveryScreenController and TenantHomeAgendaController. The surface key, policy, and repository query adapter vary, but the lifecycle is the same. This weakens the boundary around the new belluga_discovery_filters package because future changes to repair or persistence semantics must be updated in multiple host controllers.",
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "shared-discovery-filter-surface-orchestration",
+      "affected_paths": [
+        "flutter-app/lib/presentation/tenant_public/discovery/controllers/discovery_screen_controller.dart",
+        "flutter-app/lib/presentation/tenant_public/home/screens/tenant_home_screen/widgets/agenda_section/controllers/tenant_home_agenda_controller.dart",
+        "flutter-app/packages/belluga_discovery_filters/lib/src/discovery_filter_selection_repair.dart",
+        "flutter-app/packages/belluga_discovery_filters/lib/src/discovery_filter_query_payload.dart"
+      ],
+      "suggested_action": "Extract an application-level discovery filter surface coordinator parameterized by surface key, policy, persistence token, catalog repository, and query adapter. Keep host controllers responsible only for mapping the compiled payload into account-profile or schedule repository calls."
+    },
+    {
+      "finding_id": "ELEGANCE-002",
+      "severity": "medium",
+      "title": "Account profile rich text sanitization depends on an Event package support class",
+      "rationale": "AccountProfileRichTextSanitizer delegates to Belluga\\Events\\Support\\EventContentHtmlSanitizer. That makes account profile content behavior depend on an event-domain utility whose name and ownership are event-specific. The result is a stale abstraction and a weak package boundary for a shared rich-text grammar.",
+      "category": "architecture",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "no-cross-domain-event-sanitizer-reuse",
+      "affected_paths": [
+        "laravel-app/app/Application/AccountProfiles/AccountProfileRichTextSanitizer.php",
+        "laravel-app/packages/belluga/belluga_events/src/Support/EventContentHtmlSanitizer.php",
+        "flutter-app/lib/application/rich_text/safe_rich_html.dart"
+      ],
+      "suggested_action": "Promote the sanitizer and rich-text limits to a neutral shared rich-text support service or package, then have event and account-profile code depend on that neutral abstraction. Keep the Flutter SafeRichHtml grammar explicitly aligned with the shared contract."
+    },
+    {
+      "finding_id": "ELEGANCE-003",
+      "severity": "medium",
+      "title": "Event occurrence programming projection rules are split across write, sync, and read services",
+      "rationale": "Programming items, linked account profile summaries, taxonomy snapshot normalization, place_ref handling, ordering, and event-party merge behavior now appear in multiple forms across EventManagementService, EventOccurrenceSyncService, and EventQueryService. EventQueryService also absorbs occurrence aggregation, selected-occurrence resolution, detail formatting, and profile aggregation. This creates a high drift risk for the occurrence read model.",
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "single-occurrence-programming-projection-boundary",
+      "affected_paths": [
+        "laravel-app/packages/belluga/belluga_events/src/Application/Events/EventManagementService.php",
+        "laravel-app/packages/belluga/belluga_events/src/Application/Events/EventOccurrenceSyncService.php",
+        "laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php",
+        "laravel-app/packages/belluga/belluga_events/src/Application/Events/EventOccurrencePayloadSnapshotService.php"
+      ],
+      "suggested_action": "Extract canonical occurrence programming and party projection helpers, or a dedicated occurrence read-model formatter, and reuse it from sync/query paths. Keep EventQueryService focused on query selection and pagination rather than owning projection normalization."
+    },
+    {
+      "finding_id": "ELEGANCE-004",
+      "severity": "medium",
+      "title": "Discovery filter settings canonicalization is split between infrastructure and presentation",
+      "rationale": "TenantAdminSettingsResponseDecoder normalizes discovery_filters surfaces and backfills legacy map_ui filters, while TenantAdminDiscoveryFiltersSettings repeats legacy map fallback and mutates the raw API JSON shape for save. This places contract migration logic in both infrastructure and presentation, making future settings-shape changes easy to apply in only one path.",
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "single-discovery-filter-settings-codec",
+      "affected_paths": [
+        "flutter-app/lib/infrastructure/dal/dao/tenant_admin/tenant_admin_settings_response_decoder.dart",
+        "flutter-app/lib/presentation/tenant_admin/discovery_filters/models/tenant_admin_discovery_filters_settings.dart",
+        "flutter-app/lib/application/tenant_admin/settings/tenant_admin_legacy_map_filter_canonicalizer.dart",
+        "flutter-app/lib/presentation/tenant_admin/discovery_filters/controllers/tenant_admin_discovery_filters_controller.dart"
+      ],
+      "suggested_action": "Move discovery filter settings decoding, canonical surface normalization, and legacy map_ui fallback into a single application/domain codec used by the repository and admin controller. Let presentation operate on typed surface models instead of owning raw settings-map migration."
+    }
+  ]
+}

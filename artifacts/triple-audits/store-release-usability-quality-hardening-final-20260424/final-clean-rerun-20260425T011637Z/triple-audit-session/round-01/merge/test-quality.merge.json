@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260424/final-clean-rerun-20260425T011637Z/triple-audit-session/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "mixed",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not close the release-quality gate yet. Either execute the required mobile/ADB lane and the omitted changed test suites, or record an explicit scoped waiver that downgrades the release claim to web-only with the unexecuted Flutter/Laravel tests tracked as verification debt."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-A6091A27",
+      "severity": "high",
+      "title": "Validation evidence is selective relative to the changed test surface",
+      "rationale": "The package can report green selected tests while substantial changed test code remains unexecuted in the recorded evidence. For a big hardening scope, this leaves regression protection unverifiable and can create a false sense that the changed suite is healthy.",
+      "suggested_action": "Run the full relevant changed Flutter package/widget/integration suites and Laravel changed tests, or document why each omitted changed test file is intentionally out of scope.",
+      "reviewer_labels": [
+        "test-quality"
+      ],
+      "source_finding_ids": [
+        "TQ-002"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-ADE0F798",
+      "severity": "high",
+      "title": "Mobile/ADB navigation evidence is blocked for a required platform gate",
+      "rationale": "The web navigation lane is strong, but the package cannot support a full release usability/navigation claim while a required mobile navigation gate is blocked. User-visible mobile regressions in routing, auth, Flutter semantics, and occurrence/detail flows could still pass this audit package.",
+      "suggested_action": "Keep the gate blocked until mobile/ADB validation runs successfully, or explicitly narrow the claim to web-only and create a tracked mobile verification debt item.",
+      "reviewer_labels": [
+        "test-quality"
+      ],
+      "source_finding_ids": [
+        "TQ-001"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-5D0AC6F3",
+      "severity": "medium",
+      "title": "Fake-harness tests can be mistaken for real end-to-end coverage",
+      "rationale": "These tests may be useful widget/harness coverage, but their naming and placement can be mistaken for real backend compatibility evidence. They can pass while real Flutter auth, repository wiring, or backend payload behavior is broken.",
+      "suggested_action": "Rename or tag fake-harness tests clearly, keep real-backend/mobile auth coverage separate, and require recorded real-backend execution evidence for any compatibility or release-readiness claim.",
+      "reviewer_labels": [
+        "test-quality"
+      ],
+      "source_finding_ids": [
+        "TQ-003"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

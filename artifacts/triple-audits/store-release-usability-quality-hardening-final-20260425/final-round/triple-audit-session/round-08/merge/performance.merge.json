@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-08/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "round-08-performance-security"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "mixed",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "needs_resolution: add explicit cardinality and shape limits to the remaining event write arrays, then add negative request tests and a focused recut for event CRUD/performance guardrails."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-D0593AF6",
+      "severity": "medium",
+      "title": "Map POI polygon discovery scope accepts unbounded coordinate arrays",
+      "rationale": "The event store/update request rules require capabilities.map_poi.discovery_scope.polygon.coordinates to be an array with min:1, but there is no maximum ring or point count and no nested coordinate validation comparable to point/range validation. MapPoiProjectionService later normalizes and computes a centroid by iterating the first ring, so a large persisted polygon can create expensive write/projection/refresh work and oversized capability payloads.",
+      "suggested_action": "Define polygon coordinate budgets and nested coordinate rules, enforce them in EventStoreRequest/EventUpdateRequest, defensively reject or truncate invalid polygon payloads before projection, and add negative tests for oversized polygon rings and out-of-range polygon coordinates.",
+      "reviewer_labels": [
+        "round-08-performance-security"
+      ],
+      "source_finding_ids": [
+        "R08-PERFSEC-002"
+      ],
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-4C5FC9B1",
+      "severity": "medium",
+      "title": "Event write taxonomy/tags/categories arrays remain unbounded while taxonomy writes now trigger resolver work",
+      "rationale": "EventStoreRequest and EventUpdateRequest bound occurrence fanout and rich text, but still validate tags, categories, and taxonomy_terms only as arrays with per-item string length. EventManagementService now validates taxonomy_terms and resolves snapshots before persisting, so an authenticated tenant-admin request can submit a very large taxonomy_terms array and force large validation/resolver/database work. This is inconsistent with the package's public filter bounds and write fanout hardening.",
+      "suggested_action": "Introduce explicit event-write caps for tags, categories, taxonomy_terms, and unique taxonomy terms, preferably in Belluga\\Events\\Support\\Validation\\InputConstraints, enforce them in store/update requests, and add negative EventCrudControllerTest coverage for oversized arrays.",
+      "reviewer_labels": [
+        "round-08-performance-security"
+      ],
+      "source_finding_ids": [
+        "R08-PERFSEC-001"
+      ],
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

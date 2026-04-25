@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260424/store-release-usability-quality-final-20260424T202659Z/package-triple-audit-20260424T202815Z/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "elegance"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "acceptable"
+  },
+  "recommended_paths": [
+    "Extract event occurrence/programming editor state into dedicated controller/draft components, then move tenant-admin discovery-filter rule-catalog loading behind an application/repository contract with required dependencies and explicit errors."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-00B16F1B",
+      "severity": "medium",
+      "title": "Event occurrence and programa\u00e7\u00e3o editing remain screen-owned mutable orchestration",
+      "rationale": "The event form screen owns complex modal draft state and domain mutation logic through nested StatefulBuilder closures and mutable local lists, including _openOccurrenceEditor, _openProgrammingItemEditor, validation, profile linking, sorting, and DTO construction. This keeps fragile occurrence/programming mapping hotspots in the screen.",
+      "suggested_action": "Extract an occurrence/programming draft model plus focused editor controller/widgets. Keep the screen declarative and delegate validation, profile linking, sorting, and draft-to-domain conversion to reusable units.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-001"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-9890A4D8",
+      "severity": "medium",
+      "title": "Discovery-filter rule catalog assembly is in the presentation controller",
+      "rationale": "TenantAdminDiscoveryFiltersController directly pulls settings, account profile, static asset, taxonomy, and event repositories, then builds TenantAdminMapFilterRuleCatalog itself; missing optional repositories emit an empty catalog. This is cross-domain application orchestration rather than presentation state management.",
+      "suggested_action": "Introduce a TenantAdminDiscoveryFilterRuleCatalogRepository or application service with required dependencies and explicit error reporting. The controller should consume that single contract.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-002"
+      ],
+      "category": "architecture",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-64F7DC3D",
+      "severity": "low",
+      "title": "Legacy map-filter to discovery-filter mapping is duplicated across Flutter decoding/domain code",
+      "rationale": "The diff contains separate legacy map-filter to canonical mapping implementations in the response decoder and discovery-filter settings model, alongside backend backfill behavior. The compatibility mapper is legitimate, but duplicate client-side implementations can drift.",
+      "suggested_action": "Consolidate Flutter legacy-to-canonical mapping into one shared mapper used by both decoder and domain settings, and keep backend backfill behavior aligned with that contract.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-003"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "performance-security",
+  "overall_assessment": "Mixed. The package contains meaningful performance hardening, especially occurrence bulk loading and indexed flat taxonomy filtering, but two bounded issues remain: account-profile rich text accepts unbounded raw strings before DOM sanitization, and the taxonomy snapshot repair path can leave the flat filter projection stale when snapshots are already resolved.",
+  "recommended_path": "Resolve the two findings before treating the final hardening pass as clean. Keep the existing validation evidence, but add targeted regression tests for raw rich-text size rejection before sanitizer work and stale/missing taxonomy_terms_flat repair on already-snapshotted account profiles.",
+  "performance_position": "mixed",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "perf-sec-001",
+      "severity": "medium",
+      "title": "Account-profile rich text is unbounded until after DOM parsing",
+      "rationale": "AccountProfileStoreRequest, AccountProfileUpdateRequest, and AccountOnboardingStoreRequest now validate bio/content only as strings at app/Http/Api/v1/Requests/AccountProfileStoreRequest.php:32, app/Http/Api/v1/Requests/AccountProfileUpdateRequest.php:32, and app/Http/Api/v1/Requests/AccountOnboardingStoreRequest.php:32. The 100 KB limit is applied only after AccountProfileRichTextSanitizer calls sanitize at app/Application/AccountProfiles/AccountProfileRichTextSanitizer.php:26, which builds a DOMDocument in app/Support/RichText/SafeRichTextHtmlSanitizer.php:42. Oversized HTML can therefore consume parser CPU/memory before rejection, creating an avoidable request-amplification/DoS surface.",
+      "category": "security",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "rich-text-raw-size-before-dom-parse",
+      "affected_paths": [
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Http/Api/v1/Requests/AccountProfileStoreRequest.php:32",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Http/Api/v1/Requests/AccountProfileUpdateRequest.php:32",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Http/Api/v1/Requests/AccountOnboardingStoreRequest.php:32",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Application/AccountProfiles/AccountProfileRichTextSanitizer.php:26",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Support/RichText/SafeRichTextHtmlSanitizer.php:42"
+      ],
+      "suggested_action": "Reject raw bio/content above the agreed byte budget in FormRequest validation or before calling DOMDocument, then keep the post-sanitization limit as a second guard. Cover create, update, and onboarding with oversized raw HTML tests."
+    },
+    {
+      "finding_id": "perf-sec-002",
+      "severity": "medium",
+      "title": "Taxonomy snapshot repair can skip stale flat taxonomy projections",
+      "rationale": "TaxonomySnapshotBackfillService only writes taxonomy_terms_flat inside the branch where taxonomy_terms changed at app/Application/Taxonomies/TaxonomySnapshotBackfillService.php:87-93. If an AccountProfile already has resolved taxonomy_terms but taxonomy_terms_flat is missing or stale, the service increments skipped at line 96 and never repairs the flat field. Public profile filtering now depends on taxonomy_terms_flat at app/Application/AccountProfiles/AccountProfileQueryService.php:641, so this can silently exclude valid profiles from public filters even after running the advertised repair.",
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "flat-taxonomy-projection-repair-independent-of-snapshot-change",
+      "affected_paths": [
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Application/Taxonomies/TaxonomySnapshotBackfillService.php:87",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Application/Taxonomies/TaxonomySnapshotBackfillService.php:91",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Application/Taxonomies/TaxonomySnapshotBackfillService.php:96",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Application/AccountProfiles/AccountProfileQueryService.php:641"
+      ],
+      "suggested_action": "When refreshFlatTerms is true, compute the expected flat projection from resolved terms and compare it independently against the current taxonomy_terms_flat. Save when either taxonomy_terms or taxonomy_terms_flat changes, and add a test for a snapshot-complete profile with missing/stale flat terms."
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260424/store-release-usability-quality-final-20260424T202659Z/package-triple-audit-20260424T202815Z/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "acceptable"
+  },
+  "recommended_paths": [
+    "Do not mark the Test Quality lane clean until VAL-04 is corrected by either running the omitted Flutter focused tests or narrowing the evidence claim and explicitly mapping those behaviors to the Playwright mutation specs that prove them through real navigation."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-A82243CA",
+      "severity": "medium",
+      "title": "VAL-04 claims Flutter Event form/Event Type taxonomy UI coverage, but the executed command omits those tests",
+      "rationale": "The foundation docs patch marks VAL-04 as covering Event admin form, Event Type taxonomy UI, Discovery filter widgets, and chip semantics, while the recorded Flutter command only includes discovery_filter_core_test.dart, discovery_filter_bar_test.dart, tenant_admin_settings_screen_test.dart, and tenant_admin_settings_repository_test.dart. The flutter-app diffstat shows tenant_admin_event_form_screen_test.dart and tenant_admin_event_type_form_screen_test.dart were changed but not executed in that recorded command.",
+      "suggested_action": "Run the omitted Flutter focused tests and add them to VAL-04, or revise VAL-04 to only claim the executed settings/discovery-filter tests and explicitly cite VAL-08 Playwright test names for Event admin and Event Type taxonomy runtime coverage.",
+      "reviewer_labels": [
+        "test-quality"
+      ],
+      "source_finding_ids": [
+        "TQ-01"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260424/post-resolution-rerun-20260425T0553Z/package-triple-audit-20260425T055509Z/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "elegance"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Resolve the structural findings before closing the gate: restore package-local/shared sanitizer ownership, fix selected-occurrence temporal remapping through a single mapper/copy path, and replace coordinate-click Playwright fallbacks with semantic targets or explicit fail-fast evidence."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-F51D30A5",
+      "severity": "high",
+      "title": "Reusable events package now depends on the host App namespace",
+      "rationale": "The bounded diff changes Belluga\\Events\\Support\\EventContentHtmlSanitizer inside packages/belluga/belluga_events to import App\\Support\\RichText\\SafeRichTextHtmlSanitizer. That makes package code depend on an application-layer class, undermining package-first ownership and making the package non-portable outside this Laravel app.",
+      "suggested_action": "Move the shared sanitizer into package-owned code or a package-level shared support dependency, then have App wrappers depend inward on package code rather than package code importing App. Add a package architecture guard forbidding App\\ imports under packages/belluga/*/src.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-RERUN-001"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-D6183007",
+      "severity": "medium",
+      "title": "Selected occurrence remapping mixes occurrence start with parent event end",
+      "rationale": "ImmersiveEventDetailController._eventWithSelectedOccurrence rebuilds EventModel with dateTimeStart from the selected occurrence but keeps dateTimeEnd from the original event. This creates a drift-prone manual copy path and can render an inconsistent time range when the selected occurrence has its own end time.",
+      "suggested_action": "Set dateTimeEnd from selectedOccurrence.dateTimeEndValue when selecting an occurrence, preferably through an EventModel copy/selection mapper so future EventModel fields cannot be accidentally omitted or mixed.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-RERUN-002"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-F79819D1",
+      "severity": "medium",
+      "title": "Navigation evidence still relies on coordinate and retry fallbacks",
+      "rationale": "The bounded Playwright diff adds helpers that click locator centers, viewport coordinates, first generic buttons, and retry loops with waitForTimeout. That weakens the claimed visible-behavior evidence because the tests can pass even when semantic hit targets, accessibility labels, or intended tappable affordances regress.",
+      "suggested_action": "Replace coordinate fallbacks with stable role/label/key-based locators and fail fast when the semantic target is absent. If a temporary coordinate fallback is unavoidable, isolate it behind an explicit allowlist with a tracked remediation reason.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-RERUN-003"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

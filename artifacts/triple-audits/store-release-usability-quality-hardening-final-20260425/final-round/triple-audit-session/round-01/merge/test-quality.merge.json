@@ -1,0 +1,93 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality-audit-lane"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "mixed",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "regresses"
+  },
+  "recommended_paths": [
+    "Repair the web navigation CI harness first, then rerun release-gating web validation through CI or the same canonical runner with a deterministic shard manifest. Treat Android integration as blocked until a target device lane executes the changed mobile integration scope, and separate fake-harness widget coverage from real integration evidence."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-8F7B475F",
+      "severity": "high",
+      "title": "Web navigation CI still invokes a deleted web-app Playwright harness",
+      "rationale": "The web-app workflow still runs `npm ci` and `npm run test:navigation`, but the working tree deletes `package.json`, `package-lock.json`, `playwright.config.js`, and `tests/navigation.spec.js`. The package evidence instead cites local execution through `tools/flutter/run_web_navigation_smoke.sh`, so the release-gating CI path is no longer equivalent to the tested path and will either fail as infrastructure or stop proving the canonical navigation specs.",
+      "suggested_action": "Either restore the web-app Playwright harness files or update the workflow to invoke the canonical root runner with committed dependencies and explicit suite selection. Add a CI preflight that fails when the workflow references a missing package/test harness.",
+      "reviewer_labels": [
+        "test-quality-audit-lane"
+      ],
+      "source_finding_ids": [
+        "TQ-001"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-E0CBCFEA",
+      "severity": "high",
+      "title": "Mobile integration evidence remains blocked while changed integration tests are fake-harness coverage",
+      "rationale": "The audit package explicitly says Android/ADB had no connected device and Android integration remains blocked, not passed. Several changed files under `integration_test/` use fake repositories and local GetIt registrations, so they validate widget/controller wiring but not mobile runtime behavior against the Laravel contracts. That is insufficient for a store-release usability hardening claim on mobile.",
+      "suggested_action": "Reclassify fake-harness `integration_test` files as non-contract widget/runtime harness coverage, then run the changed mobile integration scope on an Android device against the approved non-production backend before release signoff.",
+      "reviewer_labels": [
+        "test-quality-audit-lane"
+      ],
+      "source_finding_ids": [
+        "TQ-002"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-4AC3E100",
+      "severity": "medium",
+      "title": "Mutation shard evidence is filtered by unrestricted grep without a deterministic coverage manifest",
+      "rationale": "The package states the full unsharded mutation runner terminated without Playwright failure summary, then local evidence was gathered through `NAV_WEB_GREP_EXTRA` shards. The runner appends the raw environment value to the Playwright grep expression, but there is no declared shard catalog, matched-test manifest, or fail-closed check proving every `@mutation` test was selected exactly once. The package manually asserts all 19 specs ran, but the harness does not enforce that claim.",
+      "suggested_action": "Replace arbitrary `NAV_WEB_GREP_EXTRA` with named shard IDs backed by a committed manifest. Have the runner print and validate the matched test titles, fail if any required `@mutation` title is omitted, and store the manifest with the validation evidence.",
+      "reviewer_labels": [
+        "test-quality-audit-lane"
+      ],
+      "source_finding_ids": [
+        "TQ-003"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-019E6572",
+      "severity": "medium",
+      "title": "Mutation pass counts include a declaration-only metadata test",
+      "rationale": "One `@mutation` Playwright test only verifies that the NAV-01..NAV-23 matrix is declared with titles and proof text. It does not exercise product UI, API, persistence, navigation, or contract behavior, but it contributes to the mutation suite pass count reported in the shard evidence. This makes the coverage count easier to overstate.",
+      "suggested_action": "Retag declaration-only tests as metadata or guardrail tests outside `@mutation`, and report behavioral mutation coverage separately from coverage-matrix consistency checks.",
+      "reviewer_labels": [
+        "test-quality-audit-lane"
+      ],
+      "source_finding_ids": [
+        "TQ-004"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

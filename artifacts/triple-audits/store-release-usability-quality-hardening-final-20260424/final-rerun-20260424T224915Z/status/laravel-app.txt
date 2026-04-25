@@ -1,0 +1,6 @@
+ M app/Application/DiscoveryFilters/DiscoveryFilterPublicCatalogService.php
+ M packages/belluga/belluga_events/src/Http/Api/v1/Requests/EventStoreRequest.php
+ M packages/belluga/belluga_events/src/Http/Api/v1/Requests/EventUpdateRequest.php
+ M packages/belluga/belluga_events/src/Support/Validation/InputConstraints.php
+ M tests/Feature/Events/EventCrudControllerTest.php
+ M tests/Feature/Map/MapPoisControllerTest.php

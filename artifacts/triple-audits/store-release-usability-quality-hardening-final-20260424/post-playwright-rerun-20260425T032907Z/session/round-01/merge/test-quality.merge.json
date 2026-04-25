@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260424/post-playwright-rerun-20260425T032907Z/session/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Run the Android/device integration path for the affected Flutter flows, or explicitly document why final-domain web navigation is the accepted evidence when behavior is platform-shared and ADB is unavailable."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-1C826F2D",
+      "severity": "high",
+      "title": "Mobile/device validation remains blocked for Flutter release-facing changes",
+      "rationale": "The bounded package reports ADB/device integration as blocked, not passed: both ADB connection attempts failed and fvm flutter devices listed only Linux and Chrome. That leaves Flutter public/admin event occurrence, rich-text, filters, and route/navigation changes without actual device execution, while Playwright proves browser-facing final-domain behavior.",
+      "suggested_action": "Run the intended Android/device integration lane against the changed Flutter flows and record passing evidence, or explicitly document the approved platform-shared evidence rule and mark ADB as blocked rather than passed.",
+      "reviewer_labels": [
+        "test-quality"
+      ],
+      "source_finding_ids": [
+        "TQ-01"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

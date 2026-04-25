@@ -1,0 +1,45 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260424/post-resolution-rerun-20260425T0553Z/package-triple-audit-20260425T055509Z/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "reviewer_label": "test-quality",
+  "overall_assessment": "not_clean: the package has strong behavioral coverage in several areas, but remaining browser-test interaction fallbacks and an incomplete mobile/store matrix keep the test-quality lane from being clean.",
+  "recommended_path": "Resolve the coordinate-click browser helpers or demote those specs from release-gate evidence, add observable runtime checks where source-grep guards are still primary, and rerun Android/ADB integration or record an explicit release waiver.",
+  "performance_position": "mixed",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "TQ-POST-01",
+      "category": "tests",
+      "severity": "high",
+      "title": "Playwright navigation evidence can pass through coordinate fallbacks after semantic targets fail",
+      "rationale": "The Docker diff includes profile-card, immersive-tab, and public-agenda interactions that recover from inaccessible UI by using bounding boxes or synthesized viewport coordinates. This can hide broken tappability, accessibility labels, overlays, or hit-target regressions while still opening the expected route.",
+      "suggested_action": "Use role/key/locator-based clicks as the release-gate path and fail when the semantic target is not reachable. Keep coordinate probing only in explicitly non-gating visual diagnostics.",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project"
+    },
+    {
+      "finding_id": "TQ-POST-02",
+      "category": "tests",
+      "severity": "medium",
+      "title": "Several performance and ownership guardrails still validate source strings instead of runtime behavior",
+      "rationale": "Laravel tests still inspect source text for bulk resolver names, aggregate operators, ownership, and transaction service references. These tests can pass if inefficient behavior moves behind different names, or fail harmless refactors; they are useful as secondary architecture sentinels but weak primary regression proof.",
+      "suggested_action": "Add observable tests that count aggregate/query/service calls for programming profile/location resolution and taxonomy term batching. Keep source checks only as secondary guardrails.",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project"
+    },
+    {
+      "finding_id": "TQ-POST-03",
+      "category": "operational_fit",
+      "severity": "medium",
+      "title": "The release matrix still has blocked Android/ADB integration evidence",
+      "rationale": "package.md records Flutter unit/widget, analyzer, web build, Playwright readonly/mutation runs, then states Android/ADB integration was blocked because no device/emulator was attached. The changed Flutter flows include touch-heavy navigation, rich rendering, secure storage, and admin/public UI behavior, so web plus unit/widget evidence does not prove Android device behavior for a store release.",
+      "suggested_action": "Run the Android integration lane on an attached emulator/device before closing the gate, or record an explicit waiver that classifies mobile validation as blocked rather than passed.",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "paced"
+    }
+  ]
+}

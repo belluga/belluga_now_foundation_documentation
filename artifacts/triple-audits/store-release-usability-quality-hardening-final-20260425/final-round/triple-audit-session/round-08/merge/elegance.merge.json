@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-08/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "round-08-elegance-clean-code"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "acceptable"
+  },
+  "recommended_paths": [
+    "needs_resolution: extract the duplicated account-context derivation into one events-domain collaborator and consolidate the duplicated Playwright semantic navigation helpers into shared harness support before treating the Elegance lane as clean."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-100AFE27",
+      "severity": "medium",
+      "title": "Event account-context derivation is duplicated between aggregate write normalization and occurrence sync projection",
+      "rationale": "The same account-context inference shape appears in EventManagementService::resolveAccountContextIdsForEventPayload and EventOccurrenceSyncService::resolveAccountContextIds: both collect base account ids, event party profile ids, place_ref ids, programming account_profile_ids, programming place_ref ids, then call the profile resolver. Because account_context_ids now drive account-scoped management indexes and occurrence filtering, keeping this logic in two private implementations creates a clean-code and structural drift point. Future additions to account relevance can update the aggregate document but miss occurrence projection, or vice versa, without a package-boundary signal.",
+      "suggested_action": "Extract a package-local EventAccountContextResolver or similar collaborator that accepts base account ids plus event/occurrence relevance payloads and returns normalized account context ids. Use it from both EventManagementService and EventOccurrenceSyncService, and keep the migration/backfill helper aligned with the same resolver shape where feasible.",
+      "reviewer_labels": [
+        "round-08-elegance-clean-code"
+      ],
+      "source_finding_ids": [
+        "R08-ELEGANCE-001"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-DF405F99",
+      "severity": "low",
+      "title": "Release-gating Playwright dropdown helper logic is duplicated across mutation specs",
+      "rationale": "Both navigation.mutation.tenant_admin.spec.js and navigation.mutation.event_occurrences.spec.js define selectDropdownOption with the same button-trigger, fallback-button, label-trigger, option-role, and menuitem-role flow. This is now policy-critical code because the package explicitly relies on semantic dropdown behavior and a guard that blocks text/keyboard fallbacks. Keeping duplicated helper implementations across large mutation specs increases the chance that future harness hardening updates one flow but leaves the other with stale semantics or weaker diagnostics.",
+      "suggested_action": "Move semantic dropdown selection and related Flutter field helpers into a shared web_app_tests support module, require both mutation specs to import the shared helper, and let the navigation policy guard recognize or enforce use of that helper for release-gating dropdown interactions.",
+      "reviewer_labels": [
+        "round-08-elegance-clean-code"
+      ],
+      "source_finding_ids": [
+        "R08-ELEGANCE-002"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

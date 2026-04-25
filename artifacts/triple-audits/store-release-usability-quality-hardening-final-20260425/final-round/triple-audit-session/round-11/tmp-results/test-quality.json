@@ -1,0 +1,30 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-11/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "reviewer_label": "test-quality-round-11",
+  "overall_assessment": "Not clean. The navigation mutation harness now correctly fails closed without runtime tenant-admin credentials, but the stage CI mutation smoke still invokes that harness without NAV_ADMIN_EMAIL/NAV_ADMIN_PASSWORD, so the promotion gate cannot reproduce the locally reported mutation evidence.",
+  "recommended_path": "needs_resolution: wire runtime-only tenant-admin credentials into the stage mutation navigation CI step, or explicitly split that step out of release-gating evidence until credentials are available.",
+  "performance_position": "acceptable",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "regresses",
+  "findings": [
+    {
+      "finding_id": "TQ-R11-001",
+      "severity": "high",
+      "title": "Stage mutation navigation gate omits credentials required by the hardened harness",
+      "rationale": "tools/flutter/web_app_tests/guard_web_navigation_policy.cjs:32 hard-blocks every mutation run unless NAV_ADMIN_EMAIL and NAV_ADMIN_PASSWORD are present, and tools/flutter/run_web_navigation_smoke.sh:58 runs that guard before listing or executing tests. However .github/workflows/orchestration-ci-cd.yml:418 invokes the stage mutation smoke with only lane, URLs, and HTTPS settings; it does not pass the required runtime credentials. A read-only reproduction with NAV_WEB_TEST_TYPE=mutation NAV_DEPLOY_LANE=stage and no credentials exits 1 with the guard error. Because .github/workflows/orchestration-ci-cd.yml:457 only marks stage successful when stage_navigation_mutation_smoke succeeds, the release gate cannot reproduce the package's local '18 passed' mutation evidence in CI.",
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "tools/flutter/web_app_tests/guard_web_navigation_policy.cjs",
+        "tools/flutter/run_web_navigation_smoke.sh",
+        ".github/workflows/orchestration-ci-cd.yml"
+      ],
+      "suggested_action": "Add NAV_ADMIN_EMAIL and NAV_ADMIN_PASSWORD from appropriate GitHub secrets to the stage mutation navigation smoke env, with masking and no committed fallback, and add a workflow/static guard that any non-main mutation smoke invocation supplies the credentials required by the harness."
+    }
+  ]
+}

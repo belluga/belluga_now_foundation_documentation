@@ -1,0 +1,1451 @@
+diff --git a/lib/application/tenant_admin/discovery_filters/tenant_admin_discovery_filter_rule_catalog_builder.dart b/lib/application/tenant_admin/discovery_filters/tenant_admin_discovery_filter_rule_catalog_builder.dart
+new file mode 100644
+index 00000000..2bf53bdf
+--- /dev/null
++++ b/lib/application/tenant_admin/discovery_filters/tenant_admin_discovery_filter_rule_catalog_builder.dart
+@@ -0,0 +1,156 @@
++import 'package:belluga_now/application/tenant_admin/discovery_filters/tenant_admin_taxonomy_terms_by_slug.dart';
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_event.dart';
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_profile_type.dart';
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_settings.dart';
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_static_profile_type.dart';
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_taxonomy_definition.dart';
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_taxonomy_terms_by_taxonomy_id.dart';
++import 'package:belluga_now/domain/tenant_admin/value_objects/tenant_admin_lowercase_token_value.dart';
++import 'package:belluga_now/domain/tenant_admin/value_objects/tenant_admin_map_filter_rule_values.dart';
++import 'package:belluga_now/domain/tenant_admin/value_objects/tenant_admin_required_text_value.dart';
++
++class TenantAdminDiscoveryFilterRuleCatalogBuilder {
++  const TenantAdminDiscoveryFilterRuleCatalogBuilder();
++
++  TenantAdminTaxonomyTermsBySlug termsBySlug({
++    required List<TenantAdminTaxonomyDefinition> taxonomies,
++    required TenantAdminTaxonomyTermsByTaxonomyId termsByTaxonomyId,
++  }) {
++    return TenantAdminTaxonomyTermsBySlug.fromTaxonomies(
++      taxonomies: taxonomies,
++      termsByTaxonomyId: termsByTaxonomyId,
++    );
++  }
++
++  TenantAdminMapFilterRuleCatalog build({
++    required List<TenantAdminProfileTypeDefinition> accountTypes,
++    required List<TenantAdminStaticProfileTypeDefinition> staticTypes,
++    required List<TenantAdminEventType> eventTypes,
++    required List<TenantAdminTaxonomyDefinition> taxonomies,
++    required TenantAdminTaxonomyTermsBySlug termsBySlug,
++  }) {
++    final accountTypeOptions = accountTypes
++        .where((item) => item.type.trim().isNotEmpty)
++        .map(
++          (item) => TenantAdminMapFilterTypeOption(
++            slugValue: _tokenValue(item.type.trim().toLowerCase()),
++            labelValue: _requiredTextValue(
++              item.label.trim().isEmpty ? item.type : item.label.trim(),
++            ),
++          ),
++        )
++        .toList(growable: false)
++      ..sort((left, right) => left.label.compareTo(right.label));
++
++    final staticTypeOptions = staticTypes
++        .where((item) => item.type.trim().isNotEmpty)
++        .map(
++          (item) => TenantAdminMapFilterTypeOption(
++            slugValue: _tokenValue(item.type.trim().toLowerCase()),
++            labelValue: _requiredTextValue(
++              item.label.trim().isEmpty ? item.type : item.label.trim(),
++            ),
++          ),
++        )
++        .toList(growable: false)
++      ..sort((left, right) => left.label.compareTo(right.label));
++
++    final eventTypeOptions = eventTypes
++        .where((item) => item.slug.trim().isNotEmpty)
++        .map(
++          (item) => TenantAdminMapFilterTypeOption(
++            slugValue: _tokenValue(item.slug.trim().toLowerCase()),
++            labelValue: _requiredTextValue(
++              item.name.trim().isEmpty ? item.slug : item.name.trim(),
++            ),
++          ),
++        )
++        .toList(growable: false)
++      ..sort((left, right) => left.label.compareTo(right.label));
++
++    final taxonomyBySource = <TenantAdminMapFilterSource,
++        List<TenantAdminMapFilterTaxonomyTermOption>>{
++      TenantAdminMapFilterSource.accountProfile:
++          <TenantAdminMapFilterTaxonomyTermOption>[],
++      TenantAdminMapFilterSource.staticAsset:
++          <TenantAdminMapFilterTaxonomyTermOption>[],
++      TenantAdminMapFilterSource.event:
++          <TenantAdminMapFilterTaxonomyTermOption>[],
++    };
++
++    for (final taxonomy in taxonomies) {
++      final taxonomySlug = taxonomy.slug.trim().toLowerCase();
++      if (taxonomySlug.isEmpty) {
++        continue;
++      }
++      final taxonomyLabel =
++          taxonomy.name.trim().isEmpty ? taxonomySlug : taxonomy.name.trim();
++      for (final term in termsBySlug.termsForSlug(taxonomy.slug)) {
++        final termSlug = term.slug.trim().toLowerCase();
++        if (termSlug.isEmpty) {
++          continue;
++        }
++        final option = TenantAdminMapFilterTaxonomyTermOption(
++          tokenValue: _tokenValue('$taxonomySlug:$termSlug'),
++          labelValue: _requiredTextValue(
++            term.name.trim().isEmpty ? term.slug : term.name.trim(),
++          ),
++          taxonomySlugValue: _tokenValue(taxonomySlug),
++          taxonomyLabelValue: _requiredTextValue(taxonomyLabel),
++        );
++        if (taxonomy.appliesToAccountProfile()) {
++          taxonomyBySource[TenantAdminMapFilterSource.accountProfile]!
++              .add(option);
++        }
++        if (taxonomy.appliesToStaticAsset()) {
++          taxonomyBySource[TenantAdminMapFilterSource.staticAsset]!.add(option);
++        }
++        if (taxonomy.appliesToEvent()) {
++          taxonomyBySource[TenantAdminMapFilterSource.event]!.add(option);
++        }
++      }
++    }
++
++    for (final source in taxonomyBySource.keys) {
++      taxonomyBySource[source] =
++          List<TenantAdminMapFilterTaxonomyTermOption>.from(
++        taxonomyBySource[source]!,
++      )..sort((left, right) {
++              final group = left.taxonomyLabel.compareTo(right.taxonomyLabel);
++              if (group != 0) {
++                return group;
++              }
++              return left.label.compareTo(right.label);
++            });
++    }
++
++    return TenantAdminMapFilterRuleCatalog(
++      typesBySource: TenantAdminMapFilterTypeOptionsBySourceValue({
++        TenantAdminMapFilterSource.accountProfile:
++            List<TenantAdminMapFilterTypeOption>.unmodifiable(
++          accountTypeOptions,
++        ),
++        TenantAdminMapFilterSource.staticAsset:
++            List<TenantAdminMapFilterTypeOption>.unmodifiable(
++          staticTypeOptions,
++        ),
++        TenantAdminMapFilterSource.event:
++            List<TenantAdminMapFilterTypeOption>.unmodifiable(
++          eventTypeOptions,
++        ),
++      }),
++      taxonomyTermsBySource: TenantAdminMapFilterTaxonomyOptionsBySourceValue({
++        for (final entry in taxonomyBySource.entries)
++          entry.key: List<TenantAdminMapFilterTaxonomyTermOption>.unmodifiable(
++            entry.value,
++          ),
++      }),
++    );
++  }
++
++  TenantAdminLowercaseTokenValue _tokenValue(String raw) =>
++      TenantAdminLowercaseTokenValue.fromRaw(raw);
++
++  TenantAdminRequiredTextValue _requiredTextValue(String raw) =>
++      TenantAdminRequiredTextValue()..parse(raw);
++}
+diff --git a/lib/application/tenant_admin/discovery_filters/tenant_admin_taxonomy_terms_by_slug.dart b/lib/application/tenant_admin/discovery_filters/tenant_admin_taxonomy_terms_by_slug.dart
+new file mode 100644
+index 00000000..b4d41700
+--- /dev/null
++++ b/lib/application/tenant_admin/discovery_filters/tenant_admin_taxonomy_terms_by_slug.dart
+@@ -0,0 +1,26 @@
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_taxonomy_definition.dart';
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_taxonomy_term_definition.dart';
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_taxonomy_terms_by_taxonomy_id.dart';
++import 'package:belluga_now/domain/tenant_admin/value_objects/tenant_admin_value_parsers.dart';
++
++class TenantAdminTaxonomyTermsBySlug {
++  const TenantAdminTaxonomyTermsBySlug._(this._termsBySlug);
++
++  factory TenantAdminTaxonomyTermsBySlug.fromTaxonomies({
++    required List<TenantAdminTaxonomyDefinition> taxonomies,
++    required TenantAdminTaxonomyTermsByTaxonomyId termsByTaxonomyId,
++  }) {
++    return TenantAdminTaxonomyTermsBySlug._({
++      for (final taxonomy in taxonomies)
++        taxonomy.slug: termsByTaxonomyId.termsForId(
++          tenantAdminRequiredText(taxonomy.id),
++        ),
++    });
++  }
++
++  final Map<String, List<TenantAdminTaxonomyTermDefinition>> _termsBySlug;
++
++  List<TenantAdminTaxonomyTermDefinition> termsForSlug(String slug) {
++    return _termsBySlug[slug] ?? const <TenantAdminTaxonomyTermDefinition>[];
++  }
++}
+diff --git a/lib/application/tenant_admin/settings/tenant_admin_legacy_map_filter_canonicalizer.dart b/lib/application/tenant_admin/settings/tenant_admin_legacy_map_filter_canonicalizer.dart
+new file mode 100644
+index 00000000..382bf110
+--- /dev/null
++++ b/lib/application/tenant_admin/settings/tenant_admin_legacy_map_filter_canonicalizer.dart
+@@ -0,0 +1,96 @@
++import 'package:belluga_now/domain/tenant_admin/settings/tenant_admin_map_filter_source.dart';
++import 'package:belluga_now/domain/tenant_admin/value_objects/tenant_admin_lowercase_token_value.dart';
++
++class TenantAdminLegacyMapFilterCanonicalizer {
++  const TenantAdminLegacyMapFilterCanonicalizer();
++
++  Map<String, dynamic>? canonicalize(Object? raw) {
++    final payload = _mapOf(raw);
++    final key = _normalizeToken(payload['key']);
++    final label = payload['label']?.toString().trim() ?? '';
++    if (key.isEmpty || label.isEmpty) {
++      return null;
++    }
++
++    final query = _mapOf(payload['query']);
++    final source = _normalizeToken(query['source']);
++    final entity = _legacySourceToEntity(source);
++    final types = _stringList(query['types']);
++    final taxonomy = _legacyTaxonomy(query['taxonomy']);
++
++    return {
++      'key': key,
++      'surface': 'public_map.primary',
++      'target': 'map_poi',
++      'label': label,
++      'primary_selection_mode': 'single',
++      if (payload['image_uri'] != null) 'image_uri': payload['image_uri'],
++      'override_marker': _parseBool(payload['override_marker']),
++      if (payload['marker_override'] is Map)
++        'marker_override': payload['marker_override'],
++      'query': {
++        if (entity != null) 'entities': [entity],
++        if (entity != null && types.isNotEmpty)
++          'types_by_entity': {entity: types},
++        if (taxonomy.isNotEmpty) 'taxonomy': taxonomy,
++      },
++    };
++  }
++
++  String? _legacySourceToEntity(String source) {
++    final sourceValue = TenantAdminMapFilterSource.fromRaw(
++      TenantAdminLowercaseTokenValue.fromRaw(
++        source,
++        isRequired: false,
++      ),
++    );
++    return sourceValue?.apiValue;
++  }
++
++  Map<String, List<String>> _legacyTaxonomy(Object? raw) {
++    final mapped = <String, List<String>>{};
++    for (final token in _stringList(raw)) {
++      final separator = token.indexOf(':');
++      final group = separator <= 0 ? 'legacy' : token.substring(0, separator);
++      final value = separator <= 0 ? token : token.substring(separator + 1);
++      final groupKey = _normalizeToken(group);
++      final termValue = _normalizeToken(value);
++      if (groupKey.isEmpty || termValue.isEmpty) {
++        continue;
++      }
++      mapped.putIfAbsent(groupKey, () => <String>[]).add(termValue);
++    }
++    return mapped;
++  }
++
++  Map<String, dynamic> _mapOf(Object? raw) {
++    if (raw is Map) {
++      return Map<String, dynamic>.from(raw);
++    }
++    return const <String, dynamic>{};
++  }
++
++  List<String> _stringList(Object? raw) {
++    final source = raw is Iterable ? raw : [raw];
++    final values = <String>[];
++    final seen = <String>{};
++    for (final item in source) {
++      final value = _normalizeToken(item);
++      if (value.isNotEmpty && seen.add(value)) {
++        values.add(value);
++      }
++    }
++    return values;
++  }
++
++  bool _parseBool(Object? raw) {
++    if (raw is bool) {
++      return raw;
++    }
++    final normalized = raw?.toString().trim().toLowerCase();
++    return normalized == 'true' || normalized == '1' || normalized == 'yes';
++  }
++
++  String _normalizeToken(Object? raw) =>
++      (raw?.toString() ?? '').trim().toLowerCase();
++}
+diff --git a/lib/domain/repositories/tenant_admin_discovery_filter_rule_catalog_repository_contract.dart b/lib/domain/repositories/tenant_admin_discovery_filter_rule_catalog_repository_contract.dart
+new file mode 100644
+index 00000000..d6b8d9e5
+--- /dev/null
++++ b/lib/domain/repositories/tenant_admin_discovery_filter_rule_catalog_repository_contract.dart
+@@ -0,0 +1,5 @@
++import 'package:belluga_now/domain/tenant_admin/settings/tenant_admin_map_filter_rule_catalog.dart';
++
++abstract class TenantAdminDiscoveryFilterRuleCatalogRepositoryContract {
++  Future<TenantAdminMapFilterRuleCatalog> fetchRuleCatalog();
++}
+diff --git a/lib/infrastructure/repositories/tenant_admin/tenant_admin_discovery_filter_rule_catalog_repository.dart b/lib/infrastructure/repositories/tenant_admin/tenant_admin_discovery_filter_rule_catalog_repository.dart
+new file mode 100644
+index 00000000..2bc2ab52
+--- /dev/null
++++ b/lib/infrastructure/repositories/tenant_admin/tenant_admin_discovery_filter_rule_catalog_repository.dart
+@@ -0,0 +1,96 @@
++import 'package:belluga_now/application/tenant_admin/discovery_filters/tenant_admin_discovery_filter_rule_catalog_builder.dart';
++import 'package:belluga_now/application/tenant_admin/discovery_filters/tenant_admin_taxonomy_terms_by_slug.dart';
++import 'package:belluga_now/domain/repositories/tenant_admin_account_profiles_repository_contract.dart';
++import 'package:belluga_now/domain/repositories/tenant_admin_discovery_filter_rule_catalog_repository_contract.dart';
++import 'package:belluga_now/domain/repositories/tenant_admin_events_repository_contract.dart';
++import 'package:belluga_now/domain/repositories/tenant_admin_static_assets_repository_contract.dart';
++import 'package:belluga_now/domain/repositories/tenant_admin_taxonomies_repository_contract.dart';
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_profile_type.dart';
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_settings.dart';
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_static_profile_type.dart';
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_taxonomy_definition.dart';
++
++class TenantAdminDiscoveryFilterRuleCatalogRepository
++    implements TenantAdminDiscoveryFilterRuleCatalogRepositoryContract {
++  TenantAdminDiscoveryFilterRuleCatalogRepository({
++    required TenantAdminAccountProfilesRepositoryContract
++        accountProfilesRepository,
++    required TenantAdminStaticAssetsRepositoryContract staticAssetsRepository,
++    required TenantAdminTaxonomiesRepositoryContract taxonomiesRepository,
++    required TenantAdminEventsRepositoryContract eventsRepository,
++    TenantAdminDiscoveryFilterRuleCatalogBuilder catalogBuilder =
++        const TenantAdminDiscoveryFilterRuleCatalogBuilder(),
++  })  : _accountProfilesRepository = accountProfilesRepository,
++        _staticAssetsRepository = staticAssetsRepository,
++        _taxonomiesRepository = taxonomiesRepository,
++        _eventsRepository = eventsRepository,
++        _catalogBuilder = catalogBuilder;
++
++  final TenantAdminAccountProfilesRepositoryContract _accountProfilesRepository;
++  final TenantAdminStaticAssetsRepositoryContract _staticAssetsRepository;
++  final TenantAdminTaxonomiesRepositoryContract _taxonomiesRepository;
++  final TenantAdminEventsRepositoryContract _eventsRepository;
++  final TenantAdminDiscoveryFilterRuleCatalogBuilder _catalogBuilder;
++
++  @override
++  Future<TenantAdminMapFilterRuleCatalog> fetchRuleCatalog() async {
++    final eventTypesFuture = _eventsRepository.fetchEventTypes();
++    await Future.wait<void>([
++      _accountProfilesRepository.loadAllProfileTypes(),
++      _staticAssetsRepository.loadAllStaticProfileTypes(),
++      _taxonomiesRepository.loadAllTaxonomies(),
++    ]);
++
++    final accountTypes =
++        _accountProfilesRepository.profileTypesStreamValue.value ??
++            const <TenantAdminProfileTypeDefinition>[];
++    final staticTypes =
++        _staticAssetsRepository.staticProfileTypesStreamValue.value ??
++            const <TenantAdminStaticProfileTypeDefinition>[];
++    final eventTypes = await eventTypesFuture;
++    final taxonomies = _taxonomiesRepository.taxonomiesStreamValue.value ??
++        const <TenantAdminTaxonomyDefinition>[];
++    final termsByTaxonomySlug = await _loadTermsByTaxonomySlug(taxonomies);
++
++    return _catalogBuilder.build(
++      accountTypes: accountTypes,
++      staticTypes: staticTypes,
++      eventTypes: eventTypes,
++      taxonomies: taxonomies,
++      termsBySlug: termsByTaxonomySlug,
++    );
++  }
++
++  Future<TenantAdminTaxonomyTermsBySlug> _loadTermsByTaxonomySlug(
++    List<TenantAdminTaxonomyDefinition> taxonomies,
++  ) async {
++    if (_taxonomiesRepository
++        is! TenantAdminTaxonomiesBatchTermsRepositoryContract) {
++      throw StateError(
++        'Tenant admin taxonomies repository must support batch term loading.',
++      );
++    }
++
++    final requestedTaxonomies = taxonomies
++        .where((taxonomy) =>
++            taxonomy.id.trim().isNotEmpty && taxonomy.slug.trim().isNotEmpty)
++        .toList(growable: false);
++    final fetchedById = await (_taxonomiesRepository
++            as TenantAdminTaxonomiesBatchTermsRepositoryContract)
++        .fetchTermsByTaxonomyIds(
++      taxonomyIds: requestedTaxonomies
++          .map(
++            (taxonomy) => TenantAdminTaxRepoString.fromRaw(
++              taxonomy.id,
++              defaultValue: '',
++              isRequired: true,
++            ),
++          )
++          .toList(growable: false),
++    );
++    return _catalogBuilder.termsBySlug(
++      taxonomies: requestedTaxonomies,
++      termsByTaxonomyId: fetchedById,
++    );
++  }
++}
+diff --git a/lib/presentation/tenant_admin/events/controllers/tenant_admin_event_occurrence_editor_draft.dart b/lib/presentation/tenant_admin/events/controllers/tenant_admin_event_occurrence_editor_draft.dart
+new file mode 100644
+index 00000000..c38c4b78
+--- /dev/null
++++ b/lib/presentation/tenant_admin/events/controllers/tenant_admin_event_occurrence_editor_draft.dart
+@@ -0,0 +1,194 @@
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_account_profile.dart';
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_event.dart';
++import 'package:belluga_now/domain/tenant_admin/value_objects/tenant_admin_account_profile_id_value.dart';
++import 'package:belluga_now/domain/tenant_admin/value_objects/tenant_admin_value_parsers.dart';
++
++class TenantAdminEventOccurrenceEditorDraft {
++  TenantAdminEventOccurrenceEditorDraft({
++    required this.existing,
++    required this.startAt,
++    required this.endAt,
++    required List<TenantAdminAccountProfileIdValue> relatedProfileIds,
++    required List<TenantAdminAccountProfile> relatedProfiles,
++    required List<TenantAdminEventProgrammingItem> programmingItems,
++  })  : relatedProfileIds = relatedProfileIds.toList(growable: true),
++        relatedProfiles = relatedProfiles.toList(growable: true),
++        programmingItems = programmingItems.toList(growable: true);
++
++  factory TenantAdminEventOccurrenceEditorDraft.fromOccurrence({
++    required TenantAdminEventOccurrence? existing,
++    required DateTime fallbackStart,
++    required DateTime? fallbackEnd,
++  }) {
++    return TenantAdminEventOccurrenceEditorDraft(
++      existing: existing,
++      startAt: existing?.dateTimeStart ?? fallbackStart,
++      endAt: existing?.dateTimeEnd ?? fallbackEnd,
++      relatedProfileIds: existing?.relatedAccountProfileIds ??
++          const <TenantAdminAccountProfileIdValue>[],
++      relatedProfiles: existing?.relatedAccountProfiles ??
++          const <TenantAdminAccountProfile>[],
++      programmingItems: existing?.programmingItems ??
++          const <TenantAdminEventProgrammingItem>[],
++    );
++  }
++
++  final TenantAdminEventOccurrence? existing;
++  DateTime startAt;
++  DateTime? endAt;
++  final List<TenantAdminAccountProfileIdValue> relatedProfileIds;
++  final List<TenantAdminAccountProfile> relatedProfiles;
++  final List<TenantAdminEventProgrammingItem> programmingItems;
++
++  void applyStart(DateTime value) {
++    startAt = value;
++    if (endAt != null && endAt!.isBefore(startAt)) {
++      endAt = startAt;
++    }
++  }
++
++  void applyEnd(DateTime? value) {
++    endAt = value;
++  }
++
++  void upsertRelatedProfile(TenantAdminAccountProfile profile) {
++    if (!relatedProfileIds.any((entry) => entry.value == profile.id)) {
++      relatedProfileIds.add(TenantAdminAccountProfileIdValue(profile.id));
++    }
++    relatedProfiles.removeWhere((entry) => entry.id == profile.id);
++    relatedProfiles.add(profile);
++  }
++
++  void removeRelatedProfile(String profileId) {
++    relatedProfileIds.removeWhere((entry) => entry.value == profileId);
++    relatedProfiles.removeWhere((profile) => profile.id == profileId);
++    for (var itemIndex = 0; itemIndex < programmingItems.length; itemIndex++) {
++      programmingItems[itemIndex] = withoutProgrammingProfile(
++        programmingItems[itemIndex],
++        profileId,
++      );
++    }
++  }
++
++  void addProgrammingItem(TenantAdminEventProgrammingItem item) {
++    programmingItems.add(item);
++    _sortProgrammingItems();
++  }
++
++  void updateProgrammingItem(int index, TenantAdminEventProgrammingItem item) {
++    if (index < 0 || index >= programmingItems.length) {
++      return;
++    }
++    programmingItems[index] = item;
++    _sortProgrammingItems();
++  }
++
++  void removeProgrammingItem(int index) {
++    if (index < 0 || index >= programmingItems.length) {
++      return;
++    }
++    programmingItems.removeAt(index);
++  }
++
++  String? validate() {
++    if (endAt != null && endAt!.isBefore(startAt)) {
++      return 'Fim deve ser posterior ao início.';
++    }
++    return null;
++  }
++
++  TenantAdminEventOccurrence toOccurrence() {
++    return TenantAdminEventOccurrence(
++      occurrenceIdValue: tenantAdminOptionalText(existing?.occurrenceId),
++      occurrenceSlugValue: tenantAdminOptionalText(existing?.occurrenceSlug),
++      dateTimeStartValue: tenantAdminDateTime(startAt),
++      dateTimeEndValue: tenantAdminOptionalDateTime(endAt),
++      relatedAccountProfileIdValues:
++          List<TenantAdminAccountProfileIdValue>.unmodifiable(
++        relatedProfileIds,
++      ),
++      relatedAccountProfiles: List<TenantAdminAccountProfile>.unmodifiable(
++        relatedProfiles,
++      ),
++      programmingItems: List<TenantAdminEventProgrammingItem>.unmodifiable(
++        programmingItems,
++      ),
++    );
++  }
++
++  void _sortProgrammingItems() {
++    programmingItems.sort((left, right) => left.time.compareTo(right.time));
++  }
++
++  static TenantAdminEventProgrammingItem withoutProgrammingProfile(
++    TenantAdminEventProgrammingItem item,
++    String profileId,
++  ) {
++    return TenantAdminEventProgrammingItem(
++      timeValue: tenantAdminRequiredText(item.time),
++      titleValue: tenantAdminOptionalText(item.title),
++      accountProfileIdValues: item.accountProfileIds
++          .where((entry) => entry.value != profileId)
++          .toList(growable: false),
++      linkedAccountProfiles: item.linkedAccountProfiles
++          .where((profile) => profile.id != profileId)
++          .toList(growable: false),
++      placeRef: item.placeRef,
++    );
++  }
++
++  static String profileDisplayName(
++    String profileId,
++    List<TenantAdminAccountProfile> profiles,
++  ) {
++    final profile = _firstWhereOrNull(
++      profiles,
++      (item) => item.id == profileId,
++    );
++    return profile?.displayName ?? 'Perfil relacionado $profileId';
++  }
++
++  static String? firstProgrammingProfileName(
++    TenantAdminEventProgrammingItem item,
++  ) {
++    if (item.linkedAccountProfiles.isEmpty) {
++      return null;
++    }
++    return item.linkedAccountProfiles.first.displayName;
++  }
++
++  static String? programmingLocationDisplayName(
++    TenantAdminEventProgrammingItem item,
++    List<TenantAdminAccountProfile> venues,
++  ) {
++    final locationProfileId = item.placeRef?.id;
++    if (locationProfileId == null || locationProfileId.isEmpty) {
++      return null;
++    }
++    final venue = _firstWhereOrNull(
++      venues,
++      (candidate) => candidate.id == locationProfileId,
++    );
++    if (venue != null) {
++      return venue.displayName;
++    }
++    final linkedProfile = _firstWhereOrNull(
++      item.linkedAccountProfiles,
++      (candidate) => candidate.id == locationProfileId,
++    );
++    return linkedProfile?.displayName ??
++        'Perfil relacionado $locationProfileId';
++  }
++
++  static E? _firstWhereOrNull<E>(
++    Iterable<E> values,
++    bool Function(E value) matcher,
++  ) {
++    for (final value in values) {
++      if (matcher(value)) {
++        return value;
++      }
++    }
++    return null;
++  }
++}
+diff --git a/lib/presentation/tenant_admin/events/controllers/tenant_admin_event_programming_item_draft.dart b/lib/presentation/tenant_admin/events/controllers/tenant_admin_event_programming_item_draft.dart
+new file mode 100644
+index 00000000..2ce28879
+--- /dev/null
++++ b/lib/presentation/tenant_admin/events/controllers/tenant_admin_event_programming_item_draft.dart
+@@ -0,0 +1,93 @@
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_account_profile.dart';
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_event.dart';
++import 'package:belluga_now/domain/tenant_admin/value_objects/tenant_admin_account_profile_id_value.dart';
++import 'package:belluga_now/domain/tenant_admin/value_objects/tenant_admin_value_parsers.dart';
++
++class TenantAdminEventProgrammingItemDraft {
++  TenantAdminEventProgrammingItemDraft({
++    required TenantAdminEventProgrammingItem? existing,
++  })  : time = existing?.time ?? '',
++        title = existing?.title ?? '',
++        selectedLocationProfileId = existing?.placeRef?.id,
++        linkedProfileIds = existing?.accountProfileIds.toList(growable: true) ??
++            <TenantAdminAccountProfileIdValue>[],
++        linkedProfiles = existing?.linkedAccountProfiles.toList(
++              growable: true,
++            ) ??
++            <TenantAdminAccountProfile>[];
++
++  String time;
++  String title;
++  String? selectedLocationProfileId;
++  final List<TenantAdminAccountProfileIdValue> linkedProfileIds;
++  final List<TenantAdminAccountProfile> linkedProfiles;
++
++  void upsertLinkedProfile(TenantAdminAccountProfile profile) {
++    if (!linkedProfileIds.any((entry) => entry.value == profile.id)) {
++      linkedProfileIds.add(TenantAdminAccountProfileIdValue(profile.id));
++    }
++    linkedProfiles.removeWhere((entry) => entry.id == profile.id);
++    linkedProfiles.add(profile);
++  }
++
++  void removeLinkedProfile(String profileId) {
++    linkedProfileIds.removeWhere((item) => item.value == profileId);
++    linkedProfiles.removeWhere((profile) => profile.id == profileId);
++  }
++
++  List<String> availableOccurrenceProfileIds(
++    List<TenantAdminAccountProfile> occurrenceRelatedProfiles,
++  ) {
++    return occurrenceRelatedProfiles
++        .map((profile) => profile.id)
++        .where(
++          (profileId) => !linkedProfileIds.any(
++            (selected) => selected.value == profileId,
++          ),
++        )
++        .toList(growable: false);
++  }
++
++  String? validate() {
++    final normalizedTime = time.trim();
++    final normalizedTitle = title.trim();
++    if (!_isValidProgrammingTime(normalizedTime)) {
++      return 'Horário deve estar no formato HH:mm.';
++    }
++    if (normalizedTitle.isEmpty && linkedProfileIds.isEmpty) {
++      return 'Informe um título ou vincule um perfil.';
++    }
++    if (normalizedTitle.isEmpty && linkedProfileIds.length > 1) {
++      return 'Informe um título quando houver mais de um perfil vinculado.';
++    }
++    return null;
++  }
++
++  TenantAdminEventProgrammingItem toProgrammingItem() {
++    final normalizedTitle = title.trim();
++    return TenantAdminEventProgrammingItem(
++      timeValue: tenantAdminRequiredText(time.trim()),
++      titleValue: tenantAdminOptionalText(
++        normalizedTitle.isEmpty ? null : normalizedTitle,
++      ),
++      accountProfileIdValues:
++          List<TenantAdminAccountProfileIdValue>.unmodifiable(
++        linkedProfileIds,
++      ),
++      linkedAccountProfiles: List<TenantAdminAccountProfile>.unmodifiable(
++        linkedProfiles,
++      ),
++      placeRef: selectedLocationProfileId == null
++          ? null
++          : TenantAdminEventPlaceRef(
++              typeValue: tenantAdminRequiredText('account_profile'),
++              idValue: tenantAdminRequiredText(selectedLocationProfileId!),
++            ),
++    );
++  }
++
++  bool _isValidProgrammingTime(String value) {
++    final match = RegExp(r'^([01]\d|2[0-3]):([0-5]\d)$').firstMatch(value);
++    return match != null;
++  }
++}
+diff --git a/lib/presentation/tenant_admin/events/widgets/tenant_admin_event_occurrence_editor_sheet.dart b/lib/presentation/tenant_admin/events/widgets/tenant_admin_event_occurrence_editor_sheet.dart
+new file mode 100644
+index 00000000..4f7fb2e8
+--- /dev/null
++++ b/lib/presentation/tenant_admin/events/widgets/tenant_admin_event_occurrence_editor_sheet.dart
+@@ -0,0 +1,737 @@
++import 'dart:async';
++
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_account_profile.dart';
++import 'package:belluga_now/domain/tenant_admin/tenant_admin_event.dart';
++import 'package:belluga_now/presentation/tenant_admin/events/controllers/tenant_admin_event_form_state.dart';
++import 'package:belluga_now/presentation/tenant_admin/events/controllers/tenant_admin_event_occurrence_editor_draft.dart';
++import 'package:belluga_now/presentation/tenant_admin/events/controllers/tenant_admin_event_programming_item_draft.dart';
++import 'package:flutter/material.dart';
++
++typedef TenantAdminEventDateTimePicker = Future<DateTime?> Function({
++  required DateTime initialDateTime,
++  required DateTime firstDate,
++  required DateTime lastDate,
++});
++
++typedef TenantAdminEventRelatedProfilePicker
++    = Future<TenantAdminAccountProfile?> Function({
++  required Set<String> excludedProfileIds,
++});
++
++typedef TenantAdminEventModalCloser = Future<bool> Function<T>(
++  BuildContext context, [
++  T? result,
++]);
++
++Future<TenantAdminEventOccurrence?> showTenantAdminEventOccurrenceEditorSheet({
++  required BuildContext context,
++  required TenantAdminEventFormState formState,
++  required int? index,
++  required List<TenantAdminAccountProfile> venues,
++  required TenantAdminEventDateTimePicker pickDateTime,
++  required TenantAdminEventRelatedProfilePicker pickRelatedAccountProfile,
++  required TenantAdminEventModalCloser closeModalSheet,
++}) {
++  final existing =
++      index == null || index < 0 || index >= formState.occurrences.length
++          ? null
++          : formState.occurrences[index];
++  final fallbackStart = formState.occurrences.isNotEmpty
++      ? formState.occurrences.last.dateTimeStart.add(const Duration(days: 1))
++      : formState.startAt ?? DateTime.now();
++  final fallbackEnd = formState.endAt == null || formState.startAt == null
++      ? null
++      : fallbackStart.add(formState.endAt!.difference(formState.startAt!));
++
++  return showModalBottomSheet<TenantAdminEventOccurrence>(
++    context: context,
++    isScrollControlled: true,
++    useSafeArea: true,
++    builder: (context) => _TenantAdminEventOccurrenceEditorSheet(
++      title: index == null ? 'Adicionar data' : 'Editar data',
++      draft: TenantAdminEventOccurrenceEditorDraft.fromOccurrence(
++        existing: existing,
++        fallbackStart: fallbackStart,
++        fallbackEnd: fallbackEnd,
++      ),
++      venues: venues,
++      pickDateTime: pickDateTime,
++      pickRelatedAccountProfile: pickRelatedAccountProfile,
++      closeModalSheet: closeModalSheet,
++    ),
++  );
++}
++
++Future<TenantAdminEventProgrammingItem?>
++    showTenantAdminEventProgrammingItemEditorSheet({
++  required BuildContext context,
++  required TenantAdminEventOccurrenceEditorDraft occurrenceDraft,
++  required List<TenantAdminAccountProfile> venues,
++  required TenantAdminEventRelatedProfilePicker pickRelatedAccountProfile,
++  required TenantAdminEventModalCloser closeModalSheet,
++  TenantAdminEventProgrammingItem? existing,
++}) {
++  return showModalBottomSheet<TenantAdminEventProgrammingItem>(
++    context: context,
++    isScrollControlled: true,
++    useSafeArea: true,
++    builder: (context) => _TenantAdminEventProgrammingItemEditorSheet(
++      existing: existing,
++      occurrenceDraft: occurrenceDraft,
++      venues: venues,
++      pickRelatedAccountProfile: pickRelatedAccountProfile,
++      closeModalSheet: closeModalSheet,
++    ),
++  );
++}
++
++class _TenantAdminEventOccurrenceEditorSheet extends StatefulWidget {
++  const _TenantAdminEventOccurrenceEditorSheet({
++    required this.title,
++    required this.draft,
++    required this.venues,
++    required this.pickDateTime,
++    required this.pickRelatedAccountProfile,
++    required this.closeModalSheet,
++  });
++
++  final String title;
++  final TenantAdminEventOccurrenceEditorDraft draft;
++  final List<TenantAdminAccountProfile> venues;
++  final TenantAdminEventDateTimePicker pickDateTime;
++  final TenantAdminEventRelatedProfilePicker pickRelatedAccountProfile;
++  final TenantAdminEventModalCloser closeModalSheet;
++
++  @override
++  State<_TenantAdminEventOccurrenceEditorSheet> createState() =>
++      _TenantAdminEventOccurrenceEditorSheetState();
++}
++
++class _TenantAdminEventOccurrenceEditorSheetState
++    extends State<_TenantAdminEventOccurrenceEditorSheet> {
++  String? _errorMessage;
++
++  TenantAdminEventOccurrenceEditorDraft get _draft => widget.draft;
++
++  Future<void> _pickStart() async {
++    final picked = await widget.pickDateTime(
++      initialDateTime: _draft.startAt,
++      firstDate: DateTime(2000),
++      lastDate: DateTime(2100),
++    );
++    if (picked == null || !mounted) {
++      return;
++    }
++    setState(() {
++      _draft.applyStart(picked);
++      _errorMessage = null;
++    });
++  }
++
++  Future<void> _pickEnd() async {
++    final picked = await widget.pickDateTime(
++      initialDateTime: _draft.endAt ?? _draft.startAt,
++      firstDate: _draft.startAt,
++      lastDate: DateTime(2100),
++    );
++    if (picked == null || !mounted) {
++      return;
++    }
++    setState(() {
++      _draft.applyEnd(picked);
++      _errorMessage = null;
++    });
++  }
++
++  Future<void> _addRelatedProfile() async {
++    final selected = await widget.pickRelatedAccountProfile(
++      excludedProfileIds:
++          _draft.relatedProfileIds.map((profileId) => profileId.value).toSet(),
++    );
++    if (selected == null || !mounted) {
++      return;
++    }
++    setState(() {
++      _draft.upsertRelatedProfile(selected);
++      _errorMessage = null;
++    });
++  }
++
++  Future<void> _addProgrammingItem() async {
++    final item = await showTenantAdminEventProgrammingItemEditorSheet(
++      context: context,
++      occurrenceDraft: _draft,
++      venues: widget.venues,
++      pickRelatedAccountProfile: widget.pickRelatedAccountProfile,
++      closeModalSheet: widget.closeModalSheet,
++    );
++    if (item == null || !mounted) {
++      return;
++    }
++    setState(() {
++      _draft.addProgrammingItem(item);
++      _errorMessage = null;
++    });
++  }
++
++  Future<void> _editProgrammingItem(int itemIndex) async {
++    if (itemIndex < 0 || itemIndex >= _draft.programmingItems.length) {
++      return;
++    }
++    final item = await showTenantAdminEventProgrammingItemEditorSheet(
++      context: context,
++      occurrenceDraft: _draft,
++      venues: widget.venues,
++      pickRelatedAccountProfile: widget.pickRelatedAccountProfile,
++      closeModalSheet: widget.closeModalSheet,
++      existing: _draft.programmingItems[itemIndex],
++    );
++    if (item == null || !mounted) {
++      return;
++    }
++    setState(() {
++      _draft.updateProgrammingItem(itemIndex, item);
++      _errorMessage = null;
++    });
++  }
++
++  @override
++  Widget build(BuildContext context) {
++    return Padding(
++      padding: EdgeInsets.fromLTRB(
++        16,
++        16,
++        16,
++        16 + MediaQuery.viewInsetsOf(context).bottom,
++      ),
++      child: SingleChildScrollView(
++        child: Column(
++          mainAxisSize: MainAxisSize.min,
++          crossAxisAlignment: CrossAxisAlignment.start,
++          children: [
++            Text(
++              widget.title,
++              style: Theme.of(context).textTheme.titleLarge?.copyWith(
++                    fontWeight: FontWeight.w800,
++                  ),
++            ),
++            const SizedBox(height: 16),
++            ListTile(
++              key: const Key('tenantAdminOccurrenceStartField'),
++              contentPadding: EdgeInsets.zero,
++              leading: const Icon(Icons.event_outlined),
++              title: const Text('Início'),
++              subtitle: Text(_formatOccurrenceDateTime(_draft.startAt)),
++              trailing: const Icon(Icons.edit_calendar_outlined),
++              onTap: _pickStart,
++            ),
++            ListTile(
++              key: const Key('tenantAdminOccurrenceEndField'),
++              contentPadding: EdgeInsets.zero,
++              leading: const Icon(Icons.event_busy_outlined),
++              title: const Text('Fim'),
++              subtitle: Text(
++                _draft.endAt == null
++                    ? 'Sem fim definido'
++                    : _formatOccurrenceDateTime(_draft.endAt!),
++              ),
++              trailing: Row(
++                mainAxisSize: MainAxisSize.min,
++                children: [
++                  if (_draft.endAt != null)
++                    IconButton(
++                      tooltip: 'Limpar fim',
++                      onPressed: () {
++                        setState(() {
++                          _draft.applyEnd(null);
++                          _errorMessage = null;
++                        });
++                      },
++                      icon: const Icon(Icons.clear),
++                    ),
++                  const Icon(Icons.edit_calendar_outlined),
++                ],
++              ),
++              onTap: _pickEnd,
++            ),
++            const Divider(height: 28),
++            Text(
++              'Perfis próprios da ocorrência',
++              style: Theme.of(context).textTheme.titleSmall,
++            ),
++            const SizedBox(height: 8),
++            if (_draft.relatedProfileIds.isEmpty)
++              Text(
++                'Nenhum perfil próprio nesta data.',
++                style: Theme.of(context).textTheme.bodySmall,
++              )
++            else
++              for (final profileId in _draft.relatedProfileIds)
++                ListTile(
++                  key: Key('tenantAdminOccurrenceProfile_${profileId.value}'),
++                  contentPadding: EdgeInsets.zero,
++                  leading: const Icon(Icons.person_outline),
++                  title: Text(
++                    TenantAdminEventOccurrenceEditorDraft.profileDisplayName(
++                      profileId.value,
++                      _draft.relatedProfiles,
++                    ),
++                  ),
++                  trailing: IconButton(
++                    tooltip: 'Remover perfil da ocorrência',
++                    onPressed: () {
++                      setState(() {
++                        _draft.removeRelatedProfile(profileId.value);
++                        _errorMessage = null;
++                      });
++                    },
++                    icon: const Icon(Icons.close),
++                  ),
++                ),
++            OutlinedButton.icon(
++              key: const Key('tenantAdminOccurrenceAddProfileButton'),
++              onPressed: _addRelatedProfile,
++              icon: const Icon(Icons.add),
++              label: const Text('Adicionar perfil próprio'),
++            ),
++            const Divider(height: 28),
++            Text(
++              'Programação',
++              style: Theme.of(context).textTheme.titleSmall,
++            ),
++            const SizedBox(height: 8),
++            if (_draft.programmingItems.isEmpty)
++              Text(
++                'Nenhum item de programação nesta data.',
++                style: Theme.of(context).textTheme.bodySmall,
++              )
++            else
++              for (var itemIndex = 0;
++                  itemIndex < _draft.programmingItems.length;
++                  itemIndex++)
++                _ProgrammingItemListTile(
++                  key: Key('tenantAdminOccurrenceProgrammingItem_$itemIndex'),
++                  item: _draft.programmingItems[itemIndex],
++                  venues: widget.venues,
++                  onTap: () => _editProgrammingItem(itemIndex),
++                  onRemove: () {
++                    setState(() {
++                      _draft.removeProgrammingItem(itemIndex);
++                      _errorMessage = null;
++                    });
++                  },
++                ),
++            OutlinedButton.icon(
++              key: const Key('tenantAdminOccurrenceAddProgrammingButton'),
++              onPressed: _addProgrammingItem,
++              icon: const Icon(Icons.add),
++              label: const Text('Adicionar item de programação'),
++            ),
++            if (_errorMessage != null) ...[
++              const SizedBox(height: 8),
++              Text(
++                _errorMessage!,
++                style: TextStyle(color: Theme.of(context).colorScheme.error),
++              ),
++            ],
++            const SizedBox(height: 18),
++            Row(
++              children: [
++                Expanded(
++                  child: OutlinedButton(
++                    onPressed: () => unawaited(widget.closeModalSheet(context)),
++                    child: const Text('Cancelar'),
++                  ),
++                ),
++                const SizedBox(width: 12),
++                Expanded(
++                  child: FilledButton(
++                    key: const Key('tenantAdminOccurrenceSaveButton'),
++                    onPressed: () {
++                      final validationError = _draft.validate();
++                      if (validationError != null) {
++                        setState(() {
++                          _errorMessage = validationError;
++                        });
++                        return;
++                      }
++                      unawaited(
++                        widget.closeModalSheet(
++                          context,
++                          _draft.toOccurrence(),
++                        ),
++                      );
++                    },
++                    child: const Text('Salvar data'),
++                  ),
++                ),
++              ],
++            ),
++          ],
++        ),
++      ),
++    );
++  }
++}
++
++class _TenantAdminEventProgrammingItemEditorSheet extends StatefulWidget {
++  const _TenantAdminEventProgrammingItemEditorSheet({
++    required this.existing,
++    required this.occurrenceDraft,
++    required this.venues,
++    required this.pickRelatedAccountProfile,
++    required this.closeModalSheet,
++  });
++
++  final TenantAdminEventProgrammingItem? existing;
++  final TenantAdminEventOccurrenceEditorDraft occurrenceDraft;
++  final List<TenantAdminAccountProfile> venues;
++  final TenantAdminEventRelatedProfilePicker pickRelatedAccountProfile;
++  final TenantAdminEventModalCloser closeModalSheet;
++
++  @override
++  State<_TenantAdminEventProgrammingItemEditorSheet> createState() =>
++      _TenantAdminEventProgrammingItemEditorSheetState();
++}
++
++class _TenantAdminEventProgrammingItemEditorSheetState
++    extends State<_TenantAdminEventProgrammingItemEditorSheet> {
++  late final TenantAdminEventProgrammingItemDraft _draft =
++      TenantAdminEventProgrammingItemDraft(existing: widget.existing);
++  String? _errorMessage;
++
++  Future<void> _linkOccurrenceProfile() async {
++    final selected = await _pickOccurrenceRelatedAccountProfile(
++      excludedProfileIds:
++          _draft.linkedProfileIds.map((profileId) => profileId.value).toSet(),
++    );
++    if (selected == null || !mounted) {
++      return;
++    }
++    setState(() {
++      _draft.upsertLinkedProfile(selected);
++      _errorMessage = null;
++    });
++  }
++
++  Future<void> _addOccurrenceProfile() async {
++    final selected = await widget.pickRelatedAccountProfile(
++      excludedProfileIds: widget.occurrenceDraft.relatedProfileIds
++          .map((profileId) => profileId.value)
++          .toSet(),
++    );
++    if (selected == null || !mounted) {
++      return;
++    }
++    setState(() {
++      widget.occurrenceDraft.upsertRelatedProfile(selected);
++      _draft.upsertLinkedProfile(selected);
++      _errorMessage = null;
++    });
++  }
++
++  Future<TenantAdminAccountProfile?> _pickOccurrenceRelatedAccountProfile({
++    required Set<String> excludedProfileIds,
++  }) {
++    final profilesById = <String, TenantAdminAccountProfile>{
++      for (final profile in widget.occurrenceDraft.relatedProfiles)
++        profile.id: profile,
++    };
++    final candidates = widget.occurrenceDraft.relatedProfileIds
++        .map((profileId) => profilesById[profileId.value])
++        .whereType<TenantAdminAccountProfile>()
++        .where((profile) => !excludedProfileIds.contains(profile.id))
++        .toList(growable: false);
++
++    if (candidates.isEmpty) {
++      return Future<TenantAdminAccountProfile?>.value();
++    }
++
++    return showModalBottomSheet<TenantAdminAccountProfile>(
++      context: context,
++      useSafeArea: true,
++      builder: (context) {
++        return SafeArea(
++          child: ListView(
++            shrinkWrap: true,
++            children: [
++              const ListTile(
++                title: Text('Perfis próprios da data'),
++                subtitle: Text(
++                  'Selecione um participante já vinculado a esta ocorrência.',
++                ),
++              ),
++              for (final profile in candidates)
++                ListTile(
++                  key: Key(
++                    'tenantAdminOccurrenceProgrammingCandidate_${profile.id}',
++                  ),
++                  leading: const Icon(Icons.person_outline),
++                  title: Text(profile.displayName),
++                  subtitle: Text(profile.slug ?? profile.id),
++                  onTap: () => unawaited(
++                    widget.closeModalSheet(context, profile),
++                  ),
++                ),
++            ],
++          ),
++        );
++      },
++    );
++  }
++
++  @override
++  Widget build(BuildContext context) {
++    final availableOccurrenceProfileIds = _draft.availableOccurrenceProfileIds(
++      widget.occurrenceDraft.relatedProfiles,
++    );
++
++    return Padding(
++      padding: EdgeInsets.fromLTRB(
++        16,
++        16,
++        16,
++        16 + MediaQuery.viewInsetsOf(context).bottom,
++      ),
++      child: SingleChildScrollView(
++        child: Column(
++          mainAxisSize: MainAxisSize.min,
++          crossAxisAlignment: CrossAxisAlignment.start,
++          children: [
++            Text(
++              widget.existing == null
++                  ? 'Adicionar item de programação'
++                  : 'Editar item de programação',
++              style: Theme.of(context).textTheme.titleLarge?.copyWith(
++                    fontWeight: FontWeight.w800,
++                  ),
++            ),
++            const SizedBox(height: 16),
++            TextFormField(
++              key: const Key('tenantAdminProgrammingTimeField'),
++              initialValue: _draft.time,
++              decoration: const InputDecoration(
++                labelText: 'Horário',
++                hintText: '13:00',
++              ),
++              keyboardType: TextInputType.datetime,
++              onChanged: (value) {
++                _draft.time = value;
++                _errorMessage = null;
++              },
++            ),
++            const SizedBox(height: 12),
++            TextFormField(
++              key: const Key('tenantAdminProgrammingTitleField'),
++              initialValue: _draft.title,
++              decoration: const InputDecoration(
++                labelText: 'Título (opcional)',
++              ),
++              onChanged: (value) {
++                _draft.title = value;
++                _errorMessage = null;
++              },
++            ),
++            const SizedBox(height: 16),
++            Text(
++              'Perfis vinculados',
++              style: Theme.of(context).textTheme.titleSmall,
++            ),
++            const SizedBox(height: 8),
++            Text(
++              'A programação só pode usar perfis próprios desta data.',
++              style: Theme.of(context).textTheme.bodySmall,
++            ),
++            const SizedBox(height: 8),
++            if (_draft.linkedProfileIds.isEmpty)
++              Text(
++                'Nenhum perfil vinculado.',
++                style: Theme.of(context).textTheme.bodySmall,
++              )
++            else
++              for (final profileId in _draft.linkedProfileIds)
++                ListTile(
++                  key: Key('tenantAdminProgrammingProfile_${profileId.value}'),
++                  contentPadding: EdgeInsets.zero,
++                  leading: const Icon(Icons.person_outline),
++                  title: Text(
++                    TenantAdminEventOccurrenceEditorDraft.profileDisplayName(
++                      profileId.value,
++                      _draft.linkedProfiles,
++                    ),
++                  ),
++                  trailing: IconButton(
++                    tooltip: 'Remover perfil vinculado',
++                    onPressed: () {
++                      setState(() {
++                        _draft.removeLinkedProfile(profileId.value);
++                        _errorMessage = null;
++                      });
++                    },
++                    icon: const Icon(Icons.close),
++                  ),
++                ),
++            Wrap(
++              spacing: 12,
++              runSpacing: 12,
++              children: [
++                OutlinedButton.icon(
++                  key: const Key(
++                    'tenantAdminProgrammingLinkOccurrenceProfileButton',
++                  ),
++                  onPressed: availableOccurrenceProfileIds.isEmpty
++                      ? null
++                      : _linkOccurrenceProfile,
++                  icon: const Icon(Icons.link),
++                  label: const Text('Vincular perfil da data'),
++                ),
++                OutlinedButton.icon(
++                  key: const Key(
++                    'tenantAdminProgrammingAddOccurrenceProfileButton',
++                  ),
++                  onPressed: _addOccurrenceProfile,
++                  icon: const Icon(Icons.person_add_alt_1_outlined),
++                  label: const Text('Adicionar perfil à data'),
++                ),
++              ],
++            ),
++            const SizedBox(height: 16),
++            DropdownButtonFormField<String>(
++              key: const Key('tenantAdminProgrammingLocationProfileDropdown'),
++              initialValue: _draft.selectedLocationProfileId,
++              decoration: const InputDecoration(
++                labelText: 'Local da programação (opcional)',
++              ),
++              items: [
++                const DropdownMenuItem<String>(
++                  value: '',
++                  child: Text('Sem local específico'),
++                ),
++                ...widget.venues.map(
++                  (venue) => DropdownMenuItem<String>(
++                    value: venue.id,
++                    child: Text(venue.displayName),
++                  ),
++                ),
++              ],
++              onChanged: (value) {
++                setState(() {
++                  _draft.selectedLocationProfileId =
++                      value == null || value.isEmpty ? null : value;
++                  _errorMessage = null;
++                });
++              },
++            ),
++            if (_errorMessage != null) ...[
++              const SizedBox(height: 8),
++              Text(
++                _errorMessage!,
++                style: TextStyle(color: Theme.of(context).colorScheme.error),
++              ),
++            ],
++            const SizedBox(height: 18),
++            Row(
++              children: [
++                Expanded(
++                  child: OutlinedButton(
++                    onPressed: () => unawaited(widget.closeModalSheet(context)),
++                    child: const Text('Cancelar'),
++                  ),
++                ),
++                const SizedBox(width: 12),
++                Expanded(
++                  child: FilledButton(
++                    key: const Key('tenantAdminProgrammingSaveButton'),
++                    onPressed: () {
++                      final validationError = _draft.validate();
++                      if (validationError != null) {
++                        setState(() {
++                          _errorMessage = validationError;
++                        });
++                        return;
++                      }
++                      unawaited(
++                        widget.closeModalSheet(
++                          context,
++                          _draft.toProgrammingItem(),
++                        ),
++                      );
++                    },
++                    child: const Text('Salvar item'),
++                  ),
++                ),
++              ],
++            ),
++          ],
++        ),
++      ),
++    );
++  }
++}
++
++class _ProgrammingItemListTile extends StatelessWidget {
++  const _ProgrammingItemListTile({
++    super.key,
++    required this.item,
++    required this.venues,
++    required this.onTap,
++    required this.onRemove,
++  });
++
++  final TenantAdminEventProgrammingItem item;
++  final List<TenantAdminAccountProfile> venues;
++  final VoidCallback onTap;
++  final VoidCallback onRemove;
++
++  @override
++  Widget build(BuildContext context) {
++    return ListTile(
++      contentPadding: EdgeInsets.zero,
++      onTap: onTap,
++      leading: Text(item.time),
++      title: Text(
++        item.title ??
++            TenantAdminEventOccurrenceEditorDraft.firstProgrammingProfileName(
++              item,
++            ) ??
++            'Item sem título',
++      ),
++      subtitle: _buildProgrammingItemSubtitle(item, venues),
++      trailing: IconButton(
++        tooltip: 'Remover item de programação',
++        onPressed: onRemove,
++        icon: const Icon(Icons.close),
++      ),
++    );
++  }
++
++  Widget _buildProgrammingItemSubtitle(
++    TenantAdminEventProgrammingItem item,
++    List<TenantAdminAccountProfile> venues,
++  ) {
++    final locationLabel =
++        TenantAdminEventOccurrenceEditorDraft.programmingLocationDisplayName(
++      item,
++      venues,
++    );
++    final lines = <String>[
++      '${item.accountProfileIds.length} perfil(is) vinculado(s)',
++      if (locationLabel != null) 'Local: $locationLabel',
++    ];
++    return Column(
++      mainAxisSize: MainAxisSize.min,
++      crossAxisAlignment: CrossAxisAlignment.start,
++      children: lines
++          .map((line) => Text(line, overflow: TextOverflow.ellipsis))
++          .toList(growable: false),
++    );
++  }
++}
++
++String _formatOccurrenceDateTime(DateTime value) {
++  final day = value.day.toString().padLeft(2, '0');
++  final month = value.month.toString().padLeft(2, '0');
++  final hour = value.hour.toString().padLeft(2, '0');
++  final minute = value.minute.toString().padLeft(2, '0');
++  return '$day/$month/${value.year} $hour:$minute';
++}

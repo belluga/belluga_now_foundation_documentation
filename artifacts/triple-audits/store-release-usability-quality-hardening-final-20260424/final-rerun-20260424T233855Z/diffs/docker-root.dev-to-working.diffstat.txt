@@ -1,0 +1,14 @@
+ .gitignore                                         |    5 +
+ tools/flutter/run_web_navigation_smoke.sh          |   11 +
+ .../web_app_tests/account_profile_detail.spec.js   |  853 +++++
+ .../account_profile_rich_text.mutation.spec.js     |  601 ++++
+ .../web_app_tests/discovery_filters.spec.js        | 1439 ++++++++
+ .../web_app_tests/event_rich_text.mutation.spec.js |  677 ++++
+ .../web_app_tests/guard_web_navigation_policy.cjs  |   55 +
+ .../navigation.mutation.event_occurrences.spec.js  | 3449 ++++++++++++++++++++
+ .../navigation.mutation.tenant_admin.spec.js       |  907 ++++-
+ tools/flutter/web_app_tests/navigation.spec.js     |   35 +-
+ .../runtime_discovery_filters_followup.cjs         |  664 ++++
+ .../web_app_tests/support/tenant_admin_auth.js     |   62 +
+ .../taxonomy_display_snapshots.spec.js             |  605 ++++
+ 13 files changed, 9294 insertions(+), 69 deletions(-)

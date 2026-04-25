@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-06/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "round-06-elegance-structural-no-context"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Resolve the temporal/date predicate composition issue before final closure. Treat the sanitizer and Playwright guard findings as hardening follow-ups if release timing is constrained, but they should be addressed before relying on these helpers as canonical structural patterns."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-042CFBD6",
+      "severity": "medium",
+      "title": "Occurrence management query overwrites temporal future filtering when a date is also supplied",
+      "rationale": "EventQueryService routes any non-archived management request with temporal buckets or a specific date through EventManagementOccurrenceQuery. In EventManagementOccurrenceQuery, temporal=future first writes a starts_at > now predicate, but the later specific-date block replaces starts_at with the day range. That means date + temporal=future no longer composes as an intersection for a past selected date; it returns occurrences on that date even though they are not future. The existing composition test only uses a future target date, so it does not prove the predicates compose in the conflicting case.",
+      "suggested_action": "Compose date and temporal predicates under $and instead of reusing the same starts_at key destructively. Add a negative regression case for date in the past with temporal=future, and ideally the inverse cases for temporal=past/now where date selection should still intersect.",
+      "reviewer_labels": [
+        "round-06-elegance-structural-no-context"
+      ],
+      "source_finding_ids": [
+        "R06-ELEGANCE-01"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-6199C00E",
+      "severity": "medium",
+      "title": "Flutter and PHP rich-text sanitizers encode the same policy with different parsing models",
+      "rationale": "The backend sanitizer uses DOMDocument, unwraps unsupported non-dangerous nodes structurally, removes script/style nodes, normalizes entities and break tags, and wraps inline fragments. The Flutter SafeRichHtml helper reimplements the policy with regular expressions and its own escaping behavior. This is structurally fragile because admin preview/import behavior can diverge from the backend persisted result for malformed fragments, mixed text plus tags, entity handling, and unsupported nested containers. The tests cover a happy subset but do not establish cross-stack fixture parity.",
+      "suggested_action": "Either move Flutter sanitization to a parser-backed implementation with the same semantic behavior, or establish shared cross-stack sanitizer fixtures where identical inputs and expected canonical outputs are asserted in both PHP and Dart. Keep backend sanitization authoritative, but make preview/import fidelity deterministic.",
+      "reviewer_labels": [
+        "round-06-elegance-structural-no-context"
+      ],
+      "source_finding_ids": [
+        "R06-ELEGANCE-02"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-1B9472F9",
+      "severity": "low",
+      "title": "Web navigation policy guard is too helper-name-specific to be a durable release gate",
+      "rationale": "The policy guard now blocks coordinate clicks, force clicks, and dropdown text/keyboard fallbacks, but the dropdown check only slices the first function literally named selectDropdownOption in each file and only searches for a narrow set of patterns inside that helper. A renamed helper, a second helper, or inline dropdown fallback can bypass the policy while still being part of release-gating mutation specs. That weakens the operational claim that the policy blocks non-semantic dropdown selection.",
+      "suggested_action": "Replace the helper-name regex scan with an AST-based or broader deterministic rule over all release-gating spec code, or centralize dropdown selection in one imported helper and forbid local helper definitions. Add guard self-tests that prove renamed helpers, duplicate helpers, inline text-click fallback, and keyboard option fallback are rejected.",
+      "reviewer_labels": [
+        "round-06-elegance-structural-no-context"
+      ],
+      "source_finding_ids": [
+        "R06-ELEGANCE-03"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}
