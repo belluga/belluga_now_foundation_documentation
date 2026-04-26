@@ -1,7 +1,7 @@
 # TODO (Store Release): Laravel Job/Scheduler Canonical Guardrails
 
 **Status legend:** canonical PACED delivery stages; the authoritative current stage is recorded in `Delivery Status Canon`.
-**Status:** Active
+**Status:** Promotion Lane
 **Owners:** Laravel Team
 **Objective:** Establish and enforce canonical background-execution guardrails so recurring Jobs/Schedulers never own hidden business rules, never mutate aggregates outside approved domain services, and never run broad full-scan selection in steady-state runtime.
 
@@ -11,7 +11,7 @@
 
 - **Artifact type:** `tactical_execution_contract`
 - **Source intake:** `direct session decision 2026-04-23`
-- **Dependency role:** first execution slice for the current Store Release follow-up wave; this TODO must land before `foundation_documentation/todos/active/store_release_android/TODO-store-release-event-occurrence-transactional-consistency-and-reconcile-removal.md` and before final recut of the remaining Store Release usability TODOs.
+- **Dependency role:** first execution slice for the current Store Release follow-up wave; this TODO has landed before `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-event-occurrence-transactional-consistency-and-reconcile-removal.md` and before final recut of the remaining Store Release usability TODOs.
 
 ## Framing Source & Story Slice
 
@@ -22,9 +22,9 @@
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Local-Implemented`
-- **Qualifiers:** `Provisional`
-- **Next exact step:** Orchestrator reruns the TODO/delivery guards, validates the documented inventory/evidence package, and then starts `SR-TX0` on top of this landed guardrail baseline.
+- **Current delivery stage:** `Lane-Promoted`
+- **Qualifiers:** `Guard-passed on 2026-04-26 with scheduler/job mutation guardrail evidence; only promotion follow-through remains.`
+- **Next exact step:** Include this TODO in Store Release promotion orchestration; no implementation work remains unless promotion validation finds a new defect.
 
 ## Package-First Assessment
 
@@ -161,7 +161,7 @@
 | `DOD-05` | Definition of Done | Canonical mutation ownership exists for each recurring background path that needs non-trivial mutation logic. | Code evidence + unit/feature integration tests | `EventPublicationManagementService.php`; `ExpiredEventMapPoiRefreshService.php`; `ApiAbuseSignalRecorder.php`; `EventCrudControllerTest` scheduled/reconciliation filtered run via `./scripts/delphi/run_laravel_tests_safe.sh`; `TenantAwareSchedulerRuntimeTest` via `./scripts/delphi/run_laravel_tests_safe.sh` | tenant-safe Laravel integration runtime via `./scripts/delphi/run_laravel_tests_safe.sh` | passed | Scheduled event publication mutation now lands in a canonical management service and preserves runtime behavior through backend integration/queue tests; this criterion has no separate browser/device surface beyond those integration tests. |
 | `DOD-06` | Definition of Done | Any explicit manual repair/backfill path is clearly separated from recurring scheduler runtime and documented as such. | Command + doc evidence + structural test | `routes/console.php` manual command `events:occurrences:repair`; `tests/Feature/Events/SchedulerBootstrapTest.php`; `Recurring Runtime Inventory (Frozen)` table | Laravel console/manual repair lane | passed | The old recurring reconcile is removed from `Schedule` and reintroduced only as explicit manual repair command. |
 | `DOD-07` | Definition of Done | Structural guard coverage exists so new recurring job/scheduler code cannot reintroduce hidden mutation or hidden full-scan selection patterns unnoticed. | Structural test suite | `tests/Feature/Architecture/RecurringBackgroundGuardrailsTest.php`; `./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Architecture/RecurringBackgroundGuardrailsTest.php ...` -> `9 passed` | Laravel architecture guard lane | passed | Source-inspection assertions fail if recurring jobs reintroduce inline query/mutation patterns or if the recurring reconcile schedule returns. |
-| `DOD-08` | Definition of Done | The transaction-consistency blocker TODO and the remaining Store Release TODOs can proceed on top of this frozen guardrail baseline. | Handoff doc evidence | `SR-TX0 Handoff` section in this TODO; `foundation_documentation/todos/active/store_release_android/TODO-store-release-event-occurrence-transactional-consistency-and-reconcile-removal.md` remains the next blocker | Orchestration sequencing | passed | Recurring runtime ownership/fullsweep risk is removed; remaining aggregate-consistency repair is explicitly blocked into `SR-TX0`. |
+| `DOD-08` | Definition of Done | The transaction-consistency blocker TODO and the remaining Store Release TODOs can proceed on top of this frozen guardrail baseline. | Handoff doc evidence | `SR-TX0 Handoff` section in this TODO; `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-event-occurrence-transactional-consistency-and-reconcile-removal.md` is now guard-passed | Orchestration sequencing | passed | Recurring runtime ownership/fullsweep risk is removed; aggregate-consistency repair was executed in `SR-TX0` and is now promotion-ready. |
 | `VAL-01` | Validation Steps | Laravel recurring-background inventory test or script captures all scheduled recurring commands and recurring queued jobs in scope. | Architecture test | `tests/Feature/Architecture/RecurringBackgroundGuardrailsTest.php`; `tests/Feature/Events/SchedulerBootstrapTest.php`; `./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Architecture/RecurringBackgroundGuardrailsTest.php tests/Feature/Events/SchedulerBootstrapTest.php ...` -> `9 passed` | Laravel scheduler inventory | passed | Both the inventory test and scheduler bootstrap test enumerate the recurring schedule set and manual repair boundary. |
 | `VAL-02` | Validation Steps | Structural enforcement test/script fails when `Jobs/` or recurring scheduler closures contain forbidden direct aggregate write patterns. | Structural test + unit delegation | `tests/Feature/Architecture/RecurringBackgroundGuardrailsTest.php`; `tests/Unit/Events/PublishScheduledEventsJobDelegationTest.php`; `tests/Unit/Map/RefreshExpiredEventMapPoisJobDelegationTest.php` | Laravel recurring jobs | passed | The guard asserts the recurring jobs no longer own `Event::query()/save/DB::connection` or Map POI projection writes. |
 | `VAL-03` | Validation Steps | Structural enforcement test/script fails when recurring background runtime introduces forbidden broad-scan patterns without an approved manual-repair classification. | Structural test + scheduler/code evidence | `tests/Feature/Architecture/RecurringBackgroundGuardrailsTest.php`; `routes/console.php`; `EventOccurrenceReconciliationService.php` | Laravel recurring runtime | passed | Recurring runtime no longer schedules full-sweep occurrence reconcile; manual-only sweep is explicit and cursor-based. |

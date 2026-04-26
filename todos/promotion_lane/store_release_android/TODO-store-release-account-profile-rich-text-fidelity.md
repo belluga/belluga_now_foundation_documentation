@@ -1,7 +1,7 @@
 # TODO (Store Release): Account Profile and Event Rich-Text Fidelity
 
 **Status legend:** canonical PACED delivery stages; the authoritative current stage is recorded in `Delivery Status Canon`.
-**Status:** Active
+**Status:** Promotion Lane
 **Owners:** Laravel Team, Flutter Team
 **Objective:** Make Account Profile `bio`/`content`, Event `content`, and Static Asset `bio`/`content` long-form rich-text fields whose admin editing, backend validation, sanitized persistence, preview, and public rendering are faithful to each other.
 
@@ -21,9 +21,9 @@
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Reopened-Bug-Recut-Required`
-- **Qualifiers:** `SR-C Account Profile slice remains locally implemented, but manual validation on 2026-04-24 found that the Event description long-form contract is not closed: tenant-admin Event content can still hit backend 422 validation.max.string and lacks adequate visible size/limit guidance before submit. Renewed delivery requires a recut of Event content limit/guidance plus regression proof that Account Profile bio/content remain aligned.`
-- **Next exact step:** Resolve `BUG-SR-RECUT-02` and `BUG-SR-RECUT-04` from `TODO-store-release-usability-bug-convergence-recut.md`, update this TODO's evidence matrix with item-specific mutation/navigation proof, then rerun guards before any delivery claim.
+- **Current delivery stage:** `Lane-Promoted`
+- **Qualifiers:** `Guard-passed on 2026-04-26 after recut evidence for BUG-SR-RECUT-02 and BUG-SR-RECUT-04; only promotion follow-through remains.`
+- **Next exact step:** Include this TODO in Store Release promotion orchestration; no implementation work remains unless promotion validation finds a new defect.
 
 ## Package-First Assessment
 

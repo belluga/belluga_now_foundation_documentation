@@ -23,7 +23,7 @@ The Account Profile Catalog module (MOD-304) maintains the canonical representat
 - Tactical TODO streams:
   - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`
-  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-account-profile-rich-text-fidelity.md`
+  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-account-profile-rich-text-fidelity.md`
   - `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
   - `foundation_documentation/todos/completed/TODO-v1-static-assets-media-parity-with-account-profiles.md`
 
@@ -191,5 +191,5 @@ Discovery runtime behavior for tenant-public account-profile listing is fixed as
 | `TODO-vnext-tenant-user-account-profile-area.md` | Account/profile scope and contracts | In progress | `1.1`, `3`, `7` | Main stream for account profile domain hardening. |
 | `TODO-v1-public-account-profile-discovery-ui.md` | Tenant-public discovery/listing contract and discovery-side CTA polish | Completed | `4`, `4.1`, `7` | Discovery search-mode/listing contract and the remaining V1 polish were accepted as launch-ready; no further Discovery follow-up remains in this lane. |
 | `TODO-v1-tenant-public-safe-back-navigation.md` | Shared tenant-public account-profile-detail back/fallback policy | Completed | `4`, `7` | Freezes `/parceiro/:slug -> /descobrir` when root-opened; archived from `active` during the 2026-04-09 MVP TODO cleanup after delivery confirmation. |
-| `TODO-store-release-account-profile-rich-text-fidelity.md` | Account Profile `bio`/`content` rich-text fidelity and long-form cap | In progress | `4`, `7` | Promotes the Store Release contract for independent capability-backed rich-text fields, public `Sobre` rendering, safe subset canonicalization, and `100KB` per-field sanitized-content validation. |
-| `TODO-store-release-taxonomy-term-display-snapshots.md` | Taxonomy term display snapshots for account/profile/event/static/map read models | In progress | `4`, `7` | Promotes display-ready taxonomy snapshots while preserving machine-key filtering and idempotent backfill/fanout. |
+| `TODO-store-release-account-profile-rich-text-fidelity.md` | Account Profile `bio`/`content` rich-text fidelity and long-form cap | Promotion Lane | `4`, `7` | Promotes the Store Release contract for independent capability-backed rich-text fields, public `Sobre` rendering, safe subset canonicalization, and `100KB` per-field sanitized-content validation. |
+| `TODO-store-release-taxonomy-term-display-snapshots.md` | Taxonomy term display snapshots for account/profile/event/static/map read models | Promotion Lane | `4`, `7` | Promotes display-ready taxonomy snapshots while preserving machine-key filtering and idempotent backfill/fanout. |

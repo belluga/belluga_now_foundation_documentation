@@ -1,7 +1,7 @@
 # TODO (Store Release): Event Occurrence Transactional Consistency and Reconcile Removal
 
 **Status legend:** canonical PACED delivery stages; the authoritative current stage is recorded in `Delivery Status Canon`.
-**Status:** Active
+**Status:** Promotion Lane
 **Owners:** Laravel Team
 **Objective:** Remove the periodic global occurrence reconcile scheduler as a normal consistency mechanism and guarantee `Event` + `EventOccurrence` consistency through canonical transaction-owned domain writes, with explicit repair tools only where operationally necessary.
 
@@ -11,7 +11,7 @@
 
 - **Artifact type:** `tactical_execution_contract`
 - **Source intake:** `foundation_documentation/artifacts/tmp/event_occurrence_persistence_loss_2026-04-23.md`
-- **Dependency role:** depends on `foundation_documentation/todos/active/store_release_android/TODO-store-release-laravel-job-scheduler-canonical-guardrails.md`; once that pre-blocker lands, this TODO blocks `foundation_documentation/todos/active/store_release_android/TODO-store-release-event-multi-occurrence-ux-and-authoring-model.md` final reconciliation and runtime acceptance.
+- **Dependency role:** depends on `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-laravel-job-scheduler-canonical-guardrails.md`; this TODO is now guard-passed and no longer blocks `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-event-multi-occurrence-ux-and-authoring-model.md` final reconciliation and runtime acceptance.
 
 ## Framing Source & Story Slice
 
@@ -22,9 +22,9 @@
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Local-Implemented`
-- **Qualifiers:** `Local Laravel validation complete on the current orchestrator branch. SR-D still owes the downstream public/admin runtime recut on top of this backend blocker baseline, but TX0 itself is no longer waiting on scheduler/runtime guardrail work.`
-- **Next exact step:** Recut `SR-D` runtime evidence against this landed backend baseline; no further TX0 code work is expected unless that recut uncovers a new defect.
+- **Current delivery stage:** `Lane-Promoted`
+- **Qualifiers:** `Guard-passed on 2026-04-26 after downstream SR-D runtime recut evidence; only promotion follow-through remains.`
+- **Next exact step:** Include this TODO in Store Release promotion orchestration; no implementation work remains unless promotion validation finds a new defect.
 
 ## Package-First Assessment
 

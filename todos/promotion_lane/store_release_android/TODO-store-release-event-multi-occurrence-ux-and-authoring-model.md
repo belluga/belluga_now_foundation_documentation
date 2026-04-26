@@ -1,7 +1,7 @@
 # TODO (Store Release): Event Multi-Occurrence UX and Authoring Model
 
 **Status legend:** canonical PACED delivery stages; the authoritative current stage is recorded in `Delivery Status Canon`.
-**Status:** Active
+**Status:** Promotion Lane
 **Owners:** Product, Flutter Team, Laravel Team
 **Objective:** Evolve the intentional V1 single-occurrence UI baseline into a clear multi-occurrence event model for public occurrence-first discovery, event detail navigation, tenant-admin event authoring, occurrence-scoped related profiles, and occurrence-exclusive programação.
 
@@ -21,9 +21,9 @@
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Runtime-Web-Validated-Manual-Validation-Pending`
-- **Qualifiers:** `The transactional blocker in TODO-store-release-event-occurrence-transactional-consistency-and-reconcile-removal.md is resolved. Manual validation on 2026-04-24 reopened the single-occurrence tenant-admin Programação contract. On 2026-04-25 the tenant-admin event form was refactored so occurrence/programming edits update the canonical event form draft directly instead of relying on a bottom-sheet occurrence draft/save boundary. Focused widget/controller tests, the official Flutter analyzer, canonical Web build publication, served-bundle metadata/hash checks, and the full source-owned Playwright mutation suite are green after this refactor.`
-- **Next exact step:** User manual validation and promotion-lane decision. No current implementation or required runtime-navigation blocker remains recorded for this TODO.
+- **Current delivery stage:** `Lane-Promoted`
+- **Qualifiers:** `Guard-passed on 2026-04-26 after Web runtime validation, manual validation, and single-occurrence Programação recut; only promotion follow-through remains.`
+- **Next exact step:** Include this TODO in Store Release promotion orchestration; no implementation work remains unless promotion validation finds a new defect.
 
 ## Package-First Assessment
 
@@ -425,7 +425,7 @@ Approved 2026-04-23 visual polish deltas for the `Programação` date selector, 
 ## Orchestration Readiness
 
 - **Ready for orchestration:** `yes`
-- **Implementation blocker:** `foundation_documentation/todos/active/store_release_android/TODO-store-release-event-occurrence-transactional-consistency-and-reconcile-removal.md`
+- **Implementation blocker:** `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-event-occurrence-transactional-consistency-and-reconcile-removal.md` resolved before promotion-lane movement.
 - **Open product/contract gaps:** `none`
 - **First orchestration slice:** Backend fail-first tests and contract extension for tenant-admin occurrence-first list reads, programação item location Account Profile/Map POI references, removal/rejection of occurrence location overrides, related-profile auto-linking, address aggregation/deduplication, and selected-occurrence detail payload behavior.
 - **Sequencing note:** Keep as one Store Release owner TODO. Execute the transaction-consistency blocker first, then backend/public/admin SR-D recut: backend contract first, tenant-admin occurrence-first list plus single-occurrence/direct-to-occurrence programação authoring second, public detail Programação/Como Chegar third, final Playwright navigation matrix last.

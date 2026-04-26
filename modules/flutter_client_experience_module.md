@@ -22,7 +22,7 @@
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
-  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-account-profile-rich-text-fidelity.md`
+  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-account-profile-rich-text-fidelity.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-onboarding-identity-reconciliation-reflection.md`
   - `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-frontend.md`
   - `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`
@@ -428,4 +428,4 @@ Invite flows must be proven in layers:
 | `TODO-v1-canonical-back-navigation-governance-cutover.md` | Canonical route-back governance across tenant-public, tenant-admin, landlord root, workspace, and identity-boundary entry routes | In progress | `2.1`, `7` | Structural rule promoted now: governed route families are meta-declared, screens/shells consume canonical helpers, and semantic linting remains a later phase. |
 | `TODO-v1-home-agenda-canonical-stream-ownership-hardening.md` | Home/Agenda stream ownership and controller-boundary hardening | Completed | `2.1.1`, `7` | Widget-controller privacy, repository-owned shared settings, single-writer stream ownership, and single-scroll-truth governance are now promoted and reflected in the current repo. |
 | `TODO-vnext-tenant-user-account-profile-area.md` | Workspace scope and route ownership | In progress | `2.0`, `3` | Account workspace/subscope integrity. |
-| `TODO-store-release-event-multi-occurrence-ux-and-authoring-model.md` | Tenant-public multi-occurrence event detail and route hydration | In progress | `2.1`, `2.2`, `7` | Promotes selected-occurrence query hydration, `Datas` active occurrence highlight, and conditional `Programação` rendering. |
+| `TODO-store-release-event-multi-occurrence-ux-and-authoring-model.md` | Tenant-public multi-occurrence event detail and route hydration | Promotion Lane | `2.1`, `2.2`, `7` | Promotes selected-occurrence query hydration, `Datas` active occurrence highlight, and conditional `Programação` rendering. |

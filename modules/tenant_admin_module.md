@@ -23,7 +23,7 @@ Canonical module contract for the Tenant Administration interface (`tenant_admin
   - `foundation_documentation/modules/events_module.md`
 - Tactical TODO streams:
   - `foundation_documentation/todos/completed/TODO-v1-tenant-admin-navigation-ia-events-priority.md`
-  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-account-profile-rich-text-fidelity.md`
+  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-account-profile-rich-text-fidelity.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
   - `foundation_documentation/todos/completed/TODO-v1-static-assets-media-parity-with-account-profiles.md`
 
@@ -2387,5 +2387,5 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TODO-v1-tenant-admin-domain-management-and-events-ops.md` | Active web-domain management plus tenant-admin event operations hardening | In progress | `3.6`, `4`, `5` | Establishes the active-domain settings contract and server-driven event-management list/filter semantics for this slice. |
 | `TODO-vnext-tenant-user-account-profile-area.md` | Account/profile admin boundaries | In progress | `2`, `4`, `5` | Aligns account/profile CRUD contracts and scope. |
 | `TODO-v1-static-assets-media-parity-with-account-profiles.md` | Media parity and static assets admin flows | In progress | `4`, `5` | Syncs media endpoints and UX behavior. |
-| `TODO-store-release-taxonomy-term-display-snapshots.md` | Taxonomy term display snapshots and admin readback labels | In progress | `4`, `5` | Admin writes stay `{type,value}`; readback/UI consumes display-ready snapshots and fanout/backfill keeps documents current. |
-| `TODO-store-release-event-multi-occurrence-ux-and-authoring-model.md` | Multi-occurrence tenant-admin event authoring and occurrence-scoped payloads | In progress | `4`, `5` | Promotes single-to-multi occurrence section behavior, occurrence cards, occurrence-owned related profiles, and Programação authoring with item-level location references. |
+| `TODO-store-release-taxonomy-term-display-snapshots.md` | Taxonomy term display snapshots and admin readback labels | Promotion Lane | `4`, `5` | Admin writes stay `{type,value}`; readback/UI consumes display-ready snapshots and fanout/backfill keeps documents current. |
+| `TODO-store-release-event-multi-occurrence-ux-and-authoring-model.md` | Multi-occurrence tenant-admin event authoring and occurrence-scoped payloads | Promotion Lane | `4`, `5` | Promotes single-to-multi occurrence section behavior, occurrence cards, occurrence-owned related profiles, and Programação authoring with item-level location references. |

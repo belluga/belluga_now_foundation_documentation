@@ -1,7 +1,7 @@
 # TODO (Store Release): Typed Discovery Filters Package
 
 **Status legend:** canonical PACED delivery stages; the authoritative current stage is recorded in `Delivery Status Canon`.
-**Status:** Active
+**Status:** Promotion Lane
 **Owners:** Laravel Team, Flutter Team
 **Objective:** Canonicalize Store Release discovery filtering with rollback-first Map filter configuration, Home/Discovery type-and-taxonomy public filters, Package-First Laravel/Flutter filter contracts, public filter widgets, persisted user selections, and backend-owned result filtering.
 
@@ -11,7 +11,7 @@
 
 - **Artifact type:** `tactical_execution_contract`
 - **Source intake:** `foundation_documentation/artifacts/tmp/improvement-intake-session-2026-04-20.md` (`C-02`)
-- **Dependency role:** TODO B. Depends on completed TODO A: `foundation_documentation/todos/active/store_release_android/TODO-store-release-taxonomy-term-display-snapshots.md`.
+- **Dependency role:** TODO B. Depends on completed TODO A: `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-taxonomy-term-display-snapshots.md`.
 
 ## Framing Source & Story Slice
 
@@ -22,9 +22,9 @@
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Reopened-Bug-Recut-Required`
-- **Qualifiers:** `SR-B package/backend foundation remains useful; SR-B2 admin-heavy/generalized filter plan and top-level filter-settings IA are superseded by SR-B3 simplified rollback-first contract. Manual validation on 2026-04-24 reopened the Event Type taxonomy scoping slice: tenant-admin Event create/edit appears to render taxonomy group titles even when those taxonomies are not allowed by the selected Event Type. Non-visible recut review also found the Event discovery-filter entity provider still deriving every Event Type's allowed taxonomy list from global applies_to=event. Renewed delivery requires recut evidence for Event form taxonomy visibility, stale selection repair, hidden/unallowed term submission prevention, and backend provider/catalog parity.`
-- **Next exact step:** Resolve `BUG-SR-RECUT-01` from `TODO-store-release-usability-bug-convergence-recut.md`, update the matrix with Event admin create/edit positive and negative evidence plus Event provider/catalog parity evidence, then rerun guards before any delivery claim.
+- **Current delivery stage:** `Lane-Promoted`
+- **Qualifiers:** `Guard-passed on 2026-04-26 after BUG-SR-RECUT-01 and SR-B3 simplified filter recut evidence; only promotion follow-through remains.`
+- **Next exact step:** Include this TODO in Store Release promotion orchestration; no implementation work remains unless promotion validation finds a new defect.
 
 ## Constraint Notes
 
