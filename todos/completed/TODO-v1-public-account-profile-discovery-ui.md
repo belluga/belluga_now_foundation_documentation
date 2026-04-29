@@ -1,6 +1,6 @@
 # TODO (V1): Public Account Profile Discovery UI
 
-**Scope authority note (2026-04-17):** this TODO owns only tenant-public Public Account Profile discovery/listing behavior on `/descobrir` and the discovery-side CTA/entrypoint presentation that launches `/parceiro/:slug`. Standalone Public Account Profile detail-screen polish is owned by `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-public-account-profile-detail-polish.md`.
+**Scope authority note (2026-04-17):** this TODO owns only tenant-public Public Account Profile discovery/listing behavior on `/descobrir` and the discovery-side CTA/entrypoint presentation that launches `/parceiro/:slug`. Standalone Public Account Profile detail-screen polish is owned by `foundation_documentation/todos/completed/TODO-v1-screen-public-account-profile-detail-polish.md`.
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
 **Status:** Completed  
@@ -14,7 +14,7 @@
 ## References
 - `foundation_documentation/todos/completed/TODO-v1-first-release.md`
 - `foundation_documentation/todos/completed/TODO-v1-account-profile-implementation.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-public-account-profile-detail-polish.md`
+- `foundation_documentation/todos/completed/TODO-v1-screen-public-account-profile-detail-polish.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
 - `foundation_documentation/todos/completed/TODO-v1-targeted-visual-polish.md`
 - `foundation_documentation/todos/completed/TODO-v1-account-profile-media-uploads.md`

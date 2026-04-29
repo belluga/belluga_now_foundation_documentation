@@ -1,0 +1,87 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t3-minimal-friends-triple-audit-20260428T1655Z/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "reviewer_label": "TEST-QUALITY lane reviewer",
+  "overall_assessment": "Not delivery-ready. The current tests cover some backend social graph and profile-scoped invite payload behavior, but they do not prove several TODO-critical behaviors: dedicated group-management UI, actual Flutter relation filtering, full backend contact-group CRUD/privacy semantics, and key social-graph negative/privacy cases.",
+  "recommended_path": "needs_resolution: keep this gate open until the missing group-management surface is implemented or explicitly accepted as debt, then add focused backend feature tests and Flutter widget/controller tests that fail on the missing behaviors before rerunning this audit lane.",
+  "performance_position": "not_evaluated",
+  "elegance_position": "not_evaluated",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "regresses",
+  "findings": [
+    {
+      "finding_id": "TQ-01",
+      "severity": "high",
+      "title": "Dedicated Flutter group-management UI remains unimplemented and untested",
+      "rationale": "The TODO requires users to create, rename, delete, and manage contact groups through dedicated management surfaces, and the packet calls this a known gate gap. The current Flutter changed/tested surfaces only cover /convites/compartilhar inviteable rows and relation chips; there is no group-management screen/controller/widget test proving create/rename/delete or membership editing. This is missing final user-visible behavior, not just missing test organization.",
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md:218",
+        "foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md:249",
+        "flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/invite_share_screen.dart:73",
+        "flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart:292",
+        "flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/widgets/invite_share_relation_filter_chips_test.dart:6"
+      ],
+      "suggested_action": "Implement the dedicated group/friends-management UI or record an explicit accepted-debt decision for this release gate. Add Flutter tests for group create, rename, delete, membership edit, and stale-member disappearance after refresh."
+    },
+    {
+      "finding_id": "TQ-02",
+      "severity": "high",
+      "title": "Flutter relation-filter tests do not prove the inviteable list is narrowed",
+      "rationale": "The screen filters rows in InviteShareScreen._filterFriends, but the tests only assert that selecting a chip updates callback/controller state. A no-op or removed filter would still pass because no test pumps the screen with multiple recipients and verifies that the visible list changes by backend-provided inviteable_reasons.",
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "paced",
+      "affected_paths": [
+        "flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/invite_share_screen.dart:51",
+        "flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/invite_share_screen.dart:141",
+        "flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart:335",
+        "flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/widgets/invite_share_relation_filter_chips_test.dart:35",
+        "foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md:246"
+      ],
+      "suggested_action": "Add a widget test for InviteShareScreen with at least two inviteable recipients carrying disjoint reasons. Assert the default list is unified, tapping each relation chip hides non-matching rows, and Todos restores the full list."
+    },
+    {
+      "finding_id": "TQ-03",
+      "severity": "high",
+      "title": "Backend contact-group CRUD and owner-privacy semantics are not fully proven",
+      "rationale": "StoreReleaseSocialGraphTest covers create, member dedupe, list, and stale-recipient pruning, but it does not exercise PATCH rename, PATCH membership replacement, DELETE, validation failures, or cross-owner access denial. Those are changed CRUD/mutation endpoints and user-private semantics in the TODO scope, so the current evidence can miss broken update/delete behavior or group leakage between users.",
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/tests/Feature/Invites/StoreReleaseSocialGraphTest.php:140",
+        "laravel-app/tests/Feature/Invites/StoreReleaseSocialGraphTest.php:153",
+        "laravel-app/tests/Feature/Invites/StoreReleaseSocialGraphTest.php:168",
+        "laravel-app/app/Http/Api/v1/Controllers/ContactGroupController.php:39",
+        "laravel-app/app/Http/Api/v1/Controllers/ContactGroupController.php:48",
+        "laravel-app/app/Application/Social/ContactGroupService.php:54",
+        "laravel-app/app/Application/Social/ContactGroupService.php:113"
+      ],
+      "suggested_action": "Extend the backend feature test with PATCH rename, PATCH membership replacement, DELETE 204 plus absent-on-list, cross-owner 404, invalid empty name, and rejection/pruning of non-inviteable member IDs on both create and update."
+    },
+    {
+      "finding_id": "TQ-04",
+      "severity": "high",
+      "title": "Backend social-graph tests miss negative privacy and relation-derivation cases",
+      "rationale": "The social-graph test proves one happy reciprocal-favorite merge and one discoverability-off contact import case. It does not prove that unilateral favorite_by_you or favorited_you does not become friend, that friends_only exposure upgrades only under approved rules, that non-inviteable profiles are suppressed, that non-personal inviteable profile favorites stay separate from personal friend semantics, or that legacy user-only contact matches still work when no personal profile exists. These are contract/privacy behaviors called out by the TODO and bounded package.",
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/tests/Feature/Invites/StoreReleaseSocialGraphTest.php:74",
+        "laravel-app/tests/Feature/Invites/StoreReleaseSocialGraphTest.php:111",
+        "laravel-app/tests/Feature/Invites/StoreReleaseSocialGraphTest.php:125",
+        "laravel-app/app/Application/Social/InviteablePeopleService.php:122",
+        "laravel-app/app/Application/Social/InviteablePeopleService.php:341",
+        "foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md:239",
+        "foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md:244"
+      ],
+      "suggested_action": "Add table-style backend feature tests for contact_match only, favorite_by_you only, favorited_you only, reciprocal friend, friends_only exposure rules, non-inviteable profile suppression, non-personal inviteable profile favorites, and the legacy no-personal-profile contact match fallback."
+    }
+  ]
+}

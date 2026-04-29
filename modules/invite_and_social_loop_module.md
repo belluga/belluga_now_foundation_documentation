@@ -25,6 +25,7 @@ The Invite & Social Loop module (MOD-302) governs the tenant app virality engine
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md`
 
 ### 1.2 Route/Subscope Matrix
 
@@ -311,6 +312,7 @@ Authoritative viewer-scoped resume objects consumed by Flutter domain models for
 {
   "_id": "ObjectId()",
   "user_id": "ObjectId()",
+  "receiver_account_profile_id": "ObjectId()",
   "profile_type": "String",
   "friend_display_name": "String",
   "avatar_url": "String",
@@ -358,6 +360,14 @@ To enforce both anti-spam policies and account plan limits, the module maintains
 | `/invites/share/{code}/accept` | POST | Canonical anonymous-first share acceptance endpoint; resolves/materializes invite edge and applies acceptance atomically. |
 | `/invites/share/{code}/materialize` | POST | Creates or reuses the canonical invite edge for the authenticated user before any accept/decline action. |
 | `/contacts/import` | POST | Imports hashed contacts for contact matching and inviteable acquisition. |
+| `/contacts/inviteables` | GET | Returns the backend-computed, deduplicated in-app inviteable recipient list with `receiver_account_profile_id`, `inviteable_reasons`, and `profile_exposure_level`. |
+| `/contact-groups` | GET | Lists the authenticated user's private contact groups after pruning recipients that are no longer inviteable. |
+| `/contact-groups` | POST | Creates a private contact group over in-app inviteable `receiver_account_profile_id` members, deduplicating membership. |
+| `/contact-groups/{group_id}` | PATCH | Renames a private contact group and/or replaces its inviteable recipient membership. |
+| `/contact-groups/{group_id}` | DELETE | Deletes a private contact group without changing favorite, friend, or privacy state. |
+| `/auth/otp/verify` | POST | Adjacent identity endpoint that materializes the verified phone identity and merges anonymous invite history before contact matching becomes canonical. |
+
+**Release implementation ownership note:** `App\Application\Social` is the canonical app-level integration boundary for the store-release `contact_match`, account-profile favorite, reciprocal friend, inviteable-list, and `contact_groups` composition. It may orchestrate app-owned Account Profile/Favorites data with `belluga_invites` package contracts, while route error envelopes must reuse the `belluga_invites` domain exception handling standard so invite/social APIs do not fork response semantics.
 
 **Deferred (post-MVP) endpoints:** `/invites/share/{code}/consume`, `/invites/{inviteCode}/resend`, `/invites/{inviteCode}/suppress-event`, `/invites/{inviteCode}/accept/import-contacts`, `/invites/{inviteCode}/attendance`.
 
@@ -369,6 +379,8 @@ Native app is the full-fidelity invite client.
 - Each grouped card must include stable `inviter_candidates[]` entries with `invite_id` so the app can enforce explicit inviter selection when multiple pending inviters exist for the same target.
 - `POST /invites` is the native direct-send mutation for existing users or matched contacts.
 - Direct invite recipient identity is an approved breaking migration to the recipient Account Profile surface. Existing user-targeted direct-invite contracts, persisted invite edges, and share materialization/acceptance paths must migrate to `receiver_account_profile_id`; `receiver_user_id` is not part of the release contract.
+- `GET /contacts/inviteables` is the canonical composer source for in-app recipients. It merges `contact_match`, `favorite_by_you`, `favorited_you`, and derived `friend` reasons into one row per `receiver_account_profile_id`, preserving all reasons for filtering and exposure decisions.
+- `POST /contacts/import` may still return legacy `user_id`-only matches for installed users that do not yet have a personal Account Profile, so existing contact-hash invite targeting remains functional while canonical profile-scoped rows are preferred whenever the personal profile exists.
 - `/convites/compartilhar` consumes one unified deduplicated inviteable list by default, not parallel duplicated sections per relation source. Relation/source tags stay attached to each row so Discovery-style filters can narrow the list without changing canonical recipient identity.
 - Native app may additionally expose unmatched local contacts as auxiliary `external_contact_share_targets`. These are app-local only, are not part of the canonical inviteable list or relation filters, do not belong to `contact_groups`, and should prefer WhatsApp direct-share when available with system-share fallback.
 - Future inbound discovery surfaces derived from identity-materialization reconciliation, such as `Talvez você conheça`, remain outside the canonical inviteable list and outside relation filters until the user creates an explicit favorite that yields a normal inviteable reason.
@@ -431,6 +443,18 @@ V1 uses web as read-only promotion and app as anonymous-first conversion:
 
 This preserves low-friction viral conversion while keeping trust boundaries explicit.
 
+**Release funnel telemetry baseline:** Android store-release validation treats the web-to-app invite funnel as measurable only when each milestone includes its release attribution properties.
+
+| Event | Required properties | Owner surface |
+| --- | --- | --- |
+| `web_invite_landing_opened` | `code`, `store_channel=web` | Web invite landing preview |
+| `web_open_app_clicked` | `platform_target`, `store_channel=web` | App promotion/open-app CTA |
+| `web_install_clicked` | `platform_target`, `store_channel=web` | App promotion/install CTA |
+| `app_deferred_deep_link_captured` | `target_path`, `platform=android`, `store_channel` (`unknown` when native resolver does not provide it), plus `code` only for invite captures | Android first-open deferred capture |
+| `app_deferred_deep_link_capture_failed` | `platform=android`, `failure_reason`, `store_channel` (`unknown` fallback) | Android first-open deferred capture |
+| `app_anonymous_invite_accepted` | `event_id`, `code` when the app entered via share code, `source=invite_flow` | App anonymous invite decision |
+| `favorite_artist_toggled` | `account_profile_id`, `is_favorite` | App first social-loop action |
+
 ### 4.4.A Compatibility Assurance Baseline
 
 Invite confidence is intentionally layered:
@@ -459,6 +483,7 @@ Stage-only invite test support is allowed for this purpose, provided all of the 
 Canonical invite APIs remain Sanctum-validated, with identity behavior split by channel:
 
 - App may mint or resume an anonymous identity via `POST /anonymous/identities` for device-bound progressive profiling flows.
+- App authenticated upgrade is phone-OTP only; `POST /auth/otp/verify` must accept the current anonymous identity id so invite ownership/attribution migrates to the registered phone identity before restricted invite actions continue.
 - Web invite landing in V1 must not mint anonymous identity for invite conversion; it is read-only + promotion only.
 - Invite share-code materialization (`POST /invites/share/{code}/materialize`) remains authenticated-only; anonymous attempts must return deterministic `401 auth_required`.
 - Canonical invite acceptance endpoints (`POST /invites/{invite_id}/accept` for materialized ids and `POST /invites/share/{code}/accept` for anonymous-first share preview) must preserve attribution semantics in V1.
@@ -476,7 +501,7 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 - `presences_confirmed` is the product/analytics label for successful attendance confirmation or paid reservation activation, regardless of which attendance path produced it.
 - `check_ins`, `attendance_outcomes`, `invite_sent`, `share_visits`, and content views are secondary metrics and must not replace the north star in rankings or “Em Alta” logic.
 - Future micro-conversions attributable to an invite tree (for example `check_in.recorded`, `promo.requested`, `purchase.completed`) must be modeled as append-only activity facts with bounded lineage snapshots and consumed through indexed projections; they must not require recursive invite-tree reads on hot request paths.
-- `phone_hash` is identification-only; it never becomes a public people relation by itself.
+- `phone_hash` is identification-only; it is materialized from backend-normalized verified phone identity during OTP upgrade and never becomes a public people relation by itself.
 - Invite recipient identity is Account Profile-scoped: the canonical recipient is `receiver_account_profile_id`, while any acting user who sends or responds on behalf of that profile is separate audit/authorization context.
 - `contact_match` is the acquisition layer: it makes a person visible in `Contatos` and invite-eligible when the target remains `discoverable_by_contacts=true` and the resolved target type is `is_inviteable=true`, but it does not grant richer social approval on its own. Release delivery is anchored on explicit contact import. A later onboarding-owned follow-up may additionally reconcile newly canonical identities against hashes previously imported by the viewer.
 - `public` users may appear as `full_profile` in allowed social-proof surfaces.
@@ -486,6 +511,7 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 - Favorites on non-personal account profiles remain bookmark/affinity signals and do not derive `friend` semantics, but they may still become `inviteable` when the target type is `is_inviteable=true` and the viewer-scoped reason is `favorite_by_you` or `favorited_you`.
 - `discoverable_by_contacts` is the explicit privacy axis for hash-based discovery, defaults to `true`, and can remain enabled even when public profile visibility is restrictive.
 - `contact_groups` are user-private, tag-like organization over in-app inviteable recipients. The same recipient may belong to multiple groups, and multi-group invite selection must deduplicate recipients by canonical recipient identity before invite creation and quota counting. This grouping may include inviteables reached through `contact_match`, `favorite_by_you`, `favorited_you`, or `friend`. Unmatched local contacts are not groupable. Group CRUD is required in V1, but it belongs to dedicated group/friends-management surfaces rather than the invite composer.
+- The backend contact-group API enforces membership by the current `GET /contacts/inviteables` set and prunes stale `receiver_account_profile_id` members on read/update, so group state cannot silently retain non-inviteable recipients.
 - Inviteable lists must preserve relation tags/reasons and render deduplicated by canonical recipient; default presentation shows all inviteable entries together, while UI filters only change which tags are visible.
 - Native app may expose unmatched local contacts as auxiliary local-share targets, but those entries remain outside the canonical inviteable list, outside relation filters, outside `contact_groups`, and absent on web.
 - When an inviteable recipient ceases to be inviteable, V1 removes the recipient from all `contact_groups` automatically instead of retaining disabled memberships.
@@ -553,4 +579,5 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 | `TODO-store-release-web-to-app-conversion-gate.md` | Android release closure for web-to-app conversion path | In progress | `4.3`, `4.4` | Canonical policy is already promoted; this TODO owns the remaining release-gate validation and promotion-boundary readiness. |
 | `TODO-vnext-onboarding-identity-reconciliation-reflection.md` | Late identity-materialization reconciliation + advisory reflection surfaces | Pending follow-up | `2.4`, `4.1`, `4.5` | Owns post-onboarding reconciliation timing plus `Talvez você conheça` / informational lifecycle hints. |
 | `TODO-store-release-minimal-friends-and-favorites-mvp.md` | Store-release contacts/favorites/friends core | In progress | `2.5`, `3.3`, `4.5` | Promotes contact-match, reciprocal-friend, and viewer-scoped exposure behavior into the release lane without requiring full package convergence first. |
+| `TODO-store-release-funnel-metrics-validation.md` | Store-release funnel metrics validation | In progress | `4.4` | Freezes release-facing event/property proof for web-to-app conversion, deferred capture, anonymous invite acceptance, and first favorite actions. |
 | `TODO-vnext-referral-result-attribution.md` | Future lineage-based downstream result attribution | In progress | `2.5`, `4.5` | Defines Mongo-safe activity-fact and projection strategy for 1st/2nd-level invite-tree results. |

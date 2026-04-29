@@ -3,7 +3,7 @@
 **Status:** Completed (`decision reconciled and closed on 2026-04-18`)
 **Current delivery stage:** `Completed`
 **Qualifiers:** `Contract-Decision-Frozen`, `Closure-Synced`, `Follow-On-Split`
-**Next exact step:** Implementation follow-through belongs to `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-event-content-save-sanitization.md`.
+**Next exact step:** Implementation follow-through belongs to `foundation_documentation/todos/completed/TODO-store-release-event-content-save-sanitization.md`.
 **Owners:** Flutter Team, Laravel Team
 **Objective:** Resolve the canonical contract for tenant-public event-detail `Sobre` content when `event.content` contains HTML/rich formatting, especially around media-only or unsupported HTML.
 

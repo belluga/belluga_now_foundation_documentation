@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t3-minimal-friends-triple-audit-20260428T1655Z/round-02/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "performance-lane-round-02"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "regresses",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not close the performance lane until contact import matching is batched like the inviteable list path. Resolve imported contact matches with one bounded profile lookup set, one profile-type capability lookup set, and one viewer-profile lookup instead of calling per-user payload resolution."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-1F09599E",
+      "severity": "high",
+      "title": "Contact import matching still performs per-match profile and capability lookups",
+      "rationale": "InviteIdentityGatewayAdapter::matchImportedContacts batches the initial AccountUser lookup by email/phone hash, but then loops every matched user and calls InviteablePeopleService::contactMatchPayloadFor. That method performs personal profile lookups for the viewer and target and may query TenantProfileType for inviteability per matched target. ContactsImportRequest allows up to 500 contacts, and InviteShareScreenController triggers this import when loading invite targets, so a normal large address-book import can create hundreds of database lookups inside one request. This matches the lane's blocking performance criteria for request-loop behavior where a batched query path is required.",
+      "suggested_action": "Add a batched contact-match payload path for imported contacts: compute the viewer personal profile once, fetch target personal profiles for all matched users with one whereIn, fetch profile-type capabilities once for the involved profile types, and build payloads from those in-memory maps. Keep the 500-contact cap, but remove per-target profile/type queries from the request loop.",
+      "reviewer_labels": [
+        "performance-lane-round-02"
+      ],
+      "source_finding_ids": [
+        "PERF-R02-001"
+      ],
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "batch-hot-contact-import-resolution"
+    }
+  ]
+}

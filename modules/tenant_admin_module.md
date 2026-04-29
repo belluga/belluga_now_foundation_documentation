@@ -23,7 +23,7 @@ Canonical module contract for the Tenant Administration interface (`tenant_admin
   - `foundation_documentation/modules/events_module.md`
 - Tactical TODO streams:
   - `foundation_documentation/todos/completed/TODO-v1-tenant-admin-navigation-ia-events-priority.md`
-  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-account-profile-rich-text-fidelity.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-account-profile-rich-text-fidelity.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
   - `foundation_documentation/todos/completed/TODO-v1-static-assets-media-parity-with-account-profiles.md`
 
@@ -199,7 +199,7 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with 
 - Dedicated settings routes:
   - `/admin/settings/local-preferences` → local preferences (`map_ui.radius` bounds + `map_ui.default_origin` fallback seed + `map_ui.filters` catalog + theme)
   - `/admin/settings/visual-identity` → branding/visual identity
-  - `/admin/settings/technical-integrations` → app links + firebase/push/telemetry + resend email delivery
+  - `/admin/settings/technical-integrations` → app links + firebase/push/telemetry + resend email delivery + outbound WhatsApp/OTP webhook delivery
   - `/admin/settings/domains` → tenant web-domain management (active list/create/delete; deleted-domain lifecycle stays outside the current settings read flow)
   - `/admin/settings/environment-snapshot` → read-only environment diagnostics
 - The settings controller remains the state owner; each settings screen consumes only the relevant state slices and actions.
@@ -2039,6 +2039,51 @@ Update tenant-owned Resend delivery defaults used by tenant-public transactional
 }
 ```
 
+### `PATCH /admin/api/v1/settings/values/outbound_integrations`
+Update tenant-owned queued outbound delivery settings used by WhatsApp and phone OTP dispatch.
+
+**Request Schema**
+```json
+{
+  "whatsapp.webhook_url": "https://integrations.example/whatsapp",
+  "otp.webhook_url": "https://integrations.example/otp",
+  "otp.use_whatsapp_webhook": true,
+  "otp.delivery_channel": "whatsapp",
+  "otp.ttl_minutes": 10,
+  "otp.resend_cooldown_seconds": 60,
+  "otp.max_attempts": 5
+}
+```
+
+**Contract Notes**
+- Webhook dispatch is backend-owned and must run through queued jobs, not synchronous Flutter/client calls.
+- `whatsapp.webhook_url` is the reusable WhatsApp dispatch URL.
+- `otp.webhook_url` is optional; when it is empty and `otp.use_whatsapp_webhook=true`, OTP delivery uses the WhatsApp URL.
+- `otp.delivery_channel` is currently `whatsapp` or `sms`; release OTP defaults to `whatsapp`.
+- `otp.ttl_minutes`, `otp.resend_cooldown_seconds`, and `otp.max_attempts` define the tenant OTP policy boundaries consumed by the backend challenge resolver.
+- The tenant-admin technical integrations screen must expose this namespace as a visible, editable settings section. A backend namespace registration without a Flutter admin consumer is incomplete for store release when the setting is tenant-configurable.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "outbound_integrations": {
+      "whatsapp": {
+        "webhook_url": "https://integrations.example/whatsapp"
+      },
+      "otp": {
+        "webhook_url": "https://integrations.example/otp",
+        "use_whatsapp_webhook": true,
+        "delivery_channel": "whatsapp",
+        "ttl_minutes": 10,
+        "resend_cooldown_seconds": 60,
+        "max_attempts": 5
+      }
+    }
+  }
+}
+```
+
 ### `POST /api/v1/email/send`
 Tenant-public transactional email send endpoint kept only for legacy/non-release flows. It is not part of the current store-release web-to-app conversion contract, which promotes users to the app-promotion/store handoff instead of the temporary tester-waitlist path.
 
@@ -2372,6 +2417,7 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TAD-11` | Approved | Tenant-admin event list operations are server-driven and use `date`, `temporal`, `venue_profile_id`, and `related_account_profile_id` as the canonical current manager filter set, without artist-shaped management payload keys. | Preserves dynamic account-profile semantics for event operations while giving operators a date-grouped, high-signal manager list without reviving direct text search. | Sections `4` (`GET /admin/api/v1/events`, `GET /admin/api/v1/events/account_profile_candidates`) |
 | `TAD-12` | Approved | Tenant-admin taxonomy selections write machine keys but read display snapshots (`type`, `value`, `name`, `taxonomy_name`, optional `label`) across account profiles, static assets, events, occurrences, and map filter catalogs. | Keeps admin forms stable and query-safe while eliminating slug display in admin readback/detail/list UI. | Sections `4`, `5` |
 | `TAD-13` | Approved | Tenant-admin event authoring keeps shared event fields first and manages occurrences as a date section. Single-occurrence forms keep inline date fields plus add-date affordance; multi-occurrence forms render occurrence cards and open occurrence editors for date/time, own related profiles, and Programação with optional item-level location Account Profile/Map POI references. | Extends the intentional first-occurrence baseline without turning shared event fields into per-occurrence overrides and keeps multi-date authoring operator-scannable. | Sections `4`, `5` |
+| `TAD-14` | Approved | Store-release tenant-configurable backend settings namespaces must have a visible tenant-admin consumer before the delivery is considered complete. `outbound_integrations` is owned by technical integrations and exposes WhatsApp plus OTP webhook/policy settings. | Prevents release-critical backend configuration from being registered without an operator surface to configure it. | Sections `3.6`, `4` (`PATCH /admin/api/v1/settings/values/outbound_integrations`) |
 
 ## 6. Tactical TODO Promotion Ledger
 

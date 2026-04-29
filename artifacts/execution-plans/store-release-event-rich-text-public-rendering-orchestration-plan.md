@@ -23,7 +23,7 @@
 
 | ID | TODO | Role in Plan | Start Eligibility |
 | --- | --- | --- | --- |
-| `SR-C2` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-account-profile-rich-text-fidelity.md` | Reopened Store Release rich-text fidelity contract for Event description public `Sobre` rendering, preserving the completed Account Profile baseline. | Can start only after this plan is approved with `APROVADO`. |
+| `SR-C2` | `foundation_documentation/todos/completed/TODO-store-release-account-profile-rich-text-fidelity.md` | Reopened Store Release rich-text fidelity contract for Event description public `Sobre` rendering, preserving the completed Account Profile baseline. | Can start only after this plan is approved with `APROVADO`. |
 
 ## Acceptance Traceability Matrix
 

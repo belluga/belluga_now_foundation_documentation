@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t3-minimal-friends-triple-audit-20260428T1655Z/round-02/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "elegance-round-02"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "regresses",
+    "structural_soundness": "regresses",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Resolve the canonical recipient identity split before closing this gate. Migrate invite acceptance, duplicate-winner lookup, supersession, direct-confirmation closure, and the related evidence to receiver_account_profile_id wherever an invite has that canonical recipient, keeping receiver_user_id only as acting-user/audit compatibility data where explicitly needed."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-0DFCFF81",
+      "severity": "high",
+      "title": "Canonical account-profile recipient migration is only partial",
+      "rationale": "The TODO and module docs freeze receiver_account_profile_id as the canonical recipient identity and state that legacy user-targeted acceptance behavior must be migrated before release closure. The changed InviteMutationService still accepts and closes invite state by user id: acceptForUserIdWithoutReplay checks receiver_user_id, existing credited winners are queried by receiver_user_id, supersedePendingInvites and groupHasOtherPending also operate on receiver_user_id. The referenced InvitesFlowTest evidence still asserts receiver_user_id behavior across direct, materialized, and share-accept flows. That leaves two structural paths likely to diverge: profile-targeted creation versus user-targeted acceptance/crediting.",
+      "suggested_action": "Introduce a recipient-surface resolver for invite mutation closure that derives the canonical receiver_account_profile_id for each edge and uses it for duplicate winner lookup, supersession, direct-confirmation closure, and acceptance authorization when present. Update tests so direct invites, share materialization, share accept, and replay/idempotency cases assert profile-keyed closure rather than receiver_user_id-only behavior.",
+      "reviewer_labels": [
+        "elegance-round-02"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-R02-001"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "invite-recipient-identity-must-close-by-account-profile"
+    }
+  ]
+}

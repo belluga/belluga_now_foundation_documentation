@@ -99,7 +99,7 @@
   "data": {
     "status": "captured|not_captured",
     "code": "string|null",
-    "target_path": "/invite?code=...|/",
+    "target_path": "/invite?code=...|/agenda/evento/{slug}?occurrence=...|/profile|/",
     "store_channel": "string|null",
     "failure_reason": "string|null"
   }
@@ -107,8 +107,9 @@
 ```
 **Field Definitions**
 - `status`
-  - `captured`: invite `code` was resolved and should route to invite flow.
-  - `not_captured`: no invite `code` could be resolved; fallback route must be `/`.
+  - `captured`: a deterministic app continuation target was resolved. `code` is present only for invite captures; `target_path` is authoritative for client routing.
+  - `not_captured`: no valid continuation target could be resolved; fallback route must be `/`.
+- `target_path`: backend-normalized app continuation path. Valid V1 values are invite paths with `code`, allowed public/detail paths, allowed auth-owned app paths such as `/profile` and `/convites/compartilhar`, or `/`.
 - `failure_reason` (when `status=not_captured`)
   - `referrer_unavailable`
   - `code_missing`
@@ -126,7 +127,7 @@
 - `platform_target` (`android|ios?`) optional explicit override for web promotion surfaces that render separate store choices; when absent, backend may fall back to user-agent detection.
 
 **Response:** `302` redirect (`Location` header) to:
-- dynamic Android/iOS store URL with attribution payload when store target is configured; or
+- dynamic Android/iOS store URL with attribution payload (`link`, `target_path`, `store_channel`, and `code` only for invite context) when store target is configured; or
 - deterministic in-domain fallback open target (`/invite?code=...` for invite-landing context with valid `code`, the preserved redirect path when continuation intent is valid for app restore, otherwise `/`).
 
 **Channel rule (V1):** Web tenant-public hard gates (`favorite`, `send_invite`, attendance boundary attempts) must resolve through this handoff route and must not continue through web auth/login conversion.
@@ -996,7 +997,7 @@
 - Store/open handoff targets must be resolved dynamically per tenant for Android+iOS; clients must not hardcode store URLs.
 - Handoff target selection is deterministic and context-aware: preserve `/invite?code=...` when current route context is invite landing (`/invite` or `/convites`) with valid `code`; preserve the requested redirect path when promotion started from a direct detail route or a guard-triggered target and that continuation intent is valid for app restore; fall back to canonical `/` only when no valid continuation intent exists.
 - App anonymous flow accepts from preview using canonical `POST /invites/share/{code}/accept` (no forced pre-materialize step).
-- First-open resolver must be deterministic: captured `code` routes to invite flow; unresolved capture routes to `/` and emits `app_deferred_deep_link_capture_failed` (`store_channel` when available).
+- First-open resolver must be deterministic: captured `target_path` routes to the resolved app continuation target; invite captures also carry `code`; unresolved capture routes to `/` and emits `app_deferred_deep_link_capture_failed` (`store_channel` when available).
 - Materialized/inbox flows continue through canonical invite mutation endpoints `POST /invites/{invite_id}/accept|decline`.
 - Web remains promotion/read-only in V1: no accept/decline mutations, no inbox browsing, no multi-inviter selector, no direct invite send, no presence confirmation, and no check-in.
 - Web tenant-public hard/auth gates must not continue via web login; they must promote app handoff with invite-attribution preservation plus requested-route preservation when applicable.

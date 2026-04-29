@@ -42,9 +42,9 @@ This lane exists to freeze and validate that evidence without reopening settled 
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Implementation-Ready`
+- **Current delivery stage:** `Local-Implemented`
 - **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Metrics-Evidence`
-- **Next exact step:** freeze the Android release funnel-metrics matrix from current flow ownership, then validate runtime/readback evidence for the defined KPI set.
+- **Next exact step:** carry the explicit final-phase obligations into the consolidated runtime lane: ADB/device execution, web runtime/Playwright proof, and external telemetry sink/query readback.
 
 ## References
 
@@ -85,8 +85,8 @@ This lane exists to freeze and validate that evidence without reopening settled 
 
 ## Scope
 
-- [ ] Freeze the Android-release funnel-metrics matrix with event name, concrete flow owner, required properties, and validation owner.
-- [ ] Validate release-critical web/app events and their required properties for:
+- [x] Freeze the Android-release funnel-metrics matrix with event name, concrete flow owner, required properties, and validation owner.
+- [x] Validate release-critical web/app events and their required properties for:
   - `web_invite_landing_opened`
   - `web_open_app_clicked`
   - `web_install_clicked`
@@ -107,9 +107,9 @@ This lane exists to freeze and validate that evidence without reopening settled 
   - auth wall -> signup
   - OTP challenge -> verified
   - verified/merged -> first favorite
-- [ ] Record any missing event/property/query gap as an explicit release blocker, waiver, or follow-up owner.
-- [ ] Route missing event implementation back to the concrete flow TODO that owns the behavior.
-- [ ] Promote any stable release-facing metrics/tracker rule that is still missing from canonical docs.
+- [x] Record any missing event/property/query gap as an explicit release blocker, waiver, or follow-up owner.
+- [x] Route missing event implementation back to the concrete flow TODO that owns the behavior.
+- [x] Promote any stable release-facing metrics/tracker rule that is still missing from canonical docs.
 
 ## Out of Scope
 
@@ -129,41 +129,41 @@ This lane exists to freeze and validate that evidence without reopening settled 
 
 ### A) Validation Matrix Freeze
 
-- [ ] Freeze the release-critical validation matrix from current code/runtime ownership.
-- [ ] Capture required properties and concrete flow owner for each event.
-- [ ] Mark each event as `covered`, `partially covered`, or `missing` based on current evidence.
+- [x] Freeze the release-critical validation matrix from current code/runtime ownership.
+- [x] Capture required properties and concrete flow owner for each event.
+- [x] Mark each event as `covered`, `partially covered`, or `missing` based on current evidence.
 
 ### B) Runtime + Sink Validation
 
-- [ ] Validate runtime emission for the release-critical journeys.
+- [x] Validate runtime emission for the release-critical journeys.
 - [ ] Validate sink/query readback for the KPI set.
-- [ ] Confirm deduplication/identity-merge interpretation is sufficient for release judgment.
+- [x] Confirm deduplication/identity-merge interpretation is sufficient for release judgment.
 
 ### C) Release Decision Capture
 
-- [ ] Record blocker/waiver/follow-up handling for any telemetry gap.
-- [ ] Route implementation gaps back to the corresponding flow TODOs.
-- [ ] Promote any confirmed rule drift into canonical docs before closing.
+- [x] Record blocker/waiver/follow-up handling for any telemetry gap.
+- [x] Route implementation gaps back to the corresponding flow TODOs.
+- [x] Promote any confirmed rule drift into canonical docs before closing.
 
 ## Acceptance Criteria
 
-- [ ] One explicit Android-release funnel-metrics validation matrix exists with owner + required properties per event.
-- [ ] Release-critical event journeys are validated in runtime evidence and/or automated evidence.
+- [x] One explicit Android-release funnel-metrics validation matrix exists with owner + required properties per event.
+- [x] Release-critical event journeys are validated in runtime evidence and/or automated evidence.
 - [ ] KPI readback path is confirmed workable for release judgment.
-- [ ] Any remaining gap is explicitly classified as blocker, waiver, or post-release follow-up with owner.
+- [x] Any remaining gap is explicitly classified as blocker, waiver, or post-release follow-up with owner.
 
 ## Definition of Done
 
-- [ ] Android store release has a frozen funnel-metrics validation matrix for the critical funnel.
+- [x] Android store release has a frozen funnel-metrics validation matrix for the critical funnel.
 - [ ] The required KPI set can be read and trusted well enough for release decisions.
-- [ ] No hidden telemetry gap remains implied by "it should already be firing".
+- [x] No hidden telemetry gap remains implied by "it should already be firing".
 
 ## Validation Steps
 
-- [ ] Code/test audit for release-critical event ownership and required properties.
-- [ ] Automated evidence where available for event names/properties on touched flows.
+- [x] Code/test audit for release-critical event ownership and required properties.
+- [x] Automated evidence where available for event names/properties on touched flows.
 - [ ] Manual or sink-level validation for web-to-app, OTP, merge, and first-favorite milestones.
-- [ ] Documented KPI readback proof or explicit waiver if a query surface is temporarily limited.
+- [x] Documented KPI readback proof or explicit waiver if a query surface is temporarily limited.
 
 ## Execution Lane Tracking
 
@@ -176,7 +176,74 @@ This lane exists to freeze and validate that evidence without reopening settled 
 
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Validation matrix freeze | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| Runtime event/property validation | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| KPI sink/query validation | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| Release blocker/waiver capture | `pending` | `pending` | `pending` | `pending` | `Pending` |
+| Validation matrix freeze | `local-uncommitted` | `pending` | `pending` | `pending` | `Local-Implemented` |
+| Runtime event/property validation | `local-uncommitted` | `pending` | `pending` | `pending` | `Local-Implemented; ADB/web runtime deferred` |
+| KPI sink/query validation | `blocked-by-external-sink-readback` | `pending` | `pending` | `pending` | `Final-phase required` |
+| Release blocker/waiver capture | `local-uncommitted` | `pending` | `pending` | `pending` | `Local-Implemented` |
+
+---
+
+## Local Implementation Candidate Notes (2026-04-28)
+
+**Checkpoint status:** local implementation gate passed. This is not a `Production-Ready` claim because ADB/device runtime execution and external telemetry query readback remain deferred to the consolidated final runtime phase.
+
+**Code changes made in owning surfaces discovered by this validation lane:**
+
+- Flutter deferred capture telemetry now always includes `store_channel`, using `unknown` when the Android/native resolver does not provide a concrete store channel.
+- Flutter anonymous invite acceptance preserves the active share `code` even when the preview/materialized invite id no longer carries the `share:` prefix.
+- Flutter web invite landing telemetry now emits `code` when a share code is present, in addition to `has_code` and `store_channel=web`.
+- Laravel telemetry envelopes now support pre-auth events through an explicit actor instead of dropping events when `userId` is null.
+- Laravel OTP challenge telemetry now emits `otp_challenge_started` with actor `{type: phone_otp_challenge, id: challenge_id}`, `delivery_channel`, and phone-hash target context.
+- Laravel OTP verification telemetry has direct queue-envelope evidence for both `otp_verified` and `auth_merge_completed`.
+
+### Frozen Android Release Funnel Metrics Matrix
+
+| Event | Concrete owner | Required properties | Local evidence | Current classification |
+| --- | --- | --- | --- | --- |
+| `web_invite_landing_opened` | Flutter invite landing controller | `store_channel=web`, `has_code`, `code` when present | Source audit: `InviteFlowScreenController.trackWebLanding`; web runtime/Playwright deferred | Covered locally by source; runtime deferred |
+| `web_open_app_clicked` | Flutter web promotion telemetry | `store_channel=web`, `platform_target` | `test/application/telemetry/web_promotion_telemetry_test.dart` | Covered |
+| `web_install_clicked` | Flutter web promotion telemetry | `store_channel=web`, `platform_target` | `test/application/telemetry/web_promotion_telemetry_test.dart` | Covered |
+| `app_deferred_deep_link_captured` | Flutter startup/init deferred-link path | `code`, `platform=android`, `store_channel` | `test/presentation/shared/init/screens/init_screen/controllers/init_screen_controller_test.dart`; `test/infrastructure/repositories/deferred_link_repository_test.dart` | Covered |
+| `app_deferred_deep_link_capture_failed` | Flutter startup/init deferred-link path | `platform=android`, `failure_reason`, `store_channel` | `test/presentation/shared/init/screens/init_screen/controllers/init_screen_controller_test.dart`; `test/infrastructure/repositories/deferred_link_repository_test.dart` | Covered |
+| `app_anonymous_invite_accepted` | Flutter invite flow controller | `event_id`, `source=invite_flow`, `code` when share-code entry exists | `test/presentation/tenant/invites/screens/invite_flow_screen/controllers/invite_flow_controller_test.dart` | Covered |
+| `app_auth_wall_triggered` | Flutter auth route guard / auth wall telemetry | `action_type`, `redirect_path` where available | `test/application/router/guards/auth_route_guard_test.dart` | Covered |
+| `app_signup_completed` | Flutter auth login effects / auth wall telemetry | `source`, plus auth-wall context when present | `test/presentation/common/auth/screens/auth_login_screen/auth_login_effects_test.dart` | Covered |
+| `otp_challenge_started` | Laravel `PhoneOtpAuthController::challenge` + `TelemetryEmitter` | `challenge_id`, `delivery_channel`, pre-auth actor, no empty `user_id` metadata | `tests/Feature/Auth/TenantPhoneOtpTelemetryTest.php` | Covered |
+| `otp_verified` | Laravel `PhoneOtpAuthController::verify` | `user_id`, `identity_state`, user actor/target | `tests/Feature/Auth/TenantPhoneOtpTelemetryTest.php`; `tests/Feature/Auth/TenantPhoneOtpAuthTest.php` | Covered |
+| `auth_merge_completed` | Laravel `PhoneOtpAuthController::verify` | `user_id`, `source_count`, `source_kind=anonymous` | `tests/Feature/Auth/TenantPhoneOtpTelemetryTest.php`; `tests/Feature/Auth/TenantPhoneOtpAuthTest.php` | Covered |
+| `favorite_artist_toggled` | Flutter account profiles repository | `account_profile_id`, `is_favorite` | `test/infrastructure/repositories/account_profiles_repository_test.dart` | Covered |
+
+### Completion Evidence Matrix (Local Gate)
+
+| Criterion ID | Source Section | Criterion | Evidence Type | Evidence Artifact / Command | Runtime Target | Status | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `T4-MATRIX` | Local Gate | Freeze explicit Android-release funnel metrics matrix | Documentation | Matrix in this TODO plus promoted module docs | Foundation docs | passed | Promoted into `invite_and_social_loop_module.md`, `onboarding_flow_module.md`, and `flutter_client_experience_module.md`. |
+| `T4-EVENTS` | Local Gate | Validate release-critical event/property coverage | Automated tests | Flutter target suite listed in `T4-funnel-metrics-review-packet.md` | Local Flutter VM/widget/controller | passed | 36 tests passed. |
+| `T4-OTP` | Local Gate | Validate OTP telemetry queue dispatch and pre-auth envelope semantics | Automated tests | Laravel safe runner listed in `T4-funnel-metrics-review-packet.md` | Local Laravel Docker/test DB | passed | 10 tests and 52 assertions passed. |
+| `T4-STATIC` | Local Gate | Static analysis / formatting | Analyzer and formatter | `fvm dart analyze --format machine`; Pint touched PHP files | Local Flutter/Laravel | passed | Analyzer exited 0 with no diagnostics; Pint passed. |
+| `T4-SINK` | Local Gate | Sink/query readback for KPI set | Queue dispatch proof plus explicit final-phase dependency | `tests/Feature/Auth/TenantPhoneOtpTelemetryTest.php`; `DEP-04` | Local queue proof; external sink final phase | waived | Local-gate waiver approval: APROVADO orchestration defers external sink/query readback to final runtime; this is not a `Production-Ready` waiver. |
+| `T4-ADB` | Local Gate | ADB/device runtime validation | Deferred runtime validation | Final consolidated ADB/device lane | Android device | waived | Local-gate waiver approval: APROVADO orchestration defers ADB/device execution to reduce WSL/device instability risk. |
+| `DOD-01` | Definition of Done | Android store release has a frozen funnel-metrics validation matrix for the critical funnel. | Documentation and review packet | This TODO; `foundation_documentation/artifacts/T4-funnel-metrics-review-packet.md` | Foundation docs | waived | Structure-only waiver/deviation with approval: APROVADO local gate treats matrix freeze as documentation-only; device/browser flow proof is tracked in runtime rows. |
+| `DOD-02` | Definition of Done | The required KPI set can be read and trusted well enough for release decisions. | Local join-key/property proof; final sink readback pending | Event matrix; KPI readback interpretation; `DEP-04` | Local proof plus external sink final phase | waived | Local-gate waiver approval: APROVADO orchestration accepts local property/join-key proof now; external sink/query readback remains required before release closure. |
+| `DOD-03` | Definition of Done | No hidden telemetry gap remains implied by "it should already be firing". | Gap audit and fixes | Review packet; triple audit session | Local code/test audit | passed | Fixed missing pre-auth OTP dispatch, deferred `store_channel`, anonymous accept `code`, and web landing `code`; remaining runtime/sink gaps are explicit. |
+| `VAL-01` | Validation Steps | Code/test audit for release-critical event ownership and required properties. | Review packet plus triple audit | `foundation_documentation/artifacts/T4-funnel-metrics-review-packet.md`; `foundation_documentation/artifacts/t4-funnel-metrics-triple-audit-20260428T1935Z/session.json` | Local audit | passed | Three-lane audit returned zero findings; adjudication resolved non-material wording conflict. |
+| `VAL-02` | Validation Steps | Automated evidence where available for event names/properties on touched flows. | Automated tests | Flutter target suite; Laravel target suite | Local Flutter/Laravel | passed | Flutter 36 tests; Laravel 10 tests and 52 assertions. |
+| `VAL-03` | Validation Steps | Manual or sink-level validation for web-to-app, OTP, merge, and first-favorite milestones. | Deferred runtime/sink validation | Final ADB/web/sink lane | Android device, browser, external telemetry sink | waived | Local-gate waiver approval: APROVADO orchestration intentionally leaves manual/device/browser/sink validation to the consolidated final runtime phase. |
+| `VAL-04` | Validation Steps | Documented KPI readback proof or explicit waiver if a query surface is temporarily limited. | Documented readback interpretation and dependency | KPI readback interpretation below; `DEP-04` | External telemetry query surface | waived | Structure-only waiver/deviation with approval: APROVADO local gate documents temporary query limitation; sink/query readback remains required before `Production-Ready`. |
+
+### KPI Readback Interpretation
+
+The local candidate can compute the required release KPI edges from emitted properties once the sink/query surface is available:
+
+- landing -> open/install: `web_invite_landing_opened.code` + web promotion CTA events with `platform_target`.
+- open/install -> deferred capture: `store_channel` and share `code` carried across web/open/install and app deferred capture.
+- deferred capture -> anonymous accept: share `code` retained in app deferred capture and anonymous invite acceptance.
+- anonymous accept -> auth wall -> signup: auth wall telemetry preserves restricted action context and signup source.
+- OTP challenge -> verified/merged: Laravel queue envelopes carry challenge, verification, and merge milestones.
+- verified/merged -> first favorite: registered identity can be joined to `favorite_artist_toggled.account_profile_id` once sink identity association is queryable.
+
+### Review Gate Notes
+
+- Independent triple audit completed in `foundation_documentation/artifacts/t4-funnel-metrics-triple-audit-20260428T1935Z/session.json`.
+- Round 01 merged as `needs_adjudication` only due non-material `recommended_path_conflict`; all three lanes had zero findings. Resolution recorded as `resolved` in `foundation_documentation/artifacts/t4-funnel-metrics-triple-audit-20260428T1935Z/round-01/resolution.md`.
+- Claude CLI review attempt is recorded at `foundation_documentation/artifacts/claude-cli-reviews/T4-funnel-metrics-cli-review.md`; the CLI returned usage-limit unavailability, so it is not a substantive gate under the current orchestration decision.

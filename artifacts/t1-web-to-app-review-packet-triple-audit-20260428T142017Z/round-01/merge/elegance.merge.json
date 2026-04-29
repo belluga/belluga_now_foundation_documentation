@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "Elegance"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "regresses"
+  },
+  "recommended_paths": [
+    "Fix before passing T1: make invite-code extraction subject to the same relative-path guard as the continuation allowlist, then add focused tests for absolute and scheme-relative invite URLs across resolveWebPromotionPath and buildTenantPromotionUri."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-95B4CBA3",
+      "severity": "high",
+      "title": "Blocking: external invite URLs bypass the redirect allowlist",
+      "rationale": "resolveWebPromotionPath calls resolveWebPromotionShareCode before the relative-url guard in _resolveAllowedPromotionRedirectPath, and buildTenantPromotionUriFromAppContext uses the same share-code helper before allowlist resolution. Because resolveWebPromotionShareCode does not reject uri.hasScheme, uri.hasAuthority, or scheme-relative input, a redirectPath such as https://evil.example/invite?code=CODE123 is canonicalized as a valid /invite handoff instead of falling back to /. This violates the frozen contract requirement that external paths fall back, and it is an elegance/structural problem because invite handling now has a separate less-strict path from the canonical continuation allowlist.",
+      "suggested_action": "Move the relative-path rejection into resolveWebPromotionShareCode or route all invite-code extraction through a single guarded helper. Add tests proving absolute and scheme-relative /invite?code=... inputs fall back for both resolveWebPromotionPath and buildTenantPromotionUri.",
+      "reviewer_labels": [
+        "Elegance"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-001"
+      ],
+      "category": "security",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

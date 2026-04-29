@@ -13,9 +13,9 @@
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Implementation-Ready`
+- **Current delivery stage:** `Local-Implemented`
 - **Qualifiers:** `Policy-Frozen`, `Cross-Stack`, `Release-Blockers-Open`
-- **Next exact step:** execute `H0.1` / `H3.1` first: replace the active `/baixe-o-app` tester-waitlist experience with the real app-promotion/store-handoff path without reopening the frozen policy baseline.
+- **Next exact step:** keep real-device store/deferred-link validation deferred to the consolidated ADB phase and continue the non-ADB orchestration with the remaining release TODOs.
 
 ## No-Context Handoff Boundaries
 
@@ -63,7 +63,7 @@
 ## Current Release Blockers
 
 - [ ] 🟡 **Promotion boundary release readiness:** the canonical `/baixe-o-app` route is still wired in Flutter to the temporary `testerWaitlist` experience (`lib/presentation/shared/promotion/screens/app_promotion_screen/controllers/app_promotion_screen_controller.dart`). Android store-release closure requires switching that guard boundary to the real app-promotion/store-handoff experience.
-- [ ] 🟡 **Redirect-intent preservation:** current web handoff logic still preserves only invite-code context and collapses non-invite promotion targets to `/` (`lib/application/router/support/route_redirect_path.dart`). The clarified release baseline now requires event/detail and guard-triggered route intent to survive promotion + deferred first-open resolution as well.
+- [x] ✅ **Redirect-intent preservation:** local implementation now preserves safe public/detail and allowed auth-owned app continuation paths through Flutter `/open-app`, backend store-referrer payload, deferred resolver `target_path`, and Flutter first-open routing. Real-device store/deferred validation remains in the consolidated ADB phase.
 - [ ] 🟡 **Anonymous favorites implementation gap:** canonical V1 baseline already allows anonymous app favorites, but current Flutter favorite toggles still return `requiresAuthentication` in discovery, account-profile detail, and immersive linked-profile surfaces (`lib/presentation/tenant_public/discovery/controllers/discovery_screen_controller.dart`, `lib/presentation/tenant_public/partners/controllers/account_profile_detail_controller.dart`, `lib/presentation/tenant_public/schedule/screens/immersive_event_detail/controllers/immersive_event_detail_controller.dart`). Store-release closure requires aligning toggle + readback behavior with anonymous identity support.
 
 ---
@@ -75,7 +75,7 @@
 - [x] ✅ Invite landing is promotion-gated in Flutter web UI with no accept/decline actions; note: `main.dart.js` string presence of legacy symbols is treated as bundle residue, not runtime authorization path.
 - [x] ✅ Promotion CTA uses canonical copy `Baixe o App para Confirmar`; dynamic tenant store/open wiring is backend-resolved via `/open-app` + `settings.app_links`, and the release target is the app-promotion/store experience rather than the temporary pre-MVP waitlist form.
 - [x] ✅ Web does not mint anonymous identity for invite conversion path.
-- [ ] 🟡 Web must preserve invite attribution plus the originally requested redirect path through promotion/open-app handoff; current implementation still preserves only invite context and falls back to `/` elsewhere.
+- [x] ✅ Web preserves invite attribution plus the originally requested valid redirect path through promotion/open-app handoff; unsafe or unsupported paths still fall back to `/`.
 - [x] ✅ Trust/auth gates on web tenant-public surfaces hand off to app promotion (no web login continuation).
 - [x] ✅ Web hard/auth gates converge on one route-based promotion screen instead of mixed modal/route behavior.
 - [x] ✅ Identity-owned web route `/profile` follows the same V1 rule: unauthenticated web access promotes the app instead of continuing to web auth.
@@ -89,7 +89,7 @@
 
 ### A3) App (Flutter): progressive profiling conversion surface
 - [ ] 🟡 Deferred deep link preserves invite `code` and route intent across install and first open on Android in Flutter implementation; pending end-to-end/manual closure for V1 gate.
-- [ ] 🟡 First open restores the intended routed target (`/invite?code=...` when invite context exists, otherwise the preserved redirect path when valid); Android install-path capture is implemented only partially today and awaits lane closure.
+- [x] ✅ First open consumes backend `target_path` and restores the intended routed target locally (`/invite?code=...` for invite context, otherwise the preserved valid redirect path); Android physical store/install validation remains final-phase.
 - [ ] ⚪ iOS deferred deep-link capture is explicitly sequenced into fast-follow (`TODO-ios-universal-links-production-validation.md`).
 - [x] ✅ App creates/resumes anonymous identity (device-bound) before anonymous invite decision.
 - [x] ✅ Anonymous decision UI allows accept/decline without immediate auth and now uses canonical backend share-accept flow for `share:{code}` ids.
@@ -116,14 +116,14 @@ Rationale: maximize top-of-funnel invite conversion with lowest entry friction w
 - [x] ✅ Remove web invite acceptance flow and web conversion mutation from tenant-public runtime behavior.
 - [ ] 🟡 Replace the current pre-MVP tester-waitlist guard experience on `/baixe-o-app` with the canonical app-promotion/store handoff UX.
 - [ ] 🟡 Ensure install/open links preserve attribution `code` through store redirection using dynamic tenant store targets (Android+iOS) — automated wiring is closed; real-device store destination remains manual.
-- [ ] 🟡 Ensure install/open links preserve requested redirect path when promotion comes from direct detail routes or guard-triggered targets, not only invite landing context.
-- [ ] 🟡 Deterministic handoff target rule still needs closure: current implementation is invite-only plus `/` fallback, while the release baseline now requires invite attribution plus requested redirect-path preservation.
+- [x] ✅ Ensure install/open links preserve requested redirect path when promotion comes from direct detail routes or guard-triggered targets, not only invite landing context.
+- [x] ✅ Deterministic handoff target rule is locally closed: invite attribution, safe public/detail paths, and allowed app auth-owned paths are preserved; invalid paths fall back to `/`.
 - [x] ✅ Web map remains read-only in V1 posture.
 - [x] ✅ Tenant-public hard-gate redirects to web login were replaced by app promotion/open-app handoff.
 
 ### B2) App/Flutter Team (Progressive Profiling + Deferred Deep Linking)
 - [ ] 🟡 Guarantee deferred deep link capture on first open for Android (Play Store install path) via Android Install Referrer bridge + first-open dedupe gate + backend resolver endpoint (`POST /api/v1/deep-links/deferred/resolve`).
-- [ ] 🟡 Route first-open user to the resolved continuation target: invite flow for preserved `code`, or the requested redirect path when promotion started from event/detail or a guarded route; fallback to `/` only when no valid intent is resolved.
+- [x] ✅ Route first-open user to the resolved continuation target: invite flow for preserved `code`, or the requested redirect path when promotion started from event/detail or a guarded route; fallback to `/` only when no valid intent is resolved.
 - [x] ✅ Anonymous acceptance UX is implemented and wired to canonical backend share-code acceptance contract.
 - [ ] 🟡 Post-accept anonymous app baseline works end to end; feed browsing, map browsing, favorites, and restricted-action boundaries still need full regression validation.
 - [ ] 🟡 Align favorites with the anonymous app baseline: current Flutter controllers still auth-gate favorite toggles in discovery, account-profile detail, and immersive linked-profile flows; delivery must remove that gate and validate persistence/readback under anonymous identity support.
@@ -148,7 +148,7 @@ Rationale: maximize top-of-funnel invite conversion with lowest entry friction w
 - [ ] 🟡 Android install path must preserve invite attribution and redirect-path intent until first open (deferred deep link contract for V1).
 - [ ] ⚪ iOS deferred capture path is fast-follow required; MVP iOS keeps installed-app universal link behavior + deterministic fallback UX.
 - [ ] 🟡 Store/open targets are backend-resolved dynamically per tenant for Android + iOS (`settings.app_links.android.store_url`, `settings.app_links.ios.store_url`), pending end-to-end manual store destination validation.
-- [ ] 🟡 Web/app handoff URI selection must become deterministic for both invite attribution and redirect-path intent; current implementation still resolves invite-only context and otherwise collapses to `/`.
+- [x] ✅ Web/app handoff URI selection is deterministic for both invite attribution and redirect-path intent; unsupported targets still collapse to `/`.
 - [x] ✅ `/open-app` accepts explicit `platform_target` override for multi-store promotion surfaces while preserving existing deterministic handoff rules.
 - [ ] ⚪ First open must emit deterministic capture result:
   - [ ] 🟡 Captured invite attribution: route to invite flow and resolve invite card for that `code`.
@@ -234,8 +234,10 @@ Rationale: maximize top-of-funnel invite conversion with lowest entry friction w
 - [x] ✅ Flutter (web hard-gate regression): `fvm flutter test test/application/router/guards/auth_route_guard_test.dart test/presentation/tenant/invites/screens/invite_flow_screen/invite_flow_screen_test.dart` (13 passed), plus analyzer clean after web-gate redirection adjustments.
 - [x] ✅ Backend: `docker compose exec -T -e DB_URI=<...> -e DB_URI_LANDLORD=<...> -e DB_URI_TENANTS=<...> app php artisan test tests/Feature/Invites/InvitesFlowTest.php --filter="share_accept|share_materialize_rejects_anonymous_user|share_preview_resolves_without_authentication"` (4 passed, including canonical anonymous share accept + idempotent replay).
 - [x] ✅ Flutter deferred-link capture gate (Android, backend-resolver contract): `fvm flutter test test/infrastructure/repositories/deferred_link_repository_test.dart test/presentation/shared/init/screens/init_screen/controllers/init_screen_controller_test.dart test/presentation/shared/init/screens/init_screen/init_screen_test.dart` (12 passed, including resolver-backed first-open `/invite?code=...` override + deterministic fallback behavior guard).
-- [x] ✅ Flutter promotion handoff resolver gate: `fvm flutter test test/presentation/shared/widgets/app_promotion_dialog_test.dart` (3 passed, current implementation still resolves `/open-app` with invite-context `code` preservation and `/` fallback for non-invite contexts; this evidence now documents the remaining release gap rather than the target rule).
-- [x] ✅ Flutter web hard-gate promotion path resolver gate: `fvm flutter test test/application/router/support/route_redirect_path_test.dart` (7 passed, current implementation still preserves `code` only on invite routes and falls back to `/` for non-invite hard-gate contexts; this evidence now documents the remaining release gap rather than the target rule).
+- [x] ✅ Flutter promotion handoff resolver gate: `fvm flutter test test/presentation/shared/widgets/app_promotion_dialog_test.dart` (passed; verifies `/open-app` invite context, event/detail continuation, auth-owned app continuation, and invalid-path fallback).
+- [x] ✅ Flutter web hard-gate promotion path resolver gate: `fvm flutter test test/application/router/support/route_redirect_path_test.dart` (passed; verifies invite code preservation, public/detail route preservation, map query preservation, auth-owned filtering, and unsafe fallback).
+- [x] ✅ Backend `/open-app` + deferred resolver redirect-intent gate: `docker compose exec -T -e DB_URI='mongodb://mongo:27017/landlord_test?replicaSet=rs0' -e DB_URI_LANDLORD='mongodb://mongo:27017/landlord_test?replicaSet=rs0' -e DB_URI_TENANTS='mongodb://mongo:27017/tenants_test?replicaSet=rs0' app php artisan test tests/Api/v1/Tenants/Branding/ApiV1OpenAppRedirectTest.php tests/Api/v1/Tenants/Branding/ApiV1DeferredDeepLinkResolverTest.php` (9 passed, 52 assertions).
+- [x] ✅ Flutter deferred first-open target-path gate: `fvm flutter test test/infrastructure/repositories/deferred_link_repository_test.dart test/presentation/shared/init/screens/init_screen/controllers/init_screen_controller_test.dart test/application/router/support/route_redirect_path_test.dart test/presentation/shared/widgets/app_promotion_dialog_test.dart` (45 passed).
 - [x] ✅ Android build lane smoke (compile): `./gradlew :app:compileBellugaDebugKotlin` (BUILD SUCCESSFUL, validates Install Referrer bridge wiring compiles in Belluga flavor).
 - [x] ✅ Backend deep-link package gate: `docker compose exec -T -e DB_URI=<...> -e DB_URI_LANDLORD=<...> -e DB_URI_TENANTS=<...> app php artisan test tests/Api/v1/Tenants/Branding/ApiV1OpenAppRedirectTest.php tests/Api/v1/Tenants/Branding/ApiV1DeferredDeepLinkResolverTest.php tests/Api/v1/Tenants/Branding/ApiV1WellKnownAssociationTest.php tests/Api/v1/Admin/ApiV1WellKnownAssociationAdminTest.php tests/Feature/Settings/SettingsKernelControllerTest.php tests/Unit/Settings/SettingsPackageBindingsTest.php` (38 passed, covering packageized `.well-known`, `settings.app_links` guard/registry, `/open-app` resolver behavior, and deferred resolver endpoint).
 - [x] ✅ Flutter analyzer gate: `fvm dart analyze --format machine` (clean).
@@ -251,7 +253,7 @@ Rationale: maximize top-of-funnel invite conversion with lowest entry friction w
 - [x] ✅ Web invite landing (`/invite?code=TESTCODE123`) renders promotion-only surface with canonical CTA copy `Baixe o App para Confirmar` (no accept/decline UI).
 - [x] ✅ Web hard-gate browser runs (`favorite`/attendance boundary attempts) did not navigate to `/auth/login`.
 - [x] ✅ Web hard-gate browser runs did not emit invite/favorite/presence mutation writes (`POST /api/v1/invites/*`, `POST /api/v1/favorites`, attendance confirm mutation not observed in request log for the tested flows).
-- [x] ✅ Browser-observed hard-gate handoff route remained deterministic for non-invite contexts (`/` fallback), confirming the current implementation gap against the updated release baseline.
+- [x] ✅ Browser-observed hard-gate handoff route remains deterministic; local contract now preserves valid non-invite continuation paths and falls back only for unsupported/unsafe contexts.
 - [ ] ⚪ Store/open-app destination verification is still pending on real device/browser where external app-store/app-scheme launch can be asserted end-to-end.
 
 ---
@@ -312,3 +314,12 @@ Rationale: maximize top-of-funnel invite conversion with lowest entry friction w
 - [ ] ⚪ Run manual validation matrix (Web/App first-open/install/deep-link/auth-wall flow).
 - [x] ✅ Run automated suites (Backend + Flutter targeted suites executed; telemetry sink validation remains open).
 - [ ] ⚪ Close DoD checkboxes only with linked evidence (tests/logs/screens/queries) per item.
+
+## Local Delivery Notes (2026-04-28)
+
+- **Implemented non-ADB T1 closure:** `/baixe-o-app` now defaults to the real `appDownload` promotion/store-handoff experience, while the tester waitlist remains only as an explicit override.
+- **Implemented continuation hardening:** promotion handoff now preserves valid invite, public detail, map, and auth-owned app continuation paths, while rejecting external/scheme/blocked redirects and bounding auth redirect unwrapping.
+- **Implemented anonymous favorites alignment:** discovery, public Account Profile detail, and immersive linked-profile favorite actions no longer force auth, without changing restricted action gates.
+- **Triple audit gate:** `foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/round-02/round-summary.md` is clean with zero findings across elegance, performance, and test-quality.
+- **Claude CLI auxiliary review:** `foundation_documentation/artifacts/claude-cli-reviews/T1-web-to-app-cli-review.md` returned no blockers and listed only accepted debt; the later round-02 attempt hit account limits and is operationally non-blocking under the 2026-04-28 user instruction.
+- **Deferred runtime evidence:** real Play Store/install/deferred-link validation remains intentionally deferred to the consolidated ADB phase.

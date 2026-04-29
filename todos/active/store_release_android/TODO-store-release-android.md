@@ -24,18 +24,20 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - **Next exact step:** drive execution through the authoritative child TODOs listed below without reopening the already frozen Android-gate scope split.
 
 ## References
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-landlord-tenant-auth-method-governance.md`
+- `foundation_documentation/todos/completed/TODO-store-release-landlord-tenant-auth-method-governance.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- `foundation_documentation/todos/active/store_release_android/TODO-store-release-home-favorites-refresh-regression.md`
+- `foundation_documentation/todos/active/store_release_android/TODO-store-release-invites-occurrence-target-migration.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-proximity-preferences-and-location-origin.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-belluga-media-canonical-image-flow-hardening.md`
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-cors-ownership-unification.md`
+- `foundation_documentation/todos/completed/TODO-store-release-cors-ownership-unification.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-tenant-settings-optimization.md`
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-critical-journey-regression-gates.md`
+- `foundation_documentation/todos/completed/TODO-store-release-critical-journey-regression-gates.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-event-artists-eradication.md`
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-event-content-save-sanitization.md`
+- `foundation_documentation/todos/completed/TODO-store-release-event-content-save-sanitization.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android-publication-readiness.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-qr-login-web-auth.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-ios-universal-links-production-validation.md`
@@ -47,6 +49,8 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - [x] Treat landlord/tenant auth-method governance as the delivered upstream baseline for the Belluga phone OTP + contact-match lane.
 - [ ] Treat tenant-public phone OTP identity + contact-match baseline as publication-critical because the minimal friends/favorites loop depends on verified phone identity.
 - [ ] Deliver a minimal friends/favorites MVP slice that matches current business scope without pulling the full `belluga_connections` package into the Android gate.
+- [ ] Treat Home Favorites refresh after app-side favorite mutations as a publication blocker because Home must consume the release social/favorites state correctly.
+- [ ] Treat invite occurrence target migration as a publication blocker because invites must be linked to the selected Event Occurrence after occurrence implementation.
 - [ ] Treat canonical user-owned proximity/origin preferences as release-relevant so Home uses a stable, user-controlled location-origin contract rather than remaining device-local only.
 - [ ] Treat canonical Laravel image-flow hardening as publication-critical so release surfaces do not ship with non-canonical public media URLs or host-bound image drift.
 - [x] Treat definitive CORS ownership convergence as publication-critical so browser/admin/runtime API access no longer depends on a temporary split owner model.
@@ -71,8 +75,10 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 | Release funnel metrics validation | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Landlord/tenant auth-method governance | `belluga_now_backend:delphi/laravel-reconcile-store-release-20260419 -> dev @ da78fa8` | `https://github.com/belluga/belluga_now_backend/pull/157 (merged -> dev on 2026-04-20)` | `pending` | `pending` | `🟣 Lane-Promoted` |
 | Invite app-flow usability closure | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| Phone OTP identity + contact-match baseline | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| Minimal friends/favorites MVP | `pending` | `pending` | `pending` | `pending` | `Pending` |
+| Phone OTP identity + contact-match baseline | `pending` | `pending` | `pending` | `pending` | `Local-Implemented-Functional-UX-Redesign-Pending; admin OTP settings and functional public OTP flow have focused tests/source Playwright/analyzer/web build evidence; modern Stitch-backed visual redesign, runtime Playwright shard, and final ADB/device proof remain pending` |
+| Minimal friends/favorites MVP | `pending` | `pending` | `pending` | `pending` | `Local-Implemented-Home-Consumer-Gap-Reopened; Home Favorites refresh blocker split to child TODO` |
+| Home Favorites refresh regression | `pending` | `pending` | `pending` | `pending` | `Pending` |
+| Invite occurrence target migration | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Proximity preferences + location origin | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Canonical image-flow hardening | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | CORS ownership convergence | `see promotion_lane child TODO` | `pending` | `pending` | `pending` | `🟧 Local-Implemented` |
@@ -101,6 +107,8 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - [x] A dedicated release funnel-metrics validation child TODO exists and is linked here.
 - [x] A dedicated landlord/tenant auth-governance child TODO exists under `promotion_lane/store_release_android/` and is linked here as the delivered upstream baseline for Belluga auth execution.
 - [x] A dedicated phone OTP identity child TODO exists and is linked here as a publication-critical blocker.
+- [x] A dedicated Home Favorites refresh regression child TODO exists under `active/store_release_android/`.
+- [x] A dedicated invite occurrence target migration child TODO exists under `active/store_release_android/`.
 - [x] A dedicated proximity preferences + location-origin child TODO exists under `active/store_release_android/`.
 - [x] A dedicated canonical image-flow hardening child TODO exists under `active/store_release_android/`.
 - [x] A dedicated CORS ownership child TODO exists under `promotion_lane/store_release_android/`.
@@ -118,6 +126,8 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - [x] Child TODO for release funnel-metrics validation exists under `active/store_release_android/`.
 - [x] Child TODO for landlord/tenant auth-method governance exists under `promotion_lane/store_release_android/`.
 - [x] Child TODO for phone OTP identity + contact matching exists under `active/store_release_android/`.
+- [x] Child TODO for Home Favorites refresh regression exists under `active/store_release_android/`.
+- [x] Child TODO for invite occurrence target migration exists under `active/store_release_android/`.
 - [x] Child TODO for proximity preferences + location-origin exists under `active/store_release_android/`.
 - [x] Child TODO for canonical image-flow hardening exists under `active/store_release_android/`.
 - [x] Child TODO for definitive CORS ownership convergence exists under `promotion_lane/store_release_android/`.
@@ -189,6 +199,12 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - **Strategy:** `not-applicable`
 - **Why:** this change is TODO inventory orchestration only.
 - **Fail-first target(s) (when required):** `n/a`
+
+### Child TODO Test Matrix Rule
+- Every child TODO in this store-release lane must derive its Test Coverage Matrix from the active task/acceptance criterion before implementation of that task.
+- Matrix rows must be refreshed in the task delivery loop, not only after consolidation.
+- A delivery task cannot be marked complete from aggregate suite success unless the matrix row for that exact behavior has direct evidence or an explicit approved blocker/waiver.
+- Runtime lanes that cannot run because of missing env/device/credentials must be marked `blocked`, not inferred as passed.
 
 ### Runtime / Rollout Notes
 - `n/a`

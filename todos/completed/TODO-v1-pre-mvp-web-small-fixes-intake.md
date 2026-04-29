@@ -189,7 +189,7 @@ For each issue the user brings:
 
 - **User-reported issue:** when an Account Profile has no events and no about content, the screen shows `Mais sobre este perfil`; this should be replaced with an invitation to favorite the profile.
 - **Observed implementation path:** `lib/presentation/tenant_public/partners/account_profile_detail_screen.dart` renders `_buildNoSectionsFallback()` with the title `Mais sobre este perfil` plus institutional fallback copy. The same screen already exposes a favorite footer/button path through `_favoriteFooter(...)`.
-- **Canonical / tactical context touched:** this is account-profile detail behavior and fits the already active `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-public-account-profile-detail-polish.md` stream better than the pre-MVP web intake lane. That TODO already tracks footer fallback behavior, including decision `D-22`.
+- **Canonical / tactical context touched:** this is account-profile detail behavior and fit the then-active `foundation_documentation/todos/completed/TODO-v1-screen-public-account-profile-detail-polish.md` stream better than the pre-MVP web intake lane. That TODO already tracked footer fallback behavior, including decision `D-22`, and has since been archived to `completed/`.
 - **Why this is not safely “web-only” yet:** `/parceiro/:slug` is a shared tenant-public detail route. This fallback behavior applies across platforms unless explicitly made platform-specific.
 - **Recommended classification:** `Needs dedicated tactical TODO (existing)` and should be attached to `TODO-v1-screen-public-account-profile-detail-polish.md`.
 

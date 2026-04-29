@@ -14,7 +14,7 @@
 ## Module Anchors
 - **Primary:** `foundation_documentation/modules/events_module.md`
 - **Secondary:** `foundation_documentation/modules/tenant_admin_module.md`
-- **Related visual-only lane:** `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-events-polish.md`
+- **Related visual-only lane:** `foundation_documentation/todos/completed/TODO-v1-screen-events-polish.md`
 
 ## Scope
 - Introduce a new tenant-admin events filter dimension for temporal buckets:

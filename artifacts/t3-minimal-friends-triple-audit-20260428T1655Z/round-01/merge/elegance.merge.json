@@ -1,0 +1,93 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t3-minimal-friends-triple-audit-20260428T1655Z/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "elegance"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "regresses",
+    "structural_soundness": "regresses",
+    "operational_fit": "regresses"
+  },
+  "recommended_paths": [
+    "Resolve the high-severity Flutter blockers before advancing this TODO gate: implement the dedicated contact-group management surface or formally revise/accept that debt with gate-owner approval, and remove the duplicate placeholder-row rendering from the invite share screen. Then decouple the new backend-computed inviteable query from the legacy contact-import flow and tighten the backend package boundary for contact-group/inviteable endpoints."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-37FF23C2",
+      "severity": "high",
+      "title": "Invite share screen duplicates the backend-deduplicated recipient list",
+      "rationale": "The screen renders _paddedFriends(filteredFriends), and _paddedFriends repeats real friends until there are 20 rows. Those placeholder rows still display the same recipient name/avatar/match label through InviteShareFriendCard, only disabling the CTA. This directly violates the frozen contract that /convites/compartilhar shows one deduplicated inviteable row per canonical recipient and does not duplicate recipients across the UI.",
+      "suggested_action": "Remove recipient padding based on real data. Render backend inviteables exactly once, and use a separate empty/loading/skeleton state that does not reuse real recipient identities. Add a widget test proving a single backend recipient appears once before and after relation filtering.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-002"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-81481D2B",
+      "severity": "high",
+      "title": "Dedicated Flutter contact-group management is still absent",
+      "rationale": "The TODO acceptance criteria require users to create, rename, and delete contact groups through dedicated management surfaces, and the Flutter validation matrix requires group CRUD coverage outside /convites/compartilhar. The local delivery notes explicitly mark that surface as pending. I found backend CRUD only; Flutter has no contact-group backend contract, repository methods, domain model, route, screen, or tests. This is not polish: it leaves a V1 product behavior in the release-critical TODO undelivered.",
+      "suggested_action": "Implement the dedicated group/friends-management Flutter surface with GET/POST/PATCH/DELETE /contact-groups wiring, membership editing by receiver_account_profile_id, and widget/controller/repository tests; otherwise formally revise this TODO gate and record the accepted debt before advancing.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-001"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-43C7F004",
+      "severity": "medium",
+      "title": "The new inviteable query is still gated by the old contact-import flow",
+      "rationale": "InviteShareScreenController calls importContacts before fetchInviteableRecipients, and the safe wrapper clears the whole list if importContacts throws. The test suite codifies this by expecting empty suggestions when import fails. That preserves the old contact-import shell as a hard prerequisite for the new backend-computed inviteable list, even though favorites/favorited_you/friend inviteables should be fetchable independently.",
+      "suggested_action": "Treat contact import as opportunistic acquisition/refresh, then always fetch /contacts/inviteables when possible. Adjust tests so import failure does not hide existing backend inviteables from favorite/friend/contact-group flows.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-003"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-FD98C3D1",
+      "severity": "medium",
+      "title": "Contact-group backend ownership is split across app-level social code and the invites package",
+      "rationale": "The route file mixes Belluga\\Invites package controllers for invite/contact-import flows with App\\Http controllers for contact inviteables and contact groups. ContactGroupController also reimplements the package's InviteDomainException envelope while App\\Application\\Social owns services/models that depend on invite-package concepts. This is a package-coherence drift risk: the same invite/social API family now has parallel implementation roots likely to diverge.",
+      "suggested_action": "Either move contact-group/inviteable endpoint ownership into the belluga_invites package behind app-level gateways, or document App\\Application\\Social as the canonical cross-package integration boundary and reuse/shared-standardize the invite error-handling contract.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-004"
+      ],
+      "category": "architecture",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

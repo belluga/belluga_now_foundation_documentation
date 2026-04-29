@@ -1,0 +1,103 @@
+# T3 Review Packet Round 02 — Minimal Contacts, Favorites, And Friends MVP
+
+**Artifact type:** derived review packet, non-authoritative  
+**Created:** 2026-04-28  
+**Governing TODO:** `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`  
+**Prior round resolution:** `foundation_documentation/artifacts/t3-minimal-friends-triple-audit-20260428T1655Z/round-01/resolution.md`
+
+## Round 02 Scope
+
+This packet freezes the T3 delta after resolving round 01 blockers. Review only the T3 release slice and the round 01 resolution; do not expand into T4 or the later consolidated ADB phase.
+
+Resolved round 01 blockers now in scope:
+
+- Dedicated Flutter contact-group management surface added outside `/convites/compartilhar`.
+- `/convites/compartilhar` no longer pads/repeats backend inviteable recipients; one backend recipient renders at most one visible row.
+- Contact import in the invite-share controller is opportunistic; failure does not hide backend-computed inviteables.
+- Backend inviteable computation is bounded and batch-oriented for source rows/users/profiles/profile-type capabilities.
+- Contact-group listing computes the inviteable profile-id set once per request and has a bounded group list.
+- Hot mutation payloads now have server-side caps: contacts max 500, invite recipients max 100, group members max 200.
+- Contact-group CRUD route signatures include tenant-domain scalar parameters, so `{group_id}` resolves correctly under tenant-domain routes.
+- Contact-group DELETE returns true 204 no-content through the shared invite-domain exception guard.
+- Contact-group API error handling now reuses the shared `belluga_invites` exception-handling trait; `App\Application\Social` is documented as the canonical release integration boundary.
+
+Still intentionally out of this packet:
+
+- ADB/device contact-permission smoke. This remains deferred to the consolidated ADB phase by the approved orchestration plan.
+- T4 funnel metrics, T5 phone OTP, T6 web-to-app gate, and public account profile polish. Those have independent TODO gates.
+
+## Changed Surfaces To Inspect
+
+### Laravel
+
+- `laravel-app/app/Application/Social/InviteablePeopleService.php`
+- `laravel-app/app/Application/Social/ContactGroupService.php`
+- `laravel-app/app/Http/Api/v1/Controllers/ContactInviteablesController.php`
+- `laravel-app/app/Http/Api/v1/Controllers/ContactGroupController.php`
+- `laravel-app/app/Http/Api/v1/Requests/ContactGroupStoreRequest.php`
+- `laravel-app/app/Http/Api/v1/Requests/ContactGroupUpdateRequest.php`
+- `laravel-app/app/Models/Tenants/ContactGroup.php`
+- `laravel-app/database/migrations/tenants/2026_04_28_000200_create_contact_groups_and_social_graph_fields.php`
+- `laravel-app/app/Integration/Invites/InviteIdentityGatewayAdapter.php`
+- `laravel-app/packages/belluga/belluga_invites/src/Application/Mutations/InviteMutationService.php`
+- `laravel-app/packages/belluga/belluga_invites/src/Contracts/InviteIdentityGatewayContract.php`
+- `laravel-app/packages/belluga/belluga_invites/src/Http/Api/v1/Controllers/Concerns/HandlesInviteDomainExceptions.php`
+- `laravel-app/packages/belluga/belluga_invites/src/Http/Api/v1/Requests/ContactsImportRequest.php`
+- `laravel-app/packages/belluga/belluga_invites/src/Http/Api/v1/Requests/InviteCreateRequest.php`
+- `laravel-app/packages/belluga/belluga_invites/src/Models/Tenants/InviteEdge.php`
+- `laravel-app/routes/api/packages/project_tenant_public_api_v1/invites.php`
+- `laravel-app/tests/Feature/Invites/StoreReleaseSocialGraphTest.php`
+
+### Flutter
+
+- `flutter-app/lib/domain/invites/invite_contact_group.dart`
+- `flutter-app/lib/domain/invites/inviteable_recipient.dart`
+- `flutter-app/lib/domain/invites/invite_contact_match.dart`
+- `flutter-app/lib/domain/invites/value_objects/invite_account_profile_id_value.dart`
+- `flutter-app/lib/domain/invites/projections/friend_resume.dart`
+- `flutter-app/lib/domain/schedule/friend_resume.dart`
+- `flutter-app/lib/domain/repositories/invites_repository_contract.dart`
+- `flutter-app/lib/infrastructure/services/invites_backend_contract.dart`
+- `flutter-app/lib/infrastructure/dal/dao/invites/invites_response_decoder.dart`
+- `flutter-app/lib/infrastructure/dal/dao/laravel_backend/invites_backend/laravel_invites_backend.dart`
+- `flutter-app/lib/infrastructure/repositories/invites_repository.dart`
+- `flutter-app/lib/presentation/tenant_public/invites/screens/contact_group_management/controllers/contact_group_management_controller.dart`
+- `flutter-app/lib/presentation/tenant_public/invites/screens/contact_group_management/contact_group_management_screen.dart`
+- `flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/controllers/invite_share_screen_controller.dart`
+- `flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/invite_share_screen.dart`
+- `flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/widgets/invite_share_relation_filter_chips.dart`
+- `flutter-app/test/infrastructure/repositories/invites_repository_test.dart`
+- `flutter-app/test/infrastructure/repositories/invites_repository_push_payload_test.dart`
+- `flutter-app/test/presentation/tenant/invites/screens/contact_group_management/controllers/contact_group_management_controller_test.dart`
+- `flutter-app/test/presentation/tenant/invites/screens/contact_group_management/contact_group_management_screen_test.dart`
+- `flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart`
+- `flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/widgets/invite_share_relation_filter_chips_test.dart`
+- `flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart`
+
+### Documentation
+
+- `foundation_documentation/modules/invite_and_social_loop_module.md`
+- `foundation_documentation/modules/flutter_client_experience_module.md`
+- `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- `foundation_documentation/artifacts/t3-minimal-friends-triple-audit-20260428T1655Z/round-01/resolution.md`
+
+## Validation Evidence
+
+- `fvm flutter test test/infrastructure/repositories/invites_repository_test.dart test/infrastructure/repositories/invites_repository_push_payload_test.dart test/presentation/tenant/invites/screens/contact_group_management/controllers/contact_group_management_controller_test.dart test/presentation/tenant/invites/screens/contact_group_management/contact_group_management_screen_test.dart test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart test/presentation/tenant/invites/screens/invite_share_screen/widgets/invite_share_relation_filter_chips_test.dart test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart`
+  - Result: passed on 2026-04-28.
+  - Coverage: 20 Flutter tests.
+- `fvm dart analyze --format machine`
+  - Result: passed on 2026-04-28 with no diagnostics.
+- `./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Invites/StoreReleaseSocialGraphTest.php tests/Feature/Invites/InvitesFlowTest.php tests/Feature/Favorites/FavoritesControllerTest.php`
+  - Result: passed on 2026-04-28.
+  - Coverage: 47 tests, 311 assertions.
+- `docker compose exec -T app ./vendor/bin/pint --test ...`
+  - Result: passed on 2026-04-28 for 17 T3 PHP files.
+
+## Review Questions
+
+1. After the round 01 fixes, is the T3 implementation clean enough for the non-ADB gate, with no unresolved blocking finding in elegance, performance, or test quality?
+2. Does the dedicated group-management surface satisfy the TODO requirement without turning `/convites/compartilhar` into a management screen?
+3. Are backend inviteable/contact-group hot paths bounded enough for store-release scale after the batching, caps, and per-request inviteable-set reuse?
+4. Do the added tests prove the previously missing CRUD/privacy, relation-filter, negative privacy, and route-binding behaviors without masking production behavior?
+5. Are any remaining concerns valid but non-blocking debt appropriate for the later consolidated ADB/device phase or VNext package extraction?

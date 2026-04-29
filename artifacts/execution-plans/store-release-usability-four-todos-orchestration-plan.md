@@ -27,8 +27,8 @@
 | --- | --- | --- | --- |
 | `SR-B3` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-typed-discovery-filters-package.md` | Filters rollback and simplified Home/Discovery type-taxonomy filters. | Can start now; blocks final public filter validation. |
 | `SR-D2` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-event-multi-occurrence-ux-and-authoring-model.md` | Multi-occurrence, Programação-centered event UX, admin authoring, and occurrence-first admin list. | Can start now; coordinates with SR-C2 on public Event detail files. |
-| `SR-C2` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-account-profile-rich-text-fidelity.md` | Event description rich-text public `Sobre` rendering, preserving Account Profile rich-text baseline. | Can start now; coordinates with SR-D2 on public Event detail files. |
-| `APD` | `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-public-account-profile-detail-polish.md` | Public Account Profile detail polish and Discovery back-stack regression. | Can start now; coordinates with SR-B3 on Discovery route/filter behavior. |
+| `SR-C2` | `foundation_documentation/todos/completed/TODO-store-release-account-profile-rich-text-fidelity.md` | Event description rich-text public `Sobre` rendering, preserving Account Profile rich-text baseline. | Can start now; coordinates with SR-D2 on public Event detail files. |
+| `APD` | `foundation_documentation/todos/completed/TODO-v1-screen-public-account-profile-detail-polish.md` | Public Account Profile detail polish and Discovery back-stack regression. | Can start now; coordinates with SR-B3 on Discovery route/filter behavior. |
 
 ## Acceptance Traceability Matrix
 

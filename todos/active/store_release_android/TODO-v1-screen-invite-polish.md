@@ -1,9 +1,14 @@
 # TODO (V1): Screen Polish - Invite
 
-**Status legend:** `- [ ] ⚪ Pending` · `- [x] ✅ Production-Ready`.
+**Status legend:** `- [x] ⚪ Pending` · `- [ ] ✅ Production-Ready`.
 **Status:** Active
 **Owners:** Flutter Team
-**Objective:** Polish the tenant-public invite screen/decision flow visuals while preserving invite contract and behavior semantics.
+**Objective:** Apply a simple, bounded visual edit to the tenant-public invite screen/decision flow while preserving invite contract and behavior semantics.
+
+## Delivery Status Canon
+- **Current delivery stage:** `Pending`
+- **Qualifiers:** `Simple-Edit`, `Store-Release-Candidate`, `No-Contract-Change`
+- **Next exact step:** define the small visual adjustment set for the invite decision screen and execute it without broadening into invite contracts, contact picking, grouping, onboarding, or web-to-app policy changes.
 
 ---
 
@@ -12,13 +17,17 @@
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
 
 ## Scope (Single Screen)
-- Improve invite hero/header visual hierarchy.
-- Improve action CTA prominence and state clarity.
-- Improve loading/empty/error states and transition polish.
+- Apply only simple visual adjustments to the invite hero/header hierarchy.
+- Improve primary/secondary CTA clarity only where the current layout is visibly weak.
+- Keep loading/empty/error state treatment lightweight and local to existing UI states.
+- Keep this TODO as a small edit; do not turn it into the invite/social-loop MVP workstream.
 
 ## Out of Scope
 - Invite API/contract changes.
 - New invite feature capabilities.
+- Contact picking, contact groups, inviteable list composition, friends/favorites, or external-share behavior.
+- Onboarding, anonymous identity, Auth Wall, or web-to-app promotion policy changes.
+- Backend, route, schema, controller, or repository behavior changes unless a trivial test-only adjustment is required by the UI edit.
 
 ## Decision Baseline (Frozen)
 - `D-01`: This TODO is visual-only in Flutter; invite endpoints/contracts remain unchanged.
@@ -30,6 +39,7 @@
 - `D-07`: Controller-first architecture remains mandatory.
 
 ## Tasks
+- [ ] ⚪ Freeze the small visual adjustment list before implementation.
 - [ ] ⚪ Polish invite hero and top chrome visual hierarchy.
 - [ ] ⚪ Polish primary/secondary CTAs and spacing.
 - [ ] ⚪ Improve loading/empty/error visual states.
@@ -37,6 +47,7 @@
 - [ ] ⚪ Ensure invite decision transitions remain stable and deterministic.
 
 ## Acceptance Criteria
+- [ ] ⚪ The final change remains a small visual edit with no invite contract or flow expansion.
 - [ ] ⚪ Invite context (who/what/when) is visually clearer at first glance.
 - [ ] ⚪ Primary and secondary decision CTAs are visually unambiguous.
 - [ ] ⚪ Loading/error/result states are explicit and readable.

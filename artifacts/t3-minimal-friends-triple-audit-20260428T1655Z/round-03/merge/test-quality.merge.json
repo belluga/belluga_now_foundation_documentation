@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t3-minimal-friends-triple-audit-20260428T1655Z/round-03/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality-t3-round-03"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not close the T3 round yet. Add the missing targeted tests first; no production change is implied unless those tests expose a defect."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-CF6CFE85",
+      "severity": "high",
+      "title": "Profile-keyed invite authorization lacks a negative legacy-user regression test",
+      "rationale": "StoreReleaseSocialGraphTest intentionally creates a mismatch by setting a competing invite receiver_user_id to an unrelated user, then only proves the canonical profile owner can accept. This would not catch an implementation that incorrectly allowed the mismatched legacy receiver_user_id actor to accept or decline the same profile-keyed invite. The dispatch scope explicitly includes acting-user authorization while preserving receiver_account_profile_id lifecycle semantics.",
+      "suggested_action": "Add a backend feature test where the unrelated legacy receiver_user_id actor attempts accept and decline against a profile-keyed invite and receives not found/unauthorized behavior with the invite still pending; then assert the canonical profile owner can complete the mutation.",
+      "reviewer_labels": [
+        "test-quality-t3-round-03"
+      ],
+      "source_finding_ids": [
+        "TQ-R03-001"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-1F003F2C",
+      "severity": "medium",
+      "title": "Contact-group screen CRUD coverage stops at create",
+      "rationale": "The widget test only exercises creating a group and visible insertion. Rename, member-edit, and delete are only covered through direct controller calls, so broken screen wiring for the dialog, bottom sheet, or delete button would still pass. The round package asks whether visible/refreshed CRUD behavior is proven, and the screen-level evidence is incomplete.",
+      "suggested_action": "Extend the contact-group widget test with a stateful fake that implements updateContactGroup and deleteContactGroup, then tap the rename, edit-members, and delete controls and assert the visible name, member count, and removal state after each mutation.",
+      "reviewer_labels": [
+        "test-quality-t3-round-03"
+      ],
+      "source_finding_ids": [
+        "TQ-R03-002"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

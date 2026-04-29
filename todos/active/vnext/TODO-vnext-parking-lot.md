@@ -91,7 +91,7 @@
 
 ## I) Test Reliability Hardening
 
-- Dedicated promoted owner for the current release-facing hardening slice: `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-critical-journey-regression-gates.md`
+- Dedicated promoted owner for the current release-facing hardening slice: `foundation_documentation/todos/completed/TODO-store-release-critical-journey-regression-gates.md`
 
 ---
 

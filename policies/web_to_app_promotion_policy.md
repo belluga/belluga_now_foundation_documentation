@@ -136,7 +136,8 @@ Required key events include:
 - `app_anonymous_invite_accepted`
 - `app_auth_wall_triggered` (`action_type` = the restricted action that required authenticated identity)
 - `app_signup_completed`
-- `app_deferred_deep_link_captured` / `app_deferred_deep_link_capture_failed` with `platform` + `store_channel` properties (`platform=android` in V1 MVP; `ios` when VNext deferred capture is enabled).
+- `app_deferred_deep_link_captured` with `platform`, `store_channel`, and backend-resolved `target_path`; include `code` only when the captured target is invite attribution.
+- `app_deferred_deep_link_capture_failed` with `platform` + `store_channel` properties (`platform=android` in V1 MVP; `ios` when VNext deferred capture is enabled).
 
 Store-channel and deferred failure modes must remain explicit in telemetry:
 - `store_channel=web` for web-to-app CTA origin.

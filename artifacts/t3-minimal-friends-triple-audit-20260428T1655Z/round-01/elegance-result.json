@@ -1,0 +1,81 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t3-minimal-friends-triple-audit-20260428T1655Z/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "elegance",
+  "overall_assessment": "Not clean for the elegance gate. The backend slice largely follows the frozen contact_match/favorite/friend direction, but the Flutter surface still has two release-blocking structural gaps: the dedicated contact-group management surface is absent, and /convites/compartilhar re-duplicates the backend-deduplicated inviteable list with placeholder rows. The known Flutter group-management gap does block this TODO gate under the current TODO/module contracts.",
+  "recommended_path": "Resolve the high-severity Flutter blockers before advancing this TODO gate: implement the dedicated contact-group management surface or formally revise/accept that debt with gate-owner approval, and remove the duplicate placeholder-row rendering from the invite share screen. Then decouple the new backend-computed inviteable query from the legacy contact-import flow and tighten the backend package boundary for contact-group/inviteable endpoints.",
+  "performance_position": "acceptable",
+  "elegance_position": "regresses",
+  "structural_soundness_position": "regresses",
+  "operational_fit_position": "regresses",
+  "findings": [
+    {
+      "finding_id": "ELEGANCE-001",
+      "severity": "high",
+      "title": "Dedicated Flutter contact-group management is still absent",
+      "rationale": "The TODO acceptance criteria require users to create, rename, and delete contact groups through dedicated management surfaces, and the Flutter validation matrix requires group CRUD coverage outside /convites/compartilhar. The local delivery notes explicitly mark that surface as pending. I found backend CRUD only; Flutter has no contact-group backend contract, repository methods, domain model, route, screen, or tests. This is not polish: it leaves a V1 product behavior in the release-critical TODO undelivered.",
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md",
+        "foundation_documentation/modules/flutter_client_experience_module.md",
+        "flutter-app/lib/infrastructure/services/invites_backend_contract.dart",
+        "flutter-app/lib/infrastructure/dal/dao/laravel_backend/invites_backend/laravel_invites_backend.dart",
+        "flutter-app/lib/domain/repositories/invites_repository_contract.dart",
+        "flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/"
+      ],
+      "suggested_action": "Implement the dedicated group/friends-management Flutter surface with GET/POST/PATCH/DELETE /contact-groups wiring, membership editing by receiver_account_profile_id, and widget/controller/repository tests; otherwise formally revise this TODO gate and record the accepted debt before advancing."
+    },
+    {
+      "finding_id": "ELEGANCE-002",
+      "severity": "high",
+      "title": "Invite share screen duplicates the backend-deduplicated recipient list",
+      "rationale": "The screen renders _paddedFriends(filteredFriends), and _paddedFriends repeats real friends until there are 20 rows. Those placeholder rows still display the same recipient name/avatar/match label through InviteShareFriendCard, only disabling the CTA. This directly violates the frozen contract that /convites/compartilhar shows one deduplicated inviteable row per canonical recipient and does not duplicate recipients across the UI.",
+      "category": "elegance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/invite_share_screen.dart",
+        "flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/widgets/invite_share_friend_card.dart",
+        "foundation_documentation/modules/flutter_client_experience_module.md",
+        "foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md"
+      ],
+      "suggested_action": "Remove recipient padding based on real data. Render backend inviteables exactly once, and use a separate empty/loading/skeleton state that does not reuse real recipient identities. Add a widget test proving a single backend recipient appears once before and after relation filtering."
+    },
+    {
+      "finding_id": "ELEGANCE-003",
+      "severity": "medium",
+      "title": "The new inviteable query is still gated by the old contact-import flow",
+      "rationale": "InviteShareScreenController calls importContacts before fetchInviteableRecipients, and the safe wrapper clears the whole list if importContacts throws. The test suite codifies this by expecting empty suggestions when import fails. That preserves the old contact-import shell as a hard prerequisite for the new backend-computed inviteable list, even though favorites/favorited_you/friend inviteables should be fetchable independently.",
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/controllers/invite_share_screen_controller.dart",
+        "flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart"
+      ],
+      "suggested_action": "Treat contact import as opportunistic acquisition/refresh, then always fetch /contacts/inviteables when possible. Adjust tests so import failure does not hide existing backend inviteables from favorite/friend/contact-group flows."
+    },
+    {
+      "finding_id": "ELEGANCE-004",
+      "severity": "medium",
+      "title": "Contact-group backend ownership is split across app-level social code and the invites package",
+      "rationale": "The route file mixes Belluga\\Invites package controllers for invite/contact-import flows with App\\Http controllers for contact inviteables and contact groups. ContactGroupController also reimplements the package's InviteDomainException envelope while App\\Application\\Social owns services/models that depend on invite-package concepts. This is a package-coherence drift risk: the same invite/social API family now has parallel implementation roots likely to diverge.",
+      "category": "architecture",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/routes/api/packages/project_tenant_public_api_v1/invites.php",
+        "laravel-app/app/Application/Social/ContactGroupService.php",
+        "laravel-app/app/Application/Social/InviteablePeopleService.php",
+        "laravel-app/app/Http/Api/v1/Controllers/ContactGroupController.php",
+        "laravel-app/app/Http/Api/v1/Controllers/ContactInviteablesController.php",
+        "laravel-app/packages/belluga/belluga_invites/src/Http/Api/v1/Controllers/Concerns/HandlesInviteDomainExceptions.php"
+      ],
+      "suggested_action": "Either move contact-group/inviteable endpoint ownership into the belluga_invites package behind app-level gateways, or document App\\Application\\Social as the canonical cross-package integration boundary and reuse/shared-standardize the invite error-handling contract."
+    }
+  ]
+}

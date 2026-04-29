@@ -22,6 +22,7 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-onboarding-identity-reconciliation-reflection.md`
 
 ## 2. Entry Paths
@@ -32,11 +33,11 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
         * `Accept`/`Decline` actions are available in app with anonymous identity (progressive profiling). Auth is deferred until a restricted action that truly requires authenticated identity hits Auth Wall.
         * The anonymous app baseline stays explicit after that decision point: feed browsing, map browsing, and favorites remain available without forced login; `send_invite`, `/profile`, and presence/check-in remain authenticated boundaries.
         * Screen flows continue with:
-            1. Minimal pre-auth profile context only when needed; authenticated upgrade, when required, is phone-OTP only.
+            1. Minimal pre-auth profile context only when needed; authenticated upgrade, when required, is phone-OTP only via backend-owned `POST /auth/otp/challenge` + `POST /auth/otp/verify`.
             2. Contact import prompt (`import contacts to share with friends`) wired to Invite module’s endpoint.
             3. Optional “Find friends” preview from `friend_resumes` to encourage immediate viral sharing.
         * After contact import (or skip), user transitions to preference capture + location consent steps to personalize home/map.
-    * Integration: Canonical share-preview decision uses `POST /invites/share/{code}/accept` (anonymous-first). Authenticated continuation may still use `/invites/share/{code}/materialize` and `/invites/{invite_id}/accept|decline` when explicitly required. `POST /contacts/import` remains optional when the user opts to import contacts. Invite metadata is stored locally so preference recommendations can reference the same event/account profile.
+    * Integration: Canonical share-preview decision uses `POST /invites/share/{code}/accept` (anonymous-first). Authenticated continuation may still use `/invites/share/{code}/materialize` and `/invites/{invite_id}/accept|decline` when explicitly required. OTP verification must send the current anonymous identity id so backend merge preserves invite attribution/history before issuing the registered phone token. `POST /contacts/import` remains optional when the user opts to import contacts. Invite metadata is stored locally so preference recommendations can reference the same event/account profile.
 
 2. **Invite Decline / No Invite Path**
     * Steps:
@@ -88,8 +89,15 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 
 7. **Identity Materialization Reflection (Follow-up)**
     * After a user's canonical phone identity becomes stable through the approved OTP/onboarding path, onboarding owns the follow-up handoff that may trigger late reconciliation against hashes previously imported by other viewers.
+    * OTP transport is not an onboarding-owned provider flow: delivery is queued by Laravel jobs through tenant outbound integration webhook settings, with WhatsApp preferred and OTP-specific URL optional.
     * This follow-up may later feed advisory reflection surfaces such as `Talvez você conheça` and informational lifecycle notifications like "contact entered the app".
     * These reflection surfaces must remain discovery-only until explicit favorite promotes the relationship into the normal inviteable rules.
+
+8. **Release Identity Funnel Telemetry**
+    * Android store-release validation requires explicit evidence for `app_auth_wall_triggered`, `app_signup_completed`, `otp_challenge_started`, `otp_verified`, and `auth_merge_completed`.
+    * `otp_challenge_started` is a pre-auth event and must use a non-user actor such as `{type: phone_otp_challenge, id: challenge_id}` while omitting empty `user_id` metadata.
+    * `otp_verified` must include `identity_state`; `auth_merge_completed` must include `source_count` and `source_kind=anonymous` when anonymous ids are merged into the registered phone identity.
+    * These events are validation-critical for release judgment, but OTP delivery itself remains job/webhook-owned by Laravel outbound integration settings.
 
 ## 4. Integration with Invite Module
 
@@ -129,4 +137,5 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 | `TODO-store-release-android.md` | Android release orchestration authority | In progress | `1.1`, `5`, `7` | Replaces the former MVP release orchestrator as the active sequencing authority. |
 | `TODO-store-release-phone-otp-auth-and-contact-match.md` | Phone-OTP upgrade and identity baseline | In progress | `2`, `6`, `7` | Freezes the authenticated upgrade path that onboarding must hand off into. |
 | `TODO-store-release-minimal-friends-and-favorites-mvp.md` | Minimal user-level friends/favorites release contract | In progress | `2`, `4` | Owns the release-facing friend preview/social-proof contract referenced by onboarding. |
+| `TODO-store-release-funnel-metrics-validation.md` | Release funnel metrics validation | In progress | `3`, `7` | Freezes identity funnel event/property evidence for auth wall, signup, OTP challenge, OTP verification, and anonymous merge. |
 | `TODO-vnext-onboarding-identity-reconciliation-reflection.md` | Late identity-materialization reconciliation + advisory reflection surfaces | Pending follow-up | `3`, `4`, `6`, `7` | Owns post-onboarding reflection (`Talvez você conheça`, informational lifecycle hints) after canonical identity materialization. |

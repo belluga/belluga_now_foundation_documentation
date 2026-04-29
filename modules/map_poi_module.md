@@ -142,7 +142,7 @@ For V1, we treat `map_pois` as a **materialized projection/read model** used by 
 Key properties:
 - `map_pois` is the map projection (geometry + category + tags + priority + deep-link reference).
 - For `ref_type=static`, `map_pois.category` is derived from `static_profile_types.map_category` (fallback to `static_assets.profile_type`). `static_assets.categories[]` is legacy metadata and must not drive map categorization.
-- `map_pois.visual` is projection-owned and resolved from canonical type-level `visual` + resolved media source (`avatar_url`, `cover_url`, or canonical type-owned `type_asset`) when applicable.
+- `map_pois.visual` is projection-owned and resolved from canonical type-level `visual` + resolved media source (`avatar_url`, `cover_url`, or canonical type-owned `type_asset`) when applicable. Type/filter visual color remains a marker/accent input even when the rendered visual is image-backed.
 - For `ref_type=event`, `map_pois.visual` resolves from canonical `event_types.visual` / `poi_visual`; image-mode event POIs may resolve only from event cover/thumb media (`cover`) or the canonical type-owned asset (`type_asset`). `avatar` is invalid for events and must not be synthesized.
 - The record may carry optional `active_window_start_at` + `active_window_end_at` (nullable). We do **not** store `visible_from`/`visible_until`. Visibility windows are computed at query time using backend-owned tenant settings and the **user timezone** stored on the user profile.
 - Account Profile/Static Profile types control POI projection via capabilities. When `is_poi_enabled=false`, existing `map_pois` for that type are hard-deleted.
@@ -184,7 +184,7 @@ This ensures future events/campaigns do not appear immediately when created, whi
 ```
 
 - `mode=icon` requires `icon + color`.
-- `mode=image` requires `image_uri`.
+- `mode=image` requires `image_uri`; clients must preserve/render `color` when present for marker accents, filter palette, and fallback states.
 - `source=type_definition` covers icon visuals and canonical type-owned `type_asset` images; `source=item_media` covers `avatar|cover`.
 - Invalid/unresolvable visual inputs must clear/omit `visual`; Flutter applies one generic fallback marker path.
 
@@ -289,7 +289,7 @@ Response shape (example):
     -   Category payload can be decorated by `settings.map_ui.filters` (tenant-admin managed):
         - `label` override per key;
         - optional `image_uri`;
-        - optional marker override (`override_marker`, `marker_override.mode`, `marker_override.icon`, `marker_override.color`, `marker_override.image_uri`);
+        - optional marker override (`override_marker`, `marker_override.mode`, `marker_override.icon`, `marker_override.color`, `marker_override.image_uri`), where `marker_override.color` also applies to image-mode overrides;
         - normalized `query` payload (`source`, `types[]`, `categories[]`, `taxonomy[]`, `tags[]`) used by Flutter when applying a category.
         - configured list ordering first, with configured entries retained even when `count = 0`.
     -   Taxonomy catalog is sourced from POI taxonomy aggregations and applied as advanced filters when needed. Aggregated taxonomy terms must expose display-ready metadata (`name`, `taxonomy_name`, compatibility `label`) while retaining `type/value` as the query payload.

@@ -98,7 +98,7 @@ The active `vnext/` lane is intentionally large, but several files still blur di
 - **Secondary module docs (if any):**
   - `foundation_documentation/todos/completed/TODO-vnext-foundation-authority-and-branch-reconciliation.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`
-  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-critical-journey-regression-gates.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-critical-journey-regression-gates.md`
   - `foundation_documentation/todos/completed/TODO-v1-canonical-back-navigation-governance-cutover.md`
 - **Planned decision promotion targets (module sections):**
   - touched TODOs only in this slice
@@ -137,7 +137,7 @@ The active `vnext/` lane is intentionally large, but several files still blur di
 ### Touched Surfaces
 - `foundation_documentation/todos/completed/TODO-vnext-backlog-role-and-ownership-consolidation.md`
 - `foundation_documentation/todos/completed/TODO-vnext-foundation-authority-and-branch-reconciliation.md`
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-critical-journey-regression-gates.md`
+- `foundation_documentation/todos/completed/TODO-store-release-critical-journey-regression-gates.md`
 - `foundation_documentation/todos/completed/TODO-vnext-test-hardening-defect-backlog.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-parking-lot.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`

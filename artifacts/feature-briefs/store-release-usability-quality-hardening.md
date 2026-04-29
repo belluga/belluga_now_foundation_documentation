@@ -27,7 +27,7 @@
 ## Evidence / References
 - Triple audit summary: `foundation_documentation/artifacts/triple-audits/store-release-usability-recut-quality-20260424/store-release-usability-recut-quality-triple-audit-20260424T160027Z/round-01/round-summary.md`
 - Delphi adjudication: `foundation_documentation/artifacts/triple-audits/store-release-usability-recut-quality-20260424/store-release-usability-recut-quality-triple-audit-20260424T160027Z/round-01/adjudication.md`
-- Promotion-lane recut TODO: `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-usability-bug-convergence-recut.md`
+- Completed recut TODO: `foundation_documentation/todos/completed/TODO-store-release-usability-bug-convergence-recut.md`
 
 ## Ambiguities To Resolve Before TODO
 | ID | Ambiguity | Why It Matters | Current Evidence | Handling (`resolve now|carry as TODO assumption|block`) |

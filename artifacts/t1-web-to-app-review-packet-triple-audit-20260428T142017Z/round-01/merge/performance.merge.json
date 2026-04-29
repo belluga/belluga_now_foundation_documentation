@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "performance"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "mixed",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "regresses"
+  },
+  "recommended_paths": [
+    "Fix the redirect helper before closing T1: reject scheme/authority before share-code extraction, bound or iterate auth redirect unwrapping with a small depth/length cap, and add focused regression tests for both cases. The app-download default and anonymous favorite controller changes do not show material performance blockers in this bounded package."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-AFBD0E9C",
+      "severity": "high",
+      "title": "Blocking: External absolute invite URLs bypass the redirect allowlist",
+      "rationale": "resolveWebPromotionPath extracts a share code before the new absolute-URL rejection runs. An input such as an absolute external URL whose path is /invite and has code will still canonicalize to /invite?code=... instead of falling back to /. The frozen contract says external paths must fall back, and the implementation summary claims absolute URLs are blocked.",
+      "suggested_action": "Reject parsed redirect paths with scheme, authority, or scheme-relative form before calling resolveWebPromotionShareCode, and add regression coverage for absolute external /invite URLs in both resolveWebPromotionPath and buildTenantPromotionUri behavior.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PERF-T1-001"
+      ],
+      "category": "security",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-77B1502B",
+      "severity": "high",
+      "title": "Blocking: Auth redirect unwrapping is unbounded",
+      "rationale": "_resolveAllowedPromotionRedirectPath recursively unwraps /auth redirect query values without a depth or length cap. Because redirectPath is user-controlled handoff input, a deeply nested /auth/login?redirect=... chain can force repeated parsing and recursion until stack exhaustion or a stalled web runtime.",
+      "suggested_action": "Rewrite the auth unwrap as an iterative loop with a small maximum depth and optional input-length cap, falling back to / or null when exceeded. Add a regression test for a nested auth redirect over the cap.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PERF-T1-002"
+      ],
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

@@ -34,7 +34,7 @@
 
 ## References
 
-- `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-events-polish.md`
+- `foundation_documentation/todos/completed/TODO-v1-screen-events-polish.md`
 - `foundation_documentation/todos/completed/TODO-v1-home-agenda-radius-persistence-and-sheet-polish.md`
 - `foundation_documentation/screens/modulo_agenda.md`
 - `flutter-app/lib/presentation/tenant_public/home/screens/tenant_home_screen/widgets/agenda_section/controllers/tenant_home_agenda_controller.dart`

@@ -57,7 +57,7 @@
 
 ## References
 
-- `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-public-account-profile-detail-polish.md`
+- `foundation_documentation/todos/completed/TODO-v1-screen-public-account-profile-detail-polish.md`
 - `lib/domain/tenant_admin/tenant_admin_profile_type.dart`
 - `lib/domain/tenant_admin/tenant_admin_static_profile_type.dart`
 - `lib/domain/tenant_admin/tenant_admin_poi_visual.dart`
@@ -175,7 +175,7 @@
 ## Touched Surfaces
 
 - `foundation_documentation/todos/completed/TODO-v1-profile-type-visual-canonicalization.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-public-account-profile-detail-polish.md`
+- `foundation_documentation/todos/completed/TODO-v1-screen-public-account-profile-detail-polish.md`
 - `../foundation_documentation/modules/tenant_admin_module.md`
 - `../foundation_documentation/modules/map_poi_module.md`
 - `../foundation_documentation/modules/account_profile_catalog_module.md`

@@ -38,15 +38,16 @@
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Implementation-Ready`
-- **Qualifiers:** `Business-Core`, `Cross-Stack`, `Release-Critical`
-- **Next exact step:** execute the minimal release contract frozen below: add the missing `contact_match -> favorite -> friend` behaviors, private `contact_groups`, and exposure rules while preserving the existing account-profile favorites lane and `/convites` invite flow continuity.
+- **Current delivery stage:** `Local-Implemented-Home-Consumer-Gap-Reopened`
+- **Qualifiers:** `Business-Core`, `Cross-Stack`, `Release-Critical`, `Consumer-Gap-Reopened`
+- **Next exact step:** execute `foundation_documentation/todos/active/store_release_android/TODO-store-release-home-favorites-refresh-regression.md` before promotion so Home Favorites consumes favorite mutations correctly; keep ADB/device contact-permission smoke deferred to the consolidated ADB phase.
 
 ## References
 
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
+- `foundation_documentation/todos/active/store_release_android/TODO-store-release-home-favorites-refresh-regression.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-onboarding-identity-reconciliation-reflection.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-connections-package.md`
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
@@ -257,13 +258,46 @@
 - **Lane-promoted threshold for this TODO:** `dev`
 - **Production-ready threshold for this TODO:** `stage`
 
+## Local Delivery Notes (2026-04-28)
+
+- **Implemented backend contract:** `POST /contacts/import` now returns profile-scoped inviteable contact matches when a discoverable inviteable personal Account Profile exists, while preserving legacy user-only matches for installed users without a personal profile.
+- **Implemented backend contract:** `GET /contacts/inviteables` returns a backend-computed unified list deduplicated by `receiver_account_profile_id`, merging `contact_match`, `favorite_by_you`, `favorited_you`, and reciprocal `friend`.
+- **Implemented backend contract:** `GET|POST|PATCH|DELETE /contact-groups` stores user-private groups over inviteable `receiver_account_profile_id` members and prunes members that cease to be inviteable.
+- **Implemented invite recipient migration:** direct invite creation accepts `receiver_account_profile_id`, persists it on invite edges, and keeps legacy `receiver_user_id`/`contact_hash` paths functional where required by current tests.
+- **Implemented Flutter contract:** `/convites/compartilhar` consumes the backend-computed inviteable list, preserves `receiver_account_profile_id`, sends direct invites by account profile identity, and exposes Discovery-style relation filter chips for `contact_match`, `favorite_by_you`, `favorited_you`, and `friend`.
+- **Implemented Flutter group management:** added a dedicated contact-group management surface outside `/convites/compartilhar`, with create/rename/delete and membership editing over backend inviteable `receiver_account_profile_id` recipients.
+- **Corrected Flutter delivery gate:** the contact-group surface was reworked to satisfy domain value-object, repository payload, controller ownership, route, analyzer, and web-build gates. Worker/subagent closure rules were updated so future checkpoints cannot be accepted without the applicable analyzer/build evidence for their owned slice.
+- **Resolved audit blockers:** T3 triple-audit rounds 01 through 04 findings were resolved locally and recorded under `foundation_documentation/artifacts/t3-minimal-friends-triple-audit-20260428T1655Z/round-*/resolution.md`.
+- **Triple audit gate:** round 05 returned zero findings across elegance, performance, and test-quality lanes. The runner classified a non-material `recommended_path_conflict`; Delphi adjudicated it as resolved in `foundation_documentation/artifacts/t3-minimal-friends-triple-audit-20260428T1655Z/round-05/resolution.md` because all lanes recommended proceeding.
+- **Claude CLI auxiliary review:** the round 05 attempt was blocked by account limit until the reset window (`6pm America/Sao_Paulo`). Per user instruction on 2026-04-28, Claude CLI is treated as a gate only when available and returning a substantive response; tool unavailability is recorded as operational evidence but does not block advancing. Evidence is recorded in `foundation_documentation/artifacts/claude-cli-reviews/T3-minimal-friends-cli-review-round-05.md`.
+- **Deferred runtime evidence:** ADB/device contact-permission smoke remains intentionally deferred to the consolidated ADB phase per orchestration plan.
+- **Post-local QA consumer gap (2026-04-29):** user QA found that app-side favorite mutations do not refresh the Home Favorites section. The core social/favorites implementation remains useful, but promotion is blocked until the Home consumer refresh gap is closed through `TODO-store-release-home-favorites-refresh-regression.md`.
+
+## Completion Evidence Matrix (Local, Non-ADB)
+
+| Criterion | Evidence | Status |
+| --- | --- | --- |
+| Contact import returns profile-scoped matches and respects `discoverable_by_contacts` | `./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Invites/StoreReleaseSocialGraphTest.php tests/Feature/Invites/InvitesFlowTest.php tests/Feature/Favorites/FavoritesControllerTest.php` | Passed 2026-04-28: 52 tests, 358 assertions |
+| Unified inviteable list merges contact/favorite/friend reasons without duplicates | `Tests\\Feature\\Invites\\StoreReleaseSocialGraphTest::test_inviteable_contacts_merge_contact_match_favorites_and_friend_reasons_without_duplicates` | Passed |
+| Contact groups dedupe and prune stale recipients | `Tests\\Feature\\Invites\\StoreReleaseSocialGraphTest::test_contact_groups_dedupe_members_and_prune_recipients_that_cease_to_be_inviteable` | Passed |
+| Contact group CRUD/privacy is owner-scoped and validates caps | `Tests\\Feature\\Invites\\StoreReleaseSocialGraphTest::test_contact_group_crud_is_owner_private_and_validated` | Passed |
+| Direct invites target account-profile recipient identity | Laravel `StoreReleaseSocialGraphTest` + Flutter `invites_repository_test.dart` | Passed |
+| `/convites/compartilhar` consumes backend inviteables and preserves profile identity | `fvm flutter test test/infrastructure/repositories/invites_repository_test.dart test/infrastructure/repositories/invites_repository_push_payload_test.dart test/presentation/tenant/invites/screens/contact_group_management/controllers/contact_group_management_controller_test.dart test/presentation/tenant/invites/screens/contact_group_management/contact_group_management_screen_test.dart test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart test/presentation/tenant/invites/screens/invite_share_screen/widgets/invite_share_relation_filter_chips_test.dart test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart test/presentation/common/auth/screens/auth_login_screen/auth_login_controller_contract_test.dart` | Passed 2026-04-28: 24 tests |
+| Dedicated group-management Flutter surface | `contact_group_management_controller_test.dart` and `contact_group_management_screen_test.dart` | Passed |
+| Flutter architecture/analyzer gate | `fvm dart analyze --format machine` | Passed 2026-04-28, no diagnostics |
+| Flutter web build gate | `bash scripts/build_web.sh ../web-app dev`; `sha256sum ../web-app/main.dart.js` | Passed 2026-04-28; `main.dart.js` SHA-256 `f499dd08b42f71c4f11292828c1628a2d312d4f0b2fee42ad1061e7299dde584` |
+| PHP style gate | `docker compose exec -T app ./vendor/bin/pint --test ...` over T3 PHP files | Passed 2026-04-28: 6 files |
+| Exact lookup anti-pattern audit | `bash delphi-ai/tools/exact_lookup_anti_pattern_audit.sh --repo laravel-app --path ...InviteablePeopleService.php --path ...InviteIdentityGatewayAdapter.php --path ...InviteMutationService.php --path ...InviteShareService.php` | Passed 2026-04-28: no high or medium findings |
+| Triple audit round 05 | `python3 delphi-ai/skills/audit-protocol-triple-review/scripts/triple_audit_session.py merge --session foundation_documentation/artifacts/t3-minimal-friends-triple-audit-20260428T1655Z/session.json` + `round-05/resolution.md` | Zero findings across all lanes; non-material recommended-path conflict adjudicated resolved |
+| Claude CLI auxiliary review | `timeout 300s claude -p ... > foundation_documentation/artifacts/claude-cli-reviews/T3-minimal-friends-cli-review-round-05.md` | Operationally unavailable 2026-04-28: account limit until `6pm America/Sao_Paulo`; non-blocking per user instruction unless the CLI returns substantive findings |
+
 ## Promotion Evidence
 
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| Personal-profile favorite edge + reciprocal friend derivation | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| Viewer-scoped exposure enforcement on release invite/social-proof surfaces | `pending` | `pending` | `pending` | `pending` | `Pending` |
-| `/convites/compartilhar` + contact-group bulk invite convergence | `pending` | `pending` | `pending` | `pending` | `Pending` |
+| Personal-profile favorite edge + reciprocal friend derivation | `local` | `pending` | `pending` | `pending` | `Local-Implemented; Home Favorites consumer gap reopened; ADB deferred` |
+| Viewer-scoped exposure enforcement on release invite/social-proof surfaces | `local` | `pending` | `pending` | `pending` | `Local-Implemented for inviteable/contact surfaces; Home Favorites consumer gap reopened; ADB deferred` |
+| `/convites/compartilhar` + contact-group bulk invite convergence | `local` | `pending` | `pending` | `pending` | `Local-Implemented; analyzer/tests/web build clean, triple audit R05 clean, Claude CLI unavailable/non-blocking, ADB deferred` |
 
 ## Profile Scope & Handoffs
 

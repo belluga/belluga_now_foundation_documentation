@@ -1,0 +1,31 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t3-minimal-friends-triple-audit-20260428T1655Z/round-04/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "Elegance reviewer",
+  "overall_assessment": "Not clean. The round 03 fixes resolve the stale receiver_user_id actor case for the tested happy path, but they also route profile-keyed authorization through the inviteability-oriented recipient resolver. That conflates ownership with current recipient eligibility and can deny the legitimate canonical profile owner access to an existing profile-keyed invite.",
+  "recommended_path": "Resolve before closing the round by separating actor/profile ownership resolution from invite-recipient eligibility. Keep non-inviteable profile suppression for new direct/contact-hash recipients, but use an ownership resolver that returns the acting user's canonical personal profile id independent of inviteability when authorizing accept/decline and profile-scoped lifecycle mutations.",
+  "performance_position": "acceptable",
+  "elegance_position": "regresses",
+  "structural_soundness_position": "regresses",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "ELEGANCE-R04-001",
+      "severity": "high",
+      "title": "Profile-keyed invite authorization now depends on inviteability instead of ownership",
+      "rationale": "InviteMutationService obtains the acting receiver profile id through recipientAccountProfileIdForUserId(), which calls identityGateway->resolveUserRecipient(). The Laravel adapter delegates that to InviteablePeopleService::recipientForUserId(), and the round 03 fix makes that method return null when the user's personal profile exists but is not currently inviteable. For an existing edge with receiver_account_profile_id, edgeBelongsToReceiver() then requires a non-null matching profile id and returns false, causing the canonical profile owner to receive invite_not_found on accept or decline. Inviteability is the correct gate for creating new recipients, but it is not a stable ownership predicate for existing profile-keyed invite mutations.",
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/packages/belluga/belluga_invites/src/Application/Mutations/InviteMutationService.php",
+        "laravel-app/app/Application/Social/InviteablePeopleService.php",
+        "laravel-app/app/Integration/Invites/InviteIdentityGatewayAdapter.php",
+        "laravel-app/packages/belluga/belluga_invites/src/Contracts/InviteIdentityGatewayContract.php"
+      ],
+      "suggested_action": "Add a distinct identity-gateway method for resolving the acting user's receiver/account-profile ownership identity without applying profileIsInviteable. Use that method in edgeBelongsToReceiver(), receiverAccountProfileIdForEdge(), direct-confirmation supersession, and share materialization lookup paths. Leave resolveUserRecipient() as the eligibility-aware resolver for new receiver_user_id and contact_hash recipient creation."
+    }
+  ]
+}

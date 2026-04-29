@@ -14,8 +14,8 @@
 | `SR-TX0` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-event-occurrence-transactional-consistency-and-reconcile-removal.md` | yes | `Implementation-Ready` |
 | `SR-B3` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-typed-discovery-filters-package.md` | yes | `Local-Implemented with reopened follow-up` |
 | `SR-D2` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-event-multi-occurrence-ux-and-authoring-model.md` | yes | `Local-Implemented with blocker/recut pending` |
-| `SR-C2` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-account-profile-rich-text-fidelity.md` | yes | `Local-Implemented with recut pending` |
-| `APD` | `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-public-account-profile-detail-polish.md` | yes | `Local-Implemented with recut pending` |
+| `SR-C2` | `foundation_documentation/todos/completed/TODO-store-release-account-profile-rich-text-fidelity.md` | yes | `Production-Ready; archived after stage lane completion guard passed` |
+| `APD` | `foundation_documentation/todos/completed/TODO-v1-screen-public-account-profile-detail-polish.md` | yes | `Production-Ready; archived 2026-04-28 after APD guard returned go and remaining immediate rich-text fidelity concern was covered by the completed rich-text lane` |
 
 ## Repository Checkpoint SHAs
 | Repository | Branch | Commit SHA | Push target | Included | Notes |

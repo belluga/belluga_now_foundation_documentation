@@ -12,7 +12,7 @@
 | --- | --- | --- | --- |
 | `SR-A` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-taxonomy-term-display-snapshots.md` | yes | `Local-Implemented` |
 | `SR-B` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-typed-discovery-filters-package.md` | yes | `Local-Implemented` |
-| `SR-C` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-account-profile-rich-text-fidelity.md` | yes | `Local-Implemented` |
+| `SR-C` | `foundation_documentation/todos/completed/TODO-store-release-account-profile-rich-text-fidelity.md` | yes | `Local-Implemented` |
 | `SR-D` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-event-multi-occurrence-ux-and-authoring-model.md` | yes | `Local-Implemented` |
 
 ## Repository Checkpoint SHAs
