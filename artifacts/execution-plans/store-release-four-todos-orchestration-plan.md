@@ -1,272 +1,196 @@
-# Plano de Orquestração — Store Release Android (4 TODOs Ativos)
-
-**Data:** 2026-04-27  
-**Contexto:** Sessão de continuidade após verificação de TODOs de 2026-04-27.  
-**Perfil:** Operational / Coder  
-**Artifact type:** `execution-plan` (não-autoritativo — plano de sessão, não TODO PACED)
-
-**Session review override (2026-04-28):** nesta orquestração, a revisão via Claude CLI é tratada como gate obrigatório de sessão para cada TODO entregue. Ela continua não-canônica para Delphi/PACED e não deve ser consolidada em SKILL sem decisão posterior.
-
----
-
-## Estado de Entrada
-
-### TODOs confirmados como completed (já movidos)
-- `completed/TODO-v1-screen-public-account-profile-detail-polish.md` — arquivado em 2026-04-27 21:58. Sobre/content fidelidade coberta por sibling abaixo.
-- `completed/TODO-store-release-account-profile-rich-text-fidelity.md` — Production-Ready, stage promotion completa. Cobre `bio`/`content` Account Profile + Event `Sobre` com o mesmo padrão de fidelidade.
-- `completed/TODO-v1-first-release.md` — superseded pelo orquestrador `TODO-store-release-android.md`.
-
-### TODOs ativos para este ciclo de orquestração
-
-| # | TODO | Stage | Qualifiers | ADB Necessário |
-|---|------|-------|------------|----------------|
-| T1 | `TODO-store-release-web-to-app-conversion-gate.md` | `Implementation-Ready` | Policy-Frozen, Cross-Stack, Release-Blockers-Open | Apenas validação final de dispositivo real |
-| T2 | `TODO-store-release-phone-otp-auth-and-contact-match.md` | `Implementation-Ready` | Business-Core, Cross-Stack, Release-Critical, Upstream-Baseline-Ready | OTP recebido no device, smoke final |
-| T3 | `TODO-store-release-minimal-friends-and-favorites-mvp.md` | `Implementation-Ready` | Business-Core, Cross-Stack, Release-Critical | Permissão OS de contatos, smoke de contact_match |
-| T4 | `TODO-store-release-funnel-metrics-validation.md` | `Implementation-Ready` | Cross-Stack, Release-Critical, Metrics-Evidence | Prova de event firing em device real |
-
-### TODOs fora deste ciclo (context reference)
-- `TODO-v1-screen-invite-polish.md` — Pending, status legend corrigida (era `[x]` em Production-Ready por erro).
-- `TODO-v1-screen-user-profile-polish.md` — Pending, status legend corrigida.
-- Esses dois são Store Release candidates mas sem bloqueio imediato; podem entrar em ciclo separado após T1-T4.
-
----
-
-## Grafo de Dependências
-
-```
-T2 (phone-otp) ──────────────────┐
-  └─ contact-match baseline      ├──► T3 (minimal-friends)
-  └─ auth-wall upgrade path ─────┘
-                                 │
-T1 (web-to-app) ─────────────────┤
-  └─ conversion flow events      │
-                                 ▼
-T2 + T3 + T1 ───────────────────► T4 (funnel-metrics)
-```
-
-**Regras de bloqueio:**
-- T3 não pode ser finalizado sem T2 (contact_match exige identidade verificada por phone OTP).
-- T1 deve estar implementado antes de T4 validar os eventos de conversão (`web_open_app_clicked`, `app_deferred_deep_link_captured`).
-- T4 é o último a fechar porque valida evidência de todos os fluxos.
-
----
-
-## Classificação ADB por TODO
-
-| TODO | ADB requerido para... | Pode adiantar sem ADB |
-|------|----------------------|----------------------|
-| T1 web-to-app | install/store/deferred link real-device | ✅ Toda implementação e smoke lógico |
-| T2 phone-otp | receber OTP, smoke de auth cutover | ✅ Backend completo, Flutter auth cutover |
-| T3 minimal-friends | permissão OS contatos, import, smoke | ✅ Backend endpoints, Flutter UI até contact-list |
-| T4 funnel-metrics | event firing proof em device real | ✅ Matrix freeze, audit de eventos, sink/query proof |
-
-**Princípio:** tudo que não exige permissão de SO, dispositivo físico, ou store install acontece antes das fases ADB. As fases ADB são consolidadas no final como uma sessão única de device.
-
----
-
-## Faseamento
-
-### Fase 1 — T1: Web-to-App Conversion Gate (sem ADB)
-
-**Objetivo:** fechar os 3 blockers de release da conversion gate sem reabrir política.
-
-**Escopo (não-ADB):**
-- [ ] Substituir experiência `testerWaitlist` em `/baixe-o-app` pela promotion screen real com store handoff Android/iOS.
-- [ ] Preservar redirect intent além de invite-only (event detail, guarded-route intent sobrevive install/open).
-- [ ] Validar rota `/open-app` com `platform_target` override.
-- [ ] Garantir que hard/auth gates promovem para app-promotion route, não para o form antigo.
-
-**Gate de entrega:**
-1. Triple Audit independente (T1 bounded package) — `/audit-protocol-triple-review`
-2. [Gate de sessão — não-canônico PACED] Claude CLI review:
-   ```bash
-   claude --print "$(cat foundation_documentation/artifacts/T1-web-to-app-review-packet.md)" \
-     > foundation_documentation/artifacts/claude-cli-reviews/T1-web-to-app-cli-review.md
-   ```
-   Salvar resultado para comparação futura com o triple review output.
-3. Cruzar achados Claude CLI vs triple review:
-   - se o Claude trouxer ponto relevante e os revisores concordarem ao cruzar argumentos, integrar/resolver e seguir;
-   - se houver impasse material, divergência relevante, ou mudança de direção/escopo, chamar o usuário antes de avançar.
-4. Triple review `clean|accepted-debt` + Claude CLI salvo e triado → avançar para Fase 2.
-
-**ADB (reservado para Fase 5):** real-device install/store/deferred link.
-
----
-
-### Fase 2 — T2: Phone OTP Auth And Contact Match (sem ADB)
-
-**Objetivo:** substituir email/password tenant-public por phone-first OTP com contact-hash materialização.
-
-**Escopo (não-ADB):**
-- [ ] Backend: endpoint phone OTP + WhatsApp/SMS dispatch + anonymous-to-authenticated merge.
-- [ ] Backend: contact-hash materialização hardened para contatos importados.
-- [ ] Flutter: auth cutover — substituir email/password entry por phone-first OTP screen.
-- [ ] UX: phone-entry + OTP verification screens com hierarquia clara, feedback de validação/422, loading states, keyboard-safe layout.
-- [ ] Remover Belluga tenant-public dependência de email/password no release path.
-
-**Gate de entrega:**
-1. Triple Audit independente (T2 bounded package) — `/audit-protocol-triple-review`
-2. [Gate de sessão — não-canônico PACED] Claude CLI review:
-   ```bash
-   claude --print "$(cat foundation_documentation/artifacts/T2-phone-otp-review-packet.md)" \
-     > foundation_documentation/artifacts/claude-cli-reviews/T2-phone-otp-cli-review.md
-   ```
-3. Cruzar achados Claude CLI vs triple review:
-   - se o Claude trouxer ponto relevante e os revisores concordarem ao cruzar argumentos, integrar/resolver e seguir;
-   - se houver impasse material, divergência relevante, ou mudança de direção/escopo, chamar o usuário antes de avançar.
-4. Triple review `clean|accepted-debt` + Claude CLI salvo e triado → avançar para Fase 3.
-
-**ADB (reservado para Fase 5):** receber OTP no device, smoke de fluxo completo auth-upgrade.
-
----
-
-### Fase 3 — T3: Minimal Friends And Favorites MVP (sem ADB)
-
-**Objetivo:** entregar o core de contact_match → favorite → friend + contact_groups sem widening para belluga_connections completo.
-
-**Escopo (não-ADB):**
-- [ ] Backend: `/contacts/import` → contact_match acquisition pipeline.
-- [ ] Backend: favorite/friend derivados, contact_groups privados (tag-like, sem alterar privacidade/friendship semantics).
-- [ ] Backend: exposure rules (viewer-scoped) para `Contatos` e `contact_groups`.
-- [ ] Flutter: contact import UI, friends/favorites list, group management em `/convites/compartilhar`.
-- [ ] Não expandir para: people discovery genérico, chat, workspace analytics, social feed.
-
-**Gate de entrega:**
-1. Triple Audit independente (T3 bounded package) — `/audit-protocol-triple-review`
-2. [Gate de sessão — não-canônico PACED] Claude CLI review:
-   ```bash
-   claude --print "$(cat foundation_documentation/artifacts/T3-minimal-friends-review-packet.md)" \
-     > foundation_documentation/artifacts/claude-cli-reviews/T3-minimal-friends-cli-review.md
-   ```
-3. Cruzar achados Claude CLI vs triple review:
-   - se o Claude trouxer ponto relevante e os revisores concordarem ao cruzar argumentos, integrar/resolver e seguir;
-   - se houver impasse material, divergência relevante, ou mudança de direção/escopo, chamar o usuário antes de avançar.
-4. Triple review `clean|accepted-debt` + Claude CLI salvo e triado → avançar para Fase 4.
-
-**ADB (reservado para Fase 5):** permissão OS de contatos, import real, smoke de contact_match completo.
-
----
-
-### Fase 4 — T4: Funnel Metrics Validation (sem ADB físico)
-
-**Objetivo:** provar que os eventos de funil de release chegam ao sink com as propriedades corretas.
-
-**Escopo:**
-- [ ] Freezar a funnel-metrics matrix: quais eventos devem disparar, quais propriedades cada um deve carregar.
-- [ ] Auditar implementações existentes contra a matrix (sem reabrir provider ou DI decisions).
-- [ ] Fixar eventos faltantes — a correção vai para o TODO dono do fluxo (T1/T2/T3), não aqui.
-- [ ] Sink/query proof: confirmar que eventos chegam e podem ser lidos de volta com confiança para KPI release.
-- [ ] Não reabrir telemetry architecture review.
-
-**Gate de entrega:**
-1. Triple Audit independente (T4 bounded package) — `/audit-protocol-triple-review`
-2. [Gate de sessão — não-canônico PACED] Claude CLI review:
-   ```bash
-   claude --print "$(cat foundation_documentation/artifacts/T4-funnel-metrics-review-packet.md)" \
-     > foundation_documentation/artifacts/claude-cli-reviews/T4-funnel-metrics-cli-review.md
-   ```
-3. Cruzar achados Claude CLI vs triple review:
-   - se o Claude trouxer ponto relevante e os revisores concordarem ao cruzar argumentos, integrar/resolver e seguir;
-   - se houver impasse material, divergência relevante, ou mudança de direção/escopo, chamar o usuário antes de avançar.
-4. Triple review `clean|accepted-debt` + Claude CLI salvo e triado → avançar para Fase 5 (ADB).
-
-**ADB (reservado para Fase 5):** event firing proof em dispositivo real (device-side confirmation que eventos disparam nos fluxos corretos).
-
----
-
-### Fase 5 — Sessão ADB Consolidada (último)
-
-**Pré-requisito:** Fases 1–4 com triple review `clean` ou `accepted-debt` registrado, Claude CLI salvo, e divergências triadas sem impasse pendente.
-
-**Protocolo de preparação WSL/ADB (executar ANTES de conectar device):**
-```bash
-# 1. Fechar processos desnecessários
-# 2. Limpar caches Flutter
-fvm flutter clean
-# 3. Verificar memória disponível
-free -h
-# 4. Garantir que só o processo ADB está rodando
-adb kill-server
-adb start-server
-```
-
-**Smoketests por TODO (em sequência, parar e registrar ao primeiro falho):**
-
-**T1 — web-to-app real device:**
-- [ ] Install via Play Store link a partir de `/baixe-o-app` (não via adb install direta).
-- [ ] Verificar deferred deep link resolve invite code após install.
-- [ ] Verificar redirect intent preservado para event detail.
-- [ ] Verificar fallback para `/` quando sem intent.
-
-**T2 — phone-otp real device:**
-- [ ] Fluxo completo de phone entry → OTP recebido → authenticated upgrade.
-- [ ] Verificar anonymous-to-authenticated merge (invite attribution preservado).
-- [ ] Verificar que email/password entry não está mais exposta.
-
-**T3 — contact match real device:**
-- [ ] Grant permissão OS de contatos.
-- [ ] Import → contatos resolvidos em `Contatos`.
-- [ ] Favorite de um matched contact → aparece em friends (reciprocidade simulada).
-- [ ] contact_groups: criar grupo, adicionar contato, verificar em `/convites/compartilhar`.
-
-**T4 — funnel events real device:**
-- [ ] Disparar cada evento da matrix freezada.
-- [ ] Verificar chegada no sink com propriedades corretas.
-- [ ] Confirmar KPIs de release são legíveis.
-
----
-
-## Protocolo de Revisão Claude CLI (Gate de Sessão)
-
-**Objetivo:** coletar revisão externa crítica usando o CLI do Claude em paralelo com o triple review canônico, bloquear avanço quando houver achado material não triado, e preservar os outputs para comparação posterior.
-
-**Status:** gate obrigatório desta orquestração. Continua não-canônico PACED/Delphi e não entra em SKILL sem decisão posterior.
-
-**Formato de invocação:**
-```bash
-claude --print "$(cat foundation_documentation/artifacts/<slug>-review-packet.md)" \
-  > foundation_documentation/artifacts/claude-cli-reviews/<slug>-cli-review.md
-```
-
-**Storage:** `foundation_documentation/artifacts/claude-cli-reviews/` (criar se não existir)
-
-**Comparação posterior:**
-- Após T1–T4 completos: comparar achados do Claude CLI vs triple review por TODO.
-- Registrar: (a) achados exclusivos do CLI não capturados pelo triple, (b) falsos positivos do CLI vs triple, (c) achados concordantes.
-- Resultado vira insumo para decidir se Claude CLI review entra como etapa canônica futura.
-
-**Protocolo de decisão:**
-- Rodar Claude CLI para cada TODO antes de avançar para o próximo TODO.
-- Classificar achados como `material`, `non-blocking`, `false-positive`, ou `out-of-scope`.
-- Quando o Claude trouxer achado material não capturado pelo triple review, cruzar o argumento com os revisores do triple review usando pacote/summary bounded.
-- Se houver concordância material, integrar a correção ou registrar accepted-debt quando não bloqueante.
-- Se houver impasse material, divergência relevante, ou mudança de direção/escopo, chamar o usuário antes de avançar.
-
-**Restrições:**
-- Este protocolo NÃO é canônico PACED/Delphi — não entra no SKILL nesta sessão.
-- Não misturar achados do CLI com os achados formais do triple review session; manter trilhas separadas e registrar a adjudicação Delphi/session-gate à parte.
-- Não promover a próxima fase sem resultado do CLI salvo e triado para o TODO atual.
-
----
-
-## Cadência de Progresso
-
-| Fase | TODO | Gate | Próximo passo |
-|------|------|------|---------------|
-| 1 | T1 web-to-app | Triple `clean|accepted-debt` + CLI saved/triaged | Fase 2 |
-| 2 | T2 phone-otp | Triple `clean|accepted-debt` + CLI saved/triaged | Fase 3 |
-| 3 | T3 minimal-friends | Triple `clean|accepted-debt` + CLI saved/triaged | Fase 4 |
-| 4 | T4 funnel-metrics | Triple `clean|accepted-debt` + CLI saved/triaged | Fase 5 (ADB) |
-| 5 | T1+T2+T3+T4 ADB | Device smoke pass | Fechar todos os TODOs |
-
-**Regra crítica (WSL stability):** se ADB travar ou WSL precisar de reset em Fase 5, retomar do último smoke check documentado. Não reiniciar toda a Fase 5.
-
----
-
-## Referências
-
-- SKILL atualizado: `delphi-ai/skills/audit-protocol-triple-review/SKILL.md` (Orchestration Cadence adicionada)
-- Orquestrador: `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
-- Policy: `foundation_documentation/policies/web_to_app_promotion_policy.md`
-- Upstream baseline OTP: `foundation_documentation/todos/completed/TODO-store-release-landlord-tenant-auth-method-governance.md`
+# Store Release Android Four-TODO Orchestration Plan
+
+## Artifact Identity
+- **Artifact type:** `orchestration_execution_plan`
+- **Status:** `Pending Approval`
+- **Created:** `2026-04-29`
+- **Governing workflow / skill:** `delphi-ai/workflows/docker/subagent-worktree-reconciliation-method.md`
+- **Approval token required before execution:** `APROVADO`
+- **Recovery note:** this replaces the older non-canonical session plan with a guard-readable execution plan. It preserves the prior T1-T4 intent but updates current state after Wave 2 social completion and the reopened OTP visual gap.
+
+## Authority Boundary
+- Governing TODOs define **WHAT** must be delivered and what counts as done.
+- This plan defines **HOW** the orchestrator will sequence, parallelize, reconcile, and validate the remaining T1/T2/T4 work while consuming completed T3 social evidence.
+- If this plan conflicts with a governing TODO, stop and update the TODO or this plan before execution.
+- This plan does not create a new backlog authority, tactical TODO, or approval conversation.
+- Requirement wording in governing TODOs is literal. Replacing a named artifact, UI control, navigation path, runtime target, or validation lane requires an approved row in the Spec Deviation Ledger before execution or delivery can proceed.
+- Workstreams are derived from acceptance criteria, validation requirements, and literal markers. Every criterion has a non-orchestrator implementation owner and planned evidence before dispatch.
+- ADB/device work remains last because the WSL/device environment is resource-sensitive.
+- Claude CLI review remains a session gate only when available and responsive; it is not promoted to canonical skill behavior by this plan.
+
+## Governing TODO Set
+| ID | TODO | Role in Plan | Start Eligibility |
+| --- | --- | --- | --- |
+| `T1-W2A` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` | remaining web-to-app runtime/store/deferred-link and anonymous-baseline closure | can start after approval; ADB/store rows scheduled late |
+| `T2-OTP` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md` | phone OTP functional completion plus reopened Stitch-backed visual redesign and runtime evidence | can start after approval; Stitch design selection first |
+| `T3-SOCIAL` | `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md` | completed dependency consumed by this plan; no new implementation except promotion handoff evidence | completed; guard-clean in promotion lane |
+| `T4-METRICS` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md` | funnel metrics sink/query and device/runtime proof across T1/T2/T3 journeys | starts after event-producing flows are stable; sink access may block final delivery |
+
+## Acceptance Traceability Matrix
+| Requirement ID | Source TODO / Criterion | Implementation Owner | Required Artifact / UI Marker | Implementation Evidence | Test Evidence | Runtime / Web Evidence | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| T1-W2A-MARKER-01 | foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md :: web/browser route /baixe-o-app promotion boundary and store/open handoff | T1 web-to-app worker | /baixe-o-app, /open-app, web/browser, route, navigation | Implement or verify canonical app-promotion/store handoff and redirect-intent preservation. | Flutter route/promotion tests plus backend open-app/deferred resolver tests. | Playwright/browser evidence for web boundary plus real-device store/open/deferred validation before delivery. | planned |
+| T1-W2A-MARKER-02 | foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md :: anonymous favorites toggle/readback and post-accept anonymous baseline | T1 anonymous-baseline worker | favorite, route, screen, device, navigation | Remove remaining anonymous favorite auth gates where present and verify readback surfaces. | Flutter focused tests for discovery, account-profile detail, immersive linked-profile, and favorites readback. | ADB/device or Playwright runtime evidence according to platform parity before delivery. | planned |
+| T2-OTP-DOD-01 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Definition of Done :: Belluga tenant-public MVP identity baseline resolves through effective `phone-first OTP` configuration. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-DOD-02 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Definition of Done :: Phone-entry and OTP verification screens absorb the former auth-entry polish baseline: clear CTA hierarchy, readable validation/backend-error states, explicit in-flight feedback, and keyboard-safe/mobile-safe layout. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-DOD-03 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Definition of Done :: Tenant-admin technical integrations expose the release product model for outbound OTP only: `Webhook WhatsApp`, `Secondary OTP Channel com SMS`, and conditional `URL SMS`. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-DOD-04 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Definition of Done :: OTP secondary-channel behavior is explicit end-to-end: WhatsApp is the default challenge channel, SMS is available only when configured, and public UI surfaces `Outras formas` only for that configured fallback. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-DOD-05 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Definition of Done :: Playwright source-owned web evidence covers every web-visible/admin-critical row in the matrix below; Android-only OTP UI closure remains ADB/device evidence in the final consolidated device phase. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-DOD-06 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Definition of Done :: Anonymous-first invite conversion remains preserved and its merge-to-authenticated behavior is explicit. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-DOD-07 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Definition of Done :: Contact matching depends on normalized verified phone identity with backend-owned hardened hash materialization rather than raw phone storage in matching flows. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-DOD-08 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Definition of Done :: Belluga tenant-public Flutter/Laravel release behavior no longer depends on email/password. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-DOD-09 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Definition of Done :: Web promotion-only/auth-boundary rules remain unchanged and are explicitly preserved. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-VAL-01 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Validation Steps :: TODO is linked from `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-VAL-02 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Validation Steps :: Dependency edge to `TODO-store-release-minimal-friends-and-favorites-mvp.md` is explicit. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-VAL-03 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Validation Steps :: Upstream auth-governance baseline is delivered in `foundation_documentation/todos/completed/TODO-store-release-landlord-tenant-auth-method-governance.md` and exposes the effective Belluga tenant-public auth-method contract. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-VAL-04 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Validation Steps :: Backend feature tests cover OTP challenge, OTP verify, cooldown/TTL/rate-limit behavior, anonymous-to-authenticated merge, and contact-hash matching after verification. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-VAL-05 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Validation Steps :: Flutter tests cover phone-entry -> OTP verify -> authenticated state transition, auth-wall continuation, and anonymous invite conversion continuity. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-VAL-06 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Validation Steps :: Flutter tests plus applicable browser/device runtime evidence cover the redesigned phone-entry/OTP validation errors, backend-error readability, loading/disabled CTA behavior, keyboard-safe small-width layout, country mask behavior, separated OTP boxes, paste-to-fill, resend/cooldown state, and secondary SMS affordance. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-VAL-07 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Validation Steps :: Legacy Belluga tenant-public email/password routes/UI/tests are either removed or explicitly quarantined from store-release behavior. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-VAL-08 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Validation Steps :: Tenant-admin technical integrations expose simplified `outbound_integrations` WhatsApp/SMS OTP settings and save/read back the derived backend settings namespace without leaking legacy `Webhook OTP`, `Use WhatsApp webhook for OTP`, or `OTP Channel` controls. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T2-OTP-VAL-09 | foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md :: Validation Steps :: Playwright matrix in this TODO is implemented under `tools/flutter/web_app_tests/**`, executed only through `tools/flutter/run_web_navigation_smoke.sh` readonly mutation, and recorded as browser-stage evidence after the current web bundle is published. | T2 OTP worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Preserve current functional OTP backend/controller contract; implement pending Stitch-backed visual redesign and admin/runtime evidence closure. | Flutter OTP widget/controller/repository tests, Playwright OTP admin/public specs, Laravel OTP webhook/channel tests. | Stitch design reference, Playwright mutation/runtime evidence, ADB OTP Android flow, and live webhook readiness evidence or explicit blocker. | planned |
+| T3-SOCIAL-DOD-01 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Definition of Done :: The store-release contacts/favorites/friends core is explicitly implemented as a business-complete MVP slice. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-DOD-02 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Definition of Done :: The release no longer depends on the broad VNext package TODO to explain mandatory social behavior. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-DOD-03 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Definition of Done :: The release no longer depends on the broad VNext package TODO to justify required contact-management behavior for `Contatos` and `/convites/compartilhar`. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-DOD-04 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Definition of Done :: The relationship between `contact_match`, `discoverable_by_contacts`, personal-profile favorites, reciprocal friends, inviteable reasons, contact groups, non-personal account-profile favorites, and viewer-scoped exposure is explicit in code and docs. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-DOD-05 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Definition of Done :: Remaining non-release package work stays clearly in `TODO-vnext-connections-package.md`. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-VAL-01 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Validation Steps :: Backend automated: contact import -> match -> invite eligibility without favorite -> personal-profile favorite -> reciprocal friend derivation -> exposure resolution. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-VAL-02 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Validation Steps :: Backend automated: multi-group invite selection deduplicates recipients by canonical resolved recipient before quota counting and duplicate-invite handling. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-VAL-03 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Validation Steps :: Backend automated: duplicate invite prevention, credited-acceptance semantics, and share-materialized invite creation are keyed by canonical recipient Account Profile identity. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-VAL-04 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Validation Steps :: Backend automated: when a grouped recipient ceases to be inviteable, the system removes that recipient from all `contact_groups` automatically. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-VAL-05 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Validation Steps :: Backend automated: `discoverable_by_contacts=false` blocks hash-only lookup while `privacy_mode` alone does not disable contact lookup when the flag remains `true`. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-VAL-06 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Validation Steps :: Backend automated: release surfaces do not overexpose `friends_only` identities outside the frozen rules. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-VAL-07 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Validation Steps :: Flutter automated: `/convites/compartilhar` renders the new release relationship states deterministically and preserves invite-send behavior. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-VAL-08 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Validation Steps :: Flutter automated: the default inviteable list is deduplicated and relation filter chips narrow by backend-provided inviteable reasons using the Discovery interaction pattern. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-VAL-09 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Validation Steps :: Flutter automated: `/convites/compartilhar` refresh action reloads the friends/inviteable list, updates loading/error/empty/content state, and preserves active relation filters deterministically. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-VAL-10 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Validation Steps :: Flutter automated: sharing CTA does not remain stuck in `Gerando...` after repository success, handled error, thrown error, rapid repeat taps, or screen re-entry. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-VAL-11 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Validation Steps :: Flutter automated: unmatched external share targets, when present on native app, remain outside the filtered in-app inviteable list, outside `contact_groups`, and absent outside native app invite surfaces. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-VAL-12 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Validation Steps :: Flutter automated: current invite UX remains stable after the backend/API cutover to `Account Profile`-based recipient identity. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-VAL-13 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Validation Steps :: Flutter automated: group CRUD lives on dedicated management surfaces rather than `/convites/compartilhar`, and grouped recipients that cease to be inviteable disappear from group membership after refresh. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-VAL-14 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Validation Steps :: Flutter automated: non-personal account-profile favorites remain stable and are not conflated with the people relationship lane. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T3-SOCIAL-VAL-15 | foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md :: Validation Steps :: Release validation: authenticated user imports contacts, sees matched contacts in `Contatos`, refreshes the friends/inviteable list from `/convites/compartilhar`, invites a matched contact without favoriting first, verifies `Gerando...` clears after success/error on the sharing CTA, sees `favorite_by_you` / `favorited_you` entries become inviteable when the target type is `is_inviteable=true`, observes reciprocal-friend behavior when applicable, creates/uses groups through dedicated management surfaces, sees groups contain mixed in-app inviteable relations without duplicate recipients, confirms recipients that cease to be inviteable are removed automatically from groups, sees unmatched local contacts stay on the separate native auxiliary share branch, then uses relation filter chips on the unified in-app inviteable list and sees privacy-safe resume rendering on the approved release surface. | T3 social worker checkpoint | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Completed under Wave 2 social plan; TODO Completion Evidence Matrix is guard-clean in promotion lane. | Laravel social/favorites/invites suite and Flutter invite/home/group suites passed under Wave 2. | ADB invite/favorites continuation smokes passed on 2026-04-29 where runtime evidence was required. | passed |
+| T4-METRICS-DOD-01 | foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md :: Definition of Done :: Android store release has a frozen funnel-metrics validation matrix for the critical funnel. | T4 metrics worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Metrics matrix and event ownership are locally frozen; sink/readback closure remains in metrics worker scope where applicable. | Existing telemetry/event property tests plus additional sink/query readback proof or explicit waiver. | External telemetry sink/query readback and ADB/device event-firing proof before delivery. | passed |
+| T4-METRICS-DOD-02 | foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md :: Definition of Done :: The required KPI set can be read and trusted well enough for release decisions. | T4 metrics worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Metrics matrix and event ownership are locally frozen; sink/readback closure remains in metrics worker scope where applicable. | Existing telemetry/event property tests plus additional sink/query readback proof or explicit waiver. | External telemetry sink/query readback and ADB/device event-firing proof before delivery. | planned |
+| T4-METRICS-DOD-03 | foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md :: Definition of Done :: No hidden telemetry gap remains implied by "it should already be firing". | T4 metrics worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Metrics matrix and event ownership are locally frozen; sink/readback closure remains in metrics worker scope where applicable. | Existing telemetry/event property tests plus additional sink/query readback proof or explicit waiver. | External telemetry sink/query readback and ADB/device event-firing proof before delivery. | passed |
+| T4-METRICS-VAL-01 | foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md :: Validation Steps :: Code/test audit for release-critical event ownership and required properties. | T4 metrics worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Metrics matrix and event ownership are locally frozen; sink/readback closure remains in metrics worker scope where applicable. | Existing telemetry/event property tests plus additional sink/query readback proof or explicit waiver. | External telemetry sink/query readback and ADB/device event-firing proof before delivery. | passed |
+| T4-METRICS-VAL-02 | foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md :: Validation Steps :: Automated evidence where available for event names/properties on touched flows. | T4 metrics worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Metrics matrix and event ownership are locally frozen; sink/readback closure remains in metrics worker scope where applicable. | Existing telemetry/event property tests plus additional sink/query readback proof or explicit waiver. | External telemetry sink/query readback and ADB/device event-firing proof before delivery. | passed |
+| T4-METRICS-VAL-03 | foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md :: Validation Steps :: Manual or sink-level validation for web-to-app, OTP, merge, and first-favorite milestones. | T4 metrics worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Metrics matrix and event ownership are locally frozen; sink/readback closure remains in metrics worker scope where applicable. | Existing telemetry/event property tests plus additional sink/query readback proof or explicit waiver. | External telemetry sink/query readback and ADB/device event-firing proof before delivery. | planned |
+| T4-METRICS-VAL-04 | foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md :: Validation Steps :: Documented KPI readback proof or explicit waiver if a query surface is temporarily limited. | T4 metrics worker | web/browser, route, device, admin screen, endpoint, loading/error as applicable | Metrics matrix and event ownership are locally frozen; sink/readback closure remains in metrics worker scope where applicable. | Existing telemetry/event property tests plus additional sink/query readback proof or explicit waiver. | External telemetry sink/query readback and ADB/device event-firing proof before delivery. | planned |
+
+| T1-W2A-MARKER-03 | foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md :: map browsing, settings schema, package-owned migration boundaries, and deep-link resolver contracts remain in scope for final validation. | T1 web-to-app worker | map, schema, migration | Verify or complete map read-only baseline, settings schema contract, and package-owned migration boundary for app-link/deferred resolver behavior. | Flutter router tests, Laravel app-link/settings tests, and Playwright readonly boundary coverage planned. | Browser and Android device runtime evidence planned where map or deep-link behavior is visible. | planned |
+## Spec Deviation Ledger
+| Source TODO / Criterion | Original Requirement | Proposed Deviation | Approval Evidence | Status |
+| --- | --- | --- | --- | --- |
+| `none` | `No spec deviations approved.` | `n/a` | `n/a` | `n/a` |
+
+## Dependency Graph
+- `T2-OTP` blocks full `T3-SOCIAL` production readiness semantics because contact matching depends on verified phone identity, but `T3-SOCIAL` local implementation is already guard-clean and in promotion lane.
+- `T1-W2A` and `T2-OTP` both feed `T4-METRICS` event/readback proof.
+- `T4-METRICS` is last for sink/query validation because it consumes event milestones from web-to-app, OTP, merge, and first social-loop flows.
+- Final ADB/device validation waits for non-device implementation, tests, analyzer, web build, Playwright where applicable, and review triage.
+
+## Orchestration Topology
+- **Base branch / commit:** current orchestration branches after Wave 2 checkpoint: Flutter/Laravel `orchestration/store-release-wave2-social-consumer-gaps-20260429`; foundation docs `docs/store-release-wave2-social-consumer-gaps-20260429`.
+- **Orchestrator reconciliation branch:** create or reuse `orchestration/store-release-four-todos-completion-20260429` after approval; docs branch `docs/store-release-four-todos-completion-20260429`.
+- **Principal checkout policy:** principal checkout stays on the reconciliation branch for Stitch reference recording, web build, Playwright, and ADB validation.
+- **Worker branches / worktrees:** create isolated worker worktrees for `T1-W2A`, `T2-OTP`, and `T4-METRICS`; consume `T3-SOCIAL` from promotion-lane branch without new implementation ownership.
+
+## Checkpoint / Branch Accumulation Control
+- **Checkpoint manifest path:** `foundation_documentation/artifacts/checkpoints/store-release-four-todos-completion-2026-04-29.md`
+- **Checkpoint policy:** checkpoints are pushed recovery states plus manifests, not indefinite accumulation branches.
+- **Allowed checkpoint statuses:** `wip_checkpoint`, `validated_local_checkpoint`, `promotion_ready_checkpoint`, `superseded_checkpoint`.
+- **Same-branch continuation rule:** continue on the orchestrator branch only while work remains inside this approved plan and the checkpoint manifest records the next exact step.
+- **Build artifact policy:** generated deploy bundles such as `web-app` are excluded unless promotion explicitly owns deploy-artifact movement.
+
+## Workstreams
+| Workstream | Ownership Boundary | Inputs / Dependencies | Output Checkpoint | Worker-Local Validation |
+| --- | --- | --- | --- | --- |
+| `WS4-T1 Web-to-App Closure` | Flutter promotion/hard-gate/deferred-link surfaces and Laravel open-app/deferred resolver only | `T1-W2A` TODO and existing tests | worker checkpoint with remaining anonymous favorite and store/deferred proof changes | Flutter route/deferred/promotion tests, backend open-app/deferred tests, Playwright web boundary |
+| `WS4-T2 Stitch OTP Visual Redesign` | Stitch exploration artifact plus Flutter public auth phone/OTP layout only | `T2-OTP` visual gap matrix | worker checkpoint with saved Stitch references and redesigned phone/OTP screens | Flutter widget/controller OTP tests, analyzer, screenshot/browser/device evidence |
+| `WS4-T2 OTP Runtime/Admin Evidence` | Flutter admin OTP settings Playwright specs, Laravel queued webhook/channel contract, live receiving smoke when available | `T2-OTP` admin/runtime rows | worker checkpoint with Playwright/runtime evidence or explicit blocker | Laravel OTP tests, Playwright mutation shard, webhook receiver proof |
+| `WS4-T3 Social Dependency Verification` | no new code; promotion-lane evidence verification | `T3-SOCIAL` TODO | evidence checkpoint only | `todo_completion_guard.py` remains go for T3 social TODO |
+| `WS4-T4 Metrics Readback` | telemetry matrix, sink/query readback, ADB event firing proof | stable T1/T2/T3 journeys | worker checkpoint with sink/readback evidence or blocker classification | telemetry tests, sink/query output, ADB event firing capture |
+| `WS4-Reconciliation` | merge/conflict resolution, consolidated validation orchestration, docs evidence | all workstreams | reconciliation checkpoint and delivery guard result | analyzer, web build, focused suites, Playwright, ADB, delivery guard |
+
+## Execution Ownership Ledger
+| Workstream | Implementation Owner | Orchestrator Code Scope | Worker Checkpoint Evidence | Reconciliation Evidence |
+| --- | --- | --- | --- | --- |
+| `WS4-T1 Web-to-App Closure` | `T1 web-to-app worker` | `reconciliation-only` | commit, focused tests, Playwright/browser proof | merged branch, web build, ADB store/deferred proof |
+| `WS4-T2 Stitch OTP Visual Redesign` | `T2 OTP visual worker` | `reconciliation-only` | Stitch screen references, Flutter layout commit, OTP focused tests | merged branch, analyzer, browser/device visual proof |
+| `WS4-T2 OTP Runtime/Admin Evidence` | `T2 OTP runtime worker` | `reconciliation-only` | Laravel/Flutter admin/runtime tests, Playwright mutation proof | merged branch, web build, webhook/ADB evidence |
+| `WS4-T3 Social Dependency Verification` | `T3 social verification worker` | `reconciliation-only` | guard-clean promotion-lane evidence | dependency row remains passed in final delivery guard |
+| `WS4-T4 Metrics Readback` | `T4 metrics worker` | `reconciliation-only` | sink/query proof or explicit blocker/waiver request | final metrics rows and TODO guard state |
+| `WS4-Reconciliation` | `reconciliation validation worker` | `reconciliation-only` | consolidated evidence collection, no feature implementation | `orchestration_delivery_guard.py --require-approved` result |
+
+## Execution Waves
+Waves are orchestrator-owned control checkpoints. They are not user feedback gates and must not stop execution by default. Stop only for a mandatory user decision, scope change, conflict with the governing TODO set, real blocker, or explicit validation waiver.
+
+### Wave 0 - Preflight / Approval
+- Run this plan through `orchestration_plan_completion_guard.py` and require `Overall outcome: go` before execution.
+- Ask for explicit `APROVADO` because this canonical plan supersedes the older non-canonical session plan.
+- Create/reuse reconciliation branches after approval and record clean/dirty status.
+
+### Wave 1 - Non-ADB Implementation And Design
+- Run Stitch exploration and select OTP visual direction before Flutter OTP layout implementation.
+- Complete non-ADB T1/T2/T4 implementation gaps and focused tests.
+- **Gate to next wave:** no governing TODO conflict, focused tests pass, and all design/runtime blockers are classified.
+
+### Wave 2 - Browser/Web/Admin Runtime
+- Build/publish current Flutter web bundle to derived `web-app` and run Playwright readonly/mutation lanes for web-to-app and OTP admin/public rows.
+- **Gate to next wave:** browser-facing target proves current reconciliation branch state or records a blocker.
+
+### Wave 3 - ADB/Device And External Readback
+- Run final ADB paths last: store/deferred link, OTP, contact/social dependency smoke where needed, and metrics event firing.
+- Run sink/query readback or record explicit blocker/waiver request if external access is unavailable.
+- **Gate to completion:** all TODO guards and this delivery guard return `Overall outcome: go`, or the plan remains blocked with exact rows.
+
+## Consolidated Validation Matrix
+| Area | Required Evidence | Runtime Target | Owner |
+| --- | --- | --- | --- |
+| Plan guard | `python3 delphi-ai/tools/orchestration_plan_completion_guard.py --plan foundation_documentation/artifacts/execution-plans/store-release-four-todos-orchestration-plan.md` returns `Overall outcome: go` | deterministic local guard | `reconciliation validation worker` |
+| T1 web-to-app | Flutter route/promotion/deferred tests, Laravel open-app/deferred tests, Playwright web boundary, ADB store/deferred validation | local tests, browser, Android device | `T1 web-to-app worker` |
+| T2 OTP visual | Stitch saved references, redesigned Flutter auth screens, OTP focused tests, analyzer, browser/device visual proof | Stitch, Flutter local, browser/device | `T2 OTP visual worker` |
+| T2 OTP admin/runtime | Laravel OTP webhook/channel tests, admin Playwright mutation, live webhook smoke or explicit external blocker | Laravel container, browser, external webhook | `T2 OTP runtime worker` |
+| T3 social dependency | promotion-lane TODO guard remains `go`; no new code required | deterministic local guard | `T3 social verification worker` |
+| T4 metrics | telemetry tests, sink/query readback, ADB event firing evidence for web-to-app, OTP, merge, first favorite | local tests, external sink, Android device | `T4 metrics worker` |
+| Reconciliation | analyzer, web build, focused suites, Playwright, ADB, TODO guards, delivery guard | reconciliation branch/runtime | `reconciliation validation worker` |
+
+## Consolidated Delivery Evidence
+Fill after execution. Planned rows: T1 implementation, T2 visual, T2 runtime/admin, T3 dependency verification, T4 sink/readback, consolidated analyzer/web build/Playwright/ADB, TODO guards, delivery guard.
+
+| Area | Required Evidence | Status | Evidence Artifact / Command | Owner |
+| --- | --- | --- | --- | --- |
+| `pre-execution` | `No delivery evidence claimed before approval.` | planned | `n/a until APROVADO and execution` | `reconciliation validation worker` |
+
+## Checkpoint Manifest
+- **Manifest path:** `foundation_documentation/artifacts/checkpoints/store-release-four-todos-completion-2026-04-29.md`
+- **Checkpoint status:** `wip_checkpoint`
+- **Repositories pushed:** `pending after approval`
+- **Excluded dirty surfaces:** `web-app` generated bundle; unrelated Delphi local edits; root submodule pointer promotion unless promotion lane owns it.
+- **Next branch lifecycle step:** await `APROVADO`, then create/reuse reconciliation branches and execute Wave 1.
+
+## Runtime Freshness Evidence
+Runtime freshness evidence will be filled after execution because this plan includes web/browser/device/runtime/build validation.
+
+## Risk / Conflict Controls
+- The plan cannot close while `T2-OTP` remains `Functional-UX-Redesign-Pending` or while the Stitch visual reference is absent.
+- The plan cannot close while `T4-METRICS` lacks sink/query proof or an approved explicit waiver/blocker row.
+- ADB/device validation remains last to reduce WSL/device instability and preserve non-device progress.
+- Browser evidence must run against a refreshed web bundle generated from the reconciliation branch.
+- Workers own implementation; the orchestrator owns reconciliation, evidence collection, and guard execution only.
+- Existing Wave 2 social work is consumed as a dependency and must not be reopened for backward compatibility unless an independent launch risk is identified.
+
+## Approval Request
+- **Requested approval:** Reply `APROVADO` to authorize this orchestration plan.
+- **Execution authorized by approval:** create/reuse four-TODO reconciliation branches/worktrees, run Stitch exploration, implement remaining T1/T2/T4 gaps, run browser/device/runtime validation, update TODO evidence, and move guard-clean TODOs to promotion lane.
+- **Execution not authorized by approval:** main/stage production promotion, generated `web-app` source commit, Docker submodule pointer promotion outside promotion lane, QR web-auth fast-follow, iOS deferred capture beyond documented fallback, or unrelated Store Release TODOs.
+- **Autonomy rule:** once approved, the orchestrator advances through waves without requesting feedback between waves unless a mandatory decision/blocker/waiver condition appears.
+
+## Plan Completion Guard
+- **Command:** `python3 delphi-ai/tools/orchestration_plan_completion_guard.py --plan foundation_documentation/artifacts/execution-plans/store-release-four-todos-orchestration-plan.md`
+- **Required before approval/execution:** `Overall outcome: go`
+
+## Delivery Guard
+- **Command:** `python3 delphi-ai/tools/orchestration_delivery_guard.py --plan foundation_documentation/artifacts/execution-plans/store-release-four-todos-orchestration-plan.md --require-approved`
+- **Required before local implementation or delivery completion claim:** `Overall outcome: go`
+- **Blocks delivery when:** any traceability row lacks passed implementation/test evidence, a UI/runtime criterion lacks required fresh web/browser/device/navigation evidence, divergent Android/Web behavior lacks either lane, a named artifact was substituted without an approved spec deviation, or any implementation row names the orchestrator as owner.
