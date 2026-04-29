@@ -41,6 +41,7 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android-publication-readiness.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-qr-login-web-auth.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-ios-universal-links-production-validation.md`
+- `foundation_documentation/artifacts/execution-plans/store-release-wave2-social-consumer-gaps-orchestration-plan.md`
 
 ## Scope
 - [ ] Treat web-to-app conversion closure as a publication blocker, not as leftover Pre-MVP work.
@@ -65,6 +66,7 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 
 ## Execution Lane Tracking (Required)
 - **Local implementation branches:** `belluga_now_docker:<planning>`, `flutter-app:<multiple child branches>`, `laravel-app:<multiple child branches>`
+- **Active orchestration wave:** `foundation_documentation/artifacts/execution-plans/store-release-wave2-social-consumer-gaps-orchestration-plan.md`
 - **Promotion lane path:** `dev -> stage -> main`
 - **Lane-promoted threshold for this TODO:** `dev`
 - **Production-ready threshold for this TODO:** `stage`

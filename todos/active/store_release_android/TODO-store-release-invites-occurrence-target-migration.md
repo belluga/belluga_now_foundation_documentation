@@ -28,6 +28,7 @@ The canonical docs already point in this direction (`event_id + occurrence_id | 
 ## References
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- `foundation_documentation/artifacts/execution-plans/store-release-wave2-social-consumer-gaps-orchestration-plan.md`
 - `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
 - `foundation_documentation/modules/events_module.md`
@@ -89,6 +90,9 @@ The canonical docs already point in this direction (`event_id + occurrence_id | 
 | `A-03` | No production backward compatibility is required for event-only invite writes. | Delphi mandate: no production users/backward-compat constraints for launch architecture. | Need explicit migration/compat plan before hard rejection. | `High` | `Keep as Assumption` |
 
 ## Execution Plan (Required Before `APROVADO`)
+
+**Orchestration wave:** `foundation_documentation/artifacts/execution-plans/store-release-wave2-social-consumer-gaps-orchestration-plan.md`
+
 ### Touched Surfaces
 - Laravel invite package/services/controllers/requests/projections/share-code paths.
 - Laravel Events read contracts only if selected occurrence data is missing for invite entry points.

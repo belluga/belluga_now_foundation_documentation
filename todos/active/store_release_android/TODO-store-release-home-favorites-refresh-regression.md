@@ -28,6 +28,7 @@ This TODO is a release blocker because Home is the tenant-public entry route and
 ## References
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- `foundation_documentation/artifacts/execution-plans/store-release-wave2-social-consumer-gaps-orchestration-plan.md`
 - `foundation_documentation/modules/tenant_home_composer_module.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
@@ -83,6 +84,9 @@ This TODO is a release blocker because Home is the tenant-public entry route and
 | `A-03` | Non-ADB Flutter widget/controller/repository tests can reproduce and guard the refresh before final device proof. | The failure concerns app state propagation; ADB is not needed for the first regression loop. | ADB/device proof may become the only reliable end-to-end signal and must be deferred to final phase. | `Medium` | `Keep as Assumption` |
 
 ## Execution Plan (Required Before `APROVADO`)
+
+**Orchestration wave:** `foundation_documentation/artifacts/execution-plans/store-release-wave2-social-consumer-gaps-orchestration-plan.md`
+
 ### Touched Surfaces
 - Flutter favorite repository/DAO/controller surfaces as discovered by fail-first coverage.
 - Flutter Home Favorites controller/widget/repository consumer surfaces.

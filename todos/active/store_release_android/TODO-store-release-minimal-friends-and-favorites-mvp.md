@@ -45,6 +45,7 @@
 ## References
 
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+- `foundation_documentation/artifacts/execution-plans/store-release-wave2-social-consumer-gaps-orchestration-plan.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-home-favorites-refresh-regression.md`
