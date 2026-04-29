@@ -18,6 +18,7 @@
 - Laravel invite target resolution, duplicate detection, credited-winner lookup, share-code creation/materialization/acceptance, and feed projection paths carry concrete occurrence identity and fail closed without it.
 - Laravel direct invite request payloads reject `receiver_user_id`; direct invite responses and inviteable payloads expose release identity through `receiver_account_profile_id` and `user_id` only. Authenticated share materialization now requires a concrete account-profile recipient identity; `receiver_user_id` remains internal actor/audit metadata only.
 - Laravel contact import persistence now uses bounded bulk upsert keyed by importing user and contact hash.
+- Laravel personal-profile bootstrap now checks for an existing personal profile instead of treating any existing `account_roles` as proof that the personal profile exists. This fixes the post-QA contact-refresh path where a role-bearing phone user could match by hash but be suppressed from `contact_match` inviteables because no personal inviteable profile was materialized.
 - Flutter user-events contracts/repositories/controllers now track confirmed occurrence IDs and compare selected occurrence identity.
 - Flutter user-events repository now fails loudly when the confirmed-attendance endpoint returns stale `event_ids`/missing `confirmed_occurrence_ids`, preserving the last known confirmed state instead of silently clearing it.
 - Flutter event-to-invite factory sends `event.selectedOccurrenceId` for share-code generation instead of a date string.
@@ -80,6 +81,12 @@
   - No remaining Flutter references to old confirmed event APIs or event-keyed sent invite APIs.
   - No remaining Flutter `receiver_user_id` invite payload/decoder fallback.
   - Remaining Laravel `receiver_user_id` references are internal actor/feed/audit ownership, tests that intentionally corrupt internal fields for adversarial proof, or request validation prohibiting the old input field.
+- Post-QA contact refresh root-cause evidence:
+  - Read-only ADB diagnostics confirmed `com.guarappari.app` had `READ_CONTACTS` granted and the Android contacts provider contained `Bruna` with `+55 27 99886-9802`.
+  - RED test: `./scripts/delphi/run_laravel_tests_safe.sh --filter=test_contact_import_matches_phone_user_that_already_has_non_personal_account_role tests/Feature/Invites/StoreReleaseSocialGraphTest.php` failed with `No query results for model [App\Models\Tenants\AccountProfile]` before the bootstrap fix.
+  - GREEN focused test: same command passed after the fix.
+  - Expanded Laravel regression: `./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Auth/TenantPhoneOtpAuthTest.php tests/Feature/Invites/StoreReleaseSocialGraphTest.php tests/Feature/Invites/InvitesFlowTest.php`
+  - Result: `58 passed (419 assertions)`.
 
 ## Known Deferred Runtime Evidence
 - ADB/device smoke remains deferred to the consolidated final device phase because the environment is resource-sensitive:
