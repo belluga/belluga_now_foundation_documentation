@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/store-release-wave2-invite-occurrence-contact-presence-audit-20260429/triple-audit/round-03/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "Test Quality no-context reviewer"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not close release-quality validation until the deferred ADB/device smoke executes the three reopened QA flows against the intended runtime path. Keep this as a final promotion gate rather than a code-level blocker for the current local package."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-9C5FFEC0",
+      "severity": "high",
+      "title": "Deferred ADB/device smoke evidence remains required for release closure",
+      "rationale": "The effective round package still lists generate/share invite for selected occurrence, refresh device contacts, and confirm/accept one occurrence of a multi-occurrence event as deferred runtime evidence. Focused unit/widget/feature suites prove contract and regression intent, but do not prove the final mobile navigation/runtime path that originally surfaced the QA symptoms.",
+      "suggested_action": "Run the consolidated ADB/device smoke against the final build/runtime path and record pass/fail evidence for the three listed flows before closing release validation.",
+      "reviewer_labels": [
+        "Test Quality no-context reviewer"
+      ],
+      "source_finding_ids": [
+        "TQA-R03-01"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

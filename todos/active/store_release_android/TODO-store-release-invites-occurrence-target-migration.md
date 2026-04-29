@@ -8,6 +8,8 @@ User QA/product review on 2026-04-29 identified a structural issue in the invite
 
 The corrected canonical contract is stricter than the earlier module wording: the invite target is `occurrence_id`. `event_id` is only parent context derived from the occurrence and must not be used as part of invite target identity. Store-release invite actions must materialize the selected occurrence so duplicate prevention, credited acceptance, share-code continuation, attendance confirmation, metrics, and UI context all refer to the same scheduled experience.
 
+User correction on 2026-04-29 broadened the same rule beyond invite edges: confirmation of presence and every participation relationship that previously attached to `event_id` (free attendance confirmation, reservation/attendance entitlement, check-in, attendance outcome, no-show/manual confirmation, and any invite-driven follow-up relationship) is occurrence-scoped. `event_id` may remain only as parent context, route context, or denormalized read context derived from the occurrence; it must not be the relationship identity.
+
 ## Framing Source & Story Slice
 - **Feature brief:** `direct-to-todo`
 - **Primary story ID:** `store-release-invite-occurrence-target`
@@ -15,14 +17,15 @@ The corrected canonical contract is stricter than the earlier module wording: th
 - **Direct-to-TODO rationale:** safe. The product decision is explicit and aligns with existing occurrence-first Events contracts; the TODO exists to cut over implementation and validation, not to reopen invite business rules.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Pending`
-- **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Contract-Cutover`, `Occurrence-First`, `User-Flow-Impact`
-- **Next exact step:** audit current invite create/share/materialize/accept/feed paths for event-target leakage, event+occurrence composite-key leakage, or nullable occurrence leakage, then add fail-first backend and Flutter tests proving `occurrence_id` is the required target and is preserved.
+- **Current delivery stage:** `Active-Partial-Local-Validated-Round03-Adjudicated-ADB-Deferred`
+- **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Contract-Cutover`, `Occurrence-First`, `User-Flow-Impact`, `Presence-Occurrence-Fixed-Local`, `Share-CTA-Root-Cause-Fixed-Local`, `Contact-Refresh-Fixed-Local`, `Recipient-Surface-Cutover-Local`, `Received-Invite-Occurrence-Context-Fixed-Local`, `Confirmed-Occurrence-Contract-Hardened-Local`, `Widget-False-Green-Corrected`, `Round01-Audit-Resolved`, `Round02-Audit-Resolved`, `Round03-Audit-Adjudicated`
+- **Next exact step:** consolidate the local checkpoint, then carry ADB/device invite/contact/presence smoke to the consolidated final device phase.
 
 ## Contract Boundary
-- This TODO owns occurrence-target cutover for invite writes, share-code materialization, invite feed/read models, acceptance/decline, duplicate prevention, credited acceptance, and Flutter invite UI context.
+- This TODO owns occurrence-target cutover for invite writes, share-code materialization, invite feed/read models, acceptance/decline, duplicate prevention, credited acceptance, invite-triggered attendance confirmation semantics, and Flutter invite UI context.
+- This TODO also owns the audit boundary that proves adjacent participation relationships touched by invite acceptance are occurrence-scoped. If check-in/reservation features remain deferred, their current contracts/fixtures/docs must still state occurrence identity rather than event identity.
 - `occurrence_id` is the release runtime invite target identity.
-- `event_id` should not be required by invite write APIs. Backend write paths derive it from `occurrence_id`; if a pre-release route or payload still supplies `event_id`, it is disposable consistency context and must be rejected on conflict rather than used for identity.
+- `event_id` should not be required by invite or participation write APIs as target identity. Backend write paths derive it from `occurrence_id`; if a pre-release route or payload still supplies `event_id`, it is disposable consistency context and must be rejected on conflict rather than used for identity.
 - Existing event-only or `event_id + occurrence_id` composite-target behavior is pre-release residue. It must be removed, reset, or rejected; it must not remain as a release path.
 - Audit, Claude, PR, and promotion reviews for this TODO must not ask for event-target, nullable-occurrence, or old invite-shape backward compatibility. Such findings are non-blocking unless they identify an independent launch risk unrelated to preserving pre-release behavior.
 - If a UI flow starts from an event detail with multiple occurrences and no selected occurrence, the flow must require selection or use the backend-selected occurrence context already resolved by the event detail payload. It must not silently pick a different occurrence.
@@ -51,18 +54,21 @@ The corrected canonical contract is stricter than the earlier module wording: th
   - `flutter_client_experience_module.md` sections `2.1`, `2.2`, and `7 Canonical Decision Baseline`.
 
 ## Scope
-- [ ] Audit backend invite storage, direct invite creation, share-code creation, share-code materialization/acceptance, feed projection, duplicate prevention, and credited-acceptance lookup for `occurrence_id = null` runtime leakage.
-- [ ] Audit Flutter event detail, invite share, invite flow, received invite, and repository DTO paths for lost selected-occurrence context.
-- [ ] Make release invite writes require or backend-resolve a concrete `occurrence_id` before persistence.
-- [ ] Ensure share codes carry and restore occurrence identity.
-- [ ] Ensure invite feed/read models render occurrence date/time/context, not only event-level identity.
-- [ ] Ensure duplicate prevention and credited acceptance are keyed by `(receiver_account_profile_id, occurrence_id, inviter_principal)`.
-- [ ] Ensure acceptance/decline/materialization actions preserve the same occurrence target end-to-end.
-- [ ] Update canonical docs if the implementation intentionally supersedes earlier nullable target wording for release writes.
+- [x] Audit backend invite storage, direct invite creation, share-code creation, share-code materialization/acceptance, feed projection, duplicate prevention, and credited-acceptance lookup for `occurrence_id = null` runtime leakage.
+- [x] Audit invite-adjacent participation relationships for event-scoped leakage: free attendance confirmation, reservation/attendance entitlement, check-in, attendance outcome, no-show/manual confirmation, and any direct-confirmation supersession path.
+- [x] Audit Flutter event detail, invite share, invite flow, received invite, and repository DTO paths for lost selected-occurrence context.
+- [x] Make release invite writes require or backend-resolve a concrete `occurrence_id` before persistence.
+- [x] Ensure share codes carry and restore occurrence identity.
+- [x] Ensure invite feed/read models render occurrence date/time/context, not only event-level identity.
+- [x] Ensure duplicate prevention and credited acceptance are keyed by `(receiver_account_profile_id, occurrence_id, inviter_principal)`.
+- [x] Ensure attendance confirmation and invite direct-confirmation supersession are keyed by `(receiver_account_profile_id, occurrence_id)` or the equivalent authenticated participant identity + `occurrence_id`; never by event.
+- [x] Ensure acceptance/decline/materialization actions preserve the same occurrence target end-to-end.
+- [x] Update canonical docs if the implementation intentionally supersedes earlier nullable target wording for release writes.
 
 ## Out of Scope
 - [ ] Redesigning invite visual polish beyond occurrence context clarity.
-- [ ] Ticketing, check-in, paid reservation, or attendance policy expansion.
+- [ ] Ticketing, check-in, paid reservation, or attendance policy feature expansion beyond identity correction.
+- [ ] Implementing the physical check-in product if it is still VNext; this TODO only requires that any existing check-in contract, fixture, projection, or follow-up relationship be occurrence-scoped and not event-scoped.
 - [ ] Broad event occurrence authoring UX outside the occurrence identity required by invites.
 - [ ] Production data migration or backward compatibility for invite/favorites/friends data; these capabilities have not been released to production. Local/test fixtures may be reset or reseeded to the launch contract.
 - [ ] Referral result attribution beyond direct invite acceptance; that remains VNext.
@@ -77,6 +83,8 @@ The corrected canonical contract is stricter than the earlier module wording: th
 - [x] `D-07` No `occurrence_id = null` write compatibility path is retained for release. Null-target pre-release fixtures must be reset/reseeded or rejected.
 - [x] `D-08` Invites, favorites, and friends have zero backward-compatibility burden in this release because this is their first production launch.
 - [x] `D-09` Review and promotion gates must classify event-target, nullable-occurrence, old invite-shape, or first-production social backward-compatibility requests as out of scope and non-blocking unless they raise an independent security, integrity, data-loss, tenant-isolation, or release-regression issue.
+- [x] `D-10` Confirmation of presence and all participation relationships are occurrence-scoped. Free attendance confirmation, reservation/attendance entitlement, check-in, attendance outcome, no-show/manual confirmation, and invite direct-confirmation supersession must resolve to concrete `occurrence_id`; `event_id` is only derived parent context.
+- [x] `D-11` Any existing endpoint or projection that returns event context for participation may keep `event_id` as denormalized read context, but its persisted/write identity, uniqueness, counters, and supersession semantics must be occurrence-based.
 
 ## Module Decision Consistency Matrix
 | Decision | Module Decision Ref | Status | Planned Handling | Evidence |
@@ -85,6 +93,7 @@ The corrected canonical contract is stricter than the earlier module wording: th
 | `D-01..D-04` | `events_module.md` `EVS-OCC-01` | `Aligned` | Preserve selected occurrence route/query contract and consume it in invite flows. | Event detail already carries selected occurrence context. |
 | `D-05` | `invite_and_social_loop_module.md` uniqueness and credited acceptance rules | `Supersede` | Remove `event_id` from target identity and key uniqueness/crediting by concrete `occurrence_id`. | Earlier module wording keyed target as `event_id + occurrence_id`; user correction makes occurrence the target. |
 | `D-06` | `flutter_client_experience_module.md` invite/app continuation | `Aligned` | Preserve continuation intent and add occurrence identity as part of that intent. | Web-to-app handoff must preserve requested route/context. |
+| `D-10..D-11` | `invite_and_social_loop_module.md` attendance/check-in lifecycle + `events_module.md` `EVS-ATT-01` | `Supersede` | Preserve tenant attendance policy governance, but supersede any `event/occurrence` or nullable occurrence relationship identity with concrete `occurrence_id`. | User correction on 2026-04-29: confirmation of presence and every relationship such as check-in belongs to the occurrence, not the event. |
 
 ## Assumptions Preview
 | Assumption ID | Assumption | Evidence | If False | Confidence | Handling |
@@ -137,13 +146,32 @@ This TODO must derive the test matrix task-by-task during orchestration. Each de
 ### Test Coverage Matrix
 | Task / Behavior | Fail-First Target | Required Automated Evidence | Runtime / Manual Evidence | Status |
 | --- | --- | --- | --- | --- |
-| Direct invite create requires concrete occurrence | Multi-occurrence invite create without occurrence fails; single-occurrence resolves and persists occurrence. | Laravel feature/unit tests for create validation/resolution. | Final ADB: send invite from selected occurrence. | `planned` |
-| Duplicate prevention is occurrence-scoped | Same receiver/inviter with different occurrences remain distinct; same occurrence blocks duplicate without using `event_id` as target key. | Laravel duplicate/unique-key tests. | Optional manual smoke for two dates of same event. | `planned` |
-| Credited acceptance/supersession is occurrence-scoped | Accepting invite for occurrence A does not close/credit occurrence B. | Laravel acceptance/supersession tests. | Final ADB: accept one occurrence and verify other remains distinct. | `planned` |
-| Share-code create/materialize/accept preserves occurrence | Share code generated from occurrence A materializes/accepts occurrence A, not event-only target. | Laravel share-code tests + Flutter repository payload test. | Web/app continuation smoke when runner/env is available. | `planned` |
-| Invite feed/read model renders occurrence context | Feed item without occurrence date/time/context fails expected assertion. | Backend projection/read test + Flutter widget/controller test. | Device smoke for received invite context. | `planned` |
-| Flutter event detail/share flow passes selected occurrence | Repository payload loses `occurrence_id` from selected detail route. | Flutter controller/repository tests from selected occurrence detail to invite payload. | Final ADB: invite from selected occurrence in UI. | `planned` |
-| Null occurrence writes are rejected | New release write still allows `occurrence_id = null` silently. | Backend tests proving null occurrence writes are rejected or reset fixture-only before release. | n/a | `planned` |
+| Direct invite create requires concrete occurrence | Multi-occurrence invite create without occurrence fails; single-occurrence resolves and persists occurrence. | Laravel feature tests for direct/create validation and resolution. | Final ADB: send invite from selected occurrence. | `local-passed / ADB-deferred` |
+| Duplicate prevention is occurrence-scoped | Same receiver/inviter with different occurrences remain distinct; same occurrence blocks duplicate without using `event_id` as target key. | Laravel duplicate/unique-key tests. | Optional manual smoke for two dates of same event. | `local-passed / ADB-deferred` |
+| Credited acceptance/supersession is occurrence-scoped | Accepting invite for occurrence A does not close/credit occurrence B. | Laravel acceptance/supersession tests. | Final ADB: accept one occurrence and verify other remains distinct. | `local-passed / ADB-deferred` |
+| Share-code create/materialize/accept preserves occurrence | Share code generated from occurrence A materializes/accepts occurrence A, not event-only target. | Laravel share-code tests + Flutter repository/application/controller payload tests. | Web/app continuation smoke when runner/env is available. | `local-passed / ADB-deferred` |
+| Invite feed/read model renders occurrence context | Feed item without occurrence date/time/context fails expected assertion. | Backend feed test asserts occurrence `event_date` and location; Flutter controller/widget tests prove same-event different-occurrence filtering and visible occurrence date/time. | Device smoke for received invite context. | `local-passed / ADB-deferred` |
+| Flutter event detail/share flow passes selected occurrence | Repository payload loses `occurrence_id` from selected detail route. | Flutter controller/repository tests from selected occurrence detail to invite payload. | Final ADB: invite from selected occurrence in UI. | `local-passed / ADB-deferred` |
+| Null occurrence writes are rejected | New release write still allows `occurrence_id = null` silently. | Backend tests proving direct invite and share-code writes reject missing occurrence. | n/a | `local-passed` |
+| Attendance confirmation is occurrence-scoped | Accept/direct-confirm for occurrence A creates/supersedes only occurrence A, not all dates of the event. | Laravel tests for invite acceptance -> free confirmation and direct-confirmation supersession keyed by occurrence. | Final ADB: accept/confirm one occurrence of a multi-occurrence event and verify another occurrence remains distinct. | `local-passed / ADB-deferred` |
+| Participation/check-in relationship contracts are occurrence-scoped | Existing check-in/reservation/outcome fixtures or contracts still persist/read event-only relationship identity. | Contract/source audit plus focused tests for implemented attendance confirmation; VNext check-in/reservation docs corrected to occurrence-first. | Deferred if check-in remains VNext; contract must still be occurrence-first. | `local-audited / VNext-waiver / ADB-deferred` |
+
+## Local Delivery Notes (2026-04-29)
+
+- **Root cause fixed, invite share CTA:** Flutter event-to-invite factory was sending the event date ISO string as `occurrence_id`, causing backend target resolution failure and leaving the share CTA in retry/error state. The local fix sends the selected `event.selectedOccurrenceId` and uses the selected occurrence date for invite context.
+- **Null occurrence release path removed:** Laravel direct invite and share-code requests now require `target_ref.occurrence_id`; the focused feature test proves both write paths reject missing occurrence identity.
+- **Share/materialization occurrence preservation:** share codes persist occurrence identity, materialize/accept against the same occurrence, duplicate/credited-acceptance lookups are occurrence-scoped, and Flutter share-code generation now sends selected occurrence identity through typed DAL request DTOs.
+- **Presence contract cutover:** Laravel attendance confirmation now requires `occurrence_id`, stores/lists concrete occurrence IDs, returns `confirmed_occurrence_ids`, and makes `confirmed_only` agenda/stream filters match occurrence `_id` rather than parent `event_id`.
+- **Flutter presence cutover:** Flutter user-events repository stores confirmed occurrence IDs, sends `event_id + occurrence_id` for confirm/unconfirm, and event/search/home/profile status indicators compare selected occurrence identity instead of parent event identity.
+- **Direct-confirmation supersession evidence:** Laravel tests prove direct confirmation supersedes only pending invites for the same occurrence and does not collapse another occurrence from the same event.
+- **Participation adjacent audit:** active code has free attendance confirmation and invite direct-confirmation supersession only; physical check-in, paid reservation, no-show, and manual attendance outcomes remain VNext/deferred. Contract docs now state those future relationships must carry concrete `occurrence_id`.
+- **Recipient surface cleanup:** direct invite responses and inviteable payloads no longer expose `receiver_user_id` as a release contract field; backend keeps user id only as actor/audit/feed ownership context.
+- **Contact refresh adjacent fix:** Flutter contact import now chunks expanded contact hashes to the backend cap, merges matches across chunks, and surfaces explicit refresh failure without clearing current inviteables; Laravel contact import persistence uses bounded bulk upsert.
+- **Round 01 audit closure:** `foundation_documentation/artifacts/store-release-wave2-invite-occurrence-contact-presence-audit-20260429/triple-audit/round-01/resolution.md` records the additive elegance/performance/test-quality blockers as resolved.
+- **Round 02 audit closure:** `foundation_documentation/artifacts/store-release-wave2-invite-occurrence-contact-presence-audit-20260429/triple-audit/round-02/resolution.md` records the received-invite/feed occurrence-context and stale confirmed-occurrence consumer-contract blockers as resolved.
+- **Round 03 audit adjudication:** `foundation_documentation/artifacts/store-release-wave2-invite-occurrence-contact-presence-audit-20260429/triple-audit/round-03/resolution.md` records clean elegance/performance lanes and accepts the remaining test-quality finding as the final ADB/device promotion gate, not a local code blocker.
+- **Widget false-green correction:** the invite-share widget retry test now uses an occurrence-backed invite fixture and asserts both the failed call and retry call share-code generation with `occurrence-1`.
+- **Remaining scope:** final ADB/device smoke remains deferred before promotion closure.
 
 ## Audit Trigger Matrix
 | Lane | Trigger | Minimum Decision |
@@ -156,31 +184,39 @@ This TODO must derive the test matrix task-by-task during orchestration. Each de
 | Concurrency/Idempotency | Duplicate invite and credited acceptance are mutation/idempotency-sensitive. | `required` |
 
 ## Acceptance Criteria
-- [ ] New direct invite writes persist a concrete `occurrence_id`.
-- [ ] Share-code invite creation and materialization preserve occurrence identity.
-- [ ] Multi-occurrence event invite flows never persist or act on `occurrence_id = null`.
-- [ ] Single-occurrence event invite flows persist the resolved occurrence identity.
-- [ ] Duplicate prevention and credited acceptance are occurrence-scoped.
-- [ ] Flutter event detail/invite share/received invite flows pass and render the selected occurrence context.
-- [ ] `occurrence_id = null` write handling is absent from the release path; null-target inputs are rejected or reset as fixture-only setup.
+- [x] New direct invite writes persist a concrete `occurrence_id`.
+- [x] Share-code invite creation and materialization preserve occurrence identity.
+- [x] Multi-occurrence event invite flows never persist or act on `occurrence_id = null`.
+- [x] Single-occurrence event invite flows persist the resolved occurrence identity.
+- [x] Duplicate prevention and credited acceptance are occurrence-scoped.
+- [x] Attendance confirmation, direct-confirmation supersession, and any implemented participation/check-in relationship are occurrence-scoped.
+- [x] Flutter event detail/invite share/received invite flows pass selected occurrence context and received-invite visible rendering now shows occurrence date/time.
+- [x] `occurrence_id = null` write handling is absent from the release path; null-target inputs are rejected or reset as fixture-only setup.
 
 ## Definition of Done
 - [ ] All acceptance criteria have concrete evidence in the Completion Evidence Matrix.
-- [ ] Backend tests cover direct invite, share-code, materialization/acceptance, duplicate prevention, and credited acceptance with occurrence identity.
-- [ ] Flutter tests cover repository payloads and visible occurrence context.
-- [ ] Module docs are updated for any superseded nullable-runtime wording.
-- [ ] Analyzer/Pint/focused tests pass.
-- [ ] Independent review/triple audit is recorded before promotion claim.
+- [x] Backend tests cover direct invite, share-code, materialization/acceptance, duplicate prevention, and credited acceptance with occurrence identity.
+- [x] Backend/source audit covers attendance confirmation, direct-confirmation supersession, and any implemented participation/check-in relationship with occurrence identity or an explicit VNext non-implementation waiver.
+- [x] Flutter tests cover repository payloads and visible occurrence context.
+- [x] Module docs are updated for any superseded nullable-runtime wording.
+- [x] Analyzer/focused tests pass locally; PHP style gate remains a separate final check if required before promotion.
+- [x] Independent review/triple audit is recorded before promotion claim.
 - [ ] ADB/device final smoke is queued for the consolidated device phase.
 
 ## Validation Steps
-- [ ] Backend automated: creating an invite for a multi-occurrence event without occurrence fails deterministically.
-- [ ] Backend automated: creating an invite for a single-occurrence event resolves and persists the occurrence.
-- [ ] Backend automated: duplicate prevention is scoped by occurrence, allowing different occurrences while blocking duplicates for the same occurrence.
-- [ ] Backend automated: credited acceptance/supersession is scoped by `(receiver_account_profile_id, occurrence_id)`.
-- [ ] Backend automated: share-code create/materialize/accept preserves occurrence identity.
-- [ ] Flutter automated: selected occurrence from event detail reaches invite payload.
-- [ ] Flutter automated: invite feed/received invite context renders occurrence date/time identity.
+- [x] Backend automated: creating an invite for a multi-occurrence event without occurrence fails deterministically.
+- [x] Backend automated: creating an invite for a single-occurrence event resolves and persists the occurrence.
+- [x] Backend automated: duplicate prevention is scoped by occurrence, allowing different occurrences while blocking duplicates for the same occurrence.
+- [x] Backend automated: credited acceptance/supersession is scoped by `(receiver_account_profile_id, occurrence_id)`.
+- [x] Backend automated: share-code create/materialize/accept preserves occurrence identity.
+- [ ] Backend automated: invite acceptance that creates free attendance confirmation writes the concrete occurrence identity.
+- [x] Backend automated: direct attendance confirmation supersedes pending invites only for the same occurrence.
+- [x] Source/contract audit: check-in/reservation/attendance-outcome relationships are occurrence-scoped wherever implemented, or explicitly marked VNext with occurrence-first contract requirement.
+- [x] Flutter automated: selected occurrence from event detail reaches invite payload for share-code context.
+- [x] Backend automated: direct attendance confirmation requires and lists concrete `occurrence_id`.
+- [x] Backend automated: agenda/stream `confirmed_only` filters by confirmed occurrence IDs, not event IDs.
+- [x] Flutter automated: presence confirmation uses selected occurrence in repository/controller flows.
+- [x] Flutter automated: invite feed/received invite context renders occurrence date/time identity.
 - [ ] Manual/device final: send and accept invite for one occurrence of a multi-occurrence event and verify another occurrence remains distinct.
 
 ## Profile Scope & Handoffs

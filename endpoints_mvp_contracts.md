@@ -569,7 +569,7 @@
     {
       "target_ref": {
         "event_id": "string",
-        "occurrence_id": "string?"
+        "occurrence_id": "string"
       },
       "event_name": "string",
       "event_date": "2025-01-01T00:00:00Z",
@@ -600,7 +600,7 @@
 - Feed is grouped by canonical invite target, not flat by invite edge.
 - Native clients must use `inviter_candidates[].invite_id` for explicit inviter selection when more than one candidate exists for a target.
 - Candidate identity must respect privacy policy; when identity is not allowed, backend should return anonymized summaries/counts instead of raw profile fields.
-- `occurrence_id` is required whenever runtime invite/attendance actions are occurrence-resolved; `null` is allowed only for single-occurrence or intentionally event-scoped compatibility flows.
+- `occurrence_id` is required for store-release invite and attendance runtime actions. `event_id` is denormalized parent context and must not define the target identity.
 - `message` is optional author input. Feed/share payloads may return `""` when no custom invite message was provided.
 - VNext roadmap: add cursor pagination for deep invite feed scrolling while preserving page-based compatibility in MVP clients.
 
@@ -611,7 +611,7 @@
 {
   "target_ref": {
     "event_id": "string",
-    "occurrence_id": "string?"
+    "occurrence_id": "string"
   },
   "account_profile_id": "string?",
   "recipients": [
@@ -629,7 +629,7 @@
   "tenant_id": "string",
   "target_ref": {
     "event_id": "string",
-    "occurrence_id": "string?"
+    "occurrence_id": "string"
   },
   "created": [
     { "invite_id": "string", "receiver_account_profile_id": "string" }
@@ -648,7 +648,7 @@
 - Each recipient must provide either `receiver_account_profile_id` or `contact_hash`.
 - This is an approved breaking release-contract migration: legacy `receiver_user_id` targeting is retired and current implementations must migrate to `receiver_account_profile_id`.
 - When recipients are composed from multiple user-private `contact_groups`, the effective recipient set must be deduplicated before invite creation and before quota counting by canonical recipient identity.
-- Duplicate invite prevention follows the canonical uniqueness key `(tenant_id, event_id, occurrence_id | null, receiver_account_profile_id, inviter_principal.kind, inviter_principal.id)` and returns `already_invited` instead of creating a new edge.
+- Duplicate invite prevention follows the canonical uniqueness key `(tenant_id, occurrence_id, receiver_account_profile_id, inviter_principal.kind, inviter_principal.id)` and returns `already_invited` instead of creating a new edge.
 - Future account-workspace memberships may authorize different acting users on behalf of the same recipient/sender Account Profile, but that authorization context must not redefine canonical recipient identity.
 - Sender/global quota rejections must return deterministic `429` payloads:
 ```json
@@ -682,7 +682,7 @@
   "invite_id": "string",
   "target_ref": {
     "event_id": "string",
-    "occurrence_id": "string?"
+    "occurrence_id": "string"
   },
   "status": "accepted|already_accepted|expired",
   "credited_acceptance": true,
@@ -716,7 +716,7 @@
   "invite_id": "string",
   "target_ref": {
     "event_id": "string",
-    "occurrence_id": "string?"
+    "occurrence_id": "string"
   },
   "status": "declined|already_declined|expired",
   "group_has_other_pending": true,
@@ -753,7 +753,7 @@
 {
   "target_ref": {
     "event_id": "string",
-    "occurrence_id": "string?"
+    "occurrence_id": "string"
   },
   "account_profile_id": "string?"
 }
@@ -765,7 +765,7 @@
   "code": "string",
   "target_ref": {
     "event_id": "string",
-    "occurrence_id": "string?"
+    "occurrence_id": "string"
   },
   "inviter_principal": { "kind": "user|account_profile", "id": "string" }
 }
@@ -869,14 +869,14 @@
   "code": "string",
   "target_ref": {
     "event_id": "string",
-    "occurrence_id": "string?"
+    "occurrence_id": "string"
   },
   "inviter_principal": { "kind": "user|account_profile", "id": "string" },
   "invite": {
     "id": "string",
     "target_ref": {
       "event_id": "string",
-      "occurrence_id": "string?"
+      "occurrence_id": "string"
     },
     "event_name": "string",
     "event_date": "2025-01-01T00:00:00Z",
@@ -931,7 +931,7 @@
   "invite_id": "string",
   "target_ref": {
     "event_id": "string",
-    "occurrence_id": "string?"
+    "occurrence_id": "string"
   },
   "inviter_principal": { "kind": "user|account_profile", "id": "string" },
   "status": "pending|accepted|declined|superseded|expired",
@@ -972,7 +972,7 @@
   "invite_id": "string",
   "target_ref": {
     "event_id": "string",
-    "occurrence_id": "string?"
+    "occurrence_id": "string"
   },
   "inviter_principal": { "kind": "user|account_profile", "id": "string" },
   "status": "accepted|already_accepted|expired|superseded",
@@ -1216,7 +1216,7 @@
   "items": [
     {
       "event_id": "string",
-      "occurrence_id": "string?",
+      "occurrence_id": "string",
       "slug": "string",
       "type": {
         "id": "string",
@@ -1410,23 +1410,23 @@ Not returned by `/agenda` and `/events/{event_id}`:
 - `thumb.type`: `image`.
 
 ### `GET /events/attendance/confirmed`
-**Purpose:** List backend-authoritative event confirmations for the current user.  
+**Purpose:** List backend-authoritative occurrence confirmations for the current user.
 **Response:**
 ```json
 {
   "tenant_id": "string",
   "data": {
-    "confirmed_event_ids": ["string"]
+    "confirmed_occurrence_ids": ["string"]
   }
 }
 ```
 
 ### `POST /events/{event_id}/attendance/confirm`
-**Purpose:** Confirm presence for an event (free attendance confirmation).  
+**Purpose:** Confirm presence for a concrete event occurrence (free attendance confirmation).
 **Request:**
 ```json
 {
-  "occurrence_id": "string?"
+  "occurrence_id": "string"
 }
 ```
 **Response:**
@@ -1434,7 +1434,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 {
   "tenant_id": "string",
   "event_id": "string",
-  "occurrence_id": "string?",
+  "occurrence_id": "string",
   "kind": "free_confirmation",
   "status": "active",
   "confirmed_at": "2025-01-01T00:00:00Z"
@@ -1445,11 +1445,11 @@ Not returned by `/agenda` and `/events/{event_id}`:
 - `status`: `active`.
 
 ### `POST /events/{event_id}/attendance/unconfirm`
-**Purpose:** Cancel a previously active free attendance confirmation for an event.  
+**Purpose:** Cancel a previously active free attendance confirmation for a concrete event occurrence.
 **Request:**
 ```json
 {
-  "occurrence_id": "string?"
+  "occurrence_id": "string"
 }
 ```
 **Response:**
@@ -1457,7 +1457,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 {
   "tenant_id": "string",
   "event_id": "string",
-  "occurrence_id": "string?",
+  "occurrence_id": "string",
   "kind": "free_confirmation",
   "status": "canceled",
   "canceled_at": "2025-01-01T00:00:00Z"
@@ -1667,7 +1667,7 @@ Not returned by `/agenda` and `/events/{event_id}`:
 - A single user may register multiple devices. Store tokens per `device_id` (upsert by `device_id`).
 - Do **not** overwrite other devices when a new device registers.
 **Notification Targeting (MVP):**
-- **Event audience:** use server-side fan-out to all users with confirmed presence for the event.
+- **Event occurrence audience:** use server-side fan-out to users with confirmed presence for the targeted occurrence; event-level targeting may only be an explicit broadcast segment, never inferred from one occurrence confirmation.
 - **Favorites audience:** use server-side fan-out to users who favorited the account/artist/venue.
 - **Invites:** direct device push to recipient users; do not rely on event topics.
 **User Preferences (MVP):**

@@ -98,7 +98,7 @@ Events use canonical `location` + `place_ref`; venue projection is resolved from
   "items": [
     {
       "event_id": "string",
-      "occurrence_id": "string?",
+      "occurrence_id": "string",
       "slug": "string",
       "type": {
         "id": "string",

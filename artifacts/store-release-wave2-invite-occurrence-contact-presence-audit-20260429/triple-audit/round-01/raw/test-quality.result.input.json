@@ -1,0 +1,58 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/store-release-wave2-invite-occurrence-contact-presence-audit-20260429/triple-audit/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "reviewer_label": "test-quality-reviewer",
+  "overall_assessment": "Not delivery-ready in round 01. Focused unit and feature evidence covered part of the cutover, but runtime/integration evidence and occurrence-specific backend assertions were incomplete.",
+  "recommended_path": "Repair stale integration fixtures, add multi-occurrence invite and share-code occurrence assertions, and keep ADB/device evidence explicit as a deferred consolidated gate if not run in this round.",
+  "performance_position": "acceptable",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "regresses",
+  "findings": [
+    {
+      "finding_id": "TQA-01",
+      "severity": "high",
+      "title": "Runtime and integration evidence for the reopened QA symptoms was deferred",
+      "rationale": "Round 01 listed exact ADB/device symptoms as deferred and one modified integration fixture asserted parent event id instead of selected occurrence id.",
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "foundation_documentation/artifacts/store-release-wave2-invite-occurrence-contact-presence-audit-20260429/bounded-package.md",
+        "flutter-app/integration_test/feature_event_confirm_signup_backstack_regression_test.dart"
+      ],
+      "suggested_action": "Repair the fixture to include a selected occurrence and keep the ADB scenarios as explicit consolidated device-gate evidence until they can be run."
+    },
+    {
+      "finding_id": "TQA-02",
+      "severity": "high",
+      "title": "Occurrence-scoped duplicate and credited-acceptance behavior was not tested across two occurrences of the same event",
+      "rationale": "The invite tests used helper target refs that always selected the first occurrence, so event-keyed duplicate or credited-winner bugs could still pass.",
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/tests/Feature/Invites/InvitesFlowTest.php",
+        "foundation_documentation/todos/active/store_release_android/TODO-store-release-invites-occurrence-target-migration.md"
+      ],
+      "suggested_action": "Add tests with one event and two occurrences proving duplicates and supersession are scoped to occurrence, not parent event."
+    },
+    {
+      "finding_id": "TQA-03",
+      "severity": "high",
+      "title": "Share materialization/acceptance and visible received-invite occurrence context were weakly asserted",
+      "rationale": "Round 01 did not consistently assert share materialized/accepted response and persisted edge occurrence identity, leaving the share-code root cause under-protected.",
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/tests/Feature/Invites/InvitesFlowTest.php",
+        "laravel-app/tests/Feature/Invites/StoreReleaseSocialGraphTest.php",
+        "foundation_documentation/todos/active/store_release_android/TODO-store-release-invites-occurrence-target-migration.md"
+      ],
+      "suggested_action": "Assert target_ref.occurrence_id and persisted InviteEdge.occurrence_id on share create, materialize, accept, and replay paths; add Flutter visible occurrence coverage or document the remaining ADB gate."
+    }
+  ]
+}

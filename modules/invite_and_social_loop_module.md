@@ -151,7 +151,7 @@ The invite stack must be modeled as three separate axes:
    - If the event sets `allow_occurrence_policy_override=true`, occurrences may choose their own policy inside tenant `allowed_policies`; otherwise occurrences inherit the event policy.
    - `paid_reservation_only` and `either` require the tenant/runtime to support the paid reservation capability; otherwise those policies are invalid at both settings and event-write time.
    - Canonical attendance-write ownership belongs to an adjacent Participation/Attendance domain. Invites may trigger or project confirmation/reservation state for UX, but they do not own that source-of-truth.
-   - Free attendance confirmation and paid reservation are mutually exclusive for the same user + event/occurrence unless an explicit upgrade/migration rule is introduced.
+   - Free attendance confirmation and paid reservation are mutually exclusive for the same participant + `occurrence_id` unless an explicit upgrade/migration rule is introduced. `event_id` is only parent/read context for participation relationships.
    - Acceptance-to-attendance transition rule:
      - `free_confirmation_only`: accepting an invite records the social conversion and the authenticated attendance confirmation unless the user is already confirmed.
      - `paid_reservation_only`: accepting an invite records the social conversion only; `paid_reservation` exists only after the reservation/payment flow succeeds.
@@ -237,6 +237,9 @@ These decisions are now approved and complete the invite-module baseline. Friend
 
 - [x] 🟢 `INV-PD-20` Identity materialization may reconcile prior contact imports without inventing new inviteable reasons.
   - Approved direction: when a user's canonical phone identity materializes, backend may later reconcile that `phone_hash` against hashes previously imported by other users. This may materialize outbound `contact_match` for those existing viewers and may also feed a future inbound suggestion surface labeled `Talvez você conheça` for the newly identified user. The same reconciliation signal may later drive informational lifecycle notifications such as "a contact entered the app", but that future consumer is advisory only and must not create `Contato`, `inviteable_reason`, or group eligibility by itself. The inbound suggestion is not `Contato`, not an `inviteable_reason`, not groupable, and does not become inviteable until an explicit favorite promotes the relationship into the normal inviteable rules. Delivery ownership for this late-reconciliation/reflection path now lives in `TODO-vnext-onboarding-identity-reconciliation-reflection.md`, not in the release-critical contacts/favorites/friends lane.
+
+- [x] 🟢 `INV-PD-21` Presence, check-in, reservation, and attendance outcome relationships are occurrence-scoped.
+  - Approved direction: free confirmation, paid reservation entitlement, check-in, no-show/manual outcome, and invite-driven direct-confirmation supersession all resolve to one concrete `occurrence_id`. `event_id` may appear only as derived parent context in payloads/projections; it must not be the write identity, uniqueness identity, or supersession identity for participation relationships.
 
 - [x] 🟢 `INV-PD-21` Contact-group CRUD is required, but composer is not the management surface.
   - Approved direction: `contact_groups` must support create/rename/delete and membership management in V1, but that CRUD belongs to dedicated group-visualization or friends-management surfaces rather than `/convites/compartilhar`. Exact UX may be explored through Stitch studies without reopening the business contract.

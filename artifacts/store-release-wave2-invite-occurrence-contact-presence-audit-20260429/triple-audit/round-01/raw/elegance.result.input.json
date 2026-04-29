@@ -1,0 +1,62 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/store-release-wave2-invite-occurrence-contact-presence-audit-20260429/triple-audit/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "elegance-structural-soundness",
+  "overall_assessment": "Not structurally clean for round 01. Occurrence and account-profile cutover existed on happy paths, but legacy nullable occurrence, receiver-user fallback, and raw repository payload construction remained active.",
+  "recommended_path": "Resolve occurrence identity as required across backend/feed/Flutter DTOs, require account-profile recipient identity for authenticated share materialization, and move invite transport payload construction to typed DAL request objects.",
+  "performance_position": "acceptable",
+  "elegance_position": "regresses",
+  "structural_soundness_position": "regresses",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "ELEG-01",
+      "severity": "high",
+      "title": "Invite target pipeline still accepted nullable occurrence and event-level fallback",
+      "rationale": "Round 01 still allowed nullable occurrence IDs in Laravel feed projection and Flutter invite DTO/result decoding, leaving event-scoped grouping fallbacks in the launch path.",
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/packages/belluga/belluga_invites/src/Application/Feed/InviteProjectionService.php",
+        "flutter-app/lib/infrastructure/dal/dto/invites/invite_dto.dart",
+        "flutter-app/lib/infrastructure/dal/dao/invites/invites_response_decoder.dart",
+        "flutter-app/lib/domain/invites/invite_share_code_result.dart"
+      ],
+      "suggested_action": "Make occurrence identity required/non-empty in projection rebuild, feed payloads, DTOs, result models, decoder tests, and payload handling. Remove event group fallback."
+    },
+    {
+      "finding_id": "ELEG-02",
+      "severity": "high",
+      "title": "Authenticated share materialization still fell back to receiver_user_id identity",
+      "rationale": "Round 01 share materialization could persist and query authenticated receiver edges without receiver_account_profile_id, preserving two recipient identity models.",
+      "category": "adherence",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/packages/belluga/belluga_invites/src/Application/Mutations/InviteShareService.php",
+        "laravel-app/app/Application/Social/InviteablePeopleService.php",
+        "laravel-app/tests/Feature/Invites/InvitesFlowTest.php"
+      ],
+      "suggested_action": "Require or bootstrap a personal Account Profile for authenticated share materialization and use receiver_account_profile_id for persistence/query ownership. Keep receiver_user_id only as internal actor/audit metadata."
+    },
+    {
+      "finding_id": "ELEG-03",
+      "severity": "high",
+      "title": "Flutter invite repository still owned raw transport payload maps",
+      "rationale": "Round 01 built share, direct invite, and contact import raw maps in the repository while the backend contract accepted Map payloads, bypassing the DAL/request boundary.",
+      "category": "architecture",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "repository_raw_payload_map_forbidden",
+      "affected_paths": [
+        "flutter-app/lib/infrastructure/repositories/invites_repository.dart",
+        "flutter-app/lib/infrastructure/services/invites_backend_contract.dart",
+        "flutter-app/test/infrastructure/repositories/invites_repository_test.dart"
+      ],
+      "suggested_action": "Introduce typed DAL/backend request DTOs and assemble raw target_ref, recipient, and contact maps only at the backend adapter boundary."
+    }
+  ]
+}
