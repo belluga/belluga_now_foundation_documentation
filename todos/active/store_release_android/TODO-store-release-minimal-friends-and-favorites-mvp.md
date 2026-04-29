@@ -38,9 +38,9 @@
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Local-Implemented-Home-Consumer-Gap-Reopened`
-- **Qualifiers:** `Business-Core`, `Cross-Stack`, `Release-Critical`, `Consumer-Gap-Reopened`
-- **Next exact step:** execute `foundation_documentation/todos/active/store_release_android/TODO-store-release-home-favorites-refresh-regression.md` before promotion so Home Favorites consumes favorite mutations correctly; keep ADB/device contact-permission smoke deferred to the consolidated ADB phase.
+- **Current delivery stage:** `Local-Implemented-Consumer-Gaps-Reopened`
+- **Qualifiers:** `Business-Core`, `Cross-Stack`, `Release-Critical`, `Consumer-Gap-Reopened`, `Invite-Share-Regression`, `Refresh-Action-Required`
+- **Next exact step:** execute the Home Favorites refresh child TODO and close the `/convites/compartilhar` regression where the share CTA remains stuck in `Gerando convite`; add an explicit user action to refresh the friends/inviteable list before promotion. Keep ADB/device contact-permission smoke deferred to the consolidated ADB phase.
 
 ## References
 
@@ -152,6 +152,8 @@
 - [ ] Introduce viewer-scoped `inviteable_reasons` so one recipient may carry `contact_match`, `favorite_by_you`, `favorited_you`, and `friend` without duplicate rows.
 - [ ] Migrate direct invite recipient identity to `Account Profile` and retire legacy `receiver_user_id` targeting from the release contract.
 - [ ] Upgrade `/convites/compartilhar` so it becomes the proper release-facing invite-friends/share surface for this social core, not just a thin contact-import shell.
+- [ ] Ensure `/convites/compartilhar` share actions always leave `Gerando convite` after success, handled error, retryable error, or navigation/re-entry.
+- [ ] Expose an explicit `Atualizar lista de amigos` / refresh action on `/convites/compartilhar` that reloads the backend-computed inviteable list without requiring route restart.
 - [ ] Separate native-app unmatched external-share targets from the canonical in-app inviteable list and keep them out of relation filters, contact groups, and web.
 - [ ] Preserve and clearly separate non-personal account-profile favorites from the personal-profile favorite/friend lane.
 - [ ] Wire the minimal social-proof outputs needed by the release-facing invite/event/profile surfaces that depend on “friend” semantics.
@@ -190,6 +192,8 @@
 - [ ] Remove grouped recipients automatically when they cease to be inviteable.
 - [ ] Make multi-group invite selection deduplicate recipients by canonical resolved recipient before quota counting and invite creation.
 - [ ] Make `/convites/compartilhar` consume the release relationship model explicitly: in-app contact matches, group membership, favorite/friend state where available, sent-invite status, inviteable reasons, and viewer-scoped resumes.
+- [ ] Make `/convites/compartilhar` reloadable by the user through an explicit refresh action for friends/inviteables, with deterministic loading/error/empty behavior.
+- [ ] Prevent duplicate or stuck invite generation state: repeated share taps must be guarded, errors must release the in-flight state, and re-entering the screen must not inherit stale `Gerando convite`.
 - [ ] Keep unmatched local contacts on a separate native-app auxiliary share branch using invite codes, without promoting them into canonical inviteable rows.
 - [ ] Ensure invite-target suggestions remain privacy-safe and deterministic.
 
@@ -197,6 +201,8 @@
 - [ ] Keep non-personal account-profile favorites working and visually distinct from the people relationship lane.
 - [ ] Introduce the release-approved `contact_match -> favorite -> friend` data to the relevant invite/social-proof surfaces without collapsing everything into one generic list.
 - [ ] Render `/convites/compartilhar` with one default deduplicated in-app inviteable list plus Discovery-style relation filter chips sourced from backend-preserved inviteable reasons.
+- [ ] Add an explicit refresh control for the inviteable/friends list that calls the controller/repository refresh path and updates the visible list state.
+- [ ] Ensure each invite/share row exposes a bounded in-flight state per target or action, and that the visible CTA cannot remain indefinitely stuck on `Gerando convite`.
 - [ ] Keep unmatched external contacts, when surfaced on native app, in a separate auxiliary share branch outside the filtered in-app inviteable list.
 - [ ] Keep `/convites/compartilhar` action-first: person rows support immediate invite/share, and group rows support immediate `Convidar grupo` / `Convidar todos` plus optional drill-in for member selection.
 - [ ] Keep group CRUD out of `/convites/compartilhar`; use dedicated group/friends-management surfaces, with detailed UX to be refined through Stitch studies.
@@ -220,6 +226,8 @@
 - [ ] Users can create, rename, and delete contact groups through dedicated management surfaces without turning `/convites/compartilhar` into a management screen.
 - [ ] Direct invite contracts, persisted invite state, and share-materialized invite flows treat the recipient surface as `Account Profile`; legacy `receiver_user_id` payloads are not part of the release contract.
 - [ ] `/convites/compartilhar` shows one default unified deduplicated in-app list and supports Discovery-style relation filters without duplicating recipients across sections.
+- [ ] `/convites/compartilhar` includes a visible action to refresh the friends/inviteable list and updates the list without leaving/reopening the screen.
+- [ ] Invite/share CTA state is bounded: `Gerando convite` appears only while the action is actually in flight and is cleared after success, handled failure, retry, or screen re-entry.
 - [ ] Unmatched local contacts, when surfaced on app, use a per-contact external share action and do not appear inside `contact_groups`, relation filters, or web invite surfaces.
 - [ ] Group targets support direct `Convidar grupo` / `Convidar todos` plus optional drill-in/member selection without forcing selection-first UX.
 - [ ] When a grouped recipient ceases to be inviteable, V1 removes that recipient from all groups automatically.
@@ -245,11 +253,13 @@
 - [ ] Backend automated: release surfaces do not overexpose `friends_only` identities outside the frozen rules.
 - [ ] Flutter automated: `/convites/compartilhar` renders the new release relationship states deterministically and preserves invite-send behavior.
 - [ ] Flutter automated: the default inviteable list is deduplicated and relation filter chips narrow by backend-provided inviteable reasons using the Discovery interaction pattern.
+- [ ] Flutter automated: `/convites/compartilhar` refresh action reloads the friends/inviteable list, updates loading/error/empty/content state, and preserves active relation filters deterministically.
+- [ ] Flutter automated: share CTA does not remain stuck in `Gerando convite` after repository success, handled error, thrown error, rapid repeat taps, or screen re-entry.
 - [ ] Flutter automated: unmatched external share targets, when present on native app, remain outside the filtered in-app inviteable list, outside `contact_groups`, and absent on web invite surfaces.
 - [ ] Flutter automated: current invite UX remains stable after the backend/API migration to `Account Profile`-based recipient identity.
 - [ ] Flutter automated: group CRUD lives on dedicated management surfaces rather than `/convites/compartilhar`, and grouped recipients that cease to be inviteable disappear from group membership after refresh.
 - [ ] Flutter automated: non-personal account-profile favorites remain stable and are not conflated with the people relationship lane.
-- [ ] Manual smoke: authenticated user imports contacts, sees matched contacts in `Contatos`, invites a matched contact without favoriting first, sees `favorite_by_you` / `favorited_you` entries become inviteable when the target type is `is_inviteable=true`, observes reciprocal-friend behavior when applicable, creates/uses groups through dedicated management surfaces, sees groups contain mixed in-app inviteable relations without duplicate recipients, confirms recipients that cease to be inviteable are removed automatically from groups, sees unmatched local contacts stay on the separate native auxiliary share branch, then uses relation filter chips on the unified in-app inviteable list and sees privacy-safe resume rendering on the approved release surface.
+- [ ] Manual smoke: authenticated user imports contacts, sees matched contacts in `Contatos`, refreshes the friends/inviteable list from `/convites/compartilhar`, invites a matched contact without favoriting first, verifies `Gerando convite` clears after success/error, sees `favorite_by_you` / `favorited_you` entries become inviteable when the target type is `is_inviteable=true`, observes reciprocal-friend behavior when applicable, creates/uses groups through dedicated management surfaces, sees groups contain mixed in-app inviteable relations without duplicate recipients, confirms recipients that cease to be inviteable are removed automatically from groups, sees unmatched local contacts stay on the separate native auxiliary share branch, then uses relation filter chips on the unified in-app inviteable list and sees privacy-safe resume rendering on the approved release surface.
 
 ## Execution Lane Tracking
 
@@ -272,6 +282,16 @@
 - **Claude CLI auxiliary review:** the round 05 attempt was blocked by account limit until the reset window (`6pm America/Sao_Paulo`). Per user instruction on 2026-04-28, Claude CLI is treated as a gate only when available and returning a substantive response; tool unavailability is recorded as operational evidence but does not block advancing. Evidence is recorded in `foundation_documentation/artifacts/claude-cli-reviews/T3-minimal-friends-cli-review-round-05.md`.
 - **Deferred runtime evidence:** ADB/device contact-permission smoke remains intentionally deferred to the consolidated ADB phase per orchestration plan.
 - **Post-local QA consumer gap (2026-04-29):** user QA found that app-side favorite mutations do not refresh the Home Favorites section. The core social/favorites implementation remains useful, but promotion is blocked until the Home consumer refresh gap is closed through `TODO-store-release-home-favorites-refresh-regression.md`.
+- **Post-local QA invite-share regression (2026-04-29):** user QA found that entering the invite screen can leave the share CTA stuck on `Gerando convite`. This blocks promotion of `/convites/compartilhar` until the controller/repository in-flight state is bounded and covered by race/error/re-entry tests.
+- **Post-local QA refresh requirement (2026-04-29):** `/convites/compartilhar` must expose a visible action to refresh the friends/inviteable list. This is release-facing contact management, not visual-only invite polish.
+
+## Post-Local QA Regression Matrix (2026-04-29)
+
+| Task / Behavior | Failure Observed | Required Automated Evidence | Runtime / Manual Evidence | Owner TODO |
+| --- | --- | --- | --- | --- |
+| Share CTA bounded in-flight state | Entering the invite screen leaves the share button stuck in `Gerando convite`. | Flutter controller/widget tests for success, handled error, thrown error, rapid repeat tap, and screen re-entry clearing in-flight state. | ADB final: open invite screen, generate/share invite, verify `Gerando convite` clears and retry remains possible. | This TODO |
+| Refresh friends/inviteables action | User has no explicit way to refresh the friends list from `/convites/compartilhar`. | Flutter controller/widget tests proving refresh calls backend inviteables, updates loading/error/empty/content state, and preserves filters. | ADB final: tap `Atualizar lista de amigos`, observe visible refresh and updated inviteable list. | This TODO |
+| Refresh action and send action race safety | Refresh during invite generation could overwrite state or leave duplicate loading flags. | Frontend race-condition matrix: refresh while send is in flight, repeated refresh, repeated send, and stale response ordering. | ADB/manual replay if automated race probe cannot run on device before final phase. | This TODO |
 
 ## Completion Evidence Matrix (Local, Non-ADB)
 
@@ -282,7 +302,9 @@
 | Contact groups dedupe and prune stale recipients | `Tests\\Feature\\Invites\\StoreReleaseSocialGraphTest::test_contact_groups_dedupe_members_and_prune_recipients_that_cease_to_be_inviteable` | Passed |
 | Contact group CRUD/privacy is owner-scoped and validates caps | `Tests\\Feature\\Invites\\StoreReleaseSocialGraphTest::test_contact_group_crud_is_owner_private_and_validated` | Passed |
 | Direct invites target account-profile recipient identity | Laravel `StoreReleaseSocialGraphTest` + Flutter `invites_repository_test.dart` | Passed |
-| `/convites/compartilhar` consumes backend inviteables and preserves profile identity | `fvm flutter test test/infrastructure/repositories/invites_repository_test.dart test/infrastructure/repositories/invites_repository_push_payload_test.dart test/presentation/tenant/invites/screens/contact_group_management/controllers/contact_group_management_controller_test.dart test/presentation/tenant/invites/screens/contact_group_management/contact_group_management_screen_test.dart test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart test/presentation/tenant/invites/screens/invite_share_screen/widgets/invite_share_relation_filter_chips_test.dart test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart test/presentation/common/auth/screens/auth_login_screen/auth_login_controller_contract_test.dart` | Passed 2026-04-28: 24 tests |
+| `/convites/compartilhar` consumes backend inviteables and preserves profile identity | `fvm flutter test test/infrastructure/repositories/invites_repository_test.dart test/infrastructure/repositories/invites_repository_push_payload_test.dart test/presentation/tenant/invites/screens/contact_group_management/controllers/contact_group_management_controller_test.dart test/presentation/tenant/invites/screens/contact_group_management/contact_group_management_screen_test.dart test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart test/presentation/tenant/invites/screens/invite_share_screen/widgets/invite_share_relation_filter_chips_test.dart test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart test/presentation/common/auth/screens/auth_login_screen/auth_login_controller_contract_test.dart` | Passed 2026-04-28: 24 tests; reopened 2026-04-29 for stuck share CTA and explicit refresh action coverage |
+| `/convites/compartilhar` share CTA clears `Gerando convite` | Pending focused Flutter controller/widget/race tests for success/error/re-entry. | `Blocked/Pending` |
+| `/convites/compartilhar` refreshes friends/inviteables list by user action | Pending focused Flutter controller/widget tests for explicit refresh action and state transitions. | `Blocked/Pending` |
 | Dedicated group-management Flutter surface | `contact_group_management_controller_test.dart` and `contact_group_management_screen_test.dart` | Passed |
 | Flutter architecture/analyzer gate | `fvm dart analyze --format machine` | Passed 2026-04-28, no diagnostics |
 | Flutter web build gate | `bash scripts/build_web.sh ../web-app dev`; `sha256sum ../web-app/main.dart.js` | Passed 2026-04-28; `main.dart.js` SHA-256 `f499dd08b42f71c4f11292828c1628a2d312d4f0b2fee42ad1061e7299dde584` |
@@ -297,7 +319,7 @@
 | --- | --- | --- | --- | --- | --- |
 | Personal-profile favorite edge + reciprocal friend derivation | `local` | `pending` | `pending` | `pending` | `Local-Implemented; Home Favorites consumer gap reopened; ADB deferred` |
 | Viewer-scoped exposure enforcement on release invite/social-proof surfaces | `local` | `pending` | `pending` | `pending` | `Local-Implemented for inviteable/contact surfaces; Home Favorites consumer gap reopened; ADB deferred` |
-| `/convites/compartilhar` + contact-group bulk invite convergence | `local` | `pending` | `pending` | `pending` | `Local-Implemented; analyzer/tests/web build clean, triple audit R05 clean, Claude CLI unavailable/non-blocking, ADB deferred` |
+| `/convites/compartilhar` + contact-group bulk invite convergence | `local` | `pending` | `pending` | `pending` | `Local-Implemented but QA-reopened; share CTA stuck in Gerando convite and explicit friends-list refresh action remain pending; analyzer/tests/web build from 2026-04-28 no longer close this row` |
 
 ## Profile Scope & Handoffs
 

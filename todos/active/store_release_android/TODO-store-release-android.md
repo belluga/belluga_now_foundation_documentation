@@ -46,6 +46,7 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - [ ] Treat web-to-app conversion closure as a publication blocker, not as leftover Pre-MVP work.
 - [ ] Treat release funnel-metrics validation as a publication blocker so acquisition, deferred continuation, identity progression, and first social-loop actions are observable at release confidence.
 - [ ] Treat in-app invite usability as publication-critical.
+- [ ] Treat `/convites/compartilhar` stuck share-generation state and missing friends-list refresh action as publication blockers under in-app invite usability.
 - [x] Treat landlord/tenant auth-method governance as the delivered upstream baseline for the Belluga phone OTP + contact-match lane.
 - [ ] Treat tenant-public phone OTP identity + contact-match baseline as publication-critical because the minimal friends/favorites loop depends on verified phone identity.
 - [ ] Deliver a minimal friends/favorites MVP slice that matches current business scope without pulling the full `belluga_connections` package into the Android gate.
@@ -74,7 +75,7 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 | Web-to-app conversion closure | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Release funnel metrics validation | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Landlord/tenant auth-method governance | `belluga_now_backend:delphi/laravel-reconcile-store-release-20260419 -> dev @ da78fa8` | `https://github.com/belluga/belluga_now_backend/pull/157 (merged -> dev on 2026-04-20)` | `pending` | `pending` | `🟣 Lane-Promoted` |
-| Invite app-flow usability closure | `pending` | `pending` | `pending` | `pending` | `Pending` |
+| Invite app-flow usability closure | `pending` | `pending` | `pending` | `pending` | `Pending; QA-reopened for /convites/compartilhar share CTA stuck on Gerando convite and missing Atualizar lista de amigos action` |
 | Phone OTP identity + contact-match baseline | `pending` | `pending` | `pending` | `pending` | `Local-Implemented-Functional-UX-Redesign-Pending; admin OTP settings and functional public OTP flow have focused tests/source Playwright/analyzer/web build evidence; modern Stitch-backed visual redesign, runtime Playwright shard, and final ADB/device proof remain pending` |
 | Minimal friends/favorites MVP | `pending` | `pending` | `pending` | `pending` | `Local-Implemented-Home-Consumer-Gap-Reopened; Home Favorites refresh blocker split to child TODO` |
 | Home Favorites refresh regression | `pending` | `pending` | `pending` | `pending` | `Pending` |
@@ -205,6 +206,7 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - Matrix rows must be refreshed in the task delivery loop, not only after consolidation.
 - A delivery task cannot be marked complete from aggregate suite success unless the matrix row for that exact behavior has direct evidence or an explicit approved blocker/waiver.
 - Runtime lanes that cannot run because of missing env/device/credentials must be marked `blocked`, not inferred as passed.
+- For invite usability, the matrix must include stuck async CTA state, explicit friends-list refresh, refresh/send race safety, and route re-entry state reset before the child TODO can claim local implementation.
 
 ### Runtime / Rollout Notes
 - `n/a`
