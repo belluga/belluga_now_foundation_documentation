@@ -20,7 +20,7 @@
       "formalizable_hint": "partial",
       "candidate_rule_level": "project",
       "affected_paths": [
-        "foundation_documentation/todos/active/store_release_android/TODO-store-release-invites-occurrence-target-migration.md",
+        "foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-invites-occurrence-target-migration.md",
         "laravel-app/tests/Feature/Invites/InvitesFlowTest.php",
         "flutter-app/test/infrastructure/repositories/invites_repository_test.dart",
         "flutter-app/test/presentation/tenant_public/schedule/screens/immersive_event_detail/controllers/immersive_event_detail_controller_test.dart"

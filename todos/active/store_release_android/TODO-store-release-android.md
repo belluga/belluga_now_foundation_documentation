@@ -28,9 +28,9 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-home-favorites-refresh-regression.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-invites-occurrence-target-migration.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-home-favorites-refresh-regression.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-invites-occurrence-target-migration.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-proximity-preferences-and-location-origin.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-belluga-media-canonical-image-flow-hardening.md`
 - `foundation_documentation/todos/completed/TODO-store-release-cors-ownership-unification.md`

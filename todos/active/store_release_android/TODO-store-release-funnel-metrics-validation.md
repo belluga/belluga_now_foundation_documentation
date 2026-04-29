@@ -51,7 +51,7 @@ This lane exists to freeze and validate that evidence without reopening settled 
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/todos/completed/TODO-v1-telemetry-frontend.md`
 - `foundation_documentation/todos/completed/TODO-vnext-telemetry-architecture-review.md`
 - `foundation_documentation/modules/invite_and_social_loop_module.md`

@@ -1,8 +1,8 @@
 # T3 Review Packet Round 02 — Minimal Contacts, Favorites, And Friends MVP
 
-**Artifact type:** derived review packet, non-authoritative  
-**Created:** 2026-04-28  
-**Governing TODO:** `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`  
+**Artifact type:** derived review packet, non-authoritative
+**Created:** 2026-04-28
+**Governing TODO:** `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 **Prior round resolution:** `foundation_documentation/artifacts/t3-minimal-friends-triple-audit-20260428T1655Z/round-01/resolution.md`
 
 ## Round 02 Scope
@@ -78,7 +78,7 @@ Still intentionally out of this packet:
 
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/artifacts/t3-minimal-friends-triple-audit-20260428T1655Z/round-01/resolution.md`
 
 ## Validation Evidence

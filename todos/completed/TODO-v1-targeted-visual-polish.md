@@ -23,7 +23,7 @@
 - `foundation_documentation/todos/completed/TODO-v1-screen-events-polish.md`
 - `foundation_documentation/todos/completed/TODO-v1-screen-discovery-polish.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-invite-polish.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/todos/completed/TODO-v1-screen-public-account-profile-detail-polish.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
 - `foundation_documentation/policies/scope_subscope_governance.md`

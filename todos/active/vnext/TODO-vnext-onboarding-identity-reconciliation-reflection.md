@@ -25,7 +25,7 @@
 - `foundation_documentation/domain_entities.md`
 - `foundation_documentation/endpoints_mvp_contracts.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 
 ## Canonical Module Anchors
 

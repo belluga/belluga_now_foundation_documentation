@@ -20,7 +20,7 @@
       "formalizable_hint": "partial",
       "candidate_rule_level": "project",
       "affected_paths": [
-        "foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md",
+        "foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md",
         "foundation_documentation/modules/flutter_client_experience_module.md",
         "flutter-app/lib/infrastructure/services/invites_backend_contract.dart",
         "flutter-app/lib/infrastructure/dal/dao/laravel_backend/invites_backend/laravel_invites_backend.dart",
@@ -41,7 +41,7 @@
         "flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/invite_share_screen.dart",
         "flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/widgets/invite_share_friend_card.dart",
         "foundation_documentation/modules/flutter_client_experience_module.md",
-        "foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md"
+        "foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md"
       ],
       "suggested_action": "Remove recipient padding based on real data. Render backend inviteables exactly once, and use a separate empty/loading/skeleton state that does not reuse real recipient identities. Add a widget test proving a single backend recipient appears once before and after relation filtering."
     },

@@ -25,7 +25,7 @@
         "laravel-app/packages/belluga/belluga_invites/src/Models/Tenants/InviteEdge.php",
         "laravel-app/tests/Feature/Invites/InvitesFlowTest.php",
         "foundation_documentation/modules/invite_and_social_loop_module.md",
-        "foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md"
+        "foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md"
       ],
       "suggested_action": "Introduce a recipient-surface resolver for invite mutation closure that derives the canonical receiver_account_profile_id for each edge and uses it for duplicate winner lookup, supersession, direct-confirmation closure, and acceptance authorization when present. Update tests so direct invites, share materialization, share accept, and replay/idempotency cases assert profile-keyed closure rather than receiver_user_id-only behavior."
     }

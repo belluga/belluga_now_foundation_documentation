@@ -39,7 +39,7 @@
 Bounded critique with performance focus. Treat performance and operational fit as the primary decision lenses. Escalate as blocking only for concrete severe server/runtime risk: unbounded scans, N+1 or request-loop behavior where one query/endpoint is required, exact lookup through list/page walking, high-cardinality in-memory filtering, scheduler/job fetch-all reconciliation, load-amplifying cache/hydration paths, or resource-exhaustion/security exposure. Marginal micro-optimizations and speculative scaling polish are non-blocking debt.
 
 ## Related TODO
-`/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/active/store_release_android/TODO-store-release-home-favorites-refresh-regression.md`
+`/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-home-favorites-refresh-regression.md`
 
 ## Result Contract
 Each reviewer should answer in JSON compatible with `schemas/subagent_review_result.schema.json`.

@@ -133,7 +133,7 @@ This TODO also absorbs the former standalone auth-entry polish slice: the MVP no
 ## References
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
 - `foundation_documentation/todos/completed/TODO-store-release-landlord-tenant-auth-method-governance.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
 - `foundation_documentation/modules/onboarding_flow_module.md`
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
@@ -189,7 +189,7 @@ This TODO also absorbs the former standalone auth-entry polish slice: the MVP no
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/todos/completed/TODO-v1-screen-signin-signup-polish.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
 - `foundation_documentation/modules/onboarding_flow_module.md`
 - `foundation_documentation/modules/invite_and_social_loop_module.md`

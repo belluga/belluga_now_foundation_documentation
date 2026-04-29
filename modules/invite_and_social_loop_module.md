@@ -24,7 +24,7 @@ The Invite & Social Loop module (MOD-302) governs the tenant app virality engine
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
-  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md`
 
 ### 1.2 Route/Subscope Matrix

@@ -39,7 +39,7 @@
 Bounded critique with elegance focus. Treat elegance and structural soundness as the primary decision lenses. Escalate as blocking only when canonical implementation remnants create real drift, duplicated old/new paths are likely to diverge, package-first/domain boundaries are bypassed, or the elegance issue also carries correctness, performance, or security risk. Marginal refactors, naming polish, and beautification without release risk are non-blocking debt.
 
 ## Related TODO
-`/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/active/store_release_android/TODO-store-release-invites-occurrence-target-migration.md`
+`/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-invites-occurrence-target-migration.md`
 
 ## Result Contract
 Each reviewer should answer in JSON compatible with `schemas/subagent_review_result.schema.json`.

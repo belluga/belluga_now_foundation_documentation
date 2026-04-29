@@ -20,8 +20,8 @@
       "formalizable_hint": "partial",
       "candidate_rule_level": "project",
       "affected_paths": [
-        "foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md:218",
-        "foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md:249",
+        "foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md:218",
+        "foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md:249",
         "flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/invite_share_screen.dart:73",
         "flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart:292",
         "flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/widgets/invite_share_relation_filter_chips_test.dart:6"
@@ -41,7 +41,7 @@
         "flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/invite_share_screen.dart:141",
         "flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart:335",
         "flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/widgets/invite_share_relation_filter_chips_test.dart:35",
-        "foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md:246"
+        "foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md:246"
       ],
       "suggested_action": "Add a widget test for InviteShareScreen with at least two inviteable recipients carrying disjoint reasons. Assert the default list is unified, tapping each relation chip hides non-matching rows, and Todos restores the full list."
     },
@@ -78,8 +78,8 @@
         "laravel-app/tests/Feature/Invites/StoreReleaseSocialGraphTest.php:125",
         "laravel-app/app/Application/Social/InviteablePeopleService.php:122",
         "laravel-app/app/Application/Social/InviteablePeopleService.php:341",
-        "foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md:239",
-        "foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md:244"
+        "foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md:239",
+        "foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md:244"
       ],
       "suggested_action": "Add table-style backend feature tests for contact_match only, favorite_by_you only, favorited_you only, reciprocal friend, friends_only exposure rules, non-inviteable profile suppression, non-personal inviteable profile favorites, and the legacy no-personal-profile contact match fallback."
     }

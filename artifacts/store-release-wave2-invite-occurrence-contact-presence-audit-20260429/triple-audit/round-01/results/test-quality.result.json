@@ -35,7 +35,7 @@
       "candidate_rule_level": "project",
       "affected_paths": [
         "laravel-app/tests/Feature/Invites/InvitesFlowTest.php",
-        "foundation_documentation/todos/active/store_release_android/TODO-store-release-invites-occurrence-target-migration.md"
+        "foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-invites-occurrence-target-migration.md"
       ],
       "suggested_action": "Add tests with one event and two occurrences proving duplicates and supersession are scoped to occurrence, not parent event."
     },
@@ -50,7 +50,7 @@
       "affected_paths": [
         "laravel-app/tests/Feature/Invites/InvitesFlowTest.php",
         "laravel-app/tests/Feature/Invites/StoreReleaseSocialGraphTest.php",
-        "foundation_documentation/todos/active/store_release_android/TODO-store-release-invites-occurrence-target-migration.md"
+        "foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-invites-occurrence-target-migration.md"
       ],
       "suggested_action": "Assert target_ref.occurrence_id and persisted InviteEdge.occurrence_id on share create, materialize, accept, and replay paths; add Flutter visible occurrence coverage or document the remaining ADB gate."
     }

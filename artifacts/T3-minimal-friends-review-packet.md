@@ -2,7 +2,7 @@
 
 **Artifact type:** derived review packet, non-authoritative  
 **Created:** 2026-04-28  
-**Governing TODO:** `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+**Governing TODO:** `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 
 ## Review Scope
 
@@ -66,7 +66,7 @@ Known local gap for gate classification:
 
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 
 ## Validation Evidence
 

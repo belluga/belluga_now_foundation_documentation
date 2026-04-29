@@ -2,7 +2,7 @@
 
 - **Artifact kind:** `claude_cli_review`
 - **Authoritative:** `false`
-- **TODO:** `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- **TODO:** `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - **Round package:** `foundation_documentation/artifacts/T3-minimal-friends-review-packet-round-05.md`
 - **Attempted at:** `2026-04-28T16:07:20-03:00`
 - **Claude CLI version:** `2.1.119`

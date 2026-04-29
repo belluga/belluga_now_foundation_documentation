@@ -4,7 +4,7 @@
 
 - **Package type:** bounded independent triple-audit package
 - **Created:** 2026-04-29
-- **Governing TODO:** `foundation_documentation/todos/active/store_release_android/TODO-store-release-home-favorites-refresh-regression.md`
+- **Governing TODO:** `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-home-favorites-refresh-regression.md`
 - **Implementation repo:** `flutter-app`
 - **Implementation branch:** `orchestration/store-release-wave2-social-consumer-gaps-20260429`
 - **Docs branch:** `docs/store-release-wave2-social-consumer-gaps-20260429`

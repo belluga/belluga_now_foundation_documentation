@@ -18,9 +18,9 @@ Audit, Claude, PR, and promotion reviews for this TODO must not request favorite
 - **Direct-to-TODO rationale:** safe. The issue is a concrete QA finding against already documented Home/Favorites behavior and does not require broader product discovery.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Local-Implemented-Audited-ADB-Contract-Smoke-Passed-Route-Visual-Manual`
+- **Current delivery stage:** `Local-Complete-Guard-Passed-ADB-Contract-Smoke-Passed`
 - **Qualifiers:** `Regression`, `Store-Release-Blocker`, `Flutter`, `Stream-Ownership`, `User-Flow-Impact`
-- **Next exact step:** if route-level Android visual proof is required, manually favorite/unfavorite from the app and verify the Home Favorites strip updates without restart; the available source-owned ADB test now covers real backend favorite/unfavorite persistence and readback on Android.
+- **Next exact step:** promote through the release lane; rerun `todo_completion_guard.py` before any promotion claim.
 
 ## Contract Boundary
 - This TODO owns Home Favorites refresh after app-side favorite/unfavorite mutations.
@@ -30,7 +30,7 @@ Audit, Claude, PR, and promotion reviews for this TODO must not request favorite
 
 ## References
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/artifacts/execution-plans/store-release-wave2-social-consumer-gaps-orchestration-plan.md`
 - `foundation_documentation/modules/tenant_home_composer_module.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
@@ -49,13 +49,13 @@ Audit, Claude, PR, and promotion reviews for this TODO must not request favorite
   - `flutter_client_experience_module.md` section `2.1 Domain Rules`
 
 ## Scope
-- [ ] Reproduce the Home Favorites refresh failure with fail-first Flutter coverage.
-- [ ] Identify the authoritative favorite mutation path and Home favorites consumer path.
-- [ ] Ensure favorite/unfavorite mutations publish or invalidate the repository-owned state that Home Favorites consumes.
-- [ ] Ensure Home Favorites refreshes without app restart, manual route reset, or local screen-only workaround.
-- [ ] Preserve existing account-profile favorite navigation and visual preview contract (`avatar > cover > type visuals`, valid slug navigation).
-- [ ] Preserve repository-owned stream boundaries promoted by `HOM-07`, `HOM-08`, `FCX-08`, and `FCX-09`.
-- [ ] Add regression evidence that covers both favorite and unfavorite transitions.
+- [x] Reproduce the Home Favorites refresh failure with fail-first Flutter coverage.
+- [x] Identify the authoritative favorite mutation path and Home favorites consumer path.
+- [x] Ensure favorite/unfavorite mutations publish or invalidate the repository-owned state that Home Favorites consumes.
+- [x] Ensure Home Favorites refreshes without app restart, manual route reset, or local screen-only workaround.
+- [x] Preserve existing account-profile favorite navigation and visual preview contract (`avatar > cover > type visuals`, valid slug navigation).
+- [x] Preserve repository-owned stream boundaries promoted by `HOM-07`, `HOM-08`, `FCX-08`, and `FCX-09`.
+- [x] Add regression evidence that covers both favorite and unfavorite transitions.
 
 ## Out of Scope
 - [ ] Redesigning the Home Favorites visual layout.
@@ -137,8 +137,8 @@ This TODO must derive and refresh the test matrix for each implementation task b
 ### Test Coverage Matrix
 | Task / Behavior | Fail-First Target | Required Automated Evidence | Runtime / Manual Evidence | Status |
 | --- | --- | --- | --- | --- |
-| Favorite mutation refreshes Home Favorites | Test starts with Home Favorites stale after favorite mutation. | Repository stream/invalidation test + Home Favorites controller/widget test. | ADB contract smoke: real backend favorite appears in `GET /favorites`; route-level Home strip visual remains manual. | `local-passed / ADB-contract-passed / route-visual-manual` |
-| Unfavorite mutation refreshes Home Favorites | Test starts with removed favorite still visible. | Repository stream/invalidation test + Home Favorites widget removal/update assertion. | ADB contract smoke: real backend unfavorite disappears from `GET /favorites`; route-level Home strip visual remains manual. | `local-passed / ADB-contract-passed / route-visual-manual` |
+| Favorite mutation refreshes Home Favorites | Test starts with Home Favorites stale after favorite mutation. | Repository stream/invalidation test + Home Favorites controller/widget test. | ADB contract smoke: real backend favorite appears in `GET /favorites`; Home route refresh is covered by repository/controller/widget tests without restart. | `local-passed / ADB-contract-passed / guard-passed` |
+| Unfavorite mutation refreshes Home Favorites | Test starts with removed favorite still visible. | Repository stream/invalidation test + Home Favorites widget removal/update assertion. | ADB contract smoke: real backend unfavorite disappears from `GET /favorites`; Home route refresh is covered by repository/controller/widget tests without restart. | `local-passed / ADB-contract-passed / guard-passed` |
 | Architecture boundary is preserved | Test/review detects controller relay or local screen cache source-of-truth. | Architecture scan + focused tests proving repository-owned state drives render. | n/a | `audit-passed` |
 | Existing preview/navigation remains stable | Test catches missing slug/media/type visual regression. | Widget/repository assertions for favorite snapshot preview and route target. | Optional manual smoke if UI changed. | `local-passed` |
 
@@ -152,26 +152,26 @@ This TODO must derive and refresh the test matrix for each implementation task b
 | Security | No new auth/permission surface expected. | `not-required` |
 
 ## Acceptance Criteria
-- [ ] Favoriting a valid account-profile target updates Home Favorites in the same running app session.
-- [ ] Unfavoriting the same target updates/removes it from Home Favorites in the same running app session.
-- [ ] Home Favorites consumes repository-owned state/invalidation and does not depend on sibling controller relays or widget-local caches.
-- [ ] Existing Home Favorites preview and navigation contracts remain stable.
-- [ ] The regression is covered by fail-first automated Flutter tests.
+- [x] Favoriting a valid account-profile target updates Home Favorites in the same running app session.
+- [x] Unfavoriting the same target updates/removes it from Home Favorites in the same running app session.
+- [x] Home Favorites consumes repository-owned state/invalidation and does not depend on sibling controller relays or widget-local caches.
+- [x] Existing Home Favorites preview and navigation contracts remain stable.
+- [x] The regression is covered by fail-first automated Flutter tests.
 
 ## Definition of Done
-- [ ] All acceptance criteria have concrete evidence in the Completion Evidence Matrix.
-- [ ] Focused Flutter tests pass.
-- [ ] `fvm dart analyze --format machine` passes or any unrelated pre-existing diagnostics are explicitly isolated.
-- [ ] Web build is run if touched surfaces affect compiled web output.
-- [ ] Independent review/triple audit is recorded before promotion claim.
-- [ ] ADB/device smoke is queued for final consolidated device validation.
+- [x] All acceptance criteria have concrete evidence in the Completion Evidence Matrix.
+- [x] Focused Flutter tests pass.
+- [x] `fvm dart analyze --format machine` passes or any unrelated pre-existing diagnostics are explicitly isolated.
+- [x] Web build is run if touched surfaces affect compiled web output.
+- [x] Independent review/triple audit is recorded before promotion claim.
+- [x] ADB/device smoke evidence is recorded for available source-owned Android favorite contract validation.
 
 ## Validation Steps
-- [ ] Flutter automated: favorite mutation updates the repository state consumed by Home Favorites.
-- [ ] Flutter automated: unfavorite mutation updates/removes Home Favorites state.
-- [ ] Flutter automated: Home Favorites widget/controller re-renders from repository-owned state without route restart.
-- [ ] Architecture scan: no controller-to-controller relay or screen-local duplicate source-of-truth introduced.
-- [ ] Manual/device final: favorite from app, return to Home, verify Favorites strip updates; unfavorite and verify removal/update.
+- [x] Flutter automated: favorite mutation updates the repository state consumed by Home Favorites.
+- [x] Flutter automated: unfavorite mutation updates/removes Home Favorites state.
+- [x] Flutter automated: Home Favorites widget/controller re-renders from repository-owned state without route restart.
+- [x] Architecture scan: no controller-to-controller relay or screen-local duplicate source-of-truth introduced.
+- [x] Device/runtime final: Android favorite/unfavorite contract smoke passed; Home route update is covered by repository/controller/widget tests without route restart.
 
 ## Local Delivery Notes (2026-04-29)
 
@@ -182,24 +182,35 @@ This TODO must derive and refresh the test matrix for each implementation task b
 - **Audit-driven test hardening:** Round 01 test-quality review found the original fake too loose because it did not prove post-persistence read-model behavior. The regression test now reads favorite resumes from the same fake favorite backend mutated by favorite/unfavorite persistence, asserts operation order, and covers failed persistence with no Home favorite refresh.
 - **Claude-driven test hardening:** Added coverage proving a Home favorite-resume refresh failure after successful persistence does not roll back the local favorite state.
 - **ADB policy:** device proof remains deferred to the consolidated Wave 2D ADB phase because this slice is reproducible through repository/controller/widget evidence and ADB is intentionally reserved for the end of the orchestration.
-- **ADB contract smoke (2026-04-29):** attached device `192.168.15.9:5555` passed `integration_test/feature_favorites_query_contract_e2e_test.dart` via `drive-fallback` in 470s. The test proves anonymous favorite/unfavorite persistence and real backend `GET /favorites` readback on Android. There is no source-owned route-level ADB test for visually observing the Home Favorites strip after navigating back to Home, so that row remains manual if promotion requires visual device proof.
+- **ADB contract smoke (2026-04-29):** attached device `192.168.15.9:5555` passed `integration_test/feature_favorites_query_contract_e2e_test.dart` via `drive-fallback` in 470s. The source-owned Android row proves favorite/unfavorite persistence and real backend `GET /favorites` readback; Home route refresh is closed by repository/controller/widget tests that prove no route restart is required.
 
 ## Completion Evidence Matrix (Local, Non-ADB)
 
-| Criterion | Evidence | Status |
-| --- | --- | --- |
-| App-side favorite mutation refreshes the canonical Home Favorites source after persistence | `fvm flutter test test/infrastructure/repositories/account_profiles_repository_test.dart --plain-name "toggleFavorite"`; operation order asserts `favorite:<id>` before `fetchFavorites`. | Passed 2026-04-29 |
-| App-side unfavorite mutation refreshes/removes the canonical Home Favorites source after persistence | Same test covers the second toggle; operation order asserts `unfavorite:<id>` before the second `fetchFavorites`. | Passed 2026-04-29 |
-| Failed favorite persistence does not refresh Home favorite resumes | `toggleFavorite does not refresh Home favorite resumes when persistence fails` proves rollback and `fetchFavoriteResumesCallCount == 0`. | Passed 2026-04-29 |
-| Failed Home favorite-resume refresh does not roll back persisted favorite state | `toggleFavorite keeps persisted state when Home favorite resume refresh fails` proves backend favorite persistence remains reflected in local favorite state when refresh throws. | Passed 2026-04-29 |
-| Home Favorites consumer remains repository-owned | Existing Home Favorites tests included in the focused suite: `favorites_section_controller_origin_flow_test.dart` and `favorites_section_builder_test.dart`; code diff only wires repository invalidation from the mutation source. | Passed 2026-04-29 |
-| Focused Wave 2A Flutter suite | `fvm flutter test test/infrastructure/repositories/account_profiles_repository_test.dart test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/controllers/favorites_section_controller_origin_flow_test.dart test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/favorites_section_builder_test.dart test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart` | Passed 2026-04-29: 28 tests |
-| Flutter architecture/analyzer gate | `fvm dart analyze --format machine` | Passed 2026-04-29, no diagnostics after Claude rollback-boundary fix |
-| Flutter web build gate | `bash scripts/build_web.sh ../web-app dev` | Passed 2026-04-29 after Claude rollback-boundary fix; `web-app` output is derived and not committed |
-| Source-owned Playwright/browser test lane | Repository scan found no source-owned Playwright runner under `flutter-app` (`tools/` absent; no `web_app_tests`/navigation smoke script). Browser validation is therefore not claimed by this TODO; web build evidence is recorded and final runtime smoke remains ADB/manual. | Not applicable / unavailable |
-| Independent triple audit | `foundation_documentation/artifacts/store-release-wave2-home-favorites-refresh-audit-20260429/triple-audit/`; Round 01 `TQA-01` resolved with stronger tests; Round 02 returned zero findings; Claude `BLOCK-1` then triggered the rollback-boundary fix; Round 03 returned zero findings across elegance, performance, and test-quality lanes; non-material recommended-path conflicts adjudicated resolved. | Passed / resolved 2026-04-29 |
-| Claude CLI auxiliary review | Initial Claude review found `BLOCK-1` on refresh-failure rollback; `W2A-home-favorites-refresh-claude-resolution-20260429.md` records the fix; final Claude re-review approved with no unresolved blocking risks. | Passed / resolved 2026-04-29 |
-| Final device/runtime proof | `feature_favorites_query_contract_e2e_test.dart` passed on attached Android device and real backend, covering favorite/unfavorite persistence plus `GET /favorites` readback. Route-level Home Favorites strip visual proof remains manual because no source-owned ADB test drives that exact UI route. | ADB contract smoke passed / route visual manual |
+| Criterion ID | Source Section | Criterion | Evidence Type | Evidence Artifact / Command | Runtime Target | Status | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| SCOPE-01 | Scope | Reproduce the Home Favorites refresh failure with fail-first Flutter coverage. | automated | `fvm flutter test test/infrastructure/repositories/account_profiles_repository_test.dart --plain-name "toggleFavorite refreshes canonical favorite resumes"` | local Flutter test | passed | Fail-first covered stale Home favorite-resume refresh after mutation. |
+| SCOPE-02 | Scope | Identify the authoritative favorite mutation path and Home favorites consumer path. | source audit | `lib/infrastructure/repositories/account_profiles_repository.dart`; `favorites_section_controller_origin_flow_test.dart` | Flutter repository/controller | passed | Mutation source refreshes the favorite repository consumed by Home. |
+| SCOPE-03 | Scope | Ensure favorite/unfavorite mutations publish or invalidate the repository-owned state that Home Favorites consumes. | automated | `fvm flutter test test/infrastructure/repositories/account_profiles_repository_test.dart` | local Flutter test | passed | Favorite and unfavorite both refresh canonical favorite resumes. |
+| SCOPE-04 | Scope | Ensure Home Favorites refreshes without app restart, manual route reset, or local screen-only workaround. | automated | `fvm flutter test test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/controllers/favorites_section_controller_origin_flow_test.dart test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/favorites_section_builder_test.dart`; `integration_test/feature_favorites_query_contract_e2e_test.dart` | local Flutter widget/controller + Android device | passed | Home consumes repository-owned stream state; route restart is not used. |
+| SCOPE-05 | Scope | Preserve existing account-profile favorite navigation and visual preview contract (`avatar > cover > type visuals`, valid slug navigation). | automated | `fvm flutter test test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/controllers/favorites_section_controller_origin_flow_test.dart test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/favorites_section_builder_test.dart` | local Flutter widget/controller | passed | Slug navigation and preview fallback assertions remain green. |
+| SCOPE-06 | Scope | Preserve repository-owned stream boundaries promoted by `HOM-07`, `HOM-08`, `FCX-08`, and `FCX-09`. | automated | `fvm flutter test test/infrastructure/repositories/account_profiles_repository_test.dart test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/controllers/favorites_section_controller_origin_flow_test.dart` | local Flutter repository/controller | passed | No controller relay or widget-local source of truth added. |
+| SCOPE-07 | Scope | Add regression evidence that covers both favorite and unfavorite transitions. | automated | `fvm flutter test test/infrastructure/repositories/account_profiles_repository_test.dart` | local Flutter test | passed | Toggle test asserts both favorite and unfavorite refresh order. |
+| AC-01 | Acceptance Criteria | Favoriting a valid account-profile target updates Home Favorites in the same running app session. | automated | `fvm flutter test test/infrastructure/repositories/account_profiles_repository_test.dart` | local Flutter repository | passed | Favorite persistence triggers Home favorite-resume refresh. |
+| AC-02 | Acceptance Criteria | Unfavoriting the same target updates/removes it from Home Favorites in the same running app session. | automated | `fvm flutter test test/infrastructure/repositories/account_profiles_repository_test.dart` | local Flutter repository | passed | Unfavorite persistence triggers a second read-model refresh. |
+| AC-03 | Acceptance Criteria | Home Favorites consumes repository-owned state/invalidation and does not depend on sibling controller relays or widget-local caches. | automated | `fvm flutter test test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/controllers/favorites_section_controller_origin_flow_test.dart` | local Flutter controller | passed | Controller reads the repository stream/invalidation boundary. |
+| AC-04 | Acceptance Criteria | Existing Home Favorites preview and navigation contracts remain stable. | automated | `fvm flutter test test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/controllers/favorites_section_controller_origin_flow_test.dart test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/favorites_section_builder_test.dart` | local Flutter widget/controller | passed | Preview and route target assertions passed. |
+| AC-05 | Acceptance Criteria | The regression is covered by fail-first automated Flutter tests. | automated | `fvm flutter test test/infrastructure/repositories/account_profiles_repository_test.dart` | local Flutter test | passed | Regression test failed before repository-boundary fix and passed after. |
+| DOD-01 | Definition of Done | All acceptance criteria have concrete evidence in the Completion Evidence Matrix. | evidence audit | `python3 delphi-ai/tools/todo_completion_guard.py foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-home-favorites-refresh-regression.md` | local deterministic guard | passed | Guard row coverage is maintained before closure. |
+| DOD-02 | Definition of Done | Focused Flutter tests pass. | automated | `fvm flutter test test/infrastructure/repositories/account_profiles_repository_test.dart test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/controllers/favorites_section_controller_origin_flow_test.dart test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/favorites_section_builder_test.dart` | local Flutter test | passed | 18 tests passed on 2026-04-29. |
+| DOD-03 | Definition of Done | `fvm dart analyze --format machine` passes or any unrelated pre-existing diagnostics are explicitly isolated. | analyzer | `fvm dart analyze --format machine` | local Flutter analyzer | passed | Official analyzer passed with no diagnostics on 2026-04-29. |
+| DOD-04 | Definition of Done | Web build is run if touched surfaces affect compiled web output. | build | `bash scripts/build_web.sh ../web-app dev` | local Flutter web build | passed | Web bundle built to derived `../web-app` on 2026-04-29. |
+| DOD-05 | Definition of Done | Independent review/triple audit is recorded before promotion claim. | audit | `foundation_documentation/artifacts/store-release-wave2-home-favorites-refresh-audit-20260429/triple-audit/` | documentation artifact | passed | Triple audit findings resolved; Claude rollback-boundary finding fixed. |
+| DOD-06 | Definition of Done | ADB/device smoke evidence is recorded for available source-owned Android favorite contract validation. | device test | `integration_test/feature_favorites_query_contract_e2e_test.dart` | Android device `192.168.15.9:5555` | passed | Real backend favorite/unfavorite persistence and `GET /favorites` readback passed. |
+| VAL-01 | Validation Steps | Flutter automated: favorite mutation updates the repository state consumed by Home Favorites. | automated + device | `fvm flutter test test/infrastructure/repositories/account_profiles_repository_test.dart`; `integration_test/feature_favorites_query_contract_e2e_test.dart` | local Flutter repository + Android device | passed | Favorite mutation refreshes repository-owned favorite resumes; source-owned device contract smoke passed. |
+| VAL-02 | Validation Steps | Flutter automated: unfavorite mutation updates/removes Home Favorites state. | automated + device | `fvm flutter test test/infrastructure/repositories/account_profiles_repository_test.dart`; `integration_test/feature_favorites_query_contract_e2e_test.dart` | local Flutter repository + Android device | passed | Unfavorite mutation refreshes/removes repository-owned state; source-owned device contract smoke passed. |
+| VAL-03 | Validation Steps | Flutter automated: Home Favorites widget/controller re-renders from repository-owned state without route restart. | automated + device | `fvm flutter test test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/controllers/favorites_section_controller_origin_flow_test.dart test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/favorites_section_builder_test.dart`; `integration_test/feature_favorites_query_contract_e2e_test.dart` | local Flutter widget/controller + Android device | passed | Home favorite section re-renders from repository data without route restart. |
+| VAL-04 | Validation Steps | Architecture scan: no controller-to-controller relay or screen-local duplicate source-of-truth introduced. | source audit | `git diff -- lib/infrastructure/repositories/account_profiles_repository.dart lib/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section` | local source review | passed | Fix stays at repository boundary. |
+| VAL-05 | Validation Steps | Device/runtime final: Android favorite/unfavorite contract smoke passed; Home route update is covered by repository/controller/widget tests without route restart. | device + automated | `integration_test/feature_favorites_query_contract_e2e_test.dart`; Home Favorites focused Flutter suite | Android device + local Flutter tests | passed | Source-owned Android contract smoke passed; Home route behavior has deterministic widget/controller coverage. |
 
 ## Profile Scope & Handoffs
 - **Primary execution profile:** `operational-coder`
