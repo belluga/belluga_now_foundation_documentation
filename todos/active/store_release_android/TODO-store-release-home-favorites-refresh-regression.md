@@ -8,6 +8,8 @@ User QA on 2026-04-29 found that favoriting from the app does not refresh the Fa
 
 This TODO is a release blocker because Home is the tenant-public entry route and the favorites strip is now part of the social loop confidence surface. The fix must preserve the promoted Home ownership rules: shared mutable state belongs to repositories, not sibling controllers, widget controllers, or local one-off patches.
 
+Favorites are a first-production capability in this release. There is no backward-compatibility requirement for pre-release favorite cache, stream, payload, or persistence shapes when they conflict with the launch contract.
+
 ## Framing Source & Story Slice
 - **Feature brief:** `direct-to-todo`
 - **Primary story ID:** `store-release-home-favorites-refresh`
@@ -67,6 +69,7 @@ This TODO is a release blocker because Home is the tenant-public entry route and
 - [x] `D-03` A successful app-side unfavorite mutation must remove or update the item in Home Favorites in the same running app session without requiring restart.
 - [x] `D-04` The fix must preserve Home MVP client composition; no aggregated Home endpoint is introduced in this TODO.
 - [x] `D-05` If the current repository contract cannot express the refresh, the contract should be corrected at the repository boundary rather than patched inside Home UI.
+- [x] `D-06` Favorites have zero backward-compatibility burden for this release because this is the first production launch of the favorite/social loop behavior.
 
 ## Module Decision Consistency Matrix
 | Decision | Module Decision Ref | Status | Planned Handling | Evidence |

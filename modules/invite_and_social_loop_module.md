@@ -31,7 +31,7 @@ The Invite & Social Loop module (MOD-302) governs the tenant app virality engine
 
 | Route | Host Context | EnvironmentType | Main Scope | Subscope | Guard/Identity |
 | --- | --- | --- | --- | --- | --- |
-| `/convites` | tenant host/app | `tenant` | `tenant_public` | n/a | tenant user in app; anonymous web only when acting as compatibility invite landing with valid `code` |
+| `/convites` | tenant host/app | `tenant` | `tenant_public` | n/a | tenant user in app; anonymous web only when acting as code-bound invite landing with valid `code` |
 | `/agenda` invite actions | tenant host/app | `tenant` | `tenant_public` | n/a | tenant user |
 | `/workspace/{account_slug}` invite metrics/workspace surfaces | tenant host/app | `tenant` | `tenant_public` | `account_workspace` | account membership / landlord override |
 | invite landing via share `code` (`/invite?code=...`) | site_public or tenant host web landing | `landlord` or `tenant` | `site_public` or `tenant_public` | n/a | preview-first on web (read-only CTA to app); app flow allows anonymous accept/decline with device-bound identity; missing/invalid `code` falls back to canonical `/` |
@@ -79,8 +79,8 @@ We never allow the same inviter to invite the same receiver to the same invite t
 `occurrence_id`
 
 - Invites are always issued for one concrete Event Occurrence.
-- `event_id` is not a write contract input for invite target identity. The backend derives parent event context from `occurrence_id`; if a legacy route or payload still carries `event_id`, it is checked only as disposable consistency context and rejected on conflict.
-- `occurrence_id = null` is not a valid release write path. Any legacy/local fixture with a missing occurrence must be repaired or rejected before it can participate in release invite flows.
+- `event_id` is not a write contract input for invite target identity. The backend derives parent event context from `occurrence_id`; if a pre-release route or payload still carries `event_id`, it is checked only as disposable consistency context and rejected on conflict.
+- `occurrence_id = null` is not a valid release write path. Any pre-release/local fixture with a missing occurrence must be reset, reseeded, or rejected before it can participate in release invite flows.
 
 **Uniqueness key:**
 `(tenant_id, occurrence_id, receiver_account_profile_id, inviter_principal.kind, inviter_principal.id)`
@@ -89,10 +89,10 @@ If a duplicate attempt occurs:
 - Backend responds with `already_invited` and no record is created.
 - Client surfaces “Já convidado”.
 
-**Migration note (approved breaking change):**
+**Launch cutover note (approved breaking change):**
 - The canonical recipient surface is `receiver_account_profile_id`, not raw `receiver_user_id`.
-- The release lane intentionally migrates existing user-targeted invite contracts, stored invite edges, and share materialization/acceptance flows to `receiver_account_profile_id`.
-- Backward compatibility with `receiver_user_id` targeting is not required for this migration.
+- The release lane intentionally cuts over pre-production user-targeted invite contracts, stored invite edges, and share materialization/acceptance flows to `receiver_account_profile_id`.
+- Backward compatibility with `receiver_user_id` targeting is not required because invites, favorites, and friends have not been released to production.
 - Future memberships must authorize which acting user may send/respond on behalf of the recipient/sender Account Profile, but that actor authorization must not redefine the canonical recipient identity.
 
 ### C) Credited Acceptance (One Credited Invite Per Receiver Surface + Target)
@@ -104,7 +104,7 @@ When a user accepts via invites, exactly **one** invite becomes the credited acc
 - If the receiver confirms attendance directly for the same target without selecting a pending invite, pending invites for that target transition to `superseded` with `supersession_reason=direct_confirmation`.
 - Event-level entry points must resolve the selected/default occurrence before invite or attendance attribution so an event never collapses unrelated attendance intents into one conversion.
 - Generic event confirmation surfaces must not silently choose a winning inviter when more than one pending inviter exists for the same occurrence target; attribution requires explicit selection.
-- Any legacy user-targeted acceptance behavior must be migrated to the same `receiver_account_profile_id`-keyed rule before release closure.
+- Any pre-release user-targeted acceptance behavior must be cut over to the same `receiver_account_profile_id`-keyed rule before release closure.
 
 ### D) Backend-Owned Limits (Tenant Settings + Enforcement)
 Invite limits are configured and enforced by the backend. Flutter:
@@ -289,9 +289,9 @@ Invite domain owns the social decision state only. Canonical attendance confirma
   "supersession_reason": "null|other_invite_credited|direct_confirmation"
 }
 ```
-`occurrence_id` is the canonical invite target and is required for every release invite edge. Write paths should derive `event_id` server-side from the occurrence; any legacy route/payload `event_id` is disposable context and must be rejected on conflict rather than used for identity.
+`occurrence_id` is the canonical invite target and is required for every release invite edge. Write paths should derive `event_id` server-side from the occurrence; any pre-release route/payload `event_id` is disposable context and must be rejected on conflict rather than used for identity.
 `account_profile_id` is required when `inviter_principal.kind = account_profile` and must match the profile issuing the invite.
-`receiver_account_profile_id` is the canonical persisted recipient identity. Existing user-targeted invite storage must be migrated to this field; `receiver_user_id` is not part of the release contract.
+`receiver_account_profile_id` is the canonical persisted recipient identity. Pre-production user-targeted invite storage must be reset or cut over to this field; `receiver_user_id` is not part of the release contract.
 `supersession_reason` is set only when `status = superseded`. `suppressed` remains reserved for policy/governance closure.
 
 ### 3.2 `invite_actions`
@@ -379,9 +379,9 @@ Native app is the full-fidelity invite client.
 - `GET /invites` returns grouped invite cards by canonical target, not a flat one-row-per-edge list.
 - Each grouped card must include stable `inviter_candidates[]` entries with `invite_id` so the app can enforce explicit inviter selection when multiple pending inviters exist for the same target.
 - `POST /invites` is the native direct-send mutation for existing users or matched contacts.
-- Direct invite recipient identity is an approved breaking migration to the recipient Account Profile surface. Existing user-targeted direct-invite contracts, persisted invite edges, and share materialization/acceptance paths must migrate to `receiver_account_profile_id`; `receiver_user_id` is not part of the release contract.
+- Direct invite recipient identity is an approved breaking launch cutover to the recipient Account Profile surface. Pre-production user-targeted direct-invite contracts, persisted invite edges, and share materialization/acceptance paths must cut over to `receiver_account_profile_id`; `receiver_user_id` is not part of the release contract.
 - `GET /contacts/inviteables` is the canonical composer source for in-app recipients. It merges `contact_match`, `favorite_by_you`, `favorited_you`, and derived `friend` reasons into one row per `receiver_account_profile_id`, preserving all reasons for filtering and exposure decisions.
-- `POST /contacts/import` may still return legacy `user_id`-only matches for installed users that do not yet have a personal Account Profile, so existing contact-hash invite targeting remains functional while canonical profile-scoped rows are preferred whenever the personal profile exists.
+- `POST /contacts/import` must not expose a `user_id`-only invite target. If a matched installed user does not have an inviteable personal Account Profile, the release path must create/resolve the personal Account Profile before in-app targeting or leave the contact outside the canonical inviteable list.
 - `/convites/compartilhar` consumes one unified deduplicated inviteable list by default, not parallel duplicated sections per relation source. Relation/source tags stay attached to each row so Discovery-style filters can narrow the list without changing canonical recipient identity.
 - Native app may additionally expose unmatched local contacts as auxiliary `external_contact_share_targets`. These are app-local only, are not part of the canonical inviteable list or relation filters, do not belong to `contact_groups`, and should prefer WhatsApp direct-share when available with system-share fallback.
 - Future inbound discovery surfaces derived from identity-materialization reconciliation, such as `Talvez você conheça`, remain outside the canonical inviteable list and outside relation filters until the user creates an explicit favorite that yields a normal inviteable reason.
@@ -418,11 +418,11 @@ V1 requires tracking external shares (WhatsApp/Instagram/etc.) for **new users**
 
 **Key requirements:**
 - `code` resolves to a single inviter principal + canonical invite target.
-- The canonical invite target is the stored `occurrence_id`; write paths derive `event_id` server-side from the occurrence, and any legacy route/payload `event_id` is disposable context rejected on conflict.
+- The canonical invite target is the stored `occurrence_id`; write paths derive `event_id` server-side from the occurrence, and any pre-release route/payload `event_id` is disposable context rejected on conflict.
 - Backend records **share visits** and exposes preview payload with canonical invite identity.
 - App progressive-profiling flow accepts from preview via `/invites/share/{code}/accept` (anonymous-first, no forced login).
 - Authenticated continuation flows may still materialize attribution through `/invites/share/{code}/materialize` before decision when explicit pre-bind is required.
-- When share-code materialization or acceptance creates/reuses an invite edge, the persisted recipient target must be `receiver_account_profile_id`; migrating existing user-targeted share conversion is part of the release work.
+- When share-code materialization or acceptance creates/reuses an invite edge, the persisted recipient target must be `receiver_account_profile_id`; cutting over any pre-production user-targeted share conversion is part of the release work.
 - Backend must prevent duplicate invite issuance to the same receiver+target+inviter principal (see Uniqueness rule); the share code is attribution, not a loophole to spam.
 
 ### 4.4 Web Promotion-Only + App Anonymous Acceptance (V1 Progressive Profiling)
@@ -457,19 +457,19 @@ This preserves low-friction viral conversion while keeping trust boundaries expl
 | `app_anonymous_invite_accepted` | `occurrence_id`, optional derived `event_id`, `code` when the app entered via share code, `source=invite_flow` | App anonymous invite decision |
 | `favorite_artist_toggled` | `account_profile_id`, `is_favorite` | App first social-loop action |
 
-### 4.4.A Compatibility Assurance Baseline
+### 4.4.A Runtime Assurance Baseline
 
 Invite confidence is intentionally layered:
 - canonical business semantics are enforced in Laravel feature/package tests;
-- Flutter controller/widget and UI-flow tests protect the invite state machine, but do not count as real backend compatibility when they use doubles;
+- Flutter controller/widget and UI-flow tests protect the invite state machine, but do not count as real backend integration evidence when they use doubles;
 - Flutter repository/decoder tests own payload-shape and malformed/terminal transport coverage;
-- deployed compatibility is proven only in `stage`, using deterministic invite fixtures plus:
+- deployed runtime behavior is proven only in `stage`, using deterministic invite fixtures plus:
   - Flutter runtime tests for mobile/app-domain resolution;
   - browser tests for host/domain web entry, preview, auth redirect, and fallback behavior.
 
 Testing implications:
 - fake `integration_test` coverage must never be described as end-to-end invite safety;
-- `stage` may run mutation-backed invite compatibility because it is the highest lane where mutation is allowed;
+- `stage` may run mutation-backed invite runtime checks because it is the highest lane where mutation is allowed;
 - `main` remains read-only smoke only;
 - web invite validation must prove host-based tenant resolution;
 - Flutter runtime invite validation must prove app/mobile tenant resolution (`X-App-Domain` / package identifier path).
@@ -489,7 +489,7 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 - Web invite landing in V1 must not mint anonymous identity for invite conversion; it is read-only + promotion only.
 - Invite share-code materialization (`POST /invites/share/{code}/materialize`) remains authenticated-only; anonymous attempts must return deterministic `401 auth_required`.
 - Canonical invite acceptance endpoints (`POST /invites/{invite_id}/accept` for materialized ids and `POST /invites/share/{code}/accept` for anonymous-first share preview) must preserve attribution semantics in V1.
-- Flutter/web invite landing compatibility remains anchored on `/invite?code=...`; clients must preserve `code` through onboarding/install bootstrap so attribution is not lost.
+- Flutter/web code-bound invite landing remains anchored on `/invite?code=...`; clients must preserve `code` through onboarding/install bootstrap so attribution is not lost.
 
 **Events**
 * Outbound: `invite.created`, `invite.accepted`, `invite.declined`, `invite.superseded`, `invite.accepted.contacts-import-triggered`, `invite.fulfillment.step-required`, `invite.fulfillment.step-completed`, `invite.attendance.confirmed`, `invite.attendance.unconfirmed`, `invite.attendance.no-show`, `invite.attendance.geo-confirmed`, `invite.expired`, `invite.reward-unlocked`, `invite.rate-limited`, `invite.plan-limit-reached`, `invite.suppressed`.
@@ -569,7 +569,7 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 | `INV-27` | Approved | Canonical identity materialization may reconcile prior imports into outbound `contact_match`, may feed a future inbound `Talvez você conheça` suggestion, and may later power informational "contact entered the app" notifications, but those inbound/discovery consumers are not `Contato` or inviteable until explicit favorite. | Preserves late-join reconciliation without polluting the inviteable/contact model or inventing a new implicit approval edge. | Sections `2.4`, `4.5` |
 | `INV-28` | Approved | `contact_groups` require CRUD in V1, but group management belongs to dedicated group/friends-management surfaces rather than `/convites/compartilhar`; exact UX may be refined via Stitch studies. | Keeps the invite composer lightweight while still freezing the required business capability. | Sections `2.4`, `4.1`, `4.5` |
 | `INV-29` | Approved | When a grouped recipient ceases to be inviteable, V1 removes that recipient from `contact_groups` automatically instead of retaining disabled memberships. | Favors the simplest lifecycle policy for the first version and avoids stale bulk-invite targets. | Sections `2.4`, `4.5` |
-| `INV-30` | Approved | The canonical invite recipient surface is `Account Profile`, not raw `User`; release delivery performs an explicit breaking migration of direct invites, persisted invite edges, and share materialization/acceptance away from `receiver_user_id`, while future memberships authorize acting users separately from recipient identity. | Makes the migration scope explicit and prevents legacy user-targeting from surviving as an accidental contract. | Sections `2.1 B`, `2.1 C`, `3.1`, `4.1`, `4.3`, `4.5` |
+| `INV-30` | Approved | The canonical invite recipient surface is `Account Profile`, not raw `User`; release delivery performs an explicit breaking launch cutover of direct invites, persisted invite edges, and share materialization/acceptance away from `receiver_user_id`, while future memberships authorize acting users separately from recipient identity. | Makes the launch cutover explicit and prevents pre-production user-targeting from surviving as an accidental contract. Invites, favorites, and friends have not been released to production, so backward compatibility is not required. | Sections `2.1 B`, `2.1 C`, `3.1`, `4.1`, `4.3`, `4.5` |
 | `INV-31` | Approved | Invite acceptance is independent from event capacity or later fulfillment availability; those constraints belong to downstream attendance/reservation/check-in flows and do not redefine the social invite decision. | Separates social conversion from fulfillment/capacity concerns and prevents invite semantics from being overloaded by operational availability. | Sections `2.2`, `4.1`, `4.5` |
 | `INV-32` | Approved | V1 invite lifecycle does not include `snooze` / `Decide later`; reminder follow-up for that branch is removed until a future contract explicitly reintroduces it. | Removes half-defined terminal states and keeps the release contract aligned with the actually supported lifecycle. | Sections `2.2`, `3.1`, `4`, `4.5` |
 

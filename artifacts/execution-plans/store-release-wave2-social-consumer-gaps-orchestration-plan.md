@@ -18,6 +18,7 @@
 - If this plan conflicts with a governing TODO, implementation stops until the TODO or this plan is updated and re-approved.
 - `web-app` is a derived runtime bundle and remains ignored as a source-authoring repository. Flutter web evidence must be generated from source-owned Flutter/tools and published to the derived bundle only as a validation step.
 - Docker/root submodule pointers are not committed in this wave. Root changes are allowed only for source-owned orchestration/test harness files if a TODO explicitly requires them; submodule pointer updates belong to the promotion lane.
+- Invites, favorites, and friends are first-production capabilities in this wave. No backward-compatibility path is required for pre-release invite/favorite/friend data shapes, caches, DTOs, or local fixtures.
 
 ## Predecessor Baseline
 
@@ -25,7 +26,7 @@
 | --- | --- | --- | --- |
 | `foundation_documentation` | `docs/store-release-event-hero-home-agenda-pagination` | latest pushed docs checkpoint before this plan | Previous Store Release documentation checkpoint. |
 | `flutter-app` | `orchestration/store-release-code-checkpoint-20260429` | `2ea40468` | Local-implemented checkpoint for OTP/social flows before reopened gaps. |
-| `laravel-app` | `orchestration/store-release-code-checkpoint-20260429` | `819d0a2` | Local-implemented backend checkpoint before occurrence-target migration. |
+| `laravel-app` | `orchestration/store-release-code-checkpoint-20260429` | `819d0a2` | Local-implemented backend checkpoint before occurrence-target cutover. |
 | `belluga_now_docker` | `orchestration/store-release-code-checkpoint-20260429` | `2238eb4` | Orchestration/test checkpoint; no submodule pointer promotion in this wave. |
 
 ## Governing TODO Set
@@ -34,7 +35,7 @@
 | --- | --- | --- | --- |
 | `W2-HOME` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-home-favorites-refresh-regression.md` | Fix Home Favorites stale state after app-side favorite/unfavorite mutations. | Can start after fail-first test target and flow evidence matrix are confirmed. |
 | `W2-INV-SHARE` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md` | Reopened invite-share UX bugs: sharing CTA stuck on `Gerando...` and missing `Atualizar lista de amigos` action. | Can start with `W2-HOME` if write scopes stay disjoint. |
-| `W2-INV-OCC` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-invites-occurrence-target-migration.md` | Migrate invite target identity to concrete `occurrence_id`; `event_id` is derived parent context only. | Backend audit/fail-first tests first; Flutter propagation follows stable payload contract. |
+| `W2-INV-OCC` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-invites-occurrence-target-migration.md` | Cut over invite target identity to concrete `occurrence_id`; `event_id` is derived parent context only. | Backend audit/fail-first tests first; Flutter propagation follows stable payload contract. |
 
 ## Execution Order
 
@@ -50,8 +51,8 @@
    - Deliver `W2-HOME` and `W2-INV-SHARE` with fail-first Flutter repository/controller/widget tests.
    - Use source-owned Playwright/browser checks only where the route is browser-visible or where web build parity can catch shared Flutter regressions.
    - Run the official analyzer command after implementation hygiene: `fvm dart analyze --format machine`.
-   - Run triple audit for the bounded delivery before mixing it with occurrence migration.
-3. **Wave 2B - Invite occurrence target migration**
+   - Run triple audit for the bounded delivery before mixing it with occurrence cutover.
+3. **Wave 2B - Invite occurrence target cutover**
    - Backend first: Laravel invite write/read/share/materialize/accept/feed/duplicate/credited-acceptance tests fail first, then implementation.
    - Flutter second: event detail selected occurrence, invite share payloads, feed/received context, and repository DTOs preserve `occurrence_id`.
    - Update module docs after stable contract decisions are implemented.

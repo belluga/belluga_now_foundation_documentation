@@ -12,18 +12,18 @@ The corrected canonical contract is stricter than the earlier module wording: th
 - **Feature brief:** `direct-to-todo`
 - **Primary story ID:** `store-release-invite-occurrence-target`
 - **Why this is the right current slice:** this is one cross-stack contract correction: every release invite write/read/action must preserve the occurrence target.
-- **Direct-to-TODO rationale:** safe. The product decision is explicit and aligns with existing occurrence-first Events contracts; the TODO exists to migrate implementation and validation, not to reopen invite business rules.
+- **Direct-to-TODO rationale:** safe. The product decision is explicit and aligns with existing occurrence-first Events contracts; the TODO exists to cut over implementation and validation, not to reopen invite business rules.
 
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Pending`
-- **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Contract-Migration`, `Occurrence-First`, `User-Flow-Impact`
+- **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Contract-Cutover`, `Occurrence-First`, `User-Flow-Impact`
 - **Next exact step:** audit current invite create/share/materialize/accept/feed paths for event-target leakage, event+occurrence composite-key leakage, or nullable occurrence leakage, then add fail-first backend and Flutter tests proving `occurrence_id` is the required target and is preserved.
 
 ## Contract Boundary
-- This TODO owns occurrence-target migration for invite writes, share-code materialization, invite feed/read models, acceptance/decline, duplicate prevention, credited acceptance, and Flutter invite UI context.
+- This TODO owns occurrence-target cutover for invite writes, share-code materialization, invite feed/read models, acceptance/decline, duplicate prevention, credited acceptance, and Flutter invite UI context.
 - `occurrence_id` is the release runtime invite target identity.
-- `event_id` should not be required by invite write APIs. Backend write paths derive it from `occurrence_id`; if a legacy route or payload still supplies `event_id`, it is disposable consistency context and must be rejected on conflict rather than used for identity.
-- Existing event-only or `event_id + occurrence_id` composite-target behavior may remain only as explicit historical/data-repair handling; it must not be the normal release write path.
+- `event_id` should not be required by invite write APIs. Backend write paths derive it from `occurrence_id`; if a pre-release route or payload still supplies `event_id`, it is disposable consistency context and must be rejected on conflict rather than used for identity.
+- Existing event-only or `event_id + occurrence_id` composite-target behavior is pre-release residue. It must be removed, reset, or rejected; it must not remain as a release path.
 - If a UI flow starts from an event detail with multiple occurrences and no selected occurrence, the flow must require selection or use the backend-selected occurrence context already resolved by the event detail payload. It must not silently pick a different occurrence.
 
 ## References
@@ -57,13 +57,13 @@ The corrected canonical contract is stricter than the earlier module wording: th
 - [ ] Ensure invite feed/read models render occurrence date/time/context, not only event-level identity.
 - [ ] Ensure duplicate prevention and credited acceptance are keyed by `(receiver_account_profile_id, occurrence_id, inviter_principal)`.
 - [ ] Ensure acceptance/decline/materialization actions preserve the same occurrence target end-to-end.
-- [ ] Update canonical docs if the implementation intentionally supersedes the earlier nullable-compatibility wording for release writes.
+- [ ] Update canonical docs if the implementation intentionally supersedes earlier nullable target wording for release writes.
 
 ## Out of Scope
 - [ ] Redesigning invite visual polish beyond occurrence context clarity.
 - [ ] Ticketing, check-in, paid reservation, or attendance policy expansion.
 - [ ] Broad event occurrence authoring UX outside the occurrence identity required by invites.
-- [ ] Full historical data migration for production users; there are no production compatibility constraints, but local/test fixtures may need deterministic reset or repair.
+- [ ] Production data migration or backward compatibility for invite/favorites/friends data; these capabilities have not been released to production. Local/test fixtures may be reset or reseeded to the launch contract.
 - [ ] Referral result attribution beyond direct invite acceptance; that remains VNext.
 
 ## Decision Baseline (Frozen Before Implementation)
@@ -73,7 +73,8 @@ The corrected canonical contract is stricter than the earlier module wording: th
 - [x] `D-04` For multi-occurrence events, the UI/backend must use the selected occurrence or require an explicit occurrence selection; silent event-level fallback is forbidden.
 - [x] `D-05` Duplicate prevention, credited acceptance, supersession, invite feed grouping, and metrics must key on `occurrence_id` as the target identity.
 - [x] `D-06` Share-code continuation must preserve occurrence identity through web/app handoff and app entry restoration.
-- [x] `D-07` Any retained `occurrence_id = null` handling is compatibility/repair-only and must be named as such in code/tests/docs.
+- [x] `D-07` No `occurrence_id = null` write compatibility path is retained for release. Null-target pre-release fixtures must be reset/reseeded or rejected.
+- [x] `D-08` Invites, favorites, and friends have zero backward-compatibility burden in this release because this is their first production launch.
 
 ## Module Decision Consistency Matrix
 | Decision | Module Decision Ref | Status | Planned Handling | Evidence |
@@ -88,7 +89,7 @@ The corrected canonical contract is stricter than the earlier module wording: th
 | --- | --- | --- | --- | --- | --- |
 | `A-01` | Current implementation still has at least one event-target or `event_id + occurrence_id` composite-target invite write/read path. | User identified structural issue after testing/review; completed invite TODO predates occurrence implementation hardening and user corrected target identity on 2026-04-29. | The TODO becomes a verification/hardening lane with no code or only tests/docs. | `High` | `Keep as Assumption` |
 | `A-02` | Events read/detail payloads expose enough selected occurrence data for Flutter to pass occurrence identity into invite flows. | `events_module.md` `EVS-OCC-01`; `flutter_client_experience_module.md` multi-occurrence contract. | Backend/detail DTO may need additive contract correction in this TODO. | `Medium` | `Keep as Assumption` |
-| `A-03` | No production backward compatibility is required for event-only or nullable-occurrence invite writes. | Delphi mandate: no production users/backward-compat constraints for launch architecture. | Need explicit migration/compat plan before hard rejection. | `High` | `Keep as Assumption` |
+| `A-03` | No production backward compatibility is required for invite/favorites/friends write contracts. | User confirmed on 2026-04-29 that invite, favorites, and friends are going to production for the first time. | If this changes, product would need to explicitly introduce a data conversion plan before release. | `High` | `Decision Baseline D-08` |
 
 ## Execution Plan (Required Before `APROVADO`)
 
@@ -140,13 +141,13 @@ This TODO must derive the test matrix task-by-task during orchestration. Each de
 | Share-code create/materialize/accept preserves occurrence | Share code generated from occurrence A materializes/accepts occurrence A, not event-only target. | Laravel share-code tests + Flutter repository payload test. | Web/app continuation smoke when runner/env is available. | `planned` |
 | Invite feed/read model renders occurrence context | Feed item without occurrence date/time/context fails expected assertion. | Backend projection/read test + Flutter widget/controller test. | Device smoke for received invite context. | `planned` |
 | Flutter event detail/share flow passes selected occurrence | Repository payload loses `occurrence_id` from selected detail route. | Flutter controller/repository tests from selected occurrence detail to invite payload. | Final ADB: invite from selected occurrence in UI. | `planned` |
-| Compatibility-only null handling is isolated | New release write still allows `occurrence_id = null` silently. | Backend tests naming null only as repair/legacy path, if retained. | n/a | `planned` |
+| Null occurrence writes are rejected | New release write still allows `occurrence_id = null` silently. | Backend tests proving null occurrence writes are rejected or reset fixture-only before release. | n/a | `planned` |
 
 ## Audit Trigger Matrix
 | Lane | Trigger | Minimum Decision |
 | --- | --- | --- |
-| Architecture | Cross-module contract migration across Events, Invites, Flutter. | `required` |
-| Code Quality | DTO/service/projection migration risk. | `required` |
+| Architecture | Cross-module contract cutover across Events, Invites, Flutter. | `required` |
+| Code Quality | DTO/service/projection cutover risk. | `required` |
 | Test Quality | Fail-first coverage needed for duplicate/credited acceptance semantics. | `required` |
 | Performance | Duplicate/feed indexes may need occurrence-aware query validation. | `recommended` |
 | Security | Invite targeting and acceptance authorization remain tenant/auth-sensitive. | `recommended` |
@@ -159,7 +160,7 @@ This TODO must derive the test matrix task-by-task during orchestration. Each de
 - [ ] Single-occurrence event invite flows persist the resolved occurrence identity.
 - [ ] Duplicate prevention and credited acceptance are occurrence-scoped.
 - [ ] Flutter event detail/invite share/received invite flows pass and render the selected occurrence context.
-- [ ] Compatibility-only `occurrence_id = null` handling, if retained, is isolated and tested as non-release write behavior.
+- [ ] `occurrence_id = null` write handling is absent from the release path; null-target inputs are rejected or reset as fixture-only setup.
 
 ## Definition of Done
 - [ ] All acceptance criteria have concrete evidence in the Completion Evidence Matrix.
@@ -189,4 +190,4 @@ This TODO must derive the test matrix task-by-task during orchestration. Each de
 ## Complexity
 - **Level (`small|medium|big`):** `medium`
 - **Checkpoint policy:** `one checkpoint`
-- **Why this level:** the business rule is clear, but the migration crosses backend persistence/projections, Flutter DTOs/controllers, Events selected-occurrence context, duplicate semantics, and share-code continuation.
+- **Why this level:** the business rule is clear, but the cutover crosses backend persistence/projections, Flutter DTOs/controllers, Events selected-occurrence context, duplicate semantics, and share-code continuation.
