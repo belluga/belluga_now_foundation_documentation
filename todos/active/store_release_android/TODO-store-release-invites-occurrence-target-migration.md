@@ -4,9 +4,9 @@
 - **Artifact type:** `tactical_execution_contract`
 
 ## Context
-User QA/product review on 2026-04-29 identified a structural issue in the invite implementation: invites are still effectively related to the Event, but after the implementation of Event Occurrences, the invite must be linked to the specific Occurrence.
+User QA/product review on 2026-04-29 identified a structural issue in the invite implementation: invites are still effectively related to the Event, but after the implementation of Event Occurrences, the invite must target the specific Occurrence.
 
-The canonical docs already point in this direction (`event_id + occurrence_id | null`), but the release implementation must stop treating `occurrence_id = null` as a normal runtime shortcut. Store-release invite actions must materialize the selected occurrence so duplicate prevention, credited acceptance, share-code continuation, attendance confirmation, metrics, and UI context all refer to the same scheduled experience.
+The corrected canonical contract is stricter than the earlier module wording: the invite target is `occurrence_id`. `event_id` is only parent context derived from the occurrence and must not be used as part of invite target identity. Store-release invite actions must materialize the selected occurrence so duplicate prevention, credited acceptance, share-code continuation, attendance confirmation, metrics, and UI context all refer to the same scheduled experience.
 
 ## Framing Source & Story Slice
 - **Feature brief:** `direct-to-todo`
@@ -17,12 +17,13 @@ The canonical docs already point in this direction (`event_id + occurrence_id | 
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Pending`
 - **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Contract-Migration`, `Occurrence-First`, `User-Flow-Impact`
-- **Next exact step:** audit current invite create/share/materialize/accept/feed paths for event-only target leakage, then add fail-first backend and Flutter tests proving occurrence identity is required and preserved.
+- **Next exact step:** audit current invite create/share/materialize/accept/feed paths for event-target leakage, event+occurrence composite-key leakage, or nullable occurrence leakage, then add fail-first backend and Flutter tests proving `occurrence_id` is the required target and is preserved.
 
 ## Contract Boundary
 - This TODO owns occurrence-target migration for invite writes, share-code materialization, invite feed/read models, acceptance/decline, duplicate prevention, credited acceptance, and Flutter invite UI context.
-- `event_id` remains the parent context, but release runtime invite identity must resolve to a concrete `occurrence_id`.
-- Existing event-only compatibility behavior may remain only as explicit historical/data-repair handling; it must not be the normal release write path.
+- `occurrence_id` is the release runtime invite target identity.
+- `event_id` should not be required by invite write APIs. Backend write paths derive it from `occurrence_id`; if a legacy route or payload still supplies `event_id`, it is disposable consistency context and must be rejected on conflict rather than used for identity.
+- Existing event-only or `event_id + occurrence_id` composite-target behavior may remain only as explicit historical/data-repair handling; it must not be the normal release write path.
 - If a UI flow starts from an event detail with multiple occurrences and no selected occurrence, the flow must require selection or use the backend-selected occurrence context already resolved by the event detail payload. It must not silently pick a different occurrence.
 
 ## References
@@ -54,7 +55,7 @@ The canonical docs already point in this direction (`event_id + occurrence_id | 
 - [ ] Make release invite writes require or backend-resolve a concrete `occurrence_id` before persistence.
 - [ ] Ensure share codes carry and restore occurrence identity.
 - [ ] Ensure invite feed/read models render occurrence date/time/context, not only event-level identity.
-- [ ] Ensure duplicate prevention and credited acceptance are keyed by `(receiver_account_profile_id, event_id, occurrence_id, inviter_principal)`.
+- [ ] Ensure duplicate prevention and credited acceptance are keyed by `(receiver_account_profile_id, occurrence_id, inviter_principal)`.
 - [ ] Ensure acceptance/decline/materialization actions preserve the same occurrence target end-to-end.
 - [ ] Update canonical docs if the implementation intentionally supersedes the earlier nullable-compatibility wording for release writes.
 
@@ -66,28 +67,28 @@ The canonical docs already point in this direction (`event_id + occurrence_id | 
 - [ ] Referral result attribution beyond direct invite acceptance; that remains VNext.
 
 ## Decision Baseline (Frozen Before Implementation)
-- [x] `D-01` Store-release invite writes must resolve to a concrete `occurrence_id`; event-only invite writes are not acceptable as the normal release path.
-- [x] `D-02` `event_id` remains required as parent context, but it is insufficient for release invite identity once occurrences exist.
+- [x] `D-01` Store-release invite writes must target a concrete `occurrence_id`; event-only invite writes are not acceptable as the normal release path.
+- [x] `D-02` `event_id` is derived parent context only. It must not define the invite target and must not be part of duplicate prevention, credited acceptance, share-code target identity, or metrics identity.
 - [x] `D-03` For single-occurrence events, the backend may resolve the sole occurrence automatically, but persisted new invite edges/share codes must still carry that occurrence.
 - [x] `D-04` For multi-occurrence events, the UI/backend must use the selected occurrence or require an explicit occurrence selection; silent event-level fallback is forbidden.
-- [x] `D-05` Duplicate prevention, credited acceptance, supersession, invite feed grouping, and metrics must include `occurrence_id`.
+- [x] `D-05` Duplicate prevention, credited acceptance, supersession, invite feed grouping, and metrics must key on `occurrence_id` as the target identity.
 - [x] `D-06` Share-code continuation must preserve occurrence identity through web/app handoff and app entry restoration.
 - [x] `D-07` Any retained `occurrence_id = null` handling is compatibility/repair-only and must be named as such in code/tests/docs.
 
 ## Module Decision Consistency Matrix
 | Decision | Module Decision Ref | Status | Planned Handling | Evidence |
 | --- | --- | --- | --- | --- |
-| `D-01..D-04` | `invite_and_social_loop_module.md` `INV-05` / `INV-PD-01` | `Supersede` | Supersede nullable runtime shortcut for new store-release writes; keep null only as explicit compatibility/repair path. | Current module allows `occurrence_id = null` for single-occurrence/event-scoped compatibility. User decision requires occurrence-linked invite. |
+| `D-01..D-04` | `invite_and_social_loop_module.md` `INV-05` / `INV-PD-01` | `Supersede` | Supersede the earlier `event_id + occurrence_id | null` target framing with `occurrence_id` as the sole invite target. | User correction on 2026-04-29: convite é tudo `occurrence_id`; convite é para uma ocorrência, never event-wide. |
 | `D-01..D-04` | `events_module.md` `EVS-OCC-01` | `Aligned` | Preserve selected occurrence route/query contract and consume it in invite flows. | Event detail already carries selected occurrence context. |
-| `D-05` | `invite_and_social_loop_module.md` uniqueness and credited acceptance rules | `Aligned with tightening` | Preserve same uniqueness dimensions, but make `occurrence_id` concrete for release writes. | Existing uniqueness already includes `occurrence_id | null`. |
+| `D-05` | `invite_and_social_loop_module.md` uniqueness and credited acceptance rules | `Supersede` | Remove `event_id` from target identity and key uniqueness/crediting by concrete `occurrence_id`. | Earlier module wording keyed target as `event_id + occurrence_id`; user correction makes occurrence the target. |
 | `D-06` | `flutter_client_experience_module.md` invite/app continuation | `Aligned` | Preserve continuation intent and add occurrence identity as part of that intent. | Web-to-app handoff must preserve requested route/context. |
 
 ## Assumptions Preview
 | Assumption ID | Assumption | Evidence | If False | Confidence | Handling |
 | --- | --- | --- | --- | --- | --- |
-| `A-01` | Current implementation still has at least one event-only invite write/read path. | User identified structural issue after testing/review; completed invite TODO predates occurrence implementation hardening. | The TODO becomes a verification/hardening lane with no code or only tests/docs. | `High` | `Keep as Assumption` |
+| `A-01` | Current implementation still has at least one event-target or `event_id + occurrence_id` composite-target invite write/read path. | User identified structural issue after testing/review; completed invite TODO predates occurrence implementation hardening and user corrected target identity on 2026-04-29. | The TODO becomes a verification/hardening lane with no code or only tests/docs. | `High` | `Keep as Assumption` |
 | `A-02` | Events read/detail payloads expose enough selected occurrence data for Flutter to pass occurrence identity into invite flows. | `events_module.md` `EVS-OCC-01`; `flutter_client_experience_module.md` multi-occurrence contract. | Backend/detail DTO may need additive contract correction in this TODO. | `Medium` | `Keep as Assumption` |
-| `A-03` | No production backward compatibility is required for event-only invite writes. | Delphi mandate: no production users/backward-compat constraints for launch architecture. | Need explicit migration/compat plan before hard rejection. | `High` | `Keep as Assumption` |
+| `A-03` | No production backward compatibility is required for event-only or nullable-occurrence invite writes. | Delphi mandate: no production users/backward-compat constraints for launch architecture. | Need explicit migration/compat plan before hard rejection. | `High` | `Keep as Assumption` |
 
 ## Execution Plan (Required Before `APROVADO`)
 
@@ -103,7 +104,7 @@ The canonical docs already point in this direction (`event_id + occurrence_id | 
 
 ### Ordered Steps
 1. Audit current backend and Flutter invite paths for `occurrence_id` propagation and null/default behavior.
-2. Add fail-first backend tests for direct invite create, share-code create/materialize/accept, duplicate prevention, and credited acceptance keyed by occurrence.
+2. Add fail-first backend tests for direct invite create, share-code create/materialize/accept, duplicate prevention, and credited acceptance keyed by `occurrence_id` only.
 3. Add fail-first Flutter tests proving selected occurrence identity is passed from event detail/invite share into repository payloads and rendered in received invite context.
 4. Implement backend occurrence resolution/validation and persistence changes.
 5. Implement Flutter DTO/repository/controller/UI context propagation.
@@ -124,7 +125,7 @@ The canonical docs already point in this direction (`event_id + occurrence_id | 
 This TODO must derive the test matrix task-by-task during orchestration. Each delivery task starts with the contract row it affects and cannot close until its corresponding matrix row has explicit evidence.
 
 1. Select the next implementation task (`direct invite`, `share code`, `feed`, `acceptance`, `Flutter context`, or `docs`).
-2. Identify the exact event-only leakage that would be unacceptable.
+2. Identify the exact event-target, composite-target, or nullable-occurrence leakage that would be unacceptable.
 3. Add or update fail-first tests before changing implementation.
 4. Add consumer-level tests proving occurrence identity reaches the next boundary.
 5. Re-run only the relevant focused suite first, then broaden to orchestration gates.
@@ -134,7 +135,7 @@ This TODO must derive the test matrix task-by-task during orchestration. Each de
 | Task / Behavior | Fail-First Target | Required Automated Evidence | Runtime / Manual Evidence | Status |
 | --- | --- | --- | --- | --- |
 | Direct invite create requires concrete occurrence | Multi-occurrence invite create without occurrence fails; single-occurrence resolves and persists occurrence. | Laravel feature/unit tests for create validation/resolution. | Final ADB: send invite from selected occurrence. | `planned` |
-| Duplicate prevention is occurrence-scoped | Same receiver/inviter/event but different occurrences remain distinct; same occurrence blocks duplicate. | Laravel duplicate/unique-key tests. | Optional manual smoke for two dates of same event. | `planned` |
+| Duplicate prevention is occurrence-scoped | Same receiver/inviter with different occurrences remain distinct; same occurrence blocks duplicate without using `event_id` as target key. | Laravel duplicate/unique-key tests. | Optional manual smoke for two dates of same event. | `planned` |
 | Credited acceptance/supersession is occurrence-scoped | Accepting invite for occurrence A does not close/credit occurrence B. | Laravel acceptance/supersession tests. | Final ADB: accept one occurrence and verify other remains distinct. | `planned` |
 | Share-code create/materialize/accept preserves occurrence | Share code generated from occurrence A materializes/accepts occurrence A, not event-only target. | Laravel share-code tests + Flutter repository payload test. | Web/app continuation smoke when runner/env is available. | `planned` |
 | Invite feed/read model renders occurrence context | Feed item without occurrence date/time/context fails expected assertion. | Backend projection/read test + Flutter widget/controller test. | Device smoke for received invite context. | `planned` |
@@ -173,7 +174,7 @@ This TODO must derive the test matrix task-by-task during orchestration. Each de
 - [ ] Backend automated: creating an invite for a multi-occurrence event without occurrence fails deterministically.
 - [ ] Backend automated: creating an invite for a single-occurrence event resolves and persists the occurrence.
 - [ ] Backend automated: duplicate prevention is scoped by occurrence, allowing different occurrences while blocking duplicates for the same occurrence.
-- [ ] Backend automated: credited acceptance/supersession is scoped by `(receiver_account_profile_id, event_id, occurrence_id)`.
+- [ ] Backend automated: credited acceptance/supersession is scoped by `(receiver_account_profile_id, occurrence_id)`.
 - [ ] Backend automated: share-code create/materialize/accept preserves occurrence identity.
 - [ ] Flutter automated: selected occurrence from event detail reaches invite payload.
 - [ ] Flutter automated: invite feed/received invite context renders occurrence date/time identity.

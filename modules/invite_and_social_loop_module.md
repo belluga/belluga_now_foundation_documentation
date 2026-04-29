@@ -45,7 +45,7 @@ The Invite & Social Loop module (MOD-302) governs the tenant app virality engine
 3. **Progressive Disclosure:** Invite payloads include `contextual_prompts` describing why an invite matters (e.g., “3 friends are attending this gig”). Context is generated from other modules but cached locally to avoid tight coupling.
 4. **Event-Driven Incentives:** Rank changes, streaks, or reward unlocks emit events consumed by the Insights Service and Tenant Home Composer. The module does not compute final leaderboards; it only updates counters and emits domain events.
 5. **Quota-Aware Monetization (Post‑MVP):** Invite issuance is tied to account plans. Every invite maps to a `plan_charge_bucket`, allowing us to invoice or enforce limits according to the account’s subscription tier.
-6. **Automatic Event-Scoped Security:** Invite codes inherit the lifecycle of the underlying experience; when the event expires or a receiver suppresses invitations for that event, tokens are invalidated automatically and cannot be reused.
+6. **Automatic Occurrence-Scoped Security:** Invite codes inherit the lifecycle of the underlying scheduled experience; when the occurrence expires or a receiver suppresses invitations for that occurrence, tokens are invalidated automatically and cannot be reused.
 
 ---
 
@@ -76,13 +76,14 @@ Every invite is issued by an `inviter_principal`:
 We never allow the same inviter to invite the same receiver to the same invite target more than once.
 
 **Canonical target reference:**
-`(event_id, occurrence_id | null)`
+`occurrence_id`
 
-- `occurrence_id` is required whenever the experience has multiple actionable occurrences or when a runtime attendance action is occurrence-resolved.
-- `occurrence_id = null` is allowed only as a compatibility shortcut for single-occurrence or intentionally event-scoped invite flows.
+- Invites are always issued for one concrete Event Occurrence.
+- `event_id` is not a write contract input for invite target identity. The backend derives parent event context from `occurrence_id`; if a legacy route or payload still carries `event_id`, it is checked only as disposable consistency context and rejected on conflict.
+- `occurrence_id = null` is not a valid release write path. Any legacy/local fixture with a missing occurrence must be repaired or rejected before it can participate in release invite flows.
 
 **Uniqueness key:**
-`(tenant_id, event_id, occurrence_id | null, receiver_account_profile_id, inviter_principal.kind, inviter_principal.id)`
+`(tenant_id, occurrence_id, receiver_account_profile_id, inviter_principal.kind, inviter_principal.id)`
 
 If a duplicate attempt occurs:
 - Backend responds with `already_invited` and no record is created.
@@ -95,14 +96,14 @@ If a duplicate attempt occurs:
 - Future memberships must authorize which acting user may send/respond on behalf of the recipient/sender Account Profile, but that actor authorization must not redefine the canonical recipient identity.
 
 ### C) Credited Acceptance (One Credited Invite Per Receiver Surface + Target)
-When a user accepts via invites, exactly **one** invite becomes the credited acceptance for that `(receiver_account_profile_id, event_id, occurrence_id | null)` target.
+When a user accepts via invites, exactly **one** invite becomes the credited acceptance for that `(receiver_account_profile_id, occurrence_id)` target.
 
 - UI must force explicit selection (“Aceitar convite de …” opens a selector dialog); **no default inviter selection** is applied.
 - On acceptance, the selected invite transitions to `accepted` with `credited_acceptance=true`. This flag marks which invite edge received attribution for the authenticated attendance confirmation; it is not a second attendance record.
-- All other invites for the same `(receiver_account_profile_id, event_id, occurrence_id | null)` target transition to `superseded` with `supersession_reason=other_invite_credited` (still queryable for audit and reporting, but not counted as accepted conversions).
+- All other invites for the same `(receiver_account_profile_id, occurrence_id)` target transition to `superseded` with `supersession_reason=other_invite_credited` (still queryable for audit and reporting, but not counted as accepted conversions).
 - If the receiver confirms attendance directly for the same target without selecting a pending invite, pending invites for that target transition to `superseded` with `supersession_reason=direct_confirmation`.
-- Event-scoped compatibility flows must resolve the effective target reference before credit is assigned so multi-occurrence events never collapse unrelated attendance intents into one conversion.
-- Generic event confirmation surfaces must not silently choose a winning inviter when more than one pending inviter exists for the same target; attribution requires explicit selection.
+- Event-level entry points must resolve the selected/default occurrence before invite or attendance attribution so an event never collapses unrelated attendance intents into one conversion.
+- Generic event confirmation surfaces must not silently choose a winning inviter when more than one pending inviter exists for the same occurrence target; attribution requires explicit selection.
 - Any legacy user-targeted acceptance behavior must be migrated to the same `receiver_account_profile_id`-keyed rule before release closure.
 
 ### D) Backend-Owned Limits (Tenant Settings + Enforcement)
@@ -169,8 +170,8 @@ Post-event outcome rule:
 
 These decisions are now part of the module baseline and should be treated as canonical unless superseded explicitly.
 
-- [x] 🟢 `INV-PD-01` Target identity baseline resolves to `event_id + occurrence_id | null`.
-  - Approved direction: `occurrence_id` is required for multi-occurrence runtime actions; `null` is allowed only for single-occurrence or intentionally event-scoped compatibility flows.
+- [x] 🟢 `INV-PD-01` Target identity baseline resolves to `occurrence_id`.
+  - Approved direction: every invite targets one concrete Event Occurrence. `event_id` is derived parent context only and `occurrence_id = null` is not a valid release write path.
 
 - [x] 🟢 `INV-PD-02` Attendance policy contract is approved as `free_confirmation_only | paid_reservation_only | either`.
   - Approved direction: the event chooses one policy within tenant-owned `settings.events.attendance` boundaries and may allow occurrences to override it while still respecting those boundaries.
@@ -257,7 +258,7 @@ These decisions are now approved and complete the invite-module baseline. Friend
   "sender_user_id": "ObjectId()",
   "receiver_account_profile_id": "ObjectId()",
   "event_id": "ObjectId()",
-  "occurrence_id": "ObjectId() | null",
+  "occurrence_id": "ObjectId()",
   "invite_code": "String",
   "status": "String",
   "source_account_profile_id": "ObjectId()",
@@ -288,7 +289,7 @@ Invite domain owns the social decision state only. Canonical attendance confirma
   "supersession_reason": "null|other_invite_credited|direct_confirmation"
 }
 ```
-`occurrence_id` is required for multi-occurrence runtime targets and remains nullable only for single-occurrence/event-scoped compatibility flows.
+`occurrence_id` is the canonical invite target and is required for every release invite edge. Write paths should derive `event_id` server-side from the occurrence; any legacy route/payload `event_id` is disposable context and must be rejected on conflict rather than used for identity.
 `account_profile_id` is required when `inviter_principal.kind = account_profile` and must match the profile issuing the invite.
 `receiver_account_profile_id` is the canonical persisted recipient identity. Existing user-targeted invite storage must be migrated to this field; `receiver_user_id` is not part of the release contract.
 `supersession_reason` is set only when `status = superseded`. `suppressed` remains reserved for policy/governance closure.
@@ -407,7 +408,7 @@ V1 requires tracking external shares (WhatsApp/Instagram/etc.) for **new users**
   "code": "String",
   "tenant_id": "ObjectId()",
   "event_id": "ObjectId()",
-  "occurrence_id": "ObjectId() | null",
+  "occurrence_id": "ObjectId()",
   "inviter_principal": { "kind": "user|account_profile", "id": "ObjectId()" },
   "issued_by_user_id": "ObjectId() | null",
   "created_at": "Date",
@@ -417,6 +418,7 @@ V1 requires tracking external shares (WhatsApp/Instagram/etc.) for **new users**
 
 **Key requirements:**
 - `code` resolves to a single inviter principal + canonical invite target.
+- The canonical invite target is the stored `occurrence_id`; write paths derive `event_id` server-side from the occurrence, and any legacy route/payload `event_id` is disposable context rejected on conflict.
 - Backend records **share visits** and exposes preview payload with canonical invite identity.
 - App progressive-profiling flow accepts from preview via `/invites/share/{code}/accept` (anonymous-first, no forced login).
 - Authenticated continuation flows may still materialize attribution through `/invites/share/{code}/materialize` before decision when explicit pre-bind is required.
@@ -452,7 +454,7 @@ This preserves low-friction viral conversion while keeping trust boundaries expl
 | `web_install_clicked` | `platform_target`, `store_channel=web` | App promotion/install CTA |
 | `app_deferred_deep_link_captured` | `target_path`, `platform=android`, `store_channel` (`unknown` when native resolver does not provide it), plus `code` only for invite captures | Android first-open deferred capture |
 | `app_deferred_deep_link_capture_failed` | `platform=android`, `failure_reason`, `store_channel` (`unknown` fallback) | Android first-open deferred capture |
-| `app_anonymous_invite_accepted` | `event_id`, `code` when the app entered via share code, `source=invite_flow` | App anonymous invite decision |
+| `app_anonymous_invite_accepted` | `occurrence_id`, optional derived `event_id`, `code` when the app entered via share code, `source=invite_flow` | App anonymous invite decision |
 | `favorite_artist_toggled` | `account_profile_id`, `is_favorite` | App first social-loop action |
 
 ### 4.4.A Compatibility Assurance Baseline
@@ -542,7 +544,7 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 | `INV-02` | Approved | Duplicate invite prevention is strict by `(tenant,target_ref,receiver,inviter_principal)` key. | Prevents spam/metric inflation. | Section `2.1 B` |
 | `INV-03` | Approved | Exactly one credited acceptance exists per `(receiver,target_ref)`; explicit selection is required. | Deterministic conversion and gamification metrics. | Section `2.1 C` |
 | `INV-04` | Approved | Quotas/limits are backend-owned and enforceable via `429`. | Client cannot bypass rate/plan controls. | Section `2.1 D` |
-| `INV-05` | Approved | Canonical invite target identity is `event_id + occurrence_id | null`, with `occurrence_id` required for multi-occurrence runtime actions. | Stabilizes uniqueness, credited acceptance, attendance lookup, mission scope, and Mongo index design. | Sections `2.1 B`, `2.1 C`, `3.1`, `4.3` |
+| `INV-05` | Approved | Canonical invite target identity is `occurrence_id`. `event_id` is derived parent context only and `occurrence_id = null` is not a valid release write path. | Stabilizes uniqueness, credited acceptance, attendance lookup, mission scope, and Mongo index design around one scheduled experience. | Sections `2.1 B`, `2.1 C`, `3.1`, `4.3` |
 | `INV-06` | Approved | Attendance policy enum is `free_confirmation_only | paid_reservation_only | either`; the event chooses one policy and occurrences may override only when the event explicitly allows it. | Gives all invite/attendance flows a single policy vocabulary with a clear event-to-occurrence hierarchy. | Section `2.2` |
 | `INV-07` | Approved | Attendance confirmation / reservation state is owned by an adjacent Participation/Attendance domain, not by Invites, Events, or Ticketing. | Keeps social conversion, attendance write ownership, and paid fulfillment cleanly separated. | Sections `2.2`, `3.1` |
 | `INV-08` | Approved | Invite acceptance always records social conversion first; attendance confirmation or reservation resolution then follows attendance policy. | Prevents conversion metrics from being coupled to reservation/check-in implementation details. | Section `2.2` |
