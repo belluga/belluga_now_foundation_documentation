@@ -17,9 +17,9 @@ User correction on 2026-04-29 broadened the same rule beyond invite edges: confi
 - **Direct-to-TODO rationale:** safe. The product decision is explicit and aligns with existing occurrence-first Events contracts; the TODO exists to cut over implementation and validation, not to reopen invite business rules.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Active-Partial-Local-Validated-Round03-Adjudicated-ADB-Deferred`
+- **Current delivery stage:** `Local-Validated-Round03-Adjudicated-ADB-Blocked-NoDevice`
 - **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Contract-Cutover`, `Occurrence-First`, `User-Flow-Impact`, `Presence-Occurrence-Fixed-Local`, `Share-CTA-Root-Cause-Fixed-Local`, `Contact-Refresh-Fixed-Local`, `Recipient-Surface-Cutover-Local`, `Received-Invite-Occurrence-Context-Fixed-Local`, `Confirmed-Occurrence-Contract-Hardened-Local`, `Widget-False-Green-Corrected`, `Round01-Audit-Resolved`, `Round02-Audit-Resolved`, `Round03-Audit-Adjudicated`
-- **Next exact step:** consolidate the local checkpoint, then carry ADB/device invite/contact/presence smoke to the consolidated final device phase.
+- **Next exact step:** reconnect an ADB device so `adb devices` lists a target, then carry ADB/device invite/contact/presence smoke to the consolidated final device phase.
 
 ## Contract Boundary
 - This TODO owns occurrence-target cutover for invite writes, share-code materialization, invite feed/read models, acceptance/decline, duplicate prevention, credited acceptance, invite-triggered attendance confirmation semantics, and Flutter invite UI context.
@@ -146,15 +146,15 @@ This TODO must derive the test matrix task-by-task during orchestration. Each de
 ### Test Coverage Matrix
 | Task / Behavior | Fail-First Target | Required Automated Evidence | Runtime / Manual Evidence | Status |
 | --- | --- | --- | --- | --- |
-| Direct invite create requires concrete occurrence | Multi-occurrence invite create without occurrence fails; single-occurrence resolves and persists occurrence. | Laravel feature tests for direct/create validation and resolution. | Final ADB: send invite from selected occurrence. | `local-passed / ADB-deferred` |
-| Duplicate prevention is occurrence-scoped | Same receiver/inviter with different occurrences remain distinct; same occurrence blocks duplicate without using `event_id` as target key. | Laravel duplicate/unique-key tests. | Optional manual smoke for two dates of same event. | `local-passed / ADB-deferred` |
-| Credited acceptance/supersession is occurrence-scoped | Accepting invite for occurrence A does not close/credit occurrence B. | Laravel acceptance/supersession tests. | Final ADB: accept one occurrence and verify other remains distinct. | `local-passed / ADB-deferred` |
-| Share-code create/materialize/accept preserves occurrence | Share code generated from occurrence A materializes/accepts occurrence A, not event-only target. | Laravel share-code tests + Flutter repository/application/controller payload tests. | Web/app continuation smoke when runner/env is available. | `local-passed / ADB-deferred` |
-| Invite feed/read model renders occurrence context | Feed item without occurrence date/time/context fails expected assertion. | Backend feed test asserts occurrence `event_date` and location; Flutter controller/widget tests prove same-event different-occurrence filtering and visible occurrence date/time. | Device smoke for received invite context. | `local-passed / ADB-deferred` |
-| Flutter event detail/share flow passes selected occurrence | Repository payload loses `occurrence_id` from selected detail route. | Flutter controller/repository tests from selected occurrence detail to invite payload. | Final ADB: invite from selected occurrence in UI. | `local-passed / ADB-deferred` |
+| Direct invite create requires concrete occurrence | Multi-occurrence invite create without occurrence fails; single-occurrence resolves and persists occurrence. | Laravel feature tests for direct/create validation and resolution. | Final ADB: send invite from selected occurrence. | `local-passed / ADB-blocked-no-device` |
+| Duplicate prevention is occurrence-scoped | Same receiver/inviter with different occurrences remain distinct; same occurrence blocks duplicate without using `event_id` as target key. | Laravel duplicate/unique-key tests. | Optional manual smoke for two dates of same event. | `local-passed / ADB-blocked-no-device` |
+| Credited acceptance/supersession is occurrence-scoped | Accepting invite for occurrence A does not close/credit occurrence B. | Laravel acceptance/supersession tests. | Final ADB: accept one occurrence and verify other remains distinct. | `local-passed / ADB-blocked-no-device` |
+| Share-code create/materialize/accept preserves occurrence | Share code generated from occurrence A materializes/accepts occurrence A, not event-only target. | Laravel share-code tests + Flutter repository/application/controller payload tests. | Web/app continuation smoke when runner/env is available. | `local-passed / ADB-blocked-no-device` |
+| Invite feed/read model renders occurrence context | Feed item without occurrence date/time/context fails expected assertion. | Backend feed test asserts occurrence `event_date` and location; Flutter controller/widget tests prove same-event different-occurrence filtering and visible occurrence date/time. | Device smoke for received invite context. | `local-passed / ADB-blocked-no-device` |
+| Flutter event detail/share flow passes selected occurrence | Repository payload loses `occurrence_id` from selected detail route. | Flutter controller/repository tests from selected occurrence detail to invite payload. | Final ADB: invite from selected occurrence in UI. | `local-passed / ADB-blocked-no-device` |
 | Null occurrence writes are rejected | New release write still allows `occurrence_id = null` silently. | Backend tests proving direct invite and share-code writes reject missing occurrence. | n/a | `local-passed` |
-| Attendance confirmation is occurrence-scoped | Accept/direct-confirm for occurrence A creates/supersedes only occurrence A, not all dates of the event. | Laravel tests for invite acceptance -> free confirmation and direct-confirmation supersession keyed by occurrence. | Final ADB: accept/confirm one occurrence of a multi-occurrence event and verify another occurrence remains distinct. | `local-passed / ADB-deferred` |
-| Participation/check-in relationship contracts are occurrence-scoped | Existing check-in/reservation/outcome fixtures or contracts still persist/read event-only relationship identity. | Contract/source audit plus focused tests for implemented attendance confirmation; VNext check-in/reservation docs corrected to occurrence-first. | Deferred if check-in remains VNext; contract must still be occurrence-first. | `local-audited / VNext-waiver / ADB-deferred` |
+| Attendance confirmation is occurrence-scoped | Accept/direct-confirm for occurrence A creates/supersedes only occurrence A, not all dates of the event. | Laravel tests for invite acceptance -> free confirmation and direct-confirmation supersession keyed by occurrence. | Final ADB: accept/confirm one occurrence of a multi-occurrence event and verify another occurrence remains distinct. | `local-passed / ADB-blocked-no-device` |
+| Participation/check-in relationship contracts are occurrence-scoped | Existing check-in/reservation/outcome fixtures or contracts still persist/read event-only relationship identity. | Contract/source audit plus focused tests for implemented attendance confirmation; VNext check-in/reservation docs corrected to occurrence-first. | Deferred if check-in remains VNext; contract must still be occurrence-first. | `local-audited / VNext-waiver / ADB-blocked-no-device` |
 
 ## Local Delivery Notes (2026-04-29)
 
@@ -171,7 +171,7 @@ This TODO must derive the test matrix task-by-task during orchestration. Each de
 - **Round 02 audit closure:** `foundation_documentation/artifacts/store-release-wave2-invite-occurrence-contact-presence-audit-20260429/triple-audit/round-02/resolution.md` records the received-invite/feed occurrence-context and stale confirmed-occurrence consumer-contract blockers as resolved.
 - **Round 03 audit adjudication:** `foundation_documentation/artifacts/store-release-wave2-invite-occurrence-contact-presence-audit-20260429/triple-audit/round-03/resolution.md` records clean elegance/performance lanes and accepts the remaining test-quality finding as the final ADB/device promotion gate, not a local code blocker.
 - **Widget false-green correction:** the invite-share widget retry test now uses an occurrence-backed invite fixture and asserts both the failed call and retry call share-code generation with `occurrence-1`.
-- **Remaining scope:** final ADB/device smoke remains deferred before promotion closure.
+- **Remaining scope:** final ADB/device smoke remains blocked until a device is attached; `adb devices` returned no attached device on 2026-04-29.
 
 ## Audit Trigger Matrix
 | Lane | Trigger | Minimum Decision |
@@ -201,7 +201,7 @@ This TODO must derive the test matrix task-by-task during orchestration. Each de
 - [x] Module docs are updated for any superseded nullable-runtime wording.
 - [x] Analyzer/focused tests pass locally; PHP style gate remains a separate final check if required before promotion.
 - [x] Independent review/triple audit is recorded before promotion claim.
-- [ ] ADB/device final smoke is queued for the consolidated device phase.
+- [ ] ADB/device final smoke is queued for the consolidated device phase and currently blocked by no attached ADB device.
 
 ## Validation Steps
 - [x] Backend automated: creating an invite for a multi-occurrence event without occurrence fails deterministically.
@@ -217,7 +217,7 @@ This TODO must derive the test matrix task-by-task during orchestration. Each de
 - [x] Backend automated: agenda/stream `confirmed_only` filters by confirmed occurrence IDs, not event IDs.
 - [x] Flutter automated: presence confirmation uses selected occurrence in repository/controller flows.
 - [x] Flutter automated: invite feed/received invite context renders occurrence date/time identity.
-- [ ] Manual/device final: send and accept invite for one occurrence of a multi-occurrence event and verify another occurrence remains distinct.
+- [ ] Manual/device final: send and accept invite for one occurrence of a multi-occurrence event and verify another occurrence remains distinct. Blocked on 2026-04-29 because `adb devices` listed no attached device.
 
 ## Profile Scope & Handoffs
 - **Primary execution profile:** `operational-coder`

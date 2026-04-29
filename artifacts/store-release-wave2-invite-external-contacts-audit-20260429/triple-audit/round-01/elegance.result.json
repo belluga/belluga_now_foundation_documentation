@@ -1,0 +1,43 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/store-release-wave2-invite-external-contacts-audit-20260429/triple-audit/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "elegance",
+  "overall_assessment": "Blocked. The external-contact branch is structurally close to the accepted shape, but it currently fails open when contact import is suppressed on initial load, allowing unverified local contacts to enter the external-share path. A second blocking correctness risk remains in the per-contact WhatsApp handoff because it duplicates phone normalization outside the shared contact normalization helper.",
+  "recommended_path": "Require a fix before release: make external targets appear only after a successful contact-import classification pass, and centralize the WhatsApp phone target normalization so local Brazilian numbers produce a valid international wa.me target or fall back to system share.",
+  "performance_position": "acceptable",
+  "elegance_position": "regresses",
+  "structural_soundness_position": "regresses",
+  "operational_fit_position": "regresses",
+  "findings": [
+    {
+      "finding_id": "ELEGANCE-001",
+      "severity": "high",
+      "title": "External contacts fail open when contact import fails during initial load",
+      "rationale": "On initial load, _importContactsOpportunistically suppresses import failures and returns an empty match list. _buildExternalShareTargets then treats that empty list as authoritative and exposes every local contact with a phone or email as unmatched. This contradicts the canonical split where external targets are only unmatched contacts after backend import classification, and it can duplicate or misroute Belluga contacts into the external-share branch.",
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "lib/presentation/tenant_public/invites/screens/invite_share_screen/controllers/invite_share_screen_controller.dart:195",
+        "lib/presentation/tenant_public/invites/screens/invite_share_screen/controllers/invite_share_screen_controller.dart:427"
+      ],
+      "suggested_action": "Represent contact-import failure separately from a successful zero-match result. On suppressed import failure, leave externalContactShareTargetsStreamValue empty and add focused coverage proving local contacts are not exposed externally unless import classification succeeded."
+    },
+    {
+      "finding_id": "ELEGANCE-002",
+      "severity": "high",
+      "title": "WhatsApp handoff bypasses canonical phone normalization",
+      "rationale": "The screen builds wa.me targets by stripping non-digits from the contact phone, while the shared invite contact normalization helper already knows that local Brazilian phone inputs need country-code variants. A local contact formatted as (27) 99999-9999 can produce wa.me/27999999999 instead of an international 55-prefixed target; launchUrl can still succeed by opening the URL, so the system-share fallback may never run. That breaks the primary per-contact external share action for a common local contact shape.",
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "lib/presentation/tenant_public/invites/screens/invite_share_screen/invite_share_screen.dart:294",
+        "lib/application/invites/invite_contact_import_hashes.dart:29"
+      ],
+      "suggested_action": "Move per-contact WhatsApp target normalization into a shared invite/contact application helper or reuse the existing phone variant logic with an explicit preferred E.164-style target. Add a focused test for a local Brazilian phone number and for fallback behavior when no valid direct WhatsApp target can be built."
+    }
+  ]
+}

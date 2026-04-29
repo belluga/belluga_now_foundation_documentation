@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/store-release-wave2-invite-external-contacts-audit-20260429/triple-audit/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test_quality_audit_lane"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not close the local external-contact invite evidence until the bottom-sheet share action has executable coverage. Keep the native ADB share-smoke as the later Wave 2D gate."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-5877089E",
+      "severity": "high",
+      "title": "External-contact share action is only label-asserted",
+      "rationale": "test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart:157-198 opens the external-contact drill-in but stops after asserting the WhatsApp label; it never taps the action. The production action is wired from lib/presentation/tenant_public/invites/screens/invite_share_screen/widgets/invite_external_contacts_sheet.dart:77-81 into lib/presentation/tenant_public/invites/screens/invite_share_screen/invite_share_screen.dart:274-291, where the WhatsApp URI and SharePlus fallback are built. A no-op handler, malformed wa.me URI, failed pop/router context, or missing fallback would still pass the current local suite. Because D-17 makes native external share the release behavior and final ADB share smoke is deferred, this is missing local evidence for final behavior rather than polish.",
+      "suggested_action": "Add focused widget or adapter-level coverage that taps the external-contact action and asserts the command dispatch. At minimum, prove the phone path builds a wa.me URI with the normalized phone and invite URL, and prove the fallback path invokes the system share adapter when WhatsApp launch is unavailable or the target has no phone.",
+      "reviewer_labels": [
+        "test_quality_audit_lane"
+      ],
+      "source_finding_ids": [
+        "TQ-01"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}
