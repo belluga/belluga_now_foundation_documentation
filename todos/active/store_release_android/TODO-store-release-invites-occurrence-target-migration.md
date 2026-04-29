@@ -24,6 +24,7 @@ The corrected canonical contract is stricter than the earlier module wording: th
 - `occurrence_id` is the release runtime invite target identity.
 - `event_id` should not be required by invite write APIs. Backend write paths derive it from `occurrence_id`; if a pre-release route or payload still supplies `event_id`, it is disposable consistency context and must be rejected on conflict rather than used for identity.
 - Existing event-only or `event_id + occurrence_id` composite-target behavior is pre-release residue. It must be removed, reset, or rejected; it must not remain as a release path.
+- Audit, Claude, PR, and promotion reviews for this TODO must not ask for event-target, nullable-occurrence, or old invite-shape backward compatibility. Such findings are non-blocking unless they identify an independent launch risk unrelated to preserving pre-release behavior.
 - If a UI flow starts from an event detail with multiple occurrences and no selected occurrence, the flow must require selection or use the backend-selected occurrence context already resolved by the event detail payload. It must not silently pick a different occurrence.
 
 ## References
@@ -75,6 +76,7 @@ The corrected canonical contract is stricter than the earlier module wording: th
 - [x] `D-06` Share-code continuation must preserve occurrence identity through web/app handoff and app entry restoration.
 - [x] `D-07` No `occurrence_id = null` write compatibility path is retained for release. Null-target pre-release fixtures must be reset/reseeded or rejected.
 - [x] `D-08` Invites, favorites, and friends have zero backward-compatibility burden in this release because this is their first production launch.
+- [x] `D-09` Review and promotion gates must classify event-target, nullable-occurrence, old invite-shape, or first-production social backward-compatibility requests as out of scope and non-blocking unless they raise an independent security, integrity, data-loss, tenant-isolation, or release-regression issue.
 
 ## Module Decision Consistency Matrix
 | Decision | Module Decision Ref | Status | Planned Handling | Evidence |

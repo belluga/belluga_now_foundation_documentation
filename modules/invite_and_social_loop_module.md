@@ -93,6 +93,7 @@ If a duplicate attempt occurs:
 - The canonical recipient surface is `receiver_account_profile_id`, not raw `receiver_user_id`.
 - The release lane intentionally cuts over pre-production user-targeted invite contracts, stored invite edges, and share materialization/acceptance flows to `receiver_account_profile_id`.
 - Backward compatibility with `receiver_user_id` targeting is not required because invites, favorites, and friends have not been released to production.
+- Review, audit, Claude, PR, and promotion gates must treat backward-compatibility requests for this first-production social cutover as out of scope and non-blocking unless they identify an independent launch risk unrelated to preserving pre-release contracts.
 - Future memberships must authorize which acting user may send/respond on behalf of the recipient/sender Account Profile, but that actor authorization must not redefine the canonical recipient identity.
 
 ### C) Credited Acceptance (One Credited Invite Per Receiver Surface + Target)
@@ -572,6 +573,7 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 | `INV-30` | Approved | The canonical invite recipient surface is `Account Profile`, not raw `User`; release delivery performs an explicit breaking launch cutover of direct invites, persisted invite edges, and share materialization/acceptance away from `receiver_user_id`, while future memberships authorize acting users separately from recipient identity. | Makes the launch cutover explicit and prevents pre-production user-targeting from surviving as an accidental contract. Invites, favorites, and friends have not been released to production, so backward compatibility is not required. | Sections `2.1 B`, `2.1 C`, `3.1`, `4.1`, `4.3`, `4.5` |
 | `INV-31` | Approved | Invite acceptance is independent from event capacity or later fulfillment availability; those constraints belong to downstream attendance/reservation/check-in flows and do not redefine the social invite decision. | Separates social conversion from fulfillment/capacity concerns and prevents invite semantics from being overloaded by operational availability. | Sections `2.2`, `4.1`, `4.5` |
 | `INV-32` | Approved | V1 invite lifecycle does not include `snooze` / `Decide later`; reminder follow-up for that branch is removed until a future contract explicitly reintroduces it. | Removes half-defined terminal states and keeps the release contract aligned with the actually supported lifecycle. | Sections `2.2`, `3.1`, `4`, `4.5` |
+| `INV-33` | Approved | First-production social capabilities carry a zero-backward-compatibility review and promotion rule: reviewers must not request compatibility for pre-release invite, favorite, friend, contact-group, or contact-match inviteable behavior unless a governing TODO explicitly reopens that burden. | Keeps audit and promotion gates aligned with launch scope and prevents non-production historical shapes from blocking release. | `project_constitution.md`, Sections `2.1 B`, `2.4`, `4.1`, `4.5` |
 
 ## 8. Tactical TODO Promotion Ledger
 

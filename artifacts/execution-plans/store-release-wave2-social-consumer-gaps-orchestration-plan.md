@@ -19,6 +19,8 @@
 - `web-app` is a derived runtime bundle and remains ignored as a source-authoring repository. Flutter web evidence must be generated from source-owned Flutter/tools and published to the derived bundle only as a validation step.
 - Docker/root submodule pointers are not committed in this wave. Root changes are allowed only for source-owned orchestration/test harness files if a TODO explicitly requires them; submodule pointer updates belong to the promotion lane.
 - Invites, favorites, and friends are first-production capabilities in this wave. No backward-compatibility path is required for pre-release invite/favorite/friend data shapes, caches, DTOs, or local fixtures.
+- This first-production rule is mandatory review context. Triple-audit packets, Claude CLI review packets, PR notes, and promotion notes must instruct reviewers not to request backward compatibility for invites, favorites, or friends/contact groups unless a governing TODO explicitly reverses the rule.
+- Backward-compatibility comments for these first-production capabilities are non-blocking by default and may be ignored or waived during promotion with citation to `project_constitution.md` and the relevant TODO. Escalate only if the comment identifies an independent security, data-integrity, data-loss, tenant-isolation, or release-regression risk unrelated to preserving pre-release behavior.
 
 ## Predecessor Baseline
 
@@ -117,8 +119,10 @@
   - task-derived test matrix,
   - Frontend / Consumer Matrix,
   - validation evidence,
+  - explicit zero-backward-compatibility premise for first-production social capabilities,
   - explicit ADB-deferred rows.
 - Claude CLI is an auxiliary gate only when available and responsive. If Claude and the triple audit materially diverge, Delphi escalates the divergence before changing direction.
+- Review findings that ask for first-production backward compatibility are classified as `out-of-scope/non-blocking` unless they also contain an independent launch-risk argument under the authority boundary above.
 - Final wave closure includes a comparison note: which findings from triple audit were more release-relevant than Claude, which Claude findings were unique/relevant, and which were non-blocking or redundant.
 
 ## Branch and Checkpoint Policy
@@ -147,4 +151,5 @@ Before final ADB/device execution:
 - Source-owned Playwright/browser checks are run for browser-visible paths or explicitly marked non-applicable with rationale.
 - Triple audit per TODO has no unresolved blocking findings.
 - Claude CLI review is recorded when available; important divergence is resolved or escalated.
+- Any audit, Claude, PR, or promotion comment requesting backward compatibility for invites, favorites, or friends/contact groups is either absent or explicitly waived as out of scope under the first-production rule.
 - Final ADB rows are either passed or explicitly blocked with next exact step.

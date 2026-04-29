@@ -109,6 +109,7 @@
 - [x] `D-22` Direct invite recipient identity is an approved breaking launch cutover to the recipient `Account Profile` surface. Pre-production user-targeted invite contracts, stored invite edges, and share-to-invite materialization/acceptance flows must be adapted to `receiver_account_profile_id`; backward compatibility with `receiver_user_id` is not required because invites, favorites, and friends have not been released to production.
 - [x] `D-24` Favorites, invites, and friends are first-production capabilities in this release. The release lane must not preserve backward compatibility for old favorite/invite/friend data shapes, `receiver_user_id` invite targeting, user-only contact matches, or pre-release favorite stream/cache behavior.
 - [x] `D-23` Future account-workspace memberships may authorize different acting users on behalf of the same Account Profile, but that authorization layer must not redefine canonical invite recipient identity. Response/acceptance permissions remain future workspace policy and must not be baked implicitly into the current recipient model.
+- [x] `D-25` Audit, Claude, PR, and promotion reviews for this TODO must carry the zero-backward-compatibility premise. Compatibility requests for first-production favorites, invites, friends, contact groups, or contact-match inviteable behavior are out of scope and non-blocking unless they identify an independent launch risk unrelated to preserving pre-release contracts.
 
 ## Current Implementation Snapshot (Repository Scan 2026-04-17)
 
@@ -138,6 +139,7 @@
 - **Onboarding-driven identity-materialization reflection was split into follow-up ownership:** late reconciliation after canonical identity materialization, future `Talvez você conheça`, and advisory "contact entered the app" notifications are no longer owned by this release TODO and now live in `TODO-vnext-onboarding-identity-reconciliation-reflection.md`.
 - **Anonymous-account-profile favorites still have an implementation gap against the frozen policy baseline:** store-release web-to-app policy now allows anonymous app favorites, but current Flutter/Laravel favorites mutation paths still assume authenticated mutation for the existing account-profile lane. That alignment remains owned by `TODO-store-release-web-to-app-conversion-gate.md`.
 - **Favorites also have zero backward-compatibility burden:** account-profile favorites, personal-profile favorites, friend derivation, Home Favorites streams, and favorite inviteable reasons are first-production release capabilities. Pre-release local storage/cache/API behavior may be replaced outright when it conflicts with the launch contract.
+- **Review and promotion rule:** any reviewer, Claude run, PR comment, or promotion note asking for backward compatibility in favorites, invites, friends, contact groups, or contact-match inviteable behavior must be treated as out of scope for this release lane unless it raises an independent security, integrity, data-loss, tenant-isolation, or release-regression risk.
 
 ## Scope
 

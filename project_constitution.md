@@ -106,6 +106,8 @@ This project operates inside the broader Belluga ecosystem under the PACED reuse
 - `account_profile_catalog_module.md` is the current authority file for public account-profile catalog/detail contracts. Its deferred `offer` concern is capability-first by default. `account_workspace_module.md` is the canonical planning surface for future `account_workspace`, while `account_profile_analytics_capability.md` is a capability-planning surface rather than a standalone current runtime authority.
 - `web-app` is a derived/compiled runtime surface. Route/navigation test sources and governance-changing route artifacts must be authored in source-owned repos/tools, not directly in `web-app`.
 - Branch reconciliation and cleanup are repo-specific decisions. `foundation_documentation` is evaluated against `origin/main`; the root repo, `flutter-app`, and `laravel-app` use `origin/dev` for normal preflight/rebaseline decisions.
+- First-production capabilities have zero backward-compatibility burden unless their governing tactical TODO explicitly says otherwise. Pre-release data shapes, DTOs, caches, local fixtures, routes, endpoints, and UI behavior are disposable when they conflict with the launch contract; delivery should cut over, reset, reseed, or reject them instead of preserving old behavior.
+- Review, audit, and promotion gates must carry the first-production rule. For those capabilities, requests for backward compatibility are out of scope and non-blocking by default. Promotion may ignore or waive those comments with citation to this constitution and the governing TODO unless they raise an independent security, data-integrity, data-loss, tenant-isolation, or release-regression risk that does not depend on preserving old contracts.
 
 ## 6. Systemic Invariants
 
@@ -116,6 +118,7 @@ This project operates inside the broader Belluga ecosystem under the PACED reuse
 - Recurring Laravel scheduler/job runtime is orchestration-only: canonical Application/Domain services own business selection and mutation rules, steady-state recurring full scans are forbidden, and any full-scan repair/backfill path must be explicit/manual plus cursor/chunk based.
 - Account ownership semantics are part of the recurring tenant-bootstrap model, not isolated admin metadata. `unmanaged` accounts represent valid seed supply for new or expanding tenants and may later transition into claimed/user-managed states without redefining the core entity model.
 - Invite/web-to-app continuation must preserve request intent and invite attribution across tenant web, app-store handoff, and app-entry flows; unresolved continuation may fall back only through explicitly approved product policy.
+- Store-release invites, favorites, and friends/contact groups are first-production capabilities. Their launch contracts supersede all pre-release local behavior and require no backward-compatibility path.
 - No new scope, subscope, or cross-module ownership boundary may be implied by implementation alone. Policy and canonical docs must be updated before such a change becomes authoritative.
 
 ## 7. Approved Project-Specific Deviations From Delphi Baseline
