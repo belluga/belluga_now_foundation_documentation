@@ -3,14 +3,14 @@
 ## Artifact Identity
 
 - **Artifact type:** `orchestration_execution_plan`
-- **Status:** `Local-Complete-ADB-Blocked-NoDevice`
+- **Status:** `Local-Complete-ADB-Automated-Smokes-Passed-Manual-Residuals`
 - **Created:** `2026-04-29`
 - **Wave label:** `store-release-wave2-social-consumer-gaps`
 - **Governing workflows / skills:** `wf-docker-todo-driven-execution-method`, `wf-docker-subagent-orchestration-method`, `audit-protocol-triple-review`
 - **Plan approval evidence:** user accepted the split-wave recommendation on 2026-04-29 with "Plano aceito. Pode seguir assim."
 - **Implementation approval boundary:** no source-code implementation starts until the governing child TODO is approval-ready and the execution step is explicitly approved under the TODO-driven gate.
 - **Local completion evidence:** all non-ADB implementation, focused suites, analyzer, web build, Claude auxiliary review, and triple-audit gates for the active Wave 2 TODO set are complete as of 2026-04-29.
-- **ADB status:** `adb devices` returned no attached device on 2026-04-29, so Wave 2D is blocked until a device is attached/reconnected.
+- **ADB status:** attached device `192.168.15.9:5555` completed the available source-owned Android smoke matrix for favorites contract, invite share-code continuation, invite auth decision UI, invite deeplink continuation, and login redirect. Native address-book mutation/share-sheet and route-level Home visual rows remain manual residuals because this repo has no source-owned ADB automation for those OS/UI surfaces.
 
 ## Authority Boundary
 
@@ -45,9 +45,9 @@
 
 | TODO | Local Status | Final ADB Status |
 | --- | --- | --- |
-| `W2-HOME` | Implemented, tested, analyzer/web-build passed, triple audit and Claude review resolved. | Blocked: no attached ADB device. |
-| `W2-INV-SHARE` | Implemented, tested, analyzer/web-build passed, reopened invite-share audit resolved, external-contact branch audit resolved, Claude review recorded. | Blocked: no attached ADB device. |
-| `W2-INV-OCC` | Implemented, tested, docs updated, triple audit resolved/adjudicated with no local code blockers. | Blocked: no attached ADB device. |
+| `W2-HOME` | Implemented, tested, analyzer/web-build passed, triple audit and Claude review resolved. | ADB contract smoke passed; route-level Home visual proof remains manual if required. |
+| `W2-INV-SHARE` | Implemented, tested, analyzer/web-build passed, reopened invite-share audit resolved, external-contact branch audit resolved, Claude review recorded. | ADB invite/auth smokes passed; native contact refresh and WhatsApp/system share-sheet proof remain manual residuals. |
+| `W2-INV-OCC` | Implemented, tested, docs updated, triple audit resolved/adjudicated with no local code blockers. | ADB invite continuation smokes passed; exact selected-occurrence send/presence route proof remains manual residual. |
 
 ## Execution Order
 
@@ -111,15 +111,15 @@
 
 | Task / Behavior | Lowest-Level Fail-First Test | Consumer / Flow Evidence | Playwright / Browser Evidence | ADB / Device Evidence | Status |
 | --- | --- | --- | --- | --- | --- |
-| Favorite mutation refreshes Home Favorites | Repository stream/invalidation test starts with stale Home state after favorite. | Home Favorites controller/widget re-renders without route restart. | Web build passed; Playwright runner unavailable in source repo. | Favorite in app, return to Home, item appears without restart. | `local-passed / ADB-blocked-no-device` |
-| Unfavorite mutation refreshes Home Favorites | Repository stream/invalidation test starts with removed item still visible. | Home Favorites widget removes/updates item from repository-owned state. | Web build passed; Playwright runner unavailable in source repo. | Unfavorite in app, return to Home, item disappears/updates. | `local-passed / ADB-blocked-no-device` |
-| Invite share CTA does not stay stuck on `Gerando...` | Controller test simulates share generation success/error/cancel and asserts loading clears. | Widget test verifies CTA label/state moves to `Compartilhar` or recoverable error and route re-entry resets state. | Web build passed; Playwright runner unavailable in source repo. | Open invite share screen and verify CTA is not permanently disabled after generation attempt. | `local-passed / ADB-blocked-no-device` |
-| Inviteable refresh action exists and refetches | Controller/repository test asserts explicit refresh triggers new inviteables request. | Widget test verifies `Atualizar lista de amigos` is visible, tappable, loading-bounded, and does not race with send/share. | Web build passed; Playwright runner unavailable in source repo. | Tap refresh on device and verify list/status updates without app restart. | `local-passed / ADB-blocked-no-device` |
-| External contact branch is separate and dispatches share | Controller test asserts unmatched native-only contacts, matched-contact exclusion, web exclusion, and fail-closed import classification. | Widget test verifies compact entry, bottom sheet, no extra `Convidar` rows, normalized `wa.me/5527...` launch, invite URL payload, and system-share fallback. | Web runtime exclusion covered by controller test; web build passed. | Tap native external-contact share and verify WhatsApp/system share sheet opens. | `local-passed / ADB-blocked-no-device` |
-| Direct invite writes require concrete occurrence | Laravel test fails when invite create omits occurrence; single-occurrence events resolve and persist occurrence. | Flutter repository payload test includes selected `occurrence_id`. | n/a unless direct invite flow is browser-enabled; current release expectation is app-first. | Send invite for selected occurrence on device. | `local-passed / ADB-blocked-no-device` |
-| Duplicate prevention and credited acceptance are occurrence-scoped | Laravel tests allow different occurrences and block same occurrence duplicates without using `event_id` as target identity; credited acceptance does not supersede another occurrence. | Flutter received/context tests distinguish two dates of the same event. | Optional web landing/readback if share-code flow is browser-visible. | Accept one occurrence invite and verify other occurrence remains distinct. | `local-passed / ADB-blocked-no-device` |
-| Share-code create/materialize/accept preserves occurrence | Laravel share-code tests assert `occurrence_id` survives create, preview/materialize, and accept. | Flutter continuation/repository tests preserve selected occurrence through invite code flow. | Web build passed; no source-owned Playwright runner available. | Share/accept code for one occurrence and verify feed/acceptance context. | `local-passed / ADB-blocked-no-device` |
-| Invite feed/read model renders occurrence context | Backend projection test fails when date/time/context is absent. | Flutter widget/controller test renders occurrence date/time identity in feed/received invite. | Web build passed; browser smoke runner unavailable in source repo. | Received invite context shows the selected occurrence. | `local-passed / ADB-blocked-no-device` |
+| Favorite mutation refreshes Home Favorites | Repository stream/invalidation test starts with stale Home state after favorite. | Home Favorites controller/widget re-renders without route restart. | Web build passed; Playwright runner unavailable in source repo. | `feature_favorites_query_contract_e2e_test.dart` passed real Android favorite/readback; route-level Home visual remains manual. | `local-passed / ADB-contract-passed / route-visual-manual` |
+| Unfavorite mutation refreshes Home Favorites | Repository stream/invalidation test starts with removed item still visible. | Home Favorites widget removes/updates item from repository-owned state. | Web build passed; Playwright runner unavailable in source repo. | `feature_favorites_query_contract_e2e_test.dart` passed real Android unfavorite/readback; route-level Home visual remains manual. | `local-passed / ADB-contract-passed / route-visual-manual` |
+| Invite share CTA does not stay stuck on `Gerando...` | Controller test simulates share generation success/error/cancel and asserts loading clears. | Widget test verifies CTA label/state moves to `Compartilhar` or recoverable error and route re-entry resets state. | Web build passed; Playwright runner unavailable in source repo. | Invite share-code/auth/deeplink ADB smokes passed; exact native share button handoff remains manual. | `local-passed / ADB-continuation-passed / share-sheet-manual` |
+| Inviteable refresh action exists and refetches | Controller/repository test asserts explicit refresh triggers new inviteables request. | Widget test verifies `Atualizar lista de amigos` is visible, tappable, loading-bounded, and does not race with send/share. | Web build passed; Playwright runner unavailable in source repo. | No source-owned ADB test mutates Android contacts and taps refresh; manual residual. | `local-passed / ADB-manual-residual` |
+| External contact branch is separate and dispatches share | Controller test asserts unmatched native-only contacts, matched-contact exclusion, web exclusion, and fail-closed import classification. | Widget test verifies compact entry, bottom sheet, no extra `Convidar` rows, region-aware WhatsApp URL, invite URL payload, and system-share fallback. | Web runtime exclusion covered by controller test; web build passed. | Native WhatsApp/system share sheet opening remains manual residual. | `local-passed / ADB-manual-residual` |
+| Direct invite writes require concrete occurrence | Laravel test fails when invite create omits occurrence; single-occurrence events resolve and persist occurrence. | Flutter repository payload test includes selected `occurrence_id`. | n/a unless direct invite flow is browser-enabled; current release expectation is app-first. | Manual residual: send invite for selected occurrence on device if exact route proof is required. | `local-passed / ADB-manual-residual` |
+| Duplicate prevention and credited acceptance are occurrence-scoped | Laravel tests allow different occurrences and block same occurrence duplicates without using `event_id` as target identity; credited acceptance does not supersede another occurrence. | Flutter received/context tests distinguish two dates of the same event. | Optional web landing/readback if share-code flow is browser-visible. | Manual residual: accept one occurrence invite and verify another remains distinct if exact route proof is required. | `local-passed / ADB-manual-residual` |
+| Share-code create/materialize/accept preserves occurrence | Laravel share-code tests assert `occurrence_id` survives create, preview/materialize, and accept. | Flutter continuation/repository tests preserve selected occurrence through invite code flow. | Web build passed; no source-owned Playwright runner available. | `feature_invite_flow_share_code_bootstrap_test.dart`, `feature_invite_auth_roundtrip_decision_ui_regression_test.dart`, and `feature_invite_deeplink_auth_roundtrip_test.dart` passed on Android. | `local-passed / ADB-continuation-passed` |
+| Invite feed/read model renders occurrence context | Backend projection test fails when date/time/context is absent. | Flutter widget/controller test renders occurrence date/time identity in feed/received invite. | Web build passed; browser smoke runner unavailable in source repo. | Invite decision/deeplink ADB smokes passed; exact multi-occurrence received-card route proof remains manual. | `local-passed / ADB-continuation-passed / route-manual` |
 
 ## Audit and Review Cadence
 
@@ -132,7 +132,7 @@
   - Frontend / Consumer Matrix,
   - validation evidence,
   - explicit zero-backward-compatibility premise for first-production social capabilities,
-  - explicit ADB-deferred or ADB-blocked rows.
+  - explicit ADB status rows, including passed, deferred, blocked, and manual-residual classifications.
 - Claude CLI is an auxiliary gate only when available and responsive. If Claude and the triple audit materially diverge, Delphi escalates the divergence before changing direction.
 - Review findings that ask for first-production backward compatibility are classified as `out-of-scope/non-blocking` unless they also contain an independent launch-risk argument under the authority boundary above.
 - Final wave closure includes a comparison note: which findings from triple audit were more release-relevant than Claude, which Claude findings were unique/relevant, and which were non-blocking or redundant.
@@ -157,15 +157,19 @@ Before final ADB/device execution:
 
 ## Final ADB Status (2026-04-29)
 
-- Command: `adb devices`
-- Result: no attached devices listed.
-- Classification: operational blocker, not a source-code blocker.
-- Rows blocked until device reconnect:
-  - Home favorite/unfavorite refresh in the running app.
-  - Invite share CTA generates a selected-occurrence share link on a real backend session.
-  - `Atualizar lista de amigos` imports refreshed device contacts and updates the list without route restart.
-  - Unmatched local contact branch opens WhatsApp/system share sheet.
-  - Occurrence-scoped invite/presence smoke for one occurrence without collapsing another occurrence.
+- Command: `adb devices -l`
+- Result: attached device `192.168.15.9:5555` (`moto_e13`, app id `com.guarappari.app`, flavor `guarappari`, defines `config/defines/integration.tenant.json`).
+- Passed source-owned Android smokes:
+  - `integration_test/feature_invite_flow_share_code_bootstrap_test.dart`: passed via `drive-fallback` in 477s after the known `streamListen` harness defect.
+  - `integration_test/feature_favorites_query_contract_e2e_test.dart`: passed via `drive-fallback` in 470s after the known `streamListen` harness defect.
+  - `integration_test/feature_invite_auth_roundtrip_decision_ui_regression_test.dart`: passed via `drive` in 114s.
+  - `integration_test/feature_invite_deeplink_auth_roundtrip_test.dart`: passed via `drive` in 103s.
+  - `integration_test/feature_auth_login_navigates_to_intended_route_test.dart`: first exposed stale test drift against the new country-aware `PhoneFormField` OTP UI, then passed via `drive` in 124s after the test was updated to use the current controller contract.
+- Remaining manual residuals:
+  - Home Favorites route-level visual refresh after navigating back to Home; lower-level repository/controller/widget coverage plus real Android favorite/readback are passed.
+  - Android address-book mutation followed by `Atualizar lista de amigos`; controller/repository/backend coverage is passed, but no source-owned ADB test drives OS contacts.
+  - Native WhatsApp/system share-sheet opening for an unmatched contact; widget dispatch coverage is passed, but no source-owned ADB test validates the OS share sheet.
+  - Real multi-occurrence selected-occurrence send/presence route proof; backend/Flutter automated contract coverage and invite continuation smokes are passed.
 
 ## Claude vs Triple Audit Comparison
 
@@ -183,4 +187,4 @@ Before final ADB/device execution:
 - Triple audit per TODO has no unresolved blocking findings.
 - Claude CLI review is recorded when available; important divergence is resolved or escalated.
 - Any audit, Claude, PR, or promotion comment requesting backward compatibility for invites, favorites, or friends/contact groups is either absent or explicitly waived as out of scope under the first-production rule.
-- Final ADB rows are explicitly blocked because no ADB device is attached; next exact step is reconnecting a device until `adb devices` lists a target, then running the Wave 2D rows above.
+- Source-owned ADB automated rows are passed; remaining Android rows are manual residuals for OS/contact/share-sheet or exact route-visual proof not represented by existing integration tests.

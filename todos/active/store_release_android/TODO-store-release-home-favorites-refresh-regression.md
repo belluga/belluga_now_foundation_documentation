@@ -18,9 +18,9 @@ Audit, Claude, PR, and promotion reviews for this TODO must not request favorite
 - **Direct-to-TODO rationale:** safe. The issue is a concrete QA finding against already documented Home/Favorites behavior and does not require broader product discovery.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Local-Implemented-Audited-ADB-Blocked-NoDevice`
+- **Current delivery stage:** `Local-Implemented-Audited-ADB-Contract-Smoke-Passed-Route-Visual-Manual`
 - **Qualifiers:** `Regression`, `Store-Release-Blocker`, `Flutter`, `Stream-Ownership`, `User-Flow-Impact`
-- **Next exact step:** reconnect an ADB device so `adb devices` lists a target, then run final Home favorite/unfavorite smoke in the consolidated Wave 2D device phase.
+- **Next exact step:** if route-level Android visual proof is required, manually favorite/unfavorite from the app and verify the Home Favorites strip updates without restart; the available source-owned ADB test now covers real backend favorite/unfavorite persistence and readback on Android.
 
 ## Contract Boundary
 - This TODO owns Home Favorites refresh after app-side favorite/unfavorite mutations.
@@ -137,8 +137,8 @@ This TODO must derive and refresh the test matrix for each implementation task b
 ### Test Coverage Matrix
 | Task / Behavior | Fail-First Target | Required Automated Evidence | Runtime / Manual Evidence | Status |
 | --- | --- | --- | --- | --- |
-| Favorite mutation refreshes Home Favorites | Test starts with Home Favorites stale after favorite mutation. | Repository stream/invalidation test + Home Favorites controller/widget test. | Final ADB: favorite in app, return to Home, item appears/updates without restart. | `local-passed / ADB-blocked-no-device` |
-| Unfavorite mutation refreshes Home Favorites | Test starts with removed favorite still visible. | Repository stream/invalidation test + Home Favorites widget removal/update assertion. | Final ADB: unfavorite in app, return to Home, item disappears/updates without restart. | `local-passed / ADB-blocked-no-device` |
+| Favorite mutation refreshes Home Favorites | Test starts with Home Favorites stale after favorite mutation. | Repository stream/invalidation test + Home Favorites controller/widget test. | ADB contract smoke: real backend favorite appears in `GET /favorites`; route-level Home strip visual remains manual. | `local-passed / ADB-contract-passed / route-visual-manual` |
+| Unfavorite mutation refreshes Home Favorites | Test starts with removed favorite still visible. | Repository stream/invalidation test + Home Favorites widget removal/update assertion. | ADB contract smoke: real backend unfavorite disappears from `GET /favorites`; route-level Home strip visual remains manual. | `local-passed / ADB-contract-passed / route-visual-manual` |
 | Architecture boundary is preserved | Test/review detects controller relay or local screen cache source-of-truth. | Architecture scan + focused tests proving repository-owned state drives render. | n/a | `audit-passed` |
 | Existing preview/navigation remains stable | Test catches missing slug/media/type visual regression. | Widget/repository assertions for favorite snapshot preview and route target. | Optional manual smoke if UI changed. | `local-passed` |
 
@@ -182,6 +182,7 @@ This TODO must derive and refresh the test matrix for each implementation task b
 - **Audit-driven test hardening:** Round 01 test-quality review found the original fake too loose because it did not prove post-persistence read-model behavior. The regression test now reads favorite resumes from the same fake favorite backend mutated by favorite/unfavorite persistence, asserts operation order, and covers failed persistence with no Home favorite refresh.
 - **Claude-driven test hardening:** Added coverage proving a Home favorite-resume refresh failure after successful persistence does not roll back the local favorite state.
 - **ADB policy:** device proof remains deferred to the consolidated Wave 2D ADB phase because this slice is reproducible through repository/controller/widget evidence and ADB is intentionally reserved for the end of the orchestration.
+- **ADB contract smoke (2026-04-29):** attached device `192.168.15.9:5555` passed `integration_test/feature_favorites_query_contract_e2e_test.dart` via `drive-fallback` in 470s. The test proves anonymous favorite/unfavorite persistence and real backend `GET /favorites` readback on Android. There is no source-owned route-level ADB test for visually observing the Home Favorites strip after navigating back to Home, so that row remains manual if promotion requires visual device proof.
 
 ## Completion Evidence Matrix (Local, Non-ADB)
 
@@ -198,7 +199,7 @@ This TODO must derive and refresh the test matrix for each implementation task b
 | Source-owned Playwright/browser test lane | Repository scan found no source-owned Playwright runner under `flutter-app` (`tools/` absent; no `web_app_tests`/navigation smoke script). Browser validation is therefore not claimed by this TODO; web build evidence is recorded and final runtime smoke remains ADB/manual. | Not applicable / unavailable |
 | Independent triple audit | `foundation_documentation/artifacts/store-release-wave2-home-favorites-refresh-audit-20260429/triple-audit/`; Round 01 `TQA-01` resolved with stronger tests; Round 02 returned zero findings; Claude `BLOCK-1` then triggered the rollback-boundary fix; Round 03 returned zero findings across elegance, performance, and test-quality lanes; non-material recommended-path conflicts adjudicated resolved. | Passed / resolved 2026-04-29 |
 | Claude CLI auxiliary review | Initial Claude review found `BLOCK-1` on refresh-failure rollback; `W2A-home-favorites-refresh-claude-resolution-20260429.md` records the fix; final Claude re-review approved with no unresolved blocking risks. | Passed / resolved 2026-04-29 |
-| Final device/runtime proof | Favorite/unfavorite in app, return to Home, verify Favorites strip updates without restart. `adb devices` returned no attached device on 2026-04-29. | Blocked / no ADB device |
+| Final device/runtime proof | `feature_favorites_query_contract_e2e_test.dart` passed on attached Android device and real backend, covering favorite/unfavorite persistence plus `GET /favorites` readback. Route-level Home Favorites strip visual proof remains manual because no source-owned ADB test drives that exact UI route. | ADB contract smoke passed / route visual manual |
 
 ## Profile Scope & Handoffs
 - **Primary execution profile:** `operational-coder`
