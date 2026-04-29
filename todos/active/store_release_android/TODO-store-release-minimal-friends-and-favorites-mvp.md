@@ -11,7 +11,7 @@
 **Canonical state note (2026-04-17):** `phone_hash` exists only to identify a matched person. Within this release lane, `contact_match` acquisition is owned by explicit `/contacts/import`: that match makes the person visible in `Contatos` and already invite-eligible. `favorite` is the explicit relation on the matched person's personal Account Profile. `friend` is derived from reciprocal favorites. `contact_groups` are user-private, tag-like organization over all in-app inviteable recipients and do not alter privacy or friendship semantics; this includes inviteables reached through `contact_match`, `favorite_by_you`, `favorited_you`, and `friend`. Unmatched local contacts may surface only through the app-local external-share branch; they are not part of the canonical inviteable list and are not groupable. Onboarding-driven late identity-materialization reconciliation plus its derived reflection surfaces (`Talvez você conheça`, informational "contact entered the app") are tracked separately in `foundation_documentation/todos/active/vnext/TODO-vnext-onboarding-identity-reconciliation-reflection.md`.
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.
-**Status:** Active. Account-profile favorites and contact-import invite targeting already exist, but the release-critical contact/favorite/friend contract, user-private contact-group organization, and viewer-scoped exposure rules are not yet implemented as a coherent MVP lane.
+**Status:** Active. Account-profile favorites and contact-import invite targeting already exist; the reopened `/convites/compartilhar` consumer gaps have local fixes and now require independent audit plus final deferred device evidence before promotion.
 **Owners:** Delphi (Product/Flutter) + Backend Team
 **Goal:** ship the store-release contacts/favorites/friends core needed for invites, social proof, and privacy-safe profile exposure without widening into the full `belluga_connections` platform.
 
@@ -38,9 +38,9 @@
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Local-Implemented-Consumer-Gaps-Reopened`
-- **Qualifiers:** `Business-Core`, `Cross-Stack`, `Release-Critical`, `Consumer-Gap-Reopened`, `Invite-Share-Regression`, `Refresh-Action-Required`
-- **Next exact step:** execute the Home Favorites refresh child TODO and close the `/convites/compartilhar` regression where the sharing CTA remains stuck in the visible loading label `Gerando...`; add an explicit user action to refresh the friends/inviteable list before promotion. Keep ADB/device contact-permission smoke deferred to the consolidated ADB phase.
+- **Current delivery stage:** `Local-Implemented-Consumer-Gaps-Audited-ADB-Deferred`
+- **Qualifiers:** `Business-Core`, `Cross-Stack`, `Release-Critical`, `Consumer-Gap-Reopened`, `Invite-Share-Regression`, `Refresh-Action-Required`, `Flutter-Consumer-Fix`
+- **Next exact step:** consolidate the local checkpoint, then carry final ADB/device contact-permission and native share-sheet smoke to the consolidated ADB phase.
 
 ## References
 
@@ -178,6 +178,15 @@
 - [ ] `DEP-02` `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` still owns anonymous app favorites alignment for account-profile favorites and must remain consistent with this TODO.
 - [x] `DEP-03` `foundation_documentation/todos/active/vnext/TODO-vnext-connections-package.md` remains the authority for everything beyond this minimal store-release contract.
 
+## Approval & Rules Acknowledgement (Wave 2 Reopened Invite Share Slice)
+
+- **Approval evidence:** user replied `APROVADO` on 2026-04-29 for Wave 2 execution after the zero-backward-compatibility rule was incorporated.
+- **Scope ownership:** `/convites/compartilhar` is `tenant_public`, governed by `foundation_documentation/policies/scope_subscope_governance.md`.
+- **Rules ingested before implementation:** `flutter-architecture-adherence`, `rule-flutter-flutter-screen-workflow-glob`, `rule-flutter-flutter-controller-workflow-glob`, `test-creation-standard`, `bug-fix-evidence-loop`, `frontend-race-condition-validation`, and `test-orchestration-suite`.
+- **Execution impact:** invite composer state must stay in `InviteShareScreenController`; widgets render controller-owned state and trigger controller intents only. Async share-code generation, refresh, and invite-send paths require explicit bounded loading/race policies.
+- **Profile scope check:** `python3 delphi-ai/tools/profile_scope_check.py --profile operational-coder` returned `review required` because of pre-existing Delphi/skill workflow changes outside this TODO. This TODO will not touch those Delphi surfaces; planned source changes remain Flutter/lib/test and this governing TODO evidence.
+- **Device policy:** ADB/device contact-permission and share-smoke evidence remains deferred to the final consolidated Wave 2D phase.
+
 ## Execution Tracks
 
 ### A) Backend People Relationship Core
@@ -294,9 +303,9 @@
 
 | Task / Behavior | Failure Observed | Required Automated Evidence | Runtime / Manual Evidence | Owner TODO |
 | --- | --- | --- | --- | --- |
-| Sharing CTA bounded in-flight state | Entering the invite screen leaves the sharing button stuck in `Gerando...`. | Flutter controller/widget tests for success, handled error, thrown error, rapid repeat tap, and screen re-entry clearing in-flight state. | ADB final: open invite screen, generate/share invite, verify `Gerando...` clears and retry remains possible. | This TODO |
-| Refresh friends/inviteables action | User has no explicit way to refresh the friends list from `/convites/compartilhar`. | Flutter controller/widget tests proving refresh calls backend inviteables, updates loading/error/empty/content state, and preserves filters. | ADB final: tap `Atualizar lista de amigos`, observe visible refresh and updated inviteable list. | This TODO |
-| Refresh action and send action race safety | Refresh during invite generation could overwrite state or leave duplicate loading flags. | Frontend race-condition matrix: refresh while send is in flight, repeated refresh, repeated send, and stale response ordering. | ADB/manual replay if automated race probe cannot run on device before final phase. | This TODO |
+| Sharing CTA bounded in-flight state | Entering the invite screen leaves the sharing button stuck in `Gerando...`. | Flutter controller/widget tests for thrown share-code error clearing loading state and retrying successfully. | ADB final: open invite screen, generate/share invite, verify `Gerando...` clears and retry remains possible. | This TODO; `local-passed / ADB-deferred` |
+| Refresh friends/inviteables action | User has no explicit way to refresh the friends list from `/convites/compartilhar`. | Flutter controller/widget tests proving refresh calls backend inviteables and updates visible list state. | ADB final: tap `Atualizar lista de amigos`, observe visible refresh and updated inviteable list. | This TODO; `local-passed / ADB-deferred` |
+| Refresh action and send action race safety | Refresh during invite generation could overwrite state or leave duplicate loading flags. | Controller race test proves duplicate refresh is dropped while the first refresh is in flight; share-code loading is independently bounded. | ADB/manual replay if automated race probe cannot run on device before final phase. | This TODO; `local-passed / ADB-deferred` |
 
 ## Completion Evidence Matrix (Local, Non-ADB)
 
@@ -308,11 +317,15 @@
 | Contact group CRUD/privacy is owner-scoped and validates caps | `Tests\\Feature\\Invites\\StoreReleaseSocialGraphTest::test_contact_group_crud_is_owner_private_and_validated` | Passed |
 | Direct invites target account-profile recipient identity | Laravel `StoreReleaseSocialGraphTest` + Flutter `invites_repository_test.dart` | Passed |
 | `/convites/compartilhar` consumes backend inviteables and preserves profile identity | `fvm flutter test test/infrastructure/repositories/invites_repository_test.dart test/infrastructure/repositories/invites_repository_push_payload_test.dart test/presentation/tenant/invites/screens/contact_group_management/controllers/contact_group_management_controller_test.dart test/presentation/tenant/invites/screens/contact_group_management/contact_group_management_screen_test.dart test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart test/presentation/tenant/invites/screens/invite_share_screen/widgets/invite_share_relation_filter_chips_test.dart test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart test/presentation/common/auth/screens/auth_login_screen/auth_login_controller_contract_test.dart` | Passed 2026-04-28: 24 tests; reopened 2026-04-29 for stuck share CTA and explicit refresh action coverage |
-| `/convites/compartilhar` sharing CTA clears `Gerando...` | Pending focused Flutter controller/widget/race tests for success/error/re-entry. | `Blocked/Pending` |
-| `/convites/compartilhar` refreshes friends/inviteables list by user action | Pending focused Flutter controller/widget tests for explicit refresh action and state transitions. | `Blocked/Pending` |
+| `/convites/compartilhar` sharing CTA clears `Gerando...` | Controller test `share code failure clears generating state and can be retried`; widget test `share CTA leaves Gerando state after failure and can retry`. | Passed 2026-04-29 |
+| `/convites/compartilhar` refreshes friends/inviteables list by user action | Controller tests `refreshFriends exposes bounded refresh state and reloads inviteables` and `refreshFriends drops duplicate refresh while a refresh is in flight`; widget test `refresh action refetches the inviteable friends list`. | Passed 2026-04-29 |
 | Dedicated group-management Flutter surface | `contact_group_management_controller_test.dart` and `contact_group_management_screen_test.dart` | Passed |
-| Flutter architecture/analyzer gate | `fvm dart analyze --format machine` | Passed 2026-04-28, no diagnostics |
-| Flutter web build gate | `bash scripts/build_web.sh ../web-app dev`; `sha256sum ../web-app/main.dart.js` | Passed 2026-04-28; `main.dart.js` SHA-256 `f499dd08b42f71c4f11292828c1628a2d312d4f0b2fee42ad1061e7299dde584` |
+| Focused Wave 2A Flutter suite | `fvm flutter test test/infrastructure/repositories/account_profiles_repository_test.dart test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/controllers/favorites_section_controller_origin_flow_test.dart test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/favorites_section_builder_test.dart test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart` | Passed 2026-04-29: 28 tests |
+| Flutter architecture/analyzer gate | `fvm dart analyze --format machine` | Passed 2026-04-29, no diagnostics after final Wave 2A cleanup |
+| Flutter web build gate | `bash scripts/build_web.sh ../web-app dev` | Passed 2026-04-29 after final Wave 2A cleanup; `web-app` output is derived and not committed |
+| Source-owned Playwright/browser test lane | Repository scan found no source-owned Playwright runner under `flutter-app` (`tools/` absent; no `web_app_tests`/navigation smoke script). Browser validation is therefore not claimed by this TODO; web build evidence is recorded and final runtime smoke remains ADB/manual. | Not applicable / unavailable |
+| Independent triple audit for reopened invite-share slice | `foundation_documentation/artifacts/store-release-wave2-invite-share-regression-audit-20260429/triple-audit/`; Round 01 returned zero findings across elegance, performance, and test-quality lanes; non-material recommended-path conflict adjudicated resolved. | Passed / resolved 2026-04-29 |
+| Claude CLI auxiliary review for reopened invite-share slice | `foundation_documentation/artifacts/claude-cli-reviews/W2A-invite-share-regression-claude-review-20260429.md` returned no blocking findings. Non-blocking notes are recorded in the invite-share audit package, including explicit separation from co-resident Home files governed by the Home package. | Passed / resolved 2026-04-29 |
 | PHP style gate | `docker compose exec -T app ./vendor/bin/pint --test ...` over T3 PHP files | Passed 2026-04-28: 6 files |
 | Exact lookup anti-pattern audit | `bash delphi-ai/tools/exact_lookup_anti_pattern_audit.sh --repo laravel-app --path ...InviteablePeopleService.php --path ...InviteIdentityGatewayAdapter.php --path ...InviteMutationService.php --path ...InviteShareService.php` | Passed 2026-04-28: no high or medium findings |
 | Triple audit round 05 | `python3 delphi-ai/skills/audit-protocol-triple-review/scripts/triple_audit_session.py merge --session foundation_documentation/artifacts/t3-minimal-friends-triple-audit-20260428T1655Z/session.json` + `round-05/resolution.md` | Zero findings across all lanes; non-material recommended-path conflict adjudicated resolved |

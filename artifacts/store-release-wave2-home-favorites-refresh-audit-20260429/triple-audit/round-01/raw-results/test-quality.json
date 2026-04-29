@@ -1,0 +1,43 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/store-release-wave2-home-favorites-refresh-audit-20260429/triple-audit/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "reviewer_label": "codex-test-quality-audit",
+  "overall_assessment": "Blocking test-quality risk remains. The implementation uses the canonical favorites repository path and the local evidence covers the added refresh call, but the new regression test does not model the real mutation-to-read-model contract tightly enough to prove Home refreshes from post-persistence backend state.",
+  "recommended_path": "Strengthen the repository regression test so the favorite-resume refresh derives from the same fake backend state mutated by favoriteAccountProfile/unfavoriteAccountProfile, or otherwise assert the refresh happens strictly after successful persistence. Add failed-persistence coverage that proves no canonical Home refresh is emitted when the backend mutation rolls back.",
+  "performance_position": "acceptable",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "TQA-01",
+      "severity": "high",
+      "title": "[blocking] Refresh regression test proves a method call, not the backend-backed Home behavior",
+      "rationale": "The new test at account_profiles_repository_test.dart:262 registers a tracking FavoriteRepository whose fetchFavoriteResumes returns manually staged data independent of _StubFavoriteBackend state. A mutant that refreshes favorite resumes before favoriteAccountProfile/unfavoriteAccountProfile persists could still pass, even though production would fetch stale /favorites data and leave Home unchanged. This misses the mutation-order/backend-contract semantics required by the dispatch.",
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "paced",
+      "affected_paths": [
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/repositories/account_profiles_repository_test.dart:262",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/repositories/account_profiles_repository_test.dart:667",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/infrastructure/repositories/account_profiles_repository.dart:154"
+      ],
+      "suggested_action": "Use a backend-coupled fake or ordered spy: favorite-resume fetches should observe the same favorite backend state changed by the mutation, and the test should fail if refreshFavoriteResumes runs before successful persistence. Include the unfavorite case and a backend-failure case that asserts rollback without Home refresh."
+    },
+    {
+      "finding_id": "TQA-02",
+      "severity": "medium",
+      "title": "[accepted-debt unless production closure is claimed] CI execution evidence is not included in the bounded package",
+      "rationale": "The package records focused local Flutter tests, analyzer, diff hygiene, and web build results, but it does not include CI execution evidence. That is acceptable only if this round is scoped to local implementation audit; it is not enough for a production-ready promotion claim under the dispatch's CI-execution gate language.",
+      "category": "operational_fit",
+      "formalizable_hint": "no",
+      "candidate_rule_level": "none",
+      "affected_paths": [
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/store-release-wave2-home-favorites-refresh-audit-20260429/triple-audit/round-01/round-package.md"
+      ],
+      "suggested_action": "Before production-ready closure, attach the required CI run evidence or explicitly keep this package classified as local-only evidence with CI deferred to a named later gate."
+    }
+  ]
+}

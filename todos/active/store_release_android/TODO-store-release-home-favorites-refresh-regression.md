@@ -18,9 +18,9 @@ Audit, Claude, PR, and promotion reviews for this TODO must not request favorite
 - **Direct-to-TODO rationale:** safe. The issue is a concrete QA finding against already documented Home/Favorites behavior and does not require broader product discovery.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Pending`
+- **Current delivery stage:** `Local-Implemented-Audited-ADB-Deferred`
 - **Qualifiers:** `Regression`, `Store-Release-Blocker`, `Flutter`, `Stream-Ownership`, `User-Flow-Impact`
-- **Next exact step:** write fail-first Flutter coverage proving that a favorite mutation updates the Home Favorites section through repository-owned state/invalidation, then implement the smallest architecture-compliant fix.
+- **Next exact step:** consolidate the local checkpoint, then carry final ADB/manual Home favorite/unfavorite smoke to the consolidated Wave 2D device phase.
 
 ## Contract Boundary
 - This TODO owns Home Favorites refresh after app-side favorite/unfavorite mutations.
@@ -92,6 +92,15 @@ Audit, Claude, PR, and promotion reviews for this TODO must not request favorite
 
 **Orchestration wave:** `foundation_documentation/artifacts/execution-plans/store-release-wave2-social-consumer-gaps-orchestration-plan.md`
 
+### Approval & Rules Acknowledgement
+
+- **Approval evidence:** user replied `APROVADO` on 2026-04-29 for Wave 2 execution after the zero-backward-compatibility rule was incorporated.
+- **Scope ownership:** `tenant_public` Home `/`, governed by `foundation_documentation/policies/scope_subscope_governance.md`.
+- **Rules ingested before implementation:** `flutter-architecture-adherence`, `rule-flutter-flutter-screen-workflow-glob`, `rule-flutter-flutter-controller-workflow-glob`, `rule-flutter-flutter-repository-workflow-glob`, `test-creation-standard`, `bug-fix-evidence-loop`, `frontend-race-condition-validation`, and `test-orchestration-suite`.
+- **Execution impact:** shared favorite state must remain repository-owned; Home may consume repository streams only; no controller-to-controller relay, widget-local cache, or UI-owned `StreamValue` may be introduced.
+- **Profile scope check:** `python3 delphi-ai/tools/profile_scope_check.py --profile operational-coder` returned `review required` because of pre-existing Delphi/skill workflow changes outside this TODO. This TODO will not touch those Delphi surfaces; planned source changes remain Flutter/lib/test and this governing TODO evidence.
+- **Device policy:** ADB/device evidence remains deferred to the final consolidated Wave 2D phase.
+
 ### Touched Surfaces
 - Flutter favorite repository/DAO/controller surfaces as discovered by fail-first coverage.
 - Flutter Home Favorites controller/widget/repository consumer surfaces.
@@ -128,10 +137,10 @@ This TODO must derive and refresh the test matrix for each implementation task b
 ### Test Coverage Matrix
 | Task / Behavior | Fail-First Target | Required Automated Evidence | Runtime / Manual Evidence | Status |
 | --- | --- | --- | --- | --- |
-| Favorite mutation refreshes Home Favorites | Test starts with Home Favorites stale after favorite mutation. | Repository stream/invalidation test + Home Favorites controller/widget test. | Final ADB: favorite in app, return to Home, item appears/updates without restart. | `planned` |
-| Unfavorite mutation refreshes Home Favorites | Test starts with Home Favorites still showing removed favorite. | Repository stream/invalidation test + Home Favorites widget removal/update assertion. | Final ADB: unfavorite in app, return to Home, item disappears/updates without restart. | `planned` |
-| Architecture boundary is preserved | Test/review detects controller relay or local screen cache source-of-truth. | Architecture scan + focused tests proving repository-owned state drives render. | n/a | `planned` |
-| Existing preview/navigation remains stable | Test catches missing slug/media/type visual regression. | Widget/repository assertions for favorite snapshot preview and route target. | Optional manual smoke if UI changed. | `planned` |
+| Favorite mutation refreshes Home Favorites | Test starts with Home Favorites stale after favorite mutation. | Repository stream/invalidation test + Home Favorites controller/widget test. | Final ADB: favorite in app, return to Home, item appears/updates without restart. | `local-passed / ADB-deferred` |
+| Unfavorite mutation refreshes Home Favorites | Test starts with Home Favorites still showing removed favorite. | Repository stream/invalidation test + Home Favorites widget removal/update assertion. | Final ADB: unfavorite in app, return to Home, item disappears/updates without restart. | `local-passed / ADB-deferred` |
+| Architecture boundary is preserved | Test/review detects controller relay or local screen cache source-of-truth. | Architecture scan + focused tests proving repository-owned state drives render. | n/a | `audit-pending` |
+| Existing preview/navigation remains stable | Test catches missing slug/media/type visual regression. | Widget/repository assertions for favorite snapshot preview and route target. | Optional manual smoke if UI changed. | `local-passed` |
 
 ## Audit Trigger Matrix
 | Lane | Trigger | Minimum Decision |
@@ -163,6 +172,33 @@ This TODO must derive and refresh the test matrix for each implementation task b
 - [ ] Flutter automated: Home Favorites widget/controller re-renders from repository-owned state without route restart.
 - [ ] Architecture scan: no controller-to-controller relay or screen-local duplicate source-of-truth introduced.
 - [ ] Manual/device final: favorite from app, return to Home, verify Favorites strip updates; unfavorite and verify removal/update.
+
+## Local Delivery Notes (2026-04-29)
+
+- **Implemented Flutter fix:** `AccountProfilesRepository.toggleFavorite` now refreshes the registered `FavoriteRepositoryContract` after successful favorite/unfavorite persistence, updating the canonical `favoriteResumesStreamValue` consumed by Home Favorites.
+- **Claude gate resolution:** Claude CLI found that Home refresh failure was inside the persistence rollback `try/catch`. The implementation now rolls back only backend persistence failure; Home refresh and telemetry failures are isolated and do not undo a persisted favorite mutation.
+- **Architecture boundary:** the fix stays at the repository boundary. No Home widget cache, controller-to-controller relay, route restart, or screen-local duplicate source-of-truth was introduced.
+- **Fail-first evidence:** the new repository regression test first failed with `Expected: <1> Actual: <0>` for the canonical favorite-resume refresh count, then passed after implementation.
+- **Audit-driven test hardening:** Round 01 test-quality review found the original fake too loose because it did not prove post-persistence read-model behavior. The regression test now reads favorite resumes from the same fake favorite backend mutated by favorite/unfavorite persistence, asserts operation order, and covers failed persistence with no Home favorite refresh.
+- **Claude-driven test hardening:** Added coverage proving a Home favorite-resume refresh failure after successful persistence does not roll back the local favorite state.
+- **ADB policy:** device proof remains deferred to the consolidated Wave 2D ADB phase because this slice is reproducible through repository/controller/widget evidence and ADB is intentionally reserved for the end of the orchestration.
+
+## Completion Evidence Matrix (Local, Non-ADB)
+
+| Criterion | Evidence | Status |
+| --- | --- | --- |
+| App-side favorite mutation refreshes the canonical Home Favorites source after persistence | `fvm flutter test test/infrastructure/repositories/account_profiles_repository_test.dart --plain-name "toggleFavorite"`; operation order asserts `favorite:<id>` before `fetchFavorites`. | Passed 2026-04-29 |
+| App-side unfavorite mutation refreshes/removes the canonical Home Favorites source after persistence | Same test covers the second toggle; operation order asserts `unfavorite:<id>` before the second `fetchFavorites`. | Passed 2026-04-29 |
+| Failed favorite persistence does not refresh Home favorite resumes | `toggleFavorite does not refresh Home favorite resumes when persistence fails` proves rollback and `fetchFavoriteResumesCallCount == 0`. | Passed 2026-04-29 |
+| Failed Home favorite-resume refresh does not roll back persisted favorite state | `toggleFavorite keeps persisted state when Home favorite resume refresh fails` proves backend favorite persistence remains reflected in local favorite state when refresh throws. | Passed 2026-04-29 |
+| Home Favorites consumer remains repository-owned | Existing Home Favorites tests included in the focused suite: `favorites_section_controller_origin_flow_test.dart` and `favorites_section_builder_test.dart`; code diff only wires repository invalidation from the mutation source. | Passed 2026-04-29 |
+| Focused Wave 2A Flutter suite | `fvm flutter test test/infrastructure/repositories/account_profiles_repository_test.dart test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/controllers/favorites_section_controller_origin_flow_test.dart test/presentation/tenant/home/screens/tenant_home_screen/widgets/favorite_section/favorites_section_builder_test.dart test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart` | Passed 2026-04-29: 28 tests |
+| Flutter architecture/analyzer gate | `fvm dart analyze --format machine` | Passed 2026-04-29, no diagnostics after Claude rollback-boundary fix |
+| Flutter web build gate | `bash scripts/build_web.sh ../web-app dev` | Passed 2026-04-29 after Claude rollback-boundary fix; `web-app` output is derived and not committed |
+| Source-owned Playwright/browser test lane | Repository scan found no source-owned Playwright runner under `flutter-app` (`tools/` absent; no `web_app_tests`/navigation smoke script). Browser validation is therefore not claimed by this TODO; web build evidence is recorded and final runtime smoke remains ADB/manual. | Not applicable / unavailable |
+| Independent triple audit | `foundation_documentation/artifacts/store-release-wave2-home-favorites-refresh-audit-20260429/triple-audit/`; Round 01 `TQA-01` resolved with stronger tests; Round 02 returned zero findings; Claude `BLOCK-1` then triggered the rollback-boundary fix; Round 03 returned zero findings across elegance, performance, and test-quality lanes; non-material recommended-path conflicts adjudicated resolved. | Passed / resolved 2026-04-29 |
+| Claude CLI auxiliary review | Initial Claude review found `BLOCK-1` on refresh-failure rollback; `W2A-home-favorites-refresh-claude-resolution-20260429.md` records the fix; final Claude re-review approved with no unresolved blocking risks. | Passed / resolved 2026-04-29 |
+| Final device/runtime proof | Favorite/unfavorite in app, return to Home, verify Favorites strip updates without restart. | Deferred to consolidated Wave 2D ADB phase |
 
 ## Profile Scope & Handoffs
 - **Primary execution profile:** `operational-coder`
