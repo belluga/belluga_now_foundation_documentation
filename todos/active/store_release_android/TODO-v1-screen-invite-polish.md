@@ -26,7 +26,7 @@
 - Invite API/contract changes.
 - New invite feature capabilities.
 - Contact picking, contact groups, inviteable list composition, friends/favorites, or external-share behavior.
-- `/convites/compartilhar` operational regressions such as share CTA stuck on `Gerando convite` or missing friends-list refresh action; those are owned by `TODO-store-release-minimal-friends-and-favorites-mvp.md`, not this visual-only polish TODO.
+- `/convites/compartilhar` operational regressions such as sharing CTA stuck on `Gerando...` or missing friends-list refresh action; those are owned by `TODO-store-release-minimal-friends-and-favorites-mvp.md`, not this visual-only polish TODO.
 - Onboarding, anonymous identity, Auth Wall, or web-to-app promotion policy changes.
 - Backend, route, schema, controller, or repository behavior changes unless a trivial test-only adjustment is required by the UI edit.
 

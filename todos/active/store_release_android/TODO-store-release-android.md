@@ -75,7 +75,7 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 | Web-to-app conversion closure | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Release funnel metrics validation | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | Landlord/tenant auth-method governance | `belluga_now_backend:delphi/laravel-reconcile-store-release-20260419 -> dev @ da78fa8` | `https://github.com/belluga/belluga_now_backend/pull/157 (merged -> dev on 2026-04-20)` | `pending` | `pending` | `🟣 Lane-Promoted` |
-| Invite app-flow usability closure | `pending` | `pending` | `pending` | `pending` | `Pending; QA-reopened for /convites/compartilhar share CTA stuck on Gerando convite and missing Atualizar lista de amigos action` |
+| Invite app-flow usability closure | `pending` | `pending` | `pending` | `pending` | `Pending; QA-reopened for /convites/compartilhar sharing CTA stuck on Gerando... and missing Atualizar lista de amigos action` |
 | Phone OTP identity + contact-match baseline | `pending` | `pending` | `pending` | `pending` | `Local-Implemented-Functional-UX-Redesign-Pending; admin OTP settings and functional public OTP flow have focused tests/source Playwright/analyzer/web build evidence; modern Stitch-backed visual redesign, runtime Playwright shard, and final ADB/device proof remain pending` |
 | Minimal friends/favorites MVP | `pending` | `pending` | `pending` | `pending` | `Local-Implemented-Home-Consumer-Gap-Reopened; Home Favorites refresh blocker split to child TODO` |
 | Home Favorites refresh regression | `pending` | `pending` | `pending` | `pending` | `Pending` |
