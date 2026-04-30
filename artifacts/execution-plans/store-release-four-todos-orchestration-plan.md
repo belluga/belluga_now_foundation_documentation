@@ -171,7 +171,7 @@ Waves are orchestrator-owned control checkpoints. They are not user feedback gat
 ## Checkpoint Manifest
 - **Manifest path:** `foundation_documentation/artifacts/checkpoints/store-release-four-todos-completion-2026-04-29.md`
 - **Checkpoint status:** `validated_local_checkpoint`
-- **Repositories pushed:** `pending final push after source commits`
+- **Repositories pushed:** `belluga_now_docker:a07ffa2`, `flutter-app:43d683c9`, `foundation_documentation:8b7e697`, `laravel-app:4ad3925 (branch only, no new local source change)`
 - **Excluded dirty surfaces:** `web-app` generated bundle; unrelated Delphi local edits; root submodule pointer promotion unless promotion lane owns it.
 - **Next branch lifecycle step:** run final guards, commit/push source repos, and hand off runtime-only waivers to promotion/readiness lane.
 
