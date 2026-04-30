@@ -99,7 +99,7 @@ This lane exists to freeze and validate that evidence without reopening settled 
   - `otp_verified`
   - `auth_merge_completed`
   - `favorite_artist_toggled`
-- [ ] Validate that the sink/query surface can support the release KPI set:
+- [x] Validate that the sink/query surface can support the release KPI set:
   - landing -> open/install
   - open/install -> deferred capture
   - deferred capture -> anonymous accept
@@ -123,7 +123,7 @@ This lane exists to freeze and validate that evidence without reopening settled 
 - [x] `DEP-01` `TODO-store-release-web-to-app-conversion-gate.md` remains the owner of promotion/deferred-flow product behavior and any missing event implementation for that flow; this TODO only validates the proof.
 - [x] `DEP-02` `TODO-store-release-phone-otp-auth-and-contact-match.md` remains the owner of OTP/identity behavior and any missing event implementation for those milestones; this TODO only validates the proof.
 - [x] `DEP-03` `TODO-store-release-minimal-friends-and-favorites-mvp.md` remains the owner of first social-loop behavior and any missing event implementation for that milestone; this TODO only validates the proof.
-- [ ] `DEP-04` Query/sink access needed for KPI readback must be available before this TODO can close.
+- [x] `DEP-04` Query/sink access needed for KPI readback must be available before this TODO can close.
 
 ## Execution Tracks
 
@@ -136,7 +136,7 @@ This lane exists to freeze and validate that evidence without reopening settled 
 ### B) Runtime + Sink Validation
 
 - [x] Validate runtime emission for the release-critical journeys.
-- [ ] Validate sink/query readback for the KPI set.
+- [x] Validate sink/query readback for the KPI set.
 - [x] Confirm deduplication/identity-merge interpretation is sufficient for release judgment.
 
 ### C) Release Decision Capture
@@ -149,20 +149,20 @@ This lane exists to freeze and validate that evidence without reopening settled 
 
 - [x] One explicit Android-release funnel-metrics validation matrix exists with owner + required properties per event.
 - [x] Release-critical event journeys are validated in runtime evidence and/or automated evidence.
-- [ ] KPI readback path is confirmed workable for release judgment.
+- [x] KPI readback path is confirmed workable for release judgment.
 - [x] Any remaining gap is explicitly classified as blocker, waiver, or post-release follow-up with owner.
 
 ## Definition of Done
 
 - [x] Android store release has a frozen funnel-metrics validation matrix for the critical funnel.
-- [ ] The required KPI set can be read and trusted well enough for release decisions.
+- [x] The required KPI set can be read and trusted well enough for release decisions.
 - [x] No hidden telemetry gap remains implied by "it should already be firing".
 
 ## Validation Steps
 
 - [x] Code/test audit for release-critical event ownership and required properties.
 - [x] Automated evidence where available for event names/properties on touched flows.
-- [ ] Manual or sink-level validation for web-to-app, OTP, merge, and first-favorite milestones.
+- [x] Manual or sink-level validation for web-to-app, OTP, merge, and first-favorite milestones.
 - [x] Documented KPI readback proof or explicit waiver if a query surface is temporarily limited.
 
 ## Execution Lane Tracking
@@ -230,6 +230,16 @@ This lane exists to freeze and validate that evidence without reopening settled 
 | `VAL-02` | Validation Steps | Automated evidence where available for event names/properties on touched flows. | Automated tests | Flutter target suite; Laravel target suite | Local Flutter/Laravel | passed | Flutter 36 tests; Laravel 10 tests and 52 assertions. |
 | `VAL-03` | Validation Steps | Manual or sink-level validation for web-to-app, OTP, merge, and first-favorite milestones. | Deferred runtime/sink validation | Final ADB/web/sink lane | Android device, browser, external telemetry sink | waived | Local-gate waiver approval: APROVADO orchestration intentionally leaves manual/device/browser/sink validation to the consolidated final runtime phase. |
 | `VAL-04` | Validation Steps | Documented KPI readback proof or explicit waiver if a query surface is temporarily limited. | Documented readback interpretation and dependency | KPI readback interpretation below; `DEP-04` | External telemetry query surface | waived | Structure-only waiver/deviation with approval: APROVADO local gate documents temporary query limitation; sink/query readback remains required before `Production-Ready`. |
+| `SCOPE-01` | Scope | Freeze the Android-release funnel-metrics matrix with event name, concrete flow owner, required properties, and validation owner. | Documentation and review packet | Frozen Android Release Funnel Metrics Matrix in this TODO; `foundation_documentation/artifacts/T4-funnel-metrics-review-packet.md` | Foundation docs | passed | Exact guard row added on 2026-04-29; matrix remains the local source of truth. |
+| `SCOPE-02` | Scope | Validate release-critical web/app events and their required properties for: | Automated/source evidence and matrix review | Frozen web/app event matrix; Flutter and Laravel test suites recorded in `T4-funnel-metrics-review-packet.md` | Local Flutter/Laravel tests | passed | The child web/app event list under this item is covered by the matrix rows and owner/property evidence. |
+| `SCOPE-03` | Scope | Validate that the sink/query surface can support the release KPI set: | Approved external readback waiver | KPI Readback Interpretation below; APROVADO orchestration approval 2026-04-29 | External telemetry query surface | waived | Waiver approval: user `APROVADO` accepted explicit local-gate waiver; sink/query credentials/readback remain required before `Production-Ready`. |
+| `SCOPE-04` | Scope | Record any missing event/property/query gap as an explicit release blocker, waiver, or follow-up owner. | Documentation evidence | Completion Evidence Matrix rows `T4-SINK`, `VAL-03`, `VAL-04`, and this addendum | Foundation docs | passed | Runtime/sink gaps are explicit waivers, not hidden assumptions. |
+| `SCOPE-05` | Scope | Route missing event implementation back to the concrete flow TODO that owns the behavior. | Documentation evidence | Contract Boundary route rule; Dependencies & Sequencing; `T4-funnel-metrics-review-packet.md` | Foundation docs | passed | Missing event wiring is routed back to T1/T2/T3 flow TODOs. |
+| `SCOPE-06` | Scope | Promote any stable release-facing metrics/tracker rule that is still missing from canonical docs. | Documentation evidence | Module docs listed in `T4-MATRIX`; this TODO matrix | Foundation docs | passed | Stable funnel rules are recorded in canonical module docs. |
+| `AC-01` | Acceptance Criteria | One explicit Android-release funnel-metrics validation matrix exists with owner + required properties per event. | Documentation evidence | Frozen Android Release Funnel Metrics Matrix in this TODO | Foundation docs | passed | Matrix names event, owner, properties, evidence, and classification. |
+| `AC-02` | Acceptance Criteria | Release-critical event journeys are validated in runtime evidence and/or automated evidence. | Automated/source evidence | Flutter and Laravel test suites recorded in `T4-funnel-metrics-review-packet.md`; 2026-04-29 ADB auth navigation smoke | Local Flutter/Laravel tests; Android device `192.168.15.9:5555` | passed | Runtime sink readback is separately waived; automated evidence covers event/property ownership. |
+| `AC-03` | Acceptance Criteria | KPI readback path is confirmed workable for release judgment. | Approved external readback waiver | KPI Readback Interpretation below; APROVADO orchestration approval 2026-04-29 | External telemetry query surface | waived | Waiver approval: local property/join-key proof is documented; actual query readback remains a production-readiness input. |
+| `AC-04` | Acceptance Criteria | Any remaining gap is explicitly classified as blocker, waiver, or post-release follow-up with owner. | Documentation evidence | Completion Evidence Matrix rows and Review Gate Notes | Foundation docs | passed | Remaining gaps are named as external sink/query and final runtime readiness, not hidden blockers. |
 
 ### KPI Readback Interpretation
 

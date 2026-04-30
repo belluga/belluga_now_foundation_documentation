@@ -13,9 +13,15 @@
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Local-Implemented`
-- **Qualifiers:** `Policy-Frozen`, `Cross-Stack`, `Release-Blockers-Open`
-- **Next exact step:** keep real-device store/deferred-link validation deferred to the consolidated ADB phase and continue the non-ADB orchestration with the remaining release TODOs.
+- **Current delivery stage:** `Local-Validated-With-Explicit-Runtime-Waivers`
+- **Qualifiers:** `Policy-Frozen`, `Cross-Stack`, `Local-Gate-Closed`, `Store-Deferred-Runtime-Waived`
+- **Next exact step:** promote the local-validated checkpoint through the promotion lane after store/deferred runtime proof is available.
+
+## Completion Evidence Matrix
+| Criterion ID | Source Section | Criterion | Evidence Type | Evidence Artifact / Command | Runtime Target | Status | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `T1-LOCAL-01` | Local Delivery Notes | Local implementation of real app-promotion/store handoff, continuation preservation, and anonymous favorites alignment is complete for the non-store local gate. | Implementation packet and review/audit evidence | `foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/round-02/round-summary.md`; Local Delivery Notes below | Local Flutter/Laravel tests; browser evidence from prior lane; Android store/deferred proof waived for local checkpoint | passed | Guard-readable row added because this legacy TODO uses lettered sections rather than exact `Scope`/`Definition of Done` headings. |
+| `T1-RUNTIME-01` | Runtime Waiver | Real Play Store/install/deferred-link validation remains outside this local checkpoint until the promotion/runtime lane can prove external store behavior. | Approved runtime waiver | User `APROVADO` on 2026-04-29; orchestration plan records ADB/store rows as final-runtime inputs | Android device/store external runtime | waived | This is not a `Production-Ready` waiver; it only permits local checkpoint closure without claiming Play Store deferred proof. |
 
 ## No-Context Handoff Boundaries
 
@@ -62,9 +68,9 @@
 
 ## Current Release Blockers
 
-- [ ] 🟡 **Promotion boundary release readiness:** the canonical `/baixe-o-app` route is still wired in Flutter to the temporary `testerWaitlist` experience (`lib/presentation/shared/promotion/screens/app_promotion_screen/controllers/app_promotion_screen_controller.dart`). Android store-release closure requires switching that guard boundary to the real app-promotion/store-handoff experience.
+- [x] ✅ **Promotion boundary release readiness:** the canonical `/baixe-o-app` route now defaults to the real app-promotion/store-handoff experience. Android store/deferred external proof remains a runtime-lane input.
 - [x] ✅ **Redirect-intent preservation:** local implementation now preserves safe public/detail and allowed auth-owned app continuation paths through Flutter `/open-app`, backend store-referrer payload, deferred resolver `target_path`, and Flutter first-open routing. Real-device store/deferred validation remains in the consolidated ADB phase.
-- [ ] 🟡 **Anonymous favorites implementation gap:** canonical V1 baseline already allows anonymous app favorites, but current Flutter favorite toggles still return `requiresAuthentication` in discovery, account-profile detail, and immersive linked-profile surfaces (`lib/presentation/tenant_public/discovery/controllers/discovery_screen_controller.dart`, `lib/presentation/tenant_public/partners/controllers/account_profile_detail_controller.dart`, `lib/presentation/tenant_public/schedule/screens/immersive_event_detail/controllers/immersive_event_detail_controller.dart`). Store-release closure requires aligning toggle + readback behavior with anonymous identity support.
+- [x] ✅ **Anonymous favorites implementation gap:** discovery, account-profile detail, and immersive linked-profile favorite actions were aligned with anonymous identity support in the local checkpoint; full external promotion/runtime proof remains in the promotion lane.
 
 ---
 
