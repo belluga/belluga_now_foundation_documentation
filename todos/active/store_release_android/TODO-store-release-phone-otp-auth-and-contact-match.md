@@ -25,9 +25,9 @@ This TODO also absorbs the former standalone auth-entry polish slice: the MVP no
 - If execution broadens into generic social graph, workspace analytics, or web-authenticated scope, stop and split that work into fast-follow or VNext lanes.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Local-Validated-With-Explicit-Runtime-Waivers`
-- **Qualifiers:** `Business-Core`, `Cross-Stack`, `Release-Critical`, `Upstream-Baseline-Ready`, `Product-UX-Gap-Closed`, `Runtime-Credentials-Waived`, `External-Provider-Readiness-Open`
-- **Next exact step:** promote the local-validated checkpoint through the promotion lane after runtime credentials/provider readiness are available, without reopening the phone OTP product model.
+- **Current delivery stage:** `Local-Validated-Production-Error-Handling-Closed`
+- **Qualifiers:** `Business-Core`, `Cross-Stack`, `Release-Critical`, `Upstream-Baseline-Ready`, `Product-UX-Gap-Closed`, `Runtime-Credentials-Waived`, `External-Provider-Readiness-Open`, `Production-Error-Sanitization-Closed`, `ADB-Visual-Stepper-Validated`
+- **Next exact step:** commit/push the local checkpoint, then run the promotion-lane audit without reopening OTP product decisions unless new runtime evidence contradicts the closed production-error guard.
 
 ## Upstream Baseline Status
 - Upstream baseline: `foundation_documentation/todos/completed/TODO-store-release-landlord-tenant-auth-method-governance.md`
@@ -377,3 +377,48 @@ The reopened visual work must derive test coverage per task, not from a single a
 - **Analyzer evidence:** `fvm dart analyze --format machine` passed cleanly after the reopened correction.
 - **Web build evidence:** `bash scripts/build_web.sh ../web-app dev` completed and produced the current web bundle in `../web-app`.
 - **Playwright matrix evidence:** source-owned OTP specs and shard `otp-auth` were added; `node --check` passed, Playwright list/shard validation selected exactly the two OTP Auth mutation tests, and readonly listing selected `OTP-WEB-BOUNDARY-01`. Full runtime execution is blocked until environment variables `NAV_TENANT_URL`, `NAV_ADMIN_EMAIL`, and `NAV_ADMIN_PASSWORD` are provided.
+
+## Reopened Production Error-Handling Blocker (2026-04-29)
+
+- **User QA blocker:** OTP is not production-ready while raw backend/API exception payloads can be displayed to end users.
+- **Observed failures:** `Reenviar codigo` can display raw API error output; entering an incorrect OTP code can display raw API error output instead of a field-appropriate code message; phone-entry copy says `WhatsApp e o canal principal desta etapa.` instead of the approved production copy; the two-step indicator is visually heavy on Android.
+- **Required closure:** sanitize OTP request/resend/verify failures, map wrong-code failures to the OTP code field, keep user-facing messages concise and production-safe, replace the WhatsApp helper copy with `Enviaremos o código para seu número WhatsApp.`, rework the mobile stepper, and capture before/after ADB screenshot evidence.
+- **Before screenshot:** `/tmp/otp-current-adb.png` captured from device `192.168.15.9:5555` on 2026-04-29 shows the current oversized stepper and old WhatsApp copy.
+
+### Package-First Assessment
+
+- **Query executed:** `bash delphi-ai/tools/query_packages.sh --project-root /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app --search "form"`
+- **Relevant packages found:** `[Local] belluga_form_validation` — used directly for OTP validation state.
+- **READMEs read:** `flutter-app/packages/belluga_form_validation/README.md`
+- **Decision:** use `belluga_form_validation` via `FormValidationControllerAdapter` in `AuthLoginControllerContract`.
+- **Tier:** `Local`
+- **Rationale:** the package is the canonical local surface for field/global form validation and prevents duplicating ad-hoc validation state for production OTP errors.
+
+### Production Error-Handling Closure
+
+- **Fix scope:** OTP request/resend/verify failures no longer reuse raw unknown-error rendering. Request/resend failures resolve to concise global form messages; wrong-code verification failures resolve to the OTP code field through `belluga_form_validation`.
+- **User-facing messages:** wrong code renders `Código inválido. Confira os 6 dígitos e tente novamente.`; resend/request failure renders `Não conseguimos enviar o código agora. Tente novamente em instantes.`; WhatsApp copy renders `Enviaremos o código para seu número WhatsApp.`.
+- **Stepper closure:** Android phone-entry stepper now renders as two compact theme-driven pills (`Telefone`, `Código`) instead of the heavy dot/line plus `Passo 1 de 2` label.
+- **Fail-first evidence:** `fvm flutter test test/presentation/common/auth/screens/auth_login_screen/auth_login_controller_contract_test.dart --plain-name otp` initially failed because the OTP field error state did not exist.
+- **Focused GREEN evidence:** `fvm flutter test test/presentation/common/auth/screens/auth_login_screen/auth_login_controller_contract_test.dart --plain-name otp` passed with `6/6` OTP-selected tests.
+- **Full focused evidence:** `fvm flutter test test/presentation/common/auth/screens/auth_login_screen/auth_login_controller_contract_test.dart` passed with `11/11` tests.
+- **Repository continuity evidence:** `fvm flutter test test/infrastructure/repositories/auth_repository_signup_test.dart` passed with `4/4` tests.
+- **Analyzer evidence:** `fvm dart analyze --format machine` passed cleanly after moving validation target IDs into the existing controller contract to satisfy architecture lint.
+- **Android build/install evidence:** `fvm flutter build apk --debug --flavor guarappari --dart-define-from-file=config/defines/integration.tenant.json --dart-define=DISABLE_PUSH=true` built `build/app/outputs/flutter-apk/app-guarappari-debug.apk`; `adb -s 192.168.15.9:5555 install -r build/app/outputs/flutter-apk/app-guarappari-debug.apk` installed successfully.
+- **After screenshot:** `/tmp/otp-after-adb.png` captured from device `192.168.15.9:5555` on 2026-04-29 shows the corrected phone-entry screen with the compact stepper and approved WhatsApp copy.
+
+### Bug-Fix Evidence Matrix
+
+| Stage | Coverage Status | Evidence |
+| --- | --- | --- |
+| API/raw backend failure payload | `covered-by-negative-fake` | Tests inject raw `Exception` strings containing endpoint path, JSON `errors`, and `trace` payloads. |
+| Repository/controller translation | `covered` | Controller tests assert raw OTP verify failures become field validation and raw resend failures become global validation. |
+| Form validation state | `covered` | `belluga_form_validation` adapter owns OTP validation state; tests assert `errorForField(code)` and `errorsForGlobal()`. |
+| UI rendering | `covered` | Widget test asserts sanitized wrong-code and resend messages render and raw API fragments do not render. |
+| Android visual | `covered` | Before/after ADB screenshots: `/tmp/otp-current-adb.png`, `/tmp/otp-after-adb.png`. |
+
+### Architecture Prevention Assessment
+
+- **Assessment:** `no-rule-needed` for the product error itself because the leak depends on runtime exception contents and backend payload shape.
+- **Existing rule signal used:** the analyzer did catch the attempted extra public validation-target class (`MULTI_PUBLIC_CLASS_FILE_WARNING`), so the architecture guard remains effective for code-shape drift.
+- **Process recommendation:** keep this covered by test matrix/bug-fix evidence loop rather than a new static analyzer rule; the static boundary cannot reliably distinguish safe from unsafe runtime exception text without high false-positive risk.
