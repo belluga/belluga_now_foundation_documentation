@@ -213,6 +213,7 @@ These decisions are now approved and complete the invite-module baseline. Friend
 
 - [x] 🟢 `INV-PD-12` Missions/challenges remain outside invite ownership.
   - Approved direction: invite conversions and attendance-confirmation signals are outbound behavior sources for `belluga_missions`; challenge definition, progress evaluation, and reward unlocks do not live inside the invite module.
+  - Delivery boundary: store-release Flutter must not expose hardcoded mission tabs, local reward copy, static progress rules, or locally seeded rewards from event detail or invite flows. Any mission/gamification surface must be dynamic and backed by the future `belluga_missions` contract before it becomes visible runtime UI.
 
 - [x] 🟢 `INV-PD-13` Contact matching is acquisition, not social approval.
   - Approved direction: `phone_hash` identifies whether an imported contact corresponds to an existing person; the resolved person is rendered through that person's personal Account Profile. A successful `contact_match` makes the person visible in `Contatos` and invite-eligible without requiring favorite first.
