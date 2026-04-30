@@ -19,6 +19,7 @@ The Tenant Home Composer module (MOD-301) assembles the personalized landing exp
   - `foundation_documentation/modules/map_poi_module.md`
 - Tactical TODO streams:
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-home-favorites-refresh-regression.md`
   - `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-frontend.md`
   - `foundation_documentation/todos/completed/TODO-v1-map-frontend.md`
 
@@ -49,6 +50,7 @@ The Tenant Home Composer module (MOD-301) assembles the personalized landing exp
 3. **External Source Isolation:** The module never queries external services directly. It relies on upstream modules (Map, Invite, Agenda, Account Profile Catalog) via asynchronous events or cached read models. This ensures each producer maintains its own invariants while the composer simply curates.
 4. **Business-Driven Prioritization:** Section ordering, CTA selection, and copy tone derive from rule sets stored in `home_rulesets`. Rules encapsulate account profile campaigns, invite boosts, and locality signals so we avoid hardcoding logic inside controllers.
 5. **Search & Map Bridging:** Quick filters and search suggestions on the home screen map to `HomeSection` instances that deep-link into the Map module via `initial_filter_payload`s (categories, tags, radius). This keeps the “predefined filter buttons” and search results consistent with the map architecture.
+6. **Identity-Hydrated Personalized Sections:** Client-composed Home sections that depend on registered user state, including favorites, confirmations, and pending social prompts, must be backed by repository-owned streams and refreshed by the Flutter post-auth hydration coordinator after OTP/login. Home screens may expose explicit user refresh actions, but they do not own identity-transition reconciliation or mirror sibling controller state.
 
 ---
 
@@ -138,6 +140,7 @@ Captures user actions taken from the home screen so ranking logic can adapt.
 * **Regeneration Cadence:** Snapshots auto-refresh every 4 hours or when upstream events mark dependent sections dirty.
 * **A/B Experimentation:** Experiments defined in `home_rulesets` propagate variant identifiers into each section payload. Clients echo the variant when emitting feedback so scoring stays consistent.
 * **Latency Budget:** Composer must respond within 350 ms at the API layer. Complex aggregations are executed ahead of time by upstream modules; composer simply stitches data.
+* **Post-auth refresh ownership:** For the current client-composed MVP, authenticated Home slices must treat registered identity emission as a hydration boundary. Empty remote favorite/confirmation results for the current user are authoritative and clear stale local state rather than preserving data from an anonymous or previous identity.
 
 ---
 
@@ -159,12 +162,14 @@ Captures user actions taken from the home screen so ranking logic can adapt.
 | `HOM-06` | Approved | Home surfaces the canonical app-wide location-origin policy result below the logo while keeping its own radius preference UX. The effective origin is now selected by the shared `LocationOriginService` (`mode + reason`) using the tenant-configured max radius as the outside-range boundary and persisted locally/device-side for MVP. | Keeps Home usable for out-of-city users while aligning Home with the same canonical geo-origin rule consumed by Discovery, Event Search, Schedule, and Map. | `foundation_documentation/todos/completed/TODO-v1-home-location-origin-reference-mode.md`, `foundation_documentation/todos/completed/TODO-v1-canonical-location-origin-policy-across-app.md` |
 | `HOM-07` | Approved | Home Agenda aggregate state is single-writer and repository-owned. The repository exposes one canonical Home agenda stream fed only by backend-backed Home queries; controller-local invite/confirmed filters publish local display state only and must never write event lists back into repository streams. | Prevents cross-controller interference, cache/source-of-truth duplication, and Home re-entry regressions after Map/Search navigation. | `foundation_documentation/todos/completed/TODO-v1-home-agenda-canonical-stream-ownership-hardening.md` |
 | `HOM-08` | Approved | Controller helper methods must not accept `StreamValue` parameters, and Home-adjacent query pagination knowledge must not escape repository ownership. Ownership must stay visible at the controller field call site; repository page envelopes (`has_more`, result wrappers, raw builders), public cache/query snapshots (`*CacheSnapshot`), delegated pagination state (`hasMore...`), page-addressed contract APIs (`loadNext...Page()`), and raw pagination controls (`page`, `pageSize`, cursors, limits) must terminate inside repository implementations rather than appearing in controller-visible or contract-visible APIs. Repository pagination/query helpers are private implementation details only and must not leak back out through overridable hooks, support abstractions, or delegated test helpers. | Blocks helper-shaped ownership masking and prevents future reintroduction of delegated/scratch/page-envelope/cache-snapshot bypasses. | `foundation_documentation/todos/completed/TODO-v1-home-agenda-canonical-stream-ownership-hardening.md` |
+| `HOM-09` | Approved | Registered identity-dependent Home state is repository-owned and participates in Flutter post-auth hydration; Home does not reconcile identity transitions through route restarts, controller relay, or screen-local reloads. | Keeps favorites, confirmations, and social prompts coherent after OTP login while preserving single-writer repository ownership. | Sections `2`, `5`; `foundation_documentation/modules/flutter_client_experience_module.md` `FCX-12` |
 
 ## 8. Tactical TODO Promotion Ledger
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
 | `TODO-store-release-android.md` | Android release posture for home composition | In progress | `1`, `4`, `7` | Current release orchestrator that carries the remaining Home-facing Android gate posture. |
+| `TODO-store-release-home-favorites-refresh-regression.md` | Home favorites refresh after favorite mutation and login hydration | Promotion Lane | `2`, `5`, `7` | Promotes repository-owned favorite hydration after registered identity emission and authoritative clearing when remote favorites are empty. |
 | `TODO-v1-events-and-agenda-frontend.md` | Home consumption of agenda/event contracts | Completed | `2`, `7` | Ensures home cards align with occurrence-first contracts. |
 | `TODO-v1-home-agenda-radius-persistence-and-sheet-polish.md` | Home Agenda radius preference persistence + sheet polish | Completed | `7`, `8` | Home-only radius preference semantics and sheet UX are now promoted; broader schedule/filter unification remains separate. |
 | `TODO-v1-home-location-origin-reference-mode.md` | Home-only live vs fixed reference origin mode with explicit status row | Completed | `7`, `8` | Persists Home origin mode locally/device-side for authenticated and anonymous sessions; VNext moves editing/persistent settings to profile/backend. |

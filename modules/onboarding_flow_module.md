@@ -89,6 +89,7 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 
 7. **Identity Materialization Reflection (Follow-up)**
     * After a user's canonical phone identity becomes stable through the approved OTP/onboarding path, onboarding owns the follow-up handoff that may trigger late reconciliation against hashes previously imported by other viewers.
+    * The immediate post-OTP app handoff is separate from the late reflection lane: once Flutter emits the registered identity, the application shell must run post-auth hydration for release-critical user-linked repositories such as favorites, confirmed occurrences, and pending invites.
     * OTP transport is not an onboarding-owned provider flow: delivery is queued by Laravel jobs through tenant outbound integration webhook settings, with WhatsApp preferred and OTP-specific URL optional.
     * This follow-up may later feed advisory reflection surfaces such as `Talvez você conheça` and informational lifecycle notifications like "contact entered the app".
     * These reflection surfaces must remain discovery-only until explicit favorite promotes the relationship into the normal inviteable rules.
@@ -104,6 +105,7 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 * After `invite.accepted`, onboarding listens for `invite.accepted.contacts-import-triggered` to mark the contact-import step as completed automatically.
 * When `invite.declined` occurs, onboarding respects that decision and still directs the user to preference capture so they can find other events.
 * On finishing onboarding, emit `onboarding.completed` event referencing whether the user entered via invite or organic path. This helps Invites/Gamification calibrate rewards.
+* After successful OTP verification, onboarding hands off to Flutter's post-auth identity hydration contract instead of requiring each downstream screen to reload itself. Downstream modules that depend on registered user state must expose repository refresh hooks and register as hydration consumers.
 * The follow-up lane `TODO-vnext-onboarding-identity-reconciliation-reflection.md` owns any late reconciliation/reflection behavior that should happen after canonical identity materialization. Invite/social modules remain the source of relationship rules, while onboarding owns the materialization handoff timing.
 
 ## 5. Current V1 Constraints
@@ -128,6 +130,7 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 | `ONB-06` | Approved | Normal invite refusal in onboarding maps to `invite.declined`; `invite.suppressed` remains reserved for policy/governance-only closure and is not the default user-decline outcome. | Keeps onboarding aligned with the canonical invite lifecycle semantics. | Sections `2`, `4` |
 | `ONB-07` | Approved | Invite acceptance is independent from event capacity/fulfillment availability; expired invite resolution falls back to onboarding progression without auto-decline or suppression. | Prevents onboarding from overloading invite semantics with downstream operational availability. | Sections `2`, `5` |
 | `ONB-08` | Approved | V1 onboarding is a shared tenant-public user flow; account/promoter/workspace-specific onboarding variants are post-MVP. | Removes role-specific onboarding ambiguity from the current release lane. | Section `5` |
+| `ONB-09` | Approved | Successful OTP/authenticated upgrade hands off to Flutter post-auth hydration for registered user-linked state; late identity-materialization reflection remains a separate follow-up lane. | Prevents login completion from leaving favorites, confirmations, or pending invites stale while preserving the narrower VNext reflection boundary. | Sections `3`, `4`; `foundation_documentation/modules/flutter_client_experience_module.md` `FCX-12` |
 
 ## 7. Tactical TODO Promotion Ledger
 
@@ -135,7 +138,7 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 | --- | --- | --- | --- | --- |
 | `TODO-v1-invites-implementation.md` | Invite acceptance/contact-import flow contracts | Completed (2026-03-12) | `2`, `4`, `6` | Main authority for invite/onboarding boundary. |
 | `TODO-store-release-android.md` | Android release orchestration authority | In progress | `1.1`, `5`, `7` | Replaces the former MVP release orchestrator as the active sequencing authority. |
-| `TODO-store-release-phone-otp-auth-and-contact-match.md` | Phone-OTP upgrade and identity baseline | In progress | `2`, `6`, `7` | Freezes the authenticated upgrade path that onboarding must hand off into. |
+| `TODO-store-release-phone-otp-auth-and-contact-match.md` | Phone-OTP upgrade and identity baseline | In progress | `2`, `3`, `4`, `6`, `7` | Freezes the authenticated upgrade path that onboarding must hand off into, including the immediate post-auth hydration handoff for registered user-linked repositories. |
 | `TODO-store-release-minimal-friends-and-favorites-mvp.md` | Minimal user-level friends/favorites release contract | In progress | `2`, `4` | Owns the release-facing friend preview/social-proof contract referenced by onboarding. |
 | `TODO-store-release-funnel-metrics-validation.md` | Release funnel metrics validation | In progress | `3`, `7` | Freezes identity funnel event/property evidence for auth wall, signup, OTP challenge, OTP verification, and anonymous merge. |
 | `TODO-vnext-onboarding-identity-reconciliation-reflection.md` | Late identity-materialization reconciliation + advisory reflection surfaces | Pending follow-up | `3`, `4`, `6`, `7` | Owns post-onboarding reflection (`Talvez você conheça`, informational lifecycle hints) after canonical identity materialization. |

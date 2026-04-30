@@ -407,6 +407,14 @@ The reopened visual work must derive test coverage per task, not from a single a
 - **Android build/install evidence:** `fvm flutter build apk --debug --flavor guarappari --dart-define-from-file=config/defines/integration.tenant.json --dart-define=DISABLE_PUSH=true` built `build/app/outputs/flutter-apk/app-guarappari-debug.apk`; `adb -s 192.168.15.9:5555 install -r build/app/outputs/flutter-apk/app-guarappari-debug.apk` installed successfully.
 - **After screenshot:** `/tmp/otp-after-adb.png` captured from device `192.168.15.9:5555` on 2026-04-29 shows the corrected phone-entry screen with the compact stepper and approved WhatsApp copy.
 
+### Post-Login Hydration Follow-Up
+
+- **QA clarification:** repeated OTP login with the same phone initially suggested possible user recreation, but later evidence showed confirmations and favorites persisted and became visible in backend-backed surfaces after delay. This TODO does not record "new user per login" as a closed diagnosis.
+- **Auth handoff fix:** the Flutter shell now starts `PostAuthIdentityHydrationCoordinator` after app initialization. When auth transitions to a registered identity, it refreshes identity-owned streams needed immediately after login: Home favorite resumes, account-profile favorite IDs, confirmed occurrence IDs, and pending invites.
+- **Favorite stale-state guard:** `AccountProfilesRepository.refreshFavoriteAccountProfileIds` clears stale favorite IDs when the current identity has no backend favorites, preventing cross-identity ghost state.
+- **Hydration race guard:** coordinator tests now cover all four registered-identity refresh consumers and the logout/anonymous reset while a hydration is still in flight, proving the same registered user is rehydrated after the reset instead of being skipped by the per-user loop guard.
+- **Focused evidence:** `fvm flutter test test/application/auth/post_auth_identity_hydration_coordinator_test.dart test/infrastructure/repositories/account_profiles_repository_test.dart test/application/application_contract_test.dart` passed with `20/20` tests after the race guard; `fvm dart analyze --format machine` passed cleanly; `bash scripts/build_web.sh ../web-app dev` passed and refreshed the derived web bundle.
+
 ### Bug-Fix Evidence Matrix
 
 | Stage | Coverage Status | Evidence |

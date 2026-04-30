@@ -397,6 +397,7 @@ Native app is the full-fidelity invite client.
 - When an existing grouped recipient ceases to be inviteable, V1 removes that recipient from `contact_groups` automatically instead of keeping a disabled stale entry.
 - `POST /invites/{invite_id}/accept` accepts the selected invite edge, supersedes competing pending invites for the same `(receiver_account_profile_id,target_ref)`, and returns the resolved `attendance_policy` plus next-step metadata (`none`, `free_confirmation_created`, `reservation_required`, `commitment_choice_required`, or `open_app_to_continue`).
 - `POST /invites/{invite_id}/decline` declines only the selected edge; it does not silently decline other pending inviter candidates for the same target.
+- Pending invite feeds are registered user-linked state in the Flutter client. After OTP/login emits a registered identity, the app shell must refresh pending invites through the repository contract before invite inbox/share screens decide empty states. Future invite/social repositories that depend on registered identity must register the same post-auth hydration consumer instead of relying on route re-entry.
 - Native app remains the trusted surface for grouped invite selection, invite inbox management, and any richer follow-up action beyond narrow web exceptions.
 
 ### 4.3 External Share Invites (New Users Attribution)
@@ -491,6 +492,7 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 
 - App may mint or resume an anonymous identity via `POST /anonymous/identities` for device-bound progressive profiling flows.
 - App authenticated upgrade is phone-OTP only; `POST /auth/otp/verify` must accept the current anonymous identity id so invite ownership/attribution migrates to the registered phone identity before restricted invite actions continue.
+- After that registered identity is emitted, clients must run the Flutter post-auth hydration contract for invite/social user-linked streams, including pending invites. This immediate refresh is distinct from the VNext identity-materialization reflection lane for inbound `Talvez você conheça` style suggestions.
 - Web invite landing in V1 must not mint anonymous identity for invite conversion; it is read-only + promotion only.
 - Invite share-code materialization (`POST /invites/share/{code}/materialize`) remains authenticated-only; anonymous attempts must return deterministic `401 auth_required`.
 - Canonical invite acceptance endpoints (`POST /invites/{invite_id}/accept` for materialized ids and `POST /invites/share/{code}/accept` for anonymous-first share preview) must preserve attribution semantics in V1.
@@ -578,6 +580,7 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 | `INV-31` | Approved | Invite acceptance is independent from event capacity or later fulfillment availability; those constraints belong to downstream attendance/reservation/check-in flows and do not redefine the social invite decision. | Separates social conversion from fulfillment/capacity concerns and prevents invite semantics from being overloaded by operational availability. | Sections `2.2`, `4.1`, `4.5` |
 | `INV-32` | Approved | V1 invite lifecycle does not include `snooze` / `Decide later`; reminder follow-up for that branch is removed until a future contract explicitly reintroduces it. | Removes half-defined terminal states and keeps the release contract aligned with the actually supported lifecycle. | Sections `2.2`, `3.1`, `4`, `4.5` |
 | `INV-33` | Approved | First-production social capabilities carry a zero-backward-compatibility review and promotion rule: reviewers must not request compatibility for pre-release invite, favorite, friend, contact-group, or contact-match inviteable behavior unless a governing TODO explicitly reopens that burden. | Keeps audit and promotion gates aligned with launch scope and prevents non-production historical shapes from blocking release. | `project_constitution.md`, Sections `2.1 B`, `2.4`, `4.1`, `4.5` |
+| `INV-34` | Approved | Pending invite/social user-linked streams participate in Flutter post-auth hydration after registered identity emission; invite screens must not infer final empty state before repository refresh has run for the current user. | Prevents stale anonymous/pre-login invite state after OTP upgrade while keeping late identity reflection separate from release-critical invite hydration. | Sections `4.1`, `4.4`; `foundation_documentation/modules/flutter_client_experience_module.md` `FCX-12` |
 
 ## 8. Tactical TODO Promotion Ledger
 

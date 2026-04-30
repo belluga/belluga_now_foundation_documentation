@@ -23,6 +23,8 @@ The Account Profile Catalog module (MOD-304) maintains the canonical representat
 - Tactical TODO streams:
   - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`
+  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-home-favorites-refresh-regression.md`
+  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
   - `foundation_documentation/todos/completed/TODO-store-release-account-profile-rich-text-fidelity.md`
   - `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
   - `foundation_documentation/todos/completed/TODO-v1-static-assets-media-parity-with-account-profiles.md`
@@ -127,6 +129,11 @@ Aggregated dashboard data remains a future authenticated workspace-facing read c
 - Legacy/plain-text values with newline breaks are canonicalized at render time so paragraph breaks and explicit line breaks remain visible.
 - Backend persistence validates a dedicated `100KB` sanitized-content cap per field for `bio` and `content`; this does not raise global short-description limits for unrelated fields.
 
+**Favorites client-state contract**
+- Public account-profile catalog/detail reads remain anonymous-capable and favoritable by profile type, but viewer-specific favorite ids are registered user-linked state in Flutter.
+- Account Profile favorite ids must be refreshed through the Flutter post-auth hydration contract after OTP/login, then published through repository-owned streams for Discovery, public detail, Home favorites, and inviteable/social consumers.
+- Empty favorite-id results for the registered identity are authoritative and clear stale client favorite state; screens must not preserve pre-login favorite flags through local cache, route re-entry, or controller relay.
+
 **Events**
 * Current runtime authority: `account_profile.created`, `account_profile.updated`.
 * Deferred only: `offer.published`, `offer.unavailable`, `offer.window.expired` are historical planning events and are not current runtime authority.
@@ -183,6 +190,7 @@ Discovery runtime behavior for tenant-public account-profile listing is fixed as
 | `PCO-10` | Approved | This file is the canonical current authority for public account-profile contracts after the module-family rename. Deferred `offer`/commercial planning remains capability-first by default and does not become a separate current runtime surface unless later implementation proves that boundary. | Keeps module authority aligned with the renamed canonical surface without accidentally turning deferred commercial planning into current runtime truth. | Sections `1`, `3.2`, `4` |
 | `PCO-11` | Approved | Account Profile `bio` and `content` are independent capability-backed long-form rich-text fields rendered inside the public `Sobre` shell with shared safe rich-text subset canonicalization and a dedicated `100KB` sanitized-content cap per field. | Fixes public detail/admin fidelity without turning unrelated short descriptions into page-sized content fields. | Sections `4`, `7` |
 | `PCO-12` | Approved | Account Profile taxonomy terms are read/display snapshots using `{type, value, name, taxonomy_name, label?}` while filters stay on machine keys (`type`, `value`, `type:value`). | Prevents slug rendering in public/admin UI without adding runtime taxonomy joins to list/detail reads. | Sections `4`, `7` |
+| `PCO-13` | Approved | Viewer favorite ids for Account Profiles are registered user-linked client state and must be refreshed by Flutter post-auth hydration after registered identity emission. | Prevents stale favorite flags after OTP login and keeps Discovery/detail/Home/inviteable consumers aligned through repository-owned streams. | Sections `4`, `7`; `foundation_documentation/modules/flutter_client_experience_module.md` `FCX-12` |
 
 ## 8. Tactical TODO Promotion Ledger
 
@@ -193,3 +201,4 @@ Discovery runtime behavior for tenant-public account-profile listing is fixed as
 | `TODO-v1-tenant-public-safe-back-navigation.md` | Shared tenant-public account-profile-detail back/fallback policy | Completed | `4`, `7` | Freezes `/parceiro/:slug -> /descobrir` when root-opened; archived from `active` during the 2026-04-09 MVP TODO cleanup after delivery confirmation. |
 | `TODO-store-release-account-profile-rich-text-fidelity.md` | Account Profile `bio`/`content` rich-text fidelity and long-form cap | Promotion Lane | `4`, `7` | Promotes the Store Release contract for independent capability-backed rich-text fields, public `Sobre` rendering, safe subset canonicalization, and `100KB` per-field sanitized-content validation. |
 | `TODO-store-release-taxonomy-term-display-snapshots.md` | Taxonomy term display snapshots for account/profile/event/static/map read models | Promotion Lane | `4`, `7` | Promotes display-ready taxonomy snapshots while preserving machine-key filtering and idempotent backfill/fanout. |
+| `TODO-store-release-home-favorites-refresh-regression.md` | Account Profile favorite-id hydration for Home/detail/discovery consumers | Promotion Lane | `4`, `7` | Promotes registered-identity favorite refresh and stale-state clearing through repository-owned streams. |

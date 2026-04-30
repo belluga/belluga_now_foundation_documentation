@@ -184,6 +184,15 @@ This TODO must derive and refresh the test matrix for each implementation task b
 - **ADB policy:** device proof remains deferred to the consolidated Wave 2D ADB phase because this slice is reproducible through repository/controller/widget evidence and ADB is intentionally reserved for the end of the orchestration.
 - **ADB contract smoke (2026-04-29):** attached device `192.168.15.9:5555` passed `integration_test/feature_favorites_query_contract_e2e_test.dart` via `drive-fallback` in 470s. The source-owned Android row proves favorite/unfavorite persistence and real backend `GET /favorites` readback; Home route refresh is closed by repository/controller/widget tests that prove no route restart is required.
 
+## Post-Auth Hydration Follow-Up (2026-04-29)
+
+- **Updated QA finding:** after repeated OTP login with the same phone, confirmations and favorites eventually appeared in backend-backed surfaces such as Discovery. The initial "new user every login" hypothesis is not treated as proven. The remaining release bug is Home/startup hydration: identity-owned streams were not deterministically refreshed when the app transitioned from anonymous to registered identity.
+- **Implemented Flutter fix:** `PostAuthIdentityHydrationCoordinator` now binds to the global auth stream from `ApplicationContract` and refreshes identity-owned repository state when a registered identity appears: Home favorite resumes, account-profile favorite IDs, confirmed occurrence IDs, and pending invites.
+- **Stale-state guard:** `AccountProfilesRepository.refreshFavoriteAccountProfileIds` now clears previous favorite IDs when the backend returns an empty favorite list for the current identity, avoiding ghost favorites when a device switches users or identity state.
+- **Architecture boundary:** the fix remains repository-owned and application-orchestrated. Home widgets/controllers still consume repository streams; no sibling-controller relay, manual route restart, or widget-local cache was introduced.
+- **Hydration race guard:** coordinator tests now cover all four registered-identity refresh consumers and the logout/anonymous reset while a hydration is still in flight, proving the same registered user is rehydrated after the reset instead of being skipped by the per-user loop guard.
+- **Focused evidence:** `fvm flutter test test/application/auth/post_auth_identity_hydration_coordinator_test.dart test/infrastructure/repositories/account_profiles_repository_test.dart test/application/application_contract_test.dart` passed with `20/20` tests after the race guard; `fvm dart analyze --format machine` passed cleanly; `bash scripts/build_web.sh ../web-app dev` passed and refreshed the derived web bundle.
+
 ## Completion Evidence Matrix (Local, Non-ADB)
 
 | Criterion ID | Source Section | Criterion | Evidence Type | Evidence Artifact / Command | Runtime Target | Status | Notes |
