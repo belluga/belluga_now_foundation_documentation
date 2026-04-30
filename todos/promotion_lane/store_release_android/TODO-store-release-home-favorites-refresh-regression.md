@@ -192,6 +192,7 @@ This TODO must derive and refresh the test matrix for each implementation task b
 - **Architecture boundary:** the fix remains repository-owned and application-orchestrated. Home widgets/controllers still consume repository streams; no sibling-controller relay, manual route restart, or widget-local cache was introduced.
 - **Hydration race guard:** coordinator tests now cover all four registered-identity refresh consumers and the logout/anonymous reset while a hydration is still in flight, proving the same registered user is rehydrated after the reset instead of being skipped by the per-user loop guard.
 - **Focused evidence:** `fvm flutter test test/application/auth/post_auth_identity_hydration_coordinator_test.dart test/infrastructure/repositories/account_profiles_repository_test.dart test/application/application_contract_test.dart` passed with `20/20` tests after the race guard; `fvm dart analyze --format machine` passed cleanly; `bash scripts/build_web.sh ../web-app dev` passed and refreshed the derived web bundle.
+- **Focused rerun evidence (2026-04-30):** `fvm flutter test test/application/auth/post_auth_identity_hydration_coordinator_test.dart test/infrastructure/repositories/account_profiles_repository_test.dart` passed with `15/15`, confirming post-auth hydration and stale favorite clearing remain automated coverage after manual OTP/login validation.
 
 ## Completion Evidence Matrix (Local, Non-ADB)
 
