@@ -30,14 +30,14 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 1. **Invite Acceptance Path**
     * Steps:
         * User lands via `inviteCode` deep link → sees invite context (sender, event, incentives).
-        * `Accept`/`Decline` actions are available in app with anonymous identity (progressive profiling). Auth is deferred until a restricted action that truly requires authenticated identity hits Auth Wall.
-        * The anonymous app baseline stays explicit after that decision point: feed browsing, map browsing, and favorites remain available without forced login; `send_invite`, `/profile`, and presence/check-in remain authenticated boundaries.
+        * Invite preview is available in app with anonymous identity (progressive profiling), but `Accept`/`Decline` are trust mutations and require a registered/authenticated identity before execution.
+        * The anonymous app baseline stays explicit after preview: feed browsing, map browsing, and favorites remain available without forced login; invite accept/decline, `send_invite`, `/profile`, and presence/check-in remain authenticated boundaries.
         * Screen flows continue with:
             1. Minimal pre-auth profile context only when needed; authenticated upgrade, when required, is phone-OTP only via backend-owned `POST /auth/otp/challenge` + `POST /auth/otp/verify`.
             2. Contact import prompt (`import contacts to share with friends`) wired to Invite module’s endpoint.
             3. Optional “Find friends” preview from `friend_resumes` to encourage immediate viral sharing.
         * After contact import (or skip), user transitions to preference capture + location consent steps to personalize home/map.
-    * Integration: Canonical share-preview decision uses `POST /invites/share/{code}/accept` (anonymous-first). Authenticated continuation may still use `/invites/share/{code}/materialize` and `/invites/{invite_id}/accept|decline` when explicitly required. OTP verification must send the current anonymous identity id so backend merge preserves invite attribution/history before issuing the registered phone token. `POST /contacts/import` remains optional when the user opts to import contacts. Invite metadata is stored locally so preference recommendations can reference the same event/account profile.
+    * Integration: Canonical share-preview acceptance uses `POST /invites/share/{code}/accept` only after authenticated identity is available; anonymous attempts must reject with `401 auth_required`. Authenticated continuation may still use `/invites/share/{code}/materialize` and `/invites/{invite_id}/accept|decline` when explicitly required. OTP verification must send the current anonymous identity id so backend merge preserves invite attribution/history before issuing the registered phone token. `POST /contacts/import` remains optional when the user opts to import contacts. Invite metadata is stored locally so preference recommendations can reference the same event/account profile.
 
 2. **Invite Decline / No Invite Path**
     * Steps:
@@ -90,7 +90,7 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 7. **Identity Materialization Reflection (Follow-up)**
     * After a user's canonical phone identity becomes stable through the approved OTP/onboarding path, onboarding owns the follow-up handoff that may trigger late reconciliation against hashes previously imported by other viewers.
     * The immediate post-OTP app handoff is separate from the late reflection lane: once Flutter emits the registered identity, the application shell must run post-auth hydration for release-critical user-linked repositories such as favorites, confirmed occurrences, and pending invites.
-    * OTP transport is not an onboarding-owned provider flow: delivery is queued by Laravel jobs through tenant outbound integration webhook settings, with WhatsApp preferred and OTP-specific URL optional.
+    * OTP transport is not an onboarding-owned provider flow: delivery is queued by Laravel jobs through tenant outbound integration webhook settings, with WhatsApp preferred and OTP-specific URL optional. Public app bootstrap exposes only derived delivery flags, such as SMS fallback availability, and must not expose provider webhook URLs.
     * This follow-up may later feed advisory reflection surfaces such as `Talvez você conheça` and informational lifecycle notifications like "contact entered the app".
     * These reflection surfaces must remain discovery-only until explicit favorite promotes the relationship into the normal inviteable rules.
 

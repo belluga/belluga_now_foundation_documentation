@@ -8,6 +8,7 @@ Store Release: Belluga Media Canonical Image Flow Hardening
 - **Reclassified on:** `2026-04-18`
 - **Previous lane:** `foundation_documentation/todos/active/vnext/TODO-vnext-belluga-media-canonical-image-flow-hardening.md`
 - **Why this moved into store release:** canonical image ownership is no longer just package hardening. Public URLs, host normalization, cache behavior, OG/branding surfaces, and Flutter/Web-visible image continuity are publication-critical for the Android release lane.
+- **Post-release hardening reclassification:** on `2026-04-30`, this TODO remained active but moved out of the current Android release gate into `active/post_release_hardening/`. Execute after release unless a new explicit business decision promotes it back into the release gate.
 
 ## Context
 The branding/OG fallback regression exposed a broader architectural gap: Laravel image flows are not uniformly owned by `belluga_media`. Some paths already use canonical media services (`account profiles`, `static assets`, parts of `event/media`), while other paths still persist direct `Storage::disk('public')->url(...)` values, implement ad hoc public URL normalization, or serve legacy storage paths without a canonical media wrapper. That drift creates host/CORS/cache regressions, inconsistent public URLs, and review-time ambiguity about what the “right” media pipeline is.
@@ -28,8 +29,8 @@ This slice exists to harden the rule at the architecture level: image flows are 
 
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Pending`
-- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Reopened-Functional-Gap`, `Evidence-Incomplete`
-- **Next exact step:** close the reopened media-flow inventory and guardrail gaps, then rebuild the Completion Evidence Matrix before this TODO can return to `promotion_lane/`.
+- **Qualifiers:** `Post-Release-Hardening`, `Release-Gate-Deferred`, `Cross-Stack`, `Reopened-Functional-Gap`, `Evidence-Incomplete`
+- **Next exact step:** close the reopened media-flow inventory and guardrail gaps, then rebuild the Completion Evidence Matrix before this TODO can return to an execution/promotion lane.
 
 ## Scope
 - [ ] Inventory every current Laravel product image flow and classify it as `belluga_media-compliant`, `wrapper-compliant`, or `non-compliant`.
@@ -270,8 +271,8 @@ Use exact trigger names and exact enum values only.
 | `touches_auth_or_tenant` | `no` | No auth/tenant-access rule change is required by the TODO contract itself. |
 | `touches_runtime_or_infra` | `yes` | Media serving/cache/version behavior and runtime routing are in scope. |
 | `touches_tests` | `yes` | Guardrail and migrated-flow tests are part of the slice. |
-| `critical_user_journey` | `yes` | Broken image ownership is publication-critical for release surfaces. |
-| `release_or_promotion_critical` | `yes` | This TODO is explicitly in the store-release lane. |
+| `critical_user_journey` | `yes` | Broken image ownership affects user-visible media continuity when this hardening slice is scheduled. |
+| `release_or_promotion_critical` | `no` | Reclassified to post-release hardening on 2026-04-30; not a blocker for the current Android release gate. |
 | `high_severity_plan_review_issue` | `yes` | `ARCH-IMG-01` is high severity. |
 | `explicit_three_lane_request` | `no` | Triple external audit is not explicitly required right now. |
 

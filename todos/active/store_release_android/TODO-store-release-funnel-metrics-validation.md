@@ -4,6 +4,8 @@
 
 **Scope authority note (2026-04-18):** this TODO owns the store-release validation slice for cross-flow funnel metrics and sink/query integrity. It does not own event implementation. If validation finds a missing event or missing properties, the fix belongs to the concrete flow TODO that owns that behavior and can use the existing tracker service.
 
+**Contract correction note (2026-04-30):** `web_to_app_promotion_policy.md` `1.7` supersedes older funnel wording that referenced anonymous invite acceptance. The release funnel now treats invite preview/session context as anonymous-capable, while explicit invite acceptance is authenticated. Metrics proof should validate `app_invite_acceptance_requested` / `app_invite_accepted` (or the implementation-equivalent event names if the current tracker has not yet been renamed), not rely on anonymous accept as a canonical terminal event.
+
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.
 **Status:** Active. Core telemetry runtime is already live, but store release still needs explicit funnel-metrics proof and sink/query evidence for the release-critical acquisition and identity funnel.
 **Owners:** Flutter Team, Laravel Team, Data Team
@@ -92,7 +94,8 @@ This lane exists to freeze and validate that evidence without reopening settled 
   - `web_install_clicked`
   - `app_deferred_deep_link_captured`
   - `app_deferred_deep_link_capture_failed`
-  - `app_anonymous_invite_accepted`
+  - `app_invite_acceptance_requested`
+  - `app_invite_accepted`
   - `app_auth_wall_triggered`
   - `app_signup_completed`
   - `otp_challenge_started`
@@ -102,8 +105,9 @@ This lane exists to freeze and validate that evidence without reopening settled 
 - [x] Validate that the sink/query surface can support the release KPI set:
   - landing -> open/install
   - open/install -> deferred capture
-  - deferred capture -> anonymous accept
-  - anonymous accept -> auth wall
+  - deferred capture -> invite acceptance requested
+  - invite acceptance requested -> auth wall when authentication is required
+  - authenticated continuation -> invite accepted
   - auth wall -> signup
   - OTP challenge -> verified
   - verified/merged -> first favorite
@@ -190,7 +194,7 @@ This lane exists to freeze and validate that evidence without reopening settled 
 **Code changes made in owning surfaces discovered by this validation lane:**
 
 - Flutter deferred capture telemetry now always includes `store_channel`, using `unknown` when the Android/native resolver does not provide a concrete store channel.
-- Flutter anonymous invite acceptance preserves the active share `code` even when the preview/materialized invite id no longer carries the `share:` prefix.
+- Flutter invite acceptance telemetry must preserve the active share `code` even when the preview/materialized invite id no longer carries the `share:` prefix. If the runtime sink still emits the legacy implementation name `app_anonymous_invite_accepted`, treat it only as a temporary equivalent for this readback pass and flag the canonical rename to `app_invite_acceptance_requested` / `app_invite_accepted`.
 - Flutter web invite landing telemetry now emits `code` when a share code is present, in addition to `has_code` and `store_channel=web`.
 - Laravel telemetry envelopes now support pre-auth events through an explicit actor instead of dropping events when `userId` is null.
 - Laravel OTP challenge telemetry now emits `otp_challenge_started` with actor `{type: phone_otp_challenge, id: challenge_id}`, `delivery_channel`, and phone-hash target context.
@@ -205,7 +209,8 @@ This lane exists to freeze and validate that evidence without reopening settled 
 | `web_install_clicked` | Flutter web promotion telemetry | `store_channel=web`, `platform_target` | `test/application/telemetry/web_promotion_telemetry_test.dart` | Covered |
 | `app_deferred_deep_link_captured` | Flutter startup/init deferred-link path | `code`, `platform=android`, `store_channel` | `test/presentation/shared/init/screens/init_screen/controllers/init_screen_controller_test.dart`; `test/infrastructure/repositories/deferred_link_repository_test.dart` | Covered |
 | `app_deferred_deep_link_capture_failed` | Flutter startup/init deferred-link path | `platform=android`, `failure_reason`, `store_channel` | `test/presentation/shared/init/screens/init_screen/controllers/init_screen_controller_test.dart`; `test/infrastructure/repositories/deferred_link_repository_test.dart` | Covered |
-| `app_anonymous_invite_accepted` | Flutter invite flow controller | `event_id`, `source=invite_flow`, `code` when share-code entry exists | `test/presentation/tenant/invites/screens/invite_flow_screen/controllers/invite_flow_controller_test.dart` | Covered |
+| `app_invite_acceptance_requested` | Flutter invite flow controller | `occurrence_id`, optional derived `event_id`, `code` when share-code entry exists, `source=invite_flow`, `auth_state` | `test/presentation/tenant/invites/screens/invite_flow_screen/controllers/invite_flow_controller_test.dart`; runtime sink may still expose legacy equivalent `app_anonymous_invite_accepted` until tracker rename | Covered as contract/runtime-equivalence; sink readback must flag legacy naming if observed |
+| `app_invite_accepted` | Flutter invite flow controller / authenticated invite continuation | `occurrence_id`, optional derived `event_id`, `code` when share-code entry exists, `source=invite_flow`, authenticated identity context | `test/presentation/tenant/invites/screens/invite_flow_screen/controllers/invite_flow_controller_test.dart`; authenticated share-accept backend contract evidence | Covered as contract/runtime-equivalence; sink readback must prove authenticated acceptance rather than anonymous mutation |
 | `app_auth_wall_triggered` | Flutter auth route guard / auth wall telemetry | `action_type`, `redirect_path` where available | `test/application/router/guards/auth_route_guard_test.dart` | Covered |
 | `app_signup_completed` | Flutter auth login effects / auth wall telemetry | `source`, plus auth-wall context when present | `test/presentation/common/auth/screens/auth_login_screen/auth_login_effects_test.dart` | Covered |
 | `otp_challenge_started` | Laravel `PhoneOtpAuthController::challenge` + `TelemetryEmitter` | `challenge_id`, `delivery_channel`, pre-auth actor, no empty `user_id` metadata | `tests/Feature/Auth/TenantPhoneOtpTelemetryTest.php` | Covered |
@@ -225,7 +230,7 @@ This lane exists to freeze and validate that evidence without reopening settled 
 | `T4-ADB` | Local Gate | ADB/device runtime validation | Deferred runtime validation | Final consolidated ADB/device lane | Android device | waived | Local-gate waiver approval: APROVADO orchestration defers ADB/device execution to reduce WSL/device instability risk. |
 | `DOD-01` | Definition of Done | Android store release has a frozen funnel-metrics validation matrix for the critical funnel. | Documentation and review packet | This TODO; `foundation_documentation/artifacts/T4-funnel-metrics-review-packet.md` | Foundation docs | waived | Structure-only waiver/deviation with approval: APROVADO local gate treats matrix freeze as documentation-only; device/browser flow proof is tracked in runtime rows. |
 | `DOD-02` | Definition of Done | The required KPI set can be read and trusted well enough for release decisions. | Local join-key/property proof; final sink readback pending | Event matrix; KPI readback interpretation; `DEP-04` | Local proof plus external sink final phase | waived | Local-gate waiver approval: APROVADO orchestration accepts local property/join-key proof now; external sink/query readback remains required before release closure. |
-| `DOD-03` | Definition of Done | No hidden telemetry gap remains implied by "it should already be firing". | Gap audit and fixes | Review packet; triple audit session | Local code/test audit | passed | Fixed missing pre-auth OTP dispatch, deferred `store_channel`, anonymous accept `code`, and web landing `code`; remaining runtime/sink gaps are explicit. |
+| `DOD-03` | Definition of Done | No hidden telemetry gap remains implied by "it should already be firing". | Gap audit and fixes | Review packet; triple audit session | Local code/test audit | passed | Fixed missing pre-auth OTP dispatch, deferred `store_channel`, invite acceptance `code`, and web landing `code`; remaining runtime/sink gaps are explicit, including whether the sink still uses the legacy anonymous-accept event name. |
 | `VAL-01` | Validation Steps | Code/test audit for release-critical event ownership and required properties. | Review packet plus triple audit | `foundation_documentation/artifacts/T4-funnel-metrics-review-packet.md`; `foundation_documentation/artifacts/t4-funnel-metrics-triple-audit-20260428T1935Z/session.json` | Local audit | passed | Three-lane audit returned zero findings; adjudication resolved non-material wording conflict. |
 | `VAL-02` | Validation Steps | Automated evidence where available for event names/properties on touched flows. | Automated tests | Flutter target suite; Laravel target suite | Local Flutter/Laravel | passed | Flutter 36 tests; Laravel 10 tests and 52 assertions. |
 | `VAL-03` | Validation Steps | Manual or sink-level validation for web-to-app, OTP, merge, and first-favorite milestones. | Deferred runtime/sink validation | Final ADB/web/sink lane | Android device, browser, external telemetry sink | waived | Local-gate waiver approval: APROVADO orchestration intentionally leaves manual/device/browser/sink validation to the consolidated final runtime phase. |
@@ -247,8 +252,9 @@ The local candidate can compute the required release KPI edges from emitted prop
 
 - landing -> open/install: `web_invite_landing_opened.code` + web promotion CTA events with `platform_target`.
 - open/install -> deferred capture: `store_channel` and share `code` carried across web/open/install and app deferred capture.
-- deferred capture -> anonymous accept: share `code` retained in app deferred capture and anonymous invite acceptance.
-- anonymous accept -> auth wall -> signup: auth wall telemetry preserves restricted action context and signup source.
+- deferred capture -> invite acceptance requested: share `code` retained in app deferred capture and invite acceptance request telemetry.
+- invite acceptance requested -> auth wall -> signup: auth wall telemetry preserves restricted action context and signup source when authentication is required.
+- authenticated continuation -> invite accepted: authenticated invite acceptance carries the same share `code`/occurrence context after OTP/login continuation.
 - OTP challenge -> verified/merged: Laravel queue envelopes carry challenge, verification, and merge milestones.
 - verified/merged -> first favorite: registered identity can be joined to `favorite_artist_toggled.account_profile_id` once sink identity association is queryable.
 

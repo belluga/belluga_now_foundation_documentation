@@ -1,19 +1,19 @@
 # Documentation: Web-to-App Promotion Policy
 
-**Version:** 1.6  
-**Date:** April 17, 2026  
+**Version:** 1.7
+**Date:** April 30, 2026
 **Authors:** Delphi (Belluga Co-Engineering)
 
 ## 1. Purpose
 
-This policy defines the V1 acquisition and conversion boundary across Web and App surfaces. The objective is to minimize entry friction, preserve viral attribution, keep anonymous web strictly promotional before login, and make authenticated identity entry explicit: phone OTP in the app and QR-only login on the web.
+This policy defines the V1 acquisition and conversion boundary across Web and App surfaces. The objective is to minimize entry friction, preserve viral attribution, keep anonymous web strictly promotional before QR-authenticated login, and make authenticated identity entry explicit: phone OTP in the app and QR-only login on the web.
 
 ## 2. Canonical V1 Surface Model
 
 We operate with three practical runtime postures in V1:
 
 1. **Web (Anonymous / Tenant Public):** read-only showcase and promotion only.
-2. **App:** anonymous-first invite decision, explicit anonymous usage baseline (`invite preview`, `accept/decline`, `feed`, `map`, `favorites`), and authenticated upgrade through phone OTP only.
+2. **App:** anonymous-first invite preview and explicit anonymous usage baseline (`invite preview`, `feed`, `map`, `favorites`), with trust mutations promoted through phone OTP before execution.
 3. **Web (Authenticated):** the normal authenticated web product posture is allowed, but session bootstrap is QR-only from an already promoted app identity. Web-native email/password/social login is forbidden.
 
 Authenticated web does not weaken the anonymous web boundary: before QR login, web remains promotion/read-only.
@@ -40,7 +40,7 @@ Backend deep-link governance is package-owned end-to-end:
   - map/feed style discovery in read-only mode;
   - app promotion CTA (`Baixe o App para Confirmar`) and install/open handoff preserving invite attribution plus the originally requested route intent via backend-resolved dynamic tenant targets for Android and iOS.
 - Not allowed:
-  - invite accept/decline/materialize mutations from web;
+  - invite accept/decline/materialize mutations from anonymous web;
   - minting anonymous identity from web for invite conversion (`POST /api/v1/anonymous/identities`);
   - trust-action or authenticated mutation execution on anonymous web;
   - using web login/auth continuation as anonymous tenant-public hard-gate fallback.
@@ -69,14 +69,14 @@ These affordances may reappear once QR-authenticated web is available, but that 
 
 ### 3.2 App (Progressive Profiling Conversion Surface)
 
-- Invite flows are anonymous-first:
+- Invite preview flows are anonymous-first:
   - app may mint/resume anonymous identity (`POST /api/v1/anonymous/identities`);
-  - invite acceptance from share preview uses `POST /api/v1/invites/share/{code}/accept`;
-  - inviter attribution remains bound to the share `code` principal.
+  - invite preview/session context may resolve from share `code` before login;
+  - explicit invite accept/decline is a trust mutation and requires a registered/authenticated identity before execution;
+  - inviter attribution remains bound to the share `code` principal after authenticated acceptance.
 - Authenticated app upgrade is phone-OTP only; email/password, social login, and web-shared auth forms are out of scope for tenant-public V1.
 - Anonymous app baseline in V1 includes:
   - invite preview from the share flow;
-  - invite accept/decline from the share flow;
   - feed browsing;
   - map browsing;
   - favorites.
@@ -88,7 +88,7 @@ These affordances may reappear once QR-authenticated web is available, but that 
   - when deferred payload resolves a guarded-route redirect, restore that route intent in the app and continue through native auth only when the target itself requires authenticated identity;
   - when deferred capture fails or resolves no invite, route to canonical tenant home (`/`), never blank/intermediate dead-ends.
 - Post-accept behavior:
-  - anonymous users continue through that same anonymous baseline without forced login;
+  - authenticated users continue through the normal app flow after acceptance;
   - only the explicitly restricted actions continue to Auth Wall.
 - Identity-owned app routes (for example `/profile`) remain auth-gated in app runtime; anonymous app access must continue to native auth/login, not app-promotion fallback.
 
@@ -97,6 +97,7 @@ These affordances may reappear once QR-authenticated web is available, but that 
 Authenticated identity entry remains phone-OTP only in the app and QR-only on the web.
 
 Auth Wall is mandatory in the app for:
+- invite accept/decline trust mutations while the user is still anonymous;
 - `send_invite` actions;
 - identity-owned routes such as `/profile`;
 - attendance/check-in boundaries (check-in feature delivery itself remains VNext);
@@ -106,6 +107,7 @@ Favorites are not a blanket Auth Wall action in this policy. Anonymous app usage
 
 On the web:
 - anonymous users always promote to app instead of continuing through web login;
+- authenticated web users are allowed to execute the normal authenticated web posture for the surface;
 - authenticated mutations require an authenticated web session established only through QR login.
 
 ## 4. Attribution and Endpoint Contract Baseline
@@ -119,21 +121,22 @@ On the web:
 - Store/open handoff targets must be resolved dynamically per tenant (Android + iOS) by backend contract; web/app clients must not hardcode store URLs.
 - When the promotion surface renders multiple store badges, App Store badge ordering and artwork must follow Apple’s published App Store Marketing Guidelines, including use of Apple-provided badge artwork and first position in a multi-badge lineup.
 - Canonical deferred first-open resolver endpoint is `POST /api/v1/deep-links/deferred/resolve` (Android MVP capture contract; iOS returns deterministic `not_captured` in V1).
-- Canonical app acceptance path for share preview is `POST /api/v1/invites/share/{code}/accept`.
-- `POST /api/v1/invites/share/{code}/materialize` remains authenticated-only and optional for explicit continuation flows.
+- Canonical app acceptance path for share preview is `POST /api/v1/invites/share/{code}/accept` after authenticated identity is available; anonymous attempts must reject deterministically with `401 auth_required`.
+- `POST /api/v1/invites/share/{code}/materialize` remains authenticated-only and optional for explicit continuation/pre-bind flows.
 - Canonical direct invite mutations (`POST /api/v1/invites/{invite_id}/accept|decline`) remain valid for materialized/inbox flows.
 
 ## 5. Tracking and KPI Baseline
 
 The V1 funnel is:
 
-`landing -> app install -> deferred deep link captured -> anonymous accept -> auth wall triggered -> signup completed`
+`landing -> app install -> deferred deep link captured -> auth upgrade -> invite accepted -> post-auth hydration`
 
 Required key events include:
 - `web_invite_landing_opened` (`store_channel=web`, `has_code=true|false`)
 - `web_open_app_clicked` (`store_channel`, `platform_target=android|ios`)
 - `web_install_clicked` (`store_channel`, `platform_target=android|ios`)
-- `app_anonymous_invite_accepted`
+- `app_invite_acceptance_requested`
+- `app_invite_accepted`
 - `app_auth_wall_triggered` (`action_type` = the restricted action that required authenticated identity)
 - `app_signup_completed`
 - `app_deferred_deep_link_captured` with `platform`, `store_channel`, and backend-resolved `target_path`; include `code` only when the captured target is invite attribution.
@@ -147,7 +150,7 @@ Store-channel and deferred failure modes must remain explicit in telemetry:
 
 | Module | Impact |
 |--------|--------|
-| Invite & Social Loop | Anonymous web stays preview/promotion only; app owns anonymous-first acceptance and invite mutations; authenticated web follows QR-only session bootstrap. |
+| Invite & Social Loop | Anonymous web stays preview/promotion only; app owns preview-first continuation plus authenticated invite mutations; authenticated web follows QR-only session bootstrap. |
 | Flutter Client Experience | Must implement Android V1 deferred deep-link capture + route-intent preservation, phone-OTP app auth, and QR-only web auth while keeping anonymous web hard gates as app handoff. |
 | Task & Reminder | Push/deep-link execution remains app-owned; web only routes users into app. |
 | Account Workspace (VNext) | Workspace rollout remains separate and does not redefine the anonymous-web conversion boundary. |

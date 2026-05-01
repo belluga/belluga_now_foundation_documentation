@@ -7,6 +7,7 @@ Store Release: Reference-Location Core and Dependent Capability Guardrails
 ## Classification Note
 - **Created on:** `2026-04-20`
 - **Why this exists now:** the release-follow-up proximity work now depends on a reusable fixed-reference core and on the first dependent-capability rule in the project. This TODO freezes that narrower blocker before the broader proximity-preferences slice proceeds to orchestration.
+- **Post-release hardening reclassification:** on `2026-04-30`, this TODO remained active but moved out of the current Android release gate into `active/post_release_hardening/` together with the dependent proximity-preferences TODO. Execute after release unless a new explicit business decision promotes it back into the release gate.
 
 ## Context
 The current runtime already has a canonical `LocationOriginService` and a local/device-first origin baseline, but the next release layer now needs a reusable fixed-reference contract that can outlive the first manual-map editor and later support entity-backed references such as a hotel Account Profile. That reusable contract must remain user-owned preference state rather than becoming Account Profile-owned state.
@@ -26,7 +27,7 @@ This blocker also captures the first explicit capability dependency case in the 
 
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Pending`
-- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Reopened-Functional-Gap`, `Blocker-Active`
+- **Qualifiers:** `Post-Release-Hardening`, `Release-Gate-Deferred`, `Cross-Stack`, `Reopened-Functional-Gap`, `Blocker-Active`
 - **Next exact step:** implement and prove the disabled-resolution payload and cross-stack tests before downstream proximity work can treat this blocker as delivered.
 
 ## Scope
@@ -74,7 +75,7 @@ This blocker also captures the first explicit capability dependency case in the 
 - [ ] Account Profile ownership changes; the new relation remains user-owned preference state.
 
 ## Dependencies & Sequencing
-- [x] `DEP-01` This TODO is a hard blocker for `foundation_documentation/todos/active/store_release_android/TODO-store-release-proximity-preferences-and-location-origin.md`.
+- [x] `DEP-01` This TODO is a hard blocker for `foundation_documentation/todos/active/post_release_hardening/TODO-store-release-proximity-preferences-and-location-origin.md`.
 - [ ] `DEP-02` If package naming or extraction strategy changes beyond a local incubated package/library boundary, update this TODO before implementation starts.
 
 ## Bounded But Elastic Guardrails
@@ -285,8 +286,8 @@ Use exact trigger names and exact enum values only.
 | `touches_auth_or_tenant` | `yes` | The capability lives in tenant-owned type registries and influences identity-owned user preference behavior. |
 | `touches_runtime_or_infra` | `no` | No queue/runtime/infra work is required by this blocker. |
 | `touches_tests` | `yes` | Cross-stack contract tests are mandatory. |
-| `critical_user_journey` | `yes` | Invalid reference eligibility would directly compromise Home origin behavior in the release lane. |
-| `release_or_promotion_critical` | `yes` | This blocker exists only to unblock store-release delivery. |
+| `critical_user_journey` | `yes` | Invalid reference eligibility would directly compromise Home origin behavior when this hardening slice is scheduled. |
+| `release_or_promotion_critical` | `no` | Reclassified to post-release hardening on 2026-04-30; not a blocker for the current Android release gate. |
 | `high_severity_plan_review_issue` | `yes` | `ARCH-REF-01` is high severity. |
 | `explicit_three_lane_request` | `no` | Triple external audit is not explicitly requested; it may still be derived as required. |
 

@@ -8,6 +8,7 @@ Store Release: Tenant Settings Read-Path Materialization
 - **Reclassified on:** `2026-04-18`
 - **Previous lane:** `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-settings-optimization.md`
 - **Why this moved into store release:** app bootstrap and tenant-admin settings now depend on hot read paths that should not keep expanding through live aggregation during release hardening.
+- **Post-release hardening reclassification:** on `2026-04-30`, this TODO remained active but moved out of the current Android release gate into `active/post_release_hardening/`. Execute after release unless a new explicit business decision promotes it back into the release gate.
 
 ## Context
 `belluga_settings` and the canonical settings-kernel endpoints already exist. The remaining gap is not missing settings infrastructure; it is that high-frequency tenant read paths still assemble runtime payloads live from multiple sources. That is acceptable as a baseline, but not as the launch-ready read model for store release hardening.
@@ -28,8 +29,8 @@ This TODO exists to freeze the canonical read-model direction: keep settings ker
 
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Pending`
-- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Reopened-Functional-Gap`, `Evidence-Incomplete`
-- **Next exact step:** prove the materialized snapshot/read-model implementation, rebuild triggers, fallback behavior, and parity before this TODO can return to `promotion_lane/`.
+- **Qualifiers:** `Post-Release-Hardening`, `Release-Gate-Deferred`, `Cross-Stack`, `Reopened-Functional-Gap`, `Evidence-Incomplete`
+- **Next exact step:** prove the materialized snapshot/read-model implementation, rebuild triggers, fallback behavior, and parity before this TODO can return to an execution/promotion lane.
 
 ## Scope
 - [ ] Define one canonical derived tenant snapshot/read model for hot settings/bootstrap consumers.
@@ -318,8 +319,8 @@ Use exact trigger names and exact enum values only.
 | `touches_auth_or_tenant` | `yes` | Tenant-scoped bootstrap/settings consumers are central to the slice. |
 | `touches_runtime_or_infra` | `yes` | Async rebuild jobs/runtime freshness behavior are in scope. |
 | `touches_tests` | `yes` | Read-path, rebuild, and fallback tests are mandatory. |
-| `critical_user_journey` | `yes` | `/api/v1/environment` and related bootstrap reads are launch-critical. |
-| `release_or_promotion_critical` | `yes` | This TODO sits in the store-release lane. |
+| `critical_user_journey` | `yes` | `/api/v1/environment` and related bootstrap reads are user-visible when this hardening slice is scheduled. |
+| `release_or_promotion_critical` | `no` | Reclassified to post-release hardening on 2026-04-30; not a blocker for the current Android release gate. |
 | `high_severity_plan_review_issue` | `yes` | `ARCH-TSO-01` is high severity. |
 | `explicit_three_lane_request` | `no` | Triple external audit is not explicitly required right now. |
 

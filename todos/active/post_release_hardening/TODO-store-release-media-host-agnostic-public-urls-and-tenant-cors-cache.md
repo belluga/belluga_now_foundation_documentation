@@ -7,6 +7,9 @@ Store Release: Media Host-Agnostic Public URLs And Tenant CORS Cache
 ## Context
 Production exposed a media compatibility gap: some persisted media references still carry absolute tenant hosts from a prior public domain, which can make browsers request media from a different tenant host than the current public origin. The urgent hotfix is to allow public media CORS only across domains registered for the same tenant. The definitive fix is to stop persisting host-bound media URLs for tenant-owned media and make public URL materialization derive the host from the current request/domain context.
 
+## Classification Note
+- **Post-release hardening reclassification:** on `2026-04-30`, this TODO remained active but moved out of the current Android release gate into `active/post_release_hardening/`. Execute after release unless a new explicit business decision promotes it back into the release gate.
+
 ## Framing Source & Story Slice
 - **Feature brief:** `direct-to-todo`
 - **Primary story ID:** `n/a`
@@ -14,7 +17,7 @@ Production exposed a media compatibility gap: some persisted media references st
 
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Pending`
-- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Backend-Contract`, `Performance-Sensitive`, `Security-Sensitive`
+- **Qualifiers:** `Post-Release-Hardening`, `Release-Gate-Deferred`, `Cross-Stack`, `Backend-Contract`, `Performance-Sensitive`, `Security-Sensitive`
 - **Next exact step:** analyze current persisted media URL fields and define the canonical storage/materialization contract before implementation approval.
 
 ## Scope

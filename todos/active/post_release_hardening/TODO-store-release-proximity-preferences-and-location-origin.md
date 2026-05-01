@@ -8,6 +8,7 @@ Store Release: Proximity Preferences and Location-Origin Persistence
 - **Reclassified on:** `2026-04-18`
 - **Previous lane:** `foundation_documentation/todos/active/vnext/TODO-vnext-proximity-preferences-and-location-origin.md`
 - **Why this moved into store release:** the MVP/local baseline is already real and release-relevant. The remaining gap is now launch hardening: establish canonical identity-backed persistence for the user's Home proximity preference and explicit location-origin override.
+- **Post-release hardening reclassification:** on `2026-04-30`, this TODO remained active but moved out of the current Android release gate into `active/post_release_hardening/`. Execute after release unless a new explicit business decision promotes it back into the release gate.
 
 ## Context
 The current runtime already has a canonical `LocationOriginService`, local/device persistence for Home radius, and local/device persistence for Home location-origin settings. That baseline is intentionally limited: it is local-first, Home-only, and automatic. This TODO exists for the next layer only: move proximity preference ownership to an identity-backed contract that survives anonymous-to-authenticated progression, and expose a profile-owned editor for a first-class manual "Minha localização" origin.
@@ -28,7 +29,7 @@ This slice must preserve the delivered V1 behavior while defining the launch-rea
 
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Pending`
-- **Qualifiers:** `Release-Critical`, `Cross-Stack`, `Reopened-Dependency-Gap`, `Blocked-By-Reference-Location`
+- **Qualifiers:** `Post-Release-Hardening`, `Release-Gate-Deferred`, `Cross-Stack`, `Reopened-Dependency-Gap`, `Blocked-By-Reference-Location`
 - **Next exact step:** reconcile this TODO after the reference-location blocker closes its disabled-resolution payload and cross-stack evidence gaps.
 
 ## Scope
@@ -49,7 +50,7 @@ This slice must preserve the delivered V1 behavior while defining the launch-rea
 - `Blocked`: work cannot currently proceed; `Blocker Notes` become mandatory.
 
 ## Blocker Notes
-- [ ] `DEP-01` This TODO is blocked by `foundation_documentation/todos/active/store_release_android/TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md`, which was reopened on 2026-04-22 because the disabled-resolution payload and cross-stack evidence are incomplete.
+- [ ] `DEP-01` This TODO is blocked by `foundation_documentation/todos/active/post_release_hardening/TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md`, which was reopened on 2026-04-22 because the disabled-resolution payload and cross-stack evidence are incomplete.
 - [ ] Orchestration must resume only after the blocker proves read/write disable semantics for entity-backed references and the required cross-stack test floor.
 
 ## Execution Lane Tracking (Required)
@@ -79,7 +80,7 @@ This slice must preserve the delivered V1 behavior while defining the launch-rea
 - [ ] New public IA or unrelated profile-area redesign.
 
 ## Dependencies & Sequencing
-- [ ] `DEP-01` `foundation_documentation/todos/active/store_release_android/TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md` must deliver the reusable fixed-reference core, entity provenance schema, and dependent-capability semantics before this TODO can close.
+- [ ] `DEP-01` `foundation_documentation/todos/active/post_release_hardening/TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md` must deliver the reusable fixed-reference core, entity provenance schema, and dependent-capability semantics before this TODO can close.
 - [ ] `DEP-02` The first user-facing rollout for this TODO may stay manual-coordinate first, but it must not bypass the blocker-owned entity-reference contract and test floor.
 
 ## Bounded But Elastic Guardrails
@@ -321,8 +322,8 @@ Use exact trigger names and exact enum values only.
 | `touches_auth_or_tenant` | `yes` | Anonymous/authenticated identity merge is core to the contract. |
 | `touches_runtime_or_infra` | `no` | No queue/runtime/infra surface is currently required by the planning contract. |
 | `touches_tests` | `yes` | Merge, fallback, and consumer-boundary tests are mandatory. |
-| `critical_user_journey` | `yes` | Home proximity/origin behavior is a launch-critical tenant-public journey. |
-| `release_or_promotion_critical` | `yes` | This TODO sits in the store-release lane. |
+| `critical_user_journey` | `yes` | Home proximity/origin behavior is user-visible when this hardening slice is scheduled. |
+| `release_or_promotion_critical` | `no` | Reclassified to post-release hardening on 2026-04-30; not a blocker for the current Android release gate. |
 | `high_severity_plan_review_issue` | `yes` | `ARCH-PROX-01` is high severity. |
 | `explicit_three_lane_request` | `no` | Triple external audit is not explicitly required right now. |
 

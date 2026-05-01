@@ -1,6 +1,8 @@
 # TODO (Store Release): Event `artists` Eradication
 
-**Classification note (2026-04-18):** this lane is release-critical. The store-release public app must not ship with `artists` still acting as a legacy event-composition projection across public payloads, Flutter runtime models, favorites/public-web helpers, or repair outputs.
+**Classification note (2026-04-18):** this lane was originally classified as release-critical. The store-release public app was expected not to ship with `artists` still acting as a legacy event-composition projection across public payloads, Flutter runtime models, favorites/public-web helpers, or repair outputs.
+
+**Post-release hardening reclassification note (2026-04-30):** this TODO remains valid active hardening, but it is no longer a blocker for the current Android store-release orchestration plans. Execute after release unless a new explicit business decision promotes it back into the release gate.
 
 **Scope authority note (2026-04-18):** this TODO is the direct delivery authority for full `artists` retirement in the store-release lane. `foundation_documentation/todos/completed/TODO-v1-event-parties-canonicalization-and-legacy-migration.md` remains closed for the canonical write/admin cutover; this lane exists because the audit proved that legacy `artists` still persists in read/runtime surfaces and should no longer remain in the release contract.
 
@@ -63,8 +65,8 @@ This residue was not just harmless historical storage. At the start of this lane
 ## Delivery Status Canon
 
 - **Current delivery stage:** `Pending`
-- **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Contract-Eradication`, `Reopened-Functional-Gap`
-- **Next exact step:** remove or intentionally re-scope remaining release-facing `artists` read/runtime residues, then rebuild validation evidence and the Completion Evidence Matrix before promotion.
+- **Qualifiers:** `Cross-Stack`, `Post-Release-Hardening`, `Release-Gate-Deferred`, `Contract-Eradication`, `Reopened-Functional-Gap`
+- **Next exact step:** remove or intentionally re-scope remaining `artists` read/runtime residues, then rebuild validation evidence and the Completion Evidence Matrix before promotion.
 
 ## References
 

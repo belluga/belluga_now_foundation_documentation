@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/contact-materialization-performance-audit-20260501T0300Z/package-triple-audit-20260501T030604Z/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "no-context-test-quality-reviewer"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "mixed",
+    "elegance": "acceptable",
+    "structural_soundness": "acceptable",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Keep the correction and automated regression suite, but do not close promotion until the stated manual/stage retest passes after rebuild/deploy. No additional unit-test rewrite is indicated from this package; the missing gate is final integrated evidence for the exact user-visible scenario and performance claim."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-EE6D6426",
+      "severity": "high",
+      "title": "Promotion remains blocked by missing final manual/stage behavior evidence",
+      "rationale": "The package itself states that manual/stage retest is still required after rebuild/deploy to confirm Bruna leaves Telefone, appears under Contatos/Pessoas, is returned as contact_match by /contacts/inviteables, and that repeated opens are fast without device-book reload or unchanged hash repost. Because the dispatch requires escalation when final behavior, backend contract semantics, integration gates, or CI/promotion execution evidence are missing, this remains a blocking test-quality gap even though automated regression coverage is directionally strong.",
+      "suggested_action": "Run and record the stated manual/stage retest after rebuild/deploy, including the real ADB contact classification, /contacts/inviteables contact_match response, and repeated-open behavior evidence. Keep promotion blocked until that evidence passes.",
+      "reviewer_labels": [
+        "no-context-test-quality-reviewer"
+      ],
+      "source_finding_ids": [
+        "TQA-001"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}
