@@ -113,9 +113,9 @@ Aggregated dashboard data remains a future authenticated workspace-facing read c
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/v1/account_profiles` | GET | Tenant-public list constrained to favoritable + `visibility='public'` account profiles. |
-| `/api/v1/account_profiles/near` | GET | Tenant-public distance-ordered account profiles for Discovery nearby surfaces (`is_favoritable=true` + `is_poi_enabled=true` + `visibility='public'`, nearest-first). |
-| `/api/v1/account_profiles/{account_profile_slug}` | GET | Detailed account profile summary for consumer experiences via direct slug lookup (`is_active=true` + `visibility='public'` + favoritable type), including query-only ordered `agenda_occurrences` for agenda continuity. |
+| `/api/v1/account_profiles` | GET | Tenant-public list constrained to non-`personal` profile types with `is_favoritable=true`, effective public discoverability, and profiles with `visibility='public'`. |
+| `/api/v1/account_profiles/near` | GET | Tenant-public distance-ordered account profiles for Discovery nearby surfaces (non-`personal` + `is_favoritable=true` + `is_poi_enabled=true` + effective public discoverability + `visibility='public'`, nearest-first). |
+| `/api/v1/account_profiles/{account_profile_slug}` | GET | Detailed account profile summary for consumer experiences via direct slug lookup (`is_active=true` + `visibility='public'` + non-`personal` type with `is_favoritable=true` + effective public discoverability), including query-only ordered `agenda_occurrences` for agenda continuity. |
 
 **Taxonomy term display snapshots**
 - Account Profile read payloads expose structured taxonomy terms as display-ready snapshots: `{type, value, name, taxonomy_name, label?}`.
@@ -133,6 +133,8 @@ Aggregated dashboard data remains a future authenticated workspace-facing read c
 - Public account-profile catalog/detail reads remain anonymous-capable and favoritable by profile type, but viewer-specific favorite ids are registered user-linked state in Flutter.
 - Account Profile favorite ids must be refreshed through the Flutter post-auth hydration contract after OTP/login, then published through repository-owned streams for Discovery, public detail, Home favorites, and inviteable/social consumers.
 - Empty favorite-id results for the registered identity are authoritative and clear stale client favorite state; screens must not preserve pre-login favorite flags through local cache, route re-entry, or controller relay.
+- `personal` profile types may be `is_favoritable=true` and `is_inviteable=true` for contacts/friends, but they must remain out of tenant-public catalog/detail/near queries unless a future approved public-people-discovery capability explicitly changes that policy. Standard tenant-public queries must omit non-public profile types by default.
+- Effective public discoverability is centralized in the Laravel `TenantProfileType` public catalog scope: explicit `is_publicly_discoverable=false` excludes a type, explicit `true` includes an eligible non-`personal` type, and rollout-compatible legacy non-`personal` types without the flag continue to behave as public when they are otherwise catalog-eligible. This compatibility fallback must not allow `personal` into Discovery.
 
 **Events**
 * Current runtime authority: `account_profile.created`, `account_profile.updated`.
@@ -154,6 +156,7 @@ Aggregated dashboard data remains a future authenticated workspace-facing read c
 
 Discovery runtime behavior for tenant-public account-profile listing is fixed as follows:
 - Default discovery hierarchy uses `Tocando agora` + `Perto de você` as the top composition, followed by `Descubra` with registry-driven single-select category chips.
+- Discovery category chips and type options must be derived only from the centralized public account-profile catalog scope; contacts/friends-only profile types such as `personal` must not appear as public Discovery filters, and legacy public non-`personal` types without the new flag must keep rendering during rollout.
 - Entering search mode hides `Tocando agora`, `Perto de você`, and the `Descubra` heading/chip chrome.
 - While search mode is active with an empty query, the unfiltered base discovery grid remains visible; text filtering begins only after the user types.
 - Discovery-side profile entrypoints continue to launch the canonical public account-profile detail route `/parceiro/:slug`; detail-route behavior is governed separately.
