@@ -1,6 +1,6 @@
 # Documentation: Web-to-App Promotion Policy
 
-**Version:** 1.8
+**Version:** 1.9
 **Date:** May 1, 2026
 **Authors:** Delphi (Belluga Co-Engineering)
 
@@ -46,14 +46,14 @@ Backend deep-link governance is package-owned end-to-end:
   - using web login/auth continuation as anonymous tenant-public hard-gate fallback.
 
 Anonymous web direct-URL allowlist is explicit in V1:
-- public: `/`, `/privacy-policy`, `/descobrir`, `/parceiro/:slug`, `/agenda/evento/:slug`, `/mapa`, `/mapa/poi`, `/invite`, `/invite?code=...`, `/convites`, `/convites?code=...`, `/location/permission`, `/baixe-o-app`;
-- canonical fallback to `/`: blocked non-identity routes such as `/agenda`, malformed/external invite URLs, and legacy `/menu`;
+- public: `/`, `/privacy-policy`, `/descobrir`, `/parceiro/:slug`, `/agenda/evento/:slug`, `/mapa`, `/mapa/poi`, `/invite?code=...`, `/convites?code=...`, `/location/permission`, `/baixe-o-app`;
+- canonical fallback to `/`: blocked non-identity routes such as `/agenda`, invite URLs without `code`, malformed/external invite URLs, and legacy `/menu`;
 - promotion boundary: identity/auth-owned routes such as `/profile`, `/workspace*`, `/convites/compartilhar`, and `/auth/*`.
 
 **Hard-gate rule:** if an unauthenticated user hits a trust/auth gate on web tenant-public surfaces, the result must be a canonical app-promotion route/screen that then hands off through `/open-app`; anonymous web-login continuation is never allowed in V1.
 Handoff target rule:
 - preserve the originally requested route intent across promotion and deferred first-open resolution whenever that intent is valid for app continuation;
-- preserve invite entry (`/invite` or `/convites`) even without attribution and preserve invite attribution when the current context carries a valid `code`;
+- preserve invite attribution when the current context is invite landing (`/invite` or `/convites`) with valid `code`;
 - direct event/detail routes and guard-triggered redirects must preserve the requested redirect path instead of collapsing by default to `/`;
 - canonical tenant home (`/`) remains the fallback only when no valid continuation intent can be resolved.
 - route-gated and action-gated identity boundaries on web must use the same promotion surface; modal-only divergence is not allowed.
@@ -117,7 +117,7 @@ On the web:
 - Canonical web handoff endpoint is `GET /open-app` (backend resolves tenant-dynamic store target + attribution payload).
 - Canonical web promotion boundary route is a Flutter screen that uses runtime tenant/app branding (`Environment.name`, `main_icon_*`) and then calls `/open-app` with an explicit `platform_target=android|ios` override when the user chooses a store.
 - The promotion surface may render a single store CTA when the web browser platform can be inferred as Android or iOS; when platform inference is unavailable or ambiguous, it must render both store badges.
-- Handoff URI resolution is deterministic: preserve invite entry when the current route is invite-landing (`/invite` or `/convites`), preserve `code` attribution when present, preserve redirect-path intent when promotion started from a guarded or directly requested route, and use canonical tenant home (`/`) only when no valid continuation intent is available.
+- Handoff URI resolution is deterministic: preserve invite context when the current route is invite-landing (`/invite` or `/convites`) and `code` exists; preserve redirect-path intent when promotion started from a guarded or directly requested route; use canonical tenant home (`/`) only when no valid continuation intent is available.
 - Store/open handoff targets must be resolved dynamically per tenant (Android + iOS) by backend contract; web/app clients must not hardcode store URLs.
 - When the promotion surface renders multiple store badges, App Store badge ordering and artwork must follow Apple’s published App Store Marketing Guidelines, including use of Apple-provided badge artwork and first position in a multi-badge lineup.
 - Canonical deferred first-open resolver endpoint is `POST /api/v1/deep-links/deferred/resolve` (Android MVP capture contract; iOS returns deterministic `not_captured` in V1).
