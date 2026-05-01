@@ -1,0 +1,48 @@
+{
+  "schema_version": "triple-audit-round-summary-v1",
+  "artifact_kind": "triple_audit_round_summary",
+  "authoritative": false,
+  "session_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/session.json",
+  "round": 4,
+  "merged_at": "2026-05-01T17:06:23+00:00",
+  "round_status": "needs_adjudication",
+  "conflicts": [
+    "recommended_path_conflict: reviewers proposed different recommended paths"
+  ],
+  "lanes": {
+    "elegance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-04/results/elegance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-04/merge/elegance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-04/merge/elegance.merge.md",
+      "overall_assessment": "The round-03 fixes close the specific index-fallback and early occurrence-id query regressions: mixed identified/unidentified occurrence rows no longer bind new rows to existing documents by index, generated slugs avoid claimed/existing slugs, and occurrence-id filters are placed in the initial match or geoNear query. One material identity-safety gap remains: the update path still treats occurrence identities as independent hints rather than enforcing a one-to-one identity map.",
+      "recommended_path": "Do not close as clean until occurrence update payloads reject duplicate occurrence identities and inconsistent occurrence_id/occurrence_slug pairs before normalization/sync. Add validation or a domain guard plus a regression test proving duplicate or mismatched identities fail deterministically instead of aliasing the same occurrence document or colliding with the unique slug index.",
+      "finding_count": 1,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    },
+    "performance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-04/results/performance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-04/merge/performance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-04/merge/performance.merge.md",
+      "overall_assessment": "Clean within the bounded round 04 package. The round 03 performance blocker appears closed: pending occurrence ids are bounded by request validation, carried through the Flutter repository/backend contracts, and folded into the earliest Laravel agenda and stream predicates, including geo via $geoNear.query. I did not find a remaining client/server page-walk path for pending-only EventSearch or another concrete severe runtime risk within scope.",
+      "recommended_path": "Close the performance lane for this round. Keep the occurrence-id request bounds and focused pipeline/controller tests as the release-gate evidence.",
+      "finding_count": 0,
+      "highest_finding_severity": "none",
+      "status": "clean"
+    },
+    "test-quality": {
+      "review_kind": "test_quality_audit",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-04/results/test-quality.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-04/merge/test-quality.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-04/merge/test-quality.merge.md",
+      "overall_assessment": "Not delivery-ready from the test-quality lens. The focused tests are behavior-oriented and no hard bypass markers were found, but two round-03 fix claims are not fully protected: inserted occurrence slug uniqueness is not asserted, and occurrence_ids stream coverage misses the non-geo stream contract branch.",
+      "recommended_path": "Add focused regression assertions before closing the audit gate: assert all occurrence_slug values remain unique after inserting an unidentified occurrence before identified rows, and add no-geo stream occurrence_ids coverage through the pipeline helper and preferably the /events/stream endpoint.",
+      "finding_count": 2,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    }
+  },
+  "exact_next_step": "Prepare a contradiction note, run the follow-up no-context challenge if needed, adjudicate the conflict explicitly, record the resolution with `record-resolution --status resolved`, then open the next round."
+}

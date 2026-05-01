@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-04/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "elegance"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not close as clean until occurrence update payloads reject duplicate occurrence identities and inconsistent occurrence_id/occurrence_slug pairs before normalization/sync. Add validation or a domain guard plus a regression test proving duplicate or mismatched identities fail deterministically instead of aliasing the same occurrence document or colliding with the unique slug index."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-0096D4F9",
+      "severity": "high",
+      "title": "Occurrence identity sync does not enforce one-to-one identity mapping",
+      "rationale": "EventManagementService resolves existing occurrence payloads independently for each incoming row, and EventOccurrenceSyncService resolves each row to an EventOccurrence independently. If an update payload repeats the same occurrence_id or sends an occurrence_id paired with another row's occurrence_slug, multiple logical rows can alias the same stored document or attempt to persist a slug that belongs to a different occurrence. EventWriteRules only checks shape/length and does not require distinct occurrence_id, distinct occurrence_slug, or id/slug pair consistency. This leaves a correctness hole in the newly canonical identity-safe update contract: a malformed or stale client payload can silently collapse rows, overwrite the last aliased row, soft-delete the other occurrence, or trip the unique occurrence_slug index instead of producing a deterministic validation error.",
+      "suggested_action": "Before preserving/syncing occurrence payloads, normalize all supplied occurrence_id/id/occurrence_slug identities into a single identity map, reject duplicate identities, and when both id and slug are present verify they refer to the same stored occurrence for the event. Cover duplicate-id, duplicate-slug, and mismatched id/slug update payloads with Laravel feature tests.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-R04-001"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "event-occurrence-update-identities-unique-and-consistent"
+    }
+  ]
+}

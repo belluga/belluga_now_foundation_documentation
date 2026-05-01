@@ -91,6 +91,8 @@ Events use canonical `location` + `place_ref`; venue projection is resolved from
 - Filter execution rule: taxonomy/category/tag + geo filters are backend-owned; agenda clients do not apply local radius filtering after fetch.
 - Home Agenda UX rule: the selected Home radius is a persisted user/device preference (including anonymous sessions) carried through the app runtime settings path, but this V1 persistence applies only to the Home Agenda surface until schedule/discovery radius consumers are intentionally unified.
 - Home Agenda chrome rule: compact/expanded radius chrome must derive from the same scroll source that moves the rendered agenda list. If an agenda widget controller owns that local chrome state, it remains subtree-private; any shared/persisted radius preference remains repository-owned rather than controller-relayed.
+- Home Agenda status/radius chrome rule: the invite-status action and radius action are mutually exclusive in their expanded visual state. The status action is compact by default, expands as `Convites` for received/pending invitation filtering, and expands as `Confirmados` for occurrences where the user confirmed attendance regardless of invite origin.
+- Event card rendering rule: compact agenda event cards compress multiple linked Account Profiles as first profile plus `e mais X`, reserve a stable trailing action slot, and render explicit time ranges as `start às end`.
 
 **Response**
 ```json
