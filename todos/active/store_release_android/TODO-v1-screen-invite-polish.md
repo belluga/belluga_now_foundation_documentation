@@ -38,6 +38,7 @@
 - `D-05`: Loading/error/result feedback remains explicit and behavior-compatible with current controller flow.
 - `D-06`: Theme-driven colors only.
 - `D-07`: Controller-first architecture remains mandatory.
+- `D-08`: Invite decision controls (`accept`, `decline`, swipe affordance, and auth-required CTA) move to a page-bottom footer outside the hero card; the hero card retains invite context plus a single `Ver detalhes` action.
 
 ## Tasks
 - [ ] ⚪ Freeze the small visual adjustment list before implementation.

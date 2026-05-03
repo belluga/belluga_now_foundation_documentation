@@ -2,7 +2,7 @@
 
 **Derived artifact:** no authoritative product truth. Use the TODO and module docs as canonical after review.
 
-**TODO:** `foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md`
+**TODO:** `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-funnel-metrics-validation.md`
 
 **Gate under review:** local implementation candidate for Android store-release funnel metrics validation. This packet does not claim final production closure because ADB/device execution and external telemetry sink/query readback are intentionally deferred to the final consolidated runtime phase.
 
@@ -12,7 +12,7 @@ Evaluate whether the local T4 candidate correctly freezes and validates the rele
 
 - web-to-app invite promotion,
 - Android deferred capture,
-- anonymous invite acceptance,
+- invite acceptance request + authenticated acceptance terminal,
 - auth wall + signup progression,
 - phone OTP challenge/verification/merge,
 - first social action through favorite toggle.
@@ -32,15 +32,16 @@ Reviewers should classify findings as:
 - `lib/presentation/shared/init/screens/init_screen/controllers/init_screen_controller.dart`
   - Adds the same `store_channel` fallback on the init-screen deferred path.
 - `lib/presentation/tenant_public/invites/screens/invite_flow_screen/controllers/invite_flow_controller.dart`
-  - Preserves `_activeShareCode` from `init(shareCode:)`.
   - Emits `code` on `web_invite_landing_opened` when a web share code is present.
-  - Uses `_extractShareCode(inviteId) ?? _activeShareCode` for `app_anonymous_invite_accepted`.
+  - Seeds canonical share-code session context on authenticated share entry.
+  - Emits `app_invite_acceptance_requested` before the auth/mutation boundary, with `auth_state` and share `code` when present.
+  - Uses the canonical share-code accept endpoint for share-entry acceptance so the backend terminal event can retain `code`.
 - `test/application/telemetry/web_promotion_telemetry_test.dart`
   - Verifies `web_open_app_clicked` and `web_install_clicked` properties.
 - `test/presentation/shared/init/screens/init_screen/controllers/init_screen_controller_test.dart`
   - Verifies deferred capture/failure `store_channel` properties, including fallback.
 - `test/presentation/tenant/invites/screens/invite_flow_screen/controllers/invite_flow_controller_test.dart`
-  - Verifies anonymous invite acceptance preserves share `code` and `event_id`.
+  - Verifies invite-acceptance request telemetry preserves share `code`, `event_id`, and `auth_state`, and that share-entry acceptance uses the code-based backend path.
 
 ### Laravel app
 
@@ -53,15 +54,22 @@ Reviewers should classify findings as:
 - `tests/Feature/Auth/TenantPhoneOtpTelemetryTest.php`
   - Verifies queued telemetry envelopes for `otp_challenge_started`, `otp_verified`, and `auth_merge_completed`.
 
+- `packages/belluga/belluga_invites/src/Application/Mutations/InviteMutationService.php`
+  - Enriches canonical `invite.accepted` telemetry with `event_id`, `occurrence_id`, `source=invite_flow`, `invite_source`, and share `code` when the acceptance path originated from a share code.
+- `packages/belluga/belluga_invites/src/Application/Mutations/InviteShareService.php`
+  - Propagates the share code into the terminal acceptance mutation so the backend event keeps the funnel join key.
+- `tests/Feature/Invites/InvitesFlowTest.php`
+  - Verifies `invite.accepted` queue envelopes keep the share `code` plus `event_id` / `occurrence_id` on authenticated share acceptance.
+
 ### Foundation docs
 
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
-  - Promotes web-to-app/deferred/anonymous/favorite release funnel event-property baseline.
+  - Promotes web-to-app/deferred/invite/favorite release funnel event-property baseline.
 - `foundation_documentation/modules/onboarding_flow_module.md`
   - Promotes auth wall/signup/OTP/merge telemetry baseline.
 - `foundation_documentation/modules/flutter_client_experience_module.md`
   - Promotes client rule for `store_channel=web` and Android deferred `store_channel` fallback.
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-funnel-metrics-validation.md`
   - Adds local candidate notes, frozen matrix, completion evidence, and deferred final-runtime status.
 
 ## Event Matrix
@@ -73,7 +81,8 @@ Reviewers should classify findings as:
 | `web_install_clicked` | `store_channel=web`, `platform_target` | `test/application/telemetry/web_promotion_telemetry_test.dart` |
 | `app_deferred_deep_link_captured` | `code`, `platform=android`, `store_channel` | Init/deferred repository tests |
 | `app_deferred_deep_link_capture_failed` | `platform=android`, `failure_reason`, `store_channel` | Init/deferred repository tests |
-| `app_anonymous_invite_accepted` | `event_id`, `source=invite_flow`, `code` when share-code entry exists | Invite flow controller test |
+| `app_invite_acceptance_requested` | `occurrence_id`, `event_id`, `source=invite_flow`, `auth_state`, `code` when share-code entry exists | Invite flow controller test |
+| `app_invite_accepted` | backend-equivalent `invite.accepted` with `occurrence_id`, `event_id`, `source=invite_flow`, `invite_source`, `code` when share-code entry exists | Invite share acceptance feature test |
 | `app_auth_wall_triggered` | auth-wall action/redirect context where available | Auth route guard test |
 | `app_signup_completed` | `source`, auth-wall context where applicable | Auth login effects test |
 | `otp_challenge_started` | `challenge_id`, `delivery_channel`, pre-auth actor, no empty `user_id` metadata | Laravel telemetry feature test |
@@ -88,10 +97,10 @@ Reviewers should classify findings as:
 Command:
 
 ```bash
-./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Auth/TenantPhoneOtpTelemetryTest.php tests/Feature/Auth/TenantPhoneOtpAuthTest.php tests/Unit/Application/Auth/PhoneOtpWebhookDeliveryServiceTest.php tests/Unit/Queue/TenantAwareQueueJobsTest.php
+./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Auth/TenantPhoneOtpTelemetryTest.php tests/Feature/Invites/InvitesFlowTest.php --filter='test_phone_otp_.*|test_share_accept_emits_invite_accepted_with_funnel_join_keys'
 ```
 
-Result: passed, 10 tests / 52 assertions.
+Result: passed, 3 tests / 15 assertions.
 
 Command:
 
@@ -109,7 +118,7 @@ Command:
 fvm flutter test test/application/telemetry/web_promotion_telemetry_test.dart test/infrastructure/repositories/deferred_link_repository_test.dart test/presentation/shared/init/screens/init_screen/controllers/init_screen_controller_test.dart test/presentation/tenant/invites/screens/invite_flow_screen/controllers/invite_flow_controller_test.dart test/application/router/guards/auth_route_guard_test.dart test/presentation/common/auth/screens/auth_login_screen/auth_login_effects_test.dart test/infrastructure/repositories/account_profiles_repository_test.dart
 ```
 
-Result: passed, 36 tests.
+Result: passed, 42 tests.
 
 Command:
 

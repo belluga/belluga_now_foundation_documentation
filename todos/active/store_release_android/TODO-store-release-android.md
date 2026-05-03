@@ -26,7 +26,7 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 ## References
 - `foundation_documentation/todos/completed/TODO-store-release-landlord-tenant-auth-method-governance.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-funnel-metrics-validation.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-home-favorites-refresh-regression.md`
@@ -46,6 +46,7 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 ## Post Release Hardening Deferrals
 - `foundation_documentation/todos/active/post_release_hardening/TODO-store-release-event-artists-eradication.md`
 - `foundation_documentation/todos/active/post_release_hardening/TODO-store-release-belluga-media-canonical-image-flow-hardening.md`
+- `foundation_documentation/todos/active/post_release_hardening/TODO-post-release-funnel-metrics-sink-readback-and-runtime-verification.md`
 - `foundation_documentation/todos/active/post_release_hardening/TODO-store-release-media-host-agnostic-public-urls-and-tenant-cors-cache.md`
 - `foundation_documentation/todos/active/post_release_hardening/TODO-store-release-proximity-preferences-and-location-origin.md`
 - `foundation_documentation/todos/active/post_release_hardening/TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md`

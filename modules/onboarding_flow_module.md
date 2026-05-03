@@ -22,7 +22,7 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
   - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
   - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
   - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
-  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md`
+  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-funnel-metrics-validation.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-onboarding-identity-reconciliation-reflection.md`
 
 ## 2. Entry Paths
@@ -140,5 +140,5 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 | `TODO-store-release-android.md` | Android release orchestration authority | In progress | `1.1`, `5`, `7` | Replaces the former MVP release orchestrator as the active sequencing authority. |
 | `TODO-store-release-phone-otp-auth-and-contact-match.md` | Phone-OTP upgrade and identity baseline | In progress | `2`, `3`, `4`, `6`, `7` | Freezes the authenticated upgrade path that onboarding must hand off into, including the immediate post-auth hydration handoff for registered user-linked repositories. |
 | `TODO-store-release-minimal-friends-and-favorites-mvp.md` | Minimal user-level friends/favorites release contract | In progress | `2`, `4` | Owns the release-facing friend preview/social-proof contract referenced by onboarding. |
-| `TODO-store-release-funnel-metrics-validation.md` | Release funnel metrics validation | In progress | `3`, `7` | Freezes identity funnel event/property evidence for auth wall, signup, OTP challenge, OTP verification, and anonymous merge. |
+| `TODO-store-release-funnel-metrics-validation.md` | Release funnel metrics validation | Promotion lane candidate | `3`, `7` | Freezes identity funnel event/property evidence for auth wall, signup, OTP challenge, OTP verification, and anonymous merge; post-release sink/readback hardening moved to the dedicated post-release TODO. |
 | `TODO-vnext-onboarding-identity-reconciliation-reflection.md` | Late identity-materialization reconciliation + advisory reflection surfaces | Pending follow-up | `3`, `4`, `6`, `7` | Owns post-onboarding reflection (`Talvez você conheça`, informational lifecycle hints) after canonical identity materialization. |

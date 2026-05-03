@@ -1,6 +1,6 @@
 # TODO (Store Release): Web-to-App Conversion Gate
 
-**Scope authority note (2026-04-17):** canonical policy definition now lives in `foundation_documentation/policies/web_to_app_promotion_policy.md` plus the promoted module contracts. This TODO no longer owns baseline policy authoring; it owns the remaining Android-release closure gates for that policy: replace the current pre-MVP guard experience with real app promotion, preserve redirect intent through promotion/deferred flow, and run real-device store/deferred validation. Cross-flow funnel-metrics validation is tracked in `TODO-store-release-funnel-metrics-validation.md`, but any missing event implementation remains owned by the concrete flow TODO that needs it.
+**Scope authority note (2026-04-17):** canonical policy definition now lives in `foundation_documentation/policies/web_to_app_promotion_policy.md` plus the promoted module contracts. This TODO no longer owns baseline policy authoring; it owns the remaining Android-release closure gates for that policy: replace the current pre-MVP guard experience with real app promotion, preserve redirect intent through promotion/deferred flow, and run real-device store/deferred validation. Cross-flow funnel-metrics delivery is tracked in `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-funnel-metrics-validation.md`, while post-publication sink/readback hardening is tracked in `foundation_documentation/todos/active/post_release_hardening/TODO-post-release-funnel-metrics-sink-readback-and-runtime-verification.md`. Any missing event implementation remains owned by the concrete flow TODO that needs it.
 
 **Contract correction note (2026-04-30):** canonical policy `1.7` supersedes this TODO's older "anonymous accept" wording. The boundary is **web anonymous**, not web globally; QR-authenticated web follows the normal authenticated posture. App anonymous invite preview/session context remains allowed, but explicit invite accept/decline is a trust mutation requiring authenticated identity. Historical evidence rows that mention anonymous share acceptance must be interpreted as superseded unless revalidated against the current `401 auth_required` anonymous-accept contract.
 
@@ -66,7 +66,8 @@
 - `foundation_documentation/modules/flutter_client_experience_module.md`
 - `foundation_documentation/endpoints_mvp_contracts.md`
 - `foundation_documentation/todos/completed/TODO-v1-first-release.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-funnel-metrics-validation.md`
+- `foundation_documentation/todos/active/post_release_hardening/TODO-post-release-funnel-metrics-sink-readback-and-runtime-verification.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-qr-login-web-auth.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md` (deferred authenticated workspace scopes)
@@ -182,7 +183,7 @@ Rationale: maximize top-of-funnel invite conversion with lowest entry friction w
 - [ ] ⚪ Landing
 - [ ] ⚪ App Install
 - [ ] ⚪ Deferred Deep Link Captured
-- [ ] 🟡 Anonymous Accept (Swipe)
+- [ ] 🟡 Invite Accept Requested
 - [ ] 🟡 Auth Wall Triggered
 - [ ] 🟡 Signup Completed
 
@@ -192,15 +193,16 @@ Rationale: maximize top-of-funnel invite conversion with lowest entry friction w
 - [x] ✅ `web_install_clicked` (properties: `store_channel`, `platform_target=android|ios`)
 - [x] ✅ `app_deferred_deep_link_captured` (properties: `code`, `tenant_id`, `event_id?`, `platform=android` in V1; `ios` when fast-follow deferred capture is enabled)
 - [x] ✅ `app_deferred_deep_link_capture_failed` (properties: `failure_reason`, `store_channel?`, `platform=android` in V1; `ios` when fast-follow deferred capture is enabled)
-- [x] ✅ `app_anonymous_invite_accepted` (properties: `code`, `event_id`, `inviter_kind`, `inviter_id`)
+- [x] ✅ `app_invite_acceptance_requested` (properties: `code` when available, `event_id`, `occurrence_id`, `source=invite_flow`, `auth_state`)
+- [x] ✅ `app_invite_accepted` or backend-equivalent `invite.accepted` (properties: `code` when available, `event_id`, `occurrence_id`, `source=invite_flow`)
 - [x] ✅ `app_auth_wall_triggered` (properties include the restricted `action_type` that required auth; physical check-in interception tracking is VNext)
 - [x] ✅ `app_signup_completed` (properties: `source=auth_wall|direct`)
 
 ### D3) KPI set
 - [ ] ⚪ Landing -> Install rate
 - [ ] ⚪ Install -> Deferred Deep Link Captured rate
-- [ ] ⚪ Deferred Deep Link Captured -> Anonymous Accept rate
-- [ ] ⚪ Anonymous Accept -> Auth Wall Triggered rate
+- [ ] ⚪ Deferred Deep Link Captured -> Invite Accept Requested rate
+- [ ] ⚪ Invite Accept Requested -> Auth Wall Triggered rate
 - [ ] ⚪ Auth Wall Triggered -> Signup Completed rate
 
 ---
@@ -230,7 +232,7 @@ Rationale: maximize top-of-funnel invite conversion with lowest entry friction w
 - [ ] ⚪ Anonymous favorites are exercisable without forced login and reflect correctly in favorites read surfaces for the current anonymous identity.
 - [x] ✅ Auth Wall is triggered for the implemented restricted actions; favorites are not treated as blanket auth-gated by this contract and physical check-in remains VNext.
 - [x] ✅ Identity merge path at registration preserves invite ownership artifacts (`InviteEdge`, `InviteFeedProjection`, `InviteOutboxEvent`) through merge.
-- [ ] 🟡 Tracking events are emitted in app/web runtime, but the release funnel-metrics proof remains open in `TODO-store-release-funnel-metrics-validation.md`.
+- [x] ✅ Tracking events are emitted in app/web runtime and the pre-publication funnel-metrics contract is frozen in `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-funnel-metrics-validation.md`; published sink/readback hardening remains open only in `foundation_documentation/todos/active/post_release_hardening/TODO-post-release-funnel-metrics-sink-readback-and-runtime-verification.md`.
 
 ---
 
@@ -238,13 +240,13 @@ Rationale: maximize top-of-funnel invite conversion with lowest entry friction w
 
 - [ ] 🟡 Web manual: invite landing renders read-only + the release-approved app-promotion experience with `code` propagation (browser run confirms read-only + CTA copy; active release experience + store/open destination still need final real-device validation).
 - [ ] 🟡 Web manual: tenant-public hard-gate attempts (`favorite`, `send_invite`, invite accept, attendance boundary) never open web login; on Android web they attempt installed-app handoff first and use promotion Guard only as fallback (browser run confirms no `/auth/login` fallback and no web mutation writes, with deterministic handoff routing behavior still pending final real-device store validation).
-- [ ] ⚪ App manual: install via invite link -> first open -> invite card -> anonymous accept -> navigate feed/map/favorites -> restricted action triggers auth wall.
+- [ ] ⚪ App manual: install via invite link -> first open -> invite card -> invite accept request -> navigate feed/map/favorites -> restricted action triggers auth wall.
 - [ ] ⚪ App manual: anonymous user can favorite/unfavorite from discovery, account-profile detail, and immersive linked-profile surfaces without forced login, and favorites read surfaces reflect the same anonymous identity state.
 - [ ] ⚪ App/manual web-to-app redirect validation: direct event/detail route or guarded route on web -> promotion -> install/open -> intended route is restored in app (with native auth continuation when the target requires it).
 - [x] ✅ Backend automated: anonymous accept path, idempotent replay, anti-spam/rate-limit, and merge ownership preservation are covered.
 - [x] ✅ Flutter automated: auth wall interception, invite flow behavior, deferred-link capture (backend resolver contract), and deterministic route override/fallback guards are covered.
 - [ ] ⚪ Flutter automated: anonymous favorite toggle/readback coverage for discovery, account-profile detail, and immersive linked-profile entrypoints.
-- [ ] ⚪ Data validation: event stream integrity for inverted funnel and deduplication checks, coordinated through `TODO-store-release-funnel-metrics-validation.md`.
+- [ ] ⚪ Data validation: published sink/event-stream integrity and deduplication checks, coordinated through `foundation_documentation/todos/active/post_release_hardening/TODO-post-release-funnel-metrics-sink-readback-and-runtime-verification.md`.
 
 ### G3) Manual QA Update (2026-04-30)
 
@@ -303,10 +305,10 @@ Rationale: maximize top-of-funnel invite conversion with lowest entry friction w
    - Exit criteria: manual/device validation can prove route restoration beyond `/invite?code=...`.
 3. **Run H6 manual install/deferred matrix (Android MVP).**
    - Required: real device/browser where external store launch + first-open attribution can be asserted.
-   - Exit criteria: invite link or guarded/detail-route promotion -> install/open -> deferred capture -> intended target -> anonymous accept/continuation -> restricted action -> auth wall.
+   - Exit criteria: invite link or guarded/detail-route promotion -> install/open -> deferred capture -> intended target -> invite accept request/continuation -> restricted action -> auth wall.
 4. **Finalize the sibling telemetry matrix/KPI validation lane on top of H6 evidence.**
    - Required: telemetry sink/query access for funnel verification.
-   - Exit criteria: end-to-end event integrity + dedupe checks for `web_open_app_clicked`, `web_install_clicked`, deferred capture events, anonymous accept, auth wall, signup.
+   - Exit criteria: end-to-end event integrity + dedupe checks for `web_open_app_clicked`, `web_install_clicked`, deferred capture events, invite accept request, terminal invite acceptance, auth wall, signup.
 5. **Perform final DoD sweep (Section F) only after steps 1-4.**
    - Rule: no checkbox in F is closed without linked evidence in G1/G2.
 
@@ -340,9 +342,9 @@ Rationale: maximize top-of-funnel invite conversion with lowest entry friction w
 - [x] ✅ Publish source/runtime evidence and generated artifact scan note.
 
 ### H5) Phase 4 — Data/Telemetry + KPI Funnel (Tracked In Sibling TODO)
-- [x] ✅ Emit required events end-to-end in runtime instrumentation: `web_invite_landing_opened`, `web_open_app_clicked`, `web_install_clicked`, `app_deferred_deep_link_captured`, `app_deferred_deep_link_capture_failed`, `app_anonymous_invite_accepted`, `app_auth_wall_triggered`, `app_signup_completed`.
+- [x] ✅ Emit required events end-to-end in runtime instrumentation: `web_invite_landing_opened`, `web_open_app_clicked`, `web_install_clicked`, `app_deferred_deep_link_captured`, `app_deferred_deep_link_capture_failed`, `app_invite_acceptance_requested`, backend terminal invite acceptance (`app_invite_accepted` or `invite.accepted`), `app_auth_wall_triggered`, `app_signup_completed`.
 - [x] ✅ Add deduplication/idempotency strategy for funnel events (accept/auth wall/signup).
-- [ ] ⚪ Validate KPI pipeline stages: Landing -> Install -> Deferred Capture -> Anonymous Accept -> Auth Wall -> Signup via `TODO-store-release-funnel-metrics-validation.md`.
+- [ ] ⚪ Validate KPI pipeline stages: Landing -> Install -> Deferred Capture -> Invite Accept Requested -> Auth Wall -> Signup via `foundation_documentation/todos/active/post_release_hardening/TODO-post-release-funnel-metrics-sink-readback-and-runtime-verification.md`.
 
 ### H6) Phase 5 — Final Validation and DoD Closure
 - [ ] ⚪ Run manual validation matrix (Web/App first-open/install/deep-link/auth-wall flow).

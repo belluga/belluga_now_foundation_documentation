@@ -26,7 +26,7 @@ The Invite & Social Loop module (MOD-302) governs the tenant app virality engine
   - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
   - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
   - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-invites-occurrence-target-migration.md`
-  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md`
+  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-funnel-metrics-validation.md`
 
 ### 1.2 Route/Subscope Matrix
 
@@ -469,7 +469,7 @@ This preserves low-friction viral conversion while keeping trust boundaries expl
 | `app_deferred_deep_link_captured` | `target_path`, `platform=android`, `store_channel` (`unknown` when native resolver does not provide it), plus `code` only for invite captures | Android first-open deferred capture |
 | `app_deferred_deep_link_capture_failed` | `platform=android`, `failure_reason`, `store_channel` (`unknown` fallback) | Android first-open deferred capture |
 | `app_invite_acceptance_requested` | `occurrence_id`, optional derived `event_id`, `code` when the app entered via share code, `source=invite_flow`, `auth_state` | App invite decision before boundary resolution |
-| `app_invite_accepted` | `occurrence_id`, optional derived `event_id`, `code` when the app entered via share code, `source=invite_flow` | App authenticated invite acceptance |
+| `app_invite_accepted` | `occurrence_id`, optional derived `event_id`, `code` when the app entered via share code, `source=invite_flow`; backend-equivalent `invite.accepted` may also carry `invite_source` for sink readback | Authenticated invite acceptance terminal, preferably emitted by the backend mutation owner |
 | `favorite_artist_toggled` | `account_profile_id`, `is_favorite` | App first social-loop action |
 
 ### 4.4.A Runtime Assurance Baseline
@@ -602,5 +602,5 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 | `TODO-vnext-onboarding-identity-reconciliation-reflection.md` | Late identity-materialization reconciliation + advisory reflection surfaces | Pending follow-up | `2.4`, `4.1`, `4.5` | Owns post-onboarding reconciliation timing plus `Talvez você conheça` / informational lifecycle hints. |
 | `TODO-store-release-minimal-friends-and-favorites-mvp.md` | Store-release contacts/favorites/friends core | In progress | `2.5`, `3.3`, `4.5` | Promotes contact-match, reciprocal-friend, and viewer-scoped exposure behavior into the release lane without requiring full package convergence first. |
 | `TODO-store-release-invites-occurrence-target-migration.md` | Store-release occurrence-scoped invite and participation cutover plus share-code session-context addendum | Reopened addendum | `2.1`, `2.4`, `3.1`, `4.5`, `7` | Owns occurrence target identity and the Store Release app-session share-code context before explicit acceptance. |
-| `TODO-store-release-funnel-metrics-validation.md` | Store-release funnel metrics validation | In progress | `4.4` | Freezes release-facing event/property proof for web-to-app conversion, deferred capture, authenticated invite acceptance, and first favorite actions. |
+| `TODO-store-release-funnel-metrics-validation.md` | Store-release funnel metrics validation | Promotion lane candidate | `4.4` | Freezes release-facing event/property proof for web-to-app conversion, deferred capture, authenticated invite acceptance, and first favorite actions; post-release sink/readback verification moved to the dedicated hardening TODO. |
 | `TODO-vnext-referral-result-attribution.md` | Future lineage-based downstream result attribution | In progress | `2.5`, `4.5` | Defines Mongo-safe activity-fact and projection strategy for 1st/2nd-level invite-tree results. |

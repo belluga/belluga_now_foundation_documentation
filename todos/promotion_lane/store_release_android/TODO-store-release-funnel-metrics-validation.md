@@ -2,12 +2,14 @@
 
 **Classification note (2026-04-18):** this lane is release-critical because Android publication cannot rely on conversion, identity, and first social-loop behavior that is only assumed but not proven in release metrics evidence.
 
-**Scope authority note (2026-04-18):** this TODO owns the store-release validation slice for cross-flow funnel metrics and sink/query integrity. It does not own event implementation. If validation finds a missing event or missing properties, the fix belongs to the concrete flow TODO that owns that behavior and can use the existing tracker service.
+**Scope authority note (2026-04-18; split refreshed 2026-05-03):** this TODO now owns the delivered store-release validation slice that is actually closable before publication: frozen funnel event/property matrix, local runtime/property evidence, and KPI join-key interpretation. It does not own event implementation. If validation finds a missing event or missing properties, the fix belongs to the concrete flow TODO that owns that behavior and can use the existing tracker service.
 
 **Contract correction note (2026-04-30):** `web_to_app_promotion_policy.md` `1.7` supersedes older funnel wording that referenced anonymous invite acceptance. The release funnel now treats invite preview/session context as anonymous-capable, while explicit invite acceptance is authenticated. Metrics proof should validate `app_invite_acceptance_requested` / `app_invite_accepted` (or the implementation-equivalent event names if the current tracker has not yet been renamed), not rely on anonymous accept as a canonical terminal event.
 
+**Post-release split note (2026-05-03):** the remaining items that cannot be credibly closed before publication were split out of this release TODO into `foundation_documentation/todos/active/post_release_hardening/TODO-post-release-funnel-metrics-sink-readback-and-runtime-verification.md`. That follow-up now owns published-build runtime replay, Mixpanel sink/readback closure, and production-like KPI verification.
+
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.
-**Status:** Active. Core telemetry runtime is already live, but store release still needs explicit funnel-metrics proof and sink/query evidence for the release-critical acquisition and identity funnel.
+**Status:** Promotion-lane candidate on `2026-05-03`. The pre-publication T4 subset is execution-validated: the funnel matrix is frozen, missing event/property gaps were repaired, and local Flutter/Laravel proof is green. The only remaining closure items are post-publication sink/runtime hardening and now live in the dedicated post-release TODO.
 **Owners:** Flutter Team, Laravel Team, Data Team
 **Goal:** validate the release-critical funnel metrics end to end so Android publication has trustworthy evidence for web-to-app promotion, deferred continuation, identity progression, and first social-loop actions.
 
@@ -37,20 +39,22 @@ This lane exists to freeze and validate that evidence without reopening settled 
 
 ## Contract Boundary
 
-- This TODO owns release-level funnel metrics validation only.
-- It includes release-facing event/readback proof, required-property proof, sink/query proof, and release-readiness interpretation for the tracked funnel.
+- This TODO owns the release-level funnel metrics subset that is legitimately closable before publication.
+- It includes release-facing event/property proof, local validation evidence, and KPI join-key/readiness interpretation for the tracked funnel.
+- Published-build runtime replay and external sink/query closure are owned by the split post-release hardening TODO.
 - It does not own adding or wiring events in product flows; missing instrumentation must be fixed in the TODO that owns the corresponding flow.
 - It does **not** own new product analytics strategy, provider replacement, or long-term telemetry architecture redesign.
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Local-Implemented`
-- **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Metrics-Evidence`
-- **Next exact step:** carry the explicit final-phase obligations into the consolidated runtime lane: ADB/device execution, web runtime/Playwright proof, and external telemetry sink/query readback.
+- **Current delivery stage:** `Execution-Validated`
+- **Qualifiers:** `Cross-Stack`, `Release-Critical`, `Metrics-Evidence`, `Promotion-Lane-Candidate`, `Post-Release-Split-2026-05-03`
+- **Next exact step:** promotion-lane follow-through only for the delivered pre-publication contract; published-build sink/readback hardening continues in the split post-release TODO.
 
 ## References
 
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+- `foundation_documentation/todos/active/post_release_hardening/TODO-post-release-funnel-metrics-sink-readback-and-runtime-verification.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
@@ -102,7 +106,7 @@ This lane exists to freeze and validate that evidence without reopening settled 
   - `otp_verified`
   - `auth_merge_completed`
   - `favorite_artist_toggled`
-- [x] Validate that the sink/query surface can support the release KPI set:
+- [x] Freeze the KPI join-key/readback interpretation needed for the release KPI set:
   - landing -> open/install
   - open/install -> deferred capture
   - deferred capture -> invite acceptance requested
@@ -127,7 +131,7 @@ This lane exists to freeze and validate that evidence without reopening settled 
 - [x] `DEP-01` `TODO-store-release-web-to-app-conversion-gate.md` remains the owner of promotion/deferred-flow product behavior and any missing event implementation for that flow; this TODO only validates the proof.
 - [x] `DEP-02` `TODO-store-release-phone-otp-auth-and-contact-match.md` remains the owner of OTP/identity behavior and any missing event implementation for those milestones; this TODO only validates the proof.
 - [x] `DEP-03` `TODO-store-release-minimal-friends-and-favorites-mvp.md` remains the owner of first social-loop behavior and any missing event implementation for that milestone; this TODO only validates the proof.
-- [x] `DEP-04` Query/sink access needed for KPI readback must be available before this TODO can close.
+- [x] `DEP-04` Query/sink access needed for published-build KPI readback was split to `foundation_documentation/todos/active/post_release_hardening/TODO-post-release-funnel-metrics-sink-readback-and-runtime-verification.md`; it is no longer a blocker for this promotion-lane artifact.
 
 ## Execution Tracks
 
@@ -194,11 +198,22 @@ This lane exists to freeze and validate that evidence without reopening settled 
 **Code changes made in owning surfaces discovered by this validation lane:**
 
 - Flutter deferred capture telemetry now always includes `store_channel`, using `unknown` when the Android/native resolver does not provide a concrete store channel.
-- Flutter invite acceptance telemetry must preserve the active share `code` even when the preview/materialized invite id no longer carries the `share:` prefix. If the runtime sink still emits the legacy implementation name `app_anonymous_invite_accepted`, treat it only as a temporary equivalent for this readback pass and flag the canonical rename to `app_invite_acceptance_requested` / `app_invite_accepted`.
+- Flutter invite telemetry now splits intent from persistence: `app_invite_acceptance_requested` is emitted in the app before the auth/mutation boundary, and share-entry acceptance uses the canonical share-code endpoint so the backend terminal event can retain `code`.
 - Flutter web invite landing telemetry now emits `code` when a share code is present, in addition to `has_code` and `store_channel=web`.
 - Laravel telemetry envelopes now support pre-auth events through an explicit actor instead of dropping events when `userId` is null.
 - Laravel OTP challenge telemetry now emits `otp_challenge_started` with actor `{type: phone_otp_challenge, id: challenge_id}`, `delivery_channel`, and phone-hash target context.
 - Laravel OTP verification telemetry has direct queue-envelope evidence for both `otp_verified` and `auth_merge_completed`.
+- Laravel canonical `invite.accepted` telemetry now carries funnel join keys for authenticated share acceptance: `event_id`, `occurrence_id`, `source=invite_flow`, `invite_source`, and `code` when share-code entry is the acceptance path.
+
+### External Sink Snapshot (2026-05-03)
+
+Mixpanel screenshot evidence confirms that the sink is live, but it does not close the funnel:
+
+- **Observed in sink from the screenshot:** `app_auth_wall_triggered`, `favorite_artist_toggled`.
+- **Observed but non-closing generic/runtime events:** `App Session`, `First App Open`, `app_init`, `app_lifecycle`, `screen_view`, `section_viewed`, `invite_opened`, `agenda_radius_changed`, `map_catalog_filter_applied`, `map_filter_cleared`, `map_location_resolved`, `poi_opened`.
+- **Not observed in this readback snapshot:** `web_invite_landing_opened`, `web_open_app_clicked`, `web_install_clicked`, `app_deferred_deep_link_captured`, `app_deferred_deep_link_capture_failed`, `app_invite_acceptance_requested`, terminal authenticated invite acceptance (`app_invite_accepted` or backend-equivalent `invite.accepted`), `app_signup_completed`, `otp_challenge_started`, `otp_verified`, `auth_merge_completed`.
+
+This screenshot is therefore valid only as **partial sink liveness evidence** plus confirmation that at least part of the restricted-action/social loop surface is arriving in Mixpanel.
 
 ### Frozen Android Release Funnel Metrics Matrix
 
@@ -209,8 +224,8 @@ This lane exists to freeze and validate that evidence without reopening settled 
 | `web_install_clicked` | Flutter web promotion telemetry | `store_channel=web`, `platform_target` | `test/application/telemetry/web_promotion_telemetry_test.dart` | Covered |
 | `app_deferred_deep_link_captured` | Flutter startup/init deferred-link path | `code`, `platform=android`, `store_channel` | `test/presentation/shared/init/screens/init_screen/controllers/init_screen_controller_test.dart`; `test/infrastructure/repositories/deferred_link_repository_test.dart` | Covered |
 | `app_deferred_deep_link_capture_failed` | Flutter startup/init deferred-link path | `platform=android`, `failure_reason`, `store_channel` | `test/presentation/shared/init/screens/init_screen/controllers/init_screen_controller_test.dart`; `test/infrastructure/repositories/deferred_link_repository_test.dart` | Covered |
-| `app_invite_acceptance_requested` | Flutter invite flow controller | `occurrence_id`, optional derived `event_id`, `code` when share-code entry exists, `source=invite_flow`, `auth_state` | `test/presentation/tenant/invites/screens/invite_flow_screen/controllers/invite_flow_controller_test.dart`; runtime sink may still expose legacy equivalent `app_anonymous_invite_accepted` until tracker rename | Covered as contract/runtime-equivalence; sink readback must flag legacy naming if observed |
-| `app_invite_accepted` | Flutter invite flow controller / authenticated invite continuation | `occurrence_id`, optional derived `event_id`, `code` when share-code entry exists, `source=invite_flow`, authenticated identity context | `test/presentation/tenant/invites/screens/invite_flow_screen/controllers/invite_flow_controller_test.dart`; authenticated share-accept backend contract evidence | Covered as contract/runtime-equivalence; sink readback must prove authenticated acceptance rather than anonymous mutation |
+| `app_invite_acceptance_requested` | Flutter invite flow controller | `occurrence_id`, optional derived `event_id`, `code` when share-code entry exists, `source=invite_flow`, `auth_state` | `test/presentation/tenant/invites/screens/invite_flow_screen/controllers/invite_flow_controller_test.dart` | Covered |
+| `app_invite_accepted` | Laravel authenticated invite acceptance terminal (`invite.accepted` implementation-equivalent) | `occurrence_id`, optional derived `event_id`, `code` when share-code entry exists, `source=invite_flow`; also `invite_source` when the backend canonical event is used | `tests/Feature/Invites/InvitesFlowTest.php`; authenticated share-accept backend contract evidence | Covered as backend implementation-equivalent; sink readback must confirm terminal acceptance event name in Mixpanel |
 | `app_auth_wall_triggered` | Flutter auth route guard / auth wall telemetry | `action_type`, `redirect_path` where available | `test/application/router/guards/auth_route_guard_test.dart` | Covered |
 | `app_signup_completed` | Flutter auth login effects / auth wall telemetry | `source`, plus auth-wall context when present | `test/presentation/common/auth/screens/auth_login_screen/auth_login_effects_test.dart` | Covered |
 | `otp_challenge_started` | Laravel `PhoneOtpAuthController::challenge` + `TelemetryEmitter` | `challenge_id`, `delivery_channel`, pre-auth actor, no empty `user_id` metadata | `tests/Feature/Auth/TenantPhoneOtpTelemetryTest.php` | Covered |
@@ -223,16 +238,16 @@ This lane exists to freeze and validate that evidence without reopening settled 
 | Criterion ID | Source Section | Criterion | Evidence Type | Evidence Artifact / Command | Runtime Target | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `T4-MATRIX` | Local Gate | Freeze explicit Android-release funnel metrics matrix | Documentation | Matrix in this TODO plus promoted module docs | Foundation docs | passed | Promoted into `invite_and_social_loop_module.md`, `onboarding_flow_module.md`, and `flutter_client_experience_module.md`. |
-| `T4-EVENTS` | Local Gate | Validate release-critical event/property coverage | Automated tests | Flutter target suite listed in `T4-funnel-metrics-review-packet.md` | Local Flutter VM/widget/controller | passed | 36 tests passed. |
-| `T4-OTP` | Local Gate | Validate OTP telemetry queue dispatch and pre-auth envelope semantics | Automated tests | Laravel safe runner listed in `T4-funnel-metrics-review-packet.md` | Local Laravel Docker/test DB | passed | 10 tests and 52 assertions passed. |
+| `T4-EVENTS` | Local Gate | Validate release-critical event/property coverage | Automated tests | Flutter target suite listed in `T4-funnel-metrics-review-packet.md` | Local Flutter VM/widget/controller | passed | 42 tests passed, including explicit invite-acceptance-request telemetry coverage. |
+| `T4-OTP` | Local Gate | Validate OTP telemetry queue dispatch, pre-auth envelope semantics, and backend terminal invite-acceptance join keys | Automated tests | Laravel safe runner listed in `T4-funnel-metrics-review-packet.md` | Local Laravel Docker/test DB | passed | 3 tests and 15 assertions passed in the refreshed focused lane. |
 | `T4-STATIC` | Local Gate | Static analysis / formatting | Analyzer and formatter | `fvm dart analyze --format machine`; Pint touched PHP files | Local Flutter/Laravel | passed | Analyzer exited 0 with no diagnostics; Pint passed. |
 | `T4-SINK` | Local Gate | Sink/query readback for KPI set | Queue dispatch proof plus explicit final-phase dependency | `tests/Feature/Auth/TenantPhoneOtpTelemetryTest.php`; `DEP-04` | Local queue proof; external sink final phase | waived | Local-gate waiver approval: APROVADO orchestration defers external sink/query readback to final runtime; this is not a `Production-Ready` waiver. |
 | `T4-ADB` | Local Gate | ADB/device runtime validation | Deferred runtime validation | Final consolidated ADB/device lane | Android device | waived | Local-gate waiver approval: APROVADO orchestration defers ADB/device execution to reduce WSL/device instability risk. |
 | `DOD-01` | Definition of Done | Android store release has a frozen funnel-metrics validation matrix for the critical funnel. | Documentation and review packet | This TODO; `foundation_documentation/artifacts/T4-funnel-metrics-review-packet.md` | Foundation docs | waived | Structure-only waiver/deviation with approval: APROVADO local gate treats matrix freeze as documentation-only; device/browser flow proof is tracked in runtime rows. |
 | `DOD-02` | Definition of Done | The required KPI set can be read and trusted well enough for release decisions. | Local join-key/property proof; final sink readback pending | Event matrix; KPI readback interpretation; `DEP-04` | Local proof plus external sink final phase | waived | Local-gate waiver approval: APROVADO orchestration accepts local property/join-key proof now; external sink/query readback remains required before release closure. |
-| `DOD-03` | Definition of Done | No hidden telemetry gap remains implied by "it should already be firing". | Gap audit and fixes | Review packet; triple audit session | Local code/test audit | passed | Fixed missing pre-auth OTP dispatch, deferred `store_channel`, invite acceptance `code`, and web landing `code`; remaining runtime/sink gaps are explicit, including whether the sink still uses the legacy anonymous-accept event name. |
+| `DOD-03` | Definition of Done | No hidden telemetry gap remains implied by "it should already be firing". | Gap audit and fixes | Review packet; triple audit session | Local code/test audit | passed | Fixed missing pre-auth OTP dispatch, deferred `store_channel`, web landing `code`, app-side invite-accept request telemetry, and backend terminal invite-accept join keys. Remaining runtime/sink gaps are explicit. |
 | `VAL-01` | Validation Steps | Code/test audit for release-critical event ownership and required properties. | Review packet plus triple audit | `foundation_documentation/artifacts/T4-funnel-metrics-review-packet.md`; `foundation_documentation/artifacts/t4-funnel-metrics-triple-audit-20260428T1935Z/session.json` | Local audit | passed | Three-lane audit returned zero findings; adjudication resolved non-material wording conflict. |
-| `VAL-02` | Validation Steps | Automated evidence where available for event names/properties on touched flows. | Automated tests | Flutter target suite; Laravel target suite | Local Flutter/Laravel | passed | Flutter 36 tests; Laravel 10 tests and 52 assertions. |
+| `VAL-02` | Validation Steps | Automated evidence where available for event names/properties on touched flows. | Automated tests | Flutter target suite; Laravel target suite | Local Flutter/Laravel | passed | Flutter 42 tests; Laravel 3 focused tests and 15 assertions in the refreshed lane. |
 | `VAL-03` | Validation Steps | Manual or sink-level validation for web-to-app, OTP, merge, and first-favorite milestones. | Deferred runtime/sink validation | Final ADB/web/sink lane | Android device, browser, external telemetry sink | waived | Local-gate waiver approval: APROVADO orchestration intentionally leaves manual/device/browser/sink validation to the consolidated final runtime phase. |
 | `VAL-04` | Validation Steps | Documented KPI readback proof or explicit waiver if a query surface is temporarily limited. | Documented readback interpretation and dependency | KPI readback interpretation below; `DEP-04` | External telemetry query surface | waived | Structure-only waiver/deviation with approval: APROVADO local gate documents temporary query limitation; sink/query readback remains required before `Production-Ready`. |
 | `SCOPE-01` | Scope | Freeze the Android-release funnel-metrics matrix with event name, concrete flow owner, required properties, and validation owner. | Documentation and review packet | Frozen Android Release Funnel Metrics Matrix in this TODO; `foundation_documentation/artifacts/T4-funnel-metrics-review-packet.md` | Foundation docs | passed | Exact guard row added on 2026-04-29; matrix remains the local source of truth. |

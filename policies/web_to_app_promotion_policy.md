@@ -136,7 +136,7 @@ Required key events include:
 - `web_open_app_clicked` (`store_channel`, `platform_target=android|ios`)
 - `web_install_clicked` (`store_channel`, `platform_target=android|ios`)
 - `app_invite_acceptance_requested`
-- `app_invite_accepted`
+- `app_invite_accepted` (or backend-canonical `invite.accepted` with equivalent join keys when terminal acceptance is emitted server-side)
 - `app_auth_wall_triggered` (`action_type` = the restricted action that required authenticated identity)
 - `app_signup_completed`
 - `app_deferred_deep_link_captured` with `platform`, `store_channel`, and backend-resolved `target_path`; include `code` only when the captured target is invite attribution.
