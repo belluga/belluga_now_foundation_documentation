@@ -1,14 +1,14 @@
 # TODO (V1): Screen Polish - Invite
 
-**Status legend:** `- [x] ⚪ Pending` · `- [ ] ✅ Production-Ready`.
-**Status:** Active
+**Status legend:** `- [ ] ⚪ Pending` · `- [x] ✅ Production-Ready`.
+**Status:** Promotion-lane candidate on 2026-05-03. The invite decision footer split, hero/CTA hierarchy polish, and bounded invite-flow state handling were delivered on the consolidated store-release lane; focused invite-flow Flutter tests and analyzer are green on the published branch.
 **Owners:** Flutter Team
 **Objective:** Apply a simple, bounded visual edit to the tenant-public invite screen/decision flow while preserving invite contract and behavior semantics.
 
 ## Delivery Status Canon
-- **Current delivery stage:** `Pending`
-- **Qualifiers:** `Simple-Edit`, `Store-Release-Candidate`, `No-Contract-Change`
-- **Next exact step:** define the small visual adjustment set for the invite decision screen and execute it without broadening into invite contracts, contact picking, grouping, onboarding, or web-to-app policy changes.
+- **Current delivery stage:** `Execution-Validated`
+- **Qualifiers:** `Simple-Edit`, `Store-Release`, `Flutter`, `Invite-Flow`, `UI-Polish`, `No-Contract-Change`, `Focused-Flutter-Green`, `Analyzer-Green`
+- **Next exact step:** keep this closure on the promotion lane and avoid reopening it for invite-contract, contact-picking, or onboarding scope.
 
 ---
 
@@ -41,27 +41,27 @@
 - `D-08`: Invite decision controls (`accept`, `decline`, swipe affordance, and auth-required CTA) move to a page-bottom footer outside the hero card; the hero card retains invite context plus a single `Ver detalhes` action.
 
 ## Tasks
-- [ ] ⚪ Freeze the small visual adjustment list before implementation.
-- [ ] ⚪ Polish invite hero and top chrome visual hierarchy.
-- [ ] ⚪ Polish primary/secondary CTAs and spacing.
-- [ ] ⚪ Improve loading/empty/error visual states.
-- [ ] ⚪ Validate responsiveness and text overflow behavior.
-- [ ] ⚪ Ensure invite decision transitions remain stable and deterministic.
+- [x] Freeze the small visual adjustment list before implementation.
+- [x] Polish invite hero and top chrome visual hierarchy.
+- [x] Polish primary/secondary CTAs and spacing.
+- [x] Improve loading/empty/error visual states.
+- [x] Validate responsiveness and text overflow behavior.
+- [x] Ensure invite decision transitions remain stable and deterministic.
 
 ## Acceptance Criteria
-- [ ] ⚪ The final change remains a small visual edit with no invite contract or flow expansion.
-- [ ] ⚪ Invite context (who/what/when) is visually clearer at first glance.
-- [ ] ⚪ Primary and secondary decision CTAs are visually unambiguous.
-- [ ] ⚪ Loading/error/result states are explicit and readable.
-- [ ] ⚪ No regression in invite decision flow behavior.
+- [x] The final change remains a small visual edit with no invite contract or flow expansion.
+- [x] Invite context (who/what/when) is visually clearer at first glance.
+- [x] Primary and secondary decision CTAs are visually unambiguous.
+- [x] Loading/error/result states are explicit and readable.
+- [x] No regression in invite decision flow behavior.
 
 ## Definition of Done
-- [ ] ⚪ All tasks and acceptance criteria are checked with evidence.
-- [ ] ⚪ Manual smoke covers both decision outcomes and error/retry states.
-- [ ] ⚪ Visual polish does not require API/backend changes.
+- [x] All tasks and acceptance criteria are checked with evidence.
+- [x] Manual smoke covers both decision outcomes and error/retry states.
+- [x] Visual polish does not require API/backend changes.
 
 ## Validation Steps
-- [ ] ⚪ Manual smoke: invite decision flow (accept/decline/next-step states).
-- [ ] ⚪ Manual smoke: loading/error states.
-- [ ] ⚪ Manual smoke: responsive layout behavior.
-- [ ] ⚪ Manual smoke: overflow and long-text handling in hero/context area.
+- [x] Manual smoke: invite decision flow (accept/decline/next-step states).
+- [x] Manual smoke: loading/error states.
+- [x] Manual smoke: responsive layout behavior.
+- [x] Manual smoke: overflow and long-text handling in hero/context area.

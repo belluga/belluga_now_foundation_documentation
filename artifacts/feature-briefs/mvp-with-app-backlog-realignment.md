@@ -47,7 +47,7 @@
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `foundation_documentation/todos/active/concluded_but_active/TODO-v1-favorites-account-profile-visual-enrichment.md`
 - `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-invite-polish.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-v1-screen-invite-polish.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-invite-friends-polish.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-v1-web-bootstrap-branding-continuity.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-connections-package.md`
