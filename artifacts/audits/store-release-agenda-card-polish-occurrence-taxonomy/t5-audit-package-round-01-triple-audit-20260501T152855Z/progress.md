@@ -2,7 +2,7 @@
 
 - **Session file:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/session.json`
 - **Bounded package:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/T5-audit-package-round-06.md`
-- **Related TODO:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/active/store_release_android/TODO-store-release-agenda-card-polish-and-occurrence-taxonomy-overrides.md`
+- **Related TODO:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-agenda-card-polish-and-occurrence-taxonomy-overrides.md`
 - **Run root:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z`
 - **Current round:** `7`
 

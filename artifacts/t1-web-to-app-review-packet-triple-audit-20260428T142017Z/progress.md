@@ -2,7 +2,7 @@
 
 - **Session file:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/session.json`
 - **Bounded package:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/T1-web-to-app-review-packet.md`
-- **Related TODO:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
+- **Related TODO:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - **Run root:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z`
 - **Current round:** `2`
 

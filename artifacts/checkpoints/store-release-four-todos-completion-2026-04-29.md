@@ -10,8 +10,8 @@
 ## Scope
 | ID | Governing TODO | Included in checkpoint | Delivery stage after checkpoint |
 | --- | --- | --- | --- |
-| `T1-W2A` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` | yes | `Local-Validated-With-Explicit-Runtime-Waivers` |
-| `T2-OTP` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md` | yes | `Local-Validated-With-Explicit-Runtime-Waivers` |
+| `T1-W2A` | `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` | yes | `Local-Validated-With-Explicit-Runtime-Waivers` |
+| `T2-OTP` | `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md` | yes | `Local-Validated-With-Explicit-Runtime-Waivers` |
 | `T3-SOCIAL` | `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md` | yes | `Local-Complete-Guard-Passed-ADB-Automated-Smokes-Passed` |
 | `T4-METRICS` | `foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md` | yes | `Local-Implemented` with explicit sink/query waiver |
 

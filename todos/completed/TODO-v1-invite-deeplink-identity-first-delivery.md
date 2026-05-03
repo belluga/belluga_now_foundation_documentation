@@ -11,7 +11,7 @@
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
 - `foundation_documentation/policies/web_to_app_promotion_policy.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `foundation_documentation/endpoints_mvp_contracts.md`
 - `foundation_documentation/system_roadmap.md`
 - `foundation_documentation/artifacts/tmp/web_to_app_invite_handoff_2026-03-14.md`

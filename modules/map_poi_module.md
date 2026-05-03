@@ -170,6 +170,13 @@ Query-time window policy (backend settings example):
 
 This ensures future events/campaigns do not appear immediately when created, while still allowing the backend to tune visibility without rewriting data.
 
+**Event live-now freshness (required):**
+- `is_happening_now` may be stored on the materialized projection as a snapshot, but map read responses must treat occurrence windows as the current authority.
+- For `ref_type=event`, `/api/v1/map/pois` and `/api/v1/map/near` recompute `is_happening_now` at response formatting time from `occurrence_facets[].starts_at` and `occurrence_facets[].effective_end` (or `ends_at` when `effective_end` is absent).
+- If `starts_at <= now < effective_end`, the top-level POI payload and the matching occurrence facet must return `is_happening_now=true`, even when the stored projection flag is stale.
+- If occurrence facet windows are missing or invalid, the backend may fall back to the stored projection flag; valid facet windows always supersede stale stored booleans.
+- Flutter markers render `AGORA` only from the backend `is_happening_now=true` payload and must not infer live state from local device time.
+
 **POI visual snapshot contract (required):**
 ```json
 {
@@ -274,7 +281,8 @@ Response shape (example):
         - Use MongoDB geospatial queries (`$geoNear` and/or `$geoWithin`) as the authoritative source of “nearby” truth.
         - When `origin_lat/lng` is provided, return `distance_meters` for each POI.
         - Apply time-window filters for `active_window_*` using backend-owned tenant settings (future/past **days**). The client should not hardcode visibility windows.
-    -   Response fields: **stack groups** keyed by `stack_key`, each with `center`, `stack_count`, and a `top_poi` payload. The `top_poi.updated_at` field is required for polling cache validation. `top_poi.visual` must follow the projection visual contract (`mode`, `icon/color` or `image_uri`, `source`). `tags[]` and `taxonomy_terms[]` are **filter-only** and are not returned in this payload. When sorting by `distance`, backend orders by ascending distance while still honoring priority tiers (sponsors > live events > others).
+        - Recompute event `is_happening_now` from occurrence facets at read time; stale projection booleans cannot leak into map marker payloads.
+    -   Response fields: **stack groups** keyed by `stack_key`, each with `center`, `stack_count`, and a `top_poi` payload. The `top_poi.updated_at` field is required for polling cache validation. `top_poi.is_happening_now` is required for event POIs. `top_poi.visual` must follow the projection visual contract (`mode`, `icon/color` or `image_uri`, `source`). `tags[]` and `taxonomy_terms[]` are **filter-only** and are not returned in this payload. When sorting by `distance`, backend orders by ascending distance while still honoring priority tiers (sponsors > live events > others).
     -   Deep-link contract note: this endpoint is viewport/origin scoped and does not guarantee global `poi`-only resolution for arbitrary `ref_type/ref_id` links.
 2.  **Nearby Card List Endpoint:** `GET /api/v1/map/near`
     -   Purpose: return a distance-ordered list of POI cards, paginated (default 10/page), with richer fields for navigation.
@@ -283,7 +291,7 @@ Response shape (example):
         - `max_distance_meters` (optional).
         - `categories[]`, `tags[]`, `taxonomy[]`, `search` (optional).
         - `page`, `page_size` (optional; default 10).
-    -   Response fields: `ref_type`, `ref_id`, `ref_slug`, `ref_path` (`/{ref_type}/{ref_slug}`), `title`, `subtitle?`, `category`, `location`, `distance_meters`, `updated_at`, `avatar_url?`, `cover_url?`, `visual?`, `badge?`, `time_start?`, `time_end?`, plus `tags[]` and display-ready `taxonomy_terms[]` (`{type, value, name, taxonomy_name, label?}`).
+    -   Response fields: `ref_type`, `ref_id`, `ref_slug`, `ref_path` (`/{ref_type}/{ref_slug}`), `title`, `subtitle?`, `category`, `location`, `distance_meters`, `is_happening_now`, `updated_at`, `avatar_url?`, `cover_url?`, `visual?`, `badge?`, `time_start?`, `time_end?`, plus `tags[]`, display-ready `taxonomy_terms[]` (`{type, value, name, taxonomy_name, label?}`), and event `occurrence_facets[]` with read-time `is_happening_now` freshness.
 3.  **Filter Discovery Endpoint:** `GET /api/v1/map/filters`
     -   Returns all available categories and their associated tags to dynamically build the filter UI.
     -   Category payload can be decorated by `settings.map_ui.filters` (tenant-admin managed):

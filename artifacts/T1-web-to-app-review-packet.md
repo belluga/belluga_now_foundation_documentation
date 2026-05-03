@@ -1,7 +1,7 @@
 # Derived Review Packet — T1 Web-to-App Conversion Gate
 
 **Artifact type:** derived/bounded review package, non-authoritative.  
-**Generated for:** `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`  
+**Generated for:** `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`  
 **Scope:** T1 only. Do not review T2/T3/T4 or unrelated foundation-doc TODO moves in this package.  
 **Date:** 2026-04-28
 

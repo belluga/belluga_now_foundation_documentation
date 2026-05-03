@@ -2,7 +2,7 @@
 
 - **Session file:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t2-phone-otp-auth-contact-match-review-packet-triple-audit-20260428T160322Z/session.json`
 - **Bounded package:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/T2-phone-otp-auth-contact-match-review-packet.md`
-- **Related TODO:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
+- **Related TODO:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - **Run root:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t2-phone-otp-auth-contact-match-review-packet-triple-audit-20260428T160322Z`
 - **Current round:** `1`
 

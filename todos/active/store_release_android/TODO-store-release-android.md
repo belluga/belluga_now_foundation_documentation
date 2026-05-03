@@ -25,9 +25,9 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 
 ## References
 - `foundation_documentation/todos/completed/TODO-store-release-landlord-tenant-auth-method-governance.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-funnel-metrics-validation.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-home-favorites-refresh-regression.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-invites-occurrence-target-migration.md`
@@ -35,6 +35,10 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - `foundation_documentation/todos/completed/TODO-store-release-critical-journey-regression-gates.md`
 - `foundation_documentation/todos/completed/TODO-store-release-event-content-save-sanitization.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android-publication-readiness.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-v1-screen-user-profile-polish.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-event-share-invite-entrypoint.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-account-profile-type-plural-settings-display.md`
+- `foundation_documentation/artifacts/execution-plans/store-release-profile-social-catalog-gaps-orchestration-plan.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-qr-login-web-auth.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-ios-universal-links-production-validation.md`
 - `foundation_documentation/artifacts/execution-plans/store-release-wave2-social-consumer-gaps-orchestration-plan.md`
@@ -65,6 +69,7 @@ These items remain valid active work, but were reclassified on 2026-04-30 as pos
 - [x] Treat event `content` save-time sanitization as publication-critical so unsupported rich-text markup is stripped canonically on backend save and never implied as accepted by the frontend editing UX.
 - [x] Keep the post-release hardening set out of the current Android publication blocker list unless a new explicit business decision promotes one of those items back into the release gate.
 - [ ] Keep profile/account-profile support work only when it directly strengthens invites/favorites/publication confidence.
+- [ ] Treat the T6 profile/social/catalog gap set as publication-relevant release polish because it removes phone-OTP contradictions from `/profile`, makes event share generate canonical invites, and exposes Account Profile Type plural labels used by dynamic profile/category UI.
 - [ ] Keep an explicit Android publication-readiness lane and refine its repo-owned versus external-console ownership boundary.
 - [ ] Keep this TODO as the authoritative orchestrator that supersedes the older `TODO-v1-first-release.md` milestone framing.
 
@@ -112,6 +117,7 @@ These items remain valid active work, but were reclassified on 2026-04-30 as pos
 - [x] A dedicated phone OTP identity child TODO exists and is linked here as a publication-critical blocker.
 - [x] A dedicated Home Favorites refresh regression child TODO exists under `active/store_release_android/`.
 - [x] A dedicated invite occurrence target migration child TODO exists under `active/store_release_android/`.
+- [ ] T6 profile/social/catalog child TODOs exist and are linked here; implementation remains pending explicit `APROVADO`.
 - [x] A dedicated CORS ownership child TODO exists under `promotion_lane/store_release_android/`.
 - [x] A dedicated critical-journey regression-gates child TODO exists under `promotion_lane/store_release_android/`.
 - [x] A dedicated event content save-sanitization child TODO exists under `promotion_lane/store_release_android/`.
@@ -128,6 +134,9 @@ These items remain valid active work, but were reclassified on 2026-04-30 as pos
 - [x] Child TODO for phone OTP identity + contact matching exists under `active/store_release_android/`.
 - [x] Child TODO for Home Favorites refresh regression exists under `active/store_release_android/`.
 - [x] Child TODO for invite occurrence target migration exists under `active/store_release_android/`.
+- [x] Child TODO for authenticated `/profile` release closure exists under `active/store_release_android/`.
+- [x] Child TODO for event share invite entrypoint exists under `active/store_release_android/`.
+- [x] Child TODO for Account Profile Type plural settings display exists under `active/store_release_android/`.
 - [x] Child TODO for definitive CORS ownership convergence exists under `promotion_lane/store_release_android/`.
 - [x] Child TODO for critical-journey regression gates exists under `promotion_lane/store_release_android/`.
 - [x] Child TODO for event content save sanitization exists under `promotion_lane/store_release_android/`.

@@ -9,7 +9,7 @@
 
 ## References
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-invite-deeplink-identity-first-delivery.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `laravel-app/routes/web.php`
 - `laravel-app/app/Http/Api/v1/Controllers/BrandingController.php`
 - `laravel-app/app/Application/Branding/BrandingManifestService.php`

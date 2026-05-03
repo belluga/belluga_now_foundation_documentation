@@ -58,7 +58,7 @@
 
 ## References
 
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `foundation_documentation/system_roadmap.md` section `Web-to-App Promotion Policy`
 - `foundation_documentation/screens/app_promotion_tester_waitlist.md`
 - `foundation_documentation/screens/prototype_data.md` section `2.4.1. Tela de Promoção Web para Beta Tester (/baixe-o-app)`

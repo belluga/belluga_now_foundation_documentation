@@ -23,7 +23,7 @@
 - Events/Agenda slice: `foundation_documentation/todos/completed/TODO-v1-events-and-agenda.md`
 - Account Profile discovery UI slice: `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
 - Tenant/admin area slice: `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
-- Web-to-app conversion gate slice: `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
+- Web-to-app conversion gate slice: `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 
 ## 0) Scope Boundaries (V1)
 
@@ -76,7 +76,7 @@ These are scope descriptors (not tasks).
 - Manual: browse events → open event detail → start invite flow (mock-backed)
 
 ### M2 — Web read-only promotion + app conversion (Android deferred deep link)
-- TODOs: `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` + `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`
+- TODOs: `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` + `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`
 - Gate: web invite surfaces are read-only, Android deferred deep-link capture works on first open, iOS fallback behavior is explicit (deferred capture in VNext), and app anonymous accept flow is functional with auth wall for trust actions
 - Manual: open tenant subdomain → open invite landing → click app CTA → install/open app via link → invite card opens with correct code → anonymous accept succeeds
 

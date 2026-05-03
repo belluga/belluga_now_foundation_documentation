@@ -39,7 +39,7 @@
 Bounded test-quality audit. Treat regression protection, assertion effectiveness, and test realism as the primary decision lenses. Escalate as blocking when final behavior, CRUD/mutation, backend contract semantics, required navigation/integration gates, real-backend coverage, CI execution, or anti-mock/fallback requirements are missing or invalid. Test organization/readability suggestions are non-blocking when required behavior coverage is valid.
 
 ## Related TODO
-`/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/active/store_release_android/TODO-store-release-agenda-card-polish-and-occurrence-taxonomy-overrides.md`
+`/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-agenda-card-polish-and-occurrence-taxonomy-overrides.md`
 
 ## Result Contract
 Each reviewer should answer in JSON compatible with `schemas/subagent_review_result.schema.json`.

@@ -58,8 +58,8 @@
 ## References
 
 - `foundation_documentation/todos/completed/TODO-v1-targeted-visual-polish.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-user-profile-polish.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-v1-screen-user-profile-polish.md`
 - `foundation_documentation/todos/completed/TODO-v1-screen-events-polish.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-invite-polish.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
