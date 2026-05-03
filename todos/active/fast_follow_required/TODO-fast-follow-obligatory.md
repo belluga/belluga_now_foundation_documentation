@@ -21,16 +21,18 @@ Some items are already defined by the business but intentionally sequenced after
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Pending`
 - **Qualifiers:** `Planning-Ready`, `Business-Defined`
-- **Next exact step:** keep the direct fast-follow child authorities explicit under this lane: `TODO-ios-universal-links-production-validation.md` for iOS and `TODO-qr-login-web-auth.md` for QR login/authenticated web.
+- **Next exact step:** keep the direct fast-follow child authorities explicit under this lane: `TODO-ios-universal-links-production-validation.md` for Universal Links/deferred capture, `TODO-ios-push-and-app-store-review-readiness.md` for iOS push/review readiness, and `TODO-qr-login-web-auth.md` for QR login/authenticated web.
 
 ## Scope
 - [ ] Make iOS fast-follow mandatory and explicit.
+- [ ] Make iOS push/App Store review readiness mandatory and explicit.
 - [ ] Make QR login/web auth mandatory and explicit.
 - [ ] Keep this lane limited to immediately sequenced work after Android release.
 
 ## References
 - `foundation_documentation/todos/active/fast_follow_required/TODO-qr-login-web-auth.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-ios-universal-links-production-validation.md`
+- `foundation_documentation/todos/active/fast_follow_required/TODO-ios-push-and-app-store-review-readiness.md`
 
 ## Execution Lane Tracking (Required)
 - **Local implementation branches:** `flutter-app:<planned>`, `laravel-app:<planned>`, `belluga_now_docker:<planned>`
@@ -42,6 +44,7 @@ Some items are already defined by the business but intentionally sequenced after
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
 | iOS fast-follow | `pending` | `pending` | `pending` | `pending` | `Pending` |
+| iOS push / App Store review readiness | `pending` | `pending` | `pending` | `pending` | `Pending` |
 | QR login/web auth fast-follow | `pending` | `pending` | `pending` | `pending` | `Pending` |
 
 ## Out of Scope
@@ -50,11 +53,12 @@ Some items are already defined by the business but intentionally sequenced after
 
 ## Definition of Done
 - [ ] Fast-follow lane exists as a distinct active lane.
-- [ ] iOS and QR login/web auth are explicitly tracked here as business-defined follow-up.
+- [ ] iOS Universal Links/deferred capture, iOS push/review readiness, and QR login/web auth are explicitly tracked here as business-defined follow-up.
 - [ ] Legacy VNext classification notes are updated where necessary.
 
 ## Validation Steps
 - [ ] `TODO-ios-universal-links-production-validation.md` is explicitly treated as the iOS fast-follow execution authority under this lane.
+- [ ] `TODO-ios-push-and-app-store-review-readiness.md` is explicitly treated as the iOS push/review readiness authority under this lane.
 - [ ] `TODO-qr-login-web-auth.md` exists under this lane.
 
 ## Profile Scope & Handoffs (Required Before `APROVADO`)
