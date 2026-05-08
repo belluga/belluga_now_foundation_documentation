@@ -2,7 +2,7 @@
 
 ## Artifact Identity
 - **Artifact type:** `orchestration_checkpoint_manifest`
-- **Checkpoint status:** `validated_local_checkpoint`
+- **Checkpoint status:** `promotion_ready_checkpoint`
 - **Created:** `2026-05-07`
 - **Governing workflow / skill:** `delphi-ai/workflows/docker/subagent-worktree-reconciliation-method.md`
 - **Authority boundary:** governing TODOs and canonical module docs remain authoritative.
@@ -32,7 +32,7 @@ This checkpoint records the post-tranche local reconciliation snapshot. The auth
 | `completion guards` | `python3 delphi-ai/tools/orchestration_plan_completion_guard.py --plan foundation_documentation/artifacts/execution-plans/post-release-rule-related-auth-identity-orchestration-plan.md` and `python3 delphi-ai/tools/orchestration_delivery_guard.py --plan foundation_documentation/artifacts/execution-plans/post-release-rule-related-auth-identity-orchestration-plan.md --require-approved` both resolved `Overall outcome: go` on the closure baseline. | `passed` |
 | `RR-AUTH-01..04 audit gates` | The four governing TODOs now carry their critique/security/verification-debt/test-quality/final-review closure artifacts, triple-audit sessions, and Claude fourth-auditor records inside the committed reconciliation snapshot. | `passed` |
 | `laravel-app consolidated code` | RR-AUTH-01 through RR-AUTH-04 code/test deltas are now committed together on `66332cb0642c26a5cca99639846656a7f249f7f2`, replacing the earlier “validated but only local working tree” posture. | `passed` |
-| `tests` | The authoritative focused, impacted-auth, and final Laravel CI-equivalent suites recorded in the governing TODO/package set apply to the same file content that is now commit-materialized on the reconciliation branch. | `passed` |
+| `tests` | The authoritative focused and impacted-auth suites remain green, and the final branch-level Laravel CI-equivalent rerun on the committed reconciliation snapshot passed with `1448 passed`, `7008 assertions`, `963.27s`. | `passed` |
 | `runtime/browser/device` | RR-AUTH-01 local-public route probe and mutation-shard evidence remain the runtime/browser authority surface for the only UI/runtime lane in scope; RR-AUTH-02 through RR-AUTH-04 remain backend request/readback/config lanes. | `passed` |
 | `build/publish freshness` | not in scope for the current RR-AUTH-01 auth-only closure step | `n/a` |
 
@@ -48,8 +48,8 @@ This checkpoint records the post-tranche local reconciliation snapshot. The auth
 ## Branch Lifecycle Decision
 - **Next exact step:** keep the committed reconciliation snapshot frozen until the user intentionally opens the next rule-related tranche or requests promotion-lane follow-through.
 - **Same-branch continuation allowed:** `yes`
-- **Why:** the auth/identity tranche is now locally consolidated and validated; promotion is intentionally deferred, but the same branch remains the correct checkpoint if a promotion-lane workflow is requested next.
+- **Why:** the auth/identity tranche is now locally consolidated, commit-materialized, and validated on the reconciliation snapshot; promotion is intentionally deferred, but the same branch remains the correct checkpoint if a promotion-lane workflow is requested next.
 
 ## Notes
-- This checkpoint now records the locally consolidated RR-AUTH tranche rather than a partial mid-wave recovery state.
+- This checkpoint now records the promotion-ready RR-AUTH tranche rather than a partial mid-wave recovery state.
 - Promotion to `dev|stage|main` is still intentionally out of scope. The checkpoint only claims local reconciliation, committed snapshot materialization, and the validation/evidence state already recorded by the governing RR-AUTH artifacts.
