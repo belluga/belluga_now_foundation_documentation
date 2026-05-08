@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-account-token-binding-test-quality-dispatch-20260507T1521Z.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "no-context-test-quality-auditor-rr-auth-03"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not close the RR-AUTH-03 test-quality gate until focused tests are added for persisted bearer-token ceiling denials, wildcard account-scoped issuer fail-close variants, and an explicit stale or foreign ambient account context false-denial fixture. Targeted reruns are sufficient after those additions."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-2B192780",
+      "severity": "high",
+      "title": "Persisted-token negative ceiling behavior is not directly tested",
+      "rationale": "The suite proves positive ceiling cases for exact/resource/literal wildcards and proves live-role denial when the token allows create, but it does not issue a persisted account-bound bearer token whose abilities are lower than the live current-account role and then assert denial. The closest push create ability denial uses Sanctum::actingAs at PushMessageFlowTest.php:643-651, which exercises a transient test token rather than the persisted PersonalAccessToken path in AccountUser::tokenCan(). A regression that makes persisted token abilities fail open while live role permissions allow the action could pass the current RR-AUTH-03 tests.",
+      "suggested_action": "Add at least one account-route feature test using TenantScopedAccessTokenService to issue a persisted token with only read/view while the live role has create or wildcard, then assert create/update is 403. Prefer covering one account-users route and one push/events account route.",
+      "reviewer_labels": [
+        "no-context-test-quality-auditor-rr-auth-03"
+      ],
+      "source_finding_ids": [
+        "TQA-RR-AUTH-03-POST-001"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "auth_persisted_token_ceiling_negative_required"
+    },
+    {
+      "finding_id": "F-BA2A4F98",
+      "severity": "medium",
+      "title": "Wildcard account-scoped issuer fail-close variants are not covered",
+      "rationale": "AccountAuthenticationServiceTest.php:148-184 validates fail-closed issuance only for the exact account-users:view ability in an ambiguous multi-account context. The implementation has separate account-scoped detection branches for literal * and resource wildcards in TenantScopedAccessTokenService.php:151-166, but the tests do not assert that *, account-users:*, events:*, or push-messages:* also fail closed when no explicit/current/single-access account binding can be resolved.",
+      "suggested_action": "Convert the issuer fail-close test into a data-provider matrix covering account-users:view, account-users:*, events:*, push-messages:*, and literal * under the same unresolved multi-account context.",
+      "reviewer_labels": [
+        "no-context-test-quality-auditor-rr-auth-03"
+      ],
+      "source_finding_ids": [
+        "TQA-RR-AUTH-03-POST-002"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "auth_account_scoped_issuer_wildcard_matrix_required"
+    },
+    {
+      "finding_id": "F-E579FBC7",
+      "severity": "medium",
+      "title": "Stale account-context false-denial coverage is not deterministic",
+      "rationale": "TenantPublicAccountTokenScopeTest.php:92-112 only asserts 200 for tenant-public agenda/account_profiles with an account token. The setup seeds an account but does not explicitly create a stale or foreign Account::current() outside account middleware, while the production guard depends on the CheckUserAccess context flag in AccountUser.php:189-193. As written, these tests may not fail if the stale account-context regression returns through a route that does not exercise tokenCan or if no stale account context is actually present.",
+      "suggested_action": "Add a focused regression that deliberately leaves or sets a different Account::current() outside the account middleware context, then exercises a tenant-public endpoint that requires token authorization and asserts the expected success payload rather than only HTTP 200.",
+      "reviewer_labels": [
+        "no-context-test-quality-auditor-rr-auth-03"
+      ],
+      "source_finding_ids": [
+        "TQA-RR-AUTH-03-POST-003"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "auth_stale_account_context_false_denial_fixture_required"
+    }
+  ]
+}

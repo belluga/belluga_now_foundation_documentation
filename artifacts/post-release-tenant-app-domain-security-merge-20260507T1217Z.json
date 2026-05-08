@@ -1,0 +1,93 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-tenant-app-domain-security-dispatch-20260507T1217Z.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "RR-AUTH-02-security-adversarial-no-context"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Proceed only as bounded RR-AUTH-02 appdomains/domains closure after recording the residual route-audit debt and the broad tenant-domains:update launch decision. Before final closure, reconcile module-doc wording for appdomains token ability requirements and rerun or explain the targeted suite flake observed during this review. Do not claim global tenant-route compliance while laravel_tenant_access_guardrails_audit.sh still exits 2 for unrelated authenticated identity routes."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-CE7CC35B",
+      "severity": "medium",
+      "title": "Targeted domains/appdomains validation was not fully reproducible in this review",
+      "rationale": "The package claims the combined appdomain plus domain feature suite passed as 31 tests and 145 assertions. Re-running the same bounded suite locally produced 30 passing tests and one TenantDomainControllerTest failure caused by a MongoDB index build/dropDatabase CommandException, while the isolated borrowed-read test passed afterward. This does not prove an authorization bypass, but it weakens closure evidence for the adjacent /domains hardening and should not be ignored because RR-AUTH-02 relies on that suite as security regression proof.",
+      "suggested_action": "Rerun the combined bounded suite from a clean local-safe state and record the result, or classify the observed MongoDB index/dropDatabase failure as validation-environment flake with a concrete follow-up owner. Keep the isolated borrowed-read pass as supporting evidence, not as a replacement for the package's combined-suite claim.",
+      "reviewer_labels": [
+        "RR-AUTH-02-security-adversarial-no-context"
+      ],
+      "source_finding_ids": [
+        "SEC-RR-AUTH-02-NC-001"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-25C4C06F",
+      "severity": "low",
+      "title": "Residual route-audit debt is correctly scoped but still manually classified",
+      "rationale": "The static tenant access guard still exits 2 for tenant_api_v1.php because authenticated identity routes such as auth/logout, auth/token_validate, and /me lack CheckTenantAccess. The appdomain and adjacent /domains route matrices are in-scope compliant, so this is not an RR-AUTH-02 breakout. The residual weakness is operational: the deterministic guard is file-level and cannot machine-verify route-level waivers or route-family classification.",
+      "suggested_action": "Keep RR-AUTH-02 closure scoped to appdomains and adjacent domains only, attach the exact residual identity-route list, and evolve the guard toward route-level reporting or explicit route-level waiver metadata in the broader route-drift TODO.",
+      "reviewer_labels": [
+        "RR-AUTH-02-security-adversarial-no-context"
+      ],
+      "source_finding_ids": [
+        "SEC-RR-AUTH-02-NC-004"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-A8432C9D",
+      "severity": "low",
+      "title": "Broad tenant-domains:update remains an accepted launch risk rather than a mechanically separated privilege",
+      "rationale": "Using tenant-domains:update for app-domain identifiers is now documented as intentional and is not a closure blocker for this launch slice. However, app-domain identifiers drive Android assetlinks and Apple AASA trust payloads, so the ability grants mobile app-link trust mutation as well as ordinary tenant web-domain mutation. OWASP least-privilege calibration supports keeping this explicit until role design proves the two operations are equivalent for all non-root tenant-admin roles.",
+      "suggested_action": "Close RR-AUTH-02 with this risk explicitly accepted for launch, and create a future ability-catalog review trigger if tenant roles need web-domain-only administration separate from app-link trust mutation.",
+      "reviewer_labels": [
+        "RR-AUTH-02-security-adversarial-no-context"
+      ],
+      "source_finding_ids": [
+        "SEC-RR-AUTH-02-NC-003"
+      ],
+      "category": "residual_risk",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-D0C47E1D",
+      "severity": "low",
+      "title": "Appdomain module contract under-documents Sanctum token ability enforcement",
+      "rationale": "The route implementation and package replacement rule require both Sanctum token abilities and current-tenant role abilities. The tenant_admin_module appdomain endpoint rows state auth:sanctum, CheckTenantAccess, and current-tenant role ability, but unlike the adjacent /domains rows they do not explicitly name the Sanctum abilities middleware. Laravel Sanctum documentation treats token abilities as route-enforced scopes, and OWASP authorization guidance favors explicit permission validation on every request; the implementation is stronger than the doc wording.",
+      "suggested_action": "Update the appdomain endpoint Auth/Middleware rows to mirror /domains wording: auth:sanctum + CheckTenantAccess + abilities tenant-domains:read|update + current-tenant role ability tenant-domains:read|update.",
+      "reviewer_labels": [
+        "RR-AUTH-02-security-adversarial-no-context"
+      ],
+      "source_finding_ids": [
+        "SEC-RR-AUTH-02-NC-002"
+      ],
+      "category": "adherence",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

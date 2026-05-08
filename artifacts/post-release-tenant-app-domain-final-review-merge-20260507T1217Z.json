@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-tenant-app-domain-final-review-dispatch-20260507T1217Z.json",
+  "review_kind": "final_review",
+  "review_count": 1,
+  "reviewer_labels": [
+    "no-context-final-reviewer-rr-auth-02"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "acceptable",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not close RR-AUTH-02 yet. First freeze the exact tested Laravel diff, ensure the follow-up middleware/route/test changes are included in the promotion set, rerun the final validation if the staged/promotion set changes, then complete and merge the remaining 12:17Z review gates and triple-audit lane results with explicit TODO finding resolutions."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-203D1F62",
+      "severity": "high",
+      "title": "Required 12:17Z closure gates are prepared but not completed",
+      "rationale": "The TODO still lists critique, security adversarial review, verification-debt audit, test-quality audit, independent final review, triple audit convergence, and Claude fourth-auditor comparison as remaining closure gates. The 12:17Z triple-audit progress is status prepared with missing elegance, performance, and test-quality result files, and the 12:17Z critique/security/test-quality/verification-debt artifacts present dispatch files but no corresponding result/merge evidence. This final review can only satisfy one gate after it is merged; it cannot substitute for the other unresolved gates.",
+      "suggested_action": "Run the prepared no-context reviews, record JSON results, merge findings, resolve each material finding in the TODO as Integrated, Challenged, or Deferred with rationale, and only then mark the closure gates complete.",
+      "reviewer_labels": [
+        "no-context-final-reviewer-rr-auth-02"
+      ],
+      "source_finding_ids": [
+        "FR-RR-AUTH-02-1217-002"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-0F020832",
+      "severity": "high",
+      "title": "Follow-up security fix is not frozen in the staged promotion set",
+      "rationale": "The Laravel checkout has mixed staged and unstaged changes on the RR-AUTH-02 route/test files, and the new CheckCurrentTenantRoleAbility middleware is untracked. The cached diff only shows the initial appdomain auth:sanctum/CheckTenantAccess/Sanctum-ability hardening; the critical current-tenant role middleware, adjacent /domains hardening, and follow-up tests are in unstaged/untracked state. If closure or commit/promotion uses the staged set, it would omit the audit-follow-up fix that resolved the borrowed-token same-ability risk.",
+      "suggested_action": "Freeze the exact intended RR-AUTH-02 diff before closure: include the middleware, route updates, and follow-up tests in the promotion/staged set, then rerun diff hygiene and the final CI-equivalent suite against that frozen set or explicitly record that closure is worktree-based and not staged-state-based.",
+      "reviewer_labels": [
+        "no-context-final-reviewer-rr-auth-02"
+      ],
+      "source_finding_ids": [
+        "FR-RR-AUTH-02-1217-001"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-1BCA27A3",
+      "severity": "medium",
+      "title": "Residual tenant-access guard failure remains manually scoped",
+      "rationale": "The package and TODO correctly avoid claiming global tenant-route compliance because laravel_tenant_access_guardrails_audit.sh still exits 2 for tenant_api_v1.php due to identity routes outside the appdomain slice. The classification is plausible, but it remains a manual scope judgment rather than a machine-verifiable scoped pass or waiver. Closure is safe only if RR-AUTH-02 stays explicitly appdomains/domains-scoped and the broader route-audit debt remains delegated.",
+      "suggested_action": "Keep the closure record explicitly scoped to appdomain and adjacent domain-management routes, retain the exact residual identity-route list and delegated TODO reference, and do not mark the file-level tenant-access guard as passed unless a scoped deterministic proof or approved waiver is added.",
+      "reviewer_labels": [
+        "no-context-final-reviewer-rr-auth-02"
+      ],
+      "source_finding_ids": [
+        "FR-RR-AUTH-02-1217-003"
+      ],
+      "category": "residual_risk",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

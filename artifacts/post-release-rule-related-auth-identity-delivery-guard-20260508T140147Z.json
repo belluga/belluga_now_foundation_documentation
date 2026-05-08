@@ -1,0 +1,19 @@
+{
+  "blocked": false,
+  "context": {
+    "allow_waivers": false,
+    "ci_equivalent_row_count": 1,
+    "delivery_evidence_row_count": 7,
+    "missing_delivery_areas": [],
+    "plan_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/execution-plans/post-release-rule-related-auth-identity-orchestration-plan.md",
+    "require_approved": true,
+    "runtime_freshness_required": true,
+    "traceability_row_count": 37,
+    "validation_row_count": 6
+  },
+  "overall_outcome": "go",
+  "rule_id": "paced.orchestration.delivery",
+  "schema_version": "orchestration-delivery-guard-v1",
+  "status": "ready",
+  "violations": []
+}

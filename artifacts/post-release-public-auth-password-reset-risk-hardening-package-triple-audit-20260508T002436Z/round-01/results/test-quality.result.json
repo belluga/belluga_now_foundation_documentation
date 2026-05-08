@@ -1,0 +1,44 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-public-auth-password-reset-risk-hardening-package-triple-audit-20260508T002436Z/round-01/dispatch/test-quality.dispatch.md",
+  "review_kind": "test_quality_audit",
+  "reviewer_label": "round-01-test-quality-reviewer",
+  "overall_assessment": "Coverage improved materially, but RR-AUTH-04 is not test-quality clean yet because the tenant-public reset success path never proves the new credential actually works, and part of the cited spillover evidence force-enables the very auth setting this slice hardens.",
+  "recommended_path": "Resolve the blocking tenant reset postcondition gap and tighten the impacted-auth spillover evidence before treating RR-AUTH-04 as test-quality gate-ready.",
+  "performance_position": "acceptable",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "TQ-01",
+      "severity": "high",
+      "title": "Tenant password-reset success coverage never proves the new password becomes usable",
+      "rationale": "The tenant-public reset feature test only checks for a 200 response, token deletion, and single-use rejection in PasswordRegistrationControllerTest.php:199-265. The actual mutation happens later in ProfileControllerTenant.php:92-113 and TenantProfileService.php:97-111, but no in-scope tenant test logs in with the new password or otherwise proves the stored credential changed. A regression that consumes the token and returns success without persisting the new password would still pass this packet.",
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "paced",
+      "affected_paths": [
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/tests/Feature/Tenants/PasswordRegistrationControllerTest.php",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Http/Api/v1/Controllers/ProfileControllerTenant.php",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Application/Profiles/TenantProfileService.php"
+      ],
+      "suggested_action": "Add tenant-public evidence that a successful /auth/password_reset makes the new password usable, or directly proves the password hash changed, before closing the lane."
+    },
+    {
+      "finding_id": "TQ-02",
+      "severity": "medium",
+      "title": "The cited impacted-auth spillover suite force-enables password auth before the shared login paths run",
+      "rationale": "The package cites tests/Api/v1/Accounts/Auth as impacted consumer evidence, but AccountAuthFunctions.php:38-63 rewrites tenant_public_auth to ['password'] immediately before login requests, and ApiV1AccountAuthTestContract.php:18-32 seeds the same fixture in setUp. That keeps the happy-path password suite green, but it weakens its value as RR-AUTH-04 spillover evidence because the suite cannot catch accidental coupling where account/auth flows only work because the helper force-enables the exact config surface under review.",
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/tests/Api/Traits/AccountAuthFunctions.php",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/tests/Api/v1/Accounts/Auth/Contracts/ApiV1AccountAuthTestContract.php"
+      ],
+      "suggested_action": "Do not rely on the helper-driven account auth suite alone as spillover proof for RR-AUTH-04; add or isolate coverage that exercises the affected account/auth flow without mutating tenant_public_auth inside the login helper."
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": "audit-escalation-guard-v1",
+  "artifact_kind": "audit_escalation_decision",
+  "rule_id": "paced.audit-escalation.requirements",
+  "outcome": "no-go",
+  "blocked": true,
+  "todo_path": null,
+  "trigger_matrix_fingerprint": null,
+  "trigger_matrix": {},
+  "decisions": {},
+  "violations": [
+    {
+      "code": "AUDIT-MATRIX-MISSING",
+      "message": "The TODO does not contain the required 'Audit Trigger Matrix' section.",
+      "resolution": "Add the 'Audit Trigger Matrix' section from `delphi-ai/templates/todo_template.md`, fill every required trigger with an exact enum value, then rerun the guard."
+    }
+  ]
+}

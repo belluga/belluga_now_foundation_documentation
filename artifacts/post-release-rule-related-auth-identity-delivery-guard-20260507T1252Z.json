@@ -1,0 +1,392 @@
+{
+  "blocked": true,
+  "context": {
+    "allow_waivers": false,
+    "ci_equivalent_row_count": 1,
+    "delivery_evidence_row_count": 2,
+    "missing_delivery_areas": [
+      "deterministic governance",
+      "integrated repo validation",
+      "rr-auth-01 landlord credential",
+      "rr-auth-03 account token binding",
+      "rr-auth-04 public auth reset risk"
+    ],
+    "plan_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/execution-plans/post-release-rule-related-auth-identity-orchestration-plan.md",
+    "require_approved": true,
+    "runtime_freshness_required": true,
+    "traceability_row_count": 37,
+    "validation_row_count": 6
+  },
+  "overall_outcome": "no-go",
+  "rule_id": "paced.orchestration.delivery",
+  "schema_version": "orchestration-delivery-guard-v1",
+  "status": "blocked",
+  "violations": [
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-01-DOD-01`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-MARKER-EVIDENCE-MISMATCH",
+      "message": "Requirement `RR-AUTH-01-DOD-01` requires `endpoint`, but delivery evidence does not prove that exact marker.",
+      "resolution": "Update the implementation/test/runtime evidence to prove the named artifact or record an approved Spec Deviation Ledger row. Substituting a different control or behavior is not delivery.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-01-DOD-02`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-01-DOD-03`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-MARKER-EVIDENCE-MISMATCH",
+      "message": "Requirement `RR-AUTH-01-DOD-03` requires `endpoint`, but delivery evidence does not prove that exact marker.",
+      "resolution": "Update the implementation/test/runtime evidence to prove the named artifact or record an approved Spec Deviation Ledger row. Substituting a different control or behavior is not delivery.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-01-DOD-04`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-01-DOD-05`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-MARKER-EVIDENCE-MISMATCH",
+      "message": "Requirement `RR-AUTH-01-DOD-05` requires `schema`, but delivery evidence does not prove that exact marker.",
+      "resolution": "Update the implementation/test/runtime evidence to prove the named artifact or record an approved Spec Deviation Ledger row. Substituting a different control or behavior is not delivery.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-01-DOD-06`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-MARKER-EVIDENCE-MISMATCH",
+      "message": "Requirement `RR-AUTH-01-DOD-06` requires `web/browser`, but delivery evidence does not prove that exact marker.",
+      "resolution": "Update the implementation/test/runtime evidence to prove the named artifact or record an approved Spec Deviation Ledger row. Substituting a different control or behavior is not delivery.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-MARKER-EVIDENCE-MISMATCH",
+      "message": "Requirement `RR-AUTH-01-DOD-06` requires `navigation`, but delivery evidence does not prove that exact marker.",
+      "resolution": "Update the implementation/test/runtime evidence to prove the named artifact or record an approved Spec Deviation Ledger row. Substituting a different control or behavior is not delivery.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-01-DOD-07`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-MARKER-EVIDENCE-MISMATCH",
+      "message": "Requirement `RR-AUTH-01-DOD-07` requires `migration`, but delivery evidence does not prove that exact marker.",
+      "resolution": "Update the implementation/test/runtime evidence to prove the named artifact or record an approved Spec Deviation Ledger row. Substituting a different control or behavior is not delivery.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-01-VAL-01`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-01-VAL-02`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-01-VAL-03`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-01-VAL-04`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-01-VAL-05`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-MARKER-EVIDENCE-MISMATCH",
+      "message": "Requirement `RR-AUTH-01-VAL-05` requires `web/browser`, but delivery evidence does not prove that exact marker.",
+      "resolution": "Update the implementation/test/runtime evidence to prove the named artifact or record an approved Spec Deviation Ledger row. Substituting a different control or behavior is not delivery.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-01-VAL-06`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-01-AUDIT-01`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-RUNTIME-EVIDENCE-MISSING",
+      "message": "UI/runtime requirement `RR-AUTH-01-AUDIT-01` lacks concrete runtime/web/device/navigation evidence.",
+      "resolution": "Run the required real browser/device/navigation validation against the reconciliation branch runtime and record the evidence in the traceability row.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-MARKER-EVIDENCE-MISMATCH",
+      "message": "Requirement `RR-AUTH-01-AUDIT-01` requires `loading`, but delivery evidence does not prove that exact marker.",
+      "resolution": "Update the implementation/test/runtime evidence to prove the named artifact or record an approved Spec Deviation Ledger row. Substituting a different control or behavior is not delivery.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-MARKER-EVIDENCE-MISMATCH",
+      "message": "Requirement `RR-AUTH-01-AUDIT-01` requires `error`, but delivery evidence does not prove that exact marker.",
+      "resolution": "Update the implementation/test/runtime evidence to prove the named artifact or record an approved Spec Deviation Ledger row. Substituting a different control or behavior is not delivery.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-MARKER-EVIDENCE-MISMATCH",
+      "message": "Requirement `RR-AUTH-01-AUDIT-01` requires `schema`, but delivery evidence does not prove that exact marker.",
+      "resolution": "Update the implementation/test/runtime evidence to prove the named artifact or record an approved Spec Deviation Ledger row. Substituting a different control or behavior is not delivery.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-03-DOD-01`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-MARKER-EVIDENCE-MISMATCH",
+      "message": "Requirement `RR-AUTH-03-DOD-01` requires `navigation`, but delivery evidence does not prove that exact marker.",
+      "resolution": "Update the implementation/test/runtime evidence to prove the named artifact or record an approved Spec Deviation Ledger row. Substituting a different control or behavior is not delivery.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-MARKER-EVIDENCE-MISMATCH",
+      "message": "Requirement `RR-AUTH-03-DOD-01` requires `endpoint`, but delivery evidence does not prove that exact marker.",
+      "resolution": "Update the implementation/test/runtime evidence to prove the named artifact or record an approved Spec Deviation Ledger row. Substituting a different control or behavior is not delivery.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-03-DOD-02`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-03-DOD-03`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-RUNTIME-EVIDENCE-MISSING",
+      "message": "UI/runtime requirement `RR-AUTH-03-DOD-03` lacks concrete runtime/web/device/navigation evidence.",
+      "resolution": "Run the required real browser/device/navigation validation against the reconciliation branch runtime and record the evidence in the traceability row.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-03-DOD-04`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-03-VAL-01`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-03-VAL-02`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-03-VAL-03`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-04-DOD-01`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-MARKER-EVIDENCE-MISMATCH",
+      "message": "Requirement `RR-AUTH-04-DOD-01` requires `endpoint`, but delivery evidence does not prove that exact marker.",
+      "resolution": "Update the implementation/test/runtime evidence to prove the named artifact or record an approved Spec Deviation Ledger row. Substituting a different control or behavior is not delivery.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-04-DOD-02`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-MARKER-EVIDENCE-MISMATCH",
+      "message": "Requirement `RR-AUTH-04-DOD-02` requires `endpoint`, but delivery evidence does not prove that exact marker.",
+      "resolution": "Update the implementation/test/runtime evidence to prove the named artifact or record an approved Spec Deviation Ledger row. Substituting a different control or behavior is not delivery.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-04-DOD-03`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-RUNTIME-EVIDENCE-MISSING",
+      "message": "UI/runtime requirement `RR-AUTH-04-DOD-03` lacks concrete runtime/web/device/navigation evidence.",
+      "resolution": "Run the required real browser/device/navigation validation against the reconciliation branch runtime and record the evidence in the traceability row.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-MARKER-EVIDENCE-MISMATCH",
+      "message": "Requirement `RR-AUTH-04-DOD-03` requires `endpoint`, but delivery evidence does not prove that exact marker.",
+      "resolution": "Update the implementation/test/runtime evidence to prove the named artifact or record an approved Spec Deviation Ledger row. Substituting a different control or behavior is not delivery.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-04-DOD-04`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-RUNTIME-EVIDENCE-MISSING",
+      "message": "UI/runtime requirement `RR-AUTH-04-DOD-04` lacks concrete runtime/web/device/navigation evidence.",
+      "resolution": "Run the required real browser/device/navigation validation against the reconciliation branch runtime and record the evidence in the traceability row.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-04-VAL-01`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-RUNTIME-EVIDENCE-MISSING",
+      "message": "UI/runtime requirement `RR-AUTH-04-VAL-01` lacks concrete runtime/web/device/navigation evidence.",
+      "resolution": "Run the required real browser/device/navigation validation against the reconciliation branch runtime and record the evidence in the traceability row.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-04-VAL-02`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-RUNTIME-EVIDENCE-MISSING",
+      "message": "UI/runtime requirement `RR-AUTH-04-VAL-02` lacks concrete runtime/web/device/navigation evidence.",
+      "resolution": "Run the required real browser/device/navigation validation against the reconciliation branch runtime and record the evidence in the traceability row.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-04-VAL-03`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-RUNTIME-EVIDENCE-MISSING",
+      "message": "UI/runtime requirement `RR-AUTH-04-VAL-03` lacks concrete runtime/web/device/navigation evidence.",
+      "resolution": "Run the required real browser/device/navigation validation against the reconciliation branch runtime and record the evidence in the traceability row.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-NOT-PASSED",
+      "message": "Traceability status is `planned` for requirement `RR-AUTH-04-VAL-04`.",
+      "resolution": "Every traceability row must be `passed` before delivery, unless an explicit approved waiver is recorded and `--allow-waivers` is used.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-RUNTIME-EVIDENCE-MISSING",
+      "message": "UI/runtime requirement `RR-AUTH-04-VAL-04` lacks concrete runtime/web/device/navigation evidence.",
+      "resolution": "Run the required real browser/device/navigation validation against the reconciliation branch runtime and record the evidence in the traceability row.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "TRACEABILITY-MARKER-EVIDENCE-MISMATCH",
+      "message": "Requirement `RR-AUTH-04-VAL-04` requires `web/browser`, but delivery evidence does not prove that exact marker.",
+      "resolution": "Update the implementation/test/runtime evidence to prove the named artifact or record an approved Spec Deviation Ledger row. Substituting a different control or behavior is not delivery.",
+      "section": "Acceptance Traceability Matrix"
+    },
+    {
+      "code": "VALIDATION-AREA-NOT-DELIVERED",
+      "message": "Validation matrix area has no matching delivery evidence: deterministic governance",
+      "resolution": "Add a delivery evidence row with the same area name and a concrete passed evidence artifact.",
+      "section": "Consolidated Delivery Evidence"
+    },
+    {
+      "code": "VALIDATION-AREA-NOT-DELIVERED",
+      "message": "Validation matrix area has no matching delivery evidence: integrated repo validation",
+      "resolution": "Add a delivery evidence row with the same area name and a concrete passed evidence artifact.",
+      "section": "Consolidated Delivery Evidence"
+    },
+    {
+      "code": "VALIDATION-AREA-NOT-DELIVERED",
+      "message": "Validation matrix area has no matching delivery evidence: rr-auth-01 landlord credential",
+      "resolution": "Add a delivery evidence row with the same area name and a concrete passed evidence artifact.",
+      "section": "Consolidated Delivery Evidence"
+    },
+    {
+      "code": "VALIDATION-AREA-NOT-DELIVERED",
+      "message": "Validation matrix area has no matching delivery evidence: rr-auth-03 account token binding",
+      "resolution": "Add a delivery evidence row with the same area name and a concrete passed evidence artifact.",
+      "section": "Consolidated Delivery Evidence"
+    },
+    {
+      "code": "VALIDATION-AREA-NOT-DELIVERED",
+      "message": "Validation matrix area has no matching delivery evidence: rr-auth-04 public auth reset risk",
+      "resolution": "Add a delivery evidence row with the same area name and a concrete passed evidence artifact.",
+      "section": "Consolidated Delivery Evidence"
+    },
+    {
+      "code": "DELIVERY-EVIDENCE-NOT-PASSED",
+      "message": "Delivery evidence status is `planned` for area `RR-AUTH tranche`.",
+      "resolution": "Run the required validation and record `passed`, or rerun with `--allow-waivers` only after an explicit user-approved waiver is recorded.",
+      "section": "Consolidated Delivery Evidence"
+    },
+    {
+      "code": "CI-EQUIVALENT-NOT-PASSED",
+      "message": "CI-equivalent local suite status is `planned` for `laravel-app / Laravel CI`.",
+      "resolution": "Run and pass the same local suite/job that CI will execute, or record an explicit approved waiver/`n/a` rationale when no CI surface truly applies.",
+      "section": "CI-Equivalent Local Suite Matrix"
+    },
+    {
+      "code": "RUNTIME-FRESHNESS-INCOMPLETE",
+      "message": "Runtime freshness evidence does not prove branch/commit, build artifact, served target, and freshness/provenance.",
+      "resolution": "Record the reconciliation branch/commit, build command or artifact id, served URL/device/tunnel, and the proof that the served runtime matches that build.",
+      "section": "Runtime Freshness Evidence"
+    }
+  ]
+}

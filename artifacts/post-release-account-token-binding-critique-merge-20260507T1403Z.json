@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-account-token-binding-critique-dispatch-20260507T1403Z.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "rr-auth-03-critique"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not close RR-AUTH-03 yet. First resolve the account-prefixed route bypass by requiring the account middleware or an equivalent explicit binding/revalidation gate on every account-scoped route, then add a deterministic route/middleware matrix test that fails if an account-prefixed route can avoid CheckUserAccess. Keep the legacy combined auth/middleware blocker recorded as verification debt until replaced by equivalent route coverage or formally waived."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-D3111EA9",
+      "severity": "high",
+      "title": "Some account-prefixed push routes bypass the new account token binding gate",
+      "rationale": "In routes/api/packages/project_account_api_v1/push_handler.php, the push message data and action routes use only InitializeAccount inside an auth:sanctum group, while the binding enforcement lives in the account middleware group through CheckUserAccess. That means missing or mismatched token account_id rejection is not guaranteed for those account-prefixed routes, and AccountUser::tokenCan() will not enter live current-account role revalidation because the CheckUserAccess context flag is never set.",
+      "suggested_action": "Require the account middleware group, or an equivalent explicit CheckUserAccess/token-account binding gate plus ability checks, on the push message data and action routes. Add regression tests proving foreign-account and missing-account tokens fail on these routes.",
+      "reviewer_labels": [
+        "rr-auth-03-critique"
+      ],
+      "source_finding_ids": [
+        "RR-AUTH-03-CRIT-001"
+      ],
+      "category": "security",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-8AAC87E5",
+      "severity": "medium",
+      "title": "Route coverage evidence is narrower than the package claim",
+      "rationale": "The package claims account-scoped routes reject missing or mismatched token account_id before ability authorization, but the evidence is mainly targeted account user, event, and focused push regression coverage. The TODO still records the legacy combined account API auth/middleware batch as blocked. Without a deterministic route/middleware inventory test, future or existing account-prefixed routes can bypass the binding gate while the targeted suites remain green.",
+      "suggested_action": "Add a route inventory assertion for account-prefixed routes requiring account middleware or a documented equivalent. Treat the blocked legacy combined batch as unresolved verification debt until this deterministic replacement exists or an approval-authority waiver is recorded.",
+      "reviewer_labels": [
+        "rr-auth-03-critique"
+      ],
+      "source_finding_ids": [
+        "RR-AUTH-03-CRIT-002"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-E2F0C912",
+      "severity": "low",
+      "title": "Token stamping performs multiple persistence steps",
+      "rationale": "TenantScopedAccessTokenService creates the Sanctum token, saves tenant_id, then saves account_id in a separate call. Account routes fail closed if account_id is absent, so this is not the main security flaw, but the split write is less elegant operationally and creates avoidable write amplification and partial-stamp states if a later save fails.",
+      "suggested_action": "Consolidate token metadata stamping into one attribute update/save path where practical, or explicitly document why partial stamping is acceptable because account routes reject missing account_id.",
+      "reviewer_labels": [
+        "rr-auth-03-critique"
+      ],
+      "source_finding_ids": [
+        "RR-AUTH-03-CRIT-003"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-account-token-binding-test-quality-dispatch-20260507T1424Z.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality-auditor"
+  ],
+  "highest_finding_severity": "low",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "acceptable",
+    "operational_fit": "acceptable"
+  },
+  "recommended_paths": [
+    "Proceed with the RR-AUTH-03 audit floor from a test-quality standpoint. Keep the explicit post-issuance role-revocation sequence as a low residual assurance improvement if pending audit question 3 must be proven literally rather than by the current stale-ability fixture."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-FB261E91",
+      "severity": "low",
+      "title": "Post-issuance role revocation is implicit rather than literal",
+      "rationale": "TenantPublicAccountTokenScopeTest.php:157-172 is an effective stale-ability fixture: the token carries account-users:create while the live current-account role only has account-users:view, so trusting token abilities alone would fail the test. It does not literally issue a valid create token, mutate the role after issuance, and prove revocation on the next request, which is the exact sequence raised in the package pending audit questions.",
+      "suggested_action": "If the approval authority requires literal coverage for role-change revocation, add one focused feature test that issues a create-capable account token, removes create from the account role, then asserts the next create request is rejected.",
+      "reviewer_labels": [
+        "test-quality-auditor"
+      ],
+      "source_finding_ids": [
+        "TQA-RR-AUTH-03-001"
+      ],
+      "category": "residual_risk",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-account-token-binding-verification-debt-dispatch-20260507T1424Z.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "verification-debt-auditor"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Keep RR-AUTH-03 at Local-Implemented checkpoint status only. Before completion, finish the required audit-floor gates, repair or replace the blocked combined batch evidence or record an approval-authority waiver, add or document explicit evidence for no-current-account issuance and next-request role/membership revocation, and rerun or formally scope the full-suite evidence against the intended clean closure baseline."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-372B11FA",
+      "severity": "high",
+      "title": "Closure remains blocked by unresolved audit-floor gates",
+      "rationale": "The TODO, bounded package, checkpoint, and audit-floor JSON all state that critique, security review, verification-debt audit, test-quality audit, independent final review, triple review, and Claude comparison were pending at dispatch time, and explicitly prohibit completion or archive movement until those gates are resolved or waived.",
+      "suggested_action": "Do not close RR-AUTH-03 until every required audit-floor artifact is recorded and any material finding is resolved or explicitly waived by the approval authority.",
+      "reviewer_labels": [
+        "verification-debt-auditor"
+      ],
+      "source_finding_ids": [
+        "VDA-001"
+      ],
+      "category": "residual_risk",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-1631C309",
+      "severity": "high",
+      "title": "Blocked legacy combined account API auth/middleware batch remains unclosed verification debt",
+      "rationale": "The TODO and checkpoint count targeted lanes as passed but leave the legacy combined account API auth/middleware batch blocked by fixture or harness issues. Because the real drift fixture set includes account route and middleware boundaries, this leaves a closure-relevant validation gap unless a narrower equivalent or explicit waiver is accepted.",
+      "suggested_action": "Repair the harness and run the batch, replace it with an explicitly mapped narrower equivalent, or record an approval-authority waiver that states why the residual route/middleware risk is safe to carry.",
+      "reviewer_labels": [
+        "verification-debt-auditor"
+      ],
+      "source_finding_ids": [
+        "VDA-002"
+      ],
+      "category": "residual_risk",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-FFF2E5ED",
+      "severity": "medium",
+      "title": "No-current-account token issuance semantics are under-specified and under-tested",
+      "rationale": "The canonical contract says account-user bearer tokens are bound to the selected account context, but AccountAuthenticationService falls back to the first accessible account when Account::current() is absent, and TenantScopedAccessTokenService can issue an account-user token without account_id when no account resolves. The recorded tests cover current-account issuance, not the no-current-account path.",
+      "suggested_action": "Either require an explicit current account for account-user token issuance, or document and test the fallback behavior so consumers and auditors can distinguish intentional selected-account binding from arbitrary first-account binding.",
+      "reviewer_labels": [
+        "verification-debt-auditor"
+      ],
+      "source_finding_ids": [
+        "VDA-003"
+      ],
+      "category": "residual_risk",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "project.account-token-binding.explicit-account-context"
+    },
+    {
+      "finding_id": "F-C8616D59",
+      "severity": "medium",
+      "title": "Next-request role or membership revocation evidence is not explicit",
+      "rationale": "The implementation revalidates live current-account permissions inside account-scoped context, and existing tests cover copied-token ability mismatch. However the package itself leaves open whether role changes or account membership changes revoke effective access on the next request, and no referenced test mutates role permissions or membership after token issuance to prove stale-token revocation.",
+      "suggested_action": "Add targeted regressions that issue a token, then remove or downgrade the current-account role and remove membership, and assert the next account-scoped request fails without requiring token rotation.",
+      "reviewer_labels": [
+        "verification-debt-auditor"
+      ],
+      "source_finding_ids": [
+        "VDA-004"
+      ],
+      "category": "residual_risk",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-71C8EEB3",
+      "severity": "medium",
+      "title": "Final full-suite evidence is not cleanly attributable to the bounded RR-AUTH-03 package",
+      "rationale": "The package and TODO record the full Laravel CI-equivalent suite as passed, but also state that it ran against a dirty Laravel tree containing unrelated RR-AUTH-01 changes. That validates an integrated local state, but it is weaker evidence for the bounded RR-AUTH-03 package unless that dirty baseline is explicitly accepted as the closure target.",
+      "suggested_action": "Rerun the final suite on a clean intended RR-AUTH-03 closure baseline, or record an explicit approval that the integrated dirty tree is the authoritative validation baseline for this checkpoint.",
+      "reviewer_labels": [
+        "verification-debt-auditor"
+      ],
+      "source_finding_ids": [
+        "VDA-005"
+      ],
+      "category": "residual_risk",
+      "formalizable_hint": "no",
+      "candidate_rule_level": "none",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

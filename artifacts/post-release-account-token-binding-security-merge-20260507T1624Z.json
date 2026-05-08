@@ -1,0 +1,110 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-account-token-binding-security-dispatch-20260507T1624Z.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "RR-AUTH-03 no-context security adversarial reviewer"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "unknown",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Hold RR-AUTH-03 at the audit floor until the TODO records deterministic evidence for runtime issuer enforcement, complete account-route/resource guardrail coverage, stale Account::current() reset semantics, and membership-removal revocation. If any legacy batch remains blocked, record an explicit waiver or acceptance rationale for the narrower equivalent before closure."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-FABD6021",
+      "severity": "high",
+      "title": "Direct AccountUser token issuance is not proven fail-closed at the runtime boundary",
+      "rationale": "The dispatch explicitly focuses on direct AccountUser createToken production bypass and residual package-side issuer scan risk. The bounded package says Averroes added a production issuer-discipline guardrail and public stampAccountId fail-open coverage, but it does not prove that AccountUser::createToken() itself rejects account-scoped abilities unless a validated account context and account_id stamp are present. If enforcement is only a scan or call-site discipline rule, any missed production path can mint an unbound or wrongly bound account-workspace bearer token.",
+      "suggested_action": "Make account-scoped token creation fail closed at the token creation/stamp boundary, not only through package-side issuer scans. Add a negative production-path regression for direct AccountUser::createToken() with account-scoped abilities and no validated account context.",
+      "reviewer_labels": [
+        "RR-AUTH-03 no-context security adversarial reviewer"
+      ],
+      "source_finding_ids": [
+        "RR-AUTH-03-SEC-001"
+      ],
+      "category": "security",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "account-user-token-issuer-runtime-invariant"
+    },
+    {
+      "finding_id": "F-C7F5D816",
+      "severity": "high",
+      "title": "Complete account-prefixed route and ability-resource guardrail coverage is asserted but not proven",
+      "rationale": "The replacement rule requires account-prefixed package routes that depend on Account::current() to use account middleware or an equivalent fail-closed guard. The package identifies push data/actions fixes and later claims account-prefixed route ability resource guardrail coverage, but it does not provide a deterministic route inventory or resource-catalog proof. A single uncovered account-prefixed route can authorize against absent, stale, or mismatched account context and become an account breakout path.",
+      "suggested_action": "Attach a deterministic router/resource inventory test or guardrail that enumerates account-prefixed package routes, identifies routes requiring Account::current(), and fails when account middleware or the required ability resource mapping is absent.",
+      "reviewer_labels": [
+        "RR-AUTH-03 no-context security adversarial reviewer"
+      ],
+      "source_finding_ids": [
+        "RR-AUTH-03-SEC-002"
+      ],
+      "category": "security",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "account-prefixed-route-current-account-guardrail"
+    },
+    {
+      "finding_id": "F-DD4F6DD2",
+      "severity": "medium",
+      "title": "Stale ambient Account::current() semantics remain under-specified in the package",
+      "rationale": "The package says second-correction evidence covers stale ambient current-account request-path coverage and no-current-account login semantics, but it does not state the invariant that clears or rejects stale account context across public, tenant, private, and account-scoped issuance paths. Because token mismatch rejection depends on Account::current(), stale ambient state can cause false denial and, if combined with issuer/stamp mistakes, wrong-account token binding.",
+      "suggested_action": "Record the request-scoped Account::current() reset/fail-closed invariant and include sequential negative tests covering account A context followed by no-current-account issuance and account B route access.",
+      "reviewer_labels": [
+        "RR-AUTH-03 no-context security adversarial reviewer"
+      ],
+      "source_finding_ids": [
+        "RR-AUTH-03-SEC-003"
+      ],
+      "category": "security",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "request-scoped-current-account-reset"
+    },
+    {
+      "finding_id": "F-D66812B7",
+      "severity": "medium",
+      "title": "Membership-removal revocation and mixed-role asymmetry need explicit closure evidence",
+      "rationale": "The package asks whether role-downgrade evidence is enough or whether membership-removal is residual debt, then later states membership-removal evidence exists without including the decisive matrix. For account-scoped bearer tokens, next-request live permission revalidation must reject deleted, detached, or disabled account memberships even when the token ceiling still contains matching abilities. Mixed-role fixtures also need wrong-account same-ability and read/write asymmetry coverage.",
+      "suggested_action": "Attach or add focused next-request regressions for role downgrade, membership removal, wrong-account same ability, and read/write asymmetry before marking the revocation surface closed.",
+      "reviewer_labels": [
+        "RR-AUTH-03 no-context security adversarial reviewer"
+      ],
+      "source_finding_ids": [
+        "RR-AUTH-03-SEC-004"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "account-token-live-membership-revalidation-matrix"
+    },
+    {
+      "finding_id": "F-86596F4D",
+      "severity": "medium",
+      "title": "Legacy auth/middleware batch debt still weakens audit-floor closure",
+      "rationale": "The package says the legacy combined account API auth/middleware batch was blocked by fixture or harness issues and remains verification debt unless repaired, accepted through a narrower equivalent, or waived. It also says Averroes supplied a deterministic narrower equivalent, but the package does not record the acceptance decision. Without that decision, the audit cannot distinguish real product authorization drift from harness-only debt.",
+      "suggested_action": "Record the explicit acceptance rationale for the narrower equivalent, or repair and rerun the blocked legacy batch. Do not close the security audit floor while this remains ambiguous.",
+      "reviewer_labels": [
+        "RR-AUTH-03 no-context security adversarial reviewer"
+      ],
+      "source_finding_ids": [
+        "RR-AUTH-03-SEC-005"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "blocked-security-suite-waiver-or-equivalent-evidence"
+    }
+  ]
+}

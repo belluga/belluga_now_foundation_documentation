@@ -19,7 +19,7 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
   - `foundation_documentation/modules/task_and_reminder_module.md`
 - Tactical TODO streams:
   - `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`
-  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-android.md`
   - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
   - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
   - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-funnel-metrics-validation.md`
@@ -34,6 +34,8 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
         * The anonymous app baseline stays explicit after preview: feed browsing, map browsing, and favorites remain available without forced login; invite accept/decline, `send_invite`, `/profile`, and presence/check-in remain authenticated boundaries.
         * Screen flows continue with:
             1. Minimal pre-auth profile context only when needed; authenticated upgrade, when required, is phone-OTP only via backend-owned `POST /auth/otp/challenge` + `POST /auth/otp/verify`.
+               - Google Play review access, when enabled, must reuse this same phone + code UI contract. Any dedicated review credential is backend-only policy on the normal verify endpoint, not an alternate client path.
+               - Password login/register/reset remain backend-disabled by default for the launch tenant-public posture. Any future password-enabled tenant-public surface must be explicitly enabled by backend governance and inherits the hardened hashed single-use expiring reset-token lifecycle.
             2. Contact import prompt (`import contacts to share with friends`) wired to Invite module’s endpoint.
             3. Optional “Find friends” preview from `friend_resumes` to encourage immediate viral sharing.
         * After contact import (or skip), user transitions to preference capture + location consent steps to personalize home/map.
@@ -91,6 +93,7 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
     * After a user's canonical phone identity becomes stable through the approved OTP/onboarding path, onboarding owns the follow-up handoff that may trigger late reconciliation against hashes previously imported by other viewers.
     * The immediate post-OTP app handoff is separate from the late reflection lane: once Flutter emits the registered identity, the application shell must run post-auth hydration for release-critical user-linked repositories such as favorites, confirmed occurrences, and pending invites.
     * OTP transport is not an onboarding-owned provider flow: delivery is queued by Laravel jobs through tenant outbound integration webhook settings, with WhatsApp preferred and OTP-specific URL optional. Public app bootstrap exposes only derived delivery flags, such as SMS fallback availability, and must not expose provider webhook URLs.
+    * Backend auth governance is fail-closed: when tenant-public auth customization is enabled but no explicit password subset is approved, onboarding/public auth remains OTP-only instead of inheriting password availability implicitly. If password reset is ever enabled for a tenant-public surface, the reset token contract is high-entropy, hashed at rest, explicit-expiry, and single-use.
     * This follow-up may later feed advisory reflection surfaces such as `Talvez você conheça` and informational lifecycle notifications like "contact entered the app".
     * These reflection surfaces must remain discovery-only until explicit favorite promotes the relationship into the normal inviteable rules.
 
@@ -113,6 +116,7 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 1. Invite acceptance does not encode event capacity or later fulfillment availability. Capacity, reservation availability, and check-in feasibility are downstream concerns and must not redefine the social invite decision.
 2. If an invite is already expired when the user reaches the decision point, onboarding falls back to preference/discovery progression without auto-decline or suppression.
 3. V1 onboarding remains one tenant-public user flow. Account/promoter/workspace-specific onboarding variants are post-MVP and do not belong to the current release lane.
+4. Tenant mobile app identifiers and app-link credential payloads are tenant-admin trust boundaries. App identifiers are read/mutated only through authenticated tenant-admin `/admin/api/v1/appdomains` routes with `CheckTenantAccess` plus current-tenant `tenant-domains:read|update` role ability; public well-known app-link payloads derive from those authorized tenant records and `settings.app_links`, not from anonymous onboarding input. For the launch contract, `tenant-domains:update` intentionally owns typed app-domain and app-link trust mutation.
 
 ---
 
@@ -131,14 +135,16 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 | `ONB-07` | Approved | Invite acceptance is independent from event capacity/fulfillment availability; expired invite resolution falls back to onboarding progression without auto-decline or suppression. | Prevents onboarding from overloading invite semantics with downstream operational availability. | Sections `2`, `5` |
 | `ONB-08` | Approved | V1 onboarding is a shared tenant-public user flow; account/promoter/workspace-specific onboarding variants are post-MVP. | Removes role-specific onboarding ambiguity from the current release lane. | Section `5` |
 | `ONB-09` | Approved | Successful OTP/authenticated upgrade hands off to Flutter post-auth hydration for registered user-linked state; late identity-materialization reflection remains a separate follow-up lane. | Prevents login completion from leaving favorites, confirmations, or pending invites stale while preserving the narrower VNext reflection boundary. | Sections `3`, `4`; `foundation_documentation/modules/flutter_client_experience_module.md` `FCX-12` |
+| `ONB-10` | Approved | App-link trust derives from tenant-admin-owned app-domain identifiers and `settings.app_links`; app-domain read/mutation requires tenant access plus current-tenant `tenant-domains` role ability. | Prevents onboarding or anonymous web-to-app flows from becoming an alternate app-link trust mutation surface. | Section `5`; `foundation_documentation/modules/tenant_admin_module.md` app-domain endpoints |
 
 ## 7. Tactical TODO Promotion Ledger
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
 | `TODO-v1-invites-implementation.md` | Invite acceptance/contact-import flow contracts | Completed (2026-03-12) | `2`, `4`, `6` | Main authority for invite/onboarding boundary. |
-| `TODO-store-release-android.md` | Android release orchestration authority | In progress | `1.1`, `5`, `7` | Replaces the former MVP release orchestrator as the active sequencing authority. |
+| `TODO-store-release-android.md` | Android release orchestration authority | Completed | `1.1`, `5`, `7` | Historical Android publication orchestrator for the completed Android-first release wave. |
 | `TODO-store-release-phone-otp-auth-and-contact-match.md` | Phone-OTP upgrade and identity baseline | In progress | `2`, `3`, `4`, `6`, `7` | Freezes the authenticated upgrade path that onboarding must hand off into, including the immediate post-auth hydration handoff for registered user-linked repositories. |
 | `TODO-store-release-minimal-friends-and-favorites-mvp.md` | Minimal user-level friends/favorites release contract | In progress | `2`, `4` | Owns the release-facing friend preview/social-proof contract referenced by onboarding. |
 | `TODO-store-release-funnel-metrics-validation.md` | Release funnel metrics validation | Promotion lane candidate | `3`, `7` | Freezes identity funnel event/property evidence for auth wall, signup, OTP challenge, OTP verification, and anonymous merge; post-release sink/readback hardening moved to the dedicated post-release TODO. |
+| `TODO-post-release-tenant-app-domain-authorization-and-app-link-integrity-hardening.md` | App-link trust-boundary hardening for tenant-owned app identifiers | Implementation checkpoint after audit follow-up | `5`, `6`, `7` | Promotes that onboarding/web-to-app flows consume app-link trust only from tenant-admin-owned app domains and `settings.app_links`; local implementation and final CI-equivalent validation are reconciled, with audit gates still pending. |
 | `TODO-vnext-onboarding-identity-reconciliation-reflection.md` | Late identity-materialization reconciliation + advisory reflection surfaces | Pending follow-up | `3`, `4`, `6`, `7` | Owns post-onboarding reflection (`Talvez você conheça`, informational lifecycle hints) after canonical identity materialization. |

@@ -1,0 +1,63 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-public-auth-password-reset-risk-hardening-package-triple-audit-20260508T030556Z/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "RR-AUTH-04-triple-audit-performance",
+  "overall_assessment": "Round 01 is not performance-clean. Reset-issue cooldowns are consumed before the system knows issuance succeeded, the cooldown is email-scoped while reset invalidation is user-scoped, and the reissue-required recovery contract is not yet promoted into canonical docs.",
+  "recommended_path": "Fix the cooldown semantics and user-scope alignment before another audit round, then decide whether the recovery-contract documentation gap should remain as non-blocking debt.",
+  "performance_position": "regresses",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "PERF-01",
+      "severity": "high",
+      "title": "Reset-issue cooldown is consumed before issuance success is known",
+      "rationale": "At review time the reset issue path acquired the cooldown before token issuance had definitively succeeded and did not reliably roll it back if issuance failed. That can create a false suppression window and force unnecessary retries under error conditions.",
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "reset-issue-cooldown-rollback-on-failure",
+      "affected_paths": [
+        "laravel-app/app/Application/Auth/PasswordResetTokenService.php",
+        "laravel-app/app/Application/Profiles/TenantProfileService.php",
+        "laravel-app/app/Application/Profiles/LandlordProfileService.php"
+      ],
+      "suggested_action": "Ensure cooldown acquisition is scoped to successful issuance or explicitly released on issuance failure."
+    },
+    {
+      "finding_id": "PERF-02",
+      "severity": "medium",
+      "title": "Cooldown suppression is email-scoped while token invalidation is user-scoped",
+      "rationale": "The reset lifecycle invalidates older tokens per user, but the cooldown at review time followed the email subject only. That leaves alias-rotation space where one user with multiple email subjects can bypass the intended reset issuance ceiling.",
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "user-scoped-reset-cooldown",
+      "affected_paths": [
+        "laravel-app/app/Application/Auth/PasswordResetTokenService.php",
+        "laravel-app/app/Application/Profiles/TenantProfileService.php",
+        "laravel-app/app/Application/Profiles/LandlordProfileService.php"
+      ],
+      "suggested_action": "Align the reset issuance cooldown with the same user-scoped identity used for token invalidation."
+    },
+    {
+      "finding_id": "PERF-03",
+      "severity": "low",
+      "title": "Reissue-required reset recovery contract is not promoted into canonical docs",
+      "rationale": "The slice already behaves as burn-before-mutate with fresh reissue required after post-consume mutation failure, but that recovery contract is not yet promoted clearly enough into the canonical authority surfaces.",
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "reset-reissue-recovery-contract-promotion",
+      "affected_paths": [
+        "foundation_documentation/todos/active/post_release_hardening/TODO-post-release-public-auth-password-reset-and-risk-matrix-hardening.md",
+        "foundation_documentation/artifacts/post-release-public-auth-password-reset-risk-hardening-package.md",
+        "foundation_documentation/modules/onboarding_flow_module.md"
+      ],
+      "suggested_action": "Promote the reissue-required recovery contract into the TODO/package/module authority surfaces or accept the documentation gap as low debt."
+    }
+  ]
+}

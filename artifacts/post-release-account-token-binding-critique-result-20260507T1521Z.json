@@ -1,0 +1,66 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-account-token-binding-critique-dispatch-20260507T1521Z.json",
+  "review_kind": "critique",
+  "reviewer_label": "no-context-paced-reviewer-rr-auth-03",
+  "overall_assessment": "Mixed. The core account-token binding path is directionally sound: persisted bearer tokens are stamped, account middleware rejects missing or mismatched account_id, wildcard-aware ceilings are centralized, and live role revalidation is scoped to account middleware context. Approval-clean closure is still blocked by bounded evidence gaps around push data/actions ability-ceiling semantics and no-current-account issuance behavior, plus already-recorded verification debt.",
+  "recommended_path": "Do not close RR-AUTH-03 yet. Resolve or explicitly waive the push data/actions ability-ceiling ambiguity, add direct login-path coverage for the single-access/no-current-account fallback and multi-account no-current-account behavior, and keep the legacy batch/full-suite-attribution verification debt open until repaired, narrowly substituted, or authority-waived.",
+  "performance_position": "acceptable",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "RR-AUTH-03-NC-001",
+      "severity": "medium",
+      "title": "Push data/actions routes do not prove Sanctum ceiling or live permission revalidation",
+      "rationale": "The changed push data/actions routes attach only account middleware, unlike the adjacent account push CRUD routes that also attach abilities middleware. In the bounded implementation, AccountUser::tokenCan() only performs wildcard ceiling and live role revalidation when an ability check calls it. The positive push test uses a push-messages:* token, but because these two routes have no abilities middleware, that test does not prove that push-messages:* is required or that a downgraded/non-push account-bound token would be rejected before reaching the controllers. This may be intentional recipient-route behavior, but it is not documented or evidenced in the bounded package.",
+      "category": "security",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "account-prefixed-routes-that-rely-on-token-ceiling-must-apply-ability-or-documented-equivalent",
+      "affected_paths": [
+        "laravel-app/routes/api/packages/project_account_api_v1/push_handler.php:32",
+        "laravel-app/routes/api/packages/project_account_api_v1/push_handler.php:34",
+        "laravel-app/app/Models/Tenants/AccountUser.php:137",
+        "laravel-app/tests/Feature/Push/PushMessageFlowTest.php:149",
+        "laravel-app/tests/Feature/Push/PushMessageFlowTest.php:3735"
+      ],
+      "suggested_action": "Either add the intended abilities or an explicit controller-level equivalent for data/actions, or document these as account-bound recipient endpoints where account membership/audience eligibility intentionally replaces push-messages ability checks. In either case add a regression with an account-bound token lacking push-messages ability to prove the chosen contract."
+    },
+    {
+      "finding_id": "RR-AUTH-03-NC-002",
+      "severity": "medium",
+      "title": "No-current-account login behavior remains under-specified and under-tested",
+      "rationale": "AccountAuthenticationService now resolves a fallback account only when exactly one accessible account exists, but if no account is resolved it still calls issueForAccountUser with empty abilities and null account_id. The fail-closed unit coverage exercises TenantScopedAccessTokenService directly with account-scoped abilities, not the password login path. That leaves the user-facing behavior for multi-account login without selected account ambiguous: it avoids arbitrary account binding, but can still mint an unbound no-ability token instead of requiring account selection or returning an explicit failure.",
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "account-login-without-current-account-must-have-explicit-single-access-or-selection-contract",
+      "affected_paths": [
+        "laravel-app/app/Application/Auth/AccountAuthenticationService.php:27",
+        "laravel-app/app/Application/Auth/AccountAuthenticationService.php:32",
+        "laravel-app/app/Application/Auth/AccountAuthenticationService.php:34",
+        "laravel-app/app/Application/Auth/TenantScopedAccessTokenService.php:122",
+        "laravel-app/tests/Unit/Application/Auth/AccountAuthenticationServiceTest.php:148"
+      ],
+      "suggested_action": "Add direct AccountAuthenticationService::login tests for no-current-account exact-one fallback success and multi-account no-current-account behavior. If an unbound empty-ability token is intentional, document that consumer contract; otherwise fail closed with an account-selection/auth error."
+    },
+    {
+      "finding_id": "RR-AUTH-03-NC-003",
+      "severity": "medium",
+      "title": "Verification debt still prevents approval-clean closure",
+      "rationale": "The governing TODO still records the legacy combined account API auth/middleware batch as open verification debt and the full-suite evidence as attributed to an integrated dirty tree with unrelated RR-AUTH-01 changes. That is acceptable for Local-Implemented evidence, but not for final closure or promotion readiness under the dispatch goal.",
+      "category": "residual_risk",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "auth-hardening-closure-requires-clean-bounded-or-waived-verification-evidence",
+      "affected_paths": [
+        "foundation_documentation/todos/active/post_release_hardening/TODO-post-release-account-scoped-token-ability-binding.md:220",
+        "foundation_documentation/todos/active/post_release_hardening/TODO-post-release-account-scoped-token-ability-binding.md:221"
+      ],
+      "suggested_action": "Before marking RR-AUTH-03 complete, repair the legacy batch, map and run a narrower equivalent, or record an approval-authority waiver; separately rerun/attribute the full suite on a clean bounded RR-AUTH-03 baseline or waive the attribution gap."
+    }
+  ]
+}

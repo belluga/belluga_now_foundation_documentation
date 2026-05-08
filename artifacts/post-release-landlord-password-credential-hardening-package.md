@@ -1,0 +1,205 @@
+# Post-Release Landlord Password Credential Hardening Package
+
+## Package Identity
+
+- **Package:** `post-release-landlord-password-credential-hardening`
+- **Execution slice:** `RR-AUTH-01`
+- **Scope:** bounded landlord email/password auth consistency repair plus validation on the real admin login surface
+- **Governing TODO:** `foundation_documentation/todos/active/post_release_hardening/TODO-post-release-landlord-password-credential-source-of-truth-hardening.md`
+- **Feature brief:** `foundation_documentation/artifacts/feature-briefs/rule-related-todo-orchestration.md`
+- **Orchestration status:** `active-current-todo`
+
+## Orchestration Binding
+
+- This package is the active bounded lane inside the approved rule-related orchestration.
+- The orchestration must not advance to the next TODO until this lane reaches:
+  - `local implementation complete`,
+  - `triple audit clean` or `accepted-debt`,
+  - required subagent review outputs recorded and merged,
+  - `Claude CLI` fourth-auditor experiment recorded or explicit operational failure logged,
+  - and all TODO-local evidence gates are satisfied.
+- This package is derived and non-authoritative. The TODO remains the governing contract.
+
+## Real Drift Fixture
+
+- Runtime drift proving the defect:
+  - landlord user `admin@bellugasolutions.com.br` exists,
+  - `credentials[provider=password, subject=admin@bellugasolutions.com.br].secret_hash` validates `765432e1`,
+  - `Hash::check('765432e1', user.password)` is `false`,
+  - `POST /admin/api/v1/auth/login` returned `403 As credenciais fornecidas estão incorretas.`
+- This real split-brain state is the regression anchor. Reviewers and validation cannot rely only on idealized happy paths.
+
+## Frozen Rule Set
+
+### Violated Rule
+
+- Landlord email/password auth currently allows source-of-truth drift between top-level `landlord_users.password` and `credentials(provider=password).secret_hash`.
+- Login reads only the legacy field while some write paths already sync the credential surface, so valid operator credentials can be rejected after partial state mutations.
+
+### Replacement Canonical Rule
+
+- `credentials(provider=password).secret_hash` is the canonical and exclusive landlord password authority.
+- This package does not permit a "credential-first but legacy-retained" outcome; top-level `landlord_users.password` / `password_type` must be removed from repaired landlord-user state.
+- Landlord login must resolve the requested landlord email subject to a matching password credential and must not fall back to top-level `password` or to an unrelated password credential subject.
+- Landlord password and landlord-email mutations must maintain password credential coverage for every current landlord email subject.
+- Top-level `password` / `password_type` are forbidden landlord runtime state after repair and must be explicitly removed during backfill and all repaired write paths.
+- The `LandlordUser` model strips forbidden legacy password fields but does not create or mutate password credentials; application services and explicit repair/backfill own credential writes.
+- Legacy-only non-dry-run repair is explicit operator-intent credential creation with per-record classification, not runtime auth broadening.
+
+### Strongest Objective PACED Guardrail For This Slice
+
+- Fail-first Laravel regression coverage must lock:
+  - login success when the requested email subject has the canonical password credential even if legacy `password` is stale,
+  - login failure for legacy-only landlord users without a password credential,
+  - login failure when the requested email subject does not have a password credential,
+  - password update/reset and landlord email add/remove synchronization across all current landlord email subjects,
+  - register/bootstrap/create paths preserving password credential sync.
+- Final closure also requires:
+  - local CI-equivalent Laravel suite,
+  - real admin login route probe,
+  - blocked local-public mutation shard rerun,
+  - explicit detection/backfill evidence for legacy-only or split-brain landlord users,
+  - `triple audit` session as the principal audit gate,
+  - one bounded `Claude CLI` fourth-auditor run near closure for later auditor-performance comparison.
+
+## Planned Changed Surfaces
+
+### Laravel Source
+
+- `laravel-app/app/Application/Auth/LandlordAuthenticationService.php`
+- `laravel-app/app/Application/Profiles/LandlordProfileService.php`
+- `laravel-app/app/Application/LandlordUsers/LandlordUserAccessService.php`
+- `laravel-app/app/Application/LandlordUsers/LandlordUserCreator.php`
+- `laravel-app/app/Application/LandlordUsers/LandlordPasswordCredentialBackfillService.php`
+- `laravel-app/app/Application/Initialization/Actions/RegisterAdministratorUserAction.php`
+- `laravel-app/app/Models/Landlord/LandlordUser.php`
+- `laravel-app/routes/console.php`
+
+### Laravel Tests
+
+- `laravel-app/tests/Unit/Application/Auth/LandlordAuthenticationServiceTest.php`
+- `laravel-app/tests/Unit/Application/Profiles/LandlordProfileServiceTest.php`
+- `laravel-app/tests/Unit/Application/LandlordUsers/LandlordUserCreatorTest.php`
+- `laravel-app/tests/Unit/Application/Initialization/SystemInitializationServiceTest.php`
+- `laravel-app/tests/Unit/Application/LandlordUsers/LandlordPasswordCredentialBackfillServiceTest.php`
+- `laravel-app/tests/Api/v1/Admin/ApiV1AdminAuthTest.php`
+- `laravel-app/tests/Api/v1/Admin/ApiV1AdminProfileTest.php`
+- `laravel-app/tests/Traits/EnsuresSystemInitialization.php`
+
+### Documentation
+
+- governing TODO above
+- canonical admin/consumer module note if the source-of-truth decision becomes stable truth beyond the tactical TODO
+
+## Current Implemented Surface Summary
+
+- `LandlordAuthenticationService::login()` now resolves only subject-specific password credentials and rejects legacy-only landlord users.
+- `LandlordProfileService` password update/reset plus landlord email add/remove flows now keep password credentials synchronized for every current landlord email subject and remove legacy password fields instead of leaving `user.password` behind as shadow state.
+- `LandlordUserCreator` and `RegisterAdministratorUserAction` now create/synchronize landlord users without persisting `password` / `password_type`.
+- `LandlordUserAccessService` now exposes canonical password-credential helpers, explicit legacy-state removal, and orphan subject pruning support.
+- `LandlordPasswordCredentialBackfillService` provides deterministic inspect/repair classification for `clean`, `normalize`, `conflict`, and `unrecoverable` users.
+- `LandlordUser` saving now strips forbidden top-level `password` / `password_type` state without creating or mutating password credentials.
+- `routes/console.php` now exposes `landlord:password-credentials:repair {--dry-run}` as the deterministic operator repair surface.
+
+## Current Validation Evidence
+
+1. Targeted RR-AUTH-01 Laravel suite passed:
+   - `./scripts/delphi/run_laravel_tests_safe.sh tests/Unit/Application/Auth/LandlordAuthenticationServiceTest.php tests/Unit/Application/Profiles/LandlordProfileServiceTest.php tests/Unit/Application/LandlordUsers/LandlordUserCreatorTest.php tests/Unit/Application/Initialization/SystemInitializationServiceTest.php tests/Unit/Application/LandlordUsers/LandlordPasswordCredentialBackfillServiceTest.php tests/Api/v1/Admin/ApiV1AdminAuthTest.php tests/Api/v1/Admin/ApiV1AdminProfileTest.php`
+   - `tests/Unit/Guardrails/TenantCanonicalSelectionGuardrailTest.php`
+   - result after worker checkpoint adoption, substantive-audit model-boundary fix, and independent test-quality backfill-safety follow-up: `59 passed`, `271 assertions`
+2. Real landlord login route probe succeeded on `2026-05-07`:
+   - source env: `../.env.local.navigation`
+   - route: `${NAV_LANDLORD_URL}/admin/api/v1/auth/login`
+   - summary: HTTP `200`, valid JSON, token present when the request includes browser-like headers and `device_name`; a raw non-browser probe during this lane hit `Cloudflare Error 1010`, so browser-signature parity is required for authoritative route evidence here
+3. Browser mutation reruns still clear landlord login on the repaired final state:
+   - `NAV_WEB_SHARD=otp-auth bash tools/flutter/run_web_navigation_smoke.sh mutation`
+   - result: login gate cleared; failure remained downstream at admin settings locator `Integrações técnicas`
+   - `NAV_WEB_SHARD=invite-session bash tools/flutter/run_web_navigation_smoke.sh mutation`
+   - result: `1 passed`; remaining failure is anonymous invite runtime navigation `net::ERR_ABORTED`, not landlord auth rejection
+   - reconciliation rerun after worker checkpoint adoption: `otp-auth` cleared tenant-admin login on rerun and failed later on technical integrations `502`; `invite-session` hit local-public `502` on anonymous identity bootstrap and tenant-admin login. Direct landlord auth probe remained `HTTP 200` with token present, so these are downstream/runtime blockers rather than landlord password credential regressions.
+4. Real stale-hash regression is now covered and fixed:
+   - `LandlordPasswordCredentialBackfillServiceTest::test_repair_preserves_canonical_password_credential_when_legacy_password_hash_is_stale()`
+   - substantive audit follow-up: `LandlordUser` now strips legacy password fields without credential writes; `LandlordPasswordCredentialBackfillServiceTest::test_unrelated_landlord_user_save_strips_legacy_password_state_without_overwriting_canonical_credential()` and `test_direct_legacy_password_assignment_is_stripped_without_creating_password_credential()` prove the model boundary cannot overwrite or create password credentials
+   - independent test-quality follow-up: `test_dry_run_reports_normalizable_drift_without_mutating_persisted_legacy_or_credentials()` proves dry-run is non-mutating while still reporting normalizable buckets; `test_repair_skips_unrecoverable_user_without_credential_creation_or_runtime_auth_broadening()` proves unrecoverable users remain fail-closed; `test_legacy_password_state_in_create_payload_is_stripped_without_creating_password_credential()` closes the Claude NB-01 direct-create edge
+5. Backfill/detection evidence now spans both the original drift and the repaired safe dataset:
+   - initial dry-run before repair: `inspected=6`, `normalized=6`, `split_brain_normalized=4`, `legacy_only_normalized=2`, `skipped_conflicts=0`, `skipped_unrecoverable=0`
+   - post-fix dry-run after repair: `inspected=6`, `clean=6`, `normalized=0`, `skipped_conflicts=0`, `skipped_unrecoverable=0`
+   - local-public admin credential was resynchronized through `LandlordProfileService::updatePassword(..., '765432e1')` after the stale-hash bug had already corrupted that safe runtime record
+6. Laravel architecture guardrails passed:
+   - `docker compose exec -T app php scripts/architecture_guardrails.php`
+7. Full Laravel CI-equivalent suite passed:
+   - the host `composer` path is not usable in this environment (`php` missing for host wrapper), so the CI-equivalent run executed in the bound `app` container
+   - `docker compose exec -T -e APP_ENV=testing -e APP_URL=http://nginx -e APP_HOST=nginx -e APP_KEY=base64:GmmALtgdmR+nNYciHr0ynX/QoqHXmoXXtbwHVNWg8Pk= -e APP_FAKER_LOCALE=pt_BR -e DB_CONNECTION_LANDLORD=landlord -e DB_CONNECTION_TENANTS=tenant -e DB_URI='mongodb://mongo:27017/landlord_test?replicaSet=rs0&directConnection=true' -e DB_URI_LANDLORD='mongodb://mongo:27017/landlord_test?replicaSet=rs0&directConnection=true' -e DB_URI_TENANTS='mongodb://mongo:27017/tenants_test?replicaSet=rs0&directConnection=true' -e DB_DATABASE=landlord_test -e DB_DATABASE_LANDLORD=landlord_test -e DB_DATABASE_TENANTS=tenants_test app php artisan test --fail-on-warning --display-warnings`
+   - result: `1362 passed`, `6413 assertions`, duration `616.95s`
+
+## Worker Checkpoint Evidence
+
+- `RR-AUTH-01` implementation was re-owned by the `Landlord auth worker subagent` under the approved subagent-worktree reconciliation skill.
+- Laravel worker branch: `worker/rr-auth-01-landlord-credential-20260507`
+- Laravel worker commits: `6e5200aeb90044f0b770b9ed7e472636a677e331`, `097941dd03e6f7f6bc79962ed29bd6a3b37276d7`, `7384453e208d1486da35edd640efd0758612343e`, `8c7aece7f13dd7a5dc8a5cc8a72f7d5fa9574d43`
+- Docs worker branch: `worker/rr-auth-01-docs-20260507`
+- Docs worker commits: `8c885069e8b7677c796cce9fb53e36e9f466bf46`, `d3b8a55fa265e97d7d4ac6eb30aed60aa919ea46`
+- Worker checkpoint manifest: `foundation_documentation/artifacts/checkpoints/post-release-rule-related-auth-identity-rr-auth-01-worker-checkpoint-2026-05-07.md`
+- Reconciliation status: all worker Laravel checkpoint files match the principal reconciliation checkout after accepted reconciliation of the two stricter all-email credential synchronization lines.
+- Substantive-audit follow-up worker evidence: targeted unit slice passed `26` tests / `93` assertions after consolidating the model mutation boundary; admin API fixture slice passed `29` tests / `141` assertions.
+- Independent test-quality follow-up worker evidence: backfill test file passed `10` tests / `74` assertions after adding dry-run, unrecoverable, and direct-create legacy-field strip coverage; targeted RR-AUTH-01 auth/profile/backfill/admin API slice passed `58` tests / `270` assertions; architecture guardrails passed.
+- Reconciliation targeted suite: `./scripts/delphi/run_laravel_tests_safe.sh ...` passed `59` tests / `271` assertions on the principal checkout after worker checkpoint adoption, substantive-audit model-boundary fix, and independent test-quality backfill-safety follow-up.
+- Reconciliation guardrails/backfill: `docker compose exec -T app php scripts/architecture_guardrails.php` passed; `docker compose exec -T app php artisan landlord:password-credentials:repair --dry-run` reported `inspected=6`, `clean=6`, `normalized=0`, `skipped_conflicts=0`, `skipped_unrecoverable=0`.
+- `Claude CLI` fourth-auditor experiment completed in `foundation_documentation/artifacts/claude-cli-reviews/RR-AUTH-01-landlord-password-credential-claude-review-20260507T0540Z.md`: verdict `PROCEED`, no blockers, with non-blocking edge notes; NB-01 was closed by the localized direct-create test above.
+
+## Final Review Gate Evidence
+
+- Triple audit: `foundation_documentation/artifacts/post-release-landlord-password-credential-hardening-package-triple-audit-20260507T0507Z/session.json`
+  - Round 01 recorded valid findings and resolution/adjudication.
+  - Round 02 converged with zero findings across Elegance, Performance, and Test Quality; the non-material recommended-path conflict was adjudicated as resolved.
+- Independent critique: `foundation_documentation/artifacts/post-release-landlord-password-credential-critique-merge-20260507T0507Z.md`
+  - Findings were resolved or synchronized into accepted non-blocking residual evidence.
+- Independent test-quality: `foundation_documentation/artifacts/post-release-landlord-password-credential-test-quality-merge-20260507T0540Z.md`
+  - `RR-AUTH-01-TQA-001` was resolved by worker commit `8c7aece7f13dd7a5dc8a5cc8a72f7d5fa9574d43` and principal validation `59` tests / `271` assertions.
+- Corrected security review: `foundation_documentation/artifacts/post-release-landlord-password-credential-security-merge-20260507T0553Z.md`
+  - Security risk level `low`; attack simulation `not_needed`; highest finding severity `none`.
+- Corrected verification-debt audit: `foundation_documentation/artifacts/post-release-landlord-password-credential-verification-debt-merge-20260507T0553Z.md`
+  - No hidden verification-debt blocker; inline code TODO debt `none`; highest finding severity `none`.
+- Independent final review: `foundation_documentation/artifacts/post-release-landlord-password-credential-final-review-merge-20260507T0507Z.md`
+  - Its only blocker was incomplete closure-gate evidence. The missing gates are now recorded above, so the final-review blocker is procedurally resolved.
+- Claude CLI fourth-auditor comparison artifact: `foundation_documentation/artifacts/claude-cli-reviews/RR-AUTH-01-landlord-password-credential-claude-review-20260507T0540Z.md`
+  - Verdict `PROCEED`; no blockers. Claude added non-blocking edge notes; direct-create legacy-field strip coverage was added in the worker follow-up.
+
+## Closure Classification
+
+- `RR-AUTH-01` implementation/reconciliation gate: no unresolved blocker.
+- Remaining residuals are accepted non-blocking debt: repair chunking if cardinality grows, downstream local-public/browser shard failures outside landlord-auth semantics, and Claude's zero-credential addEmail / bootstrap re-init / timing-distinguishability notes.
+- Next orchestration step: advance to `RR-AUTH-02` under the approved subagent-worktree orchestration plan.
+
+## Frontend / Consumer Matrix
+
+| Producer Surface | Consumer | Visible Route / Action | Request / Readback Evidence | Render / Flow Evidence | Waiver |
+| --- | --- | --- | --- | --- | --- |
+| `LandlordAuthenticationService::login()` | `Admin Web` | `/admin/login` on landlord/local-public runtime | Laravel login tests plus direct route probe on the repaired runtime | blocked local-public mutation shards rerun on the same admin login surface | none |
+| `LandlordProfileService::updatePassword()` / `addEmail()` / `removeEmail()` | `Admin Web` operator profile management | admin profile password update and email management | Laravel persistence tests reading canonical password credentials for all current emails plus absence of legacy password state | browser waiver acceptable if no UI delta is introduced | structure-only browser waiver |
+| `LandlordProfileService::resetPassword()` | `Admin Web` operator password reset | admin profile reset-password flow | Laravel persistence tests reading canonical password credentials for all current emails plus absence of legacy password state | browser waiver acceptable if no UI delta is introduced | structure-only browser waiver |
+| landlord password credential backfill / drift detection | internal-only backend | operator repair guidance | Laravel tests plus deterministic detection/backfill command or routine evidence | no direct frontend consumer | internal-only |
+
+## Planned Evidence And Gates
+
+1. RED tests added for split-brain and migration fallback cases.
+2. Minimal implementation inside the frozen boundary only.
+3. Targeted Laravel tests proving the new rule.
+4. Local CI-equivalent Laravel suite from the governing TODO.
+5. TODO evidence update:
+   - Completion Evidence Matrix
+   - Decision Adherence
+   - module/doc sync
+   - drift detection/backfill note
+6. `triple audit` session for this TODO only, using this package as the bounded input.
+7. Merge critique/security/test-quality/final/verification-debt outputs from derived subagent dispatch packets back into the governing TODO.
+8. Run the bounded `Claude CLI` fourth-auditor experiment, recording findings or operational unavailability without granting it implementation authority.
+9. Real route probe plus blocked local-public mutation shard rerun.
+
+## Audit Questions
+
+1. Does the implementation enforce `credentials(provider=password)` as the only landlord password authority without any runtime fallback to `user.password` and without retaining top-level password state after repair?
+2. Do update/reset/register/bootstrap/email mutations keep password-credential subjects synchronized strongly enough to prevent recurrence?
+3. Are the tests anchored to the real observed drift, not just generic login happy paths?
+4. Does the legacy-user backfill routine converge old records without silently broadening auth semantics?
+5. Does the closure evidence prove the real admin login surface is repaired, not only backend internals?

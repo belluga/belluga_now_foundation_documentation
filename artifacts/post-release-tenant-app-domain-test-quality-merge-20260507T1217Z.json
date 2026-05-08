@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-tenant-app-domain-test-quality-dispatch-20260507T1217Z.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "no-context-rr-auth-02-test-quality-auditor"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not treat the audit as fully closure-clean until the final RR-AUTH-02 deliverable state is reconciled to the promotable index or explicitly documented as working-tree evidence. Consider adding focused adjacent /domains denied restore/force-delete mutation assertions if the team wants behavioral coverage independent of route-list proof."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-92753F4B",
+      "severity": "medium",
+      "title": "Final CI-equivalent evidence is not yet tied to a reconciled promotable file state",
+      "rationale": "The package records a final safe-runner pass of 1383 tests and 6552 assertions, but the Laravel checkout currently has RR-AUTH-02-relevant follow-up content split across staged, unstaged, and untracked states. In particular, CheckCurrentTenantRoleAbility.php is untracked, while routes and app-domain tests are MM. The tests may be valid for the working tree, but a staged-only promotion would omit part of the evidenced authorization layer.",
+      "suggested_action": "Reconcile the final RR-AUTH-02 files into the intended promotable state, then rerun or explicitly bind the recorded CI-equivalent evidence to that final state before closure.",
+      "reviewer_labels": [
+        "no-context-rr-auth-02-test-quality-auditor"
+      ],
+      "source_finding_ids": [
+        "TQA-RR-AUTH-02-1217-001"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-39F840E7",
+      "severity": "low",
+      "title": "Adjacent /domains restore and force-delete denial remain route-list-proven rather than behavior-proven",
+      "rationale": "TenantDomainControllerTest covers borrowed-token denial for /domains read, store, and delete, and route-list evidence shows current-tenant role middleware on restore and force-delete. However, there is no behavior-level denied restore or force-delete assertion proving non-mutation if those route-specific middleware bindings regress.",
+      "suggested_action": "Add one focused borrowed-token /domains denial test for restore and force-delete that asserts 403 plus unchanged deleted_at/record presence, or explicitly accept route-list proof as sufficient for those adjacent routes.",
+      "reviewer_labels": [
+        "no-context-rr-auth-02-test-quality-auditor"
+      ],
+      "source_finding_ids": [
+        "TQA-RR-AUTH-02-1217-002"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

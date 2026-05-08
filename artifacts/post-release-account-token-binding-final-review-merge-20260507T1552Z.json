@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-account-token-binding-final-review-dispatch-20260507T1552Z.json",
+  "review_kind": "final_review",
+  "review_count": 1,
+  "reviewer_labels": [
+    "codex-independent-final-review"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not proceed to triple audit or Claude comparison yet. Resolve or approval-waive the open verification debts, and add objective issuer-discipline evidence or a guard before treating RR-AUTH-03 as audit-floor clean."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-CB7685DD",
+      "severity": "high",
+      "title": "Legacy combined auth/middleware verification debt remains open",
+      "rationale": "The dispatch package and TODO still record the legacy combined account API auth/middleware batch as blocked, with no narrower equivalent execution and no approval-authority waiver. Because this slice hardens the account middleware and token authorization boundary, leaving that lane unresolved is a closure blocker under the package's own gate language.",
+      "suggested_action": "Repair and run the legacy batch, execute a documented narrower equivalent that covers the account auth/middleware boundary, or record an approval-authority waiver before proceeding.",
+      "reviewer_labels": [
+        "codex-independent-final-review"
+      ],
+      "source_finding_ids": [
+        "FR-RR-AUTH-03-POST-001"
+      ],
+      "category": "residual_risk",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "RR-AUTH-03-VDA-002"
+    },
+    {
+      "finding_id": "F-460A0F55",
+      "severity": "medium",
+      "title": "Issuer fail-close is service-local but not structurally enforced",
+      "rationale": "TenantScopedAccessTokenService now fails closed for account-scoped abilities, but the bounded tests still demonstrate that AccountUser::createToken can mint an unbound bearer token with account-scoped abilities. Route middleware rejects that token on account routes, but the replacement rule also claims unbound reusable account-workspace bearer tokens are not valid output. The package does not provide a static guard or proof that production issuance cannot bypass the service.",
+      "suggested_action": "Add objective evidence or an architecture guard that account-scoped account-user token issuance uses TenantScopedAccessTokenService outside tests, or move the fail-closed check behind a model-level issuance wrapper that direct callers cannot bypass silently.",
+      "reviewer_labels": [
+        "codex-independent-final-review"
+      ],
+      "source_finding_ids": [
+        "FR-RR-AUTH-03-POST-003"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "account-token-issuer-service-only"
+    },
+    {
+      "finding_id": "F-A2523EF5",
+      "severity": "medium",
+      "title": "Full-suite evidence is not attributable to a clean bounded RR-AUTH-03 state",
+      "rationale": "The recorded Laravel CI-equivalent suite passed, but the package explicitly says it included unrelated RR-AUTH-01 dirty-tree changes. That validates an integrated local state, not a clean bounded RR-AUTH-03 baseline, and the TODO still carries this as open verification debt.",
+      "suggested_action": "Rerun the full suite on a clean bounded baseline, explicitly accept the integrated dirty-tree baseline, or record a waiver before final closure.",
+      "reviewer_labels": [
+        "codex-independent-final-review"
+      ],
+      "source_finding_ids": [
+        "FR-RR-AUTH-03-POST-002"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "RR-AUTH-03-VDA-005"
+    }
+  ]
+}

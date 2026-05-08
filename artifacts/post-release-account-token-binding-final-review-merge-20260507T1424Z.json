@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-account-token-binding-final-review-dispatch-20260507T1424Z.json",
+  "review_kind": "final_review",
+  "review_count": 1,
+  "reviewer_labels": [
+    "codex-no-context-final-review"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not proceed as closure-clean to triple audit/Claude comparison until the token ceiling check and tests are corrected. Implement wildcard-aware token-ceiling evaluation or expand account role wildcards at token issuance, then rerun targeted bearer-token regressions and the relevant validation lanes."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-30A386C4",
+      "severity": "high",
+      "title": "Resource wildcard role abilities can be rejected before live account-role revalidation",
+      "rationale": "AccountAuthenticationService issues account-user tokens from role permissions without expanding resource wildcards such as account-users:* or push-messages:*. AccountUser::tokenCan then returns false immediately when the stored Sanctum token does not exactly can() the requested route ability, so AccountUserAccessService::tokenAllows never gets to apply its live current-account wildcard logic. The changed tests mostly issue exact abilities or use Sanctum::actingAs with exact abilities, while production-style roles in the referenced push/account fixtures use resource wildcards. This contradicts the documented ceiling-over-live-permissions model and can block valid account-bound bearer tokens on account-scoped routes.",
+      "suggested_action": "Make the token-ceiling step use the same account ability wildcard semantics as live role permissions, or expand role wildcards into exact account-scoped catalog abilities before token storage. Add bearer-token regression coverage through real issue/login paths for account-users:*, push-messages:*, events:*, and * roles, including same-account allow and wrong-account reject cases.",
+      "reviewer_labels": [
+        "codex-no-context-final-review"
+      ],
+      "source_finding_ids": [
+        "FR-001"
+      ],
+      "category": "adherence",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

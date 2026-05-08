@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-account-token-binding-security-dispatch-20260507T1552Z.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "no-context-security-adversarial-reviewer"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "acceptable"
+  },
+  "recommended_paths": [
+    "Do not close RR-AUTH-03 until the public account stamp helper is either made fail-closed/private behind the guarded issuer path or explicitly waived with proof that no production caller can use it to create or preserve an unbound account-scoped bearer token. After that, the package is acceptable for the required audit-floor rerun; legacy combined-batch and full-suite attribution debt should remain tracked as verification debt, not as evidence of an active product breakout in the bounded files reviewed."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-81B25E93",
+      "severity": "medium",
+      "title": "Public stampAccountId remains a fail-open token-binding escape hatch",
+      "rationale": "TenantScopedAccessTokenService::issueForAccountUser now validates resolved account_id against normalized user access before creating account-scoped tokens, which closes the direct issuer bug. However, the same service still exposes public stampAccountId(NewAccessToken, ?string $accountId = null), and that method silently returns when no account id can be resolved. That keeps a separate stamp path capable of preserving an unbound token if a legacy or future caller creates a token and relies on this public helper rather than the guarded issuer. The bounded grep showed current app callers use issueForAccountUser, so this is a structural escape hatch rather than a reproduced current route breakout, but it contradicts the package goal that account-scoped token issue/stamp paths fail closed.",
+      "suggested_action": "Make stampAccountId private to the guarded issueForAccountUser flow, or replace it with a guarded method that requires AccountUser plus ability list and throws when account-scoped abilities cannot be bound. Add a regression proving no public service API can create or leave an account-scoped token without account_id.",
+      "reviewer_labels": [
+        "no-context-security-adversarial-reviewer"
+      ],
+      "source_finding_ids": [
+        "RR-AUTH-03-SEC-POST-001"
+      ],
+      "category": "security",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-4E2C8F20",
+      "severity": "low",
+      "title": "Account-scoped ability detection is coupled to a hard-coded resource catalog",
+      "rationale": "The reviewed account route files use account-users, account-roles, events, and push-messages, and those exact resources are present in TenantScopedAccessTokenService::ACCOUNT_SCOPED_ABILITY_RESOURCES. That is clean for the bounded package today. The residual risk is that adding a future account-prefixed route with a new ability resource would not automatically require account binding at token issuance unless this service constant is updated in lockstep. That would reintroduce the same class of unbound account-workspace bearer token issue for the new resource.",
+      "suggested_action": "Formalize a guardrail or test that derives account-scoped ability resources from account-prefixed route middleware declarations, or fails when account routes introduce an ability resource missing from the token-binding catalog.",
+      "reviewer_labels": [
+        "no-context-security-adversarial-reviewer"
+      ],
+      "source_finding_ids": [
+        "RR-AUTH-03-SEC-POST-002"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}
