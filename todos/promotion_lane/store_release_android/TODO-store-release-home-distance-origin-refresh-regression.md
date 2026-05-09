@@ -33,7 +33,7 @@ This TODO does **not** reopen the broader post-release identity-backed proximity
 - It does not own the broader post-release identity-backed proximity-preference roadmap or reusable reference-location core.
 
 ## References
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+- `foundation_documentation/todos/completed/TODO-store-release-android.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-v1-screen-user-profile-polish.md`
 - `foundation_documentation/todos/active/post_release_hardening/TODO-store-release-proximity-preferences-and-location-origin.md`
 - `foundation_documentation/modules/tenant_home_composer_module.md`

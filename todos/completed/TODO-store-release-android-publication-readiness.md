@@ -1,5 +1,10 @@
-# Title
-Android Publication Readiness
+# TODO (Completed): Android Publication Readiness
+
+**Completed note (2026-05-06):** Android publication readiness is no longer a planning gap; the Android app has now been accepted in the store. This file remains as historical evidence of the readiness lane that fed the published release.
+
+## Closure Status
+- **Status:** `Completed`
+- **Disposition:** `Delivered and retained for release-history traceability`
 
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
@@ -18,10 +23,10 @@ The current active backlog covers conversion, invites, favorites, and app-link b
 - It does not replace conversion/invite/product behavior TODOs; it complements them.
 - If release work widens into a full DevOps/store-ops program, split it.
 
-## Delivery Status Canon (Required)
-- **Current delivery stage:** `Pending`
-- **Qualifiers:** `Planning-Ready`
-- **Next exact step:** identify and freeze the minimum Android store-release checklist owned by the repo/backlog rather than leaving it implicit.
+## Delivery Status Canon (Historical)
+- **Final delivery stage:** `Completed`
+- **Historical qualifiers:** `Planning-Ready`, `Store-Accepted`
+- **Closure rationale:** the readiness lane served its purpose and is now historical because Android publication acceptance was achieved.
 
 ## Scope
 - [ ] Define Android release-artifact readiness ownership (build/signing/versioning/release candidate discipline).
@@ -88,7 +93,7 @@ The current active backlog covers conversion, invites, favorites, and app-link b
 
 ## Execution Plan (Required Before `APROVADO`)
 ### Touched Surfaces
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-android-publication-readiness.md`
+- `foundation_documentation/todos/completed/TODO-store-release-android-publication-readiness.md`
 
 ### Ordered Steps
 1. Freeze the publication-readiness scope.

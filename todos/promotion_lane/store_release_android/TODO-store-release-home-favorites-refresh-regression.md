@@ -29,7 +29,7 @@ Audit, Claude, PR, and promotion reviews for this TODO must not request favorite
 - If investigation proves the backend favorite response/stream contract is missing required data, this TODO may absorb the minimum backend/API correction required for Home refresh, but must document that handoff before implementation.
 
 ## References
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+- `foundation_documentation/todos/completed/TODO-store-release-android.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/artifacts/execution-plans/store-release-wave2-social-consumer-gaps-orchestration-plan.md`
 - `foundation_documentation/modules/tenant_home_composer_module.md`

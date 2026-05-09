@@ -79,5 +79,5 @@ Bóora! is the platform. Tenant brands are hosted on the platform and must not b
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
-| `TODO-store-release-android.md` | Cross-module Android release convergence | In progress | `3`, `4`, `5` | Current release orchestrator for cross-module publication alignment. |
+| `TODO-store-release-android.md` | Cross-module Android release convergence | Completed | `3`, `4`, `5` | Historical Android publication orchestrator for the completed Android-first release milestone. |
 | `TODO-v1-module-doc-consolidation-all-modules.md` | Module-first canonicalization program | Promoted | `6`, `7`, `8` | Completed in `foundation_documentation/todos/completed/`. |

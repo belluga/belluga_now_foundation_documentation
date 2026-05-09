@@ -47,7 +47,7 @@ What is still missing is the implementation guarantee. Today the public runtime 
 
 ## References
 
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+- `foundation_documentation/todos/completed/TODO-store-release-android.md`
 - `foundation_documentation/todos/completed/TODO-v1-event-detail-about-rich-media-contract.md`
 - `foundation_documentation/todos/completed/TODO-v1-immersive-event-detail-dynamic-profile-category-tabs.md`
 - `foundation_documentation/todos/completed/TODO-v1-tenant-admin-form-field-ux-upgrade.md`

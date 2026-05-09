@@ -1,6 +1,6 @@
 # TODO (Fast Follow): iOS Universal Links Production Validation (Guarappari)
 
-**Classification note (2026-04-17):** this work remains sequenced after the Android-first gate and is the direct technical execution authority for the mandatory iOS fast-follow lane under `foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-obligatory.md`. The older sequencing-only wrapper `TODO-ios-store-fast-follow.md` has been retired as redundant.
+**Classification note (2026-04-17, refreshed 2026-05-06):** this work remains sequenced after the Android-first gate and is itself the direct technical execution authority for the mandatory iOS fast-follow lane. The older sequencing-only wrappers have been retired as redundant.
 **Scope authority note (2026-04-18):** canonical product posture already lives in `foundation_documentation/policies/web_to_app_promotion_policy.md`, `foundation_documentation/endpoints_mvp_contracts.md`, and the Android store-release web-to-app TODO. This TODO does not own policy invention. It owns only the iOS-specific delivery specialization: Universal Links/AASA production validation plus the iOS deferred-capture implementation path under the already-approved package-owned deep-link architecture.
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
@@ -38,7 +38,6 @@
 
 ## References
 - `foundation_documentation/policies/web_to_app_promotion_policy.md`
-- `foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-obligatory.md`
 - `foundation_documentation/todos/completed/TODO-v1-invite-deeplink-identity-first-delivery.md`
 - `foundation_documentation/todos/completed/TODO-v1-deeplink-host-resolved-well-known.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
@@ -52,7 +51,7 @@
 ## Dependencies & Sequencing
 
 - [ ] `DEP-01` `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` remains the upstream authority for the Android-first baseline and shared web-to-app contracts. This TODO specializes that baseline for iOS and must not diverge from it.
-- [x] `DEP-02` `foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-obligatory.md` already freezes this lane as mandatory fast-follow rather than optional backlog.
+- [x] `DEP-02` This lane is already frozen as mandatory fast-follow rather than optional backlog.
 - [x] `DEP-03` `foundation_documentation/todos/active/fast_follow_required/TODO-qr-login-web-auth.md` is a sibling fast-follow lane, not a blocker for iOS Universal Links / deferred-capture delivery.
 
 ## Scope

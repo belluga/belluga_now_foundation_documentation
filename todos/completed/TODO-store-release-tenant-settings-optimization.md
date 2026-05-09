@@ -1,5 +1,10 @@
-# Title
-Store Release: Tenant Settings Read-Path Materialization
+# TODO (Completed): Store Release - Tenant Settings Read-Path Materialization
+
+**Completed note (2026-05-06):** the broad materialization goal of this TODO is already delivered. Healthy tenant `/api/v1/environment` reads are snapshot-backed, rebuild/version/fallback behavior exists, and the remaining residual found in review was downgraded to a deferred micro-optimization (`deferred_micro_optimizations/TODO-environment-app-domain-lookup-deduplication.md`). This file remains only as audit history.
+
+## Closure Status
+- **Status:** `Completed`
+- **Disposition:** `Delivered and retained for audit history`
 
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
@@ -27,10 +32,10 @@ This TODO exists to freeze the canonical read-model direction: keep settings ker
 - This TODO is **bounded but elastic**: Delphi may absorb local discoveries only while they remain inside the same primary objective and the same main approval/review/promotion conversation. Secondary modules may still be touched when they are subordinate to that same slice.
 - If any assumption or plan step changes `Scope`, `Out of Scope`, `Definition of Done`, required validation semantics, public contract, or frozen decisions, update the TODO contract first and request renewed approval before execution continues.
 
-## Delivery Status Canon (Required)
-- **Current delivery stage:** `Pending`
-- **Qualifiers:** `Post-Release-Hardening`, `Release-Gate-Deferred`, `Cross-Stack`, `Reopened-Functional-Gap`, `Evidence-Incomplete`
-- **Next exact step:** prove the materialized snapshot/read-model implementation, rebuild triggers, fallback behavior, and parity before this TODO can return to an execution/promotion lane.
+## Delivery Status Canon (Historical)
+- **Final delivery stage:** `Completed`
+- **Historical qualifiers:** `Post-Release-Hardening`, `Cross-Stack`
+- **Closure rationale:** snapshot-backed environment/bootstrap delivery, rebuild triggers, fallback behavior, and parity evidence are now present in the repo; the remaining landlord-host `app_domain` double-lookup was reclassified as a low-priority deferred micro-optimization rather than an open implementation gap in this slice.
 
 ## Scope
 - [ ] Define one canonical derived tenant snapshot/read model for hot settings/bootstrap consumers.

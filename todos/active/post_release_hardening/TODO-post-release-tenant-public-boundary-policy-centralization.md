@@ -10,6 +10,14 @@ The canonical policy is already defined in `foundation_documentation/policies/we
 
 This hardening TODO centralizes that policy after Store Release so future screens cannot drift into case-by-case boundary handling.
 
+## Drift Guardrail Requirement
+- This TODO is an auth/boundary drift-prevention slice.
+- Before migrating scattered local checks, execution must freeze:
+  - the violated boundary rule,
+  - the executable replacement rule,
+  - and the strongest objective PACED guardrail available so new tenant-public screens cannot reintroduce local boundary drift after remediation.
+- The currently observed local `kIsWeb` / auth-state drift cases must be included in the validation set for that guardrail so the policy proves it catches the real patterns already seen in the repo.
+
 ## Delivery Status Canon
 - **Current delivery stage:** `Post-Release-Backlog`
 - **Qualifiers:** `Hardening`, `Architecture-Guard`, `Flutter`, `Tenant-Public`, `Post-Store-Release`, `Not-Store-Release-Blocker`
@@ -94,4 +102,3 @@ This hardening TODO centralizes that policy after Store Release so future screen
 
 ## Store Release Relationship
 This TODO documents a hardening follow-up discovered during Store Release validation. The current release can proceed with the already implemented route guards and targeted action fixes, provided the release-specific tests pass. This TODO exists to prevent future boundary drift after release, not to delay the current store submission.
-

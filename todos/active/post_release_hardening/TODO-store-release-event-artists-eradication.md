@@ -23,6 +23,15 @@ The previous event-parties lane correctly closed the canonical cutover: tenant-a
 
 This residue was not just harmless historical storage. At the start of this lane, the release app still consumed `artists` through Flutter DTOs, event models, account-profile agenda parsing, map/event projections, discovery live-now logic, upcoming-event cards, favorites/public-web helpers, occurrence sync projections, search/index assumptions, tests, and fixtures. This TODO has since landed the cross-stack eradication and now remains in promotion follow-through only.
 
+## Drift Guardrail Requirement
+- This TODO is not just residue cleanup; it is a dynamic-registry-hardcode drift slice.
+- Before final remediation/closure work, execution must freeze:
+  - the violated canonical rule (`artists` is not an approved runtime/public composition contract),
+  - the replacement rule (derive counterpart semantics from canonical linked/canonical sources),
+  - and the strongest objective PACED guardrail available so similar hardcoded dynamic-contract regressions are caught in the future.
+- The currently observed `artists` residues must become validation fixtures for that guardrail so the rule proves it would have caught the same family of drift that already occurred.
+- The desired result is to remove the drift class, not only the last visible `artists` fields.
+
 ## Package-First Assessment
 - Query executed: `bash delphi-ai/tools/query_packages.sh --project-root /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker --search "event artists linked account profiles favorites public web metadata"`
 - Relevant packages found: none
@@ -70,7 +79,7 @@ This residue was not just harmless historical storage. At the start of this lane
 
 ## References
 
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+- `foundation_documentation/todos/completed/TODO-store-release-android.md`
 - `foundation_documentation/todos/completed/TODO-v1-event-parties-canonicalization-and-legacy-migration.md`
 - `foundation_documentation/modules/events_module.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`

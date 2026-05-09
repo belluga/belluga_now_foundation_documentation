@@ -93,7 +93,7 @@ This TODO also absorbs the former standalone auth-entry polish slice: the MVP no
 - [x] Web promotion-only/auth-boundary rules remain unchanged and are explicitly preserved.
 
 ## Validation Steps
-- [x] TODO is linked from `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`.
+- [x] TODO is linked from `foundation_documentation/todos/completed/TODO-store-release-android.md`.
 - [x] Dependency edge to `TODO-store-release-minimal-friends-and-favorites-mvp.md` is explicit.
 - [x] Upstream auth-governance baseline is delivered in `foundation_documentation/todos/completed/TODO-store-release-landlord-tenant-auth-method-governance.md` and exposes the effective Belluga tenant-public auth-method contract.
 - [x] Backend feature tests cover OTP challenge, OTP verify, cooldown/TTL/rate-limit behavior, anonymous-to-authenticated merge, and contact-hash matching after verification.
@@ -130,7 +130,7 @@ This TODO also absorbs the former standalone auth-entry polish slice: the MVP no
 | `DOD-07` | Definition of Done | Contact matching depends on normalized verified phone identity with backend-owned hardened hash materialization rather than raw phone storage in matching flows. | Backend contract and module docs | `T2-phone-otp-auth-contact-match-review-packet.md`; invite/social module docs | Local Laravel feature tests | passed | Contact matching remains backend-owned and phone-hash based. |
 | `DOD-08` | Definition of Done | Belluga tenant-public Flutter/Laravel release behavior no longer depends on email/password. | Flutter UI tests and Laravel route quarantine | `fvm flutter test test/presentation/common/auth/screens/auth_login_screen/auth_login_controller_contract_test.dart`; Laravel quarantine tests in Local Delivery Notes | Local Flutter/Laravel tests | passed | Tenant-public release auth has no password entry and legacy password APIs are gated. |
 | `DOD-09` | Definition of Done | Web promotion-only/auth-boundary rules remain unchanged and are explicitly preserved. | Playwright readonly source and route guard tests | `tools/flutter/web_app_tests/otp_auth_public.spec.js` `@readonly OTP-WEB-BOUNDARY-01`; `npx playwright test --grep '@readonly.*OTP-WEB-BOUNDARY' --list`; `scripts/build_web.sh ../web-app dev` | Playwright readonly source/list; refreshed `../web-app` bundle | passed | `/auth/login` web boundary remains app promotion/handoff and does not expose OTP. |
-| `VAL-01` | Validation Steps | TODO is linked from `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`. | Documentation link audit | Store-release parent TODO reference plus this TODO | Foundation docs | passed | Parent linkage preserved. |
+| `VAL-01` | Validation Steps | TODO is linked from `foundation_documentation/todos/completed/TODO-store-release-android.md`. | Documentation link audit | Store-release parent TODO reference plus this TODO | Foundation docs | passed | Parent linkage preserved. |
 | `VAL-02` | Validation Steps | Dependency edge to `TODO-store-release-minimal-friends-and-favorites-mvp.md` is explicit. | Documentation dependency audit | References and Dependencies sections in this TODO | Foundation docs | passed | T3 social dependency is explicit and guard-clean in promotion lane. |
 | `VAL-03` | Validation Steps | Upstream auth-governance baseline is delivered in `foundation_documentation/todos/completed/TODO-store-release-landlord-tenant-auth-method-governance.md` and exposes the effective Belluga tenant-public auth-method contract. | Documentation and completed TODO evidence | Completed upstream TODO plus Local Delivery Notes | Foundation docs | passed | Belluga OTP consumes the frozen generic auth-method governance baseline. |
 | `VAL-04` | Validation Steps | Backend feature tests cover OTP challenge, OTP verify, cooldown/TTL/rate-limit behavior, anonymous-to-authenticated merge, and contact-hash matching after verification. | Laravel feature tests | Laravel test commands recorded in `foundation_documentation/artifacts/T2-phone-otp-auth-contact-match-review-packet.md` | Local Laravel Docker/test DB | passed | Prior T2 backend packet remains the source of record for this local gate. |
@@ -171,7 +171,7 @@ This TODO also absorbs the former standalone auth-entry polish slice: the MVP no
   - `foundation_documentation/modules/invite_and_social_loop_module.md` section `4 APIs & Events` + `Sanctum + Identity Requirement`
 
 ## References
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+- `foundation_documentation/todos/completed/TODO-store-release-android.md`
 - `foundation_documentation/todos/completed/TODO-store-release-landlord-tenant-auth-method-governance.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
@@ -230,7 +230,7 @@ This TODO also absorbs the former standalone auth-entry polish slice: the MVP no
 - `foundation_documentation/todos/completed/TODO-store-release-landlord-tenant-auth-method-governance.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/todos/completed/TODO-v1-screen-signin-signup-polish.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+- `foundation_documentation/todos/completed/TODO-store-release-android.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
 - `foundation_documentation/modules/onboarding_flow_module.md`

@@ -22,7 +22,7 @@ This document retains open questions for future workspace-facing analytics, but 
 - Tactical TODO streams:
   - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`
-  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-android.md`
 
 ## 2. Topics to Address (Future Session)
 

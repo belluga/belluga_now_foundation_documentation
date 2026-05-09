@@ -22,7 +22,7 @@ The Transaction Bridge module (MOD-305) captures the planned future bridge betwe
 - Tactical TODO streams:
   - `foundation_documentation/todos/active/vnext/TODO-v1-ticketing-package-integration.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-checkout-package-integration.md`
-  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-android.md`
 
 ---
 

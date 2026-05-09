@@ -1,6 +1,6 @@
 # TODO (V1): First Release Delivery Plan (Orchestrator)
 
-**Superseded sequencing note (2026-04-16):** this file remains a historical orchestrator for the earlier MVP/Pre-MVP framing, but it is no longer the active release authority. Use `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md` for the current Android-first publication milestone.
+**Superseded sequencing note (2026-04-16, refreshed 2026-05-06):** this file remains a historical orchestrator for the earlier MVP/Pre-MVP framing. The later Android-first publication milestone also completed and now lives as historical record in `foundation_documentation/todos/completed/TODO-store-release-android.md`.
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
 **Status:** Active  

@@ -21,10 +21,10 @@ This checkpoint records the post-tranche local reconciliation snapshot. The auth
 | Repository | Branch | Commit SHA / State | Push target | Included | Notes |
 | --- | --- | --- | --- | --- | --- |
 | `docker-root` | `reconcile/post-release-rule-related-auth-identity-20260506` | `principal HEAD after submodule-pointer reconciliation` | `origin/reconcile/post-release-rule-related-auth-identity-20260506` | `yes` | Principal integrator branch for the auth/identity snapshot; unrelated web-navigation harness work still exists locally outside this checkpoint. |
-| `flutter-app` | `dev` | `f0a4657727926ebadacc4fbd06a5464e0e2a259c` | `origin/dev` | `no` | Current Flutter dirt is unrelated tenant-admin WIP and remains excluded from this checkpoint. |
+| `flutter-app` | `reconcile/post-release-rule-related-auth-identity-20260506` | `f0a4657727926ebadacc4fbd06a5464e0e2a259c + local tenant-admin WIP` | `n/a while excluded from auth checkpoint contents` | `no` | Runtime-facing source checkout is now aligned to the orchestration branch so principal local validation does not fall back to `dev`; the current Flutter dirt remains unrelated tenant-admin WIP and stays excluded from this checkpoint. |
 | `laravel-app` | `reconcile/post-release-rule-related-auth-identity-20260506` | `66332cb0642c26a5cca99639846656a7f249f7f2` | `origin/reconcile/post-release-rule-related-auth-identity-20260506` | `yes` | The full RR-AUTH implementation/test delta is now committed on the dedicated reconciliation branch. |
 | `foundation_documentation` | `reconcile/post-release-rule-related-auth-identity-20260506` | `branch HEAD on the committed RR-AUTH evidence snapshot` | `origin/reconcile/post-release-rule-related-auth-identity-20260506` | `yes` | Carries the governing plan, TODO closures, module updates, audit artifacts, and this checkpoint manifest on the reconciliation branch. |
-| `web-app` | `submodule-detached-at-root-main` | `621596f02be5f973f33afb4e965923f458b28a78` | `n/a` | `no` | Generated bundle surface stays excluded unless a later publish lane explicitly owns it. |
+| `web-app` | `derived bundle surface` | `current generated-output branch/WIP is intentionally non-authoritative for RR-AUTH` | `n/a` | `no` | Generated bundle surface stays excluded unless a later publish lane explicitly owns it; its branch state is not orchestration truth for local runtime validation. |
 
 ## Evidence Summary
 | Area | Evidence | Status |
@@ -35,13 +35,14 @@ This checkpoint records the post-tranche local reconciliation snapshot. The auth
 | `tests` | The authoritative focused and impacted-auth suites remain green, and the final branch-level Laravel CI-equivalent rerun on the committed reconciliation snapshot passed with `1448 passed`, `7008 assertions`, `963.27s`. | `passed` |
 | `runtime/browser/device` | RR-AUTH-01 local-public route probe and mutation-shard evidence remain the runtime/browser authority surface for the only UI/runtime lane in scope; RR-AUTH-02 through RR-AUTH-04 remain backend request/readback/config lanes. | `passed` |
 | `build/publish freshness` | not in scope for the current RR-AUTH-01 auth-only closure step | `n/a` |
+| `runtime-facing branch authority` | Principal local runtime validation now keeps `docker-root`, `laravel-app`, and `flutter-app` on `reconcile/post-release-rule-related-auth-identity-20260506`; `web-app` remains derived and non-authoritative. | `passed` |
 
 ## Exclusions / Dirty Surfaces
 | Path / Repository | Reason Excluded | Follow-up |
 | --- | --- | --- |
 | `flutter-app` dirty working tree | unrelated tenant-admin state outside the RR-AUTH tranche | leave dirty; do not fold into this checkpoint |
 | `docker-root` web navigation harness changes | pre-existing local-public harness work outside the auth/identity tranche | leave dirty; reconcile only if a later runtime-validation lane explicitly needs them |
-| `web-app` generated output | generated artifact | leave dirty unless a later publish lane owns it |
+| `web-app` generated output / branch state | derived artifact, not source-branch authority | leave dirty unless a later publish lane owns it |
 | `laravel-app` non-tranche future work | any later non-auth/identity edits after `66332cb0642c26a5cca99639846656a7f249f7f2` | start a new branch or promotion lane instead of mutating this checkpoint silently |
 | `foundation_documentation` broader pre-existing dirty state | cross-lane documentation drift already present before this checkpoint | leave dirty; only auth/identity tranche artifacts are authoritative for this lane |
 
@@ -53,3 +54,4 @@ This checkpoint records the post-tranche local reconciliation snapshot. The auth
 ## Notes
 - This checkpoint now records the promotion-ready RR-AUTH tranche rather than a partial mid-wave recovery state.
 - Promotion to `dev|stage|main` is still intentionally out of scope. The checkpoint only claims local reconciliation, committed snapshot materialization, and the validation/evidence state already recorded by the governing RR-AUTH artifacts.
+- Local runtime/testing discipline for this checkpoint is now explicit: `root + laravel-app + flutter-app` stay on the orchestration branch when authoritative local validation is required, while `web-app` remains a derived bundle surface.

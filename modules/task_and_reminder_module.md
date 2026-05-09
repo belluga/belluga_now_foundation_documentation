@@ -18,7 +18,7 @@ The Task & Reminder Orchestration module (MOD-306) governs every follow-up oblig
   - `foundation_documentation/modules/invite_and_social_loop_module.md`
   - `foundation_documentation/modules/transaction_bridge_module.md`
 - Tactical TODO streams:
-  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-android.md`
   - `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`
 
 ---
@@ -125,4 +125,4 @@ Appends events (creation, acknowledgement, completion) for auditability.
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
 | `TODO-v1-invites-implementation.md` | Invite reminder/check-in integration and follow-up intents | Completed | `2`, `5`, `8` | Invite delivery authority is complete; reminder/check-in follow-up remains deferred to later attendance-oriented slices. |
-| `TODO-store-release-android.md` | Android release orchestration priorities and hardening sequence | In progress | `4`, `7` | Current release-level authority for reminder-adjacent readiness and sequencing. |
+| `TODO-store-release-android.md` | Android release orchestration priorities and hardening sequence | Completed | `4`, `7` | Historical Android publication orchestrator; remaining reminder-adjacent work now belongs to post-release or later lanes. |

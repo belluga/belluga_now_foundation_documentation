@@ -27,6 +27,15 @@ This slice exists to harden the rule at the architecture level: image flows are 
 - This TODO is **bounded but elastic**: Delphi may absorb local discoveries only while they remain inside the same primary objective and the same main approval/review/promotion conversation. Secondary modules may still be touched when they are subordinate to that same slice.
 - If any assumption or plan step changes `Scope`, `Out of Scope`, `Definition of Done`, required validation semantics, public contract, or frozen decisions, update the TODO contract first and request renewed approval before execution continues.
 
+## Drift Guardrail Requirement
+- This TODO is drift-remediation work, not just migration work.
+- Before correcting remaining media-flow deviations, execution must first freeze:
+  - the violated canonical media rule,
+  - the replacement rule,
+  - and the strongest objective PACED guardrail available (architecture guardrail, deterministic audit, CI/static check, or equivalent).
+- The currently observed non-canonical media paths must become regression fixtures for that guardrail, so the rule is proven against the real drift that triggered this TODO.
+- The goal is to eliminate the drift class, not only the currently observed instances.
+
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Pending`
 - **Qualifiers:** `Post-Release-Hardening`, `Release-Gate-Deferred`, `Cross-Stack`, `Reopened-Functional-Gap`, `Evidence-Incomplete`

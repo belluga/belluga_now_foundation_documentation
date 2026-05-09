@@ -53,7 +53,7 @@ This lane exists to freeze and validate that evidence without reopening settled 
 
 ## References
 
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+- `foundation_documentation/todos/completed/TODO-store-release-android.md`
 - `foundation_documentation/todos/active/post_release_hardening/TODO-post-release-funnel-metrics-sink-readback-and-runtime-verification.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`

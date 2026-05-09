@@ -1,6 +1,6 @@
 # TODO (Fast Follow): QR Login And Authenticated Web
 
-**Classification note (2026-04-17):** this TODO is the direct execution authority for the mandatory QR-login/authenticated-web lane under `foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-obligatory.md`. It no longer exists only to state intent; it now freezes the delivery baseline so an independent no-context executor can implement the lane without reopening the anonymous-web policy.
+**Classification note (2026-04-17, refreshed 2026-05-06):** this TODO is the direct execution authority for the mandatory QR-login/authenticated-web fast-follow lane. It freezes the delivery baseline so an independent no-context executor can implement the lane without reopening the anonymous-web policy.
 
 **Scope authority note (2026-04-17):** canonical product posture already lives in `foundation_documentation/policies/web_to_app_promotion_policy.md` plus the promoted module contracts. This TODO does not own policy invention. It owns the fast-follow implementation contract for explicit QR session bootstrap, authenticated web continuation, and logout behavior after the Android web-to-app release gate closes.
 
@@ -29,6 +29,14 @@
 - It does not widen anonymous web beyond promotion/read-only before login.
 - It does not collapse into generic account-workspace rollout or broader web-product redesign.
 
+## Drift Guardrail Requirement
+- This TODO belongs to the auth/identity boundary family and must not become another one-off surface implementation.
+- Before remediation/execution is considered approval-clean, execution must freeze:
+  - the violated or ambiguous web-auth boundary rule,
+  - the replacement canonical rule,
+  - and the strongest objective PACED guardrail available so future authenticated-web work does not drift back into ad hoc login/bootstrap behavior.
+- Any currently observed legacy login/bootstrap drift that this lane is replacing must be included in the validation fixtures for that guardrail so the rule is proven against the concrete repo state, not only the desired end state.
+
 ## Delivery Status Canon
 
 - **Current delivery stage:** `Implementation-Ready`
@@ -55,7 +63,6 @@
 - `foundation_documentation/modules/onboarding_flow_module.md`
 - `foundation_documentation/system_roadmap.md`
 - `foundation_documentation/endpoints_mvp_contracts.md`
-- `foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-obligatory.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
 
@@ -80,7 +87,7 @@
 
 - [ ] `DEP-01` `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` must close first. QR-authenticated web cannot start from a stale tester-waitlist promotion boundary.
 - [ ] `DEP-02` `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md` remains the authority for authenticated app identity. QR web login depends on that app-side identity path and must not fork a second native auth method.
-- [x] `DEP-03` `foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-obligatory.md` already treats this lane as mandatory fast-follow rather than speculative VNext.
+- [x] `DEP-03` This lane is already frozen as mandatory fast-follow rather than speculative VNext.
 - [x] `DEP-04` iOS universal-links/deferred-capture validation is a sibling fast-follow lane, not a blocker for QR-authenticated web delivery.
 
 ## Scope
@@ -140,7 +147,7 @@
 
 ## Validation Steps
 
-- [x] This TODO is linked from `foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-obligatory.md`.
+- [x] This TODO stands as its own direct fast-follow execution authority.
 - [ ] Legacy references that treated QR login as merely possible are corrected where needed.
 - [ ] Automated minimum set:
   - QR challenge creation/approval/expiry/cancellation coverage.

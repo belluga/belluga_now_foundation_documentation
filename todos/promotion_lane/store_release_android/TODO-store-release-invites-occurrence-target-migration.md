@@ -37,7 +37,7 @@ User QA/product analysis on 2026-04-30 identified an invite-continuation gap aft
 - Remote anonymous invite-intent persistence, anonymous identity merge, multi-session recovery, intent metrics, deduplication beyond the share-code contract, and promotion of intents to persisted invite edges are VNext design topics, not Store Release scope.
 
 ## References
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+- `foundation_documentation/todos/completed/TODO-store-release-android.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/artifacts/execution-plans/store-release-wave2-social-consumer-gaps-orchestration-plan.md`
 - `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`

@@ -18,7 +18,7 @@ The Tenant Home Composer module (MOD-301) assembles the personalized landing exp
   - `foundation_documentation/modules/invite_and_social_loop_module.md`
   - `foundation_documentation/modules/map_poi_module.md`
 - Tactical TODO streams:
-  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-android.md`
   - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-home-favorites-refresh-regression.md`
   - `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-frontend.md`
   - `foundation_documentation/todos/completed/TODO-v1-map-frontend.md`
@@ -168,7 +168,7 @@ Captures user actions taken from the home screen so ranking logic can adapt.
 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
-| `TODO-store-release-android.md` | Android release posture for home composition | In progress | `1`, `4`, `7` | Current release orchestrator that carries the remaining Home-facing Android gate posture. |
+| `TODO-store-release-android.md` | Android release posture for home composition | Completed | `1`, `4`, `7` | Historical Android publication orchestrator; remaining Home-facing work now lives outside the store-release gate. |
 | `TODO-store-release-home-favorites-refresh-regression.md` | Home favorites refresh after favorite mutation and login hydration | Promotion Lane | `2`, `5`, `7` | Promotes repository-owned favorite hydration after registered identity emission and authoritative clearing when remote favorites are empty. |
 | `TODO-v1-events-and-agenda-frontend.md` | Home consumption of agenda/event contracts | Completed | `2`, `7` | Ensures home cards align with occurrence-first contracts. |
 | `TODO-v1-home-agenda-radius-persistence-and-sheet-polish.md` | Home Agenda radius preference persistence + sheet polish | Completed | `7`, `8` | Home-only radius preference semantics and sheet UX are now promoted; broader schedule/filter unification remains separate. |

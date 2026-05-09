@@ -96,7 +96,7 @@ The current `foundation_documentation/todos/` landscape is no longer fully coher
 ## Canonical Module Anchors (Required Before APROVADO)
 - **Primary module doc:** `foundation_documentation/todos/README.md`
 - **Secondary module docs (if any):**
-  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-android.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-android.md`
   - `foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-obligatory.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-parking-lot.md`
 - **Planned decision promotion targets (module sections):**

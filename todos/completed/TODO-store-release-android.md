@@ -1,5 +1,10 @@
-# Title
-Store Release Android
+# TODO (Completed): Store Release Android
+
+**Completed note (2026-05-06):** the Android-first publication milestone has been achieved; the Android app was accepted in the store. This file remains only as historical orchestration/audit record for that release wave.
+
+## Closure Status
+- **Status:** `Completed`
+- **Disposition:** `Delivered and retained for release-history traceability`
 
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
@@ -18,10 +23,10 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - Child TODOs define the concrete implementation slices inside that boundary.
 - If a candidate item is business-defined but intentionally sequenced after Android release, it belongs in `active/fast_follow_required/`, not here.
 
-## Delivery Status Canon (Required)
-- **Current delivery stage:** `Implementation-Ready`
-- **Qualifiers:** `Orchestrator`, `Cross-Stack`, `Release-Critical`
-- **Next exact step:** drive execution through the authoritative child TODOs listed below without reopening the already frozen Android-gate scope split.
+## Delivery Status Canon (Historical)
+- **Final delivery stage:** `Completed`
+- **Historical qualifiers:** `Orchestrator`, `Cross-Stack`, `Release-Critical`
+- **Closure rationale:** Android-first publication is no longer an active release gate. Remaining work belongs in post-release hardening, fast-follow, or future-scope lanes rather than under an active Android publication orchestrator.
 
 ## References
 - `foundation_documentation/todos/completed/TODO-store-release-landlord-tenant-auth-method-governance.md`
@@ -34,7 +39,7 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - `foundation_documentation/todos/completed/TODO-store-release-cors-ownership-unification.md`
 - `foundation_documentation/todos/completed/TODO-store-release-critical-journey-regression-gates.md`
 - `foundation_documentation/todos/completed/TODO-store-release-event-content-save-sanitization.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-android-publication-readiness.md`
+- `foundation_documentation/todos/completed/TODO-store-release-android-publication-readiness.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-v1-screen-user-profile-polish.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-event-share-invite-entrypoint.md`
 - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-account-profile-type-plural-settings-display.md`
@@ -50,7 +55,7 @@ Pre-MVP is closed as a delivery milestone. The current business target is Androi
 - `foundation_documentation/todos/active/post_release_hardening/TODO-store-release-media-host-agnostic-public-urls-and-tenant-cors-cache.md`
 - `foundation_documentation/todos/active/post_release_hardening/TODO-store-release-proximity-preferences-and-location-origin.md`
 - `foundation_documentation/todos/active/post_release_hardening/TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md`
-- `foundation_documentation/todos/active/post_release_hardening/TODO-store-release-tenant-settings-optimization.md`
+- `foundation_documentation/todos/completed/TODO-store-release-tenant-settings-optimization.md`
 
 These items remain valid active work, but were reclassified on 2026-04-30 as post-release hardening instead of blockers for the current Android store-release orchestration plans.
 

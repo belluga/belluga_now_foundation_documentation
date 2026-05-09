@@ -36,7 +36,6 @@
 
 ## References
 
-- `foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-obligatory.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-ios-universal-links-production-validation.md`
 - `foundation_documentation/policies/web_to_app_promotion_policy.md`
 - `foundation_documentation/endpoints_mvp_contracts.md`

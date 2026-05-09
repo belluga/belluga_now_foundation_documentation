@@ -226,7 +226,7 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with 
 
 ## 4. API Endpoint Definitions
 
-**Scope note:** All endpoints in this module live under `/admin/api/v1` on **tenant domains** and are guarded by `tenant` + `landlord` middleware. This shares the `/admin` prefix with landlord admin routes but does **not** overlap in scope or domain.
+**Scope note:** All endpoints in this module live under `/admin/api/v1` on **tenant domains** and are guarded by `tenant` + `landlord` middleware. This shares the `/admin` prefix with landlord admin routes but does **not** overlap in scope or domain. Landlord-domain email/password auth remains owned by subject-specific `credentials(provider=password).secret_hash`; top-level `landlord_users.password` / `password_type` are forbidden runtime authority/state and must not be used as tenant-admin or landlord-auth fallback.
 
 ### `GET /admin/api/v1/organizations`
 List organizations for the tenant.
@@ -2084,6 +2084,58 @@ Update tenant-owned queued outbound delivery settings used by WhatsApp and phone
 }
 ```
 
+### `PATCH /admin/api/v1/settings/values/phone_otp_review_access`
+Update the backend-private reviewer-access settings consumed by the phone-OTP auth service for Google Play review.
+
+**Request Schema**
+```json
+{
+  "phone_e164": "+5511999999999",
+  "code_hash": "$2y$12$hashed-review-code"
+}
+```
+
+**Contract Notes**
+- This namespace is admin-only and backend-private; it must never be serialized into public environment/bootstrap payloads or client-readable non-admin settings responses.
+- `phone_e164` is the dedicated allowlisted review phone and must stay in canonical E.164 format.
+- `code_hash` is the only persisted review credential artifact. Cleartext review codes are operator input only and must not be stored or read back from this namespace.
+- The tenant-admin technical integrations surface must expose this namespace with an editable cleartext helper field, a `Gerar hash` action, and a read-only hash field. Persisting cleartext review code in settings is forbidden.
+- The stored review phone still resolves through the normal phone-auth identity flow; this namespace does not authorize a parallel review-only identity contract.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "phone_e164": "+5511999999999",
+    "code_hash": "$2y$12$hashed-review-code"
+  }
+}
+```
+
+### `POST /admin/api/v1/settings/values/phone_otp_review_access/hash`
+Generate a persisted review-access hash from operator-provided cleartext without saving the cleartext value.
+
+**Request Schema**
+```json
+{
+  "code": "123456"
+}
+```
+
+**Contract Notes**
+- This action is admin-only and exists solely to convert the operator helper input into a persisted `code_hash`.
+- The backend response must not echo the cleartext `code`.
+- This action is required because the release review-access contract stores only the hash while still allowing operators to manage credentials without external tooling.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "code_hash": "$2y$12$hashed-review-code"
+  }
+}
+```
+
 ### `POST /api/v1/email/send`
 Tenant-public transactional email send endpoint kept only for legacy/non-release flows. It is not part of the current store-release web-to-app conversion contract, which promotes users to the app-promotion/store handoff instead of the temporary tester-waitlist path.
 
@@ -2159,6 +2211,8 @@ Tenant-public transactional email send endpoint kept only for legacy/non-release
 ### `GET /admin/api/v1/appdomains`
 Fetch typed mobile app identifiers used for tenant resolution and deeplink payload derivation.
 
+**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:read` + current-tenant role ability `tenant-domains:read`
+
 **Response Schema**
 ```json
 {
@@ -2171,6 +2225,10 @@ Fetch typed mobile app identifiers used for tenant resolution and deeplink paylo
 
 ### `POST /admin/api/v1/appdomains`
 Upsert typed mobile app identifier for one platform.
+
+**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update` + current-tenant role ability `tenant-domains:update`
+
+`tenant-domains:update` intentionally owns typed app-domain and app-link trust mutation for the current launch contract; splitting mobile app-link trust mutation from ordinary tenant-domain mutation would require a future ability-catalog decision.
 
 **Request Schema**
 ```json
@@ -2194,6 +2252,8 @@ Upsert typed mobile app identifier for one platform.
 ### `DELETE /admin/api/v1/appdomains`
 Remove typed mobile app identifier for one platform.
 
+**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update` + current-tenant role ability `tenant-domains:update`
+
 **Request Schema**
 ```json
 {
@@ -2215,7 +2275,7 @@ Remove typed mobile app identifier for one platform.
 ### `GET /admin/api/v1/domains`
 List active tenant web domains for the tenant-admin settings surface.
 
-**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:read`
+**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:read` + current-tenant role ability `tenant-domains:read`
 
 **Query Params**
 - `page` (int, optional)
@@ -2257,7 +2317,7 @@ List active tenant web domains for the tenant-admin settings surface.
 ### `POST /admin/api/v1/domains`
 Create a new tenant domain.
 
-**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update`
+**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update` + current-tenant role ability `tenant-domains:update`
 
 **Request Schema**
 ```json
@@ -2284,7 +2344,7 @@ Create a new tenant domain.
 ### `DELETE /admin/api/v1/domains/{domain_id}`
 Soft-delete a tenant domain.
 
-**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update`
+**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update` + current-tenant role ability `tenant-domains:update`
 
 **Response Schema**
 ```json
@@ -2294,7 +2354,7 @@ Soft-delete a tenant domain.
 ### `POST /admin/api/v1/domains/{domain_id}/restore`
 Restore a soft-deleted tenant domain.
 
-**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update`
+**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update` + current-tenant role ability `tenant-domains:update`
 
 **Response Schema**
 ```json
@@ -2314,7 +2374,7 @@ Restore a soft-deleted tenant domain.
 ### `DELETE /admin/api/v1/domains/{domain_id}/force-delete`
 Hard-delete a previously soft-deleted domain (admin-only cleanup).
 
-**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update`
+**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update` + current-tenant role ability `tenant-domains:update`
 
 **Response Schema**
 ```json
@@ -2427,6 +2487,7 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TODO-v1-events-location-gating-and-tenant-default-origin.md` | Map/agenda default-origin tenant settings contract | Promoted | `3.6`, `4`, `5` | Contract and Flutter local-preferences editor are both delivered; canonical baseline is now fully implemented. |
 | `TODO-v1-deeplink-host-resolved-well-known.md` | `.well-known` host-resolved serving + tenant `app_links` settings surface | In progress | `3.6`, `4`, `5` | Host-resolved endpoint path is delivered; runtime evidence remains tied to tenant credential rollout. |
 | `TODO-v1-app-domain-app-links-convergence.md` | Converge app identifiers into typed app domains + credential-only `settings.app_links` | Completed | `3.6`, `4`, `5` | Canonical split delivered with validation and tests; resolver/association/admin contracts synchronized. |
+| `TODO-post-release-tenant-app-domain-authorization-and-app-link-integrity-hardening.md` | Tenant app-domain route authorization and app-link trust-boundary hardening | Implementation checkpoint after audit follow-up | `4`, `5`, `6` | Promotes `auth:sanctum` + `CheckTenantAccess` + Sanctum `tenant-domains:read|update` abilities + current-tenant `tenant-domains:read|update` role ability as the app-domain and adjacent domain-management route contract; local implementation and final CI-equivalent validation are reconciled, with audit gates still pending. |
 | `TODO-v1-map-icon-color-config.md` | Type-level visuals + filter marker override + projection impact preview integration | Completed | `4`, `5` | Archived in `todos/completed`; canonical field ownership now lives under `visual`, while projection impact and filter marker metadata remain unchanged. |
 | `TODO-v1-event-type-canonical-poi-visuals.md` | Event-type canonical visuals across Laravel, tenant-admin, and map projection parity | In progress | `3.2`, `3.3`, `4`, `5` | Local implementation and automated coverage are in place; final closure still depends on manual admin/map smoke. |
 | `TODO-v1-canonical-back-navigation-governance-cutover.md` | Canonical route-back governance across shell/forms/settings/details | In progress | `2.2`, `5` | Promotes the shared section registry + typed helper rule for tenant-admin internal routes. |

@@ -7,6 +7,15 @@ Store Release: Media Host-Agnostic Public URLs And Tenant CORS Cache
 ## Context
 Production exposed a media compatibility gap: some persisted media references still carry absolute tenant hosts from a prior public domain, which can make browsers request media from a different tenant host than the current public origin. The urgent hotfix is to allow public media CORS only across domains registered for the same tenant. The definitive fix is to stop persisting host-bound media URLs for tenant-owned media and make public URL materialization derive the host from the current request/domain context.
 
+## Drift Guardrail Requirement
+- This TODO is part of the broader media/public-URL drift family.
+- Before remediation starts, execution must freeze:
+  - the violated canonical storage/materialization rule,
+  - the replacement rule,
+  - and the strongest objective PACED guardrail available so future host-bound media drift is caught mechanically where possible.
+- The known host-bound URL drift cases must be used as validation fixtures for that guardrail, not only abstract future examples.
+- This slice should not be closed as “fixed” if it only patches current bad URLs without strengthening the rule boundary.
+
 ## Classification Note
 - **Post-release hardening reclassification:** on `2026-04-30`, this TODO remained active but moved out of the current Android release gate into `active/post_release_hardening/`. Execute after release unless a new explicit business decision promotes it back into the release gate.
 

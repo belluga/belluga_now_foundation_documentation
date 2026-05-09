@@ -11,7 +11,7 @@
 
 - **Current delivery stage:** Audit-Opening-And-Security-Passes-Recorded
 - **Qualifiers:** Post-Release-Hardening, Cross-Stack, Architecture-Review, Security-Adversarial-Review, Attack-Surface-Review, Debt-Discovery, Evidence-Seeded, No-Production-Code-Changes
-- **Next exact step:** decide which confirmed architecture/security findings become independent implementation TODOs, with Account Profile default/personal type resolution, tenant app-domain authorization, account-scoped token binding, and auth/reset risk controls as the first recommended splits.
+- **Next exact step:** execute the first-wave owner TODOs created from this review, starting with landlord credential source-of-truth hardening and the new P0/P1 split lanes, while keeping second-wave drift families explicitly queued instead of implicit backlog.
 - **Complexity:** big
 - **Primary execution profile:** Operational / Coder
 - **Active technical scope:** Flutter + Laravel architecture/security audit, documentation/TODO evidence only.
@@ -21,6 +21,8 @@
 
 Run a rule-by-rule architectural review of the Belluga codebase to find hidden drift, workaround implementations, and present-state behavior that violates the intent of Delphi/project rules even when current lint or analyzer checks do not formally fail.
 
+This TODO is intentionally **not exhaustive yet**. The seeded findings below are starting evidence, not the full search space. The audit remains open to additional drift discovered during deeper rule-by-rule inspection, implementation prep, or independent review.
+
 The immediate seed debt is that personal Account Profile behavior is currently hardcoded as `profile_type = personal` in production paths even though Account Profile types are registry-driven and tenant dynamic. This TODO must investigate that debt deeply and identify whether the correct target architecture is:
 
 - a required tenant profile type linked as the personal/default Account type;
@@ -28,7 +30,13 @@ The immediate seed debt is that personal Account Profile behavior is currently h
 - registry mutation guards that allow label/capability changes while protecting linked/default types;
 - delete/rename policies that block unsafe changes while Accounts or Account Profiles still depend on the type.
 
-This TODO is a review and triage authority. Remediation work discovered here should become independent TODOs unless it is strictly documentation of the review result.
+This TODO is a review and triage authority. Remediation work discovered here should become independent TODOs unless it is strictly documentation of the review result. Where a drift class can be prevented structurally, the follow-up is expected to include PACED-style objective guards (rules, analyzers, deterministic validation, or other enforceable controls) so the same category of regression does not silently recur.
+
+No child TODO derived from this audit should go straight from “finding” to “code fix”. The required sequence is:
+1. freeze the violated canonical rule,
+2. define the replacement rule and the strongest objective PACED guardrail available,
+3. ensure the currently observed drift instance becomes a regression/fixture that proves the guardrail would catch or prevent the same class,
+4. then execute remediation against that frozen rule/guardrail baseline.
 
 The 2026-05-01 second pass adds a focused security/adversarial review. It uses current Laravel, Flutter, and OWASP security guidance to identify dangerous patterns, then traces those patterns through the local Laravel and Flutter code. This pass still does not implement fixes; it records security debt candidates that must be split into implementation TODOs before any remediation.
 
@@ -105,7 +113,7 @@ Opening audit pass recorded on 2026-05-01:
 | Rule source | Intent being protected | Search/audit method | Surfaces reviewed | Findings | Split TODO needed |
 | --- | --- | --- | --- | --- | --- |
 | Account Profile registry rules | Profile types are tenant dynamic and not hidden app enums. Default/personal behavior must be linked/configured, not magic-stringed. | Targeted Laravel service/seeder/console/test scan plus module-doc comparison. | `AccountProfileBootstrapService`, `InviteablePeopleService`, registry management service, registry seeder, `tenant:profile-registry:sync-v1`, Account Profile type tests, Account Profile docs. | `ARCH-DRIFT-001` through `ARCH-DRIFT-004` confirmed. | Yes. Highest-priority split. |
-| Laravel tenant access guardrails | Tenant-scoped data cannot leak across tenants or fall back to an arbitrary first tenant. | Route middleware inventory for `auth:sanctum`, `CheckTenantAccess`, package route files, and guardrail-test search. | `public_tenant_maybe_api_v1.php`, `project_tenant_public_api_v1.php`, `project_tenant_admin_api_v1.php`, `tenant_api_v1.php`, package public/admin route files. | No material tenant-data leak confirmed in protected tenant public/admin groups during opening pass. Some identity/app-domain routes still need a route-matrix classification before asserting compliance. | Not yet. Route-matrix classification only. |
+| Laravel tenant access guardrails | Tenant-scoped data cannot leak across tenants or fall back to an arbitrary first tenant. | Route middleware inventory for `auth:sanctum`, `CheckTenantAccess`, package route files, and guardrail-test search. | `public_tenant_maybe_api_v1.php`, `project_tenant_public_api_v1.php`, `project_tenant_admin_api_v1.php`, `tenant_api_v1.php`, package public/admin route files. | No material tenant-data leak confirmed in protected tenant public/admin groups during opening pass. RR-AUTH-02 resolves the appdomain and adjacent domain-management route gap. Residual exact identity-route classification remains for `auth/logout`, `auth/token_validate`, and `/me` in `tenant_api_v1.php`, which keep the file-level tenant-access guardrail at exit `2`. | Not yet. Residual identity-route matrix classification only. |
 | Laravel ability/catalog sync | Route/service ability strings must stay cataloged and enforceable. | Extracted route/app `abilities:` middleware values and compared against `config/abilities.php` using shell parsing because `php` is not available in the Flutter environment. | Laravel route files, package route files, `../laravel-app/config/abilities.php`. | No missing ability strings found: 51 used abilities are covered by a 54-entry catalog. | No. |
 | Laravel settings kernel contract | Settings kernel routes must stay behind the intended auth/tenant boundary and avoid one-off settings APIs that bypass the kernel. | Settings route scan and targeted package route review. | `project_landlord_admin_api_v1/settings.php`, `project_tenant_package_admin_api_v1/settings.php`, public tenant telemetry/settings routes, push settings package routes. | Tenant package settings routes use `auth:sanctum` + `CheckTenantAccess`; landlord settings routes use landlord auth. No catalog drift found in opening pass. Namespace/schema contract still needs package-level validation if this becomes a focused TODO. | No split from opening pass. |
 | Flutter DTO/domain/projection architecture | Domain must remain typed, transport-free, and independent from app/service locator state. | Official analyzer, analyzer rule docs, `rg` for map-shaped value objects, `GetIt` in domain, legacy event projections. | `lib/domain/**`, schedule/event value objects, tenant domain model, app-data values. | `ARCH-DRIFT-005`, `ARCH-DRIFT-007`, `ARCH-DRIFT-012`, and `ARCH-DRIFT-017` confirmed or linked to active TODOs. | Yes for domain purity/value-object hardening; existing TODOs own artist and partner terminology cleanup. |
@@ -197,10 +205,47 @@ Severity here is triage severity. Each item must be revalidated with focused tes
 | P2 | Mobile release, app-link, permission, and telemetry hardening gate | `SEC-DRIFT-008` | Should cover Android release artifact hardening, permission rationale, app-link verification, Sentry configuration, and log redaction. |
 | P2 | Secrets/key custody and promotion secret-scanning gate | `SEC-DRIFT-009` | Should prove release key custody and artifact/image exclusion without documenting secret values. |
 
+## 2026-05-06 Orchestration Freeze
+
+- **Feature brief authority:** `foundation_documentation/artifacts/feature-briefs/rule-related-todo-orchestration.md`
+- **Execution policy:** create explicit owner TODOs for the first-wave P0/P1 drift families before starting remediation code, and keep second-wave families queued with named reasons instead of leaving them as informal notes.
+
+### First-Wave Owner TODOs Created
+
+| Wave | Owner TODO | Drift Family | Findings Covered | Notes |
+| --- | --- | --- | --- | --- |
+| `wave-1` | `TODO-post-release-account-profile-default-personal-type-resolution.md` | dynamic personal/default type resolution | `ARCH-DRIFT-001`, `ARCH-DRIFT-002` | Splits linked-type semantics away from broader registry mutation policy. |
+| `wave-1` | `TODO-post-release-account-profile-registry-mutation-and-sync-guardrails.md` | registry mutation and destructive sync | `ARCH-DRIFT-003`, `ARCH-DRIFT-004` | Sibling to the linked-type TODO; owns rename/delete/sync guardrails. |
+| `wave-1` | `TODO-post-release-tenant-app-domain-authorization-and-app-link-integrity-hardening.md` | tenant app-domain authorization | `SEC-DRIFT-001` | P0 security split. |
+| `wave-1` | `TODO-post-release-account-scoped-token-ability-binding.md` | account-scoped token/ability binding | `SEC-DRIFT-002` | P0 security split. |
+| `wave-1` | `TODO-post-release-public-auth-password-reset-and-risk-matrix-hardening.md` | public auth/reset/risk matrix | `SEC-DRIFT-003`, `SEC-DRIFT-004`, linked `ARCH-DRIFT-011` | Must stay bounded against existing OTP/web-to-app owner TODOs. |
+| `wave-1` | `TODO-post-release-flutter-repository-transport-boundary-hardening.md` | repository raw-transport parsing | `ARCH-DRIFT-014` | P1 architecture split. |
+| `wave-1` | `TODO-post-release-flutter-domain-purity-and-typed-value-object-hardening.md` | domain purity and typed value objects | `ARCH-DRIFT-007`, `ARCH-DRIFT-012` | P1 architecture split. |
+| `wave-1` | `TODO-post-release-analyzer-rule-coverage-expansion-for-drift-fixtures.md` | objective static guardrail follow-through | `ARCH-DRIFT-007`, `ARCH-DRIFT-012`, `ARCH-DRIFT-014` | Guardrail-only lane sequenced after the runtime fixes freeze their corrected boundaries. |
+
+### Existing Owner TODOs Confirmed
+
+| Existing TODO | Family | Why It Remains the Owner |
+| --- | --- | --- |
+| `TODO-post-release-landlord-password-credential-source-of-truth-hardening.md` | landlord auth credential drift | Runtime-proven bounded backend/auth defect with its own closure lane. |
+| `TODO-v1-query-path-guardrails-hardening.md` | runtime query-path anti-patterns | Existing bounded rule lane; only split further if `event search` needs its own behavior/index strategy lane. |
+| `TODO-post-release-tenant-public-boundary-policy-centralization.md` | tenant-public local auth/promotion drift | Existing bounded centralization lane with explicit boundary matrix. |
+| `TODO-store-release-event-artists-eradication.md` | event `artists` dynamic-contract drift | Existing runtime/doc residue owner. |
+| `TODO-store-release-media-host-agnostic-public-urls-and-tenant-cors-cache.md` + `TODO-store-release-belluga-media-canonical-image-flow-hardening.md` | media/public-URL drift family | Narrow host-bound URL lane stays ahead of the broader media hardening lane. |
+| `TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md` | dependent-capability guardrail blocker | Existing blocker owner for the proximity family. |
+
+### Second-Wave Drift Families Kept Explicitly Queued
+
+| Deferred Family | Why Deferred Instead of Split Now | Planned Trigger |
+| --- | --- | --- |
+| Runtime backend/mock/stub classification and hardening | Needs classification against active runtime surfaces before bounded implementation planning. | Start after the first-wave repository/domain/query families stop moving the same surfaces. |
+| Route/resolver/back-governance audit | Must coordinate with the existing tenant-public boundary centralization lane and avoid duplicating route-family ownership. | Start after the tenant-public boundary TODO freezes its executable replacement path. |
+| SSRF, invite-preview abuse/privacy, web CSP/header hardening, mobile hardening, and secrets custody | Security families are real but not on the first critical remediation path requested by the drift review itself. | Open once the first-wave P0/P1 queue is advancing cleanly or if new runtime evidence escalates severity. |
+
 ## No Material Drift Confirmed In Opening Pass
 
 - Ability catalog sync: shell extraction found 51 used `abilities:` strings and all are present in the 54-entry `config/abilities.php` catalog.
-- Tenant public/admin protected route groups: scanned authenticated tenant public/admin package routes consistently apply `CheckTenantAccess`; identity/app-domain routes need classification but were not proven tenant-data leaks.
+- Tenant public/admin protected route groups: scanned authenticated tenant public/admin package routes consistently apply `CheckTenantAccess`; RR-AUTH-02 resolved appdomain and adjacent domain-management route classification. Residual `tenant_api_v1.php` identity routes `auth/logout`, `auth/token_validate`, and `/me` still need explicit route-family classification or route-level waiver metadata before the file-level tenant-access guard can pass.
 - Controller navigation bypass: controller-file scan did not find direct `context.router` navigation in the reviewed controller set.
 - Settings kernel route boundary: tenant package settings routes are behind `auth:sanctum` + `CheckTenantAccess`; landlord settings routes are landlord-authenticated. No opening-pass split is recommended.
 
@@ -238,7 +283,10 @@ The independent remediation design must answer these before implementation:
 - [x] Drift that already belongs to an active TODO is linked to that TODO instead of duplicated.
 - [x] A second security pass records external baseline sources, Laravel/Flutter attack-surface scans, and security findings.
 - [x] Security findings that need remediation are queued as independent TODO candidates instead of implemented here.
-- [ ] Drift selected for remediation is split into independent TODOs with scope, DoD, and validation gates after owner decision.
+- [x] Confirmed drift classes that can be prevented mechanically have an explicit PACED follow-up path (rule, analyzer coverage, deterministic validation, or equivalent guardrail) captured in the split TODO or decision record.
+- [x] Drift selected for remediation is split into independent TODOs with scope, DoD, and validation gates after owner decision.
+- [x] Drift-derived child TODOs freeze violated rule + replacement rule + objective PACED guardrail before any remediation stage is treated as approval-clean.
+- [x] Drift-derived child TODOs use the currently observed drift instance as one of the validation fixtures proving the guardrail is effective, rather than validating only idealized synthetic cases.
 - [x] The review explicitly states which scanned rules had no findings and why.
 
 ## Validation Gates For This Review
