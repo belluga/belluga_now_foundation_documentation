@@ -128,6 +128,7 @@ The runtime already consumes REST APIs for on-demand queries and defines SSE com
 ### 3.5 Current Source Entities & Taxonomy Inputs
 - **Current source entities:** Account Profiles, Events, and Static Assets are the current source entities for map projection/runtime consumption.
 - **Taxonomies/Terms:** taxonomies and terms remain source-entity-owned classifications. Map consumers read the projected/filter-ready output rather than redefining taxonomy ownership locally.
+- **Taxonomy display snapshots:** projected `taxonomy_terms[]` preserve `{type, value, name, taxonomy_name, label?}` when source entities provide display snapshots. `taxonomy_terms_flat[]` remains the indexed/filter identity shape (`type:value`), and map queries never filter by display text.
 - **Usage:**
   - Account Profile projections may expose taxonomy-driven filters/categories derived from profile type and attached terms.
   - Static Asset projections use their static-profile-type and attached taxonomy data when those inputs are projected.
@@ -141,7 +142,7 @@ For V1, we treat `map_pois` as a **materialized projection/read model** used by 
 Key properties:
 - `map_pois` is the map projection (geometry + category + tags + priority + deep-link reference).
 - For `ref_type=static`, `map_pois.category` is derived from `static_profile_types.map_category` (fallback to `static_assets.profile_type`). `static_assets.categories[]` is legacy metadata and must not drive map categorization.
-- `map_pois.visual` is projection-owned and resolved from canonical type-level `visual` + resolved media source (`avatar_url`, `cover_url`, or canonical type-owned `type_asset`) when applicable.
+- `map_pois.visual` is projection-owned and resolved from canonical type-level `visual` + resolved media source (`avatar_url`, `cover_url`, or canonical type-owned `type_asset`) when applicable. Type/filter visual color remains a marker/accent input even when the rendered visual is image-backed.
 - For `ref_type=event`, `map_pois.visual` resolves from canonical `event_types.visual` / `poi_visual`; image-mode event POIs may resolve only from event cover/thumb media (`cover`) or the canonical type-owned asset (`type_asset`). `avatar` is invalid for events and must not be synthesized.
 - The record may carry optional `active_window_start_at` + `active_window_end_at` (nullable). We do **not** store `visible_from`/`visible_until`. Visibility windows are computed at query time using backend-owned tenant settings and the **user timezone** stored on the user profile.
 - Account Profile/Static Profile types control POI projection via capabilities. When `is_poi_enabled=false`, existing `map_pois` for that type are hard-deleted.
@@ -169,6 +170,13 @@ Query-time window policy (backend settings example):
 
 This ensures future events/campaigns do not appear immediately when created, while still allowing the backend to tune visibility without rewriting data.
 
+**Event live-now freshness (required):**
+- `is_happening_now` may be stored on the materialized projection as a snapshot, but map read responses must treat occurrence windows as the current authority.
+- For `ref_type=event`, `/api/v1/map/pois` and `/api/v1/map/near` recompute `is_happening_now` at response formatting time from `occurrence_facets[].starts_at` and `occurrence_facets[].effective_end` (or `ends_at` when `effective_end` is absent).
+- If `starts_at <= now < effective_end`, the top-level POI payload and the matching occurrence facet must return `is_happening_now=true`, even when the stored projection flag is stale.
+- If occurrence facet windows are missing or invalid, the backend may fall back to the stored projection flag; valid facet windows always supersede stale stored booleans.
+- Flutter markers render `AGORA` only from the backend `is_happening_now=true` payload and must not infer live state from local device time.
+
 **POI visual snapshot contract (required):**
 ```json
 {
@@ -183,7 +191,7 @@ This ensures future events/campaigns do not appear immediately when created, whi
 ```
 
 - `mode=icon` requires `icon + color`.
-- `mode=image` requires `image_uri`.
+- `mode=image` requires `image_uri`; clients must preserve/render `color` when present for marker accents, filter palette, and fallback states.
 - `source=type_definition` covers icon visuals and canonical type-owned `type_asset` images; `source=item_media` covers `avatar|cover`.
 - Invalid/unresolvable visual inputs must clear/omit `visual`; Flutter applies one generic fallback marker path.
 
@@ -273,7 +281,8 @@ Response shape (example):
         - Use MongoDB geospatial queries (`$geoNear` and/or `$geoWithin`) as the authoritative source of “nearby” truth.
         - When `origin_lat/lng` is provided, return `distance_meters` for each POI.
         - Apply time-window filters for `active_window_*` using backend-owned tenant settings (future/past **days**). The client should not hardcode visibility windows.
-    -   Response fields: **stack groups** keyed by `stack_key`, each with `center`, `stack_count`, and a `top_poi` payload. The `top_poi.updated_at` field is required for polling cache validation. `top_poi.visual` must follow the projection visual contract (`mode`, `icon/color` or `image_uri`, `source`). `tags[]` and `taxonomy_terms[]` are **filter-only** and are not returned in this payload. When sorting by `distance`, backend orders by ascending distance while still honoring priority tiers (sponsors > live events > others).
+        - Recompute event `is_happening_now` from occurrence facets at read time; stale projection booleans cannot leak into map marker payloads.
+    -   Response fields: **stack groups** keyed by `stack_key`, each with `center`, `stack_count`, and a `top_poi` payload. The `top_poi.updated_at` field is required for polling cache validation. `top_poi.is_happening_now` is required for event POIs. `top_poi.visual` must follow the projection visual contract (`mode`, `icon/color` or `image_uri`, `source`). `tags[]` and `taxonomy_terms[]` are **filter-only** and are not returned in this payload. When sorting by `distance`, backend orders by ascending distance while still honoring priority tiers (sponsors > live events > others).
     -   Deep-link contract note: this endpoint is viewport/origin scoped and does not guarantee global `poi`-only resolution for arbitrary `ref_type/ref_id` links.
 2.  **Nearby Card List Endpoint:** `GET /api/v1/map/near`
     -   Purpose: return a distance-ordered list of POI cards, paginated (default 10/page), with richer fields for navigation.
@@ -282,16 +291,16 @@ Response shape (example):
         - `max_distance_meters` (optional).
         - `categories[]`, `tags[]`, `taxonomy[]`, `search` (optional).
         - `page`, `page_size` (optional; default 10).
-    -   Response fields: `ref_type`, `ref_id`, `ref_slug`, `ref_path` (`/{ref_type}/{ref_slug}`), `title`, `subtitle?`, `category`, `location`, `distance_meters`, `updated_at`, `avatar_url?`, `cover_url?`, `visual?`, `badge?`, `time_start?`, `time_end?`, plus `tags[]` and `taxonomy_terms[]`.
+    -   Response fields: `ref_type`, `ref_id`, `ref_slug`, `ref_path` (`/{ref_type}/{ref_slug}`), `title`, `subtitle?`, `category`, `location`, `distance_meters`, `is_happening_now`, `updated_at`, `avatar_url?`, `cover_url?`, `visual?`, `badge?`, `time_start?`, `time_end?`, plus `tags[]`, display-ready `taxonomy_terms[]` (`{type, value, name, taxonomy_name, label?}`), and event `occurrence_facets[]` with read-time `is_happening_now` freshness.
 3.  **Filter Discovery Endpoint:** `GET /api/v1/map/filters`
     -   Returns all available categories and their associated tags to dynamically build the filter UI.
     -   Category payload can be decorated by `settings.map_ui.filters` (tenant-admin managed):
         - `label` override per key;
         - optional `image_uri`;
-        - optional marker override (`override_marker`, `marker_override.mode`, `marker_override.icon`, `marker_override.color`, `marker_override.image_uri`);
+        - optional marker override (`override_marker`, `marker_override.mode`, `marker_override.icon`, `marker_override.color`, `marker_override.image_uri`), where `marker_override.color` also applies to image-mode overrides;
         - normalized `query` payload (`source`, `types[]`, `categories[]`, `taxonomy[]`, `tags[]`) used by Flutter when applying a category.
         - configured list ordering first, with configured entries retained even when `count = 0`.
-    -   Taxonomy catalog is sourced from POI taxonomy aggregations and applied as advanced filters when needed.
+    -   Taxonomy catalog is sourced from POI taxonomy aggregations and applied as advanced filters when needed. Aggregated taxonomy terms must expose display-ready metadata (`name`, `taxonomy_name`, compatibility `label`) while retaining `type/value` as the query payload.
 4.  **POI Lookup Endpoint:** `GET /api/v1/map/pois/lookup`
     -   Purpose: deterministic lookup for a single POI by canonical typed reference, independent of viewport/origin.
     -   Parameters (query string):
@@ -327,6 +336,7 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 | `MAP-08` | Approved | Disabling `is_poi_enabled` for a type hard-deletes affected projections; enabling or visual changes trigger full re-materialization. | Keeps projection state coherent with type capability/visual source of truth. | Section `3.6` |
 | `MAP-09` | Approved | Active map routes use shared tenant-public safe-back semantics: stack-first return wins; no-history fallback is `/` for `/mapa` and `/mapa` for `/mapa/poi`. | Keeps direct-open map flows resilient without sacrificing normal in-app return continuity. | Sections `2`, `4.1`, `6` |
 | `MAP-10` | Approved | Event POIs follow the same canonical type-visual model as account/static POIs; event image mode is limited to `cover` and `type_asset`, and projection rebuilds must preserve that rule. | Restores parity across POI types while preventing unsupported event-avatar fallbacks from leaking into map projection. | Sections `3.6`, `4.1`, `6` |
+| `MAP-11` | Approved | Map POI taxonomy projections preserve display-ready taxonomy snapshots and keep `taxonomy_terms_flat` as the only indexed/filter key shape. | Allows map filter UI and nearby cards to show human labels without runtime taxonomy joins or display-key filtering. | Sections `3.5`, `4.1`, `6` |
 
 ## 7. Tactical TODO Promotion Ledger
 
@@ -338,4 +348,5 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 | `TODO-v1-event-type-canonical-poi-visuals.md` | Event-type canonical visuals and event POI parity | In progress | `3.6`, `4.1`, `6` | Local implementation and automated coverage are in place; final closure still depends on manual public-map smoke. |
 | `TODO-v1-route-url-only-hydration-hardening.md` | URL-only route hydration + internal-only fallback hardening | Production-Ready | `4.1`, `6` | `poi + stack` + `poi`-only deterministic lookup delivered end-to-end. |
 | `TODO-v1-events-capability-map-poi.md` | Events capability decisions for POI projection | Promoted | `1.1`, `3.6`, `6` | Completed and promoted into module baseline. |
+| `TODO-store-release-taxonomy-term-display-snapshots.md` | Display-ready taxonomy snapshots for Map POI projections and filter aggregation | Promotion Lane | `3.5`, `4.1`, `6` | Keeps map filtering on machine keys while exposing labels for UI chips/facets. |
 | `TODO-v1-tenant-public-safe-back-navigation.md` | Shared tenant-public map back/fallback policy | Completed | `2`, `6` | Freezes `/mapa` and `/mapa/poi` no-history fallback behavior; archived from `active` during the 2026-04-09 MVP TODO cleanup after delivery confirmation. |

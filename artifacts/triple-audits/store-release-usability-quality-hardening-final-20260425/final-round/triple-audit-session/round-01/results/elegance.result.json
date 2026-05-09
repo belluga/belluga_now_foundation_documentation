@@ -1,0 +1,50 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "elegance-clean-code",
+  "overall_assessment": "Mixed. The bounded package shows meaningful hardening, but two structural clean-code issues remain: rich-text sanitization policy is copied across multiple implementations, and the event form still performs controller mutations from nested build callbacks.",
+  "recommended_path": "Resolve the medium findings before treating the elegance lane as clean. Both are localizable refactors and should not require reopening unrelated architecture.",
+  "performance_position": "acceptable",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "acceptable",
+  "findings": [
+    {
+      "finding_id": "elegance-001",
+      "severity": "medium",
+      "title": "Rich-text sanitization policy is duplicated across backend package, host app, and Flutter client",
+      "rationale": "The PHP host sanitizer and events-package sanitizer carry effectively the same allowlist and DOM normalization implementation independently: `laravel-app/app/Support/RichText/SafeRichTextHtmlSanitizer.php:13` through `:278` mirrors `laravel-app/packages/belluga/belluga_events/src/Support/EventContentHtmlSanitizer.php:13` through `:278`. Flutter then introduces a third sanitizer/allowlist using regex-based behavior in `flutter-app/lib/application/rich_text/safe_rich_html.dart:62` through `:155`. This avoids the package boundary violation called out in the package, but it creates three places where allowed tags, empty-content behavior, break normalization, and unsupported tag handling can drift. The current package decoupling test only blocks `App\\\\` references in the events package, while the account-profile fidelity test asserts the host sanitizer does not import the events sanitizer; neither establishes a single contract for sanitizer parity.",
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Support/RichText/SafeRichTextHtmlSanitizer.php:13",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/packages/belluga/belluga_events/src/Support/EventContentHtmlSanitizer.php:13",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/application/rich_text/safe_rich_html.dart:62",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/tests/Unit/Events/EventsPackageDecouplingTest.php:29",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/tests/Feature/AccountProfiles/AccountProfileRichTextFidelityTest.php:249"
+      ],
+      "suggested_action": "Extract the PHP sanitizer/policy into a neutral shared package that both the host app and events package can depend on, or at minimum centralize the sanitizer contract in shared fixtures and run parity tests for account-profile content, event content, and Flutter rendering. Keep the events package decoupled from `App\\\\`, but do not maintain copy-pasted sanitizer logic as the long-term boundary solution."
+    },
+    {
+      "finding_id": "elegance-002",
+      "severity": "medium",
+      "title": "Event form build tree triggers controller state mutation and async loading",
+      "rationale": "`TenantAdminEventFormScreen.build` nests a long chain of `StreamValueBuilder`s and invokes controller hydration directly inside builder callbacks at `flutter-app/lib/presentation/tenant_admin/events/screens/tenant_admin_event_form_screen.dart:83` and `:102`. Those calls mutate form state through `_replaceEventFormState` in `hydrateDefaultEventVenue` and `hydrateDefaultEventType` (`tenant_admin_events_controller.dart:811` through `:860`), and `hydrateDefaultEventType` can also start `_loadTermsForSelectedEventType()` asynchronously from the build path (`:852` and `:860`). The controller has some guards and cache checks, but the widget still mixes render composition with mutation/loading orchestration, making rebuild behavior harder to reason about and increasing the risk of redundant async work or build-triggered state loops as the form grows.",
+      "category": "elegance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "affected_paths": [
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_admin/events/screens/tenant_admin_event_form_screen.dart:71",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_admin/events/screens/tenant_admin_event_form_screen.dart:83",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_admin/events/screens/tenant_admin_event_form_screen.dart:102",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_admin/events/controllers/tenant_admin_events_controller.dart:811",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_admin/events/controllers/tenant_admin_events_controller.dart:839",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_admin/events/controllers/tenant_admin_events_controller.dart:1222"
+      ],
+      "suggested_action": "Move default venue/type hydration into the controller dependency-loading path, or trigger it from an explicit guarded post-load orchestration method outside `build`. Keep the widget tree declarative by deriving display state from controller streams rather than invoking mutation methods while composing UI."
+    }
+  ]
+}

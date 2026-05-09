@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-account-token-binding-security-dispatch-20260507T1521Z.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "RR-AUTH-03 no-context security adversarial reviewer"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not close RR-AUTH-03 until the explicit account_id issuer path is either hardened to reject inaccessible account IDs or formally waived as an internal-only invariant. After that, rerun the fresh audit-floor gates and keep the existing legacy combined-batch verification debt open until repaired, replaced by a deterministic route assertion, or waived."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-5EF8CAE2",
+      "severity": "medium",
+      "title": "Explicit account_id issuance can mint account-scoped tokens for accounts the user cannot access",
+      "rationale": "TenantScopedAccessTokenService::resolveAccountIdForAbilities returns any non-empty explicit or current account ID before checking the AccountUser access list, and stampAccountId also blindly stamps the supplied account_id. Current account middleware prevents use on inspected account routes when route binding is present, but the issuer still creates durable wrong-account bearer artifacts and relies on every downstream route being perfectly guarded. The PushMessageFlowTest foreign-account regression demonstrates route rejection, but it also demonstrates that the service permits creating the foreign-account token in the first place.",
+      "suggested_action": "For account-scoped abilities, validate the resolved account_id against the normalized AccountUser access IDs before createToken/stampAccountId, and throw when the account is not accessible. Add explicit tests for a supplied foreign account_id and a stale current Account::current() that the user cannot access.",
+      "reviewer_labels": [
+        "RR-AUTH-03 no-context security adversarial reviewer"
+      ],
+      "source_finding_ids": [
+        "RR-AUTH-03-SEC-001"
+      ],
+      "category": "security",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-EE328CF6",
+      "severity": "low",
+      "title": "Route-binding closure still depends on manual inspection plus blocked legacy batch debt",
+      "rationale": "The bounded route files inspected here are correctly account-bound, including push data/actions, account users/roles, and events. However, the package still records the legacy combined account API auth/middleware batch as blocked and the full-suite attribution as integrated with unrelated dirty state, so closure does not yet have a deterministic guard that future account-prefixed package routes cannot bypass account middleware and fall back to token ceiling only.",
+      "suggested_action": "Repair the blocked combined batch or add a route-list/architecture assertion that every api/v1/accounts/{account_slug} route requiring Account::current() includes account middleware or an equivalent fail-closed binding guard, then record clean bounded evidence or an approval-authority waiver.",
+      "reviewer_labels": [
+        "RR-AUTH-03 no-context security adversarial reviewer"
+      ],
+      "source_finding_ids": [
+        "RR-AUTH-03-SEC-002"
+      ],
+      "category": "residual_risk",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

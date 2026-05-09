@@ -145,11 +145,11 @@ Key invariants:
 
 ### 4.1 Account Profile Type
 
-Tenant-configured registry that defines Account Profile labels, pluralization, allowed taxonomies, visuals, and capabilities such as `is_favoritable`, `is_poi_enabled`, `has_avatar`, `has_cover`, `has_content`, and `has_events`. This registry governs Account Profile behavior; it does not create subtype inheritance.
+Tenant-configured registry that defines Account Profile labels, pluralization, allowed taxonomies, visuals, and capabilities such as `is_favoritable`, `is_poi_enabled`, `has_avatar`, `has_cover`, `has_content`, and `has_events`. Type visuals may render as icons or images; the visual color remains a configured marker/accent input for both modes. This registry governs Account Profile behavior; it does not create subtype inheritance.
 
 ### 4.2 Static Profile Type
 
-Tenant-configured registry that defines Static Asset labels, map category, visuals, allowed taxonomies, and capabilities such as `is_poi_enabled`, `has_bio`, `has_cover`, and `has_content`.
+Tenant-configured registry that defines Static Asset labels, map category, visuals, allowed taxonomies, and capabilities such as `is_poi_enabled`, `has_bio`, `has_cover`, and `has_content`. Type visuals follow the same icon/image plus marker/accent color contract used by Account Profile Types.
 
 ### 4.3 Taxonomy
 
@@ -161,7 +161,7 @@ Concrete term inside a Taxonomy. Terms are the actual typed labels attached to A
 
 ### 4.5 Event Type
 
-Tenant-configured registry for event classification and visual identity. It is a classifier for Events, not a replacement for the Event entity itself.
+Tenant-configured registry for event classification and visual identity. Event Type visuals may be icon-backed or image-backed and still carry a marker/accent color. It is a classifier for Events, not a replacement for the Event entity itself.
 
 ## 5. Derived or Operational Canonical Records
 

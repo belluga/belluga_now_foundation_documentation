@@ -1,0 +1,31 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "Performance Auditor",
+  "overall_assessment": "The query direction is acceptable, but occurrence taxonomy write fanout needs an aggregate guard before resolver work.",
+  "recommended_path": "Resolve high findings before delivery.",
+  "performance_position": "mixed",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "acceptable",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "PERF-001",
+      "severity": "high",
+      "title": "Occurrence taxonomy overrides can fan out before resolver work",
+      "rationale": "The request rules allow many occurrences and many taxonomy terms per occurrence, but the aggregate fanout guard did not count total or unique occurrence taxonomy terms. This can amplify resolver and validation work.",
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "event-occurrence-taxonomy-aggregate-fanout-guard",
+      "affected_paths": [
+        "laravel-app/packages/belluga/belluga_events/src/Support/Validation/EventPayloadFanoutGuard.php",
+        "laravel-app/packages/belluga/belluga_events/src/Support/Validation/InputConstraints.php",
+        "laravel-app/tests/Feature/Events/EventCrudControllerTest.php"
+      ],
+      "suggested_action": "Add aggregate total and unique occurrence taxonomy limits to EventPayloadFanoutGuard and cover max-plus-one total/unique tests."
+    }
+  ]
+}

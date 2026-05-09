@@ -1,0 +1,73 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-10/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "elegance-clean-code-round-10",
+  "overall_assessment": "Not clean. The codebase is much cleaner than earlier rounds, but local inspection found one operational regression in the web promotion workflow and three maintainability seams in public-filter validation, admin filter-row rendering, and event occurrence programming flow. These are bounded to the audited changes and should be resolved before treating the elegance lane as clean.",
+  "recommended_path": "needs_resolution",
+  "performance_position": "acceptable",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "regresses",
+  "findings": [
+    {
+      "finding_id": "R10-ELEGANCE-001",
+      "severity": "high",
+      "title": "Generated publish PR merge now uses github.token despite requiring follow-up workflow triggering",
+      "rationale": "In web-app .github/workflows/navigation-validation.yml, merge_generated_publish_pr now sets GH_TOKEN to github.token and removes the fail-fast check that previously required a repo-scoped PAT/app token. The same diff adds push-triggered docker sync in .github/workflows/dispatch-docker-sync.yml, so the promotion chain depends on the merge push causing follow-up workflow dispatch. The removed guard text states that a PAT/app token is required for the resulting lane push to trigger follow-up workflows; replacing it with github.token makes the workflow contract internally contradictory and risks silently skipping docker/submodule sync after an auto-merge.",
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/web-app/.github/workflows/navigation-validation.yml:306",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/web-app/.github/workflows/dispatch-docker-sync.yml:3"
+      ],
+      "suggested_action": "Restore the repo-scoped merge token requirement or introduce an explicit post-merge repository_dispatch path that does not depend on a github.token-authored push. Keep dispatch-docker-sync triggering and generated-PR merge credentials in one documented promotion contract, with a guard that fails when the required token or dispatch configuration is absent."
+    },
+    {
+      "finding_id": "R10-ELEGANCE-002",
+      "severity": "medium",
+      "title": "Public account-profile filter validation is duplicated across index and nearby requests",
+      "rationale": "AccountProfilePublicIndexRequest and AccountProfileNearRequest repeat the same profile_type/filter/taxonomy rules and the same stringOrStringListRule closure. AccountProfileQueryService.publicPaginate uses normalizePublicPageSize with InputConstraints, while publicNear hand-rolls page_size defaults and a hard-coded 50 cap. The bounded work repeatedly hardens public filter bounds, so keeping two request rule matrices plus a separate service-level cap path leaves a clean-code drift point that can reintroduce inconsistent limits later.",
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Http/Api/v1/Requests/AccountProfilePublicIndexRequest.php:20",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Http/Api/v1/Requests/AccountProfileNearRequest.php:20",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Application/AccountProfiles/AccountProfileQueryService.php:108"
+      ],
+      "suggested_action": "Extract the shared public account-profile filter/page/taxonomy rules into a request concern or small AccountProfilePublicFilterRules factory, then have both requests compose it with their endpoint-specific fields. Reuse normalizePublicPageSize for publicNear and remove the hard-coded 10/50 normalization path."
+    },
+    {
+      "finding_id": "R10-ELEGANCE-003",
+      "severity": "medium",
+      "title": "Admin discovery filter row visual rendering remains duplicated between canonical and legacy surfaces",
+      "rationale": "TenantAdminDiscoveryFilterSurfaceScreen and TenantAdminSettingsLocalPreferencesSection carry near-identical row preview code, marker override resolution, fallback enum/value classes, and action layout. The package claims the legacy map filter path now uses the canonical discovery filter catalog builder, but the UI layer still has two independent implementations for the same visual behavior. This is a mixed-pattern seam around visual icon/color fidelity and makes future changes to marker override, fallback image behavior, or accessibility keys easy to apply to only one surface.",
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_admin/discovery_filters/screens/tenant_admin_discovery_filter_surface_screen.dart:364",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_admin/settings/widgets/tenant_admin_settings_local_preferences_section.dart:377"
+      ],
+      "suggested_action": "Extract a shared tenant-admin discovery-filter row/visual preview widget plus a small visual resolver model. Let the legacy local-preferences section adapt its item into that shared component instead of maintaining a parallel _MapFilterRowVisual implementation."
+    },
+    {
+      "finding_id": "R10-ELEGANCE-004",
+      "severity": "medium",
+      "title": "Primary occurrence programming edits bypass the draft methods used by the occurrence editor",
+      "rationale": "TenantAdminEventOccurrenceEditorDraft owns addProgrammingItem, updateProgrammingItem, removeProgrammingItem, sorting, and profile cleanup semantics, and TenantAdminEventOccurrenceEditorSheet uses those methods. TenantAdminEventFormScreen's root primary-occurrence programming section manually builds nextItems, sorts, and calls replacePrimaryOccurrenceDetails/replacePrimaryOccurrenceProgrammingItems from nested UI closures. That keeps mutation logic in the screen and leaves single-occurrence programming behavior able to drift from the multi-occurrence editor as new occurrence invariants are added.",
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_admin/events/controllers/tenant_admin_event_occurrence_editor_draft.dart:73",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_admin/events/widgets/tenant_admin_event_occurrence_editor_sheet.dart:160",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_admin/events/screens/tenant_admin_event_form_screen.dart:811"
+      ],
+      "suggested_action": "Make the primary-occurrence programming section use TenantAdminEventOccurrenceEditorDraft for add/update/remove and commit draft.toOccurrence through one controller method, or extract a small occurrence-programming coordinator shared by the root primary-occurrence path and the modal occurrence editor."
+    }
+  ]
+}

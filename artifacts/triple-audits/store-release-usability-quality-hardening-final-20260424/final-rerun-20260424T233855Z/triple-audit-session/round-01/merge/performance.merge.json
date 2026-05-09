@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260424/final-rerun-20260424T233855Z/triple-audit-session/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "performance"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "mixed",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Resolve the tenant-admin taxonomy fanout before release readiness by adding a global catalog budget or demand-scoped term loading, reducing backend batch query fanout, and adding performance guards that assert total taxonomy payload/query ceilings. Add an occurrence aggregate guard for index-friendly temporal predicates or explain-budget coverage."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-8FA734CF",
+      "severity": "medium",
+      "title": "Tenant-admin taxonomy catalog remains globally unbounded across client chunks",
+      "rationale": "The Flutter rule catalog repository chunks taxonomy term requests at 100 IDs, but it loops over every loaded taxonomy and requests up to 200 terms per taxonomy. The included test explicitly accepts 101 taxonomies as two batch calls, which proves request chunking but not a global payload or UI option ceiling. A tenant with many taxonomies can still force very large network payloads and thousands of rule-sheet options.",
+      "suggested_action": "Constrain the admin rule catalog to allowed or visible taxonomies, add a total term budget, or switch to demand-loaded taxonomy terms. Add tests that fail when total fetched taxonomy IDs or total returned terms exceed the intended admin catalog budget.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PERF-001"
+      ],
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-AAD5D484",
+      "severity": "medium",
+      "title": "Management future occurrence filtering uses computed $expr instead of an index-friendly starts_at match",
+      "rationale": "The new management occurrence aggregate routes temporal filters through managementOccurrenceTemporalExprClauses. Even the simple future case becomes an $expr comparison against starts_at, while the provided performance test only checks use of a single facet pipeline and indexed event lookup. This leaves the high-volume occurrence match stage without evidence that it can use a starts_at index.",
+      "suggested_action": "Use direct match predicates for simple temporal buckets such as future, keep computed expressions only where necessary, and extend the guard to assert the aggregate match shape or capture an explain-based budget for the occurrence match stage.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PERF-003"
+      ],
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-7A8532CC",
+      "severity": "medium",
+      "title": "Batch taxonomy term endpoint still performs one term query per taxonomy ID",
+      "rationale": "The backend batch endpoint validates a maximum of 100 taxonomy IDs per request, but TaxonomyTermManagementService::listBatch then runs a separate TaxonomyTerm query for each ID. At the documented maximum this is still up to 100 term queries for one HTTP request, and the Flutter client can issue multiple chunks.",
+      "suggested_action": "Replace the per-taxonomy query loop with a single aggregate/query strategy that enforces per-taxonomy limits server-side, or lower the request cap to match an explicit query budget. Add a test or instrumentation guard for maximum backend queries per batch request.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PERF-002"
+      ],
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

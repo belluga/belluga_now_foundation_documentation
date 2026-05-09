@@ -1,0 +1,48 @@
+{
+  "schema_version": "triple-audit-round-summary-v1",
+  "artifact_kind": "triple_audit_round_summary",
+  "authoritative": false,
+  "session_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/session.json",
+  "round": 1,
+  "merged_at": "2026-04-28T14:26:24+00:00",
+  "round_status": "needs_adjudication",
+  "conflicts": [
+    "recommended_path_conflict: reviewers proposed different recommended paths"
+  ],
+  "lanes": {
+    "elegance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/round-01/results/elegance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/round-01/merge/elegance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/round-01/merge/elegance.merge.md",
+      "overall_assessment": "The implementation is structurally close, but the redirect allowlist has a blocking ordering flaw: invite-code canonicalization can happen before external URL rejection. That contradicts the frozen contract's external-path fallback requirement and creates drift between the public resolver and the private allowlisted resolver.",
+      "recommended_path": "Fix before passing T1: make invite-code extraction subject to the same relative-path guard as the continuation allowlist, then add focused tests for absolute and scheme-relative invite URLs across resolveWebPromotionPath and buildTenantPromotionUri.",
+      "finding_count": 1,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    },
+    "performance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/round-01/results/performance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/round-01/merge/performance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/round-01/merge/performance.merge.md",
+      "overall_assessment": "T1 should not pass as-is. The bounded diff does not introduce broad N+1 or high-cardinality data access, but the redirect allowlist still has a contract/security bypass for absolute invite URLs and an unbounded recursive auth-redirect unwrap that can become a runtime resource-exhaustion path.",
+      "recommended_path": "Fix the redirect helper before closing T1: reject scheme/authority before share-code extraction, bound or iterate auth redirect unwrapping with a small depth/length cap, and add focused regression tests for both cases. The app-download default and anonymous favorite controller changes do not show material performance blockers in this bounded package.",
+      "finding_count": 2,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    },
+    "test-quality": {
+      "review_kind": "test_quality_audit",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/round-01/results/test-quality.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/round-01/merge/test-quality.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/round-01/merge/test-quality.merge.md",
+      "overall_assessment": "Blocked. The focused tests cover much of the T1 behavior, but two required gate claims are not adequately protected: external invite-shaped redirects bypass the tested external-url cases, and the immersive anonymous linked-profile favorite entrypoint is not proven.",
+      "recommended_path": "Do not pass T1 until the redirect negative matrix and immersive anonymous favorite tests are added as failing regression coverage, the redirect fast path is corrected, and the focused Flutter test command passes again.",
+      "finding_count": 2,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    }
+  },
+  "exact_next_step": "Prepare a contradiction note, run the follow-up no-context challenge if needed, adjudicate the conflict explicitly, record the resolution with `record-resolution --status resolved`, then open the next round."
+}

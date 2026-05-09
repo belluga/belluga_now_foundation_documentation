@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-10/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality-round-10"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "needs_resolution: rebuild the web bundle from the current Flutter tree, prove bundle freshness, and rerun the release-gating web navigation lane or the affected deterministic shards before treating this final round as clean."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-C7547155",
+      "severity": "high",
+      "title": "Final web release evidence is stale relative to current Flutter source",
+      "rationale": "The round package records the latest web build/publish evidence at the earlier Round 03 build and explicitly says Round 09 did not rerun runtime/navigation because it was considered non-visible. Local repository inspection shows the generated web bundle files under web-app are older than current changed Flutter sources, including tenant admin event form and SafeRichHtml code that compile into web behavior. That makes the Playwright/navigation evidence false-green for the final tree: it proves an older bundle, not the current source under review.",
+      "suggested_action": "Run the canonical web build from the current Flutter working tree, verify the generated web-app bundle freshness/hash against the built source, then rerun the release-gating readonly/mutation navigation lane or all affected NAV_WEB_SHARD shards with runtime-only credentials. Record that evidence in the package before reopening the final audit round.",
+      "reviewer_labels": [
+        "test-quality-round-10"
+      ],
+      "source_finding_ids": [
+        "TQ-R10-001"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "project-web-bundle-freshness-before-release-navigation"
+    }
+  ]
+}

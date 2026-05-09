@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-11/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "elegance"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "acceptable"
+  },
+  "recommended_paths": [
+    "needs_resolution"
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-CA19ED0D",
+      "severity": "medium",
+      "title": "DiscoveryScreenController bypasses the mixin's disposed-state write guard after async restore",
+      "rationale": "PublicDiscoveryFilterControllerMixin establishes writePublicDiscoveryFilterState to prevent writes after disposal, and TenantHomeAgendaController uses its own alive guard when restoring persisted filter selection. DiscoveryScreenController.init awaits loadPersistedPublicDiscoveryFilterSelection and then writes directly to discoveryFilterSelectionStreamValue. If the controller is disposed during that await, the restored-selection write can target a disposed StreamValue. The inconsistency weakens the shared mixin pattern and leaves one of the two consumers with a lifecycle race.",
+      "suggested_action": "Route all discovery-filter StreamValue mutations through writePublicDiscoveryFilterState or an equivalent controller-level alive guard, especially after awaits in init/restore paths, and keep both mixin consumers on the same lifecycle discipline.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "R11-ELEGANCE-002"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-94AF275E",
+      "severity": "medium",
+      "title": "Canonical discovery-filter row still depends on legacy map/settings types",
+      "rationale": "TenantAdminFilterCatalogRow lives under the discovery_filters presentation surface and is used by the new canonical discovery-filter editor, but it imports tenant_admin_settings.dart and accepts TenantAdminMapFilterMarkerOverride directly. TenantAdminDiscoveryFilterSurfaceScreen also adapts discovery-filter catalog items into TenantAdminMapFilterCatalogItem only to call the map-filter visual sheet. This removes row-rendering duplication, but it preserves an inverted dependency from the canonical discovery-filter surface back into legacy map/settings concepts, making the new abstraction less reusable and keeping map-specific language in the generic filter-editing path.",
+      "suggested_action": "Move the shared row/visual editor contract to a neutral tenant-admin filter visual component or introduce a discovery-filter visual value object that both the legacy map settings surface and canonical discovery-filter surface can adapt to, so discovery_filters no longer imports settings/map-specific aggregate types.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "R11-ELEGANCE-001"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

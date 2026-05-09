@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-tenant-app-domain-final-review-dispatch-20260507T0706Z.json",
+  "review_kind": "final_review",
+  "review_count": 1,
+  "reviewer_labels": [
+    "no-context-paced-final-reviewer"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "acceptable",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not close RR-AUTH-02 yet. Complete and record the remaining required gates, run the final Laravel CI-equivalent suite, resolve material findings in the TODO, and preserve the scoped residual-risk classification for the still-failing file-level tenant-access audit."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-C140593F",
+      "severity": "high",
+      "title": "Mandatory closure reviews are still unresolved",
+      "rationale": "The package and TODO both list TODO-local critique review, security adversarial review, verification-debt audit, test-quality audit, triple audit convergence, and the Claude fourth-auditor comparison as remaining closure gates. This final review cannot substitute for those unresolved gates.",
+      "suggested_action": "Complete each required review/audit gate, merge or record material findings, and update the TODO with explicit finding resolutions before requesting closure.",
+      "reviewer_labels": [
+        "no-context-paced-final-reviewer"
+      ],
+      "source_finding_ids": [
+        "FR-RR-AUTH-02-002"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-143CC190",
+      "severity": "high",
+      "title": "Final Laravel CI-equivalent suite is still missing",
+      "rationale": "The TODO validation checklist leaves the final Laravel CI-equivalent suite unchecked, and the bounded package lists it under remaining gates before TODO closure. The targeted and expanded adjacent suites are useful implementation evidence, but they do not satisfy the orchestration plan's final-suite requirement.",
+      "suggested_action": "Run the required final Laravel CI-equivalent suite from the principal checkout, record the exact command/result in the TODO, and rerun or resolve any failures before closure.",
+      "reviewer_labels": [
+        "no-context-paced-final-reviewer"
+      ],
+      "source_finding_ids": [
+        "FR-RR-AUTH-02-001"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-F6583921",
+      "severity": "medium",
+      "title": "File-level tenant-access guard remains failing outside the app-domain slice",
+      "rationale": "The package states that laravel_tenant_access_guardrails_audit.sh still exits 2 for laravel-app/routes/api/tenant_api_v1.php because unrelated identity routes lack CheckTenantAccess. The scoped classification is plausible for RR-AUTH-02, but closure must not imply global tenant-route compliance.",
+      "suggested_action": "Keep the RR-AUTH-02 closure record explicitly scoped to app-domain routes, preserve the follow-up authority for identity-route classification, and avoid marking the broader tenant-access guard as passed unless a scoped deterministic proof or approved waiver is recorded.",
+      "reviewer_labels": [
+        "no-context-paced-final-reviewer"
+      ],
+      "source_finding_ids": [
+        "FR-RR-AUTH-02-003"
+      ],
+      "category": "residual_risk",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

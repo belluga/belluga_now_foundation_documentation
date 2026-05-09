@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-03/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality-round-03-no-context"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Refresh affected-test manifests from the actual dev diff, rerun omitted tests or record explicit blocked evidence for device-only integration tests, then remove or guard force:true clicks before rerunning navigation evidence."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-B7F01949",
+      "severity": "high",
+      "title": "Reported affected-suite commands omit changed test files",
+      "rationale": "Local comparison against git diff dev showed prior manifests omitted changed Laravel unit tests, Flutter integration_test files, and changed public UI/controller tests.",
+      "suggested_action": "Regenerate Laravel and Flutter affected-test manifests from git diff dev, run every omitted non-device test, and record device-only integration tests as blocked with explicit rationale if no device/emulator exists.",
+      "reviewer_labels": [
+        "test-quality-round-03-no-context"
+      ],
+      "source_finding_ids": [
+        "TQ-R03-001"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-77889946",
+      "severity": "medium",
+      "title": "Release-gating Playwright flows still bypass actionability with force:true clicks",
+      "rationale": "Changed mutation specs still clicked release-gating controls with force:true, bypassing browser actionability for semantic/tappability claims.",
+      "suggested_action": "Replace force:true interactions with normal role/label locators plus product-side semantics/tappability fixes, and extend the guard to fail unwaived force:true usage.",
+      "reviewer_labels": [
+        "test-quality-round-03-no-context"
+      ],
+      "source_finding_ids": [
+        "TQ-R03-002"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

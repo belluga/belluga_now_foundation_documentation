@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "Elegance Auditor"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "acceptable"
+  },
+  "recommended_paths": [
+    "Resolve high findings before delivery."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-CB9F2F27",
+      "severity": "high",
+      "title": "Occurrence-owned update semantics clear omitted fields",
+      "rationale": "The backend normalizer treats omitted occurrence event_parties, taxonomy_terms, and programming_items as empty arrays. Flutter can omit these keys, causing unrelated date edits to lose occurrence profiles, taxonomy overrides, and programming items.",
+      "suggested_action": "Preserve omitted owned occurrence fields on update, reserve explicit empty arrays for clearing, include occurrence identity in update payloads, and add backend and encoder tests.",
+      "reviewer_labels": [
+        "Elegance Auditor"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-T5-002"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "occurrence-omitted-fields-preserve-explicit-empty-clears"
+    },
+    {
+      "finding_id": "F-CD32B595",
+      "severity": "high",
+      "title": "Map full-width exception is implemented as an incomplete positive allowlist",
+      "rationale": "Only removing map routes from the framed route allowlist leaves other current tenant-public routes accidentally full width. The requirement is to remove web max width only for the map screen route family.",
+      "suggested_action": "Make CityMapRoute and PoiDetailsRoute explicit full-width exemptions and prove other tenant-public routes such as privacy policy and contact group management remain framed.",
+      "reviewer_labels": [
+        "Elegance Auditor"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-T5-001"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "tenant-public-web-frame-map-only-exemption"
+    }
+  ]
+}

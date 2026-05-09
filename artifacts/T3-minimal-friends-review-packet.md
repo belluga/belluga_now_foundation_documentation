@@ -1,0 +1,89 @@
+# T3 Review Packet — Minimal Contacts, Favorites, And Friends MVP
+
+**Artifact type:** derived review packet, non-authoritative  
+**Created:** 2026-04-28  
+**Governing TODO:** `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+
+## Review Scope
+
+This packet freezes the local non-ADB T3 delivery for independent review before advancing to T4.
+
+Implemented behavior in scope:
+
+- Backend contact import now returns profile-scoped inviteable matches when an inviteable/discoverable personal Account Profile exists.
+- Backend contact import still preserves legacy user-only matches for installed users without a personal profile so existing contact-hash invite targeting remains functional.
+- Backend `GET /contacts/inviteables` returns one deduplicated inviteable recipient row per `receiver_account_profile_id`, preserving `contact_match`, `favorite_by_you`, `favorited_you`, and derived `friend` reasons.
+- Backend `GET|POST|PATCH|DELETE /contact-groups` stores user-private groups over inviteable `receiver_account_profile_id` members and prunes stale members that cease to be inviteable.
+- Direct invite creation accepts and persists `receiver_account_profile_id`; Flutter sends profile-scoped recipient identity when available.
+- `/convites/compartilhar` consumes the backend-computed inviteable list and adds Discovery-style relation filter chips over backend-provided inviteable reasons.
+
+Known local gap for gate classification:
+
+- Dedicated Flutter group-management UI for create/rename/delete and membership editing is not implemented in this cut. Backend CRUD exists and is tested. Review should classify whether this remains a blocking release gap for this TODO before advancing.
+- ADB/device contact-permission smoke is intentionally deferred to the consolidated ADB phase by the approved orchestration plan.
+
+## Changed Surfaces To Inspect
+
+### Laravel
+
+- `laravel-app/app/Application/Social/InviteablePeopleService.php`
+- `laravel-app/app/Application/Social/ContactGroupService.php`
+- `laravel-app/app/Http/Api/v1/Controllers/ContactInviteablesController.php`
+- `laravel-app/app/Http/Api/v1/Controllers/ContactGroupController.php`
+- `laravel-app/app/Http/Api/v1/Requests/ContactGroupStoreRequest.php`
+- `laravel-app/app/Http/Api/v1/Requests/ContactGroupUpdateRequest.php`
+- `laravel-app/app/Models/Tenants/ContactGroup.php`
+- `laravel-app/database/migrations/tenants/2026_04_28_000200_create_contact_groups_and_social_graph_fields.php`
+- `laravel-app/app/Integration/Invites/InviteIdentityGatewayAdapter.php`
+- `laravel-app/packages/belluga/belluga_invites/src/Application/Mutations/InviteMutationService.php`
+- `laravel-app/packages/belluga/belluga_invites/src/Contracts/InviteIdentityGatewayContract.php`
+- `laravel-app/packages/belluga/belluga_invites/src/Http/Api/v1/Requests/InviteCreateRequest.php`
+- `laravel-app/packages/belluga/belluga_invites/src/Models/Tenants/InviteEdge.php`
+- `laravel-app/routes/api/packages/project_tenant_public_api_v1/invites.php`
+- `laravel-app/tests/Feature/Invites/StoreReleaseSocialGraphTest.php`
+
+### Flutter
+
+- `flutter-app/lib/domain/invites/inviteable_recipient.dart`
+- `flutter-app/lib/domain/invites/invite_contact_match.dart`
+- `flutter-app/lib/domain/invites/value_objects/invite_account_profile_id_value.dart`
+- `flutter-app/lib/domain/invites/projections/friend_resume.dart`
+- `flutter-app/lib/domain/schedule/friend_resume.dart`
+- `flutter-app/lib/domain/repositories/invites_repository_contract.dart`
+- `flutter-app/lib/infrastructure/services/invites_backend_contract.dart`
+- `flutter-app/lib/infrastructure/dal/dao/invites/invites_response_decoder.dart`
+- `flutter-app/lib/infrastructure/dal/dao/laravel_backend/invites_backend/laravel_invites_backend.dart`
+- `flutter-app/lib/infrastructure/repositories/invites_repository.dart`
+- `flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/controllers/invite_share_screen_controller.dart`
+- `flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/invite_share_screen.dart`
+- `flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/widgets/invite_share_relation_filter_chips.dart`
+- `flutter-app/test/infrastructure/repositories/invites_repository_test.dart`
+- `flutter-app/test/infrastructure/repositories/invites_repository_push_payload_test.dart`
+- `flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart`
+- `flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/widgets/invite_share_relation_filter_chips_test.dart`
+
+### Documentation
+
+- `foundation_documentation/modules/invite_and_social_loop_module.md`
+- `foundation_documentation/modules/flutter_client_experience_module.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+
+## Validation Evidence
+
+- `./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Invites/StoreReleaseSocialGraphTest.php tests/Feature/Invites/InvitesFlowTest.php tests/Feature/Favorites/FavoritesControllerTest.php`
+  - Result: passed on 2026-04-28.
+  - Coverage: 43 tests, 280 assertions.
+- `docker compose exec -T app ./vendor/bin/pint --test ...`
+  - Result: passed on 2026-04-28 for 19 T3 PHP files.
+- `fvm flutter test test/infrastructure/repositories/invites_repository_test.dart test/infrastructure/repositories/invites_repository_push_payload_test.dart test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart test/presentation/tenant/invites/screens/invite_share_screen/widgets/invite_share_relation_filter_chips_test.dart`
+  - Result: passed on 2026-04-28.
+  - Coverage: 15 Flutter tests.
+- `fvm dart analyze --format machine`
+  - Result: passed on 2026-04-28 with no diagnostics.
+
+## Review Questions
+
+1. Does the implementation preserve the canonical `contact_match -> favorite_by_you/favorited_you -> friend` relation model without inventing a broader `belluga_connections` package?
+2. Are backend query paths and deduplication safe enough for the store-release scale, especially `GET /contacts/inviteables` and contact-group pruning?
+3. Are the tests capable of catching regressions in contact discovery privacy, profile-scoped invite identity, group pruning, and Flutter payload behavior?
+4. Is the missing dedicated Flutter group-management UI a blocking finding for this TODO gate, or acceptable debt until the later ADB/UI pass?

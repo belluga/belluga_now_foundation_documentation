@@ -23,6 +23,7 @@ Canonical module contract for the Tenant Administration interface (`tenant_admin
   - `foundation_documentation/modules/events_module.md`
 - Tactical TODO streams:
   - `foundation_documentation/todos/completed/TODO-v1-tenant-admin-navigation-ia-events-priority.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-account-profile-rich-text-fidelity.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
   - `foundation_documentation/todos/completed/TODO-v1-static-assets-media-parity-with-account-profiles.md`
 
@@ -184,13 +185,21 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with 
     8. `content` -> `field`
     9. `avatar`, `cover` -> `group` (`media`)
 
+### 3.5.2 Account Profile Rich Text Authoring Baseline
+
+- Account Profile onboarding and account-profile edit/create surfaces treat `bio` and `content` as independent capability-backed long-form rich-text fields. `has_bio` controls `bio`; `has_content` controls `content`.
+- Both fields use the shared tenant-admin rich-text editor subset: paragraphs, explicit line breaks, headings, ordered/unordered lists, blockquotes, bold, italic, strike, and emoji/plain text. Links, underline, inline code, colors, arbitrary HTML, and embedded media are not presented as supported Account Profile formatting.
+- The editor must expose visible `100KB` per-field guidance and a soft warning around `90%` of that limit. Backend `422` validation remains authoritative and must still bind to the field-level validation targets `bio` and `content`.
+- The `100KB` cap is a dedicated Account Profile sanitized-content constraint for `bio` and `content`; it must not raise global short-description limits or alter unrelated field constraints.
+- Admin readback/preview surfaces must preserve the same rendering semantics as public detail instead of relying on whitespace-collapsing HTML stripping as a fidelity check.
+
 ### 3.6 Settings Multi-Screen Strategy (Hub + Dedicated Flows)
 
 - `/admin/settings` is the **Settings Hub** entrypoint.
 - Dedicated settings routes:
   - `/admin/settings/local-preferences` → local preferences (`map_ui.radius` bounds + `map_ui.default_origin` fallback seed + `map_ui.filters` catalog + theme)
   - `/admin/settings/visual-identity` → branding/visual identity
-  - `/admin/settings/technical-integrations` → app links + firebase/push/telemetry + resend email delivery
+  - `/admin/settings/technical-integrations` → app links + firebase/push/telemetry + resend email delivery + outbound WhatsApp/OTP webhook delivery
   - `/admin/settings/domains` → tenant web-domain management (active list/create/delete; deleted-domain lifecycle stays outside the current settings read flow)
   - `/admin/settings/environment-snapshot` → read-only environment diagnostics
 - The settings controller remains the state owner; each settings screen consumes only the relevant state slices and actions.
@@ -304,7 +313,45 @@ List tenant-admin events for operational management.
           "occurrence_id": null,
           "occurrence_slug": null,
           "date_time_start": "2026-01-01T20:00:00Z",
-          "date_time_end": "2026-01-01T22:00:00Z"
+          "date_time_end": "2026-01-01T22:00:00Z",
+          "event_parties": [
+            {
+              "party_ref_id": "string",
+              "permissions": { "can_edit": false }
+            }
+          ],
+          "own_linked_account_profiles": [
+            {
+              "id": "string",
+              "display_name": "Perfil da ocorrência",
+              "profile_type": "band",
+              "slug": "perfil-da-ocorrencia"
+            }
+          ],
+          "has_location_override": true,
+          "location_override": {
+            "mode": "physical",
+            "online": null,
+            "address": null
+          },
+          "place_ref": {
+            "type": "account_profile",
+            "id": "string"
+          },
+          "programming_items": [
+            {
+              "time": "13:00",
+              "title": "Apresentação especial",
+              "linked_account_profiles": [
+                {
+                  "id": "string",
+                  "display_name": "Perfil relacionado",
+                  "profile_type": "band",
+                  "slug": "perfil-relacionado"
+                }
+              ]
+            }
+          ]
         }
       ],
       "venue": {
@@ -369,6 +416,12 @@ List tenant-admin events for operational management.
 - Grouping is rebuilt from the accumulated ordered result, and any filter change resets pagination to page `1` before regrouping.
 - Management payloads must not require an artist-shaped key such as `artists`; dynamic account-profile administration flows consume `event_parties` plus `linked_account_profiles`.
 - Tenant-admin event edit/create uses the same approved `event.content` subset as the public event detail contract: `<p>`, `<br>`, `<h1-6>`, `<ul>`, `<ol>`, `<li>`, `<blockquote>`, `<strong>`, `<em>`, and `<s>`. Unsupported markup is stripped on save, and emojis remain plain text.
+- Tenant-admin event create/edit renders shared event fields first and occurrence management after those event sections. The first occurrence remains the baseline created with the event; adding a second date switches the occurrence section from inline fields to a vertical occurrence-card list plus add-date affordance.
+- Occurrence editors own occurrence-scoped date/time, additional related Account Profiles, and occurrence-exclusive `Programação`. Event title, content, media, type, publication status, and taxonomies remain shared event-level fields for Store Release.
+- Occurrence cards summarize date/time, occurrence-owned related profiles, and programming count so operators can scan multi-date events before opening the occurrence editor.
+- Occurrence `Programação` items are ordered by time and include `time`, optional `title`, linked occurrence-owned Account Profiles, and optional structured location references to an Account Profile/Map POI. More than one linked profile requires an explicit title; a single linked profile may supply the display fallback.
+- Programação item editors must only list Account Profiles already linked to that occurrence. The UI may offer an inline shortcut to add a new profile to the occurrence and immediately preselect it in the item, but Programação does not become an independent second authoring surface for profiles.
+- Removing an occurrence-owned Account Profile while any programação item still references it is invalid and must be blocked until those item references are cleared.
 
 ### `GET /admin/api/v1/events/account_profile_candidates`
 Page-based account-profile candidate discovery for the event form pickers and the tenant-admin manager venue/related-profile filter pickers.
@@ -1345,6 +1398,13 @@ Delete a taxonomy term.
 - `taxonomy.icon` (string, optional): Material icon name string (e.g., `mode_subscription`).
 - `taxonomy.color` (string, optional): HEX color `#RRGGBB`.
 
+**Taxonomy term display snapshot contract**
+- Admin write payloads continue to submit taxonomy selections as machine keys: `{type, value}`.
+- Admin read payloads for Account Profiles, Static Assets, Events, Event Occurrences, related-profile summaries, and Map filter catalogs expose display snapshots: `{type, value, name, taxonomy_name, label?}`.
+- `name` is the canonical term display label, `taxonomy_name` is the taxonomy/group display label, and `label` is compatibility-only for older Flutter consumers.
+- Term slug/value changes are not a normal edit operation after use. Display-name edits trigger tenant-scoped fanout/reprojection, and legacy documents can be repaired by the idempotent taxonomy snapshot backfill.
+- Admin UI chips/lists render `name -> label -> value`, while request/query payloads continue to send only `type/value`.
+
 ### `GET /admin/api/v1/account_profiles`
 List account profiles (optionally filter by `account_id`).
 
@@ -1949,7 +2009,7 @@ Update tenant-owned Resend delivery defaults used by tenant-public transactional
   "token": "re_xxxxxxxxx",
   "from": "Belluga <noreply@belluga.space>",
   "to": [
-    "admin@bellugasolutions.com.br"
+    "admin@example.com"
   ],
   "cc": [],
   "bcc": [],
@@ -1970,11 +2030,56 @@ Update tenant-owned Resend delivery defaults used by tenant-public transactional
     "token": "re_xxxxxxxxx",
     "from": "Belluga <noreply@belluga.space>",
     "to": [
-      "admin@bellugasolutions.com.br"
+      "admin@example.com"
     ],
     "cc": [],
     "bcc": [],
     "reply_to": []
+  }
+}
+```
+
+### `PATCH /admin/api/v1/settings/values/outbound_integrations`
+Update tenant-owned queued outbound delivery settings used by WhatsApp and phone OTP dispatch.
+
+**Request Schema**
+```json
+{
+  "whatsapp.webhook_url": "https://integrations.example/whatsapp",
+  "otp.webhook_url": "https://integrations.example/otp",
+  "otp.use_whatsapp_webhook": true,
+  "otp.delivery_channel": "whatsapp",
+  "otp.ttl_minutes": 10,
+  "otp.resend_cooldown_seconds": 60,
+  "otp.max_attempts": 5
+}
+```
+
+**Contract Notes**
+- Webhook dispatch is backend-owned and must run through queued jobs, not synchronous Flutter/client calls.
+- `whatsapp.webhook_url` is the reusable WhatsApp dispatch URL.
+- `otp.webhook_url` is optional; when it is empty and `otp.use_whatsapp_webhook=true`, OTP delivery uses the WhatsApp URL.
+- `otp.delivery_channel` is currently `whatsapp` or `sms`; release OTP defaults to `whatsapp`.
+- `otp.ttl_minutes`, `otp.resend_cooldown_seconds`, and `otp.max_attempts` define the tenant OTP policy boundaries consumed by the backend challenge resolver.
+- The tenant-admin technical integrations screen must expose this namespace as a visible, editable settings section. A backend namespace registration without a Flutter admin consumer is incomplete for store release when the setting is tenant-configurable.
+
+**Response Schema**
+```json
+{
+  "data": {
+    "outbound_integrations": {
+      "whatsapp": {
+        "webhook_url": "https://integrations.example/whatsapp"
+      },
+      "otp": {
+        "webhook_url": "https://integrations.example/otp",
+        "use_whatsapp_webhook": true,
+        "delivery_channel": "whatsapp",
+        "ttl_minutes": 10,
+        "resend_cooldown_seconds": 60,
+        "max_attempts": 5
+      }
+    }
   }
 }
 ```
@@ -2310,6 +2415,9 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TAD-09` | Approved | Tenant-admin back behavior is centralized through one shared section registry plus typed route-back helpers; shell/forms/settings/details may not own raw `pop/maybePop` as final route policy. | Prevents section drift and web empty-history failures across `/admin` child flows. | Sections `2.2`, `3`, `5` |
 | `TAD-10` | Approved | Tenant-admin web-domain settings consume an active-domain read contract only; deleted-domain restore/force-delete lifecycle is intentionally decoupled until a dedicated deleted-domain read surface exists. | Keeps the current settings flow coherent with the approved slice while preserving existing lower-level lifecycle routes. | Sections `3.6`, `4` (`GET/POST/DELETE /admin/api/v1/domains`) |
 | `TAD-11` | Approved | Tenant-admin event list operations are server-driven and use `date`, `temporal`, `venue_profile_id`, and `related_account_profile_id` as the canonical current manager filter set, without artist-shaped management payload keys. | Preserves dynamic account-profile semantics for event operations while giving operators a date-grouped, high-signal manager list without reviving direct text search. | Sections `4` (`GET /admin/api/v1/events`, `GET /admin/api/v1/events/account_profile_candidates`) |
+| `TAD-12` | Approved | Tenant-admin taxonomy selections write machine keys but read display snapshots (`type`, `value`, `name`, `taxonomy_name`, optional `label`) across account profiles, static assets, events, occurrences, and map filter catalogs. | Keeps admin forms stable and query-safe while eliminating slug display in admin readback/detail/list UI. | Sections `4`, `5` |
+| `TAD-13` | Approved | Tenant-admin event authoring keeps shared event fields first and manages occurrences as a date section. Single-occurrence forms keep inline date fields plus add-date affordance; multi-occurrence forms render occurrence cards and open occurrence editors for date/time, own related profiles, and Programação with optional item-level location Account Profile/Map POI references. | Extends the intentional first-occurrence baseline without turning shared event fields into per-occurrence overrides and keeps multi-date authoring operator-scannable. | Sections `4`, `5` |
+| `TAD-14` | Approved | Store-release tenant-configurable backend settings namespaces must have a visible tenant-admin consumer before the delivery is considered complete. `outbound_integrations` is owned by technical integrations and exposes WhatsApp plus OTP webhook/policy settings. | Prevents release-critical backend configuration from being registered without an operator surface to configure it. | Sections `3.6`, `4` (`PATCH /admin/api/v1/settings/values/outbound_integrations`) |
 
 ## 6. Tactical TODO Promotion Ledger
 
@@ -2325,3 +2433,5 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TODO-v1-tenant-admin-domain-management-and-events-ops.md` | Active web-domain management plus tenant-admin event operations hardening | In progress | `3.6`, `4`, `5` | Establishes the active-domain settings contract and server-driven event-management list/filter semantics for this slice. |
 | `TODO-vnext-tenant-user-account-profile-area.md` | Account/profile admin boundaries | In progress | `2`, `4`, `5` | Aligns account/profile CRUD contracts and scope. |
 | `TODO-v1-static-assets-media-parity-with-account-profiles.md` | Media parity and static assets admin flows | In progress | `4`, `5` | Syncs media endpoints and UX behavior. |
+| `TODO-store-release-taxonomy-term-display-snapshots.md` | Taxonomy term display snapshots and admin readback labels | Promotion Lane | `4`, `5` | Admin writes stay `{type,value}`; readback/UI consumes display-ready snapshots and fanout/backfill keeps documents current. |
+| `TODO-store-release-event-multi-occurrence-ux-and-authoring-model.md` | Multi-occurrence tenant-admin event authoring and occurrence-scoped payloads | Promotion Lane | `4`, `5` | Promotes single-to-multi occurrence section behavior, occurrence cards, occurrence-owned related profiles, and Programação authoring with item-level location references. |

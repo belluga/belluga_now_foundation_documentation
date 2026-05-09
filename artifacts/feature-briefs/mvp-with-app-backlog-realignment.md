@@ -44,10 +44,10 @@
 
 ## Evidence / References
 - `foundation_documentation/todos/active/concluded_but_active/TODO-v1-first-release.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `foundation_documentation/todos/active/concluded_but_active/TODO-v1-favorites-account-profile-visual-enrichment.md`
 - `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-invite-polish.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-v1-screen-invite-polish.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-invite-friends-polish.md`
 - `foundation_documentation/todos/active/store_release_android/TODO-v1-web-bootstrap-branding-continuity.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-connections-package.md`
@@ -70,7 +70,7 @@
 ### 1) Concluded But Still Active
 These TODOs are not defining the next product milestone. They are mostly `Local-Implemented`, `Local-Validated`, or manual-smoke/promotion-evidence leftovers:
 
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
   - Core engineering is done; remaining work is manual device/store validation and KPI sink validation.
 - `foundation_documentation/todos/active/concluded_but_active/TODO-v1-tenant-public-web-desktop-mobile-frame.md`
   - Layout slice is locally implemented; remaining work is manual browser smoke.

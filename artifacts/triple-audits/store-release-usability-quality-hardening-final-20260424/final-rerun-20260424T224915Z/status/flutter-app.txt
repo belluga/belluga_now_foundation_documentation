@@ -1,0 +1,14 @@
+ M lib/application/router/modular_app/module_settings.dart
+ M lib/infrastructure/dal/dao/tenant_admin/tenant_admin_settings_response_decoder.dart
+ M lib/presentation/tenant_admin/discovery_filters/controllers/tenant_admin_discovery_filters_controller.dart
+ M lib/presentation/tenant_admin/discovery_filters/models/tenant_admin_discovery_filters_settings.dart
+ M lib/presentation/tenant_admin/events/screens/tenant_admin_event_form_screen.dart
+ M lib/presentation/tenant_public/discovery/controllers/discovery_screen_controller.dart
+ M lib/presentation/tenant_public/home/screens/tenant_home_screen/widgets/agenda_section/controllers/tenant_home_agenda_controller.dart
+ M test/presentation/tenant_admin/settings/tenant_admin_settings_screen_test.dart
+?? lib/application/tenant_admin/
+?? lib/domain/repositories/tenant_admin_discovery_filter_rule_catalog_repository_contract.dart
+?? lib/infrastructure/repositories/tenant_admin/tenant_admin_discovery_filter_rule_catalog_repository.dart
+?? lib/presentation/tenant_admin/events/controllers/tenant_admin_event_occurrence_editor_draft.dart
+?? lib/presentation/tenant_admin/events/controllers/tenant_admin_event_programming_item_draft.dart
+?? lib/presentation/tenant_admin/events/widgets/

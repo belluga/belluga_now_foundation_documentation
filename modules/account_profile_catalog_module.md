@@ -23,6 +23,9 @@ The Account Profile Catalog module (MOD-304) maintains the canonical representat
 - Tactical TODO streams:
   - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`
+  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-home-favorites-refresh-regression.md`
+  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-account-profile-rich-text-fidelity.md`
   - `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
   - `foundation_documentation/todos/completed/TODO-v1-static-assets-media-parity-with-account-profiles.md`
 
@@ -110,9 +113,28 @@ Aggregated dashboard data remains a future authenticated workspace-facing read c
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/v1/account_profiles` | GET | Tenant-public list constrained to favoritable + `visibility='public'` account profiles. |
-| `/api/v1/account_profiles/near` | GET | Tenant-public distance-ordered account profiles for Discovery nearby surfaces (`is_favoritable=true` + `is_poi_enabled=true` + `visibility='public'`, nearest-first). |
-| `/api/v1/account_profiles/{account_profile_slug}` | GET | Detailed account profile summary for consumer experiences via direct slug lookup (`is_active=true` + `visibility='public'` + favoritable type), including query-only ordered `agenda_occurrences` for agenda continuity. |
+| `/api/v1/account_profiles` | GET | Tenant-public list constrained to non-`personal` profile types with `is_favoritable=true`, effective public discoverability, and profiles with `visibility='public'`. |
+| `/api/v1/account_profiles/near` | GET | Tenant-public distance-ordered account profiles for Discovery nearby surfaces (non-`personal` + `is_favoritable=true` + `is_poi_enabled=true` + effective public discoverability + `visibility='public'`, nearest-first). |
+| `/api/v1/account_profiles/{account_profile_slug}` | GET | Detailed account profile summary for consumer experiences via direct slug lookup (`is_active=true` + `visibility='public'` + non-`personal` type with `is_favoritable=true` + effective public discoverability), including query-only ordered `agenda_occurrences` for agenda continuity. |
+
+**Taxonomy term display snapshots**
+- Account Profile read payloads expose structured taxonomy terms as display-ready snapshots: `{type, value, name, taxonomy_name, label?}`.
+- `type`, `value`, and flattened `type:value` remain the only query/filter identities. `name`, `taxonomy_name`, and compatibility `label` are read/display metadata and must never become query keys.
+- When taxonomy or taxonomy-term display names change, tenant-scoped fanout/backfill must repair persisted/read-model snapshots idempotently. Legacy `{type, value}` documents remain readable through fallback until repaired.
+
+**Account Profile rich text fields**
+- `bio` and `content` are independent capability-backed long-form rich-text fields. `profile_types.capabilities.has_bio` controls whether `bio` is rendered/authored, and `profile_types.capabilities.has_content` controls whether `content` is rendered/authored.
+- Tenant-public `/parceiro/:slug` keeps one `Sobre` tab/shell. If both fields are present, `bio` renders first under the `Sobre` block label and `content` renders second under the `Conteúdo` block label. If only one field is present, the screen avoids a redundant nested heading and renders only the field body inside the tab.
+- Account Profile rich text uses the shared safe subset: `<p>`, `<br>`, `<h1-6>`, `<ul>`, `<ol>`, `<li>`, `<blockquote>`, `<strong>`, `<em>`, `<s>`, plus emoji/plain text. Links, underline, inline code, colors, arbitrary HTML, and embedded media are not part of the Store Release contract.
+- Legacy/plain-text values with newline breaks are canonicalized at render time so paragraph breaks and explicit line breaks remain visible.
+- Backend persistence validates a dedicated `100KB` sanitized-content cap per field for `bio` and `content`; this does not raise global short-description limits for unrelated fields.
+
+**Favorites client-state contract**
+- Public account-profile catalog/detail reads remain anonymous-capable and favoritable by profile type, but viewer-specific favorite ids are registered user-linked state in Flutter.
+- Account Profile favorite ids must be refreshed through the Flutter post-auth hydration contract after OTP/login, then published through repository-owned streams for Discovery, public detail, Home favorites, and inviteable/social consumers.
+- Empty favorite-id results for the registered identity are authoritative and clear stale client favorite state; screens must not preserve pre-login favorite flags through local cache, route re-entry, or controller relay.
+- `personal` profile types may be `is_favoritable=true` and `is_inviteable=true` for contacts/friends, but they must remain out of tenant-public catalog/detail/near queries unless a future approved public-people-discovery capability explicitly changes that policy. Standard tenant-public queries must omit non-public profile types by default.
+- Effective public discoverability is centralized in the Laravel `TenantProfileType` public catalog scope: explicit `is_publicly_discoverable=false` excludes a type, explicit `true` includes an eligible non-`personal` type, and rollout-compatible legacy non-`personal` types without the flag continue to behave as public when they are otherwise catalog-eligible. This compatibility fallback must not allow `personal` into Discovery.
 
 **Events**
 * Current runtime authority: `account_profile.created`, `account_profile.updated`.
@@ -134,6 +156,7 @@ Aggregated dashboard data remains a future authenticated workspace-facing read c
 
 Discovery runtime behavior for tenant-public account-profile listing is fixed as follows:
 - Default discovery hierarchy uses `Tocando agora` + `Perto de você` as the top composition, followed by `Descubra` with registry-driven single-select category chips.
+- Discovery category chips and type options must be derived only from the centralized public account-profile catalog scope; contacts/friends-only profile types such as `personal` must not appear as public Discovery filters, and legacy public non-`personal` types without the new flag must keep rendering during rollout.
 - Entering search mode hides `Tocando agora`, `Perto de você`, and the `Descubra` heading/chip chrome.
 - While search mode is active with an empty query, the unfiltered base discovery grid remains visible; text filtering begins only after the user types.
 - Discovery-side profile entrypoints continue to launch the canonical public account-profile detail route `/parceiro/:slug`; detail-route behavior is governed separately.
@@ -161,13 +184,16 @@ Discovery runtime behavior for tenant-public account-profile listing is fixed as
 | `PCO-01` | Approved | Account Profile is the canonical public identity layer for account-managed entities. | Keeps consumer and admin views aligned on one source. | Sections `1`, `3.1` |
 | `PCO-02` | Approved | Offer availability uses explicit windows; map/agenda must consume those windows. | Enables deterministic time-based discovery behavior. | Sections `2`, `3.2` |
 | `PCO-03` | Approved | Media metadata remains in catalog domain while binary storage is externalized. | Avoids tight infra coupling in domain contracts. | Section `2` |
-| `PCO-04` | Approved | Public account-profile consumers must render canonical type `visual` from the profile-type registry; `mode=image` remains image-backed outside the map for `avatar`, `cover`, or canonical `type_asset`, and only falls back when the required media is missing or invalid. | Eliminates local hardcoded type visuals and keeps public identity semantics consistent across detail/list/hero fallback surfaces. | Sections `1`, `4` |
+| `PCO-04` | Approved | Public account-profile consumers must render canonical type `visual` from the profile-type registry; `mode=image` remains image-backed outside the map for `avatar`, `cover`, or canonical `type_asset`, preserves the configured visual color as an accent input, and only falls back when the required media is missing or invalid. | Eliminates local hardcoded type visuals and keeps public identity semantics consistent across detail/list/hero fallback surfaces. | Sections `1`, `4` |
 | `PCO-05` | Approved | Tenant-public account-profile detail exposes ordered `agenda_occurrences` as a query-only projection derived from future/live published event occurrences; repeated `event_id` values remain distinct when `occurrence_id` differs, and the projection is never stored on `account_profiles`. | Allows the public detail route to materialize `Agenda` directly from occurrence-first data without turning the profile aggregate into an event-owned persistence surface or collapsing multiple future occurrences of the same event. | Sections `1`, `4` |
 | `PCO-06` | Approved | Account-profile public identity uses surface-specific media precedence: hero/discovery backgrounds use `cover > avatar > type visuals`, compact rows use `avatar > cover > type visuals`, and shared identity-avatar blocks use the real avatar when present and otherwise fall back to the canonical `type visual` avatar surface. When a real avatar exists, the `type visual` becomes a badge overlay on that avatar instead of a textual label/chip. | Keeps discovery, nearby, home favorites previews, and public account-profile detail semantically consistent while preserving the distinction between surface media, personal/avatar identity, and type identity. | Sections `1`, `4`, `7` |
 | `PCO-07` | Approved | Public/runtime account-profile type metadata is bootstrap-driven and additive: `label` remains the singular compatibility alias, while `labels.singular` / `labels.plural` are the canonical display fields for identity and grouped-category surfaces. | Allows shared account-profile/UI consumers to stop improvising singular/plural labels while keeping runtime reads cheap and tenant-admin source-of-truth aligned. | Sections `1`, `4`, `7` |
 | `PCO-08` | Approved | Tenant-public account-profile detail uses the shared safe-back policy: when no previous route exists, `/parceiro/:slug` falls back to `/descobrir`; when history exists, the real previous route still wins. | Keeps direct-open public account-profile detail resilient while preserving normal in-app source continuity from discovery, home, map, and event-linked profile flows. | Sections `1`, `4`, `7` |
 | `PCO-09` | Approved | Tenant-public account-profile discovery search mode hides the top discovery hierarchy chrome (`Tocando agora`, `Perto de você`, `Descubra`, and chips) while preserving the unfiltered base results grid until a non-empty query is entered. | Freezes the approved `/descobrir` search interaction so tactical TODO cleanup and future UI work do not reintroduce prompt-only empty-search behavior. | Sections `4.1`, `7` |
 | `PCO-10` | Approved | This file is the canonical current authority for public account-profile contracts after the module-family rename. Deferred `offer`/commercial planning remains capability-first by default and does not become a separate current runtime surface unless later implementation proves that boundary. | Keeps module authority aligned with the renamed canonical surface without accidentally turning deferred commercial planning into current runtime truth. | Sections `1`, `3.2`, `4` |
+| `PCO-11` | Approved | Account Profile `bio` and `content` are independent capability-backed long-form rich-text fields rendered inside the public `Sobre` shell with shared safe rich-text subset canonicalization and a dedicated `100KB` sanitized-content cap per field. | Fixes public detail/admin fidelity without turning unrelated short descriptions into page-sized content fields. | Sections `4`, `7` |
+| `PCO-12` | Approved | Account Profile taxonomy terms are read/display snapshots using `{type, value, name, taxonomy_name, label?}` while filters stay on machine keys (`type`, `value`, `type:value`). | Prevents slug rendering in public/admin UI without adding runtime taxonomy joins to list/detail reads. | Sections `4`, `7` |
+| `PCO-13` | Approved | Viewer favorite ids for Account Profiles are registered user-linked client state and must be refreshed by Flutter post-auth hydration after registered identity emission. | Prevents stale favorite flags after OTP login and keeps Discovery/detail/Home/inviteable consumers aligned through repository-owned streams. | Sections `4`, `7`; `foundation_documentation/modules/flutter_client_experience_module.md` `FCX-12` |
 
 ## 8. Tactical TODO Promotion Ledger
 
@@ -176,3 +202,6 @@ Discovery runtime behavior for tenant-public account-profile listing is fixed as
 | `TODO-vnext-tenant-user-account-profile-area.md` | Account/profile scope and contracts | In progress | `1.1`, `3`, `7` | Main stream for account profile domain hardening. |
 | `TODO-v1-public-account-profile-discovery-ui.md` | Tenant-public discovery/listing contract and discovery-side CTA polish | Completed | `4`, `4.1`, `7` | Discovery search-mode/listing contract and the remaining V1 polish were accepted as launch-ready; no further Discovery follow-up remains in this lane. |
 | `TODO-v1-tenant-public-safe-back-navigation.md` | Shared tenant-public account-profile-detail back/fallback policy | Completed | `4`, `7` | Freezes `/parceiro/:slug -> /descobrir` when root-opened; archived from `active` during the 2026-04-09 MVP TODO cleanup after delivery confirmation. |
+| `TODO-store-release-account-profile-rich-text-fidelity.md` | Account Profile `bio`/`content` rich-text fidelity and long-form cap | Promotion Lane | `4`, `7` | Promotes the Store Release contract for independent capability-backed rich-text fields, public `Sobre` rendering, safe subset canonicalization, and `100KB` per-field sanitized-content validation. |
+| `TODO-store-release-taxonomy-term-display-snapshots.md` | Taxonomy term display snapshots for account/profile/event/static/map read models | Promotion Lane | `4`, `7` | Promotes display-ready taxonomy snapshots while preserving machine-key filtering and idempotent backfill/fanout. |
+| `TODO-store-release-home-favorites-refresh-regression.md` | Account Profile favorite-id hydration for Home/detail/discovery consumers | Promotion Lane | `4`, `7` | Promotes registered-identity favorite refresh and stale-state clearing through repository-owned streams. |

@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-account-token-binding-hardening-package-triple-audit-20260507T211322Z/round-02/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "RR-AUTH-03 performance reviewer"
+  ],
+  "highest_finding_severity": "low",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "acceptable",
+    "operational_fit": "acceptable"
+  },
+  "recommended_paths": [
+    "Accept the current baseline for the performance lane. Keep the issuer-boundary stack inspection as explicit non-blocking debt for RR-AUTH-03 and only refactor it to an explicit issuer capability/factory boundary if account-scoped token issuance expands beyond the current narrow service-owned path."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-7C2380F2",
+      "severity": "low",
+      "title": "Account-scoped token issuer validation still pays reflective stack-inspection cost on issuance",
+      "rationale": "`AccountUser::assertValidatedAccountScopedTokenIssuerCaller()` uses `debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 6)` to verify that only `TenantScopedAccessTokenService` can open the validated issuer context. On the current baseline this runs only during account-scoped token issuance, not on every authorized request, so it is bounded and not a release blocker. The cost and coupling remain worth tracking as debt because a reflective caller check is slower and more brittle than an explicit capability boundary if issuance throughput or call-path reuse grows later.",
+      "suggested_action": "Retain this as accepted non-blocking debt for RR-AUTH-03. If the issuer pattern is reused or issuance volume becomes material, replace the stack-inspection guard with an explicit issuer capability/factory boundary that preserves fail-closed semantics without `debug_backtrace()`.",
+      "reviewer_labels": [
+        "RR-AUTH-03 performance reviewer"
+      ],
+      "source_finding_ids": [
+        "PERF-RR-AUTH-03-001"
+      ],
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

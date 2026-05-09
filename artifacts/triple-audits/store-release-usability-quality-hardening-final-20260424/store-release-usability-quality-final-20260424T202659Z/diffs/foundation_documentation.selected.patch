@@ -1,0 +1,855 @@
+diff --git a/modules/tenant_admin_module.md b/modules/tenant_admin_module.md
+index 064755e..f26d3a3 100644
+--- a/modules/tenant_admin_module.md
++++ b/modules/tenant_admin_module.md
+@@ -1,12 +1,12 @@
+ # Documentation: Tenant Administration Module
+ 
+-**Version:** 0.1 (Placeholder)  
+-**Date:** February 28, 2025  
++**Version:** 0.2 (Active Canonical Module)  
++**Date:** April 12, 2026  
+ **Authors:** Delphi (Belluga Co-Engineering)
+ 
+ ## 1. Purpose
+ 
+-Placeholder for the Tenant Administration interface (`tenant_admin` main scope) where city governments or enterprise tenants manage account profile onboarding, plan assignments, and high-level analytics. In V1, this interface is accessed on tenant domains and guarded by landlord identity principal. This document will be expanded after the tenant-facing app modules are finalized, ensuring admin capabilities align with real consumer workflows.
++Canonical module contract for the Tenant Administration interface (`tenant_admin` main scope), where city governments or enterprise tenants manage account profile onboarding, plan assignments, integrations, tenant-domain settings, and event operations. In V1, this interface is accessed on tenant domains and guarded by landlord identity principal. This document remains a living contract, but it is no longer a placeholder reference for the implemented tenant-admin surfaces documented below.
+ 
+ ### 1.1 Canonical Anchors
+ 
+@@ -16,20 +16,21 @@ Placeholder for the Tenant Administration interface (`tenant_admin` main scope)
+   - `foundation_documentation/submodule_flutter-app_summary.md`
+   - `foundation_documentation/policies/scope_subscope_governance.md`
+ - Cross-module references:
+-  - `foundation_documentation/modules/partner_catalog_and_offer_module.md`
+-  - `foundation_documentation/modules/partner_admin_module.md`
++  - `foundation_documentation/modules/account_profile_catalog_module.md`
++  - `foundation_documentation/modules/account_workspace_module.md` (canonical planning surface for future `account_workspace`)
+   - `foundation_documentation/modules/invite_and_social_loop_module.md`
+   - `foundation_documentation/modules/map_poi_module.md`
+   - `foundation_documentation/modules/events_module.md`
+ - Tactical TODO streams:
+   - `foundation_documentation/todos/completed/TODO-v1-tenant-admin-navigation-ia-events-priority.md`
+-  - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
+-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-static-assets-media-parity-with-account-profiles.md`
++  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-account-profile-rich-text-fidelity.md`
++  - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
++  - `foundation_documentation/todos/completed/TODO-v1-static-assets-media-parity-with-account-profiles.md`
+ 
+ ## 2. Intended Responsibilities
+ 
+ 1. **Account Profile Lifecycle Management:** Approve/reject account profile applications, assign plan tiers, manage verification flags.
+-2. **Account Profile Analytics Overview:** Monitor account profile performance (invites, attendance, revenue) using aggregate data from Account Profile Analytics.
++2. **Account Profile Analytics Overview:** Monitor account profile performance (invites, attendance, revenue) using aggregate analytics capabilities sourced from invites, events, transactions, and future workspace-facing dashboards, without assuming a standalone analytics module by default.
+ 3. **Tenant Configuration:** Define map regions, featured campaigns, rule sets for the Tenant Home Composer, and policy settings (invite quotas, suppression rules).
+ 4. **Compliance & Auditing:** View audit trails (invite Fulfillment steps, attendance confirmations) and respond to data-access requests.
+ 5. **Government/Institutional Reporting:** Generate reports for city stakeholders (tourism impact, local business engagement, account profile mix).
+@@ -48,6 +49,7 @@ Placeholder for the Tenant Administration interface (`tenant_admin` main scope)
+ |---|---|---|---|---|---|
+ | `/admin` (tenant domain) | Tenant | `tenant` | `tenant_admin` | n/a | Canonical tenant-admin home. |
+ | `/admin/*` child routes | Tenant | `tenant` | `tenant_admin` | n/a | Tenant-admin modules (accounts/org/catalog/assets/settings). |
++| `/admin/settings/domains` | Tenant | `tenant` | `tenant_admin` | n/a | Tenant-admin domain management. |
+ | `/workspace` | Tenant | `tenant` | `tenant_public` | `account_workspace` | Adjacent subscope; not a tenant-admin route. |
+ | `/workspace/{account_slug}` | Tenant | `tenant` | `tenant_public` | `account_workspace` | Account-scoped workspace mode. |
+ 
+@@ -122,6 +124,7 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with
+ - `/admin/settings/local-preferences`
+ - `/admin/settings/visual-identity`
+ - `/admin/settings/technical-integrations`
++- `/admin/settings/domains`
+ - `/admin/settings/environment-snapshot`
+ 
+ ### 3.4 Mobile UX Rules
+@@ -182,6 +185,14 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with
+     8. `content` -> `field`
+     9. `avatar`, `cover` -> `group` (`media`)
+ 
++### 3.5.2 Account Profile Rich Text Authoring Baseline
++
++- Account Profile onboarding and account-profile edit/create surfaces treat `bio` and `content` as independent capability-backed long-form rich-text fields. `has_bio` controls `bio`; `has_content` controls `content`.
++- Both fields use the shared tenant-admin rich-text editor subset: paragraphs, explicit line breaks, headings, ordered/unordered lists, blockquotes, bold, italic, strike, and emoji/plain text. Links, underline, inline code, colors, arbitrary HTML, and embedded media are not presented as supported Account Profile formatting.
++- The editor must expose visible `100KB` per-field guidance and a soft warning around `90%` of that limit. Backend `422` validation remains authoritative and must still bind to the field-level validation targets `bio` and `content`.
++- The `100KB` cap is a dedicated Account Profile sanitized-content constraint for `bio` and `content`; it must not raise global short-description limits or alter unrelated field constraints.
++- Admin readback/preview surfaces must preserve the same rendering semantics as public detail instead of relying on whitespace-collapsing HTML stripping as a fidelity check.
++
+ ### 3.6 Settings Multi-Screen Strategy (Hub + Dedicated Flows)
+ 
+ - `/admin/settings` is the **Settings Hub** entrypoint.
+@@ -189,8 +200,15 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with
+   - `/admin/settings/local-preferences` → local preferences (`map_ui.radius` bounds + `map_ui.default_origin` fallback seed + `map_ui.filters` catalog + theme)
+   - `/admin/settings/visual-identity` → branding/visual identity
+   - `/admin/settings/technical-integrations` → app links + firebase/push/telemetry + resend email delivery
++  - `/admin/settings/domains` → tenant web-domain management (active list/create/delete; deleted-domain lifecycle stays outside the current settings read flow)
+   - `/admin/settings/environment-snapshot` → read-only environment diagnostics
+ - The settings controller remains the state owner; each settings screen consumes only the relevant state slices and actions.
++- `/admin/settings/visual-identity` is the canonical owner of tenant runtime branding identity in V1:
++  - editing `Nome do tenant` persists the canonical tenant record used by `/api/v1/environment` and `manifest.json`;
++  - `favicon` is a dedicated `.ico` upload surface for browser-tab/bookmark identity only;
++  - `Icone PWA` remains a dedicated PNG source for manifest `/icon/...` outputs and must not be conflated with favicon;
++  - `public_web_metadata.default_title`, `public_web_metadata.default_description`, and `public_web_metadata.default_image` are the tenant-owned fallback metadata inputs for tenant-public HTML routes that do not already resolve route-specific Open Graph metadata;
++  - `public_web_metadata.default_image` uses the same canonical branding upload pipeline as the other branding assets, but it only participates in server-rendered OG/Twitter fallback metadata and must not be repurposed as favicon or PWA icon input.
+ 
+ ### 3.7 Selected Tenant State Ownership (Shared Repository)
+ 
+@@ -260,14 +278,159 @@ Create an organization (grouping only in MVP).
+ }
+ ```
+ 
++### `GET /admin/api/v1/events`
++List tenant-admin events for operational management.
++
++**Query Parameters**
++- `date`: `YYYY-MM-DD?` (specific calendar day in tenant-admin operations)
++- `temporal`: comma-separated subset of `past|now|future`
++- `venue_profile_id`: `string?`
++- `related_account_profile_id`: `string?`
++- `page`: `int?`
++- `page_size`: `int?` (max `100`)
++
++**Response Schema**
++```json
++{
++  "data": [
++    {
++      "event_id": "string",
++      "slug": "evento-exemplo",
++      "title": "Evento Exemplo",
++      "type": {
++        "id": "string",
++        "name": "Show",
++        "slug": "show"
++      },
++      "place_ref": {
++        "type": "account_profile",
++        "id": "string"
++      },
++      "date_time_start": "2026-01-01T20:00:00Z",
++      "date_time_end": "2026-01-01T22:00:00Z",
++      "occurrences": [
++        {
++          "occurrence_id": null,
++          "occurrence_slug": null,
++          "date_time_start": "2026-01-01T20:00:00Z",
++          "date_time_end": "2026-01-01T22:00:00Z",
++          "event_parties": [
++            {
++              "party_ref_id": "string",
++              "permissions": { "can_edit": false }
++            }
++          ],
++          "own_linked_account_profiles": [
++            {
++              "id": "string",
++              "display_name": "Perfil da ocorrência",
++              "profile_type": "band",
++              "slug": "perfil-da-ocorrencia"
++            }
++          ],
++          "has_location_override": true,
++          "location_override": {
++            "mode": "physical",
++            "online": null,
++            "address": null
++          },
++          "place_ref": {
++            "type": "account_profile",
++            "id": "string"
++          },
++          "programming_items": [
++            {
++              "time": "13:00",
++              "title": "Apresentação especial",
++              "linked_account_profiles": [
++                {
++                  "id": "string",
++                  "display_name": "Perfil relacionado",
++                  "profile_type": "band",
++                  "slug": "perfil-relacionado"
++                }
++              ]
++            }
++          ]
++        }
++      ],
++      "venue": {
++        "id": "string",
++        "display_name": "Casa Solar",
++        "slug": "casa-solar",
++        "profile_type": "venue"
++      },
++      "event_parties": [
++        {
++          "party_type": "band",
++          "party_ref_id": "string",
++          "permissions": {
++            "can_edit": true
++          }
++        }
++      ],
++      "linked_account_profiles": [
++        {
++          "id": "string",
++          "account_id": "string",
++          "display_name": "Banda Exemplo",
++          "profile_type": "band",
++          "slug": "banda-exemplo"
++        }
++      ],
++      "publication": {
++        "status": "published",
++        "publish_at": "2026-01-01T12:00:00Z"
++      },
++      "created_at": "2026-01-01T10:00:00Z",
++      "updated_at": "2026-01-01T12:30:00Z",
++      "deleted_at": null
++    }
++  ],
++  "current_page": 1,
++  "last_page": 1,
++  "per_page": 10,
++  "total": 0
++}
++```
++
++**Notes**
++- Management filters are server-driven and compose with one another; local-only filtering of a fixed preload snapshot is not canonical.
++- The current tenant-admin manager surface exposes `date`, `temporal`, `venue_profile_id`, and `related_account_profile_id` only.
++- The venue and related-profile picker chips rely on paged server-driven discovery through `GET /admin/api/v1/events/account_profile_candidates`; that selector endpoint supports filter choice, but it is not an extra list filter on `GET /admin/api/v1/events`.
++- The manager venue picker intentionally reuses the canonical `physical_host` selector semantics because current canonical event writes only persist `place_ref` after physical-host validation confirms POI capability plus valid coordinates.
++- Retired direct search is explicit, not implicit: `search` is rejected by request validation and is not serialized by the Flutter manager repository.
++- Legacy backend compatibility paths for `status`/`archived` may still exist for existing admin callers, but they are not canonical inputs for the current Flutter manager UX.
++- `venue_profile_id` matches canonical venue ownership (`place_ref.id` / `place_ref._id`).
++- `related_account_profile_id` matches canonical non-venue event-party ownership and its additive `linked_account_profiles` projection.
++- Stable pagination order is nearest start first: `date_time_start ASC`, `_id DESC`.
++- The Flutter tenant-admin list groups cards by local event date and uses an explicit manager-card contract for scanning:
++  - `thumb`
++  - `title`
++  - `date_time_start` / `date_time_end`
++  - `venue.display_name`
++  - `linked_account_profiles`
++  - `publication.status`
++  - `updated_at`
++- Non-published manager cards (`publication.status != published`) render with `70%` opacity so draft/scheduled/ended items remain visible but visually secondary to published inventory.
++- Grouping is rebuilt from the accumulated ordered result, and any filter change resets pagination to page `1` before regrouping.
++- Management payloads must not require an artist-shaped key such as `artists`; dynamic account-profile administration flows consume `event_parties` plus `linked_account_profiles`.
++- Tenant-admin event edit/create uses the same approved `event.content` subset as the public event detail contract: `<p>`, `<br>`, `<h1-6>`, `<ul>`, `<ol>`, `<li>`, `<blockquote>`, `<strong>`, `<em>`, and `<s>`. Unsupported markup is stripped on save, and emojis remain plain text.
++- Tenant-admin event create/edit renders shared event fields first and occurrence management after those event sections. The first occurrence remains the baseline created with the event; adding a second date switches the occurrence section from inline fields to a vertical occurrence-card list plus add-date affordance.
++- Occurrence editors own occurrence-scoped date/time, additional related Account Profiles, and occurrence-exclusive `Programação`. Event title, content, media, type, publication status, and taxonomies remain shared event-level fields for Store Release.
++- Occurrence cards summarize date/time, occurrence-owned related profiles, and programming count so operators can scan multi-date events before opening the occurrence editor.
++- Occurrence `Programação` items are ordered by time and include `time`, optional `title`, linked occurrence-owned Account Profiles, and optional structured location references to an Account Profile/Map POI. More than one linked profile requires an explicit title; a single linked profile may supply the display fallback.
++- Programação item editors must only list Account Profiles already linked to that occurrence. The UI may offer an inline shortcut to add a new profile to the occurrence and immediately preselect it in the item, but Programação does not become an independent second authoring surface for profiles.
++- Removing an occurrence-owned Account Profile while any programação item still references it is invalid and must be blocked until those item references are cleared.
++
+ ### `GET /admin/api/v1/events/account_profile_candidates`
+-Page-based account-profile candidate discovery for the event form artist/physical-host pickers.
++Page-based account-profile candidate discovery for the event form pickers and the tenant-admin manager venue/related-profile filter pickers.
+ 
+ **Query Parameters**
+-- `type`: `artist|physical_host` (required)
++- `type`: `related_account_profile|physical_host` (required)
+ - `search`: `string?`
+ - `page`: `int?`
+-- `page_size` or `per_page`: `int?` (max `50`)
++- `page_size` or `per_page`: `int?` (max `50`; `page_size` preferred, `per_page` compatibility alias)
+ 
+ **Response Schema**
+ ```json
+@@ -291,8 +454,12 @@ Page-based account-profile candidate discovery for the event form artist/physica
+ ```
+ 
+ **Notes**
+-- `type=artist` supports the event-form artist picker.
++- `type=related_account_profile` supports the event-form related-account-profile picker and must not hardcode one specific dynamic profile type.
++- `type=related_account_profile` also supports the tenant-admin manager related-profile filter picker.
++- `type=related_account_profile` excludes canonical venue profiles so the picker stays aligned with downstream non-venue related-profile semantics.
+ - `type=physical_host` supports venue/host selection and returns only POI-enabled profiles with valid coordinates.
++- `type=physical_host` also supports the tenant-admin manager venue filter picker.
++- Stable pagination order is `display_name ASC`, `_id ASC`.
+ - The account-scoped own-create mirror uses `/api/v1/accounts/{account_slug}/events/account_profile_candidates` with the same semantics.
+ - Tenant-admin search must be server-driven and paginated; local-only filtering of a fixed preload snapshot is not canonical.
+ 
+@@ -1231,6 +1398,13 @@ Delete a taxonomy term.
+ - `taxonomy.icon` (string, optional): Material icon name string (e.g., `mode_subscription`).
+ - `taxonomy.color` (string, optional): HEX color `#RRGGBB`.
+ 
++**Taxonomy term display snapshot contract**
++- Admin write payloads continue to submit taxonomy selections as machine keys: `{type, value}`.
++- Admin read payloads for Account Profiles, Static Assets, Events, Event Occurrences, related-profile summaries, and Map filter catalogs expose display snapshots: `{type, value, name, taxonomy_name, label?}`.
++- `name` is the canonical term display label, `taxonomy_name` is the taxonomy/group display label, and `label` is compatibility-only for older Flutter consumers.
++- Term slug/value changes are not a normal edit operation after use. Display-name edits trigger tenant-scoped fanout/reprojection, and legacy documents can be repaired by the idempotent taxonomy snapshot backfill.
++- Admin UI chips/lists render `name -> label -> value`, while request/query payloads continue to send only `type/value`.
++
+ ### `GET /admin/api/v1/account_profiles`
+ List account profiles (optionally filter by `account_id`).
+ 
+@@ -1835,7 +2009,7 @@ Update tenant-owned Resend delivery defaults used by tenant-public transactional
+   "token": "re_xxxxxxxxx",
+   "from": "Belluga <noreply@belluga.space>",
+   "to": [
+-    "<redacted-admin-email>"
++    "admin@example.com"
+   ],
+   "cc": [],
+   "bcc": [],
+@@ -1856,7 +2030,7 @@ Update tenant-owned Resend delivery defaults used by tenant-public transactional
+     "token": "re_xxxxxxxxx",
+     "from": "Belluga <noreply@belluga.space>",
+     "to": [
+-      "<redacted-admin-email>"
++      "admin@example.com"
+     ],
+     "cc": [],
+     "bcc": [],
+@@ -1866,7 +2040,7 @@ Update tenant-owned Resend delivery defaults used by tenant-public transactional
+ ```
+ 
+ ### `POST /api/v1/email/send`
+-Tenant-public transactional email send endpoint used by the temporary web tester-waitlist flow.
++Tenant-public transactional email send endpoint kept only for legacy/non-release flows. It is not part of the current store-release web-to-app conversion contract, which promotes users to the app-promotion/store handoff instead of the temporary tester-waitlist path.
+ 
+ **Request Schema**
+ ```json
+@@ -1993,6 +2167,115 @@ Remove typed mobile app identifier for one platform.
+ }
+ ```
+ 
++### `GET /admin/api/v1/domains`
++List active tenant web domains for the tenant-admin settings surface.
++
++**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:read`
++
++**Query Params**
++- `page` (int, optional)
++- `per_page` (int, optional; default `15`, bounded to `100`)
++
++**Response Schema**
++```json
++{
++  "data": [
++    {
++      "id": "string",
++      "path": "tenant.example.com",
++      "type": "web",
++      "status": "active",
++      "created_at": "2026-01-01T12:00:00Z",
++      "updated_at": "2026-01-01T12:00:00Z",
++      "deleted_at": null
++    }
++  ],
++  "total": 1,
++  "per_page": 15,
++  "current_page": 1
++}
++```
++
++**Field Definitions**
++- `id`
++  - canonical delete identity for the current active-domain settings UI.
++- `status`
++  - `active`: domain is active and resolves tenant access.
++- `type`
++  - `web`: tenant web domain (admin + public resolution).
++
++**Operational Note**
++- This read contract is intentionally limited to active web domains so the current settings surface can manage create/delete without implying deleted-domain restore UI.
++- Existing lifecycle routes such as restore/force-delete remain backend operations, but they are not surfaced by the current tenant-admin settings flow until a dedicated deleted-domain read contract exists.
++- Stable pagination order is `created_at DESC`, `_id DESC`.
++
++### `POST /admin/api/v1/domains`
++Create a new tenant domain.
++
++**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update`
++
++**Request Schema**
++```json
++{
++  "path": "tenant.example.com"
++}
++```
++
++**Response Schema**
++```json
++{
++  "data": {
++    "id": "string",
++    "path": "tenant.example.com",
++    "type": "web",
++    "status": "active",
++    "created_at": "2026-01-01T12:00:00Z",
++    "updated_at": "2026-01-01T12:00:00Z",
++    "deleted_at": null
++  }
++}
++```
++
++### `DELETE /admin/api/v1/domains/{domain_id}`
++Soft-delete a tenant domain.
++
++**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update`
++
++**Response Schema**
++```json
++{}
++```
++
++### `POST /admin/api/v1/domains/{domain_id}/restore`
++Restore a soft-deleted tenant domain.
++
++**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update`
++
++**Response Schema**
++```json
++{
++  "data": {
++    "id": "string",
++    "path": "tenant.example.com",
++    "type": "web",
++    "status": "active",
++    "created_at": "2026-01-01T12:00:00Z",
++    "updated_at": "2026-01-01T12:00:00Z",
++    "deleted_at": null
++  }
++}
++```
++
++### `DELETE /admin/api/v1/domains/{domain_id}/force-delete`
++Hard-delete a previously soft-deleted domain (admin-only cleanup).
++
++**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update`
++
++**Response Schema**
++```json
++{}
++```
++
+ ### `GET /admin/api/v1/settings/telemetry`
+ List telemetry integrations.
+ 
+@@ -2085,6 +2368,10 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
+ | `TAD-07` | Approved | Type definitions own canonical `visual` independently of `is_poi_enabled`; disabling POI still requires destructive preview via projection-impact endpoint before hard-delete path. | Aligns tenant-admin type editing with shared consumer identity semantics while preserving map projection safeguards. | Section `4` (`account_profile_types/static_profile_types` + `map_poi_projection_impact`) |
+ | `TAD-08` | Approved | Event types use the same canonical `visual` contract as other POI-capable type registries, but event image mode is restricted to `cover` and `type_asset`. | Keeps tenant-admin event-type editing aligned with shared POI visuals without inventing unsupported event-avatar semantics. | Sections `3.2`, `3.3`, `4` (`event_types`) |
+ | `TAD-09` | Approved | Tenant-admin back behavior is centralized through one shared section registry plus typed route-back helpers; shell/forms/settings/details may not own raw `pop/maybePop` as final route policy. | Prevents section drift and web empty-history failures across `/admin` child flows. | Sections `2.2`, `3`, `5` |
++| `TAD-10` | Approved | Tenant-admin web-domain settings consume an active-domain read contract only; deleted-domain restore/force-delete lifecycle is intentionally decoupled until a dedicated deleted-domain read surface exists. | Keeps the current settings flow coherent with the approved slice while preserving existing lower-level lifecycle routes. | Sections `3.6`, `4` (`GET/POST/DELETE /admin/api/v1/domains`) |
++| `TAD-11` | Approved | Tenant-admin event list operations are server-driven and use `date`, `temporal`, `venue_profile_id`, and `related_account_profile_id` as the canonical current manager filter set, without artist-shaped management payload keys. | Preserves dynamic account-profile semantics for event operations while giving operators a date-grouped, high-signal manager list without reviving direct text search. | Sections `4` (`GET /admin/api/v1/events`, `GET /admin/api/v1/events/account_profile_candidates`) |
++| `TAD-12` | Approved | Tenant-admin taxonomy selections write machine keys but read display snapshots (`type`, `value`, `name`, `taxonomy_name`, optional `label`) across account profiles, static assets, events, occurrences, and map filter catalogs. | Keeps admin forms stable and query-safe while eliminating slug display in admin readback/detail/list UI. | Sections `4`, `5` |
++| `TAD-13` | Approved | Tenant-admin event authoring keeps shared event fields first and manages occurrences as a date section. Single-occurrence forms keep inline date fields plus add-date affordance; multi-occurrence forms render occurrence cards and open occurrence editors for date/time, own related profiles, and Programação with optional item-level location Account Profile/Map POI references. | Extends the intentional first-occurrence baseline without turning shared event fields into per-occurrence overrides and keeps multi-date authoring operator-scannable. | Sections `4`, `5` |
+ 
+ ## 6. Tactical TODO Promotion Ledger
+ 
+@@ -2097,5 +2384,8 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
+ | `TODO-v1-map-icon-color-config.md` | Type-level visuals + filter marker override + projection impact preview integration | Completed | `4`, `5` | Archived in `todos/completed`; canonical field ownership now lives under `visual`, while projection impact and filter marker metadata remain unchanged. |
+ | `TODO-v1-event-type-canonical-poi-visuals.md` | Event-type canonical visuals across Laravel, tenant-admin, and map projection parity | In progress | `3.2`, `3.3`, `4`, `5` | Local implementation and automated coverage are in place; final closure still depends on manual admin/map smoke. |
+ | `TODO-v1-canonical-back-navigation-governance-cutover.md` | Canonical route-back governance across shell/forms/settings/details | In progress | `2.2`, `5` | Promotes the shared section registry + typed helper rule for tenant-admin internal routes. |
++| `TODO-v1-tenant-admin-domain-management-and-events-ops.md` | Active web-domain management plus tenant-admin event operations hardening | In progress | `3.6`, `4`, `5` | Establishes the active-domain settings contract and server-driven event-management list/filter semantics for this slice. |
+ | `TODO-vnext-tenant-user-account-profile-area.md` | Account/profile admin boundaries | In progress | `2`, `4`, `5` | Aligns account/profile CRUD contracts and scope. |
+ | `TODO-v1-static-assets-media-parity-with-account-profiles.md` | Media parity and static assets admin flows | In progress | `4`, `5` | Syncs media endpoints and UX behavior. |
++| `TODO-store-release-taxonomy-term-display-snapshots.md` | Taxonomy term display snapshots and admin readback labels | In progress | `4`, `5` | Admin writes stay `{type,value}`; readback/UI consumes display-ready snapshots and fanout/backfill keeps documents current. |
++| `TODO-store-release-event-multi-occurrence-ux-and-authoring-model.md` | Multi-occurrence tenant-admin event authoring and occurrence-scoped payloads | In progress | `4`, `5` | Promotes single-to-multi occurrence section behavior, occurrence cards, occurrence-owned related profiles, and Programação authoring with item-level location references. |
+diff --git a/todos/active/store_release_android/TODO-store-release-usability-quality-hardening.md b/todos/active/store_release_android/TODO-store-release-usability-quality-hardening.md
+new file mode 100644
+index 0000000..d5e83ee
+--- /dev/null
++++ b/todos/active/store_release_android/TODO-store-release-usability-quality-hardening.md
+@@ -0,0 +1,401 @@
++# TODO (Store Release): Usability Quality Hardening
++
++**Status legend:** canonical PACED delivery stages; the authoritative current stage is recorded in `Delivery Status Canon`.
++**Status:** Active
++**Owners:** Orchestrator, Laravel Team, Flutter Team
++**Objective:** Freeze the externally validated Store Release usability behavior with regression/runtime evidence, then refactor the audited implementation to remove promotion-blocking performance, security/integrity, test-quality, and clean-code risks before promotion.
++
++---
++
++## Artifact Identity
++
++- **Artifact type:** `tactical_execution_contract`
++- **Source intake:** Triple external audit requested after the Store Release usability recut was manually/runtime validated.
++
++## Framing Source & Story Slice
++
++- **Feature brief:** `foundation_documentation/artifacts/feature-briefs/store-release-usability-quality-hardening.md`
++- **Primary story ID:** `ST-01`
++- **Why this is the right current slice:** The user explicitly separated behavior acceptance from implementation-quality acceptance. This TODO is bounded around quality hardening of the already validated Store Release usability recut, not new product behavior.
++- **Direct-to-TODO rationale:** `n/a`
++
++## Contract Boundary
++
++- This TODO defines **WHAT** must be delivered and what counts as done.
++- `Assumptions Preview` and `Execution Plan` below define **HOW** Delphi currently intends to deliver this contract.
++- This TODO is **bounded but elastic**: local test additions, backend query-shape refactors, Flutter structure cleanup, and small contract-hardening fixes may stay inside this TODO while they preserve the approved Store Release usability behavior and resolve the same quality gate.
++- If execution reveals a new product behavior, new public contract, or independently approvable feature, update or split the TODO before continuing.
++
++## Delivery Status Canon
++
++- **Current delivery stage:** `Local-Implemented`
++- **Qualifiers:** `Pending-Final-No-Context-Triple-Audit`
++- **Next exact step:** Commit/push the validated checkpoint, freeze a fresh `dev...branch` comparison package from that exact branch state, rerun the independent no-context triple audit, resolve any new findings, then run the TODO completion guard.
++
++## Scope
++
++- [x] Preserve the validated Store Release usability behavior while adding missing regression evidence.
++- [x] Fix high-risk admin Event query shape that currently plucks all matching occurrence event IDs before pagination.
++- [x] Fix high-risk admin Event formatter N+1 behavior for occurrences and occurrence-owned parties.
++- [x] Add/adjust tests proving admin Event occurrence-first list behavior, occurrence-scoped card parties, detail aggregated parties, and programação persistence/readback remain correct.
++- [x] Harden Event Type taxonomy integrity so backend Event create/update rejects terms not allowed by the selected Event Type.
++- [x] Ensure Event Type `allowed_taxonomies` can only persist taxonomies that exist and apply to `event`.
++- [x] Preserve public Discovery/Home filter behavior while proving real click-to-query/result browser paths.
++- [x] Reduce discovery filter taxonomy catalog risk by avoiding unbounded eager term payload/rendering where possible without changing approved UX.
++- [x] Fix or preserve filter visibility/security rules: Discovery must not expose non-favoritable Account Profile types; public filters must not leak invalid/unavailable types.
++- [x] Fix chip accessibility semantics where custom wrappers replaced actionable native semantics.
++- [x] Refactor tenant-admin Event form orchestration enough to remove the most fragile screen-owned occurrence/programming mapping hotspots, without changing product behavior.
++- [x] Remove or explicitly isolate dead/contradictory occurrence-location override remnants.
++- [x] Reclassify declaration-only Playwright matrix checks as metadata evidence, not behavioral proof.
++- [ ] Re-run the independent no-context triple audit after fixes, comparing `dev` against the exact branch state frozen at the moment the audit is launched.
++
++## Delivery Status Semantics
++
++- `Pending`: implementation/refactor not yet complete.
++- `Local-Implemented`: hardening is implemented and locally validated with required evidence.
++- `Lane-Promoted`: merged through `dev`.
++- `Production-Ready`: final required lane threshold is complete and confidence gates are satisfied.
++- `Promotion-Blocked`: current local branch must not be promoted as quality-clean until high/medium findings are resolved or explicitly accepted.
++
++## Blocker Notes
++
++- **Blocker:** Triple audit round 01 found high/medium quality risks.
++- **Why blocked now:** External behavior is validated, but internal quality is not clean enough for promotion.
++- **What unblocks it:** Resolve high/medium findings with behavior-preserving tests and runtime evidence, then rerun quality gate.
++- **Owner / source:** Store Release orchestrator and audit protocol.
++- **Last confirmed truth:** Manual/runtime behavior can be treated as product target; refactors must preserve it.
++
++## Audit Round Tracking
++
++| Round | Package | Status | Findings / Adjudication | Resolution State |
++| --- | --- | --- | --- | --- |
++| `round-01` | `superseded/removed: store-release-usability-quality-final-20260424T180850Z` | `needs_adjudication` | Merge classified a recommended-path conflict because reviewers emphasized different remediation priorities, but the findings are compatible rather than contradictory: untracked deliverable risk, management query-shape risk, eager Flutter row construction, and static-only performance evidence. | Resolved in implementation by adding executable backend instrumentation tests, replacing the management query with a `$facet` page/count aggregate and page-bounded bulk load, removing eager chip prebuild in the horizontal filter row, and preparing the branch for tracked checkpoint before a fresh audit package. Generated package was removed because it captured obsolete credential fallback diffs. |
++| `round-02` | `superseded/removed: store-release-usability-quality-final-20260424T184818Z` | `needs_resolution` | Final no-context pass found unresolved risks after the first hardening: taxonomy snapshot backfill materialized full collections, tenant-admin discovery filter term loading reintroduced serial taxonomy requests, Playwright mutation specs contained committed credential fallbacks, and Flutter emitted legacy `selection_mode=multiple`. | Resolved by cursor-based backfill iteration with source guard, batch taxonomy-term loading in tenant-admin filter catalog, canonical `selection_mode=multi` with legacy alias read support, runtime credential-only Playwright auth helper/guard, and removal of exposed credential fallbacks from Playwright/Flutter integration tests and generated audit artifacts. |
++
++## Execution Lane Tracking
++
++- **Local implementation branches:** `flutter-app:orchestrator/store-release-usability-wave`, `laravel-app:orchestrator/store-release-usability-wave`, `belluga_now_docker:orchestrator/store-release-usability-wave`, `foundation_documentation:delphi/docs-reconcile-store-release-20260419`
++- **Promotion lane path:** `dev -> stage -> main`
++- **Lane-promoted threshold for this TODO:** `dev`
++- **Production-ready threshold for this TODO:** `stage`
++
++## Promotion Evidence
++
++| Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
++| --- | --- | --- | --- | --- | --- |
++| Quality hardening | `pending` | `Not promoted yet` | `Not promoted yet` | `Not promoted yet` | `Pending` |
++
++## Out of Scope
++
++- [ ] New product behavior unrelated to the validated Store Release usability recut.
++- [ ] Promoting branches to `dev`, `stage`, or `main`.
++- [ ] Reintroducing public Map subfilters.
++- [ ] Moving public Home/Discovery filters back to tenant-admin configurable filter settings.
++- [ ] Broad deterministic guard redesign beyond tests/refactors needed to close this Store Release quality gate.
++
++## Bounded But Elastic Guardrails
++
++- **May stay inside this TODO:** local refactors, missing regression tests, query-shape changes, DTO/projection adjustments, endpoint validation hardening, Playwright proof additions, and accessibility fixes that preserve approved behavior.
++- **Must update or split the TODO:** new feature behavior, new admin IA, new module ownership rule, new public endpoint family unrelated to hardening, or strategy-level deterministic guard program.
++
++## Definition of Done
++
++- [x] `DOD-01` All high audit findings are fixed or backed by explicit load/query-count evidence and accepted residual risk.
++- [x] `DOD-02` All medium audit findings are fixed or explicitly accepted with documented residual risk.
++- [x] `DOD-03` Admin Event list/query behavior remains occurrence-first and page-bounded under realistic multi-occurrence fixtures.
++- [x] `DOD-04` Event formatter no longer performs per-event occurrence queries for a management page.
++- [x] `DOD-05` Event Type taxonomy validation is enforced server-side for create/update and cannot be bypassed by direct API payloads.
++- [x] `DOD-06` Public Home/Discovery filter runtime evidence proves real UI click selection through backend query/visible result, not only storage restoration.
++- [x] `DOD-07` Public filters do not expose non-favoritable Account Profile types or incompatible Event Type taxonomies.
++- [x] `DOD-08` User-visible rich text, event occurrence, programação, and profile/card behavior validated in the recut remains green after refactor.
++- [x] `DOD-09` Accessibility semantics for interactive filter/taxonomy chips expose an actionable tap path.
++- [x] `DOD-10` Dead occurrence-location override remnants are removed or explicitly isolated outside the approved runtime path.
++- [x] `DOD-11` Test evidence distinguishes metadata/declaration checks from behavioral navigation proof.
++- [ ] `DOD-12` A post-fix independent no-context triple audit reports no unresolved high/medium blockers; the audit package must compare `dev` against the exact current branch state at audit launch time.
++
++## Validation Steps
++
++- [x] `VAL-01` Laravel focused tests for Event admin query/list/detail/formatter behavior.
++- [x] `VAL-02` Laravel focused tests for Event Type taxonomy persistence and Event create/update validation.
++- [x] `VAL-03` Laravel focused tests for public discovery filter catalog/type security and budget behavior.
++- [x] `VAL-04` Flutter focused tests for Event admin form, Event Type taxonomy UI, Discovery filter widgets, and chip semantics.
++- [x] `VAL-05` Flutter analyzer: `fvm dart analyze --format machine`.
++- [x] `VAL-06` Build current web bundle: `bash scripts/build_web.sh ../web-app dev`.
++- [x] `VAL-07` Confirm the real browser-facing validation domain serves the refreshed bundle.
++- [x] `VAL-08` Playwright mutation/readonly tests for Home/Discovery filter click paths and Event admin/public regression paths.
++- [ ] `VAL-09` Run TODO completion guard with delivery requirement.
++- [ ] `VAL-10` Rerun independent no-context triple audit using a frozen package generated from `dev...HEAD` at the moment the audit is launched.
++
++## Completion Evidence Matrix
++
++| Criterion ID | Source Section | Criterion | Evidence Type | Evidence Artifact / Command | Runtime Target | Status | Notes |
++| --- | --- | --- | --- | --- | --- | --- | --- |
++| `DOD-01` | `Definition of Done` | High audit findings fixed/proven safe. | `test+review` | Laravel focused suites + EventQueryPerformanceGuardrailTest | `backend` | `passed` | Query-shape all-match pluck and formatter N+1 risks removed under tests; final audit still pending. |
++| `DOD-02` | `Definition of Done` | Medium audit findings fixed/accepted. | `test+runtime` | Flutter semantics tests + canonical Playwright mutation runner | `cross-stack` | `passed` | Runtime proof no longer relies on storage-only selection. |
++| `DOD-03` | `Definition of Done` | Admin Event list/query remains occurrence-first and page-bounded. | `test` | `./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Events/EventCrudControllerTest.php --filter ...` -> `13 passed (86 assertions)` | `backend` | `passed` | Includes future/filter and occurrence card/detail behavior. |
++| `DOD-04` | `Definition of Done` | Event formatter no longer performs per-event occurrence queries. | `test+instrumentation guard` | `EventQueryPerformanceGuardrailTest.php` -> `2 passed (14 assertions)` | `backend` | `passed` | Runtime instrumentation proves one `$facet` management aggregate and one page-bounded bulk occurrence load. |
++| `DOD-05` | `Definition of Done` | Event Type taxonomy validation is server-side. | `test` | `EventCrudControllerTest.php`, `EventTypesControllerTest.php` -> focused suites passed | `backend` | `passed` | Direct create/update payload with unallowed taxonomy returns 422. |
++| `DOD-06` | `Definition of Done` | Home/Discovery click path proven by runtime navigation. | `runtime` | `bash tools/flutter/run_web_navigation_smoke.sh mutation` with final-domain env -> `19 passed (13.3m)` | `browser` | `passed` | Real chip clicks use semantic click with coordinate fallback only when needed, and assert backend filtered requests/visible results. Mutation run used a local ephemeral tenant-admin credential injected via `NAV_ADMIN_*`; committed fallbacks are forbidden. |
++| `DOD-07` | `Definition of Done` | Public filters do not leak invalid types/taxonomies. | `test+runtime` | Laravel catalog tests -> `2 passed (33 assertions)`; canonical Playwright mutation runner -> `19 passed`; readonly browser suite -> `9 passed` | `backend+browser` | `passed` | Discovery excludes non-favoritable profile types; Home Event taxonomies follow Event Type; taxonomy labels are validated through Flutter Web semantics/text instead of raw slugs. |
++| `DOD-08` | `Definition of Done` | Prior recut behavior remains green. | `test+runtime` | Focused Laravel, Flutter, analyzer, build, and canonical Playwright evidence in VAL rows | `cross-stack` | `passed` | No product behavior change intended. |
++| `DOD-09` | `Definition of Done` | Chip semantics expose actionable tap. | `test` | `fvm flutter test packages/belluga_discovery_filters/test/discovery_filter_bar_test.dart` -> `12 passed` | `local` | `passed` | Taxonomy semantics expose tap action and button flag via `flagsCollection`. |
++| `DOD-10` | `Definition of Done` | Occurrence location override remnants removed/isolated. | `test+code` | Existing occurrence-location negative tests in focused EventCrud lane | `backend+flutter` | `passed` | Runtime authoring path remains programming-item place refs, not occurrence location override. |
++| `DOD-11` | `Definition of Done` | Metadata checks not counted as behavioral proof. | `doc+runtime` | TODO evidence now classifies Playwright runtime separately from JS syntax/source checks | `n/a` | `passed` | `node --check` remains supporting evidence only. |
++| `DOD-12` | `Definition of Done` | Independent no-context triple audit clean against `dev...current`. | `review` | pending frozen comparison package + triple audit session | `cross-stack` | `pending` | Final quality gate; must use the exact branch state at audit launch after the current checkpoint commit/push. |
++| `VAL-01` | `Validation Steps` | Laravel Event tests. | `test` | `EventCrudControllerTest.php --filter ...` -> `13 passed (86 assertions)` | `backend` | `passed` | Safe runner, sequential execution. |
++| `VAL-02` | `Validation Steps` | Laravel Event Type taxonomy tests. | `test` | `EventTypesControllerTest.php` + `EventQueryPerformanceGuardrailTest.php` -> `17 passed (103 assertions)` | `backend` | `passed` | Includes allowed taxonomy persistence, invalid taxonomy rejection, and executable query-shape guard. |
++| `VAL-03` | `Validation Steps` | Laravel discovery filter tests. | `test` | `MapPoisControllerTest.php --filter 'discovery_filter_catalog|home_events_catalog|discovery_account_profiles_catalog'` -> `2 passed (33 assertions)` | `backend` | `passed` | Catalog/security/budget. |
++| `VAL-04` | `Validation Steps` | Flutter focused tests. | `test` | `fvm flutter test packages/belluga_discovery_filters/test/discovery_filter_core_test.dart packages/belluga_discovery_filters/test/discovery_filter_bar_test.dart test/presentation/tenant_admin/settings/tenant_admin_settings_screen_test.dart test/infrastructure/repositories/tenant_admin_settings_repository_test.dart` -> `98 passed` | `local` | `passed` | Widget/domain/repository/semantics coverage plus tenant-admin settings email fixture updates. |
++| `VAL-05` | `Validation Steps` | Flutter analyzer. | `test` | `fvm dart analyze --format machine` -> exit `0` | `local` | `passed` | Official analyzer gate clean after removing credential fallbacks from integration tests. |
++| `VAL-06` | `Validation Steps` | Build web bundle. | `runtime` | `bash scripts/build_web.sh ../web-app dev` -> passed | `local->web-app` | `passed` | Built current runtime bundle before Playwright final-domain validation. |
++| `VAL-07` | `Validation Steps` | Domain serves refreshed bundle. | `runtime` | local/remote `main.dart.js` SHA-256 `b412d166168b0a820d06465b43ff4e08dc9d81666d10d2875edbe18a9a0c21fb` | `browser` | `passed` | `https://guarappari.belluga.space` serves the current branch bundle. |
++| `VAL-08` | `Validation Steps` | Playwright filter/Event runtime paths. | `runtime` | `NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true NAV_DEPLOY_LANE=dev NAV_WEB_TEST_TYPE=readonly NAV_WEB_WORKERS=1 bash tools/flutter/run_web_navigation_smoke.sh readonly` -> `9 passed (3.2m)`; `NAV_WEB_TEST_TYPE=mutation` with ephemeral `NAV_ADMIN_*` -> `19 passed (13.3m)` | `browser` | `passed` | Covers rich text, Map baseline, Home/Discovery filters, occurrence FAB/persistence, repeated public hydration, type taxonomy preload, tenant agenda UI, account profile detail back stack, and taxonomy display snapshots. |
++| `VAL-09` | `Validation Steps` | Completion guard. | `test` | pending after final audit | `local` | `pending` | Delivery gate runs after `VAL-10`. |
++| `VAL-10` | `Validation Steps` | Final independent no-context triple audit. | `review` | pending triple audit session with package generated from `dev` comparison at launch time | `cross-stack` | `pending` | No unresolved high/medium blockers accepted without resolution. |
++
++## External Dependency Readiness
++
++| Dependency | Why It Matters | Status (`unknown|healthy|degraded|failing|rate-limited|stale`) | Last Verified | Verification Method | Adjustment / Workaround |
++| --- | --- | --- | --- | --- | --- |
++| Local Laravel Docker test runner | Backend tests must run through safe local tenant Mongo topology. | `healthy` | `2026-04-24` | focused safe-runner execution | Safe-runners must run sequentially; parallel executions race on local Mongo database reset. |
++| Browser validation domains | Playwright must target refreshed final domain bundle. | `healthy` | `2026-04-24` | build hash + curl | Built with `scripts/build_web.sh`; remote `main.dart.js` hash matches local output. |
++| Android/ADB lane | Shared Flutter behavior can close with Playwright when not Android-divergent. | `unknown` | `n/a` | `n/a` | Use only if a divergent Android behavior appears. |
++
++## Profile Scope & Handoffs
++
++- **Primary execution profile:** `operational-coder`
++- **Active technical scope:** `cross-stack`
++- **Expected supporting profiles:** `assurance-tester-quality`, `assurance-security-adversarial`
++- **Scope-check command:** `python3 delphi-ai/tools/profile_scope_check.py --profile operational-coder`
++
++### Handoff Log
++
++| From Profile | To Profile | Why the Handoff Exists | Touched Surfaces | Status / Evidence |
++| --- | --- | --- | --- | --- |
++| `operational-coder` | `assurance-tester-quality` | Final test-quality gate after hardening. | Flutter/Laravel/Web tests | `planned` |
++| `operational-coder` | `assurance-security-adversarial` | Security/integrity review of public filters, taxonomy validation, rich text, and scheduler/query surfaces. | Laravel endpoints/services | `planned` |
++
++## Complexity
++
++- **Level (`small|medium|big`):** `big`
++- **Checkpoint policy:** `consolidated checkpoint after green focused backend/Flutter tests; final checkpoint after Web build/Playwright/audit`
++- **Why this level:** The TODO crosses Laravel packages/controllers, Flutter package/UI/domain code, runtime browser tests, and quality-audit closure.
++
++## Canonical Module Anchors
++
++- **Primary module doc:** `foundation_documentation/modules/events_module.md`
++- **Secondary module docs:**
++  - `foundation_documentation/modules/flutter_client_experience_module.md`
++  - `foundation_documentation/modules/tenant_admin_module.md`
++  - `foundation_documentation/modules/account_profile_catalog_module.md`
++  - `foundation_documentation/modules/map_poi_module.md`
++- **Planned decision promotion targets (module sections):**
++  - Events module: admin list/query, occurrence read models, event type taxonomy validation.
++  - Flutter client module: runtime evidence and source-owned web tests.
++  - Tenant admin module: Event form authoring structure and validation.
++- **Module decision consolidation targets:**
++  - Events module API/contracts and event type taxonomy invariants.
++  - Flutter client experience validation/evidence notes if stable runtime testing contract changed.
++
++## Decision Pending
++
++- [x] `D-01` Whether to preserve current validated behavior or use hardening to alter product UX.
++- [x] `D-02` Whether Playwright storage seeding can remain the primary proof for Home/Discovery filters.
++- [x] `D-03` Whether high performance findings can be waived without query/load evidence.
++
++## Decisions
++
++- [x] `D-01` Preserve current validated behavior; hardening must not introduce unrelated product changes.
++- [x] `D-02` Playwright storage seeding is supporting evidence only. Final filter proof requires real UI click path through backend query or visible filtered result.
++- [x] `D-03` High performance findings are promotion blockers unless fixed or backed by explicit query/load evidence and accepted residual risk.
++
++## Module Decision Baseline Snapshot
++
++| Module Decision Ref | Current Module Decision | Planned Handling (`Preserve|Supersede (Intentional)|Out of Scope`) | Evidence |
++| --- | --- | --- | --- |
++| `events_module` | Events have occurrence-first public/admin list concerns and occurrence-exclusive programação. | `Preserve` | Active multi-occurrence TODO and current code. |
++| `account_profile_catalog_module` | Discovery public filters must respect favoritable/public capabilities. | `Preserve` | Existing discovery/account-profile query behavior. |
++| `flutter_client_experience_module` | Web browser evidence belongs in source-owned Playwright specs, not generated `web-app`. | `Preserve` | Project constitution and scope policy. |
++
++## Decision Baseline
++
++- [x] `D-01` Preserve approved Store Release usability behavior while changing internals.
++- [x] `D-02` Backend query/list refactors must be page-bounded and avoid broad full-scan/in-memory pagination.
++- [x] `D-03` Event Type taxonomy restrictions are enforced server-side and mirrored in UI.
++- [x] `D-04` Browser-visible filters require Playwright click-path evidence after current bundle build.
++- [x] `D-05` User-visible behavior can close on one runtime lane only when Android/Web are not divergent.
++
++## Questions To Close
++
++- [x] No open product decisions. Remaining details are implementation/test decisions inside the approved plan.
++
++## Package-First Assessment
++
++- **Queries executed:**
++  - `bash ../delphi-ai/tools/query_packages.sh --project-root .. --search "events"`
++  - `bash ../delphi-ai/tools/query_packages.sh --project-root .. --search "discovery filters"`
++  - `bash ../delphi-ai/tools/query_packages.sh --project-root .. --search "taxonomy"`
++- **Relevant packages found:** deterministic registry query returned `0 package(s) found)` for each search.
++- **READMEs read:** none from query results.
++- **Decision:** Implement within existing local app/package surfaces already owning the code (`belluga_events` Laravel package and Flutter `belluga_discovery_filters` local package where applicable); do not create a new package.
++- **Tier:** Local implementation / existing local package boundaries.
++- **Rationale:** This is a hardening/refactor of existing Store Release surfaces, not a new reusable capability.
++
++## Assumptions Preview
++
++| Assumption ID | Assumption | Evidence | If False | Confidence (`High|Medium|Low`) | Handling (`Keep as Assumption|Promote to Decision|Block`) |
++| --- | --- | --- | --- | --- | --- |
++| `A-01` | Admin Event list performance can be improved without changing visible list behavior. | Audit finding targets query shape, not product behavior. | Would require product decision. | `High` | `Keep as Assumption` |
++| `A-02` | Event Type taxonomy validation can be enforced in backend without changing approved UI. | Current UI already filters by Event Type; missing risk is direct API bypass. | UI or data migration may need adjustment. | `High` | `Keep as Assumption` |
++| `A-03` | Home/Discovery filter click behavior is shared Flutter code across Web/Android. | Current Flutter screens/packages are shared; no Android-specific filter implementation identified. | ADB integration may be required. | `Medium` | `Keep as Assumption` |
++
++## Execution Plan
++
++### Touched Surfaces
++
++- `laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php`
++- `laravel-app/packages/belluga/belluga_events/src/Application/Events/EventManagementService.php`
++- `laravel-app/app/Application/Taxonomies/TaxonomyValidationService.php`
++- `laravel-app/app/Application/Events/EventTypeRegistryManagementService.php`
++- `laravel-app/app/Http/Api/v1/Controllers/DiscoveryFiltersController.php`
++- `laravel-app/app/Integration/DiscoveryFilters/**`
++- `flutter-app/packages/belluga_discovery_filters/**`
++- `flutter-app/lib/presentation/tenant_admin/events/**`
++- `flutter-app/lib/presentation/tenant_public/**`
++- `belluga_now_docker/tools/flutter/web_app_tests/**`
++
++### Ordered Steps
++
++1. Add regression tests for backend query semantics, N+1 prevention, Event Type taxonomy validation, and filter catalog security.
++2. Refactor backend Event admin list/read model to bulk-load occurrences and avoid all-match `pluck` before pagination.
++3. Refactor backend formatter to accept preloaded occurrence context and eliminate per-row occurrence queries.
++4. Enforce Event Type taxonomy validation in backend Event create/update and Event Type registry persistence.
++5. Adjust discovery filter catalog behavior/budget only as needed to preserve approved UX and remove eager/unbounded risk.
++6. Add/adjust Flutter tests for chip semantics and filter click state.
++7. Add Playwright click-path tests for Home/Discovery filters and preserve Event/admin runtime regressions.
++8. Run focused validation, build web, verify served bundle, run Playwright, then rerun quality audit/gate.
++
++### Test Strategy
++
++- **Strategy:** `test-first`
++- **Why:** The behavior is already externally validated; tests must freeze behavior before structural refactor.
++- **Fail-first target(s):**
++  - Laravel query-count/page-bounded tests fail on current Event admin query shape.
++  - Laravel Event create/update direct payload test fails when taxonomy term is not allowed by selected Event Type.
++  - Playwright filter click-path evidence fails if UI click does not propagate to backend query/result.
++  - Flutter semantics tests fail where replacement chip semantics lack an actionable tap.
++
++### Flow Evidence Planning Matrix
++
++| Criterion / Flow | Why Flow-Impacting | Platform Parity (`android-only|web-only|shared-android-web|divergent-android-web|n/a`) | Required Runtime Lane | Mutation Lane Required? | Backend Real-Data Required? | Planned Evidence | Non-Applicability Rationale |
++| --- | --- | --- | --- | --- | --- | --- | --- |
++| Event admin occurrence list/query | List/detail behavior feeds admin UI. | `shared-android-web` | `Playwright mutation` | `yes` | `yes` | Admin Events mutation/navigation spec. | `n/a` |
++| Event formatter parties/programming | Payload feeds public cards/details. | `shared-android-web` | `Playwright readonly/mutation` | `no` unless seeded in spec | `yes` | Existing/new event occurrence spec. | `n/a` |
++| Event Type taxonomy validation | CRUD/save behavior. | `shared-android-web` | `Playwright mutation` | `yes` | `yes` | Admin Event/Event Type spec plus Laravel feature test. | `n/a` |
++| Home/Discovery filter click path | Interactive public filtering. | `shared-android-web` | `Playwright readonly` | `no` | `yes` | Discovery/Home filters spec with real clicks and request/result assertion. | `n/a` |
++| Chip semantics | Accessibility/actionability visible through widget semantics. | `shared-android-web` | `n/a` | `no` | `no` | Flutter semantics widget tests. | Semantics are best proven at widget semantics tree layer. |
++| Backend query-shape performance | Non-visual but affects list runtime. | `n/a` | `n/a` | `no` | `yes` | Laravel query-count/instrumentation tests. | Runtime browser cannot reliably prove query shape. |
++
++### Runtime / Rollout Notes
++
++- No data migration expected.
++- No production promotion in this TODO.
++- If a query refactor requires new indexes, record and add them before final validation.
++
++## Plan Review Gate
++
++### Review Sections
++- [x] Architecture
++- [x] Code Quality
++- [x] Tests
++- [x] Performance
++- [x] Security
++- [x] Elegance
++- [x] Structural Soundness
++
++### Issue Cards
++
++- **Issue ID:** `PERF-01`
++  - **Severity:** `high`
++  - **Evidence:** Triple audit `PERF-001`, `PERF-002`.
++  - **Why it matters now:** Admin Event pages can degrade with tenant data volume.
++  - **Option A (Recommended):** Bulk/page-bound occurrence query and formatter context.
++    - **Effort:** `medium`
++    - **Risk:** `medium`
++    - **Blast radius:** `module`
++    - **Maintenance burden:** `low`
++    - **Performance impact:** `improves`
++    - **Elegance impact:** `improves`
++    - **Structural soundness impact:** `improves`
++  - **Option B (Alternative):** Keep current code and add load evidence waiver.
++    - **Effort:** `low`
++    - **Risk:** `high`
++    - **Blast radius:** `module`
++    - **Maintenance burden:** `high`
++    - **Performance impact:** `unknown`
++    - **Elegance impact:** `regresses`
++    - **Structural soundness impact:** `regresses`
++  - **Option C (Do Nothing):** Not acceptable for promotion.
++    - **Effort:** `low`
++    - **Risk:** `high`
++    - **Blast radius:** `module`
++    - **Maintenance burden:** `high`
++    - **Performance impact:** `regresses`
++    - **Elegance impact:** `regresses`
++    - **Structural soundness impact:** `regresses`
++  - **Recommendation:** Option A.
++
++- **Issue ID:** `SEC-01`
++  - **Severity:** `medium`
++  - **Evidence:** Direct API can currently rely on `applies_to=event` without selected Event Type restriction.
++  - **Why it matters now:** UI hiding is insufficient; backend must enforce taxonomy integrity.
++  - **Option A (Recommended):** Validate selected Event Type `allowed_taxonomies` in Event write path and validate Event Type persistence against existing `applies_to=event` taxonomies.
++    - **Effort:** `medium`
++    - **Risk:** `medium`
++    - **Blast radius:** `module`
++    - **Maintenance burden:** `low`
++    - **Performance impact:** `neutral`
++    - **Elegance impact:** `improves`
++    - **Structural soundness impact:** `improves`
++  - **Option B (Alternative):** UI-only filtering.
++    - **Effort:** `low`
++    - **Risk:** `high`
++    - **Blast radius:** `module`
++    - **Maintenance burden:** `high`
++    - **Performance impact:** `neutral`
++    - **Elegance impact:** `regresses`
++    - **Structural soundness impact:** `regresses`
++  - **Option C (Do Nothing):** Not acceptable.
++    - **Effort:** `low`
++    - **Risk:** `high`
++    - **Blast radius:** `module`
++    - **Maintenance burden:** `high`
++    - **Performance impact:** `neutral`
++    - **Elegance impact:** `regresses`
++    - **Structural soundness impact:** `regresses`
++  - **Recommendation:** Option A.
++
++### Failure Modes & Edge Cases
++
++- [x] Refactor changes list ordering or occurrence alias behavior. Mitigation: Laravel + Playwright occurrence list/detail regression tests.
++- [x] Backend rejects legacy events with empty `allowed_taxonomies`. Mitigation: allow empty taxonomy terms; reject only non-empty unallowed terms.
++- [x] Filter lazy/budget changes hide required taxonomies. Mitigation: tests for 0/1/3 taxonomies and selected primary behavior.
++- [x] Query-count tests become brittle. Mitigation: assert bounded shape through repository/service instrumentation where possible, not exact unrelated query totals.
++
++### Residual Unknowns / Risks
++
++- [x] Browser tests depend on final-domain served bundle freshness; evidence must include build/hash confirmation.
++
++## Additional Architectural Opinions
++
++- **Needed:** `no`
++- **Why ambiguity remains:** The triple audit already provided independent architecture/performance/test-quality opinions and the user approved the plan.
++- **Opinion count:** `0`
++- **Package mode:** `n/a`
++- **Subagent mandate:** `no`
++- **Required lenses:** `n/a`
++
++## Approval
++
++- **Status:** `APROVADO`
++- **Source:** User approved the detailed two-level hardening plan in-session on 2026-04-24 with “Perfeito. Pode seguir com o plano.”

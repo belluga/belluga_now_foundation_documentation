@@ -1,0 +1,43 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/store-release-wave2-invite-occurrence-contact-presence-audit-20260429/triple-audit/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "performance-operational-fit",
+  "overall_assessment": "Not clean for performance and operational fit. Occurrence-first direction was acceptable, but contact refresh still had concrete high-cardinality failure paths.",
+  "recommended_path": "Bound contact import end-to-end by honoring the backend cap in the client, surfacing explicit refresh failures, and replacing per-row backend import persistence with bulk upsert.",
+  "performance_position": "regresses",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "regresses",
+  "findings": [
+    {
+      "finding_id": "PERF-01",
+      "severity": "high",
+      "title": "Contact refresh could exceed the import cap and silently drop new matches",
+      "rationale": "Flutter expanded contacts into email/phone/Brazil variants without chunking to the backend 500-item cap, while the controller converted import failures into empty matches for explicit refresh.",
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "flutter-app/lib/infrastructure/repositories/invites_repository.dart",
+        "flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/controllers/invite_share_screen_controller.dart",
+        "laravel-app/packages/belluga/belluga_invites/src/Http/Api/v1/Requests/ContactsImportRequest.php"
+      ],
+      "suggested_action": "Chunk deduped import items into <=500-item requests, merge chunk matches, and surface explicit refresh failure instead of treating it as no matches. Add a focused over-500 variant expansion test."
+    },
+    {
+      "finding_id": "PERF-02",
+      "severity": "high",
+      "title": "Contact import persisted with one read/write loop per hash",
+      "rationale": "The backend import service used per-contact lookup plus save, producing request-loop behavior on the invite-share load/refresh path.",
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/packages/belluga/belluga_invites/src/Application/Contacts/ContactImportService.php"
+      ],
+      "suggested_action": "Use one bounded bulkWrite/upsert phase keyed by importing_user_id plus contact_hash while preserving match snapshots and timestamps."
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-02/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "round-02-performance-security"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "mixed",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Block closure until the account-scoped programming location checks and taxonomy resolver caching have regression tests and passing evidence."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-0192EDB0",
+      "severity": "high",
+      "title": "Account-scoped event writes can attach foreign programming physical hosts",
+      "rationale": "Account-scoped event update did not carry the account context through all write paths, and programming item place_ref validation did not enforce that the physical host belongs to the target account.",
+      "suggested_action": "Pass _account_context_id into account-scoped updates, enforce ownership for every programming place_ref, and add negative create/update tests.",
+      "reviewer_labels": [
+        "round-02-performance-security"
+      ],
+      "source_finding_ids": [
+        "PERFSEC-R02-001"
+      ],
+      "category": "security",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "account-scoped-programming-location-ownership"
+    },
+    {
+      "finding_id": "F-A542703B",
+      "severity": "medium",
+      "title": "Legacy taxonomy snapshot fallback can repeatedly query the same taxonomy and term labels",
+      "rationale": "TaxonomyTermSummaryResolverService could perform repeated lookups for identical legacy type/value pairs when payloads lack snapshots, increasing list/detail query cost.",
+      "suggested_action": "Add a request/per-instance cache or bulk resolver for taxonomy and term fallback lookups, with query-count guardrail coverage.",
+      "reviewer_labels": [
+        "round-02-performance-security"
+      ],
+      "source_finding_ids": [
+        "PERFSEC-R02-002"
+      ],
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "taxonomy-summary-resolver-cache"
+    }
+  ]
+}

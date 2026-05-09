@@ -1,0 +1,60 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-tenant-app-domain-security-dispatch-20260507T0706Z.json",
+  "review_kind": "critique",
+  "reviewer_label": "no-context-paced-security-adversarial-reviewer",
+  "overall_assessment": "The in-scope RR-AUTH-02 implementation is security-positive and likely closes the original app-domain tenant breakout: app-domain routes now layer auth:sanctum, CheckTenantAccess, Sanctum token abilities, and current-tenant role ability checks; tests cover missing auth, missing tenant access, missing token ability, wrong tenant, borrowed token update ability, authorized Android/iOS payload updates, and denied Android/domain-state non-mutation. Calibration anchors used: OWASP Authorization Cheat Sheet https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html and Laravel Sanctum token ability docs https://laravel.com/docs/sanctum#token-abilities. The remaining concerns are closure-quality issues around least-privilege ability granularity, explicit iOS denial coverage, and deterministic handling of the residual tenant-access audit exit 2.",
+  "recommended_path": "Do not close RR-AUTH-02 as globally tenant-route compliant. Close it only as appdomains-scoped after either addressing the findings below or explicitly accepting them in the TODO-local audit record, then run the pending final Laravel CI-equivalent suite. Keep the tenant-access audit exit 2 delegated to the route-matrix/backlog TODO unless a route-level deterministic exemption is introduced.",
+  "performance_position": "acceptable",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "SEC-RR-AUTH-02-REV-001",
+      "severity": "medium",
+      "title": "App-link trust mutation is authorized by a broad tenant-domains:update ability",
+      "rationale": "Store/delete of Android package identifiers and iOS bundle identifiers now requires current-tenant tenant-domains:update, which is a major improvement over the prior route gap. However, these identifiers feed public Android assetlinks.json and Apple AASA trust payloads, so reusing a general domain-management update ability may grant mobile deep-link trust mutation to roles intended only for ordinary tenant domain administration. OWASP least privilege calibration supports either proving this equivalence in role design or splitting the privilege. Android and Apple association payloads are trust-bearing surfaces: https://developer.android.com/training/app-links/configure-assetlinks and https://developer.apple.com/documentation/xcode/supporting-associated-domains.",
+      "category": "security",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/routes/api/tenant_api_v1.php",
+        "laravel-app/config/abilities.php",
+        "foundation_documentation/modules/tenant_admin_module.md",
+        "foundation_documentation/modules/onboarding_flow_module.md"
+      ],
+      "suggested_action": "Before closure, either document that tenant-domains:update intentionally owns app-link trust mutation and audit current role assignments for that implication, or introduce a narrower app-domain/app-link ability with route, catalog, docs, and regression-test updates."
+    },
+    {
+      "finding_id": "SEC-RR-AUTH-02-REV-002",
+      "severity": "low",
+      "title": "Denied iOS app-link non-mutation is inferred rather than directly exercised",
+      "rationale": "The tests directly prove authorized iOS AASA updates and directly prove denied Android assetlinks/domain-state non-mutation. Because authorization middleware runs before platform-specific controller logic, the current implementation should deny iOS mutations equivalently. Still, the package claims Android/iOS trust-payload preservation, and no denied request uses platform=ios while snapshotting apple-app-site-association before and after denial.",
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/tests/Feature/Tenants/TenantAppDomainControllerTest.php"
+      ],
+      "suggested_action": "Add at least one denied iOS store/delete case for a missing or borrowed update ability that snapshots apple-app-site-association before and after the 403."
+    },
+    {
+      "finding_id": "SEC-RR-AUTH-02-REV-003",
+      "severity": "low",
+      "title": "Residual tenant-access audit exit 2 is correctly scoped but remains manually classified",
+      "rationale": "The file-level audit still exits 2 because tenant_api_v1.php contains authenticated identity routes such as auth/logout, auth/token_validate, and /me without CheckTenantAccess. The appdomains route matrix itself is in-scope compliant, so the package's out-of-scope classification is sound for RR-AUTH-02. The operational weakness is that the deterministic guard remains file-level and cannot itself distinguish appdomains pass from residual identity-route debt.",
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "delphi-ai/tools/laravel_tenant_access_guardrails_audit.sh",
+        "laravel-app/routes/api/tenant_api_v1.php",
+        "foundation_documentation/todos/active/post_release_hardening/TODO-post-release-tenant-app-domain-authorization-and-app-link-integrity-hardening.md",
+        "foundation_documentation/todos/active/post_release_hardening/TODO-post-release-architectural-rule-drift-review.md"
+      ],
+      "suggested_action": "Keep RR-AUTH-02 closure explicitly appdomains-only and attach the exact residual route list plus delegated TODO. For future closure quality, upgrade the guard to route-level reporting or an explicit route-level waiver mechanism so exit 2 classifications are machine-verifiable."
+    }
+  ]
+}

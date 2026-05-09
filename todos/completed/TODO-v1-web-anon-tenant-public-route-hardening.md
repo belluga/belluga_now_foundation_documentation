@@ -22,7 +22,7 @@ The current audit found three classes of routes:
 This TODO exists to freeze the route classification and then harden guards so direct URL access cannot bypass the V1 policy.
 
 ## 2. References
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `foundation_documentation/policies/web_to_app_promotion_policy.md`
 - `foundation_documentation/policies/scope_subscope_governance.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`

@@ -1,0 +1,50 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-09/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "round-09-performance-security",
+  "overall_assessment": "Not clean. The bounded package resolves several prior fanout and query-shape issues, but the public event stream path still has an unbounded replay/memory surface, and public offset pagination remains bounded only by page size rather than by total skipped work.",
+  "recommended_path": "needs_resolution",
+  "performance_position": "regresses",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "R09-PERFSEC-001",
+      "severity": "high",
+      "title": "Event stream delta replay is unbounded and materialized before streaming",
+      "rationale": "EventStreamRequest inherits AgendaIndexRequest validation, but EventQueryService::buildStreamDeltas ignores page_size/per_page and buildStreamPipeline never applies a limit. EventStreamController also builds the full deltas array before writing the StreamedResponse. A client with a valid but stale Last-Event-ID can force an aggregate over all updated/deleted occurrences since that timestamp, format every row into memory, and emit an unbounded response, defeating the public page-size hardening claimed elsewhere in the package.",
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/packages/belluga/belluga_events/src/Http/Api/v1/Controllers/EventStreamController.php",
+        "laravel-app/packages/belluga/belluga_events/src/Http/Api/v1/Requests/EventStreamRequest.php",
+        "laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php",
+        "laravel-app/tests/Feature/Events/AgendaAndEventsControllerTest.php"
+      ],
+      "suggested_action": "Add a dedicated bounded stream delta limit, apply it in the Mongo aggregation pipeline, avoid pre-materializing unbounded deltas before streaming, and add regression coverage with more than the cap worth of changed occurrences. Also consider rejecting or clipping excessively old Last-Event-ID cursors."
+    },
+    {
+      "finding_id": "R09-PERFSEC-002",
+      "severity": "medium",
+      "title": "Public offset pagination caps page size but not page depth",
+      "rationale": "The public request validators enforce min:1 for page but no maximum, while the services compute skip as (page - 1) * page_size/perPage. This affects agenda, account-profile near/index pagination, and the occurrence-backed event index aggregation. Very large public page values can still force deep skip work even though page size is capped, so the current hardening does not fully bound query cost.",
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/packages/belluga/belluga_events/src/Http/Api/v1/Requests/AgendaIndexRequest.php",
+        "laravel-app/packages/belluga/belluga_events/src/Http/Api/v1/Requests/EventIndexRequest.php",
+        "laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php",
+        "laravel-app/packages/belluga/belluga_events/src/Application/Events/EventManagementOccurrenceQuery.php",
+        "laravel-app/app/Http/Api/v1/Requests/AccountProfilePublicIndexRequest.php",
+        "laravel-app/app/Http/Api/v1/Requests/AccountProfileNearRequest.php",
+        "laravel-app/app/Application/AccountProfiles/AccountProfileQueryService.php"
+      ],
+      "suggested_action": "Introduce a public page-depth cap or move these public surfaces to cursor/keyset pagination. Enforce the cap in FormRequests and defensive service normalization, then add negative tests for oversized page values on public agenda, events, and account-profile endpoints."
+    }
+  ]
+}

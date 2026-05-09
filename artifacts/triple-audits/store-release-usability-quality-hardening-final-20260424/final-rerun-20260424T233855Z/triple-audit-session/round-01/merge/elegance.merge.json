@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260424/final-rerun-20260424T233855Z/triple-audit-session/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "elegance"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Resolve the two medium findings before treating the final quality-hardening pass as clean. The dead backend branch can be removed in the same cleanup. The ADB blocker remains visible package risk, but the available bounded evidence is sufficient for this elegance-focused conclusion."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-95641BAE",
+      "severity": "medium",
+      "title": "Selection repair preserves stale taxonomy terms for known empty catalogs",
+      "rationale": "DiscoveryFilterSelectionRepair treats an allowed taxonomy with termOptions.terms.isEmpty the same as an unknown or explicitly truncated catalog by setting allowedTerms to null. For a known taxonomy group returned with no terms and terms_truncated=false, stale persisted terms survive repair and DiscoveryFilterQueryPayload.compile will still send them to the backend, producing confusing empty results instead of self-healing the selection.",
+      "suggested_action": "Only preserve unknown selected terms when the taxonomy option is absent or termsTruncated is true. If a taxonomy option exists, is not truncated, and has an empty terms list, drop all selected terms for that taxonomy and add a focused test for the empty-untruncated case.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-001"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-B83CB64E",
+      "severity": "medium",
+      "title": "Cached taxonomy-term transitions can be overwritten by older async loads",
+      "rationale": "TenantAdminEventsController increments _taxonomyTermsLoadSerial only when it starts a new batch request. Transitions to an empty allowed-taxonomy set or to a fully cached taxonomy set publish new stream state without invalidating an already in-flight request. That older request can then complete with the same serial and overwrite taxonomyTermsBySlugStreamValue with terms for a previously selected event type.",
+      "suggested_action": "Invalidate in-flight loads for every selected-type cache-key transition, including empty and cache-hit paths, or compare the active cache key again immediately before publishing fetched terms. Add a controller test that switches event type while a previous taxonomy batch load is unresolved.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-002"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-A842F0B9",
+      "severity": "low",
+      "title": "Unused occurrence-location override branch contradicts the accepted contract",
+      "rationale": "EventManagementService still defines resolveOccurrenceLocationOverride even though occurrence location and place_ref are explicitly rejected in normalizeOccurrences and the sync service hardcodes has_location_override=false. Keeping the unused method leaves a false architectural seam in the core write path and makes the contract harder to reason about.",
+      "suggested_action": "Remove the unused private method and the now-unused rootPayload parameter plumbing unless occurrence-level location overrides are intentionally reintroduced through validation, normalization, sync, and tests as a coherent contract.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-003"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

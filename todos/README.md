@@ -20,6 +20,14 @@ Choose the active lane deliberately:
 - `active/fast_follow_required/` for business-defined work sequenced immediately after the Android release cut (for example iOS fast-follow and QR login/web auth), not speculative backlog.
 - `active/vnext/` for explicitly deferred backlog that should stay visible but must not be mixed into current Android-release or fast-follow execution lanes.
 
+When implementation and local validation are done but canonical lane promotion is still pending, move the TODO out of `active/` and into:
+
+```text
+foundation_documentation/todos/promotion_lane/<lane>/
+```
+
+This bucket is the explicit "ready for promotion" inventory. It is not backlog and it is not closed history.
+
 ## 2) Status Model (Local vs Promotion)
 
 Use these status names exactly:
@@ -33,6 +41,11 @@ Transition rule:
 1. `🟧 Local-Implemented` means delivered in feature/fix branch with local validation.
 2. `🟣 Lane-Promoted` means merged through the TODO lane threshold (usually `dev`).
 3. `✅ Production-Ready` means required lane targets are complete (`stage`/`main` when applicable) and confidence gates are satisfied.
+
+Directory rule:
+- `active/` means implementation authority is still open.
+- `promotion_lane/` means implementation authority is closed locally and only promotion/lane follow-through remains.
+- `completed/` means the lane is fully closed and no active promotion follow-up remains.
 
 Never mark `✅ Production-Ready` using feature-branch evidence only.
 
@@ -51,6 +64,7 @@ Use the directory tree as a second filter before opening or moving a TODO:
 - `active/store_release_android/` is the authoritative lane for the current Android-first publication milestone.
 - `active/fast_follow_required/` is for work that is already defined by the business and must follow immediately after Android release, but is intentionally sequenced out of the Android gate.
 - `active/vnext/` is backlog-visible by design. Do not place current release execution there just because the topic is important.
+- `promotion_lane/<lane>/` is for TODOs whose implementation is locally complete and validated, but which still need canonical promotion through `dev`/`stage`/`main` before archive.
 - `completed/` is only for closed lanes that no longer need active follow-up.
 - `ephemeral/` is only for local-only maintenance/regression execution artifacts; do not treat it as backlog or canonical planning inventory.
 

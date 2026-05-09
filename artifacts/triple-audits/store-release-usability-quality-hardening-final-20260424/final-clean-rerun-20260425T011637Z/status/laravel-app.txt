@@ -1,0 +1,21 @@
+ M app/Application/DiscoveryFilters/DiscoveryFilterPublicCatalogService.php
+ M app/Application/Taxonomies/TaxonomyTermManagementService.php
+ M app/Http/Api/v1/Controllers/TaxonomyTermsController.php
+ M app/Http/Api/v1/Requests/AccountProfileTypeStoreRequest.php
+ M app/Http/Api/v1/Requests/AccountProfileTypeUpdateRequest.php
+ M app/Http/Api/v1/Requests/EventTypeStoreRequest.php
+ M app/Http/Api/v1/Requests/EventTypeUpdateRequest.php
+ M app/Http/Api/v1/Requests/StaticProfileTypeStoreRequest.php
+ M app/Http/Api/v1/Requests/StaticProfileTypeUpdateRequest.php
+ M app/Support/Validation/InputConstraints.php
+ M packages/belluga/belluga_events/src/Application/Events/EventManagementService.php
+ M packages/belluga/belluga_events/src/Application/Events/EventQueryService.php
+ M packages/belluga/belluga_events/src/Http/Api/v1/Requests/EventStoreRequest.php
+ M packages/belluga/belluga_events/src/Http/Api/v1/Requests/EventUpdateRequest.php
+A  packages/belluga/belluga_events/src/Support/Validation/EventPayloadFanoutGuard.php
+ M packages/belluga/belluga_events/src/Support/Validation/InputConstraints.php
+ M tests/Feature/Events/EventCrudControllerTest.php
+ M tests/Feature/Events/EventQueryPerformanceGuardrailTest.php
+ M tests/Feature/Events/EventTypesControllerTest.php
+ M tests/Feature/Map/MapPoisControllerTest.php
+ M tests/Feature/Taxonomies/TaxonomyRegistryControllerTest.php

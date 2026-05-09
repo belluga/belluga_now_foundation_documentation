@@ -1,0 +1,22 @@
+{
+  "blocked": false,
+  "context": {
+    "ci_equivalent_row_count": 1,
+    "mode": "execution-ready",
+    "ownership_row_count": 6,
+    "plan_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/execution-plans/post-release-rule-related-auth-identity-orchestration-plan.md",
+    "spec_marker_count": 8,
+    "status": "Approved",
+    "todo_count": 4,
+    "todo_requirement_count": 36,
+    "traceability_row_count": 37,
+    "validation_row_count": 6,
+    "wave_count": 6,
+    "workstream_count": 6
+  },
+  "overall_outcome": "go",
+  "rule_id": "paced.orchestration-plan.completion",
+  "schema_version": "orchestration-plan-completion-guard-v1",
+  "status": "ready",
+  "violations": []
+}

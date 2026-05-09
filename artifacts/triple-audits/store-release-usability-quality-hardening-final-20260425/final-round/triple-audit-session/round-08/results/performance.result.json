@@ -1,0 +1,46 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-08/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "round-08-performance-security",
+  "overall_assessment": "Not clean for the performance/security lane. The package resolves the prior public-query, account-context, sanitizer, and navigation-policy issues, but two authenticated event-write surfaces still accept unbounded or weakly bounded payload fanout that can drive database resolver work or persisted projection work.",
+  "recommended_path": "needs_resolution: add explicit cardinality and shape limits to the remaining event write arrays, then add negative request tests and a focused recut for event CRUD/performance guardrails.",
+  "performance_position": "mixed",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "R08-PERFSEC-001",
+      "severity": "medium",
+      "title": "Event write taxonomy/tags/categories arrays remain unbounded while taxonomy writes now trigger resolver work",
+      "rationale": "EventStoreRequest and EventUpdateRequest bound occurrence fanout and rich text, but still validate tags, categories, and taxonomy_terms only as arrays with per-item string length. EventManagementService now validates taxonomy_terms and resolves snapshots before persisting, so an authenticated tenant-admin request can submit a very large taxonomy_terms array and force large validation/resolver/database work. This is inconsistent with the package's public filter bounds and write fanout hardening.",
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/packages/belluga/belluga_events/src/Http/Api/v1/Requests/EventStoreRequest.php",
+        "laravel-app/packages/belluga/belluga_events/src/Http/Api/v1/Requests/EventUpdateRequest.php",
+        "laravel-app/packages/belluga/belluga_events/src/Application/Events/EventManagementService.php",
+        "laravel-app/app/Application/Taxonomies/TaxonomyValidationService.php"
+      ],
+      "suggested_action": "Introduce explicit event-write caps for tags, categories, taxonomy_terms, and unique taxonomy terms, preferably in Belluga\\Events\\Support\\Validation\\InputConstraints, enforce them in store/update requests, and add negative EventCrudControllerTest coverage for oversized arrays."
+    },
+    {
+      "finding_id": "R08-PERFSEC-002",
+      "severity": "medium",
+      "title": "Map POI polygon discovery scope accepts unbounded coordinate arrays",
+      "rationale": "The event store/update request rules require capabilities.map_poi.discovery_scope.polygon.coordinates to be an array with min:1, but there is no maximum ring or point count and no nested coordinate validation comparable to point/range validation. MapPoiProjectionService later normalizes and computes a centroid by iterating the first ring, so a large persisted polygon can create expensive write/projection/refresh work and oversized capability payloads.",
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/packages/belluga/belluga_events/src/Http/Api/v1/Requests/EventStoreRequest.php",
+        "laravel-app/packages/belluga/belluga_events/src/Http/Api/v1/Requests/EventUpdateRequest.php",
+        "laravel-app/packages/belluga/belluga_map_pois/src/Application/MapPoiProjectionService.php"
+      ],
+      "suggested_action": "Define polygon coordinate budgets and nested coordinate rules, enforce them in EventStoreRequest/EventUpdateRequest, defensively reject or truncate invalid polygon payloads before projection, and add negative tests for oversized polygon rings and out-of-range polygon coordinates."
+    }
+  ]
+}

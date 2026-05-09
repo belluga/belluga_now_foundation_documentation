@@ -1,0 +1,31 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "Elegance",
+  "overall_assessment": "The implementation is structurally close, but the redirect allowlist has a blocking ordering flaw: invite-code canonicalization can happen before external URL rejection. That contradicts the frozen contract's external-path fallback requirement and creates drift between the public resolver and the private allowlisted resolver.",
+  "recommended_path": "Fix before passing T1: make invite-code extraction subject to the same relative-path guard as the continuation allowlist, then add focused tests for absolute and scheme-relative invite URLs across resolveWebPromotionPath and buildTenantPromotionUri.",
+  "performance_position": "acceptable",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "regresses",
+  "findings": [
+    {
+      "finding_id": "ELEGANCE-001",
+      "severity": "high",
+      "title": "Blocking: external invite URLs bypass the redirect allowlist",
+      "rationale": "resolveWebPromotionPath calls resolveWebPromotionShareCode before the relative-url guard in _resolveAllowedPromotionRedirectPath, and buildTenantPromotionUriFromAppContext uses the same share-code helper before allowlist resolution. Because resolveWebPromotionShareCode does not reject uri.hasScheme, uri.hasAuthority, or scheme-relative input, a redirectPath such as https://evil.example/invite?code=CODE123 is canonicalized as a valid /invite handoff instead of falling back to /. This violates the frozen contract requirement that external paths fall back, and it is an elegance/structural problem because invite handling now has a separate less-strict path from the canonical continuation allowlist.",
+      "category": "security",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "lib/application/router/support/route_redirect_path.dart:36",
+        "lib/application/router/support/route_redirect_path.dart:63",
+        "lib/application/router/support/route_redirect_path.dart:138",
+        "lib/application/router/support/route_redirect_path.dart:192"
+      ],
+      "suggested_action": "Move the relative-path rejection into resolveWebPromotionShareCode or route all invite-code extraction through a single guarded helper. Add tests proving absolute and scheme-relative /invite?code=... inputs fall back for both resolveWebPromotionPath and buildTenantPromotionUri."
+    }
+  ]
+}

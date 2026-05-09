@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-tenant-app-domain-security-dispatch-20260507T0706Z.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "no-context-paced-security-adversarial-reviewer"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not close RR-AUTH-02 as globally tenant-route compliant. Close it only as appdomains-scoped after either addressing the findings below or explicitly accepting them in the TODO-local audit record, then run the pending final Laravel CI-equivalent suite. Keep the tenant-access audit exit 2 delegated to the route-matrix/backlog TODO unless a route-level deterministic exemption is introduced."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-3F9DD88B",
+      "severity": "medium",
+      "title": "App-link trust mutation is authorized by a broad tenant-domains:update ability",
+      "rationale": "Store/delete of Android package identifiers and iOS bundle identifiers now requires current-tenant tenant-domains:update, which is a major improvement over the prior route gap. However, these identifiers feed public Android assetlinks.json and Apple AASA trust payloads, so reusing a general domain-management update ability may grant mobile deep-link trust mutation to roles intended only for ordinary tenant domain administration. OWASP least privilege calibration supports either proving this equivalence in role design or splitting the privilege. Android and Apple association payloads are trust-bearing surfaces: https://developer.android.com/training/app-links/configure-assetlinks and https://developer.apple.com/documentation/xcode/supporting-associated-domains.",
+      "suggested_action": "Before closure, either document that tenant-domains:update intentionally owns app-link trust mutation and audit current role assignments for that implication, or introduce a narrower app-domain/app-link ability with route, catalog, docs, and regression-test updates.",
+      "reviewer_labels": [
+        "no-context-paced-security-adversarial-reviewer"
+      ],
+      "source_finding_ids": [
+        "SEC-RR-AUTH-02-REV-001"
+      ],
+      "category": "security",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-2170469C",
+      "severity": "low",
+      "title": "Residual tenant-access audit exit 2 is correctly scoped but remains manually classified",
+      "rationale": "The file-level audit still exits 2 because tenant_api_v1.php contains authenticated identity routes such as auth/logout, auth/token_validate, and /me without CheckTenantAccess. The appdomains route matrix itself is in-scope compliant, so the package's out-of-scope classification is sound for RR-AUTH-02. The operational weakness is that the deterministic guard remains file-level and cannot itself distinguish appdomains pass from residual identity-route debt.",
+      "suggested_action": "Keep RR-AUTH-02 closure explicitly appdomains-only and attach the exact residual route list plus delegated TODO. For future closure quality, upgrade the guard to route-level reporting or an explicit route-level waiver mechanism so exit 2 classifications are machine-verifiable.",
+      "reviewer_labels": [
+        "no-context-paced-security-adversarial-reviewer"
+      ],
+      "source_finding_ids": [
+        "SEC-RR-AUTH-02-REV-003"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-EF272F9B",
+      "severity": "low",
+      "title": "Denied iOS app-link non-mutation is inferred rather than directly exercised",
+      "rationale": "The tests directly prove authorized iOS AASA updates and directly prove denied Android assetlinks/domain-state non-mutation. Because authorization middleware runs before platform-specific controller logic, the current implementation should deny iOS mutations equivalently. Still, the package claims Android/iOS trust-payload preservation, and no denied request uses platform=ios while snapshotting apple-app-site-association before and after denial.",
+      "suggested_action": "Add at least one denied iOS store/delete case for a missing or borrowed update ability that snapshots apple-app-site-association before and after the 403.",
+      "reviewer_labels": [
+        "no-context-paced-security-adversarial-reviewer"
+      ],
+      "source_finding_ids": [
+        "SEC-RR-AUTH-02-REV-002"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

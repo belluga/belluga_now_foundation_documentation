@@ -1,0 +1,53 @@
+# PACED Subagent Review Merge: test_quality_audit
+
+## Merge Identity
+- **Artifact kind:** `subagent_review_merge`
+- **Authoritative:** `false`
+- **Edit policy:** `derived_merge_packet`
+- **Dispatch path:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t1-web-to-app-review-packet-triple-audit-20260428T142017Z/round-01/dispatch/test-quality.dispatch.json`
+- **Review count:** `1`
+- **Highest finding severity:** `high`
+
+## Axis Summary
+- **Performance:** `acceptable`
+- **Elegance:** `acceptable`
+- **Structural soundness:** `mixed`
+- **Operational fit:** `regresses`
+
+## Recommended Paths
+- `Do not pass T1 until the redirect negative matrix and immersive anonymous favorite tests are added as failing regression coverage, the redirect fast path is corrected, and the focused Flutter test command passes again.`
+
+## Merged Findings
+### F-0E77D68A [high] Blocking: immersive anonymous linked-profile favorite entrypoint is not proven
+- **Reviewers:** Test Quality Reviewer
+- **Category:** `tests`
+- **Formalizable hint:** `partial`
+- **Candidate rule level:** `project`
+- **Candidate rule id:** `n/a`
+- **Suggested action:** Add an immersive widget or controller test with _FakeAuthRepository(authorized: false), a favoritable linked profile, and a fake AccountProfilesRepository. Tap linkedProfileFavoriteButton_* and assert the repository toggle is called and no auth/login navigation is triggered.
+- **Rationale:** T1 explicitly requires anonymous favorites to work in the immersive linked-profile entrypoint. The only test that taps linkedProfileFavoriteButton_artist-1 is registered with an authorized user at test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart:452 and asserts the toggle at line 542. The auth-false tests at lines 88 and 146 cover attendance/pending-invite behavior, not the favorite action. This would not catch reintroducing the removed auth gate in lib/presentation/tenant_public/schedule/screens/immersive_event_detail/controllers/immersive_event_detail_controller.dart:153.
+
+### F-6742936C [high] Blocking: external invite URLs are not covered and bypass the external-url guard
+- **Reviewers:** Test Quality Reviewer
+- **Category:** `tests`
+- **Formalizable hint:** `partial`
+- **Candidate rule level:** `project`
+- **Candidate rule id:** `n/a`
+- **Suggested action:** Add focused failing tests for absolute and scheme-relative invite/convites URLs across resolveWebPromotionPath, resolveWebPromotionShareCode, and buildTenantPromotionUri. Then reject scheme/authority before accepting share codes, and include backend-owned or promotion-boundary fallback cases such as /workspace/... and /baixe-o-app?... in the same negative matrix.
+- **Rationale:** The tests cover an external absolute URL only for a non-invite event path in test/application/router/support/route_redirect_path_test.dart:58 and test/presentation/shared/widgets/app_promotion_dialog_test.dart:140. The implementation accepts invite codes before the allowlist/external guard in lib/application/router/support/route_redirect_path.dart:36 and lib/application/router/support/route_redirect_path.dart:138, while resolveWebPromotionShareCode parses path/query without rejecting scheme or authority at lib/application/router/support/route_redirect_path.dart:63. That means an absolute URL shaped like https://evil.example/invite?code=CODE can be canonicalized as a valid invite instead of falling back to '/', contrary to the frozen external-redirect contract.
+
+## Reviewer Summaries
+### Test Quality Reviewer
+- **Assessment:** Blocked. The focused tests cover much of the T1 behavior, but two required gate claims are not adequately protected: external invite-shaped redirects bypass the tested external-url cases, and the immersive anonymous linked-profile favorite entrypoint is not proven.
+- **Recommended path:** `Do not pass T1 until the redirect negative matrix and immersive anonymous favorite tests are added as failing regression coverage, the redirect fast path is corrected, and the focused Flutter test command passes again.`
+- **Performance:** `acceptable`
+- **Elegance:** `acceptable`
+- **Structural soundness:** `mixed`
+- **Operational fit:** `regresses`
+- **Findings:**
+  - [high] TQ-001 Blocking: external invite URLs are not covered and bypass the external-url guard: The tests cover an external absolute URL only for a non-invite event path in test/application/router/support/route_redirect_path_test.dart:58 and test/presentation/shared/widgets/app_promotion_dialog_test.dart:140. The implementation accepts invite codes before the allowlist/external guard in lib/application/router/support/route_redirect_path.dart:36 and lib/application/router/support/route_redirect_path.dart:138, while resolveWebPromotionShareCode parses path/query without rejecting scheme or authority at lib/application/router/support/route_redirect_path.dart:63. That means an absolute URL shaped like https://evil.example/invite?code=CODE can be canonicalized as a valid invite instead of falling back to '/', contrary to the frozen external-redirect contract.
+  - [high] TQ-002 Blocking: immersive anonymous linked-profile favorite entrypoint is not proven: T1 explicitly requires anonymous favorites to work in the immersive linked-profile entrypoint. The only test that taps linkedProfileFavoriteButton_artist-1 is registered with an authorized user at test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart:452 and asserts the toggle at line 542. The auth-false tests at lines 88 and 146 cover attendance/pending-invite behavior, not the favorite action. This would not catch reintroducing the removed auth gate in lib/presentation/tenant_public/schedule/screens/immersive_event_detail/controllers/immersive_event_detail_controller.dart:153.
+
+## Exact Next Step
+Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.
+

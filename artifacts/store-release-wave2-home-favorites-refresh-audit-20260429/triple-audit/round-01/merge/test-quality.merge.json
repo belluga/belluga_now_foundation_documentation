@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/store-release-wave2-home-favorites-refresh-audit-20260429/triple-audit/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "codex-test-quality-audit"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Strengthen the repository regression test so the favorite-resume refresh derives from the same fake backend state mutated by favoriteAccountProfile/unfavoriteAccountProfile, or otherwise assert the refresh happens strictly after successful persistence. Add failed-persistence coverage that proves no canonical Home refresh is emitted when the backend mutation rolls back."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-C97F7BFC",
+      "severity": "high",
+      "title": "[blocking] Refresh regression test proves a method call, not the backend-backed Home behavior",
+      "rationale": "The new test at account_profiles_repository_test.dart:262 registers a tracking FavoriteRepository whose fetchFavoriteResumes returns manually staged data independent of _StubFavoriteBackend state. A mutant that refreshes favorite resumes before favoriteAccountProfile/unfavoriteAccountProfile persists could still pass, even though production would fetch stale /favorites data and leave Home unchanged. This misses the mutation-order/backend-contract semantics required by the dispatch.",
+      "suggested_action": "Use a backend-coupled fake or ordered spy: favorite-resume fetches should observe the same favorite backend state changed by the mutation, and the test should fail if refreshFavoriteResumes runs before successful persistence. Include the unfavorite case and a backend-failure case that asserts rollback without Home refresh.",
+      "reviewer_labels": [
+        "codex-test-quality-audit"
+      ],
+      "source_finding_ids": [
+        "TQA-01"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-9ED242B4",
+      "severity": "medium",
+      "title": "[accepted-debt unless production closure is claimed] CI execution evidence is not included in the bounded package",
+      "rationale": "The package records focused local Flutter tests, analyzer, diff hygiene, and web build results, but it does not include CI execution evidence. That is acceptable only if this round is scoped to local implementation audit; it is not enough for a production-ready promotion claim under the dispatch's CI-execution gate language.",
+      "suggested_action": "Before production-ready closure, attach the required CI run evidence or explicitly keep this package classified as local-only evidence with CI deferred to a named later gate.",
+      "reviewer_labels": [
+        "codex-test-quality-audit"
+      ],
+      "source_finding_ids": [
+        "TQA-02"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "no",
+      "candidate_rule_level": "none",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

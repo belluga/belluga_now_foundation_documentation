@@ -1,0 +1,36 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "foundation_documentation/artifacts/post-release-account-token-binding-final-review-dispatch-20260507T1424Z.json",
+  "review_kind": "final_review",
+  "reviewer_label": "codex-no-context-final-review",
+  "overall_assessment": "Blocked for closure. The bounded package establishes account_id route binding and live current-account revalidation, but the bearer-token ability ceiling still has a wildcard semantic gap that can deny real account users whose roles use resource wildcards such as push-messages:* or account-users:*.",
+  "recommended_path": "Do not proceed as closure-clean to triple audit/Claude comparison until the token ceiling check and tests are corrected. Implement wildcard-aware token-ceiling evaluation or expand account role wildcards at token issuance, then rerun targeted bearer-token regressions and the relevant validation lanes.",
+  "performance_position": "acceptable",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "FR-001",
+      "severity": "high",
+      "title": "Resource wildcard role abilities can be rejected before live account-role revalidation",
+      "rationale": "AccountAuthenticationService issues account-user tokens from role permissions without expanding resource wildcards such as account-users:* or push-messages:*. AccountUser::tokenCan then returns false immediately when the stored Sanctum token does not exactly can() the requested route ability, so AccountUserAccessService::tokenAllows never gets to apply its live current-account wildcard logic. The changed tests mostly issue exact abilities or use Sanctum::actingAs with exact abilities, while production-style roles in the referenced push/account fixtures use resource wildcards. This contradicts the documented ceiling-over-live-permissions model and can block valid account-bound bearer tokens on account-scoped routes.",
+      "category": "adherence",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/app/Application/Auth/AccountAuthenticationService.php",
+        "laravel-app/app/Models/Tenants/AccountUser.php",
+        "laravel-app/app/Application/Accounts/AccountUserAccessService.php",
+        "laravel-app/routes/api/account_api_v1.php",
+        "laravel-app/routes/api/project_account_api_v1.php",
+        "laravel-app/routes/api/packages/project_account_api_v1/push_handler.php",
+        "laravel-app/tests/Feature/Auth/TenantPublicAccountTokenScopeTest.php",
+        "laravel-app/tests/Feature/Push/PushMessageFlowTest.php",
+        "laravel-app/tests/Unit/Application/Auth/AccountAuthenticationServiceTest.php"
+      ],
+      "suggested_action": "Make the token-ceiling step use the same account ability wildcard semantics as live role permissions, or expand role wildcards into exact account-scoped catalog abilities before token storage. Add bearer-token regression coverage through real issue/login paths for account-users:*, push-messages:*, events:*, and * roles, including same-account allow and wrong-account reject cases."
+    }
+  ]
+}

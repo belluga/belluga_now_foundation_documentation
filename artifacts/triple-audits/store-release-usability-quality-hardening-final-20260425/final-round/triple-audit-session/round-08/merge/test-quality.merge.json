@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-08/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality-round-08"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "needs_resolution: add focused regression tests for the web navigation policy and shard validation scripts before treating the release-gating harness as fully protected."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-4A32099D",
+      "severity": "medium",
+      "title": "Release-gating web navigation harness lacks negative regression tests",
+      "rationale": "The package relies on `guard_web_navigation_policy.cjs`, `web_navigation_shards.cjs`, and `run_web_navigation_smoke.sh` to prove that release-gating navigation specs cannot use coordinate clicks, `force:true`, text/keyboard dropdown fallbacks, credential fallbacks, ad-hoc grep, or wrong shard selection. The recorded evidence runs `node --check`, the guard against the current clean tree, and Playwright list validation, but there are no fixture-level tests that inject forbidden patterns or shard mismatches and assert non-zero failure. A future weakening of these regexes or validation paths could silently make the release gate pass while allowing the exact anti-patterns this hardening wave is meant to block.",
+      "suggested_action": "Add small Node-based regression tests or fixture scripts for the navigation harness. Cover at minimum: coordinate `mouse.click`, `click({ force: true })`, credential fallback literals, text/keyboard dropdown fallback, unknown shard id, missing expected title, unexpected selected title, and blocked raw `NAV_WEB_GREP_EXTRA` without explicit allowance. Include those tests in the validation evidence alongside the existing syntax and runtime Playwright checks.",
+      "reviewer_labels": [
+        "test-quality-round-08"
+      ],
+      "source_finding_ids": [
+        "R08-TQ-01"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

@@ -18,13 +18,13 @@
 
 ## References
 - `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-user-profile-polish.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-events-polish.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-v1-screen-user-profile-polish.md`
+- `foundation_documentation/todos/completed/TODO-v1-screen-events-polish.md`
 - `foundation_documentation/todos/completed/TODO-v1-screen-discovery-polish.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-invite-polish.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-public-account-profile-detail-polish.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-v1-screen-invite-polish.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- `foundation_documentation/todos/completed/TODO-v1-screen-public-account-profile-detail-polish.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
 - `foundation_documentation/policies/scope_subscope_governance.md`
 - `foundation_documentation/todos/completed/TODO-v1-admin-discovery-map-small-fixes.md`
@@ -135,11 +135,11 @@
 ## Per-Screen Split (Authoritative)
 - [x] ✅ Historical only `TODO-v1-screen-signin-signup-polish.md` (superseded by `TODO-store-release-phone-otp-auth-and-contact-match.md`)
 - [ ] ⚪ `TODO-v1-screen-user-profile-polish.md` (authenticated user-profile screen)
-- [ ] ⚪ `TODO-v1-screen-events-polish.md` (events screen)
+- [x] ✅ Superseded `TODO-v1-screen-events-polish.md` (events screen; standalone active placeholder made unnecessary by later Store Release improvements)
 - [x] ✅ Production-Ready `TODO-v1-screen-discovery-polish.md` (account profile discovery screen)
 - [ ] ⚪ `TODO-v1-screen-invite-polish.md` (invite screen)
 - [x] ✅ Historical only `TODO-v1-screen-invite-friends-polish.md` (superseded by `TODO-store-release-minimal-friends-and-favorites-mvp.md`)
-- [ ] ⚪ `TODO-v1-screen-public-account-profile-detail-polish.md` (public account profile detail screen)
+- [x] ✅ Production-Ready `TODO-v1-screen-public-account-profile-detail-polish.md` (public account profile detail screen)
 
 ---
 

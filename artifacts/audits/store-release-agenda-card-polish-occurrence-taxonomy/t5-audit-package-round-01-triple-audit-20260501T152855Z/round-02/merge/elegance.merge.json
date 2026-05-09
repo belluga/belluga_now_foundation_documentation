@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-02/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "no-context-elegance-round-02"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "regresses",
+    "structural_soundness": "regresses",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not close the elegance gate until occurrence identity is carried through schedule normalization and used by the sync layer for existing occurrence upserts, with index fallback only for genuinely new occurrences and a regression test covering reorder plus omitted occurrence-owned fields."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-1C4A99D5",
+      "severity": "high",
+      "title": "Occurrence update identity is resolved, then discarded before persistence",
+      "rationale": "Flutter now sends occurrence_id and occurrence_slug for full-form saves, and EventManagementService uses those fields to resolve omitted occurrence-owned payloads. However, the normalized occurrence rows keep only date, owned parties, taxonomy, and programming fields before sorting, and EventOccurrenceSyncService still finds existing documents only by occurrence_index. If an existing multi-occurrence event is reordered by date, the old index-based sync can write one occurrence's preserved taxonomy/programming/linked-profile data onto another occurrence document while public detail and invite flows still address occurrences by id/slug. This is duplicate old/new identity handling in the same update path and can create data drift inside the approved occurrence-owned taxonomy contract.",
+      "suggested_action": "Carry occurrence_id and occurrence_slug through the normalized schedule payload and teach EventOccurrenceSyncService to upsert existing occurrences by id or slug before falling back to occurrence_index for new rows. Add a Laravel regression test that creates two occurrences with different owned taxonomy/programming values, updates them in a date order that changes their sorted indexes while omitting owned arrays, and asserts each original occurrence id keeps its own data.",
+      "reviewer_labels": [
+        "no-context-elegance-round-02"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-R02-001"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

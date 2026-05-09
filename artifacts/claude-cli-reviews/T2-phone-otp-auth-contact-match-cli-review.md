@@ -1,0 +1,1 @@
+Claude CLI review unavailable: command produced no output after >4 minutes and was terminated by Delphi to avoid leaving a hanging process. Treat this as operational unavailability, not a technical review.

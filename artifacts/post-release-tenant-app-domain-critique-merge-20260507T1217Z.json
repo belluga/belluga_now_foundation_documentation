@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-tenant-app-domain-critique-dispatch-20260507T1217Z.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "RR-AUTH-02 no-context critique"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "regresses"
+  },
+  "recommended_paths": [
+    "Do not close RR-AUTH-02 until the middleware/routes/tests are reconciled into a coherent tracked diff and the focused plus CI-equivalent Laravel validation is rerun cleanly from the principal checkout. Keep the file-level tenant-access guardrail failure classified under the broader route-matrix TODO, not RR-AUTH-02."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-E3221D51",
+      "severity": "high",
+      "title": "Closure package depends on an untracked/split implementation state",
+      "rationale": "The current working tree uses App\\Http\\Middleware\\CheckCurrentTenantRoleAbility in routes/api/tenant_api_v1.php, but app/Http/Middleware/CheckCurrentTenantRoleAbility.php is still untracked, and route/test files are split between staged and unstaged states. That makes the package evidence non-replayable from a clean tracked diff and risks losing the current-tenant role guard during promotion or commit preparation.",
+      "suggested_action": "Stage/add the new middleware and reconcile staged versus unstaged route/test changes before closure; then regenerate or refresh closure evidence from that coherent tracked state.",
+      "reviewer_labels": [
+        "RR-AUTH-02 no-context critique"
+      ],
+      "source_finding_ids": [
+        "RR-AUTH-02-CRIT-001"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-29504E47",
+      "severity": "medium",
+      "title": "Focused CI-equivalent validation is not currently reproducible",
+      "rationale": "The package claims the focused appdomain/domain suite passed as 31 tests and 145 assertions, but rerunning ./scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Tenants/TenantAppDomainControllerTest.php tests/Feature/Tenants/TenantDomainControllerTest.php failed twice in the principal checkout with MongoDB 'database is in the process of being dropped' errors. This appears environmental/test-isolation related rather than an appdomain authorization regression, but it still prevents a clean final validation claim in this checkout.",
+      "suggested_action": "Reset or wait out the MongoDB test database drop state, rerun the focused appdomain/domain suite and the required final Laravel CI-equivalent suite, and record fresh passing evidence before marking the TODO closure-ready.",
+      "reviewer_labels": [
+        "RR-AUTH-02 no-context critique"
+      ],
+      "source_finding_ids": [
+        "RR-AUTH-02-CRIT-002"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

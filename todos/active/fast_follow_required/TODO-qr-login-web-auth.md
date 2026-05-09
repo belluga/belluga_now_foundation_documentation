@@ -56,8 +56,8 @@
 - `foundation_documentation/system_roadmap.md`
 - `foundation_documentation/endpoints_mvp_contracts.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-obligatory.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
 
 ## Module Anchors & Decision Consolidation Targets
 
@@ -78,8 +78,8 @@
 
 ## Dependencies & Sequencing
 
-- [ ] `DEP-01` `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` must close first. QR-authenticated web cannot start from a stale tester-waitlist promotion boundary.
-- [ ] `DEP-02` `foundation_documentation/todos/active/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md` remains the authority for authenticated app identity. QR web login depends on that app-side identity path and must not fork a second native auth method.
+- [ ] `DEP-01` `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` must close first. QR-authenticated web cannot start from a stale tester-waitlist promotion boundary.
+- [ ] `DEP-02` `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md` remains the authority for authenticated app identity. QR web login depends on that app-side identity path and must not fork a second native auth method.
 - [x] `DEP-03` `foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-obligatory.md` already treats this lane as mandatory fast-follow rather than speculative VNext.
 - [x] `DEP-04` iOS universal-links/deferred-capture validation is a sibling fast-follow lane, not a blocker for QR-authenticated web delivery.
 

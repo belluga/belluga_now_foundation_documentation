@@ -1,0 +1,44 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260424/post-playwright-rerun-20260425T032907Z/session/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "performance",
+  "overall_assessment": "Not clean. The bounded artifacts show one concrete Flutter eager-rendering risk, and the audit package omits untracked production files needed to validate shared discovery-filter loading behavior.",
+  "recommended_path": "Resolve the eager-rendering risk, regenerate the bounded package with untracked production files included, and rerun the performance lane.",
+  "performance_position": "regresses",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "regresses",
+  "operational_fit_position": "regresses",
+  "findings": [
+    {
+      "finding_id": "PERF-01",
+      "severity": "medium",
+      "title": "Event detail date/programming UI eagerly renders bounded-but-large collections",
+      "rationale": "The new event detail date/programming UI eagerly builds all occurrences and programming items using Column/spread maps and a horizontal SingleChildScrollView Row. Backend constraints allow up to 120 occurrences, 240 programming items, and 480 programming references, so one valid event can create hundreds of cards/chips/profile image widgets at once. Evidence cited by reviewer: EventDatesSection, EventProgrammingSection, and _ProgrammingDateSelector use eager maps/loops, while Laravel constants allow large totals.",
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "diffs/flutter-vs-dev.patch",
+        "diffs/laravel-vs-dev.patch"
+      ],
+      "suggested_action": "Convert vertical programming/date content to lazy sliver/ListView.builder composition or cap/collapse visible rows, and use ListView.builder for the horizontal date selector."
+    },
+    {
+      "finding_id": "PERF-02",
+      "severity": "high",
+      "title": "Audit package omits untracked production files imported by tracked changes",
+      "rationale": "The performance lane cannot cleanly validate discovery-filter runtime behavior because flutter-status.txt lists untracked production code under lib/presentation/shared/discovery_filters/ and tenant_admin_discovery_filters_settings_canonicalizer.dart, while changed tracked controllers import those files. The full patch does not include their contents, hiding core caching/debounce/persistence/loading orchestration.",
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "paced",
+      "affected_paths": [
+        "flutter-status.txt",
+        "diffs/flutter-vs-dev.patch",
+        "diffs/flutter-vs-dev.files"
+      ],
+      "suggested_action": "Regenerate the bounded package with untracked production files included or stage them before creating the audit diff, then rerun the performance lane."
+    }
+  ]
+}

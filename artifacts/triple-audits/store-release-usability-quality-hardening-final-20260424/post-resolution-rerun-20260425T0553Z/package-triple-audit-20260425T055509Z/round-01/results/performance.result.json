@@ -1,0 +1,45 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260424/post-resolution-rerun-20260425T0553Z/package-triple-audit-20260425T055509Z/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "performance",
+  "overall_assessment": "Mixed. The package resolves the prior visible programming fanout issue and adds useful batch catalog loading, but the performance lane is not clean because broad taxonomy repair and public taxonomy filtering still lack bounded-query proof.",
+  "recommended_path": "Needs resolution: make snapshot repair query-bounded, prove public taxonomy filters use an indexed or flat-key path, and add focused guardrails before closing the performance lane.",
+  "performance_position": "mixed",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "PERF-RERUN-001",
+      "severity": "high",
+      "title": "Taxonomy snapshot repair reintroduces per-document resolver fanout",
+      "rationale": "TaxonomySnapshotBackfillService streams documents with cursor(), but repairRootTaxonomyModel calls taxonomyTermSummaryResolver->resolve($terms) for each matching model, and repairEventLikeModel can call the same resolver repeatedly for root terms plus nested venue/place_ref/event_parties/linked_account_profiles/artists payloads. Because the resolver is collection-backed, a taxonomy rename or repair over account_profiles, static_assets, events, event_occurrences, and map_pois can perform database work proportional to document count and embedded reference count. The included guard only proves cursor semantics, not bounded resolver queries.",
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "suggested_action": "Build a per-run snapshot cache or batch resolver keyed by taxonomy type/value, use it for all nested replacements, and add a query-count or spy guard showing resolver lookups stay constant or chunk-bounded as repaired document count grows."
+    },
+    {
+      "finding_id": "PERF-RERUN-002",
+      "severity": "high",
+      "title": "Public account-profile taxonomy filters lack index or flat-key proof",
+      "rationale": "AccountProfileQueryService adds public taxonomy filters by generating elemMatch predicates against taxonomy_terms for both publicPaginate and publicNear. The package includes correctness and budget tests, but no index migration, flat taxonomy_terms key, explain-style guard, or performance test proving this new public discovery path avoids collection scans. This is user-facing traffic and can be exercised repeatedly by discovery filters.",
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "suggested_action": "Either maintain/query an indexed flat taxonomy key for account profiles, analogous to map_pois taxonomy_terms_flat, or add explicit compound/multikey index coverage plus a guardrail test that verifies bounded/index-backed behavior for public index and near taxonomy filters."
+    },
+    {
+      "finding_id": "PERF-RERUN-003",
+      "severity": "medium",
+      "title": "Event detail occurrence selection loads the same occurrence set twice",
+      "rationale": "formatEventDetail first calls resolveSelectedOccurrence, which loads all EventOccurrence rows for the event, then calls resolveEventOccurrences without passing that preloaded collection, causing another full occurrence load for the same detail response. The fanout is capped, but this is a hot public detail path and scales with the maximum schedule/programming size.",
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "suggested_action": "Have the selection helper return both the selected occurrence and the loaded collection, or pass a preloaded collection into resolveEventOccurrences, then add a query-count guard for a multi-occurrence programming detail request."
+    }
+  ]
+}

@@ -55,7 +55,7 @@
 ## References
 
 - `foundation_documentation/todos/completed/TODO-v1-account-profile-type-display-label-metadata.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-public-account-profile-detail-polish.md`
+- `foundation_documentation/todos/completed/TODO-v1-screen-public-account-profile-detail-polish.md`
 - `../foundation_documentation/modules/events_module.md`
 - `lib/presentation/tenant_public/schedule/routes/immersive_event_detail_route.dart`
 - `lib/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen.dart`

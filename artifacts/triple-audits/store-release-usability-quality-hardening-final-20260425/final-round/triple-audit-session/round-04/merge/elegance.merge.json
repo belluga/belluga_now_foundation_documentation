@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-04/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "round-04-elegance-clean-code"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "regresses",
+    "operational_fit": "regresses"
+  },
+  "recommended_paths": [
+    "Block finalization until all required untracked files are intentionally tracked or explicitly removed, regenerate the bounded package from a clean tracked state, and rerun the release-gating validation. After that, tighten the Flutter taxonomy batch dependency so capability requirements are explicit instead of discovered through runtime casts."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-159C1A92",
+      "severity": "high",
+      "title": "Release package relies on untracked required files",
+      "rationale": "The current working tree contains untracked files that are required by tracked code and by the stated validation flow. For example, EventQueryService constructs EventManagementOccurrenceQuery, EventContentHtmlSanitizer imports Belluga\\RichText\\SafeRichTextHtmlSanitizer, account-profile requests use ValidatesAccountProfileRichText, and run_web_navigation_smoke.sh invokes web_navigation_shards.cjs plus navigation_mutation_shards.json. These files are untracked, so the package's suggested git diff commands omit them. A promotion or review based on tracked diffs can therefore pass locally but fail after checkout, CI, or release packaging.",
+      "suggested_action": "Before closing the audit, make the repository state promotable: intentionally track the required new source, migration, package, and harness files or remove their references. Then regenerate the bounded package using status output that includes untracked files, not only git diff against dev.",
+      "reviewer_labels": [
+        "round-04-elegance-clean-code"
+      ],
+      "source_finding_ids": [
+        "R04-ELEGANCE-001"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-9FFC8D9D",
+      "severity": "medium",
+      "title": "Flutter taxonomy batch capability is hidden behind runtime casts",
+      "rationale": "The discovery-filter catalog repository and tenant-admin events controller both accept a TenantAdminTaxonomiesRepositoryContract, then check and cast it to TenantAdminTaxonomiesBatchTermsRepositoryContract at runtime. That is a mixed contract pattern: the analyzer and DI registration permit a repository that satisfies the declared dependency but fails the actual behavior path. It also duplicates the same defensive cast in multiple orchestration layers, making the batch-term capability harder to reason about and easier to break in tests or alternate repository implementations.",
+      "suggested_action": "Make the batch taxonomy dependency explicit at the constructor/module boundary, or fold the batch method into the canonical taxonomy repository contract if it is now required behavior. Reuse one taxonomy batch-loading collaborator instead of duplicating runtime capability checks in both repository and controller code.",
+      "reviewer_labels": [
+        "round-04-elegance-clean-code"
+      ],
+      "source_finding_ids": [
+        "R04-ELEGANCE-002"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

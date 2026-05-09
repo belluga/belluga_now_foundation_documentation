@@ -23,7 +23,7 @@
 ## No-Context Handoff Boundaries
 
 - **Frozen here:** Android-first sequencing, anonymous-web promotion/read-only posture, anonymous-app baseline, QR-only authenticated web, OTP-only authenticated app, canonical `/open-app` ownership, canonical deferred resolver ownership, route-intent preservation rule, and telemetry semantics already approved elsewhere must not be reopened here.
-- **Not owned here:** Android release closure remains in `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`. QR-authenticated web remains in `foundation_documentation/todos/active/fast_follow_required/TODO-qr-login-web-auth.md`. Any broader participation/check-in semantics remain outside this TODO.
+- **Not owned here:** Android release closure remains in `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`. QR-authenticated web remains in `foundation_documentation/todos/active/fast_follow_required/TODO-qr-login-web-auth.md`. iOS push/App Store readiness remains in `foundation_documentation/todos/active/fast_follow_required/TODO-ios-push-and-app-store-review-readiness.md`. Any broader participation/check-in semantics remain outside this TODO.
 - **Executor rule:** treat this TODO as an iOS implementation/validation packet, not as a place to redesign shared web-to-app policy or shared deep-link contracts. If execution discovers a necessary shared-contract change, update the canonical policy/contracts in the same change set and record that propagation explicitly instead of silently redefining them here.
 
 ## Decision Baseline (Frozen 2026-04-18)
@@ -41,7 +41,7 @@
 - `foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-obligatory.md`
 - `foundation_documentation/todos/completed/TODO-v1-invite-deeplink-identity-first-delivery.md`
 - `foundation_documentation/todos/completed/TODO-v1-deeplink-host-resolved-well-known.md`
-- `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
+- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-qr-login-web-auth.md`
 - `foundation_documentation/endpoints_mvp_contracts.md`
 - `laravel-app/app/Application/Branding/DeepLinkAssociationService.php`
@@ -51,15 +51,15 @@
 
 ## Dependencies & Sequencing
 
-- [ ] `DEP-01` `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` remains the upstream authority for the Android-first baseline and shared web-to-app contracts. This TODO specializes that baseline for iOS and must not diverge from it.
+- [ ] `DEP-01` `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` remains the upstream authority for the Android-first baseline and shared web-to-app contracts. This TODO specializes that baseline for iOS and must not diverge from it.
 - [x] `DEP-02` `foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-obligatory.md` already freezes this lane as mandatory fast-follow rather than optional backlog.
 - [x] `DEP-03` `foundation_documentation/todos/active/fast_follow_required/TODO-qr-login-web-auth.md` is a sibling fast-follow lane, not a blocker for iOS Universal Links / deferred-capture delivery.
 
 ## Scope
-- Validate installed-app iOS Universal Link open behavior for `https://guarappari.belluga.space/invite?...`.
+- Validate installed-app iOS Universal Link open behavior for the Guarappari production hosts (`https://guarappari.com.br/invite?...` and `https://guarappari.booraagora.com.br/invite?...`).
 - Validate browser fallback behavior when app is not installed.
 - Implement and validate iOS deferred deep-link capture strategy under the fixed package+Flutter contract for first-open attribution continuity.
-- Validate `/.well-known/apple-app-site-association` returns canonical non-empty `applinks.details` payload for guarappari.
+- Validate `/.well-known/apple-app-site-association` returns canonical non-empty `applinks.details` payload for the Guarappari production hosts.
 - Record durable evidence artifacts and close iOS-deferred MVP checklist items.
 
 ## Out of Scope

@@ -1,0 +1,23 @@
+## orchestrator/store-release-usability-wave...origin/orchestrator/store-release-usability-wave
+ M lib/application/router/modular_app/module_settings.dart
+A  lib/application/tenant_admin/discovery_filters/tenant_admin_discovery_filter_rule_catalog_builder.dart
+A  lib/application/tenant_admin/discovery_filters/tenant_admin_taxonomy_terms_by_slug.dart
+A  lib/application/tenant_admin/settings/tenant_admin_legacy_map_filter_canonicalizer.dart
+A  lib/domain/repositories/tenant_admin_discovery_filter_rule_catalog_repository_contract.dart
+ M lib/infrastructure/dal/dao/tenant_admin/tenant_admin_settings_response_decoder.dart
+AM lib/infrastructure/repositories/tenant_admin/tenant_admin_discovery_filter_rule_catalog_repository.dart
+ M lib/infrastructure/repositories/tenant_admin/tenant_admin_taxonomies_repository.dart
+ M lib/presentation/tenant_admin/discovery_filters/controllers/tenant_admin_discovery_filters_controller.dart
+ M lib/presentation/tenant_admin/discovery_filters/models/tenant_admin_discovery_filters_settings.dart
+A  lib/presentation/tenant_admin/events/controllers/tenant_admin_event_occurrence_editor_draft.dart
+A  lib/presentation/tenant_admin/events/controllers/tenant_admin_event_programming_item_draft.dart
+ M lib/presentation/tenant_admin/events/screens/tenant_admin_event_form_screen.dart
+A  lib/presentation/tenant_admin/events/widgets/tenant_admin_event_occurrence_editor_sheet.dart
+ M lib/presentation/tenant_public/discovery/controllers/discovery_screen_controller.dart
+ M lib/presentation/tenant_public/home/screens/tenant_home_screen/widgets/agenda_section/controllers/tenant_home_agenda_controller.dart
+ M packages/belluga_discovery_filters/lib/src/discovery_filter_catalog.dart
+ M packages/belluga_discovery_filters/lib/src/discovery_filter_selection_repair.dart
+ M packages/belluga_discovery_filters/lib/src/discovery_filter_taxonomy_group_option.dart
+ M packages/belluga_discovery_filters/test/discovery_filter_core_test.dart
+ M test/infrastructure/repositories/tenant_admin_taxonomies_repository_test.dart
+ M test/presentation/tenant_admin/settings/tenant_admin_settings_screen_test.dart

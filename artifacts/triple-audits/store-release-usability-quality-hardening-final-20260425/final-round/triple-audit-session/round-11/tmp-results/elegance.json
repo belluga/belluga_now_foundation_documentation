@@ -1,0 +1,45 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-11/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "elegance",
+  "overall_assessment": "The current diff is largely directionally sound, but two structural seams remain below the quality bar for a final elegance lane: the canonical discovery-filter UI is still coupled to legacy map/settings concepts, and one public discovery controller bypasses the guarded state-write pattern introduced by the shared mixin.",
+  "recommended_path": "needs_resolution",
+  "performance_position": "acceptable",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "acceptable",
+  "findings": [
+    {
+      "finding_id": "R11-ELEGANCE-001",
+      "severity": "medium",
+      "title": "Canonical discovery-filter row still depends on legacy map/settings types",
+      "rationale": "TenantAdminFilterCatalogRow lives under the discovery_filters presentation surface and is used by the new canonical discovery-filter editor, but it imports tenant_admin_settings.dart and accepts TenantAdminMapFilterMarkerOverride directly. TenantAdminDiscoveryFilterSurfaceScreen also adapts discovery-filter catalog items into TenantAdminMapFilterCatalogItem only to call the map-filter visual sheet. This removes row-rendering duplication, but it preserves an inverted dependency from the canonical discovery-filter surface back into legacy map/settings concepts, making the new abstraction less reusable and keeping map-specific language in the generic filter-editing path.",
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "flutter-app/lib/presentation/tenant_admin/discovery_filters/widgets/tenant_admin_filter_catalog_row.dart",
+        "flutter-app/lib/presentation/tenant_admin/discovery_filters/screens/tenant_admin_discovery_filter_surface_screen.dart",
+        "flutter-app/lib/presentation/tenant_admin/settings/widgets/tenant_admin_settings_local_preferences_section.dart"
+      ],
+      "suggested_action": "Move the shared row/visual editor contract to a neutral tenant-admin filter visual component or introduce a discovery-filter visual value object that both the legacy map settings surface and canonical discovery-filter surface can adapt to, so discovery_filters no longer imports settings/map-specific aggregate types."
+    },
+    {
+      "finding_id": "R11-ELEGANCE-002",
+      "severity": "medium",
+      "title": "DiscoveryScreenController bypasses the mixin's disposed-state write guard after async restore",
+      "rationale": "PublicDiscoveryFilterControllerMixin establishes writePublicDiscoveryFilterState to prevent writes after disposal, and TenantHomeAgendaController uses its own alive guard when restoring persisted filter selection. DiscoveryScreenController.init awaits loadPersistedPublicDiscoveryFilterSelection and then writes directly to discoveryFilterSelectionStreamValue. If the controller is disposed during that await, the restored-selection write can target a disposed StreamValue. The inconsistency weakens the shared mixin pattern and leaves one of the two consumers with a lifecycle race.",
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "flutter-app/lib/presentation/tenant_public/discovery/controllers/discovery_screen_controller.dart",
+        "flutter-app/lib/presentation/shared/discovery_filters/public_discovery_filter_controller_mixin.dart",
+        "flutter-app/lib/presentation/tenant_public/home/screens/tenant_home_screen/widgets/agenda_section/controllers/tenant_home_agenda_controller.dart"
+      ],
+      "suggested_action": "Route all discovery-filter StreamValue mutations through writePublicDiscoveryFilterState or an equivalent controller-level alive guard, especially after awaits in init/restore paths, and keep both mixin consumers on the same lifecycle discipline."
+    }
+  ]
+}

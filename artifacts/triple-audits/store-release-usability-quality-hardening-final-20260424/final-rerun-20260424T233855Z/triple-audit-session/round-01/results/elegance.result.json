@@ -1,0 +1,55 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260424/final-rerun-20260424T233855Z/triple-audit-session/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "elegance",
+  "overall_assessment": "Mixed. The bounded package moves in the right direction with dedicated drafts, repository contracts, capped catalog loading, and clearer event/taxonomy boundaries, but there are still localized structural issues that can preserve stale user state or mislead future maintainers.",
+  "recommended_path": "Resolve the two medium findings before treating the final quality-hardening pass as clean. The dead backend branch can be removed in the same cleanup. The ADB blocker remains visible package risk, but the available bounded evidence is sufficient for this elegance-focused conclusion.",
+  "performance_position": "acceptable",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "ELEGANCE-001",
+      "severity": "medium",
+      "title": "Selection repair preserves stale taxonomy terms for known empty catalogs",
+      "rationale": "DiscoveryFilterSelectionRepair treats an allowed taxonomy with termOptions.terms.isEmpty the same as an unknown or explicitly truncated catalog by setting allowedTerms to null. For a known taxonomy group returned with no terms and terms_truncated=false, stale persisted terms survive repair and DiscoveryFilterQueryPayload.compile will still send them to the backend, producing confusing empty results instead of self-healing the selection.",
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "packages/belluga_discovery_filters/lib/src/discovery_filter_selection_repair.dart",
+        "packages/belluga_discovery_filters/lib/src/discovery_filter_query_payload.dart"
+      ],
+      "suggested_action": "Only preserve unknown selected terms when the taxonomy option is absent or termsTruncated is true. If a taxonomy option exists, is not truncated, and has an empty terms list, drop all selected terms for that taxonomy and add a focused test for the empty-untruncated case."
+    },
+    {
+      "finding_id": "ELEGANCE-002",
+      "severity": "medium",
+      "title": "Cached taxonomy-term transitions can be overwritten by older async loads",
+      "rationale": "TenantAdminEventsController increments _taxonomyTermsLoadSerial only when it starts a new batch request. Transitions to an empty allowed-taxonomy set or to a fully cached taxonomy set publish new stream state without invalidating an already in-flight request. That older request can then complete with the same serial and overwrite taxonomyTermsBySlugStreamValue with terms for a previously selected event type.",
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "paced",
+      "affected_paths": [
+        "lib/presentation/tenant_admin/events/controllers/tenant_admin_events_controller.dart"
+      ],
+      "suggested_action": "Invalidate in-flight loads for every selected-type cache-key transition, including empty and cache-hit paths, or compare the active cache key again immediately before publishing fetched terms. Add a controller test that switches event type while a previous taxonomy batch load is unresolved."
+    },
+    {
+      "finding_id": "ELEGANCE-003",
+      "severity": "low",
+      "title": "Unused occurrence-location override branch contradicts the accepted contract",
+      "rationale": "EventManagementService still defines resolveOccurrenceLocationOverride even though occurrence location and place_ref are explicitly rejected in normalizeOccurrences and the sync service hardcodes has_location_override=false. Keeping the unused method leaves a false architectural seam in the core write path and makes the contract harder to reason about.",
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "packages/belluga/belluga_events/src/Application/Events/EventManagementService.php"
+      ],
+      "suggested_action": "Remove the unused private method and the now-unused rootPayload parameter plumbing unless occurrence-level location overrides are intentionally reintroduced through validation, normalization, sync, and tests as a coherent contract."
+    }
+  ]
+}

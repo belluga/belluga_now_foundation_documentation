@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/store-release-wave2-invite-occurrence-contact-presence-audit-20260429/triple-audit/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "elegance-structural-soundness"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "regresses",
+    "structural_soundness": "regresses",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Resolve occurrence identity as required across backend/feed/Flutter DTOs, require account-profile recipient identity for authenticated share materialization, and move invite transport payload construction to typed DAL request objects."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-08CB8EF8",
+      "severity": "high",
+      "title": "Invite target pipeline still accepted nullable occurrence and event-level fallback",
+      "rationale": "Round 01 still allowed nullable occurrence IDs in Laravel feed projection and Flutter invite DTO/result decoding, leaving event-scoped grouping fallbacks in the launch path.",
+      "suggested_action": "Make occurrence identity required/non-empty in projection rebuild, feed payloads, DTOs, result models, decoder tests, and payload handling. Remove event group fallback.",
+      "reviewer_labels": [
+        "elegance-structural-soundness"
+      ],
+      "source_finding_ids": [
+        "ELEG-01"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-41DD191C",
+      "severity": "high",
+      "title": "Flutter invite repository still owned raw transport payload maps",
+      "rationale": "Round 01 built share, direct invite, and contact import raw maps in the repository while the backend contract accepted Map payloads, bypassing the DAL/request boundary.",
+      "suggested_action": "Introduce typed DAL/backend request DTOs and assemble raw target_ref, recipient, and contact maps only at the backend adapter boundary.",
+      "reviewer_labels": [
+        "elegance-structural-soundness"
+      ],
+      "source_finding_ids": [
+        "ELEG-03"
+      ],
+      "category": "architecture",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "repository_raw_payload_map_forbidden"
+    },
+    {
+      "finding_id": "F-35D17CEE",
+      "severity": "high",
+      "title": "Authenticated share materialization still fell back to receiver_user_id identity",
+      "rationale": "Round 01 share materialization could persist and query authenticated receiver edges without receiver_account_profile_id, preserving two recipient identity models.",
+      "suggested_action": "Require or bootstrap a personal Account Profile for authenticated share materialization and use receiver_account_profile_id for persistence/query ownership. Keep receiver_user_id only as internal actor/audit metadata.",
+      "reviewer_labels": [
+        "elegance-structural-soundness"
+      ],
+      "source_finding_ids": [
+        "ELEG-02"
+      ],
+      "category": "adherence",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

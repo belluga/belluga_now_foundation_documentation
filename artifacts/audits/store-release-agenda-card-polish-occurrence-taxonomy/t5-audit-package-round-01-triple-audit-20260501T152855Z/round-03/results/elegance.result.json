@@ -1,0 +1,31 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-03/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "elegance",
+  "overall_assessment": "Blocking. The round resolves the direct reorder case, but the canonical occurrence identity path still falls back to occurrence_index for unidentified incoming rows. That old path can consume an existing occurrence document when a new occurrence is inserted before or between existing occurrences, causing the new occurrence to be lost and the same existing document to be resolved for multiple payload rows.",
+  "recommended_path": "Do not close the audit gate yet. Remove or narrowly gate index-based existing-document resolution for occurrence update payload rows that lack occurrence_id or occurrence_slug, and add a regression proving insertion of a new unidentified occurrence before existing identified occurrences creates a new EventOccurrence while preserving all existing occurrence identities and owned payloads.",
+  "performance_position": "acceptable",
+  "elegance_position": "regresses",
+  "structural_soundness_position": "regresses",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "ELEGANCE-R03-001",
+      "severity": "high",
+      "title": "Index fallback can still overwrite existing occurrences when inserting new rows",
+      "rationale": "EventOccurrenceSyncService resolves every incoming row by occurrence_id/id, then occurrence_slug, then unconditionally by occurrence_index. Flutter only sends occurrence_id/occurrence_slug when an occurrence already has identity, so a newly inserted occurrence has no identity. If a user inserts that new row ahead of existing rows, the new row can resolve the existing document at that index, while the later identified row can resolve the same document again. The later save wins, the new occurrence is not created, and the claimed canonical identity model still has an index-based remnant with correctness risk. EventManagementService has the same index fallback when preserving omitted occurrence-owned fields, so the old path remains duplicated across normalization and persistence.",
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "event-occurrence-updates-must-not-bind-unidentified-new-rows-to-existing-documents-by-index",
+      "affected_paths": [
+        "laravel-app/packages/belluga/belluga_events/src/Application/Events/EventOccurrenceSyncService.php:149",
+        "laravel-app/packages/belluga/belluga_events/src/Application/Events/EventManagementService.php:359",
+        "flutter-app/lib/infrastructure/dal/dao/tenant_admin/tenant_admin_events_request_encoder.dart:132"
+      ],
+      "suggested_action": "Treat occurrence_id or occurrence_slug as the only existing-document identity for update rows that carry identity-capable payloads; create a new document when both are absent instead of matching by index. If legacy index fallback must remain, isolate it behind an explicit legacy/no-identity compatibility branch that cannot run for mixed identified and unidentified update payloads. Add a Laravel regression for inserting a new occurrence before existing identified occurrences and assert the final document count, ids, slugs, order, and owned payloads."
+    }
+  ]
+}

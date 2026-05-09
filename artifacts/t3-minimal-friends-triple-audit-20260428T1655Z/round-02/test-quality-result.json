@@ -1,0 +1,46 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/t3-minimal-friends-triple-audit-20260428T1655Z/round-02/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "reviewer_label": "test-quality-round-02",
+  "overall_assessment": "Non-clean. The added T3 tests cover several round-01 gaps, but the backend invite identity migration is not proven at the account-profile acceptance/share-materialization boundary, and existing validation still codifies receiver_user_id behavior for canonical invite lifecycle paths.",
+  "recommended_path": "needs_resolution: add account-profile keyed backend feature coverage for direct invite acceptance, duplicate/supersession, direct-confirmation supersession, and share materialization/acceptance before treating the non-ADB gate as clean.",
+  "performance_position": "acceptable",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "TQ-R02-001",
+      "severity": "high",
+      "title": "Canonical account-profile recipient lifecycle is not tested beyond direct invite creation",
+      "rationale": "The release contract requires direct invite contracts, persisted invite state, and share materialization/acceptance to use receiver_account_profile_id as the canonical recipient identity. Round-02 evidence adds StoreReleaseSocialGraphTest coverage for direct invite creation at lines 357-381, but the broader validated InvitesFlowTest acceptance/share cases still send and assert receiver_user_id, for example acceptance/supersession at lines 162-205 and share materialization at lines 610-668. The changed InviteMutationService paths that choose winners and supersede candidates still query by receiver_user_id at lines 260-265 and 688-700. This leaves the critical backend contract semantics unproven and lets legacy user-keyed behavior continue passing while the release contract can regress for account-profile recipients.",
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/tests/Feature/Invites/StoreReleaseSocialGraphTest.php",
+        "laravel-app/tests/Feature/Invites/InvitesFlowTest.php",
+        "laravel-app/packages/belluga/belluga_invites/src/Application/Mutations/InviteMutationService.php",
+        "foundation_documentation/modules/invite_and_social_loop_module.md"
+      ],
+      "suggested_action": "Add failing backend feature tests that create invites with receiver_account_profile_id and then verify accept, duplicate candidate supersession, direct-confirmation supersession, idempotency replay, share materialization, and share acceptance are keyed by the canonical account-profile recipient. Update implementation only after those tests fail on the legacy receiver_user_id path."
+    },
+    {
+      "finding_id": "TQ-R02-002",
+      "severity": "medium",
+      "title": "Flutter group-management tests prove calls, not final visible CRUD state",
+      "rationale": "The dedicated group surface is required to support create, rename, delete, and membership editing. The widget test only exercises creation from the screen at contact_group_management_screen_test.dart lines 20-41. The controller test invokes create, rename, member update, and delete at lines 29-46, but its fake repository records method arguments without mutating returned group state, so it would still pass if the user-visible list never reflected rename/delete/member changes after refresh. This is weaker than the CRUD/mutation-flow evidence expected for the final management surface, though backend privacy and mutation behavior have stronger feature coverage.",
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "flutter-app/test/presentation/tenant/invites/screens/contact_group_management/controllers/contact_group_management_controller_test.dart",
+        "flutter-app/test/presentation/tenant/invites/screens/contact_group_management/contact_group_management_screen_test.dart",
+        "flutter-app/lib/presentation/tenant_public/invites/screens/contact_group_management/contact_group_management_screen.dart"
+      ],
+      "suggested_action": "Extend the Flutter group-management tests with a stateful fake repository and widget/controller assertions for rename, member replacement, delete removal, and refresh-visible membership pruning so the tests fail if the dedicated screen only dispatches repository calls without updating the rendered management state."
+    }
+  ]
+}

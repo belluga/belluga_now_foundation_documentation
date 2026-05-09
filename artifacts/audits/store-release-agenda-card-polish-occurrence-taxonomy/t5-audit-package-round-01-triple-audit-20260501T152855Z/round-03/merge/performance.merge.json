@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-03/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "performance"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "regresses",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Do not close the performance lane yet. Push occurrence_ids into the earliest possible backend predicate, including the $geoNear query when geo is active and the initial $match/search path when geo is inactive, then add regression evidence for occurrence_ids combined with origin_lat/origin_lng and with search."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-070B9EB2",
+      "severity": "high",
+      "title": "Pending occurrence-id agenda queries still run broad geo/search work before exact id filtering",
+      "rationale": "Flutter pending-only EventSearch derives pending occurrence ids and passes them to /agenda, but it also passes origin/radius for the normal search surface. In EventQueryService, buildAgendaPipeline adds occurrence_ids only after $geoNear/search/taxonomy stages, and buildStreamPipeline does the same for the realtime stream. That means the common pending-only path can still scan all published geolocated occurrences in radius, or all regex search matches, before narrowing to the small occurrence id set. The Laravel regression only covers occurrence_ids without geo params, so it does not prove the actual EventSearch path is bounded by the id predicate.",
+      "suggested_action": "Fold occurrence_ids into the earliest backend predicate: add _id $in candidates to $geoNear.query when geo is active, and to the initial non-geo $match when geo is inactive. Keep the later match only if needed as a defensive duplicate. Add focused tests for /agenda?occurrence_ids[] combined with origin_lat/origin_lng and for search plus occurrence_ids, and cover the stream pipeline if that path remains active for pending-only EventSearch.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PERF-R03-001"
+      ],
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

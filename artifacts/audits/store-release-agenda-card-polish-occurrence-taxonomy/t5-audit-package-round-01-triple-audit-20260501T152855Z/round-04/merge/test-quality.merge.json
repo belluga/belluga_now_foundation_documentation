@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-04/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality-audit-round-04"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Add focused regression assertions before closing the audit gate: assert all occurrence_slug values remain unique after inserting an unidentified occurrence before identified rows, and add no-geo stream occurrence_ids coverage through the pipeline helper and preferably the /events/stream endpoint."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-C40DD8F9",
+      "severity": "high",
+      "title": "occurrence_ids stream filtering lacks no-geo backend evidence",
+      "rationale": "The pipeline regression test at tests/Feature/Events/AgendaAndEventsControllerTest.php:826-873 covers geo agenda, search agenda, and geo stream, but it does not assert the non-geo stream initial $match. Existing stream endpoint tests at lines 982-1127 do not exercise occurrence_ids at all. Since EventStreamRequest inherits AgendaIndexRequest, occurrence_ids is part of the stream contract, and a non-geo stream regression could escape the current focused suite.",
+      "suggested_action": "Add a non-geo buildStreamPipelineForTest assertion that the first $match contains the requested _id $in predicate, and add or extend an /events/stream?occurrence_ids[]=... feature test to prove unrelated occurrence deltas are excluded.",
+      "reviewer_labels": [
+        "test-quality-audit-round-04"
+      ],
+      "source_finding_ids": [
+        "TQ-R04-002"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-2192214A",
+      "severity": "high",
+      "title": "Inserted-occurrence slug uniqueness is not covered by the regression test",
+      "rationale": "The round package says the round-03 fix includes avoiding existing or claimed occurrence slugs when a new unidentified occurrence is inserted before existing occurrences. The regression test at tests/Feature/Events/EventCrudControllerTest.php:1744 checks that the inserted document is new and that existing identity rows keep their payloads, but its assertions at lines 1829-1840 never compare occurrence_slug values. A regression that reuses the old index-derived slug while preserving ids and payloads could still pass this test if no database unique index catches it.",
+      "suggested_action": "Extend test_event_update_inserting_unidentified_occurrence_preserves_existing_identity_rows to assert that insertedOccurrence, freshFirst, and freshSecond have three distinct occurrence_slug values, and ideally verify public slug alias selection still resolves the intended occurrence.",
+      "reviewer_labels": [
+        "test-quality-audit-round-04"
+      ],
+      "source_finding_ids": [
+        "TQ-R04-001"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

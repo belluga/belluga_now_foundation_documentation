@@ -1,0 +1,46 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/store-release-agenda-card-polish-occurrence-taxonomy/t5-audit-package-round-01-triple-audit-20260501T152855Z/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "Elegance Auditor",
+  "overall_assessment": "The package direction is acceptable, but two structural issues must be fixed before delivery: web framing must exempt only map routes, and occurrence update semantics must not clear omitted owned occurrence fields.",
+  "recommended_path": "Resolve high findings before delivery.",
+  "performance_position": "acceptable",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "acceptable",
+  "findings": [
+    {
+      "finding_id": "ELEGANCE-T5-001",
+      "severity": "high",
+      "title": "Map full-width exception is implemented as an incomplete positive allowlist",
+      "rationale": "Only removing map routes from the framed route allowlist leaves other current tenant-public routes accidentally full width. The requirement is to remove web max width only for the map screen route family.",
+      "category": "elegance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "tenant-public-web-frame-map-only-exemption",
+      "affected_paths": [
+        "flutter-app/lib/presentation/shared/widgets/tenant_public_web_desktop_frame.dart",
+        "flutter-app/test/presentation/shared/widgets/tenant_public_web_desktop_frame_test.dart"
+      ],
+      "suggested_action": "Make CityMapRoute and PoiDetailsRoute explicit full-width exemptions and prove other tenant-public routes such as privacy policy and contact group management remain framed."
+    },
+    {
+      "finding_id": "ELEGANCE-T5-002",
+      "severity": "high",
+      "title": "Occurrence-owned update semantics clear omitted fields",
+      "rationale": "The backend normalizer treats omitted occurrence event_parties, taxonomy_terms, and programming_items as empty arrays. Flutter can omit these keys, causing unrelated date edits to lose occurrence profiles, taxonomy overrides, and programming items.",
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "occurrence-omitted-fields-preserve-explicit-empty-clears",
+      "affected_paths": [
+        "laravel-app/packages/belluga/belluga_events/src/Application/Events/EventManagementService.php",
+        "laravel-app/packages/belluga/belluga_events/src/Application/Events/EventOccurrencePayloadSnapshotService.php",
+        "flutter-app/lib/infrastructure/dal/dao/tenant_admin/tenant_admin_events_request_encoder.dart"
+      ],
+      "suggested_action": "Preserve omitted owned occurrence fields on update, reserve explicit empty arrays for clearing, include occurrence identity in update payloads, and add backend and encoder tests."
+    }
+  ]
+}

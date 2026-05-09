@@ -1,0 +1,61 @@
+{
+  "findings": [
+    {
+      "finding_id": "ELEG-RR-AUTH-04-001",
+      "severity": "high",
+      "title": "Password reset token consumption is not actually single-use under concurrent submits",
+      "rationale": "PasswordResetTokenService::consumeForUser() performs read, hash/expiry validation, and delete as separate steps against the same record. Two concurrent reset submissions carrying the same token can both read the row before either delete executes, so both requests can pass validation and continue. That contradicts the package's hardened single-use claim and leaves the most security-sensitive part of the slice structurally race-prone.",
+      "category": "security",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "affected_paths": [
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Application/Auth/PasswordResetTokenService.php",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/tests/Unit/Application/Auth/PasswordResetTokenServiceTest.php",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/active/post_release_hardening/TODO-post-release-public-auth-password-reset-and-risk-matrix-hardening.md"
+      ],
+      "suggested_action": "Close the concurrency gap at the token-consumption contract boundary and add proof that a duplicate reset submit cannot succeed once one consumer wins."
+    },
+    {
+      "finding_id": "ELEG-RR-AUTH-04-002",
+      "severity": "high",
+      "title": "The resolver still leaves a global password-enable path that bypasses the explicit tenant-subset rule",
+      "rationale": "RR-AUTH-04 freezes OTP-first public auth unless password is explicitly enabled for a tenant subset, but TenantPublicAuthMethodResolver::resolveEffectiveMethods() returns landlord available_methods unchanged whenever allow_tenant_customization is false, and the current unit test locks that behavior in. A landlord configuration of ['password', 'phone_otp'] plus allow_tenant_customization=false therefore enables password across all tenants without any tenant-level opt-in, which is a direct policy contradiction rather than a harmless configuration nuance.",
+      "category": "adherence",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Application/Auth/TenantPublicAuthMethodResolver.php",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Integration/Settings/TenantPublicAuthMethodPatchGuard.php",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/tests/Unit/Application/Auth/TenantPublicAuthMethodResolverTest.php",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/active/post_release_hardening/TODO-post-release-public-auth-password-reset-and-risk-matrix-hardening.md"
+      ],
+      "suggested_action": "Align resolver and settings-governance semantics with the frozen OTP-first rule so disabling customization cannot become an alternate global password-enable path."
+    },
+    {
+      "finding_id": "ELEG-RR-AUTH-04-003",
+      "severity": "medium",
+      "title": "Legacy reset-token schema surfaces still contradict the shared hardened token model",
+      "rationale": "The runtime now hard-codes password reset token storage to the landlord connection and writes token_hash plus expiry metadata, but both landlord and tenant bootstrap migrations still define a password_reset_tokens collection around a legacy token index. That leaves duplicate and obsolete reset-token surfaces in the architecture, which is exactly the kind of old/new path drift the elegance lane is supposed to catch before it calcifies.",
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/app/Application/Auth/PasswordResetTokenService.php",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/database/migrations/landlord/0001_01_01_000000_create_landlord_users_table.php",
+        "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app/database/migrations/tenants/0001_01_01_000000_create_users_table.php"
+      ],
+      "suggested_action": "Canonicalize one authoritative reset-token storage model and retire the legacy collection or index surfaces that no longer match the hardened lifecycle."
+    }
+  ],
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-public-auth-password-reset-risk-hardening-package-triple-audit-20260508T002436Z/round-01/dispatch/elegance.dispatch.md",
+  "review_kind": "critique",
+  "reviewer_label": "round-01-elegance-reviewer",
+  "overall_assessment": "RR-AUTH-04 clearly improves the baseline, but it is not elegance-clean yet: one blocking token-lifecycle race and one blocking policy contradiction remain, and the reset-token storage model still carries legacy structural drift.",
+  "recommended_path": "needs_resolution: resolve the blocking token-consumption and auth-governance contradictions first, then normalize the leftover reset-token schema drift before treating this lane as clean.",
+  "performance_position": "acceptable",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed"
+}

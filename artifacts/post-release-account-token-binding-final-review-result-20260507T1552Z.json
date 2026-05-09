@@ -1,0 +1,61 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-account-token-binding-final-review-dispatch-20260507T1552Z.json",
+  "review_kind": "final_review",
+  "reviewer_label": "codex-independent-final-review",
+  "overall_assessment": "Post-correction implementation is directionally aligned with account-bound bearer token semantics, and I did not find a direct performance regression in the bounded code. The package is not closure-clean because required verification debt remains open and issuer fail-close is only proven for the service path, not structurally guarded against direct unbound token creation.",
+  "recommended_path": "Do not proceed to triple audit or Claude comparison yet. Resolve or approval-waive the open verification debts, and add objective issuer-discipline evidence or a guard before treating RR-AUTH-03 as audit-floor clean.",
+  "performance_position": "acceptable",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "FR-RR-AUTH-03-POST-001",
+      "severity": "high",
+      "title": "Legacy combined auth/middleware verification debt remains open",
+      "rationale": "The dispatch package and TODO still record the legacy combined account API auth/middleware batch as blocked, with no narrower equivalent execution and no approval-authority waiver. Because this slice hardens the account middleware and token authorization boundary, leaving that lane unresolved is a closure blocker under the package's own gate language.",
+      "category": "residual_risk",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "RR-AUTH-03-VDA-002",
+      "affected_paths": [
+        "foundation_documentation/artifacts/post-release-account-token-binding-hardening-package.md",
+        "foundation_documentation/todos/active/post_release_hardening/TODO-post-release-account-scoped-token-ability-binding.md"
+      ],
+      "suggested_action": "Repair and run the legacy batch, execute a documented narrower equivalent that covers the account auth/middleware boundary, or record an approval-authority waiver before proceeding."
+    },
+    {
+      "finding_id": "FR-RR-AUTH-03-POST-002",
+      "severity": "medium",
+      "title": "Full-suite evidence is not attributable to a clean bounded RR-AUTH-03 state",
+      "rationale": "The recorded Laravel CI-equivalent suite passed, but the package explicitly says it included unrelated RR-AUTH-01 dirty-tree changes. That validates an integrated local state, not a clean bounded RR-AUTH-03 baseline, and the TODO still carries this as open verification debt.",
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "RR-AUTH-03-VDA-005",
+      "affected_paths": [
+        "foundation_documentation/artifacts/post-release-account-token-binding-hardening-package.md",
+        "foundation_documentation/todos/active/post_release_hardening/TODO-post-release-account-scoped-token-ability-binding.md"
+      ],
+      "suggested_action": "Rerun the full suite on a clean bounded baseline, explicitly accept the integrated dirty-tree baseline, or record a waiver before final closure."
+    },
+    {
+      "finding_id": "FR-RR-AUTH-03-POST-003",
+      "severity": "medium",
+      "title": "Issuer fail-close is service-local but not structurally enforced",
+      "rationale": "TenantScopedAccessTokenService now fails closed for account-scoped abilities, but the bounded tests still demonstrate that AccountUser::createToken can mint an unbound bearer token with account-scoped abilities. Route middleware rejects that token on account routes, but the replacement rule also claims unbound reusable account-workspace bearer tokens are not valid output. The package does not provide a static guard or proof that production issuance cannot bypass the service.",
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "account-token-issuer-service-only",
+      "affected_paths": [
+        "laravel-app/app/Application/Auth/TenantScopedAccessTokenService.php",
+        "laravel-app/app/Models/Tenants/AccountUser.php",
+        "laravel-app/tests/Feature/Push/PushMessageFlowTest.php"
+      ],
+      "suggested_action": "Add objective evidence or an architecture guard that account-scoped account-user token issuance uses TenantScopedAccessTokenService outside tests, or move the fail-closed check behind a model-level issuance wrapper that direct callers cannot bypass silently."
+    }
+  ]
+}

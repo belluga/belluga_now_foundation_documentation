@@ -1,0 +1,43 @@
+# PACED Subagent Review Merge: test_quality_audit
+
+## Merge Identity
+- **Artifact kind:** `subagent_review_merge`
+- **Authoritative:** `false`
+- **Edit policy:** `derived_merge_packet`
+- **Dispatch path:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-07/dispatch/test-quality.dispatch.json`
+- **Review count:** `1`
+- **Highest finding severity:** `high`
+
+## Axis Summary
+- **Performance:** `acceptable`
+- **Elegance:** `acceptable`
+- **Structural soundness:** `regresses`
+- **Operational fit:** `regresses`
+
+## Recommended Paths
+- `needs_resolution: track the shared rich-text fixture in the Laravel repo, preferably with intent-to-add before audit recording and then commit it with the test changes; rerun the focused Laravel and Flutter rich-text tests from a clean tracked state.`
+
+## Merged Findings
+### F-28600293 [high] Cross-stack sanitizer fixture is required by changed tests but omitted from the tracked diff
+- **Reviewers:** test-quality-no-context-round-07
+- **Category:** `tests`
+- **Formalizable hint:** `yes`
+- **Candidate rule level:** `paced`
+- **Candidate rule id:** `n/a`
+- **Suggested action:** Add the fixture to tracked review state, e.g. `git -C laravel-app add -N tests/Fixtures/shared_rich_text/safe_rich_html_fixtures.json` for audit visibility and then commit it with the sanitizer tests. Re-run the focused Laravel `AccountProfileRichTextFidelityTest` and Flutter `safe_rich_html_test.dart` after confirming `git diff dev` includes the fixture contents.
+- **Rationale:** Laravel test `tests/Feature/AccountProfiles/AccountProfileRichTextFidelityTest.php` reads `tests/Fixtures/shared_rich_text/safe_rich_html_fixtures.json`, and Flutter test `test/application/rich_text/safe_rich_html_test.dart` reads the same fixture via `../laravel-app/...`. Local inspection shows `git status --short -- tests/Fixtures/shared_rich_text` returns `?? tests/Fixtures/shared_rich_text/`, while `git diff --name-only --diff-filter=A dev -- tests/Fixtures/shared_rich_text` returns nothing. The tests therefore depend on a local untracked file, so the package is not reproducible and the Round 06 parity resolution is not actually represented in the diff against dev.
+
+## Reviewer Summaries
+### test-quality-no-context-round-07
+- **Assessment:** Not clean. The changed test strategy adds meaningful cross-stack sanitizer parity assertions, and no direct skip/only/coordinate/force-click bypass was found, but the shared fixture that those assertions depend on is still untracked in laravel-app. That makes the diff/package non-reproducible and can produce false confidence from a local working tree file that would be absent in a clean checkout or CI review package.
+- **Recommended path:** `needs_resolution: track the shared rich-text fixture in the Laravel repo, preferably with intent-to-add before audit recording and then commit it with the test changes; rerun the focused Laravel and Flutter rich-text tests from a clean tracked state.`
+- **Performance:** `acceptable`
+- **Elegance:** `acceptable`
+- **Structural soundness:** `regresses`
+- **Operational fit:** `regresses`
+- **Findings:**
+  - [high] R07-TQ-01 Cross-stack sanitizer fixture is required by changed tests but omitted from the tracked diff: Laravel test `tests/Feature/AccountProfiles/AccountProfileRichTextFidelityTest.php` reads `tests/Fixtures/shared_rich_text/safe_rich_html_fixtures.json`, and Flutter test `test/application/rich_text/safe_rich_html_test.dart` reads the same fixture via `../laravel-app/...`. Local inspection shows `git status --short -- tests/Fixtures/shared_rich_text` returns `?? tests/Fixtures/shared_rich_text/`, while `git diff --name-only --diff-filter=A dev -- tests/Fixtures/shared_rich_text` returns nothing. The tests therefore depend on a local untracked file, so the package is not reproducible and the Round 06 parity resolution is not actually represented in the diff against dev.
+
+## Exact Next Step
+Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.
+

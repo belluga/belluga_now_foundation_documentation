@@ -122,7 +122,7 @@
 - [ ] ⚪ Map: `foundation_documentation/todos/completed/TODO-v1-map.md`
 - [ ] ⚪ Public Account Profile Discovery UI: `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
 - [ ] ⚪ Tenant/Admin area (MVP: Account + Account Profile creation): `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
-- [ ] ⚪ Web-to-app conversion gate: `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
+- [ ] ⚪ Web-to-app conversion gate: `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - [ ] ⚪ Telemetry + push: `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-and-push.md`
 - [ ] ⚪ UI/UX polish: `foundation_documentation/todos/completed/TODO-mvp-ui-polish.md`
 

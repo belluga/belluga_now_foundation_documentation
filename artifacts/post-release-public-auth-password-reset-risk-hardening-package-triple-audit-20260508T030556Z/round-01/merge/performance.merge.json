@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-public-auth-password-reset-risk-hardening-package-triple-audit-20260508T030556Z/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "RR-AUTH-04-triple-audit-performance"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "regresses",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Fix the cooldown semantics and user-scope alignment before another audit round, then decide whether the recovery-contract documentation gap should remain as non-blocking debt."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-4F783705",
+      "severity": "high",
+      "title": "Reset-issue cooldown is consumed before issuance success is known",
+      "rationale": "At review time the reset issue path acquired the cooldown before token issuance had definitively succeeded and did not reliably roll it back if issuance failed. That can create a false suppression window and force unnecessary retries under error conditions.",
+      "suggested_action": "Ensure cooldown acquisition is scoped to successful issuance or explicitly released on issuance failure.",
+      "reviewer_labels": [
+        "RR-AUTH-04-triple-audit-performance"
+      ],
+      "source_finding_ids": [
+        "PERF-01"
+      ],
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "reset-issue-cooldown-rollback-on-failure"
+    },
+    {
+      "finding_id": "F-DA6BE5B7",
+      "severity": "medium",
+      "title": "Cooldown suppression is email-scoped while token invalidation is user-scoped",
+      "rationale": "The reset lifecycle invalidates older tokens per user, but the cooldown at review time followed the email subject only. That leaves alias-rotation space where one user with multiple email subjects can bypass the intended reset issuance ceiling.",
+      "suggested_action": "Align the reset issuance cooldown with the same user-scoped identity used for token invalidation.",
+      "reviewer_labels": [
+        "RR-AUTH-04-triple-audit-performance"
+      ],
+      "source_finding_ids": [
+        "PERF-02"
+      ],
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "user-scoped-reset-cooldown"
+    },
+    {
+      "finding_id": "F-B7E61840",
+      "severity": "low",
+      "title": "Reissue-required reset recovery contract is not promoted into canonical docs",
+      "rationale": "The slice already behaves as burn-before-mutate with fresh reissue required after post-consume mutation failure, but that recovery contract is not yet promoted clearly enough into the canonical authority surfaces.",
+      "suggested_action": "Promote the reissue-required recovery contract into the TODO/package/module authority surfaces or accept the documentation gap as low debt.",
+      "reviewer_labels": [
+        "RR-AUTH-04-triple-audit-performance"
+      ],
+      "source_finding_ids": [
+        "PERF-03"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "reset-reissue-recovery-contract-promotion"
+    }
+  ]
+}

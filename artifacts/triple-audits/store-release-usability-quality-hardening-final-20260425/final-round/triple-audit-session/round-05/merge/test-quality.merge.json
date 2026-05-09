@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-05/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test_quality_audit_subagent_01"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "regresses",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Add the missing Flutter adapter file to tracked review state, rerun the official Flutter analyzer and affected Flutter tests, then refresh the package evidence."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-9BBB5F5B",
+      "severity": "high",
+      "title": "Flutter validation relies on an untracked imported source file",
+      "rationale": "Tracked Dart files imported the sequential batch taxonomy adapter while that adapter remained untracked, making analyzer/test evidence local-only rather than reproducible from diff state.",
+      "suggested_action": "Add the adapter file to version control, rerun official analyzer and affected Flutter tests, and add a pre-audit/diff hygiene guard for imports resolved only through untracked lib files.",
+      "reviewer_labels": [
+        "test_quality_audit_subagent_01"
+      ],
+      "source_finding_ids": [
+        "TQA-01"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-A0A182A5",
+      "severity": "low",
+      "title": "Android execution remains an explicit residual coverage gap",
+      "rationale": "The package correctly marked Android integration as blocked rather than passed; this remains a platform confidence gap only if touched behavior becomes Android-specific.",
+      "suggested_action": "Keep Android marked blocked unless a real device/emulator lane runs, and require Android integration evidence if this release claims Android-specific behavior parity.",
+      "reviewer_labels": [
+        "test_quality_audit_subagent_01"
+      ],
+      "source_finding_ids": [
+        "TQA-02"
+      ],
+      "category": "residual_risk",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

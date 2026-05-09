@@ -1,0 +1,32 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-public-auth-password-reset-risk-hardening-package-triple-audit-20260508T020959Z/round-01/dispatch/test-quality.dispatch.md",
+  "review_kind": "test_quality_audit",
+  "reviewer_label": "rr-auth-04-triple-test-quality",
+  "overall_assessment": "Non-blocking from the test-quality lane. The bounded RR-AUTH-04 package provides real Laravel route, service, middleware, and landlord-database coverage for the hardening claims that matter here: tenant-public password routes fail closed when password is ineffective, reset tokens are hashed, expiring, single-use, and tenant-scope isolated, and the public-auth risk-matrix domains are asserted both in config and against live POST routes. The focused, impacted-auth, architecture-guardrail, and full CI-equivalent reruns provide strong current-baseline evidence. The remaining gap is test realism around reset-token issuance: the suite observes issued tokens through a testing-only probe rather than directly proving the outbound issuance boundary.",
+  "recommended_path": "Proceed with RR-AUTH-04 as non-blocking for the triple-audit test-quality lane. Record one accepted-debt item to add a focused password-reset issuance assertion at the event or delivery boundary so future regressions cannot pass solely via latestIssuedTokenForTesting() plus DB-state checks.",
+  "performance_position": "acceptable",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "acceptable",
+  "findings": [
+    {
+      "finding_id": "TQA-RR-AUTH-04-001",
+      "severity": "medium",
+      "title": "Reset-token issue coverage depends on a testing-only probe instead of the outbound issuance boundary",
+      "rationale": "The bounded package proves the live /password_token and /password_reset routes, hashed persistence, single-use consumption, expiry handling, scope isolation, and risk-matrix headers. But the tenant and landlord reset-flow tests retrieve the issued token through PasswordResetTokenService::latestIssuedTokenForTesting() or test labels after the request succeeds. That means the suite would still pass if PasswordResetTokenIssued dispatch or its downstream delivery wiring regressed while the testing probe continued to record the token. The result is strong lifecycle and security coverage with only indirect proof for the real user-facing issuance handoff.",
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/tests/Feature/Tenants/PasswordRegistrationControllerTest.php:241",
+        "laravel-app/tests/Api/v1/Admin/ApiV1AdminProfileTest.php:356",
+        "laravel-app/app/Application/Auth/PasswordResetTokenService.php:64",
+        "laravel-app/app/Application/Auth/PasswordResetTokenService.php:148",
+        "laravel-app/app/Events/Auth/PasswordResetTokenIssued.php:7"
+      ],
+      "suggested_action": "Add one focused assertion on password-reset issuance at the live route boundary: either fake and assert PasswordResetTokenIssued on the /password_token endpoints or assert the concrete downstream notification or job that consumes it, while keeping the existing DB-hash and single-use assertions."
+    }
+  ]
+}

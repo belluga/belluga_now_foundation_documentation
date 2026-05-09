@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-account-token-binding-test-quality-dispatch-20260507T1552Z.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "no-context-test-quality-auditor"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Accept the corrected coverage for the explicitly exercised issuer, ceiling, push, and revocation paths, but add one bounded stale-ambient-current-account request-path regression before treating RR-AUTH-03 test quality as fully clean."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-6D19DDDD",
+      "severity": "medium",
+      "title": "Stale ambient current-account false-denial path is not directly covered",
+      "rationale": "The correction adds stale current inaccessible account issuer coverage in tests/Unit/Application/Auth/AccountAuthenticationServiceTest.php:246, while AccountUser::tokenCan() relies on the CheckUserAccess context flag in app/Models/Tenants/AccountUser.php:189 to avoid live role revalidation outside account-scoped middleware. None of the bounded tests creates an account-user token for Account A, leaves an inaccessible/stale Account B as ambient Account::current(), then exercises a non-account-middleware request to prove it is not falsely denied. A regression that revalidates on Account::current() alone could escape the current stale-context tests.",
+      "suggested_action": "Add a request-path regression that issues an Account A-bound persisted token, sets ambient Account::current() to an inaccessible Account B without the account middleware context, exercises a tenant-public/non-account route that depends on tokenCan(), and asserts it remains accepted; pair it with the existing account-middleware rejection coverage.",
+      "reviewer_labels": [
+        "no-context-test-quality-auditor"
+      ],
+      "source_finding_ids": [
+        "TQA-RR-AUTH-03-POST-004"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "account-token-stale-ambient-current-request-coverage"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/post-release-tenant-app-domain-critique-dispatch-20260507T0706Z.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "no-context-paced-reviewer"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Continue the audit gate with revisions: add or cite direct current-tenant read-role denial evidence, and either harden or explicitly defer the adjacent tenant-domain same-ability borrowed-token risk before closure claims are finalized."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-36192EBD",
+      "severity": "medium",
+      "title": "Read route lacks direct current-tenant role-denial coverage",
+      "rationale": "The app-domain tests cover missing tenant access, missing Sanctum read ability, wrong-tenant access, and borrowed update ability for mutations. They do not directly prove that `GET /admin/api/v1/appdomains` denies a token carrying `tenant-domains:read` when the principal's current-tenant role lacks `tenant-domains:read`. Route-list evidence proves middleware attachment, but the behavioral regression suite does not isolate the read-side role check that the replacement canonical rule now requires.",
+      "suggested_action": "Add a focused negative test where the token has `tenant-domains:read` but the current tenant role lacks read permission, including a borrowed-read-from-other-tenant variant if role union remains canonical.",
+      "reviewer_labels": [
+        "no-context-paced-reviewer"
+      ],
+      "source_finding_ids": [
+        "CRIT-RR-AUTH-02-002"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-3870B1B7",
+      "severity": "medium",
+      "title": "Borrowed-token fix is appdomain-only while adjacent tenant-domain routes keep weaker same-ability semantics",
+      "rationale": "The package resolves the borrowed-token issue for `/admin/api/v1/appdomains` by adding `CheckCurrentTenantRoleAbility`, but the same route file still shows `/admin/api/v1/domains` routes protected only by `auth:sanctum`, `CheckTenantAccess`, and Sanctum `tenant-domains:*` abilities. Because the authentication service unions tenant-role permissions into tokens, the same cross-tenant borrowed-ability pattern appears applicable to adjacent web-domain mutation routes. The package's residual guardrail classification names identity routes as the unrelated file-level debt, but does not classify this same-ability tenant-domain residual risk.",
+      "suggested_action": "Before RR-AUTH-02 closure, either extend current-tenant role ability enforcement and borrowed-token tests to `/admin/api/v1/domains`, or explicitly record that adjacent same-ability domain-route risk is out of scope under the broader route-matrix TODO and limit RR-AUTH-02 claims to `/admin/api/v1/appdomains`.",
+      "reviewer_labels": [
+        "no-context-paced-reviewer"
+      ],
+      "source_finding_ids": [
+        "CRIT-RR-AUTH-02-001"
+      ],
+      "category": "security",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-BB1D3BCE",
+      "severity": "low",
+      "title": "Authorized mutation is not exercised through the real tenant-admin login token path",
+      "rationale": "The checkpoint proves read with a token returned by tenant-admin login, but authorized store/delete app-domain tests use manually created Sanctum tokens. Since the consumer matrix claims the existing tenant-admin consumer contract remains unchanged, one mutation path should prove that a real login-issued token for a role with `tenant-domains:update` still satisfies both Sanctum ability and current-tenant role middleware.",
+      "suggested_action": "Add or cite one authorized app-domain store or delete assertion using a tenant-admin login token for a principal whose current tenant role has `tenant-domains:update`.",
+      "reviewer_labels": [
+        "no-context-paced-reviewer"
+      ],
+      "source_finding_ids": [
+        "CRIT-RR-AUTH-02-003"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

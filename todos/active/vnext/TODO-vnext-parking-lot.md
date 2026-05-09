@@ -91,7 +91,7 @@
 
 ## I) Test Reliability Hardening
 
-- Dedicated active owner for the current release-facing hardening slice: `foundation_documentation/todos/active/store_release_android/TODO-store-release-critical-journey-regression-gates.md`
+- Dedicated promoted owner for the current release-facing hardening slice: `foundation_documentation/todos/completed/TODO-store-release-critical-journey-regression-gates.md`
 
 ---
 
@@ -118,9 +118,9 @@
 ## J) Web-to-App Policy Carryover (Deferred from V1)
 
 - **Authenticated account workspace delivery (event management, memberships/team management, invite metrics dashboards)**
-  - Source reference: `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` (A2).
+  - Source reference: `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` (A2).
   - Tracking: `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`
   - Reason: V1 keeps web unauthenticated surfaces as showcase/read-only and defers the full authenticated workspace to the dedicated post-MVP workspace lane.
 - **Physical check-in + `action_type=check_in` auth-wall telemetry**
-  - Source references: `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` (A4, D2) and `foundation_documentation/todos/active/vnext/TODO-vnext-event-checkin.md`.
+  - Source references: `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` (A4, D2) and `foundation_documentation/todos/active/vnext/TODO-vnext-event-checkin.md`.
   - Reason: business rule remains auth-required in V1, but feature delivery and dedicated interception telemetry become VNext scope.

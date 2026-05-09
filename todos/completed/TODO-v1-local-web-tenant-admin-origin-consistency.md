@@ -26,7 +26,7 @@ Establish a correct, canonical tenant-admin web origin model for local browser f
   - `foundation_documentation/modules/system_architecture_principles.md`
 - **Promotion targets (post-implementation):**
   - `foundation_documentation/submodule_flutter-app_summary.md`
-  - `foundation_documentation/todos/active/store_release_android/TODO-store-release-critical-journey-regression-gates.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-critical-journey-regression-gates.md`
   - `README.md`
   - `../README.md`
 
@@ -103,7 +103,7 @@ Establish a correct, canonical tenant-admin web origin model for local browser f
 | D-02 | Aligned | Preserve | `foundation_documentation/modules/system_architecture_principles.md:22`, `foundation_documentation/modules/flutter_client_experience_module.md:224` | Public/browser topology should not depend on hidden local ingress details. |
 | D-03 | Aligned | Preserve | `test/infrastructure/services/tenant_admin/tenant_admin_base_url_resolver_test.dart:5` | Existing explicit-origin behavior is already contractual and should remain. |
 | D-04 | Aligned | Preserve | `foundation_documentation/modules/flutter_client_experience_module.md:224` | Testing strategy requires targeted regression coverage for client routing/data behavior. |
-| D-05 | Supersede | Supersede | `../README.md:361`, `foundation_documentation/todos/active/store_release_android/TODO-store-release-critical-journey-regression-gates.md:263` | Current docs prescribe `:8043` in browser-facing local web flows; this TODO replaces that guidance with Cloudflared/public-domain wording. |
+| D-05 | Supersede | Supersede | `../README.md:361`, `foundation_documentation/todos/completed/TODO-store-release-critical-journey-regression-gates.md:263` | Current docs prescribe `:8043` in browser-facing local web flows; this TODO replaces that guidance with Cloudflared/public-domain wording. |
 
 Implementation cannot proceed with unresolved `Conflict`. `Supersede` requires explicit approval and module/doc promotion before close.
 
@@ -158,7 +158,7 @@ Implementation cannot proceed with unresolved `Conflict`. `Supersede` requires e
 ### Issue Card I-03
 - **Severity:** Medium
 - **Category:** Documentation / Workflow
-- **Evidence:** `../README.md:361` and `foundation_documentation/todos/active/store_release_android/TODO-store-release-critical-journey-regression-gates.md:263-264` prescribe `https://belluga.space:8043` in local web validation.
+- **Evidence:** `../README.md:361` and `foundation_documentation/todos/completed/TODO-store-release-critical-journey-regression-gates.md:263-264` prescribe `https://belluga.space:8043` in local web validation.
 - **Why now:** The written guidance reinforces the wrong browser topology and encourages future false-green validation.
 - **Options:**
   - **A (Recommended):** Update docs to describe browser-facing Cloudflared/public domains for this flow and reserve internal ports for internal ingress-only diagnostics.
@@ -222,7 +222,7 @@ Reply with **APROVADO** to authorize implementation.
 | D-02 | Adherent | local backend validation (`GET https://guarappari.belluga.space/admin/api/v1/events`) | Internal ingress port no longer leaks into public tenant-admin URL. |
 | D-03 | Adherent | `flutter-app/test/infrastructure/services/tenant_admin/tenant_admin_base_url_resolver_test.dart` | Explicit origin cases remain unchanged. |
 | D-04 | Adherent | `flutter-app/test/infrastructure/services/tenant_admin/tenant_admin_base_url_resolver_test.dart` | Deterministic automated coverage added for the escaped resolver case. |
-| D-05 | Adherent | `README.md`, `foundation_documentation/todos/active/store_release_android/TODO-store-release-critical-journey-regression-gates.md`, `foundation_documentation/submodule_flutter-app_summary.md` | Active guidance now describes browser-facing domains instead of `:8043`. |
+| D-05 | Adherent | `README.md`, `foundation_documentation/todos/completed/TODO-store-release-critical-journey-regression-gates.md`, `foundation_documentation/submodule_flutter-app_summary.md` | Active guidance now describes browser-facing domains instead of `:8043`. |
 
 ## Completion Note
 - `2026-03-07`: The local browser-facing tenant-admin origin rule is now treated as canonical. Resolver coverage, real authenticated `/admin/events` validation, and the later promoted Flutter lanes all relied on this corrected behavior.

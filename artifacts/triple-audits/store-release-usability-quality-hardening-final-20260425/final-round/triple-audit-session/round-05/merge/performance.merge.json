@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/store-release-usability-quality-hardening-final-20260425/final-round/triple-audit-session/round-05/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "critique-performance-operational-reviewer"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "mixed",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "regresses"
+  },
+  "recommended_paths": [
+    "Block finalization until the missing Flutter source is tracked, then close the public account-profile validation gap and move account/profile filters earlier in the occurrence aggregation path or prove the current query shape remains bounded."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-3AFF7553",
+      "severity": "high",
+      "title": "Round 04 reproducibility is still broken by an untracked imported Flutter source file",
+      "rationale": "A tracked import depended on an untracked Flutter adapter file, so a clean checkout or generated diff would omit required source.",
+      "suggested_action": "Track the missing source file and add a deterministic pre-audit check for tracked imports resolved only by untracked source.",
+      "reviewer_labels": [
+        "critique-performance-operational-reviewer"
+      ],
+      "source_finding_ids": [
+        "CRIT-R05-001"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-70EC741C",
+      "severity": "medium",
+      "title": "Public account-profile index still consumes unbounded query inputs outside a FormRequest",
+      "rationale": "The controller passed raw query input to publicPaginate while the service consumed search, profile type, nested filter, and taxonomy keys.",
+      "suggested_action": "Introduce a public account-profile index FormRequest covering every consumed query key, pass only validated input, and add negative tests for oversized search/profile-type payloads.",
+      "reviewer_labels": [
+        "critique-performance-operational-reviewer"
+      ],
+      "source_finding_ids": [
+        "CRIT-R05-002"
+      ],
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-D6EE1999",
+      "severity": "medium",
+      "title": "Account/profile filters are applied after grouping and event lookup in temporal occurrence pagination",
+      "rationale": "The management occurrence pipeline grouped temporal occurrence rows before applying account, venue, and related-profile filters that could be narrowed on occurrence snapshots.",
+      "suggested_action": "Push account, venue, and related-profile predicates into the initial occurrence match where snapshot fields permit it, retaining event lookup as authority check if needed.",
+      "reviewer_labels": [
+        "critique-performance-operational-reviewer"
+      ],
+      "source_finding_ids": [
+        "CRIT-R05-003"
+      ],
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}
