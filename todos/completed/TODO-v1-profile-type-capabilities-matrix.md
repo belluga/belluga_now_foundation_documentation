@@ -8,7 +8,7 @@
   - `foundation_documentation/domain_entities.md`
   - `foundation_documentation/endpoints_mvp_contracts.md`
   - `foundation_documentation/screens/modulo_tenant_admin.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
+  - `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
 - Flutter tenant-admin account/static flows already consume capability flags for field visibility and payload filtering.
 - Remaining behavioral deltas are tracked by narrower active TODOs (do not keep this planning matrix as active scope).
 
@@ -19,7 +19,7 @@ Define a capability-driven schema for Account Profile Types, map each capability
 - `foundation_documentation/domain_entities.md` (Account Profile types + registry rules)
 - `foundation_documentation/screens/modulo_tenant_admin.md` (admin form requirements)
 - `foundation_documentation/endpoints_mvp_contracts.md` (profile type + account profile payloads)
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
+- `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
 
 ## Capability → Field Matrix (Draft)
 ### Core
@@ -60,7 +60,7 @@ Define a capability-driven schema for Account Profile Types, map each capability
 - [x] ✅ Production‑Ready Define capability schema in `domain_entities.md` (capability list + field gating rules).
 - [x] ✅ Production‑Ready Update `endpoints_mvp_contracts.md` registry payload to include new capabilities.
 - [x] ✅ Production‑Ready Update `screens/modulo_tenant_admin.md` to reflect capability-driven form sections.
-- [x] ✅ Production‑Ready Update `TODO-v1-account-profile-ui.md` with capability-driven view requirements.
+- [x] ✅ Production‑Ready Update `TODO-v1-public-account-profile-discovery-ui.md` with capability-driven view requirements.
 
 ### B) Laravel (Registry + Environment)
 - [x] ✅ Production‑Ready Update profile type validation rules to accept new capability flags.
@@ -82,4 +82,4 @@ Define a capability-driven schema for Account Profile Types, map each capability
 
 ## Residual Follow-up
 - Remaining provisional check (`favorites` visibility parity) is tracked in:
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
+  - `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`

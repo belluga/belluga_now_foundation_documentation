@@ -1,176 +1,256 @@
 # Documentation: Domain Entities
-**Version:** 1.0
+**Version:** 1.3
 
-## 1. Introduction
+## 1. Purpose
 
-This document defines the Core Business Entities (CBEs) for the Bóora! platform. These are the primary "nouns" of the platform domain. Guar[APP]ari is the first tenant implementation hosted on Bóora!.
+This document defines the canonical business entities for the current Bóora! project state. It should answer four questions:
 
-This list serves as the domain source of truth referenced by the `system_architecture_principles.md` (Principle P-1) and is the foundation for all module design.
+- which nouns are truly first-class in the current domain;
+- which states and relations are globally important;
+- which records are registries or derived projections rather than primary business entities;
+- which ideas remain strategic or module-level and therefore must not be treated as already-canonical entities.
 
-**Flutter domain boundary:** Domain entities and value objects must not depend on DTOs or infrastructure types. All DTO parsing/mapping lives in the infrastructure layer (mappers/repositories), and UI/controllers consume only domain/projection models. If a model lives under `lib/domain/**`, it must honor the domain contract; carriers that cannot satisfy that contract must be reclassified outside the domain layer instead of being excluded from enforcement by path.
+The domain must support recurring tenant bootstrap and cold-start operations without changing entity semantics across tenants.
 
----
+**Evidence priority:** `project_constitution.md`, `project_mandate.md`, Laravel tenant/landlord models, request contracts, and package integration boundaries are the primary evidence for this document. Flutter `lib/domain/**` is useful supporting evidence only.
 
-## 2. Core Business Entities
+**Flutter domain boundary:** models under `lib/domain/**` do not automatically become canonical entities. Projections, resumes, helpers, and view carriers may live there for client-architecture reasons, but they must not redefine the business model. Examples such as `FavoriteResume`, invite friend resumes, and `CityPoiModel` are consumer/read models, not new top-level domain entities.
+Current mismatches between this canonical business model and the present Flutter `lib/domain/**` topology must be treated as implementation debt to be normalized later, not as approved target architecture.
 
-* **Primary Entity:** **User** (The consumer, including moratoriums and tourists, who discovers, books, and shares experiences). Users exist as soon as an identity token is issued and transition from unauthenticated to authenticated without changing entity type; identity state is a lifecycle attribute, not a separate user model.
-* **Supporting Entity A:** **Organization** — optional grouping of **accounts belonging to the same real‑world entity** (tenant, sponsor, hotel group, multi‑location brand). Organizations are **not required**; most accounts will be standalone. MVP usage is grouping only; memberships/billing can be layered later.
-* **Supporting Entity B:** **Partner (Label, Future Capability)** — the tenant-facing label applied to **Account Profiles** that operate as B2B providers (restaurants, artists, guides, merchants). The label system is deferred; in V1 we still model **Account Profiles** as the canonical entity and project account-profile-facing summaries from them. **Account profile types are not hardcoded enums**; they are provided by a **Profile Type Registry** (WP‑like custom post types, without WP meta) fetched from `/api/v1/environment.profile_types` and cached locally. The registry defines label, canonical `visual`, allowed taxonomies, capabilities (e.g., `is_favoritable`, `is_poi_enabled`), and default UI modules per type. `visual.mode` is valid across map and non-map surfaces; `mode=image` references item media (`avatar|cover`) and must not silently degrade to icon mode unless the required media is missing or invalid. **No inheritance is used in V1** (`parent_type` is omitted); taxonomies apply only to the type they are declared on. **MVP registry types:** `personal`, `artist`, `venue`, `restaurant`, `experience_provider` (others deferred to VNext). Invite surfaces consume the `InvitePartnerSummary` aggregate (id, partner type, display name, tagline, hero + logo URIs) so Flutter and Laravel share the same social-proof branding contract. The canonical account-profile-facing aggregate (id, profile, verification flags, contact information, invite/offer badges, engagement metrics, semantic tags) is produced from Account Profiles and shared via value objects to preserve invariants. Engagement metrics are type-aware (e.g., live-status for artists, presence counts for venues, invite counts for influencers) and are always non-negative integers or bounded strings represented as value objects rather than raw primitives. Accounts are the permission boundary and have **exactly one Account Profile** (1:1), with `ownership_state` controlling whether the account is tenant_owned, unmanaged, or user_owned. **Account Profile is implemented in this project** (not upstream boilerplate) to avoid coupling other boilerplate consumers.
-* **Supporting Entity C:** **Offering** (The catalog of consumable items, encompassing Events, Products, and Experiences/Guides).
-* **Supporting Entity D:** **Transaction** (The record of action and value exchange, including Bookings, Orders, Payments, and social Invitations).
-* **Supporting Entity E:** **Static Asset** — tenant-managed POIs and pages (beaches, nature, culture, historic, etc.) that are **not** Account Profiles; they project into `map_pois` as `ref_type=static` and carry no operator or invite/favorite semantics. Static Assets are governed by a **static profile type registry** and reuse a shared profile page schema for public read surfaces.
+## 2. Modeling Rules
 
-### Location & Venue Field Definitions
+- This document is semantic first, not a schema dump.
+- Persistent business entities, registries, derived projections, and audit records are intentionally separated.
+- Strategic umbrella labels such as `partner`, `offering`, and `transaction` must not be used as if they were already implemented first-class entities when the current codebase still models more specific concrete nouns.
+- Detailed payload fields, endpoint envelopes, and screen-level projections belong in module docs and API contracts.
 
-- `offering_location_type` (enum): allowed values `physical`, `online`. Every event-like offering must declare which location mode it uses.
-- `venue` (object): required for `physical` offerings; represents a physical place with coordinates + address.
-  - `venue_id` (string): normalized POI/venue id (preferred) for cross-module linking (map ↔ agenda).
-  - `address` (string): human-readable address (bounded string; value object).
-  - `coordinates` (object): `latitude` + `longitude` (value objects) for GeoQuery and directions.
-- `online_location` (object): required for `online` offerings; represents an “anywhere” experience.
-  - `label` (string): e.g., “Online”, “Ao vivo”.
-  - `url` (string, optional): join/watch URL when applicable.
+## 3. Canonical Primary Entities
 
-### Domain helper aggregates (required for mocks & projections)
+### 3.1 Tenant
 
-| Aggregate | Purpose | Notes |
-| --- | --- | --- |
-| Favorite Badge | Normalizes the glyph/branding metadata for a favorite collection badge. Exposes value objects for icon code point, font family, and package so UI layers can render glyphs without mutating domain state. | Stored under `lib/domain/favorite/` and consumed by `Favorite` + `FavoriteResume`. |
-| Artist Resume | Canonical snapshot of an artist/curator identity for events, invites, and map markers. Carries `ArtistIdValue`, `ArtistNameValue`, `ArtistAvatarValue`, and `ArtistIsHighlightValue` so Venue/Schedule projections never fall back to primitives. | Lives under `lib/domain/artist/` and is produced from schedule DTOs before reaching UI controllers. |
-| Connection | Viewer-scoped relationship between one user and another, derived from contact imports/matches, user-favorite edges, and reciprocal friendship. Distinguishes `contact_match`, directional favorite approval, and mutual friendship to drive what profile exposure level is allowed. | Owned by the future `belluga_connections` package; not a generic social graph. |
-| Friend Resume / Viewer-Scoped Person Resume | Lightweight viewer-scoped projection of a `User` used by invites, onboarding, and future people discovery. Carries only the fields allowed by `profile_exposure_level` (`aggregate_only`, `capped_profile`, `full_profile`). | Current Flutter `FriendResume` should evolve toward this connections-owned projection. |
-| City POI & Map Events | Represents geographic entities surfaced on the tenant map (coordinates, categories, badges) plus immutable POI update events (move, activation, deactivation). All coordinates, badges, and filter tokens must be expressed as value objects to keep map math and styling independent from Flutter types. | Resides under `lib/domain/map/` with collections for `value_objects/`, `events/`, and `filters/`. |
-| Venue / Local | Canonical “place” aggregate referenced by offerings/events. A Venue can be physical (address + coordinates) or online (no fixed locality, optional URL). Physical venues must be eligible for GeoQuery and navigation; online venues must be treated as “available anywhere” and must not trigger distance ordering or geo constraints. | The map module owns the normalized POI registry; schedule/agendas reference venues by `venue_id` + summary fields. |
-| Invite | Represents a social invitation tied to an event/offering, with inviter, invitees, status, timestamps, and source links for attribution. | Only one accepted invite per invitee per event; acceptance is a social conversion and does not by itself define reservation/confirmation or on-site attendance proof. |
-| Attendance Commitment | Represents a planned attendance slot/commitment for an event/offering, independent from invite acceptance. | Kind is `free_confirmation` or `paid_reservation`; the two are mutually exclusive per user + event/occurrence unless an explicit upgrade rule exists. |
-| Check-in | Captures on-site arrival proof for a user at an event via geofence/QR/staff/admission validation. | Separate from both invite acceptance and attendance commitment; confirms actual attendance when recorded successfully. |
-| Event Activity Fact | Append-only attributed event/result fact used for downstream analytics such as invite-tree-generated check-ins, promo requests, purchases, and offer claims. | Never replaces canonical package-owned state; intended for lineage-aware projections and drill-down. |
-| Mission | Defines account-profile-created goals (e.g., `10 convites aceitos`) with metric target, window, reward, and validation source. | Metric is selected per mission; pre-event missions should prefer invites/engagement over presence. |
-| Social Score | Aggregates north-star metrics for users and account profiles (partner label): `Convites Aceitos` (esforço) and `Presenças Confirmadas` (resultado), tracked all-time and for the current month (“Em Alta”). | Drives rankings, badges, and Pro/Verificado unlocks; respects privacy/anonymization when applicable. |
-| Contact Hash Directory | Stores salted hashes of user-imported contacts to enable contact matching and invite discovery without storing raw PII. | Future canonical owner: `belluga_connections`; supports unilateral contact matching without persisting raw address-book data. |
-| Promotion Lead Submission | Ordered generic representation of tenant-public lead capture fields used by the temporary web tester-waitlist flow. Carries tenant/app context plus a list of `{label, value}` entries so email delivery can render the form without coupling backend contracts to Flutter-specific field names. | Current canonical transport owner is `POST /api/v1/email/send`; ordering is part of the contract because outbound email composition must preserve the submitted field sequence. |
+Tenant is the top-level business/runtime boundary for public discovery, tenant admin, branding, domains, app-link identifiers, settings, and data partitioning. All tenant-side entities below are tenant-scoped unless explicitly stated otherwise.
 
-### Account Profile Label Field Definitions
+### 3.2 User
 
-- `account_profile_type` (string): **must match** a `profile_type_registry.type` entry from tenant settings. Drives engagement metrics, labeling, and permissioning per role.
-- `accepted_invites` (int): cumulative, non-negative count of invites accepted that are attributable to the account profile; zero default; must not be null.
-- `engagement` (object): optional; type-specific metrics expressed via value objects.
-  - For `artist`: `status_label` (bounded string, <=32 chars, e.g., “Tocando agora”), `next_show_at` (ISO8601, optional).
-  - For `venue`: `presence_count` (non-negative int).
-  - For `experience_provider`: `experience_count` (non-negative int).
-  - For `influencer`: `invite_count` (non-negative int; if present, should align with `accepted_invites` for consistency).
-  - For `curator`: `article_count` and `doc_count` (non-negative ints).
-- `media`: `avatar_uri` and `cover_uri` are optional but, if present, must be valid URIs captured as value objects. Fallbacks live in the projection layer, not the aggregate.
-- `visibility` (enum, optional): `public`, `friends_only`.
-  - Tenant-public discovery endpoints must always enforce public exposure only (`visibility='public'`).
-  - Client filters cannot override this boundary.
-- `tags` (array of strings): optional, up to 16 entries, each ≤32 chars, sanitized and stored via value objects to avoid leaking UI-specific tokens into the domain. Tags are **type-aware**; examples include:
-  - `artist`: music genres (e.g., rock, samba, eletrônica).
-  - `experience_provider`: context/location tags (e.g., mar, praia, mergulho, montanha).
-  - `curator`: curatorial focus (e.g., história, causos).
-  - `influencer` (personalidade): focus areas (e.g., lifestyle, baladas).
-- `taxonomy_terms` (array of objects): optional, WordPress-style multi-taxonomy list of `{type, value}` pairs (e.g., `{type: cuisine, value: italian}` or `{type: music_genre, value: samba}`). Account profiles may carry multiple taxonomy types simultaneously (venues can have cuisines + music genres).
+User is the human principal used by identity, attendance, invites, favorites, and people discovery. A user may move through anonymous, identified, and authenticated states without changing entity type. User identity is distinct from tenant-operated accounts, even when later claim/self-management flows connect the two.
 
-### Taxonomy Registry Field Definitions (V1)
+### 3.3 Account
 
-**Taxonomy (registry entry)**
-- `slug` (string): unique taxonomy key for the tenant (used as `taxonomy_terms[].type`).
-- `name` (string): human-readable label.
-- `applies_to` (array of strings): object types that may use this taxonomy.
-- `icon` (string, optional): Material icon name (e.g., `mode_subscription`).
-- `color` (string, optional): HEX color `#RRGGBB`.
+Account is the tenant-scoped operational principal that owns permissions, roles, and a public-facing profile surface.
 
-**Term (taxonomy term)**
-- `slug` (string): unique term key within its taxonomy (used as `taxonomy_terms[].value`).
-- `name` (string): human-readable term label.
-- `taxonomy_id` (ObjectId): owning taxonomy reference.
+Key invariants:
 
-**Field Definitions**
-- `applies_to`
-  - `account_profile`: Taxonomy terms can be attached to Account Profiles.
-  - `static_asset`: Taxonomy terms can be attached to Static Assets.
-  - `event`: Taxonomy terms can be attached to Events.
+- An Account may optionally belong to an Organization.
+- An Account owns exactly one Account Profile in the current canonical model; this is enforced in the tenant database by a unique `account_id` on `account_profiles`.
+- `ownership_state` is the global ownership invariant:
+  - `tenant_owned`: official tenant-operated account.
+  - `unmanaged`: tenant-seeded/bootstrap supply with no self-managing user operator yet.
+  - `user_owned`: canonical self-managed/claimed state; valid in the business model even though current tenant-admin create intent is still limited to `tenant_owned|unmanaged`.
+- `unmanaged` is the recurring cold-start state and is not an exceptional workaround.
+- Unmanaged accounts must remain standalone and cannot stay attached to an Organization.
 
-### Static Profile Type Registry Field Definitions (V1)
+### 3.4 Account Profile
 
-**Static Profile Type (registry entry)**
-- `type` (string): unique key used by `static_assets.profile_type`.
-- `label` (string): human-readable label.
-- `map_category` (string): coarse map category used by `map_pois.category` when projecting static assets.
-- `allowed_taxonomies` (array of strings): taxonomy slugs allowed for this static profile type.
-- `visual` (object): canonical type visual shared across map and non-map surfaces.
-  - `mode` (enum): `icon`, `image`.
-  - `icon` (string): required when `visual.mode=icon`.
-  - `color` (string): required when `visual.mode=icon`; hex format `#RRGGBB`.
-  - `icon_color` (string): required when `visual.mode=icon`; hex format `#RRGGBB`.
-  - `image_source` (enum): required when `visual.mode=image`; valid values are `avatar`, `cover`.
-- `capabilities` (object):
-  - `is_poi_enabled` (bool): requires `location`.
-  - `has_bio` (bool): enables short description field.
-  - `has_taxonomies` (bool): enables taxonomy terms in the UI.
-  - `has_avatar` (bool): enables avatar media.
-  - `has_cover` (bool): enables cover media.
-  - `has_content` (bool): enables long-form page content.
+Account Profile is the canonical public/admin/catalog identity of an Account. It is the main profile substrate used across discovery, public profile pages, favorites, map projections, event relations, and future people/account-workspace semantics.
 
-### Static Asset Field Definitions (V1)
-- `profile_type` (string): references `static_profile_types.type`.
-- `display_name` (string): primary title for the page and POI.
-- `slug` (string): URL slug derived from `display_name` and generated by backend.
-- `bio` (string, optional): short summary (bounded string).
-- `content` (string, optional): long-form page content (bounded string).
-- `avatar_url` / `cover_url` (string, optional): media URLs.
-- `tags` (array of strings, optional): tag tokens for search/filtering.
-- `categories` (array of strings, optional): legacy metadata token list; kept for backward compatibility and ignored for `map_pois.category` projection.
-- `taxonomy_terms` (array of objects): typed `{type, value}` pairs.
-- `location` (object): required when `static_profile_types.capabilities.is_poi_enabled=true`; uses the same `lat`/`lng` structure as account profiles.
-- `is_active` (bool): controls whether the static asset is available to public read surfaces; defaults to `true` on create when omitted.
-- `created_by` / `created_by_type` / `updated_by` / `updated_by_type`: audit fields (see Audit Field Definitions).
+Key invariants:
 
-### Account Ownership Field Definitions
+- It carries `profile_type`, `display_name`, `slug`, media, visibility, activity state, verification state, taxonomy terms, and optional location.
+- `profile_type` is registry-driven, not a hardcoded app enum.
+- When the selected profile type is POI-enabled, location becomes mandatory.
+- Legacy `partner` terminology must not be treated as a current canonical noun. The current model is Account + Account Profile + registry-driven Profile Type.
 
-- `ownership_state` (enum): `tenant_owned`, `unmanaged`, `user_owned`.
-  - **MVP note:** tenant-admin manual onboarding (`POST /admin/api/v1/account_onboardings`) requires explicit create intent (`tenant_owned|unmanaged`); read payloads still expose the derived effective ownership state.
+### 3.5 Organization
 
-**Field Definitions**
-- `ownership_state`
-  - `tenant_owned`: Official tenant-owned accounts (may be grouped under an Organization or standalone).
-  - `unmanaged`: Tenant-managed but not owned (must be standalone; no organization).
-  - `user_owned`: User-owned accounts. In **MVP**, only the auto-created **personal** account exists (private by default) and is created **when the user is identified/authenticated**. Post‑MVP, users may **claim unmanaged accounts** or create **additional business accounts**; those remain `user_owned`.
+Organization is an optional grouping entity for Accounts that belong to the same real-world operator umbrella, sponsor group, or multi-location brand.
 
-### Audit Field Definitions (Account + Account Profile)
+Key invariants:
 
-- `created_by` (string): Actor id (user or landlord user) that created the record.
-- `created_by_type` (enum): `tenant`, `landlord`.
-- `updated_by` (string): Actor id (user or landlord user) that last updated the record.
-- `updated_by_type` (enum): `tenant`, `landlord`.
+- It is optional by design; most Accounts may remain standalone.
+- It groups Accounts, not Users.
+- It must not be used to hide or bypass Account ownership rules.
 
-### Organization Field Definitions
+### 3.6 Static Asset
 
-- `organization_id` (ObjectId, optional): account grouping reference for multi‑account entities (tenant, sponsor, hotel group). Optional by design; most accounts will not have one.
+Static Asset is the tenant-managed non-account place/page entity used for beaches, landmarks, institutional pages, and other curated POIs that are not operator accounts.
 
-### Social Graph & Presence Field Definitions
+Key invariants:
 
-- `user_level` (enum): `basic`, `verified` (Pro/Verificado). Verified unlocks higher invite limits and monetization surfaces.
-- `privacy_mode` (enum): `public`, `friends_only`. In `friends_only`, full-profile visibility is limited to viewers explicitly approved by the target through `favorite_edge(target -> viewer)`; reciprocal favorites are the product-level “friends”. Private users are anonymized in rankings (blur/avatar masking) but still count toward metrics.
-- `contact_match` (relationship flag): unilateral matched-contact relationship created from hashed phone/email imports (`viewer_user_id -> matched_user_id`).
-- `favorite_edge` (relationship flag): unilateral explicit user-to-user approval edge (`owner_user_id -> favored_user_id`). When the owner is `friends_only`, this edge grants the favored user access to the owner's `full_profile`.
-- `friend` (derived relationship): reciprocal `favorite_edge`; the product-level mutual relationship label.
-- `profile_exposure_level` (enum): `aggregate_only`, `capped_profile`, `full_profile`. Governs which user fields may be exposed to a specific viewer in a specific context.
-  - `aggregate_only`: counts/metrics only; no identity/media payload.
-  - `capped_profile`: safe identity surface without avatar/photo and without specific accepted-event history.
-  - `full_profile`: may include avatar/photo and specific accepted-event details where the target is public or has explicitly approved the viewer (for example via `favorite_edge(target -> viewer)`).
-- `people_discovery_priority`: order “Pessoas” by monthly Social Score; verified users are surfaced first when scores tie, but both verified and basic can appear.
-- `invite_status` (enum): `pending`, `accepted`, `declined`; `expired` is derived when the event ends. Exactly one accepted invite per invitee per event.
-- `invite_limits` (by role): `basic` up to 20 pending invites simultaneously; `verified` up to 50; `account_paid` up to 100 (higher via plan tiers). Invites are single-use per invitee/event.
-- `attendance_policy` (enum): `free_confirmation_only`, `paid_reservation_only`, `either`. The event chooses one policy within tenant-owned attendance boundaries; an occurrence may override only when the event enables that behavior and tenant policy permits it.
-- `allow_occurrence_policy_override` (bool): event-level flag that allows occurrences to choose their own `attendance_policy` within tenant-approved boundaries.
-- `attendance_commitment_kind` (enum): `free_confirmation`, `paid_reservation`. The kind is determined by the event/occurrence attendance policy, not merely by whether the event is paid.
-- `attendance_commitment_status` (enum): `active`, `canceled`, `expired`, `fulfilled`.
-- `check_in_method` (enum): `geofence`, `qr`, `staff_manual`. Geofence radius is account-profile-defined; QR is optional reinforcement; manual is staff-only for auditability.
-- `attendance_outcome` (enum): `confirmed`, `unconfirmed`, `no_show`, `manually_confirmed`. The default post-event unresolved state without successful check-in is `unconfirmed`; `no_show` is explicit/policy-driven and should not be the automatic fallback.
-- `activity_type` (enum/string): canonical bounded identifier for append-only downstream event/result facts (e.g., `check_in.recorded`, `promo.requested`, `purchase.completed`, `offer.claimed`).
-- `referral_lineage` (array): bounded ancestor snapshot attached to a credited invite acceptance or downstream activity fact so level-based invite attribution can be answered without runtime graph traversal.
-- `mission_metric` (enum): `invites_accepted`, `presences_confirmed`, `check_ins`, `purchases` (future). Chosen per mission by the account profile; pre-event missions are advised to avoid presence unless explicitly desired.
-- `mission_status` (enum): `pending`, `active`, `completed`, `expired`.
-- `account_profile_curator_link_status` (enum): `pending`, `accepted`; either side can propose, reciprocal acceptance required.
-- `contact_hash` (string): salted hash for a contact identifier (e.g., phone/email) used solely for matching imported contacts to existing users; raw identifiers are never stored.
+- It uses the Static Profile Type registry, not the Account Profile Type registry.
+- It may project to map discovery when POI-enabled.
+- It does not carry operator, favorite, or invite semantics by itself.
+
+### 3.7 Event
+
+Event is the currently implemented experience/activation entity in the runtime. It is the concrete current form of the broader strategic "offering" idea.
+
+Key invariants:
+
+- It owns title, content, type, publication state, classification, capabilities, and location semantics.
+- `location.mode` is currently modeled as `physical|online|hybrid`.
+- Event-to-profile relationships are expressed through `place_ref`, `venue`, and `event_parties`, rather than by inventing a separate venue/host root entity.
+- Event publication is part of the canonical event model and affects public visibility, invite eligibility, and occurrence resolution.
+
+### 3.8 Event Occurrence
+
+Event Occurrence is the scheduled materialization of an Event.
+
+Key invariants:
+
+- An Event may have one or many occurrences.
+- Occurrences carry the time-specific/publication-ready schedule used by agenda, map, and invite targeting.
+- When an Event has multiple occurrences, invite targeting must resolve a specific `occurrence_id`; the invite domain cannot silently guess.
+
+### 3.9 Attendance Commitment
+
+Attendance Commitment is the user's participation intent/entitlement for an Event or Event Occurrence.
+
+Key invariants:
+
+- It is separate from social invite acceptance.
+- It is unique per `user_id + event_id + occurrence_id`.
+- Its source-of-truth state lives here, not inside invite edges or view projections.
+
+### 3.10 Invite Edge
+
+Invite Edge is the canonical social invitation record for an Event/Occurrence target and a recipient principal.
+
+Key invariants:
+
+- It binds inviter principal, issuing user, target event snapshot, recipient user/contact target, status, expiry, and response timestamps.
+- It records social conversion state; it does not by itself become reservation, attendance confirmation, or check-in proof.
+- Recipient addressing may use a canonical user id or a hashed contact target.
+
+### 3.11 Favorite Edge
+
+Favorite Edge is the unilateral favorite relationship between a user and a registered favoritable target.
+
+Key invariants:
+
+- It is registry-backed; the current project's main target is Account Profile.
+- Reciprocal favorites between personal profiles derive the product-level `friend` semantics.
+- Favorites on non-personal profiles remain affinity/bookmark signals and do not automatically become friendship.
+
+### 3.12 Contact Hash Directory
+
+Contact Hash Directory is the hashed-contact matching record used for invite/social discovery without storing raw address-book identifiers.
+
+Key invariants:
+
+- It is tenant-scoped and viewer-scoped through the importing user.
+- It enables `contact_match` acquisition logic without raw PII persistence.
+- It is an enabling entity for people discovery and invite targeting, not a user-visible profile entity by itself.
+
+## 4. Canonical Registry Entities
+
+### 4.1 Account Profile Type
+
+Tenant-configured registry that defines Account Profile labels, pluralization, allowed taxonomies, visuals, and capabilities such as `is_favoritable`, `is_poi_enabled`, `has_avatar`, `has_cover`, `has_content`, and `has_events`. This registry governs Account Profile behavior; it does not create subtype inheritance.
+
+### 4.2 Static Profile Type
+
+Tenant-configured registry that defines Static Asset labels, map category, visuals, allowed taxonomies, and capabilities such as `is_poi_enabled`, `has_bio`, `has_cover`, and `has_content`.
+
+### 4.3 Taxonomy
+
+Tenant-configured classification vocabulary with `applies_to` scope. Taxonomies declare which entity families may use their terms.
+
+### 4.4 Taxonomy Term
+
+Concrete term inside a Taxonomy. Terms are the actual typed labels attached to Account Profiles, Static Assets, and Events.
+
+### 4.5 Event Type
+
+Tenant-configured registry for event classification and visual identity. It is a classifier for Events, not a replacement for the Event entity itself.
+
+## 5. Derived or Operational Canonical Records
+
+These records are real and important, but they are not the primary business nouns that modules should treat as root aggregates.
+
+### 5.1 Map POI
+
+Map POI is a derived discovery projection keyed by `ref_type + ref_id`.
+
+Key invariants:
+
+- It is projected from Account Profiles, Static Assets, and Events.
+- It is not the source of truth for those entities.
+- Map filtering, geospatial lookup, and "happening now" behaviors may depend on it, but semantic ownership stays with the source entity.
+
+### 5.2 Principal Social Metric
+
+Principal Social Metric is the aggregate metrics record keyed by `principal_kind + principal_id`.
+
+Key invariants:
+
+- It is a score/projection surface, not the principal entity itself.
+- It summarizes invite-driven social metrics and should not be treated as the canonical source of relationship state.
+
+### 5.3 Favorite Snapshots and Invite Feed Projections
+
+Favorite snapshots, account-profile favoritable snapshots, and invite feed projections are derived read models built for efficient client/runtime consumption. They must not redefine Account Profile, Favorite Edge, or Invite Edge semantics.
+
+### 5.4 Invite Share Code
+
+Invite Share Code is a continuation artifact used by external share and web-to-app/app-to-app invite flows.
+
+Key invariants:
+
+- It carries inviter principal + target event/occurrence context behind a shareable code.
+- It supports continuation and attribution, but it does not replace Invite Edge as the canonical social relationship record.
+
+### 5.5 Identity Merge Audit and Merged Account Snapshot
+
+Identity merge audit records and merged account snapshots are audit/support artifacts for identity reconciliation. They are authoritative evidence records, but not product-facing primary aggregates.
+
+## 6. Cross-Entity States and Relations
+
+### 6.1 Bootstrap and Ownership
+
+- `unmanaged` remains the canonical cold-start/bootstrap state for seeded local supply.
+- Tenant-admin create/update flows currently accept explicit ownership intent only as `tenant_owned|unmanaged`.
+- `user_owned` remains part of the business model because claim/self-management is a real project direction, but it should not be documented as already available everywhere.
+
+### 6.2 Social Relationship Semantics
+
+- `contact_match` is the acquisition relation produced by hashed-contact reconciliation.
+- `favorite` is the explicit approval/bookmark relation.
+- `friend` is a derived mutual relation across personal-profile favorites, not a separate root entity.
+- Viewer-scoped people surfaces may expose relation tags such as `contact_match`, `favorite_by_you`, `favorited_you`, and `friend`; those are relationship states, not new entities.
+
+### 6.3 Exposure and Discovery
+
+- Viewer exposure levels such as `aggregate_only`, `capped_profile`, and `full_profile` are access semantics over User/Account Profile surfaces.
+- Discovery/privacy flags such as `privacy_mode` and `discoverable_by_contacts` are global social semantics and must remain separate from favorite/friend state.
+- These rules belong to the relationship/exposure layer; they do not create separate domain entities.
+
+### 6.4 Location and POI Semantics
+
+- POI capability is registry-driven for both Account Profiles and Static Assets.
+- Location is required when the relevant registry says the entity is POI-enabled.
+- Map POI remains a projection; the source entity remains the authority.
+
+### 6.5 Invite vs Attendance Semantics
+
+- Invite acceptance is social conversion.
+- Attendance Commitment is participation intent/entitlement.
+- Check-in/presence proof is a downstream participation concern and must not be documented as already-canonical source-of-truth state unless the concrete persisted entity lands in code and contracts.
+
+## 7. Non-Canonical or Deferred Concepts
+
+The following ideas are still meaningful, but they should not be treated as current first-class root entities in this document unless code/contracts later promote them:
+
+- `partner` as a standalone base entity, or even as preferred current product terminology: this is legacy residue from an older model and should be retired in favor of Account, Account Profile, and Profile Type language during future VNext/module cleanup.
+- `offering` as a current implemented aggregate family: today the concrete implemented offering entity is `Event`.
+- `transaction` as a unified current aggregate family: current release reality is still split across invite, attendance, and future commerce/payment fronts.
+- `mission`, `reward`, `event activity fact`, `check-in`, and broader referral-result attribution: these remain valid roadmap/module concepts, but they are not yet stable current root entities in the code-backed baseline.
+- Temporary lead-capture or waitlist payloads: these are transport artifacts, not core business entities.
+
+## 8. Documentation Guidance
+
+When updating module docs after this file:
+
+- use the entities above as the canonical nouns;
+- treat registries and projections as secondary layers, not root aggregates;
+- avoid promoting Flutter projections/resumes/helpers into business entities;
+- document detailed payload fields, filters, and viewer-scoped screen contracts in module docs rather than expanding this file into an API ledger.

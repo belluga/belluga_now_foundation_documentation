@@ -1,26 +1,25 @@
 # Documentation: System Roadmap
-**Version:** 1.0
+**Version:** 1.2
 
 ## 1. Roadmap Overview
 
-This roadmap enumerates the foundational milestones for the Belluga ecosystem. It aligns Flutter and Laravel implementations around production contracts, with runtime clients consuming live backend adapters only.
+This roadmap enumerates the foundational milestones for the Bóora! project within the Belluga ecosystem. It aligns Flutter and Laravel implementations around production contracts, with runtime clients consuming live backend adapters only. Tenant rollout remains flexible: operational delivery and validation may start with one or multiple tenants in parallel, and improvements should be generalized across tenants whenever the boundary is truly shared. Cold-start activation remains a recurring strategic concern: tenant bootstrap must continue to support curated supply, `unmanaged` account profiles, and later claim/self-management transitions for every new or expanding tenant.
 
-## 2. Current Milestones
+## 2. Current Strategic Horizons
 
-| Workstream | Milestone | Description | Target | Status | Owner |
-|------------|-----------|-------------|--------|--------|-------|
-| Flutter Client Experience | FCX-01 | Bootstrap DI container, theming, and StreamValue-based controller scaffolding. | 2025-02-28 | In Progress | Delphi |
-| Flutter Client Experience | FCX-02 | Lock endpoint response schemas (contract-first) for MVP flows. | 2025-03-05 | Planned | Delphi |
-| Flutter Client Experience | FCX-03 | Wire Laravel-backed repositories/services to tenant home, agenda, invites, map, and account profiles based on contracts. | 2025-03-12 | Planned | Delphi |
-| Flutter Client Experience | FCX-04 | Implement telemetry (Mixpanel) baseline for MVP flows. | 2025-03-19 | Planned | Delphi |
-| Flutter Client Experience | FCX-05 | Add location permission guard + permission screen for geo-dependent routes (map/nearby). | 2025-03-26 | Planned | Delphi |
-| Flutter Client Experience | FCX-06 | Eliminate Flutter architecture hard‑NO deviations (non-controller/cross-feature GetIt resolution in screens/widgets, DTOs in domain, Future/StreamBuilder in UI, direct Navigator usage, multi‑widget files). | 2025-04-01 | Planned | Delphi |
-| Platform Realtime | PRX-01 | Add SSE delta streams for app feeds (events, invites, POIs) to complement page-based pagination. | 2025-04-02 | Planned | Delphi |
-| Platform Routing & Scope | PRS-01 | Canonical environment scope reorganization (`landlord`/`tenant` + main scopes + `account_workspace` subscope), including host-aware `/home` and `/landlord` normalization and live web validation matrix. | 2026-02-24 | Tested & Ready | Delphi |
+| Horizon | Active Lane / Surface | Description | Status | Primary Sources |
+|---------|------------------------|-------------|--------|-----------------|
+| Android Release Readiness | `todos/active/store_release_android/` | Launch-critical release gate covering Android publication, web-to-app conversion continuity, auth method governance, and release confidence. | Active | Store-release TODO set, Flutter/Laravel modules |
+| Mandatory Fast Follow | `todos/active/fast_follow_required/` | Required post-release continuation for iOS universal links/deferred capture, QR-authenticated web posture, and related app/web continuation work. | Active | Fast-follow TODO set, `policies/web_to_app_promotion_policy.md` |
+| VNext Foundations | `todos/active/vnext/` | Deferred but approved architectural backlog for tenant user/account workspace, ticketing, domain management follow-up, richer event/detail behavior, and test hardening. | Active | VNext TODO set, module docs |
+| Tenant Bootstrap Repeatability | `project_mandate.md` + account/profile canonical docs | Preserve recurring cold-start strategy across tenants through curated supply, `unmanaged` account profiles, and later claim/self-management transitions without redefining the core domain model. | Active | `project_mandate.md`, `domain_entities.md`, `modules/tenant_admin_module.md`, `modules/account_profile_catalog_module.md` |
+| Project Authority Reconciliation | `project_constitution.md` + top-level authority docs | Keep project authority and branch decisions aligned with the current Delphi baseline before new medium/big work resumes. | In Progress | `project_constitution.md`, reconciliation TODO/brief, top-level authority docs |
 
-## 2.1 Documentation Integrity Gaps
-- `submodule_web-app_summary.md` is still missing and must be generated.
-- Existing submodule summaries must be kept synchronized with checked-out submodule commits at each documentation consolidation checkpoint.
+## 2.1 Documentation and Authority Integrity
+- `project_constitution.md` is the canonical project-level authority surface and must remain aligned with module docs, strategic lanes, and active TODOs.
+- Existing submodule summaries must be kept synchronized with checked-out submodule commits at each major documentation consolidation or release checkpoint.
+- Retired active-lane names such as `pre_mvp_*`, `mvp_*`, `cross-stack`, `mvp_slices`, and `mvp_closure` are historical only and must not be reintroduced into new active authority docs.
+- Branch reconciliation is repo-specific: `foundation_documentation` is evaluated against `origin/main`, while `belluga_now_docker`, `flutter-app`, and `laravel-app` use `origin/dev` for normal preflight/rebaseline decisions.
 
 ## 2.2 Scope/Subscope Governance (Mandatory)
 - Mandatory pre-read for route/module/screen work: `foundation_documentation/policies/scope_subscope_governance.md`.
@@ -63,7 +62,7 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/account_profile_links` | MOD-201 | Account profile ↔ curador/pessoa linkage. | Defined | Bidirectional proposals; statuses pending/accepted; monthly proof-of-presence window. |
 | `/api/v1/discover/people` | MOD-201 | People/Influencer row ordered by monthly Social Score. | Defined | Prefer verified on ties; respects privacy by anonymizing friends-only profiles. |
 | `/api/v1/discover/curator-content` | MOD-201 | Curator-produced content for “Veja isso…” row. | Defined | Ordered by latest published (future: most viewed); links to account profile/event. |
-| `/api/v1/contacts/import` | MOD-201 | Hashed contact import for friend suggestions and invite matching. | Tested & Ready | Implemented in invites package; hashed-only matching + invite targeting path covered by invite feature tests. |
+| `/api/v1/contacts/import` | MOD-201 | Hashed contact import for contact matching and inviteable acquisition. | Tested & Ready | Implemented in invites package; hashed-only matching + invite targeting path covered by invite feature tests. |
 | `/api/v1/push/register` | MOD-201 | Register device token for push notifications. | Implemented | Stores per-device tokens; used for invites/reminders. |
 | `/admin/api/v1/settings/schema` | Tenant Admin | Discover tenant settings schema (namespace metadata, nodes, conditional metadata). | Tested & Ready | Canonical settings-kernel discovery endpoint for tenant-admin scope; includes `schema_version` + stable node IDs. |
 | `/admin/api/v1/settings/values` | Tenant Admin | Fetch tenant settings values for authorized namespaces. | Tested & Ready | Scope-aware values payload filtered by namespace abilities; tenant-admin local-preferences reads `map_ui.default_origin` from this surface. |
@@ -76,6 +75,8 @@ This roadmap enumerates the foundational milestones for the Belluga ecosystem. I
 | `/api/v1/settings/telemetry/{type}` | Tenant Admin | Remove telemetry integration by type. | Implemented | DELETE removes a single type. |
 | `/admin/api/v1/media/map-filter-image` | Tenant Admin | Upload tenant-scoped image used by `settings.map_ui.filters[].image_uri`. | Tested & Ready | Complements local-preferences map filter catalog editor; accepts authenticated multipart (`key`, `image`) and returns canonical `image_uri`. |
 | `/api/v1/media/map-filters/{key}` | Tenant | Canonical public delivery for map filter images. | Tested & Ready | Returns tenant-scoped image bytes with `ETag`/`Last-Modified`; legacy `/map-filters/{key}/image` remains compatibility alias. |
+| `/admin/api/v1/domains` | Tenant Admin | List/create tenant web domains. | Implemented | Tenant-scoped; landlord users only. Paged list includes `status` and timestamps; create accepts `path` and defaults `type=web`. |
+| `/admin/api/v1/domains/{domain_id}` | Tenant Admin | Delete/restore tenant domains. | Implemented | Soft delete + restore + force delete endpoints are live; UI currently uses delete + restore. |
 | `/admin/api/v1/organizations` | Tenant Admin | List organizations (grouping only). | Implemented | Tenant‑scoped; landlord users only. Paged response with org metadata. |
 | `/admin/api/v1/organizations` | Tenant Admin | Create organization. | Implemented | Tenant‑scoped; landlord users only. Minimal MVP fields: `name`, optional `description`. |
 | `/admin/api/v1/organizations/{organization_id}` | Tenant Admin | Organization detail. | Implemented | Tenant‑scoped; landlord users only. Returns org metadata. |
@@ -145,26 +146,26 @@ These roadmap phases extend the Flutter persona track and remain aligned with th
 - Event landing (read-only): title, date/time, venue name, artists names, hero media.
 - Invite landing (read-only): “You were invited by …” context + event summary.
 - Map browsing (read-only) for discovery; guide users into app for confirmations.
-- Install/Open-App CTA must preserve invite share code attribution (`code`), promote app conversion (`Baixe o App para Confirmar`), and use backend-resolved dynamic tenant store/open targets for Android and iOS. Handoff target is deterministic: only invite-landing context (`/invite` or `/convites`) with valid `code` uses `/invite?code=...`; otherwise use canonical `/`.
-- While the pre-MVP tester waitlist variant is active on `/baixe-o-app`, the promotion surface uses the approved Stitch-aligned form (`Seu Nome`, `E-mail`, `WhatsApp`, `SO`, `O que não pode faltar para atender às suas expectativas?`) and posts an ordered generic `submitted_fields` envelope to `POST /api/v1/email/send` so backend email delivery remains decoupled from Flutter form semantics.
+- Install/Open-App CTA must preserve invite attribution plus the originally requested route intent, promote app conversion (`Baixe o App para Confirmar`), and use backend-resolved dynamic tenant store/open targets for Android and iOS. Invite landing preserves `/invite?code=...`; direct detail routes and guard-triggered promotions preserve the requested redirect path; `/` is fallback only when no valid continuation intent exists.
 - Web invite surfaces cannot accept/decline invites in V1.
 - Web “unauthenticated” surfaces must not mint anonymous identities for invite conversion.
 
 **Web authenticated scope (V1):**
-- Tenant/Admin workspace remains outside tenant-public conversion flow and does not serve as fallback for tenant-public hard gates.
-- Workspace expansion (accounts/events/assets/branding operations) is tracked separately and must not reintroduce web invite/trust mutations in V1.
+- Authenticated web is the normal authenticated web product posture, but login is exclusively by QR code from an already promoted app identity.
+- Anonymous web remains promotion/read-only until that QR-authenticated session exists.
+- Web-native email/password/social login is out of scope.
 
 **App-only (V1):**
 - Deferred deep-link first-open capture for invite `code` on Android install paths (critical funnel step for V1).
 - Anonymous identity bootstrap (device-bound) and anonymous invite acceptance via canonical `POST /api/v1/invites/share/{code}/accept`.
-- First-open routing contract is deterministic: captured `code` routes to invite flow; unresolved capture routes to canonical tenant home (`/`).
-- Feed/map read-only navigation for anonymous users after acceptance.
-- Auth Wall hard-gates: favorites, send-invite actions, and presence/check-in boundaries.
-- Web tenant-public hard-gate hits must resolve to app promotion/open-app handoff, never web login continuation. If no invite `code` exists in the current context, the handoff target is `/`.
-- iOS deferred deep-link capture is explicitly VNext-scoped (`TODO-vnext-ios-universal-links-production-validation.md`); MVP iOS keeps installed-app universal links + fallback behavior.
+- First-open routing contract is deterministic: captured invite attribution routes to invite flow, preserved redirect-path intent restores the originally requested route, and unresolved capture routes to canonical tenant home (`/`).
+- Anonymous app baseline is explicit: invite preview, invite `accept`/`decline`, feed browsing, map browsing, and favorites remain available without forced login.
+- Authenticated app login is exclusively phone-OTP; Auth Wall applies only to the explicitly restricted actions such as `send_invite`, `/profile`, and presence/check-in boundaries.
+- Web tenant-public hard-gate hits must resolve to app promotion/open-app handoff, never web login continuation. Invite landing with valid `code` preserves `/invite?code=...`; direct detail routes and guard-triggered promotions preserve the requested redirect path; `/` remains fallback only when no valid continuation intent exists.
+- iOS deferred deep-link capture is explicitly sequenced as mandatory fast-follow (`foundation_documentation/todos/active/fast_follow_required/TODO-ios-universal-links-production-validation.md`); Android remains the launch-critical gate, while MVP iOS keeps installed-app universal links + fallback behavior until the fast-follow lane closes.
 
-**Attribution requirement:** External share links carry a single `code` as a GET param that resolves `{ tenant_id, event_id, inviter_principal }`. Web/store/app flows must preserve this `code`; Android V1 must preserve it through install + first open, while iOS deferred install preservation is VNext-scoped. Store/open routing must be tenant-dynamic for Android+iOS (no hardcoded store URLs in clients). App may accept anonymously directly from share preview; authenticated continuation flows may still materialize through `POST /api/v1/invites/share/{code}/materialize` before decision UI when needed. Anonymous-to-authenticated merge must preserve invite attribution/history.
+**Attribution requirement:** External share links carry a single `code` as a GET param that resolves `{ tenant_id, event_id, inviter_principal }`. Web/store/app flows must preserve this `code`; Android V1 must preserve it through install + first open, while iOS deferred install preservation is tracked in the mandatory fast-follow lane. Store/open routing must be tenant-dynamic for Android+iOS (no hardcoded store URLs in clients). App may accept anonymously directly from share preview; authenticated continuation flows may still materialize through `POST /api/v1/invites/share/{code}/materialize` before decision UI when needed. Anonymous-to-authenticated merge must preserve invite attribution/history.
 
-**Tracking mandate (V1):** Instrument inverted funnel `landing -> install -> deferred deep link captured -> anonymous accept -> auth wall triggered -> signup completed`, with deterministic event naming and deduplication. `store_channel` is required on `web_open_app_clicked`, `web_install_clicked`, and deferred capture result events (Android in V1; iOS when VNext deferred capture is enabled).
+**Tracking mandate (V1):** Instrument inverted funnel `landing -> install -> deferred deep link captured -> anonymous accept -> auth wall triggered -> signup completed`, with deterministic event naming and deduplication. `store_channel` is required on `web_open_app_clicked`, `web_install_clicked`, and deferred capture result events (Android in V1; iOS when the fast-follow deferred capture lane is enabled).
 
 **Future consideration:** Revisit after Phase 8 once viral loops and account profile analytics are stable. Any future web mutation expansion requires explicit contract/module/TODO updates with equivalent security and attribution guarantees.

@@ -5,7 +5,7 @@
 **Owners:** Backend Team
 **Objective:** Deliver the `inventory` capability on top of Events Phase 3 capability foundation, with tenant availability + event enablement + occurrence-first enforcement.
 
-**Superseded by:** `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-package-integration.md`
+**Superseded by:** `foundation_documentation/todos/active/vnext/TODO-v1-ticketing-package-integration.md`
 **Reason:** Ticket-domain concerns were moved from Events capabilities to a dedicated package integration stream.
 
 ---

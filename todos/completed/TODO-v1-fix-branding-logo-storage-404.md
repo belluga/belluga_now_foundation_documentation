@@ -10,6 +10,7 @@
 - Branding uploads are stored on Laravel `public` disk and URLs are returned like: `https://<domain>/storage/landlord/logos/light_logo.png`.
 - NGINX currently serves `/storage/` using `alias /var/www/storage/app/public/;` plus `try_files $uri ... =404;`.
 - With `alias`, using `try_files $uri` is error-prone because `$uri` still contains the `/storage/...` prefix, which can cause NGINX to test an incorrect filesystem path and return `404` even when the file exists under the aliased directory.
+- Follow-up audit (`2026-04-15`) also proved `try_files $request_filename =404;` is unsafe in this aliased block in this runtime: it reintroduces false `404` for existing files even when the asset exists on disk and the symlink/volume are correct.
 
 ---
 
@@ -27,7 +28,8 @@
 ---
 
 ## Decisions
-- Prefer `try_files $request_filename =404;` inside the `/storage/` `alias` location (or remove `try_files` if unnecessary) to ensure the existence check is performed against the resolved aliased filesystem path.
+- Keep the `/storage/` location as a plain `alias /var/www/storage/app/public/;` static-file serving block, or use another alias-safe existence check only after runtime proof.
+- Do not use `try_files $request_filename =404;` inside this aliased `/storage/` block; it causes false `404` in the current Docker/NGINX runtime.
 - Keep caching headers behavior unchanged unless it blocks correctness.
 
 ---
@@ -63,5 +65,5 @@
 ---
 
 ## Outcome Notes
-- Fixed NGINX `/storage/` alias existence check by switching to `try_files $request_filename =404;` in both templates.
+- Fixed NGINX `/storage/` alias handling by serving directly from the aliased storage volume instead of forcing `try_files $request_filename =404;`.
 - Confirmed tenant asset 404s were also caused by missing files on disk (upload not actually persisted); re-uploading tenant assets resolved.

@@ -18,24 +18,24 @@
 ## Module Anchors
 
 - **Primary:** `../foundation_documentation/modules/flutter_client_experience_module.md`
-- **Secondary:** `../foundation_documentation/modules/partner_catalog_and_offer_module.md`
+- **Secondary:** `../foundation_documentation/modules/account_profile_catalog_module.md`
 
 ### Canonical Coverage Status
 
 - `flutter_client_experience_module.md`: authoritative for controller/view separation, route ownership, shared widget behavior, and test discipline.
-- `partner_catalog_and_offer_module.md`: authoritative for public account-profile identity semantics and route continuity.
+- `account_profile_catalog_module.md`: authoritative for public account-profile identity semantics and route continuity.
 
 ### Decision Consolidation Targets
 
 - Promote durable shared visual-resolution rules to `../foundation_documentation/modules/flutter_client_experience_module.md` if this TODO changes reusable widget/theme behavior across discovery/home/detail surfaces.
-- Promote durable public account-profile identity/fallback rules to `../foundation_documentation/modules/partner_catalog_and_offer_module.md` only if this TODO changes stable consumer-facing rendering semantics.
+- Promote durable public account-profile identity/fallback rules to `../foundation_documentation/modules/account_profile_catalog_module.md` only if this TODO changes stable consumer-facing rendering semantics.
 
 ---
 
 ## References
 
-- `../foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
-- `../foundation_documentation/todos/active/mvp_slices/TODO-v1-screen-account-profile-detail-polish.md`
+- `../foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
+- `../foundation_documentation/todos/active/store_release_android/TODO-v1-screen-public-account-profile-detail-polish.md`
 - `../foundation_documentation/todos/completed/TODO-v1-screen-discovery-performance-hardening.md`
 - `lib/domain/partners/account_profile_model.dart`
 - `lib/domain/partners/profile_type_registry.dart`

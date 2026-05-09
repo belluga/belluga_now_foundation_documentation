@@ -30,7 +30,7 @@
 ## Module Anchors
 
 - **Primary:** `../foundation_documentation/modules/flutter_client_experience_module.md`
-- **Secondary:** `../foundation_documentation/modules/partner_catalog_and_offer_module.md`
+- **Secondary:** `../foundation_documentation/modules/account_profile_catalog_module.md`
 
 ### Decision Baseline (Frozen)
 

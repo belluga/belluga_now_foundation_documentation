@@ -308,5 +308,5 @@
 
 ## Dependencies
 - `foundation_documentation/todos/completed/TODO-v1-route-url-only-hydration-hardening.md`
-- `foundation_documentation/todos/active/vnext_slices/TODO-vnext-route-paths-refactor.md`
-- `foundation_documentation/todos/active/vnext_slices/TODO-vnext-endpoint-scope-separation.md`
+- `foundation_documentation/todos/active/vnext/TODO-vnext-route-paths-refactor.md`
+- `foundation_documentation/todos/completed/TODO-vnext-endpoint-scope-separation.md`

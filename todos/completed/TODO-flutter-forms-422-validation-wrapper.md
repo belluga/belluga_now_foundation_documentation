@@ -30,7 +30,7 @@ Establish a reusable internal Flutter package for form validation feedback that 
   - `foundation_documentation/screens/modulo_tenant_admin.md`
   - `foundation_documentation/submodule_flutter-app_summary.md`
   - `foundation_documentation/todos/completed/TODO-account-profile-transaction-unified-create.md`
-  - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-belluga-form-validation-package-hardening-and-publish.md`
+  - `foundation_documentation/todos/active/vnext/TODO-vnext-belluga-form-validation-package-hardening-and-publish.md`
 
 ## Scope
 1. Create an internal local package under `flutter-app/packages/belluga_form_validation/`.
@@ -214,7 +214,7 @@ Declaration order also defines invalid-target priority for scroll/navigation.
 
 | Decision | Status | Evidence |
 |---|---|---|
-| D-01 | Adherent | `packages/belluga_form_validation/README.md`; `foundation_documentation/todos/active/vnext_slices/TODO-vnext-belluga-form-validation-package-hardening-and-publish.md` |
+| D-01 | Adherent | `packages/belluga_form_validation/README.md`; `foundation_documentation/todos/active/vnext/TODO-vnext-belluga-form-validation-package-hardening-and-publish.md` |
 | D-02 | Adherent | `packages/belluga_form_validation/README.md`; `lib/presentation/tenant_admin/accounts/models/tenant_admin_account_create_validation_config.dart` |
 | D-03 | Adherent | `lib/infrastructure/repositories/tenant_admin/support/tenant_admin_validation_failure_resolver.dart`; `lib/infrastructure/repositories/tenant_admin/tenant_admin_accounts_repository.dart`; `lib/infrastructure/repositories/tenant_admin/tenant_admin_account_profiles_repository.dart` |
 | D-04 | Adherent | `packages/belluga_form_validation/README.md`; package tests (`fvm flutter test` in `packages/belluga_form_validation`) |
@@ -224,7 +224,7 @@ Declaration order also defines invalid-target priority for scroll/navigation.
 | D-08 | Adherent | `lib/presentation/tenant_admin/accounts/screens/tenant_admin_account_create_screen.dart`; package tests (`fvm flutter test` in `packages/belluga_form_validation`) |
 | D-09 | Adherent | `lib/presentation/tenant_admin/accounts/controllers/tenant_admin_account_create_controller.dart`; `test/presentation/tenant_admin/controllers/tenant_admin_accounts_controller_test.dart` |
 | D-10 | Adherent | `lib/presentation/tenant_admin/accounts/controllers/tenant_admin_account_create_controller.dart`; `lib/presentation/tenant_admin/accounts/screens/tenant_admin_account_create_screen.dart`; `test/presentation/tenant_admin/controllers/tenant_admin_accounts_controller_test.dart` |
-| D-11 | Adherent | `foundation_documentation/submodule_flutter-app_summary.md`; broad rollout remains deferred in `foundation_documentation/todos/active/vnext_slices/TODO-vnext-belluga-form-validation-package-hardening-and-publish.md` |
+| D-11 | Adherent | `foundation_documentation/submodule_flutter-app_summary.md`; broad rollout remains deferred in `foundation_documentation/todos/active/vnext/TODO-vnext-belluga-form-validation-package-hardening-and-publish.md` |
 
 ## Execution Evidence
 - `fvm flutter test` in `packages/belluga_form_validation`
@@ -275,7 +275,7 @@ Declaration order also defines invalid-target priority for scroll/navigation.
 | D-08 | Aligned | Preserve | `foundation_documentation/modules/flutter_client_experience_module.md:71-73` | Screen-side UI actions with controller-owned state match the DI/state ownership rules. |
 | D-09 | Aligned | Preserve | `foundation_documentation/modules/tenant_admin_module.md:131`, `foundation_documentation/screens/modulo_tenant_admin.md:222-241` | Controller-owned validation snapshots and target-specific busy/error handling remain consistent with the admin interaction baseline. |
 | D-10 | Aligned | Preserve | `foundation_documentation/modules/tenant_admin_module.md:131`, `foundation_documentation/screens/modulo_tenant_admin.md:116` | One presentation path for validation strengthens the current controller-owned validation contract instead of superseding it. |
-| D-11 | Aligned | Preserve | `foundation_documentation/todos/completed/TODO-account-profile-transaction-unified-create.md`, `foundation_documentation/todos/active/vnext_slices/TODO-vnext-belluga-form-validation-package-hardening-and-publish.md` | The staged rollout is already reflected by the onboarding cross-link and VNext package hardening TODO. |
+| D-11 | Aligned | Preserve | `foundation_documentation/todos/completed/TODO-account-profile-transaction-unified-create.md`, `foundation_documentation/todos/active/vnext/TODO-vnext-belluga-form-validation-package-hardening-and-publish.md` | The staged rollout is already reflected by the onboarding cross-link and VNext package hardening TODO. |
 
 ## Plan Review Gate (Medium)
 
@@ -326,7 +326,7 @@ Declaration order also defines invalid-target priority for scroll/navigation.
 ### Issue Card I-03
 - **Severity:** Medium
 - **Category:** Rollout Control
-- **Evidence:** `foundation_documentation/todos/completed/TODO-account-profile-transaction-unified-create.md`, `foundation_documentation/todos/active/vnext_slices/TODO-vnext-belluga-form-validation-package-hardening-and-publish.md`
+- **Evidence:** `foundation_documentation/todos/completed/TODO-account-profile-transaction-unified-create.md`, `foundation_documentation/todos/active/vnext/TODO-vnext-belluga-form-validation-package-hardening-and-publish.md`
 - **Why now:** Trying to replace every form in the same slice would turn the package-establishment work into a broad refactor and delay onboarding implementation.
 - **Options:**
   - **A (Recommended):** Deliver package + first adopter now; replace the remaining forms in the next session.
@@ -388,6 +388,6 @@ Declaration order also defines invalid-target priority for scroll/navigation.
 ## Notes
 - This TODO delivers the reusable package plus Tenant Admin Account Create as the first adopter only.
 - Broader form replacement belongs to the next session.
-- VNext hardening/publication work remains tracked separately in `foundation_documentation/todos/active/vnext_slices/TODO-vnext-belluga-form-validation-package-hardening-and-publish.md`.
+- VNext hardening/publication work remains tracked separately in `foundation_documentation/todos/active/vnext/TODO-vnext-belluga-form-validation-package-hardening-and-publish.md`.
 - Backend onboarding/transaction scope remains tracked in `foundation_documentation/todos/completed/TODO-account-profile-transaction-unified-create.md`.
 - Under the current broad triage, no further material pending decisions remain for this TODO; the remaining cuts are implementation-local.

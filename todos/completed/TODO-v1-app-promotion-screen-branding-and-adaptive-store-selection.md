@@ -41,8 +41,8 @@ Out of scope:
 ## 4. Decision Consistency Gate
 | Decision | Relevant Prior Decision | Handling | Notes |
 |---|---|---|---|
-| `D-01` | `TODO-v1-web-to-app-policy.md` `W2A-D08` | Preserve | Keep canonical route-based promotion surface. |
-| `D-04` | `TODO-v1-web-to-app-policy.md` `W2A-D09` | Supersede (Intentional) | `W2A-D09` required explicit Android+iOS support. This TODO refines presentation behavior to adaptive single-store rendering when platform is inferable, while preserving explicit `platform_target` selection semantics and dual-badge fallback. |
+| `D-01` | `TODO-store-release-web-to-app-conversion-gate.md` `W2A-D08` | Preserve | Keep canonical route-based promotion surface. |
+| `D-04` | `TODO-store-release-web-to-app-conversion-gate.md` `W2A-D09` | Supersede (Intentional) | `W2A-D09` required explicit Android+iOS support. This TODO refines presentation behavior to adaptive single-store rendering when platform is inferable, while preserving explicit `platform_target` selection semantics and dual-badge fallback. |
 | `D-05` | `web_to_app_promotion_policy.md` Apple badge ordering rule | Preserve | Apple badge stays first when multi-badge layout is rendered. |
 | `D-07` | `endpoints_mvp_contracts.md` `/open-app` | Preserve | No backend contract change. |
 

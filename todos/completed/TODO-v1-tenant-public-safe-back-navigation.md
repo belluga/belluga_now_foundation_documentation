@@ -38,14 +38,14 @@
 ## Module Anchors
 
 - **Primary:** `foundation_documentation/modules/flutter_client_experience_module.md`
-- **Secondary:** `foundation_documentation/modules/map_poi_module.md`, `foundation_documentation/modules/events_module.md`, `foundation_documentation/modules/partner_catalog_and_offer_module.md`
+- **Secondary:** `foundation_documentation/modules/map_poi_module.md`, `foundation_documentation/modules/events_module.md`, `foundation_documentation/modules/account_profile_catalog_module.md`
 
 ### Canonical Coverage Status
 
 - `flutter_client_experience_module.md`: authoritative for route ownership, navigation stack integrity, anonymous/public route behavior, and shared tenant-public UI contracts.
 - `map_poi_module.md`: authoritative for `/mapa` and `/mapa/poi`, including direct-open POI behavior and map fallback resilience.
 - `events_module.md`: authoritative for event-detail entry semantics and event-first discovery continuity.
-- `partner_catalog_and_offer_module.md`: authoritative for `/parceiro/:slug` public-detail semantics.
+- `account_profile_catalog_module.md`: authoritative for `/parceiro/:slug` public-detail semantics.
 
 ### Decision Consolidation Targets
 

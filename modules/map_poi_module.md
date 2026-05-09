@@ -57,6 +57,7 @@ Transient map notices are `reason`-driven and only render when the reason has an
 - In soft-gate mode, the map uses the tenant default origin/fixed-reference path for that access instead of blocking the screen.
 - The map shows a dismissible top notice for that access only, reusing the approved fixed-location explanatory copy.
 - There is no separate `/location/not-live` surface in V1; map fallback behavior stays inside the map flow itself.
+- When `/location/permission` is opened as a guarded interruption, visible back and system back must return the guarded `cancelled` outcome and dismiss the permission route if stack history exists; direct/no-history entry still falls back to `/`.
 - After the map target is active, back follows the shared tenant-public safe-back policy: `/mapa` returns to the previous route when history exists and otherwise falls back to `/`; `/mapa/poi` returns to previous history when present and otherwise falls back to `/mapa`.
 
 ## 3. Architecture Baseline: Server-Centric, Real-Time Ready
@@ -87,7 +88,7 @@ If tenant settings are missing, the defaults above apply. `default_origin` is us
 
 ### 3.2. Real-Time Updates (SSE)
 
-For instant updates like moving POIs and live offers, a persistent SSE connection will be used. The backend will push delta events to subscribed clients, which will update the UI in real-time without a full refresh.
+For future POI delta adoption, a persistent SSE connection may be used. The backend would push `poi.created|updated|deleted` events to subscribed clients so the UI can refresh incrementally without a full query reload. This remains a deferred capability; current runtime authority stays query/polling first.
 
 ### 3.3. User Interface and Interaction
 
@@ -118,37 +119,20 @@ When a user taps a POI, a details card will appear with "Details", "Share", and 
 
 The runtime already consumes REST APIs for on-demand queries and defines SSE compatibility surfaces for future realtime adoption. POI payloads include `priority` to control visual stacking order.
 
-### 3.4 POI Type Registry & Navigation
-- **Normalized IDs/Slugs:** Every custom object (poi, event, artist) exposes `id`, `slug`, and `type`.
+### 3.4 Projected Source Identity & Navigation
+- **Current projection sources:** current runtime POIs are projected from `account_profile`, `event`, and `static` sources only.
 - **Current map route hydration:** Flutter map routes hydrate by query key (`poi=<ref_type>:<ref_id>`; fallback to raw `id`) plus optional `stack`, not by slug path params.
 - **Navigation keys:** `ref_type + ref_id` is the current canonical map deep-link key. `slug/ref_path` remain relevant for detail/share surfaces.
-- **POI Type Registry:** `poi_types` defines how to map external sources into normalized POIs without per-request pipelines.
-  ```json
-  {
-    "slug": "restaurant",
-    "label": "Restaurante",
-    "kind": "venue|restaurant|beach|historic|generic",
-    "pipeline": {
-      "source": "collection_or_view",
-      "match_template": { /* whitelisted predicates, e.g., bbox, term_ids */ },
-      "projection": { "id": "$_id", "name": "$name", "lat": "$lat", "lng": "$lng", "address": "$address" },
-      "field_map": { "lat": "location.lat", "lng": "location.lng" },
-      "cache_ttl_seconds": 900,
-      "max_page_size": 100
-    },
-    "route": { "name": "poi_detail", "params": ["slug"] }
-  }
-  ```
-- **Lookup Flow:** Pipelines are only used upstream to produce/update normalized POI documents. Reads (agenda, map, event detail) never run pipelines. Current map lookup resolves by typed reference (`ref_type/ref_id`) through loaded payload + optional stack expansion and, when needed, deterministic single-POI lookup (`/map/pois/lookup`).
+- **Lookup Flow:** Reads (agenda, map, event detail) never invent source objects at request time. Current map lookup resolves by typed reference (`ref_type/ref_id`) through loaded payload + optional stack expansion and, when needed, deterministic single-POI lookup (`/map/pois/lookup`).
 
-### 3.5 Custom Objects & Taxonomies
-- **Custom Object Types:** `poi`, `event`, `artist`. All share the normalized shape `{ id, slug, type }` for routing and linking. Detail/share flows can stay slug-driven, while map deep-link hydration remains typed-reference (`ref_type + ref_id`) driven.
-- **Taxonomies/Terms:** `taxonomies` define `{ id, slug, name, applies_to: [poi|event|artist] }`; `terms` carry `{ id, slug, name, taxonomy_id }`. Object-term links use `{ object_type, object_id, term_id }`.
+### 3.5 Current Source Entities & Taxonomy Inputs
+- **Current source entities:** Account Profiles, Events, and Static Assets are the current source entities for map projection/runtime consumption.
+- **Taxonomies/Terms:** taxonomies and terms remain source-entity-owned classifications. Map consumers read the projected/filter-ready output rather than redefining taxonomy ownership locally.
 - **Usage:**
-  - POIs own their terms (e.g., `cuisine`, `ambience`, `vibe`).
-  - Artists own `genres` terms.
-  - Events may supply `tags`; if empty, clients derive chips from linked artist genres (and, optionally, POI terms if exposed).
-- **Navigation:** Detail actions are resolved from `type` + `slug` using a registry map, not IDs. Backend must ensure slug uniqueness per type and return both slug and id for robustness.
+  - Account Profile projections may expose taxonomy-driven filters/categories derived from profile type and attached terms.
+  - Static Asset projections use their static-profile-type and attached taxonomy data when those inputs are projected.
+  - Event projections may expose event tags and event-type visual/category inputs; event-linked account-profile context remains source-owned by Events rather than by a separate map-only taxonomy model.
+- **Navigation:** map deep-link hydration remains typed-reference-driven (`ref_type + ref_id`), while downstream detail actions continue to rely on the canonical source detail route for the referenced entity.
 
 ### 3.6 Materialized `map_pois` (Projection Records, Optional Time Anchor)
 
@@ -212,45 +196,7 @@ This ensures future events/campaigns do not appear immediately when created, whi
 
 **Temporary Static POIs (VNext):** Static Assets may be marked as temporary (`is_temporary`) with a date range. A background job flips `is_active` based on the window. Map queries always filter by `is_active` only (no time logic at query time). In MVP, `is_active` is managed manually.
 
-#### Example: “Promotional Coupon” Custom Object (POI-enabled)
-
-Scenario: An account profile wants a time-bound promotion (“Pague 1, leve 2” de cerveja). This can be modeled as a POI-enabled custom object type (it may be “account-profile-like” from the map’s point of view, but it is not required to be an Account Profile record).
-
-Custom object fields (example):
-```json
-{
-  "type": "promotional_coupon",
-  "title": "Pague 1, leve 2 (Cerveja)",
-  "details": "Válido das 18h às 22h, somente hoje.",
-  "account_profile_id": "ObjectId()",
-  "starts_at": "Date",
-  "ends_at": "Date",
-  "location": { "type": "Point", "coordinates": [-40.498383, -20.673067] },
-  "tags": ["cerveja", "promo", "happy-hour"],
-  "coupon_code": "String"
-}
-```
-
-Projection into `map_pois` on save (example):
-```json
-{
-  "ref_type": "custom_object",
-  "ref_id": "ObjectId()",
-  "category": "sponsor",
-  "name": "Pague 1, leve 2 (Cerveja)",
-  "description": "Válido das 18h às 22h, somente hoje.",
-  "location": { "type": "Point", "coordinates": [-40.498383, -20.673067] },
-  "tags": ["cerveja", "promo", "happy-hour"],
-  "priority": 10,
-  "is_active": true,
-  "active_window_start_at": "2025-12-13T18:00:00Z",
-  "active_window_end_at": "2025-12-13T21:00:00Z"
-}
-```
-
-Notes:
-- The POI exists as a projection; the canonical coupon object holds the full details and validation rules.
-- `active_window_*` defaults to `event.date_time_start` and `event.date_time_end` (or `start + settings.events.default_duration_hours`).
+Future new POI-capable source families are out of current runtime scope. If a later promotion/coupon/custom-object capability is introduced, it must first receive its own canonical source-entity/module decision before `map_pois.ref_type` expands beyond `account_profile|event|static`.
 
 ### 3.7 Same-Spot POIs (Stacking, Deduplication, and Performance)
 
@@ -360,21 +306,12 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 -   **Server pushes events:** `poi.created`, `poi.updated`, `poi.deleted`.
     - **Endpoint:** `GET /api/v1/map/pois/stream` (filters match `/api/v1/map/pois`).
 
-## 5. Roadmap and Strategic Decisions
+## 5. Current Strategic Posture
 
-### 5.1. Phased Rollout
--   **v0.1 (Lean MVP):** The initial launch will focus on the core B2C experience, primarily listing events and static POIs. The full real-time architecture will be built, but the features may not be exposed in the UI.
--   **v1.1 (Fast-Follow):** Advanced real-time features like "moving POIs" and "live offers" will be fully enabled in the UI.
-
-### 5.2. Unified Codebase
--   The "Account Workspace" (Account Profile management) or landlord functionality for managing POIs and offers will not be a separate application. It will be a different mode or build flavor within the main Flutter codebase, ensuring efficiency and code reuse.
-
-### 5.3. Implementation Roadmap
--   **Phase 1 (Complete):** Laravel-backed runtime wired for map POIs + filters + stack expansion.
--   **Phase 2 (Complete):** Dynamic FAB category filters from backend catalog (`/map/filters`) with tenant-admin decoration and controller-owned lock/reload behavior.
--   **Phase 3 (Complete):** URL-only route hydration hardening (`poi + stack` routes + internal-only fallbacks + deep-link order-priority focus behavior).
--   **Phase 4 (Complete):** Backend typed single-POI lookup (`/map/pois/lookup`) delivered to close global `poi`-only deep-link resolution.
--   **Phase 5 (Deferred MVP):** SSE stream adoption for map deltas (`/map/pois/stream`), keeping polling/list endpoints as source of truth in MVP.
+- **Current runtime-backed authority:** Laravel-backed POI queries, backend filter catalogs, stack expansion, and typed single-POI lookup are the current source of truth for the map runtime.
+- **Current client posture:** Flutter map routing is URL/query driven (`poi` + optional `stack`), with shared location-origin policy and tenant-public safe-back behavior already integrated.
+- **Deferred continuation:** SSE delta adoption (`/map/pois/stream`) remains a later enhancement; current runtime stays query/polling first.
+- **Codebase posture:** future account-workspace or admin authoring flows must reuse this same map authority surface rather than creating a separate map application.
 
 ## 6. Canonical Decision Baseline
 
@@ -396,7 +333,7 @@ The client will connect to an SSE endpoint and subscribe to events for the visib
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
 | `TODO-v1-map-backend.md` | Map package extraction and backend contract ownership | Production-Ready | `1.1`, `3.6`, `4`, `6` | Package ownership complete (`belluga_map_pois`), including internal rebuild command. |
-| `TODO-v1-map-frontend.md` | Flutter map UX + filter/stacking consumption | In progress | `3.3`, `4.1`, `5` | Client contract alignment stream. |
+| `TODO-v1-map-frontend.md` | Flutter map UX + filter/stacking consumption | Completed | `3.3`, `4.1`, `5` | Client contract-alignment slice closed; the promoted visual/plugin-surface lane is now archived in `foundation_documentation/todos/completed/TODO-v1-map-visuals.md`. |
 | `TODO-v1-map-icon-color-config.md` | Type-driven POI visuals + filter marker override + hard-delete/rematerialization contract | Completed | `3.6`, `4.1`, `6` | Archived in `todos/completed`; canonical projection/visual contract remains promoted here. |
 | `TODO-v1-event-type-canonical-poi-visuals.md` | Event-type canonical visuals and event POI parity | In progress | `3.6`, `4.1`, `6` | Local implementation and automated coverage are in place; final closure still depends on manual public-map smoke. |
 | `TODO-v1-route-url-only-hydration-hardening.md` | URL-only route hydration + internal-only fallback hardening | Production-Ready | `4.1`, `6` | `poi + stack` + `poi`-only deterministic lookup delivered end-to-end. |

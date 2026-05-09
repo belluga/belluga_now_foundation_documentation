@@ -1,12 +1,12 @@
 # Documentation: Tenant Administration Module
 
-**Version:** 0.1 (Placeholder)  
-**Date:** February 28, 2025  
+**Version:** 0.2 (Active Canonical Module)  
+**Date:** April 12, 2026  
 **Authors:** Delphi (Belluga Co-Engineering)
 
 ## 1. Purpose
 
-Placeholder for the Tenant Administration interface (`tenant_admin` main scope) where city governments or enterprise tenants manage account profile onboarding, plan assignments, and high-level analytics. In V1, this interface is accessed on tenant domains and guarded by landlord identity principal. This document will be expanded after the tenant-facing app modules are finalized, ensuring admin capabilities align with real consumer workflows.
+Canonical module contract for the Tenant Administration interface (`tenant_admin` main scope), where city governments or enterprise tenants manage account profile onboarding, plan assignments, integrations, tenant-domain settings, and event operations. In V1, this interface is accessed on tenant domains and guarded by landlord identity principal. This document remains a living contract, but it is no longer a placeholder reference for the implemented tenant-admin surfaces documented below.
 
 ### 1.1 Canonical Anchors
 
@@ -16,20 +16,20 @@ Placeholder for the Tenant Administration interface (`tenant_admin` main scope) 
   - `foundation_documentation/submodule_flutter-app_summary.md`
   - `foundation_documentation/policies/scope_subscope_governance.md`
 - Cross-module references:
-  - `foundation_documentation/modules/partner_catalog_and_offer_module.md`
-  - `foundation_documentation/modules/partner_admin_module.md`
+  - `foundation_documentation/modules/account_profile_catalog_module.md`
+  - `foundation_documentation/modules/account_workspace_module.md` (canonical planning surface for future `account_workspace`)
   - `foundation_documentation/modules/invite_and_social_loop_module.md`
   - `foundation_documentation/modules/map_poi_module.md`
   - `foundation_documentation/modules/events_module.md`
 - Tactical TODO streams:
   - `foundation_documentation/todos/completed/TODO-v1-tenant-admin-navigation-ia-events-priority.md`
-  - `foundation_documentation/todos/active/vnext_slices/TODO-vnext-tenant-user-account-profile-area.md`
-  - `foundation_documentation/todos/active/mvp_slices/TODO-v1-static-assets-media-parity-with-account-profiles.md`
+  - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
+  - `foundation_documentation/todos/completed/TODO-v1-static-assets-media-parity-with-account-profiles.md`
 
 ## 2. Intended Responsibilities
 
 1. **Account Profile Lifecycle Management:** Approve/reject account profile applications, assign plan tiers, manage verification flags.
-2. **Account Profile Analytics Overview:** Monitor account profile performance (invites, attendance, revenue) using aggregate data from Account Profile Analytics.
+2. **Account Profile Analytics Overview:** Monitor account profile performance (invites, attendance, revenue) using aggregate analytics capabilities sourced from invites, events, transactions, and future workspace-facing dashboards, without assuming a standalone analytics module by default.
 3. **Tenant Configuration:** Define map regions, featured campaigns, rule sets for the Tenant Home Composer, and policy settings (invite quotas, suppression rules).
 4. **Compliance & Auditing:** View audit trails (invite Fulfillment steps, attendance confirmations) and respond to data-access requests.
 5. **Government/Institutional Reporting:** Generate reports for city stakeholders (tourism impact, local business engagement, account profile mix).
@@ -48,6 +48,7 @@ Placeholder for the Tenant Administration interface (`tenant_admin` main scope) 
 |---|---|---|---|---|---|
 | `/admin` (tenant domain) | Tenant | `tenant` | `tenant_admin` | n/a | Canonical tenant-admin home. |
 | `/admin/*` child routes | Tenant | `tenant` | `tenant_admin` | n/a | Tenant-admin modules (accounts/org/catalog/assets/settings). |
+| `/admin/settings/domains` | Tenant | `tenant` | `tenant_admin` | n/a | Tenant-admin domain management. |
 | `/workspace` | Tenant | `tenant` | `tenant_public` | `account_workspace` | Adjacent subscope; not a tenant-admin route. |
 | `/workspace/{account_slug}` | Tenant | `tenant` | `tenant_public` | `account_workspace` | Account-scoped workspace mode. |
 
@@ -122,6 +123,7 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with 
 - `/admin/settings/local-preferences`
 - `/admin/settings/visual-identity`
 - `/admin/settings/technical-integrations`
+- `/admin/settings/domains`
 - `/admin/settings/environment-snapshot`
 
 ### 3.4 Mobile UX Rules
@@ -189,8 +191,15 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with 
   - `/admin/settings/local-preferences` → local preferences (`map_ui.radius` bounds + `map_ui.default_origin` fallback seed + `map_ui.filters` catalog + theme)
   - `/admin/settings/visual-identity` → branding/visual identity
   - `/admin/settings/technical-integrations` → app links + firebase/push/telemetry + resend email delivery
+  - `/admin/settings/domains` → tenant web-domain management (active list/create/delete; deleted-domain lifecycle stays outside the current settings read flow)
   - `/admin/settings/environment-snapshot` → read-only environment diagnostics
 - The settings controller remains the state owner; each settings screen consumes only the relevant state slices and actions.
+- `/admin/settings/visual-identity` is the canonical owner of tenant runtime branding identity in V1:
+  - editing `Nome do tenant` persists the canonical tenant record used by `/api/v1/environment` and `manifest.json`;
+  - `favicon` is a dedicated `.ico` upload surface for browser-tab/bookmark identity only;
+  - `Icone PWA` remains a dedicated PNG source for manifest `/icon/...` outputs and must not be conflated with favicon;
+  - `public_web_metadata.default_title`, `public_web_metadata.default_description`, and `public_web_metadata.default_image` are the tenant-owned fallback metadata inputs for tenant-public HTML routes that do not already resolve route-specific Open Graph metadata;
+  - `public_web_metadata.default_image` uses the same canonical branding upload pipeline as the other branding assets, but it only participates in server-rendered OG/Twitter fallback metadata and must not be repurposed as favicon or PWA icon input.
 
 ### 3.7 Selected Tenant State Ownership (Shared Repository)
 
@@ -260,14 +269,115 @@ Create an organization (grouping only in MVP).
 }
 ```
 
-### `GET /admin/api/v1/events/account_profile_candidates`
-Page-based account-profile candidate discovery for the event form artist/physical-host pickers.
+### `GET /admin/api/v1/events`
+List tenant-admin events for operational management.
 
 **Query Parameters**
-- `type`: `artist|physical_host` (required)
+- `date`: `YYYY-MM-DD?` (specific calendar day in tenant-admin operations)
+- `temporal`: comma-separated subset of `past|now|future`
+- `venue_profile_id`: `string?`
+- `related_account_profile_id`: `string?`
+- `page`: `int?`
+- `page_size`: `int?` (max `100`)
+
+**Response Schema**
+```json
+{
+  "data": [
+    {
+      "event_id": "string",
+      "slug": "evento-exemplo",
+      "title": "Evento Exemplo",
+      "type": {
+        "id": "string",
+        "name": "Show",
+        "slug": "show"
+      },
+      "place_ref": {
+        "type": "account_profile",
+        "id": "string"
+      },
+      "date_time_start": "2026-01-01T20:00:00Z",
+      "date_time_end": "2026-01-01T22:00:00Z",
+      "occurrences": [
+        {
+          "occurrence_id": null,
+          "occurrence_slug": null,
+          "date_time_start": "2026-01-01T20:00:00Z",
+          "date_time_end": "2026-01-01T22:00:00Z"
+        }
+      ],
+      "venue": {
+        "id": "string",
+        "display_name": "Casa Solar",
+        "slug": "casa-solar",
+        "profile_type": "venue"
+      },
+      "event_parties": [
+        {
+          "party_type": "band",
+          "party_ref_id": "string",
+          "permissions": {
+            "can_edit": true
+          }
+        }
+      ],
+      "linked_account_profiles": [
+        {
+          "id": "string",
+          "account_id": "string",
+          "display_name": "Banda Exemplo",
+          "profile_type": "band",
+          "slug": "banda-exemplo"
+        }
+      ],
+      "publication": {
+        "status": "published",
+        "publish_at": "2026-01-01T12:00:00Z"
+      },
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T12:30:00Z",
+      "deleted_at": null
+    }
+  ],
+  "current_page": 1,
+  "last_page": 1,
+  "per_page": 10,
+  "total": 0
+}
+```
+
+**Notes**
+- Management filters are server-driven and compose with one another; local-only filtering of a fixed preload snapshot is not canonical.
+- The current tenant-admin manager surface exposes `date`, `temporal`, `venue_profile_id`, and `related_account_profile_id` only.
+- The venue and related-profile picker chips rely on paged server-driven discovery through `GET /admin/api/v1/events/account_profile_candidates`; that selector endpoint supports filter choice, but it is not an extra list filter on `GET /admin/api/v1/events`.
+- The manager venue picker intentionally reuses the canonical `physical_host` selector semantics because current canonical event writes only persist `place_ref` after physical-host validation confirms POI capability plus valid coordinates.
+- Retired direct search is explicit, not implicit: `search` is rejected by request validation and is not serialized by the Flutter manager repository.
+- Legacy backend compatibility paths for `status`/`archived` may still exist for existing admin callers, but they are not canonical inputs for the current Flutter manager UX.
+- `venue_profile_id` matches canonical venue ownership (`place_ref.id` / `place_ref._id`).
+- `related_account_profile_id` matches canonical non-venue event-party ownership and its additive `linked_account_profiles` projection.
+- Stable pagination order is nearest start first: `date_time_start ASC`, `_id DESC`.
+- The Flutter tenant-admin list groups cards by local event date and uses an explicit manager-card contract for scanning:
+  - `thumb`
+  - `title`
+  - `date_time_start` / `date_time_end`
+  - `venue.display_name`
+  - `linked_account_profiles`
+  - `publication.status`
+  - `updated_at`
+- Non-published manager cards (`publication.status != published`) render with `70%` opacity so draft/scheduled/ended items remain visible but visually secondary to published inventory.
+- Grouping is rebuilt from the accumulated ordered result, and any filter change resets pagination to page `1` before regrouping.
+- Management payloads must not require an artist-shaped key such as `artists`; dynamic account-profile administration flows consume `event_parties` plus `linked_account_profiles`.
+- Tenant-admin event edit/create uses the same approved `event.content` subset as the public event detail contract: `<p>`, `<br>`, `<h1-6>`, `<ul>`, `<ol>`, `<li>`, `<blockquote>`, `<strong>`, `<em>`, and `<s>`. Unsupported markup is stripped on save, and emojis remain plain text.
+
+### `GET /admin/api/v1/events/account_profile_candidates`
+Page-based account-profile candidate discovery for the event form pickers and the tenant-admin manager venue/related-profile filter pickers.
+
+**Query Parameters**
+- `type`: `related_account_profile|physical_host` (required)
 - `search`: `string?`
 - `page`: `int?`
-- `page_size` or `per_page`: `int?` (max `50`)
+- `page_size` or `per_page`: `int?` (max `50`; `page_size` preferred, `per_page` compatibility alias)
 
 **Response Schema**
 ```json
@@ -291,8 +401,12 @@ Page-based account-profile candidate discovery for the event form artist/physica
 ```
 
 **Notes**
-- `type=artist` supports the event-form artist picker.
+- `type=related_account_profile` supports the event-form related-account-profile picker and must not hardcode one specific dynamic profile type.
+- `type=related_account_profile` also supports the tenant-admin manager related-profile filter picker.
+- `type=related_account_profile` excludes canonical venue profiles so the picker stays aligned with downstream non-venue related-profile semantics.
 - `type=physical_host` supports venue/host selection and returns only POI-enabled profiles with valid coordinates.
+- `type=physical_host` also supports the tenant-admin manager venue filter picker.
+- Stable pagination order is `display_name ASC`, `_id ASC`.
 - The account-scoped own-create mirror uses `/api/v1/accounts/{account_slug}/events/account_profile_candidates` with the same semantics.
 - Tenant-admin search must be server-driven and paginated; local-only filtering of a fixed preload snapshot is not canonical.
 
@@ -1866,7 +1980,7 @@ Update tenant-owned Resend delivery defaults used by tenant-public transactional
 ```
 
 ### `POST /api/v1/email/send`
-Tenant-public transactional email send endpoint used by the temporary web tester-waitlist flow.
+Tenant-public transactional email send endpoint kept only for legacy/non-release flows. It is not part of the current store-release web-to-app conversion contract, which promotes users to the app-promotion/store handoff instead of the temporary tester-waitlist path.
 
 **Request Schema**
 ```json
@@ -1993,6 +2107,115 @@ Remove typed mobile app identifier for one platform.
 }
 ```
 
+### `GET /admin/api/v1/domains`
+List active tenant web domains for the tenant-admin settings surface.
+
+**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:read`
+
+**Query Params**
+- `page` (int, optional)
+- `per_page` (int, optional; default `15`, bounded to `100`)
+
+**Response Schema**
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "path": "tenant.example.com",
+      "type": "web",
+      "status": "active",
+      "created_at": "2026-01-01T12:00:00Z",
+      "updated_at": "2026-01-01T12:00:00Z",
+      "deleted_at": null
+    }
+  ],
+  "total": 1,
+  "per_page": 15,
+  "current_page": 1
+}
+```
+
+**Field Definitions**
+- `id`
+  - canonical delete identity for the current active-domain settings UI.
+- `status`
+  - `active`: domain is active and resolves tenant access.
+- `type`
+  - `web`: tenant web domain (admin + public resolution).
+
+**Operational Note**
+- This read contract is intentionally limited to active web domains so the current settings surface can manage create/delete without implying deleted-domain restore UI.
+- Existing lifecycle routes such as restore/force-delete remain backend operations, but they are not surfaced by the current tenant-admin settings flow until a dedicated deleted-domain read contract exists.
+- Stable pagination order is `created_at DESC`, `_id DESC`.
+
+### `POST /admin/api/v1/domains`
+Create a new tenant domain.
+
+**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update`
+
+**Request Schema**
+```json
+{
+  "path": "tenant.example.com"
+}
+```
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "path": "tenant.example.com",
+    "type": "web",
+    "status": "active",
+    "created_at": "2026-01-01T12:00:00Z",
+    "updated_at": "2026-01-01T12:00:00Z",
+    "deleted_at": null
+  }
+}
+```
+
+### `DELETE /admin/api/v1/domains/{domain_id}`
+Soft-delete a tenant domain.
+
+**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update`
+
+**Response Schema**
+```json
+{}
+```
+
+### `POST /admin/api/v1/domains/{domain_id}/restore`
+Restore a soft-deleted tenant domain.
+
+**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update`
+
+**Response Schema**
+```json
+{
+  "data": {
+    "id": "string",
+    "path": "tenant.example.com",
+    "type": "web",
+    "status": "active",
+    "created_at": "2026-01-01T12:00:00Z",
+    "updated_at": "2026-01-01T12:00:00Z",
+    "deleted_at": null
+  }
+}
+```
+
+### `DELETE /admin/api/v1/domains/{domain_id}/force-delete`
+Hard-delete a previously soft-deleted domain (admin-only cleanup).
+
+**Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `tenant-domains:update`
+
+**Response Schema**
+```json
+{}
+```
+
 ### `GET /admin/api/v1/settings/telemetry`
 List telemetry integrations.
 
@@ -2085,6 +2308,8 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TAD-07` | Approved | Type definitions own canonical `visual` independently of `is_poi_enabled`; disabling POI still requires destructive preview via projection-impact endpoint before hard-delete path. | Aligns tenant-admin type editing with shared consumer identity semantics while preserving map projection safeguards. | Section `4` (`account_profile_types/static_profile_types` + `map_poi_projection_impact`) |
 | `TAD-08` | Approved | Event types use the same canonical `visual` contract as other POI-capable type registries, but event image mode is restricted to `cover` and `type_asset`. | Keeps tenant-admin event-type editing aligned with shared POI visuals without inventing unsupported event-avatar semantics. | Sections `3.2`, `3.3`, `4` (`event_types`) |
 | `TAD-09` | Approved | Tenant-admin back behavior is centralized through one shared section registry plus typed route-back helpers; shell/forms/settings/details may not own raw `pop/maybePop` as final route policy. | Prevents section drift and web empty-history failures across `/admin` child flows. | Sections `2.2`, `3`, `5` |
+| `TAD-10` | Approved | Tenant-admin web-domain settings consume an active-domain read contract only; deleted-domain restore/force-delete lifecycle is intentionally decoupled until a dedicated deleted-domain read surface exists. | Keeps the current settings flow coherent with the approved slice while preserving existing lower-level lifecycle routes. | Sections `3.6`, `4` (`GET/POST/DELETE /admin/api/v1/domains`) |
+| `TAD-11` | Approved | Tenant-admin event list operations are server-driven and use `date`, `temporal`, `venue_profile_id`, and `related_account_profile_id` as the canonical current manager filter set, without artist-shaped management payload keys. | Preserves dynamic account-profile semantics for event operations while giving operators a date-grouped, high-signal manager list without reviving direct text search. | Sections `4` (`GET /admin/api/v1/events`, `GET /admin/api/v1/events/account_profile_candidates`) |
 
 ## 6. Tactical TODO Promotion Ledger
 
@@ -2097,5 +2322,6 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TODO-v1-map-icon-color-config.md` | Type-level visuals + filter marker override + projection impact preview integration | Completed | `4`, `5` | Archived in `todos/completed`; canonical field ownership now lives under `visual`, while projection impact and filter marker metadata remain unchanged. |
 | `TODO-v1-event-type-canonical-poi-visuals.md` | Event-type canonical visuals across Laravel, tenant-admin, and map projection parity | In progress | `3.2`, `3.3`, `4`, `5` | Local implementation and automated coverage are in place; final closure still depends on manual admin/map smoke. |
 | `TODO-v1-canonical-back-navigation-governance-cutover.md` | Canonical route-back governance across shell/forms/settings/details | In progress | `2.2`, `5` | Promotes the shared section registry + typed helper rule for tenant-admin internal routes. |
+| `TODO-v1-tenant-admin-domain-management-and-events-ops.md` | Active web-domain management plus tenant-admin event operations hardening | In progress | `3.6`, `4`, `5` | Establishes the active-domain settings contract and server-driven event-management list/filter semantics for this slice. |
 | `TODO-vnext-tenant-user-account-profile-area.md` | Account/profile admin boundaries | In progress | `2`, `4`, `5` | Aligns account/profile CRUD contracts and scope. |
 | `TODO-v1-static-assets-media-parity-with-account-profiles.md` | Media parity and static assets admin flows | In progress | `4`, `5` | Syncs media endpoints and UX behavior. |

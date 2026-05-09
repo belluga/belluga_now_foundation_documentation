@@ -36,20 +36,20 @@
 ## Module Anchors
 
 - **Primary:** `../foundation_documentation/modules/tenant_admin_module.md`
-- **Secondary:** `../foundation_documentation/modules/map_poi_module.md`, `../foundation_documentation/modules/partner_catalog_and_offer_module.md`, `../foundation_documentation/modules/flutter_client_experience_module.md`
+- **Secondary:** `../foundation_documentation/modules/map_poi_module.md`, `../foundation_documentation/modules/account_profile_catalog_module.md`, `../foundation_documentation/modules/flutter_client_experience_module.md`
 
 ### Canonical Coverage Status
 
 - `tenant_admin_module.md`: authoritative for type-registry payload shape and admin editing flows; partially updated to canonical `visual`, but still incomplete for `type_asset`.
 - `map_poi_module.md`: authoritative for `map_pois.visual` ownership and projection semantics; already aligned to projection-owned `visual`, but still incomplete for `type_asset` source resolution.
-- `partner_catalog_and_offer_module.md`: authoritative for account-profile consumer identity semantics; already aligned to canonical type visuals, but still incomplete for `type_asset` image semantics.
+- `account_profile_catalog_module.md`: authoritative for account-profile consumer identity semantics; already aligned to canonical type visuals, but still incomplete for `type_asset` image semantics.
 - `flutter_client_experience_module.md`: authoritative for shared Flutter consumer/rendering behavior when a type visual must render consistently across map and non-map UI; already aligned to `visual`, but still constrained to `avatar|cover`.
 
 ### Decision Consolidation Targets
 
 - Promote stable type-registry contract changes into `../foundation_documentation/modules/tenant_admin_module.md`.
 - Promote projection ownership changes into `../foundation_documentation/modules/map_poi_module.md`.
-- Promote public-consumer rendering decisions into `../foundation_documentation/modules/partner_catalog_and_offer_module.md` and `../foundation_documentation/modules/flutter_client_experience_module.md` where durable shared behavior is introduced.
+- Promote public-consumer rendering decisions into `../foundation_documentation/modules/account_profile_catalog_module.md` and `../foundation_documentation/modules/flutter_client_experience_module.md` where durable shared behavior is introduced.
 - Sync stable payload examples and request/response shapes into `../foundation_documentation/endpoints_mvp_contracts.md`.
 - Promote backend media-slot ownership and host-package integration details into the paired Laravel contract/module surfaces once the refreshed contract is approved.
 
@@ -57,7 +57,7 @@
 
 ## References
 
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-screen-account-profile-detail-polish.md`
+- `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-public-account-profile-detail-polish.md`
 - `lib/domain/tenant_admin/tenant_admin_profile_type.dart`
 - `lib/domain/tenant_admin/tenant_admin_static_profile_type.dart`
 - `lib/domain/tenant_admin/tenant_admin_poi_visual.dart`
@@ -150,7 +150,7 @@
 - `map_poi_module.md`
   - Current state: states marker visuals are derived from canonical `visual`, but does not yet cover `type_asset` as an allowed origin.
   - Planned handling: `Supersede (Intentional)` while preserving projection-owned `map_pois.visual`.
-- `partner_catalog_and_offer_module.md`
+- `account_profile_catalog_module.md`
   - Current state: public consumer contract exists, but `mode=image` semantics are still described as item-derived only.
   - Planned handling: `Supersede (Intentional)` to allow both item-derived and type-owned canonical image sources.
 - `flutter_client_experience_module.md`
@@ -175,10 +175,10 @@
 ## Touched Surfaces
 
 - `foundation_documentation/todos/completed/TODO-v1-profile-type-visual-canonicalization.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-screen-account-profile-detail-polish.md`
+- `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-public-account-profile-detail-polish.md`
 - `../foundation_documentation/modules/tenant_admin_module.md`
 - `../foundation_documentation/modules/map_poi_module.md`
-- `../foundation_documentation/modules/partner_catalog_and_offer_module.md`
+- `../foundation_documentation/modules/account_profile_catalog_module.md`
 - `../foundation_documentation/modules/flutter_client_experience_module.md`
 - `../foundation_documentation/endpoints_mvp_contracts.md`
 - Flutter domain/DTO/form surfaces for type registry definitions

@@ -5,7 +5,7 @@
 **Owners:** Backend Team
 **Objective:** Deliver participant/student binding capability to support identity-linked eligibility and audience constraints in events.
 
-**Superseded by:** `foundation_documentation/todos/active/mvp_slices/TODO-v1-ticketing-package-integration.md`
+**Superseded by:** `foundation_documentation/todos/active/vnext/TODO-v1-ticketing-package-integration.md`
 **Reason:** Ticket-domain concerns were moved from Events capabilities to a dedicated package integration stream.
 
 ---

@@ -8,14 +8,14 @@
 ---
 
 ## References
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-targeted-visual-polish.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
+- `foundation_documentation/todos/completed/TODO-v1-targeted-visual-polish.md`
+- `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
 - `foundation_documentation/policies/scope_subscope_governance.md`
 
 ## Scope (Single Screen)
 - Keep top structure with `Tocando agora` + `Perto de você` (no textual Hero block).
 - Keep `Descubra` heading and category chips immediately below.
-- Keep search mode behavior that hides top sections and category chrome.
+- Keep search mode behavior that hides top sections and category chrome while preserving the base results grid until the user starts typing.
 - Improve loading stability and visual quality for this screen.
 
 ## Out of Scope
@@ -26,7 +26,7 @@
 - `D-01`: This TODO keeps discovery behavior aligned with current contracts; visual polish is Flutter-side and API-compatible.
 - `D-02`: Discovery hierarchy keeps `Tocando agora` + `Perto de você` and does not include textual Hero.
 - `D-03`: Feed heading remains `Descubra`, with single-select category chips directly below.
-- `D-04`: Search-active mode hides `Tocando agora`, `Perto de você`, `Curadores`, and also hides `Descubra` + chips.
+- `D-04`: Search-active mode hides `Tocando agora`, `Perto de você`, and also hides `Descubra` + chips.
 - `D-05`: `Tocando agora` uses highlighted card style; with multiple live items, it renders as carousel.
 - `D-06`: `Tocando agora` is artist-driven for MVP: render only when live-now payload contains at least one valid artist; keep section hidden when there are no artists.
 - `D-07`: `Perto de você` items must show distance badge on the avatar/list tile.
@@ -40,8 +40,8 @@
 - [x] ✅ Production-Ready Keep chips directly below `Descubra` with single-select behavior.
 - [x] ✅ Production-Ready Keep `Tocando agora` as highlighted card and carousel when multiple live entries exist.
 - [x] ✅ Production-Ready Keep `Tocando agora` hidden when live-now payload has no artists.
-- [x] ✅ Production-Ready Keep search mode hiding `Tocando agora`/`Perto de você`/`Curadores`.
-- [x] ✅ Production-Ready Keep search mode hiding `Descubra` + chips and showing pre-query prompt-only state.
+- [x] ✅ Production-Ready Keep search mode hiding `Tocando agora`/`Perto de você`.
+- [x] ✅ Production-Ready Keep search mode hiding `Descubra` + chips while preserving the base results grid until typing begins.
 - [x] ✅ Production-Ready Ensure `Perto de você` displays distance badges with consistent readability.
 - [x] ✅ Production-Ready Refine loading transitions to avoid full-screen jitter/flicker.
 
@@ -68,7 +68,7 @@
 ## Validation Steps
 - [x] ✅ Production-Ready Manual smoke: hierarchy (`Tocando agora`, `Perto de você`, `Descubra`, chips).
 - [x] ✅ Production-Ready Manual smoke: `Tocando agora` hidden state when live-now has no artists.
-- [x] ✅ Production-Ready Manual smoke: search-active and pre-query states.
+- [x] ✅ Production-Ready Manual smoke: search-active and empty-query base-results states.
 - [x] ✅ Production-Ready Manual smoke: loading stability during filter/search changes.
 - [x] ✅ Production-Ready Manual smoke: distance badge readability in `Perto de você`.
 - [x] ✅ Production-Ready Automated: discovery controller/widget/DTO/repository/DAL suites are green.

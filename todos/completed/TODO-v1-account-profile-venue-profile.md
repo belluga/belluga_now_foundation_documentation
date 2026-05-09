@@ -3,14 +3,14 @@
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.
 **Status:** Completed  
 **Owners:** Flutter Team + Product  
-**Objective:** Deprecated. Merged into `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`.
+**Objective:** Deprecated. Merged into `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`.
 **Note:** This file is retained for history; all work continues in the unified Account Profile UI slice.
 
 ---
 
 ## References
 - `foundation_documentation/todos/completed/TODO-mvp-scope-definition.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+- `foundation_documentation/todos/active/concluded_but_active/TODO-v1-first-release.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-implementation.md`
 - `lib/presentation/tenant/partners/models/partner_profile_config.dart`
 

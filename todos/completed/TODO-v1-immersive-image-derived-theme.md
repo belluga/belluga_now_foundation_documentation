@@ -37,7 +37,7 @@
 - `lib/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen.dart`
 - `lib/presentation/tenant_public/partners/routes/partner_detail_route.dart`
 - `lib/presentation/tenant_public/partners/account_profile_detail_screen.dart`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-screen-account-profile-detail-polish.md`
+- `foundation_documentation/todos/active/store_release_android/TODO-v1-screen-public-account-profile-detail-polish.md`
 
 ---
 

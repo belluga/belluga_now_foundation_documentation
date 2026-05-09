@@ -23,7 +23,7 @@ This TODO is the “gate” for scope clarity: we answer the questions below, th
 
 ### 2.1 Tenant (public-facing) MVP
 - Reduced profiles:
-  - Account Profile reduced tabs (already tracked in `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`)
+  - Account Profile reduced tabs (already tracked in `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`)
   - Venue reduced profile (defined in MVP decisions)
 - Map POIs:
   - Beaches
@@ -138,10 +138,10 @@ This TODO is the “gate” for scope clarity: we answer the questions below, th
 ## 4) Proposed TODO changes after decisions are made
 
 After we answer D1–D5, we will:
-- [x] Update `foundation_documentation/todos/active/mvp_slices/TODO-v1-map.md` to explicitly match the agreed POI taxonomy + filter mapping.
+- [x] Update `foundation_documentation/todos/completed/TODO-v1-map.md` to explicitly match the agreed POI taxonomy + filter mapping.
 - [x] Add a new TODO for “Venue reduced profile”.
 - [x] Update the Tenant/Admin area TODO to cover CRUD + audit + unmanaged lifecycle.
-- [x] Update `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md` to reflect the MVP boundary (and move non-MVP items to `TODO-vnext-parking-lot.md`).
+- [x] Update `foundation_documentation/todos/active/concluded_but_active/TODO-v1-first-release.md` to reflect the MVP boundary (and move non-MVP items to `TODO-vnext-parking-lot.md`).
 
 ---
 

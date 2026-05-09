@@ -107,7 +107,7 @@
 - `foundation_documentation/todos/completed/TODO-v1-push-delivery-consolidated.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-telemetry-frontend.md`
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-backend-context-and-identity.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-first-release.md`
+- `foundation_documentation/todos/active/concluded_but_active/TODO-v1-first-release.md`
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
 - `foundation_documentation/system_roadmap.md`
 

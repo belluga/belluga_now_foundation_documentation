@@ -8,7 +8,7 @@
 ---
 
 ## References
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-ui.md`
+- `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
 - `foundation_documentation/domain_entities.md` (Account Profile media fields)
 - `laravel-app/app/Http/Api/v1/Requests/AccountProfileStoreRequest.php`
 - `laravel-app/app/Http/Api/v1/Requests/AccountProfileUpdateRequest.php`
@@ -32,7 +32,7 @@
 - User-facing profile media updates (non-admin).
 - Image transformations beyond basic storage (resize/crop).
 - CDN/invalidation strategy.
-- Gallery media (tracked in `foundation_documentation/todos/active/vnext_slices/TODO-vnext-account-profile-media-gallery.md`).
+- Gallery media (tracked in `foundation_documentation/todos/active/vnext/TODO-vnext-account-profile-media-gallery.md`).
 
 ---
 

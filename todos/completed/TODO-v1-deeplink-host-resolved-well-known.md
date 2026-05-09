@@ -1,7 +1,7 @@
 # TODO (V1): Deeplink Well-Known Host Resolver
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [x] ✅ Production‑Ready`.  
-**Status:** Completed (MVP Android/Web scope closed; iOS payload runtime validation moved to VNext)  
+**Status:** Completed (MVP Android/Web scope closed; iOS payload runtime validation moved to mandatory fast-follow)  
 **Owners:** Delphi (Flutter/Product) + Backend Team + Web/Infra Team  
 **Goal:** Make `/.well-known/assetlinks.json` and `/.well-known/apple-app-site-association` host-resolved by Laravel (same strategy as `/manifest.json`), with ingress guaranteeing these routes never fall through to Flutter SPA.
 
@@ -9,7 +9,7 @@
 
 ## References
 - `foundation_documentation/todos/active/mvp_slices/TODO-v1-invite-deeplink-identity-first-delivery.md`
-- `foundation_documentation/todos/active/mvp_slices/TODO-v1-web-to-app-policy.md`
+- `foundation_documentation/todos/active/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
 - `laravel-app/routes/web.php`
 - `laravel-app/app/Http/Api/v1/Controllers/BrandingController.php`
 - `laravel-app/app/Application/Branding/BrandingManifestService.php`
@@ -17,7 +17,7 @@
 - `flutter-app/lib/presentation/tenant_admin/settings/widgets/tenant_admin_settings_app_links_section.dart`
 - `docker/nginx/local.conf.template`
 - `docker/nginx/prod.conf.template`
-- `foundation_documentation/todos/active/vnext_slices/TODO-vnext-ios-universal-links-production-validation.md`
+- `foundation_documentation/todos/active/fast_follow_required/TODO-ios-universal-links-production-validation.md`
 
 ---
 
@@ -95,7 +95,7 @@
 
 ### E) Delivery Evidence
 - [x] ✅ Validate `https://guarappari.belluga.space/.well-known/assetlinks.json` returns canonical Play signing fingerprint (`ED:07:87:5E:89:8A:4B:26:41:5B:C7:A9:19:44:84:D3:0A:A4:AD:52:BA:66:47:56:8F:62:EF:71:F0:FD:1A:54`).
-- [x] ✅ Move iOS AASA payload runtime validation to `TODO-vnext-ios-universal-links-production-validation.md` (VNext scope).
+- [x] ✅ Move iOS AASA payload runtime validation to `TODO-ios-universal-links-production-validation.md` (fast-follow scope).
 - [x] ✅ Record evidence links/output in this TODO.
 
 ---
@@ -105,7 +105,7 @@
 - [x] ✅ Docker ingress local/prod keeps deterministic routing precedence for `/.well-known/*`.
 - [x] ✅ Canonical source is backend config resolved by tenant/landlord context (typed app identifiers + credential settings split).
 - [x] ✅ Tenant Admin can edit tenant-scoped `app_links` settings through the canonical settings namespace flow.
-- [x] ✅ Guarappari Android association payload is validated in production runtime; iOS payload runtime validation is tracked in `TODO-vnext-ios-universal-links-production-validation.md`.
+- [x] ✅ Guarappari Android association payload is validated in production runtime; iOS payload runtime validation is tracked in `TODO-ios-universal-links-production-validation.md`.
 - [x] ✅ Automated tests cover host resolution + non-SPA fallback regressions.
 
 ---
@@ -123,7 +123,7 @@
   - `NAV_DEPLOY_LANE=stage NAV_LANDLORD_URL=https://belluga.space NAV_TENANT_URL=https://guarappari.belluga.space PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true bash tools/flutter/run_web_navigation_smoke.sh mutation` ✅
 - Runtime payload check (`2026-03-19`):
   - `curl https://guarappari.belluga.space/.well-known/assetlinks.json` → `package_name: com.guarappari.app`, fingerprint `ED:07:...:1A:54` ✅
-  - `curl https://guarappari.belluga.space/.well-known/apple-app-site-association` currently returns empty `details`; runtime iOS payload completion moved to VNext TODO.
+  - `curl https://guarappari.belluga.space/.well-known/apple-app-site-association` currently returns empty `details`; runtime iOS payload completion moved to the fast-follow iOS TODO.
 - Regression checks for static file prevention:
   - `flutter-app/test/platform/deep_link_platform_config_test.dart`
   - `laravel-app/.gitignore`

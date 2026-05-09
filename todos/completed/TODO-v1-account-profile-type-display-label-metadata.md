@@ -31,27 +31,27 @@
 
 ## Module Anchors
 
-- **Primary:** `../foundation_documentation/modules/partner_catalog_and_offer_module.md`
+- **Primary:** `../foundation_documentation/modules/account_profile_catalog_module.md`
 - **Secondary:** `../foundation_documentation/modules/tenant_admin_module.md`, `../foundation_documentation/modules/events_module.md`, `../foundation_documentation/modules/flutter_client_experience_module.md`
 
 ### Canonical Coverage Status
 
-- `partner_catalog_and_offer_module.md`: authoritative for account-profile type semantics exposed to public consumers.
+- `account_profile_catalog_module.md`: authoritative for account-profile type semantics exposed to public consumers.
 - `tenant_admin_module.md`: authoritative for tenant-admin profile-type registry CRUD contracts.
 - `events_module.md`: authoritative for immersive event-detail consumer expectations once tabs become type/category-driven.
 - `flutter_client_experience_module.md`: authoritative for bootstrap-driven runtime contracts and shared UI vocabulary.
 
 ### Decision Consolidation Targets
 
-- Promote durable registry contract changes to `../foundation_documentation/modules/partner_catalog_and_offer_module.md` and `../foundation_documentation/modules/tenant_admin_module.md`.
+- Promote durable registry contract changes to `../foundation_documentation/modules/account_profile_catalog_module.md` and `../foundation_documentation/modules/tenant_admin_module.md`.
 - Promote only stable client-consumption/runtime implications to `../foundation_documentation/modules/flutter_client_experience_module.md` and `../foundation_documentation/modules/events_module.md`.
 
 ---
 
 ## References
 
-- `foundation_documentation/todos/active/vnext_slices/TODO-vnext-account-profile-types.md`
-- `../foundation_documentation/modules/partner_catalog_and_offer_module.md`
+- `foundation_documentation/todos/completed/TODO-vnext-account-profile-types.md`
+- `../foundation_documentation/modules/account_profile_catalog_module.md`
 - `../foundation_documentation/modules/tenant_admin_module.md`
 - `../foundation_documentation/modules/events_module.md`
 - `lib/domain/partners/profile_type_definition.dart`
