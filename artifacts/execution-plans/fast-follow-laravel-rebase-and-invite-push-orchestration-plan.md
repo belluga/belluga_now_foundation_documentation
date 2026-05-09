@@ -54,6 +54,7 @@
 | `FF-AC07` | `Acceptance Criteria` `/invite?code=...` returns production-safe OG/Twitter metadata with a real, publicly reachable image and invite-specific copy. | `WS-03` | `invite metadata navigation` | metadata hardening | Laravel/public metadata tests | browser HTML proof | `planned` |
 | `FF-AC08` | `Acceptance Criteria` Firebase/tenant-admin configuration requirements are documented and validated as runtime prerequisites rather than left implicit. | `WS-04` | `tenant admin readiness doc/schema` | docs + admin readiness surfaces | docs + targeted tests | local readiness proof | `planned` |
 | `FF-AC09` | `Acceptance Criteria` End-to-end evidence clearly distinguishes “feature missing” from “environment misconfigured.” | `WS-01`,`WS-02`,`WS-04` | `runtime evidence pack` | consolidated findings | cross-stack evidence | device + browser + admin proof | `planned` |
+| `FF-AC10` | `Acceptance Criteria` The final local E2E proof uses the real Firebase/FCM integration values sourced from the frozen operator input files above, saved through the repaired tenant-admin UI on the local tenant. | `WS-04` | `tenant admin operator-input navigation` | admin save flow populated from frozen files | targeted admin readiness checks | final device + browser proof using saved real values | `planned` |
 | `FF-V01` | `Validation Steps` `Laravel test lane: prove direct invite creation authors/dispatched invite push only when runtime prerequisites are satisfied and stays deterministic when prerequisites are missing.` | `WS-01` | `endpoint + push delivery schema` | targeted Laravel coverage | Laravel feature/service suite | `n/a` | `planned` |
 | `FF-V02` | `Validation Steps` `Tenant-admin settings lane: prove Firebase/push saves no longer send stale envelopes and that enable/disable actions work against the live backend endpoints.` | `WS-04` | `tenant admin settings navigation` | Flutter admin fixes | Flutter tests + targeted Laravel endpoint coverage | local admin save proof | `planned` |
 | `FF-V03` | `Validation Steps` `Tenant-admin credentials lane: prove the UI can write the tenant FCM server credential through `/push/credentials` and that the stored credential is then consumed by the FCM delivery path.` | `WS-04` | `push/credentials schema + navigation` | Flutter credentials UI + Laravel credential usage | Flutter tests + targeted Laravel credential tests | device/runtime proof | `planned` |
@@ -62,6 +63,7 @@
 | `FF-V06` | `Validation Steps` `Runtime lane (mobile): validate device registration + direct invite send + push delivery + app-open reflection on a real Android device or production-equivalent push runtime.` | `WS-01`,`WS-02`,`WS-04` | `Android runtime navigation` | integrated flow | local CI-equivalent suites + runtime lane | Android device proof | `planned` |
 | `FF-V07` | `Validation Steps` `Runtime lane (web): validate `/invite?code=...` share page metadata and invite reflection behavior through the browser-facing domain.` | `WS-02`,`WS-03` | `browser invite navigation` | integrated flow | local CI-equivalent suites + browser lane | Playwright/browser proof | `planned` |
 | `FF-V08` | `Validation Steps` `Tenant-admin readiness lane: validate `settings/firebase`, `settings/push/credentials`, `settings/push/enable`, and device-token registration against the target tenant.` | `WS-04` | `tenant admin readiness schema + navigation` | admin + backend integration | targeted admin/backend checks | local readiness proof | `planned` |
+| `FF-V09` | `Validation Steps` `Operator-input lane: validate that the frozen local Firebase/FCM input files are the exact values saved through tenant-admin before the final E2E run.` | `WS-04` | `tenant admin operator-input schema + navigation` | compare saved tenant-admin values against frozen files | targeted admin readiness checks | final runtime uses those saved values | `planned` |
 
 ## Spec Deviation Ledger
 | Source TODO / Criterion | Original Requirement | Proposed Deviation | Approval Evidence | Status |
@@ -133,7 +135,7 @@ Waves are orchestrator-owned internal control checkpoints, not routine feedback 
 
 ### Wave 4 - Reconciliation and Runtime Closure
 - Merge accepted worker checkpoints into the orchestrator branch.
-- Save Firebase public config and FCM server credential via tenant-admin on the local tenant.
+- Save Firebase public config and FCM server credential via tenant-admin on the local tenant, using the frozen operator input files recorded in `TODO-fast-follow-invite-push-live-reflection-and-share-metadata.md`.
 - Validate Android device push delivery + app-open reflection.
 - Validate browser-facing invite metadata and web reflection through SSE.
 - **Gate to completion:** consolidated CI-equivalent matrix green and runtime/browser/device evidence complete.
@@ -148,6 +150,7 @@ Waves are orchestrator-owned internal control checkpoints, not routine feedback 
 | `Tenant-admin push readiness` | analyzer + focused tests + targeted endpoint tests + local admin save proof | `reconciliation` then `browser/device` | `WS-04` then `orchestrator` |
 | `Android push runtime` | invite send -> push delivery -> app-open reflection | `device` | `orchestrator` |
 | `Web invite runtime` | invite metadata + SSE reflection through browser-facing domain | `browser` | `orchestrator` |
+| `Operator-input fidelity` | frozen Firebase/FCM input files match the values saved through tenant-admin before final runtime proof | `reconciliation` then `browser/device` | `WS-04` then `orchestrator` |
 
 ## CI-Equivalent Local Suite Matrix
 | Repository / CI Surface | Why In Scope | Local CI-Equivalent Command | Applies To (`worker-local|reconciliation|pre-promotion`) | Status (`planned|passed|blocked|waived|n/a`) | Evidence Artifact / Command | Owner |
@@ -184,6 +187,7 @@ Waves are orchestrator-owned internal control checkpoints, not routine feedback 
 ## Risk / Conflict Controls
 - The backend refresh and the push TODO are intentionally separated so rebase risk does not hide feature risk.
 - Operator input paths are recorded in the push TODO, but runtime source of truth must remain tenant-admin/backend settings after save.
+- Final local E2E closure is only valid if the repaired tenant-admin UI was populated from the frozen operator input files and the runtime proof uses that saved real integration state.
 - Web push remains disabled; satisfying web reflection via anything other than SSE is a spec violation.
 - The orchestrator may not implement worker-owned production code except merge-conflict reconciliation.
 

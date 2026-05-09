@@ -101,6 +101,12 @@ These paths are operator input sources only. They are not runtime configuration 
 - Firebase public app config source: `/home/elton/.config/belluga/firebase/guarappari/google-services.json`
 - FCM server credential source: `/home/elton/.config/belluga/firebase/guarappari/fcm-service-account.json`
 
+Execution requirement frozen for this lane:
+
+- once the tenant-admin UI for Firebase settings, push settings, enable/disable, and push credentials is working, use these exact local files as the source of truth for populating the local `belluga.space` tenant configuration;
+- then validate the runtime E2E with those real integration values, not with placeholder or synthetic credentials;
+- closure is blocked until the local tenant-admin save flow and the Android/browser runtime evidence both use this real configuration path successfully.
+
 ## Decision Baseline (Frozen 2026-05-09)
 
 - [x] `D-01` Direct invite send must be able to emit a recipient-targeted push automatically; authoring push messages manually in admin is not an acceptable product substitute for the invite path.
@@ -155,6 +161,7 @@ These paths are operator input sources only. They are not runtime configuration 
 - [ ] ⚪ `/invite?code=...` returns production-safe OG/Twitter metadata with a real, publicly reachable image and invite-specific copy.
 - [ ] ⚪ Firebase/tenant-admin configuration requirements are documented and validated as runtime prerequisites rather than left implicit.
 - [ ] ⚪ End-to-end evidence clearly distinguishes “feature missing” from “environment misconfigured.”
+- [ ] ⚪ The final local E2E proof uses the real Firebase/FCM integration values sourced from the frozen operator input files above, saved through the repaired tenant-admin UI on the local tenant.
 
 ## Validation Steps
 
@@ -166,6 +173,7 @@ These paths are operator input sources only. They are not runtime configuration 
 - [ ] Runtime lane (mobile): validate device registration + direct invite send + push delivery + app-open reflection on a real Android device or production-equivalent push runtime.
 - [ ] Runtime lane (web): validate `/invite?code=...` share page metadata and invite reflection behavior through the browser-facing domain.
 - [ ] Tenant-admin readiness lane: validate `settings/firebase`, `settings/push/credentials`, `settings/push/enable`, and device-token registration against the target tenant.
+- [ ] Operator-input lane: validate that the frozen local Firebase/FCM input files are the exact values saved through tenant-admin before the final E2E run.
 
 ## Assumptions Preview
 
@@ -209,5 +217,6 @@ These paths are operator input sources only. They are not runtime configuration 
 ### Runtime / Rollout Notes
 
 - The feature must be validated against a tenant whose Firebase public settings, server credential, and push enablement are actually configured.
+- For the local execution lane, the tenant-admin save flow must be populated from the frozen operator input files recorded above before the final runtime E2E is considered valid.
 - Current web runtime does not support push; invite live reflection there must close through SSE.
 - The current Firebase settings schema is Android-first. If iOS push delivery becomes in-scope for the same tenant-admin surface, that must be handled explicitly rather than assumed from this TODO.
