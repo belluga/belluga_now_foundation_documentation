@@ -2,12 +2,13 @@
 
 ## Artifact Identity
 - **Artifact type:** `orchestration_execution_plan`
-- **Status:** `Pending Approval`
+- **Status:** `Superseded`
 - **Created:** `2026-05-09`
 - **Governing workflow / skill:** `delphi-ai/workflows/docker/subagent-worktree-reconciliation-method.md`
 - **Approval token required before execution:** `APROVADO`
 
 ## Authority Boundary
+- This single-TODO plan is superseded by `foundation_documentation/artifacts/execution-plans/fast-follow-laravel-rebase-and-invite-push-orchestration-plan.md`, which adds the required backend refresh TODO as a formal blocker.
 - Governing TODOs define **WHAT** must be delivered and what counts as done.
 - This plan defines **HOW** the orchestrator intends to sequence, parallelize, reconcile, and validate the work.
 - If this plan conflicts with a governing TODO, stop and update the TODO or this plan before execution.

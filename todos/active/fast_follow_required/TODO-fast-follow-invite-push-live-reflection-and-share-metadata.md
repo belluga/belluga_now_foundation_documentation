@@ -39,7 +39,7 @@ Firebase/admin configuration is also a real dependency, but it is not the only b
 
 - **Current delivery stage:** `Implementation-Ready`
 - **Qualifiers:** `Fast-Follow`, `Cross-Stack`, `Config-Dependent`, `Production-Visible`
-- **Next exact step:** provision the tenant Firebase runtime/credential inputs, then implement the backend invite-to-push bridge, the Flutter invite realtime consumer, and the public invite metadata hardening in one bounded lane.
+- **Next exact step:** complete the backend-base refresh in `TODO-rebase-laravel-auth-hardening-onto-promoted-lane.md`, then implement the backend invite-to-push bridge, the Flutter invite realtime consumer, and the public invite metadata hardening on top of that refreshed base.
 
 ## Complexity / Execution Profile
 
@@ -93,6 +93,13 @@ Firebase/admin configuration is also a real dependency, but it is not the only b
 - `flutter-app/lib/infrastructure/repositories/push/push_payload_upsert_mixin.dart`
 - `flutter-app/lib/infrastructure/dal/dao/laravel_backend/schedule_backend/laravel_schedule_backend.dart`
 - `flutter-app/test/infrastructure/repositories/invites_repository_push_payload_test.dart`
+
+## Operator Input Sources (Local Paths Frozen 2026-05-09)
+
+These paths are operator input sources only. They are not runtime configuration state and must not be treated as the durable source of truth after the values are saved through tenant-admin surfaces.
+
+- Firebase public app config source: `/home/elton/.config/belluga/firebase/guarappari/google-services.json`
+- FCM server credential source: `/home/elton/.config/belluga/firebase/guarappari/fcm-service-account.json`
 
 ## Decision Baseline (Frozen 2026-05-09)
 
