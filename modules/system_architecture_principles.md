@@ -44,6 +44,8 @@ Bóora! is the platform. Tenant brands are hosted on the platform and must not b
 2. **Independent Requests for Home:** No aggregated home endpoint in MVP. The client composes home using independent requests (invites, agenda, discovery, map).
 3. **Invite Attribution:** Share codes are attribution tokens. Authenticated share entry must first materialize a canonical invite edge via `/invites/share/{code}/materialize`; only then may the client call `/invites/{invite_id}/accept|decline`. Materialization records source = `share_url`, and uniqueness rules prevent duplicate invite issuance to the same person/event.
 4. **Taxonomy-Ready Discovery:** Account profiles support multi-taxonomy terms (`{type, value}`), and discovery filters can target taxonomy terms in addition to categories/tags.
+5. **Query-First Targeted Fan-Out:** Tenant-targeted push/social audiences must never rely on tenant-wide user scanning at dispatch time. Direct/private transactional audiences (for example invite recipients) should resolve explicit recipient identities by query before entering the generic delivery pipeline. Stable subscribable audiences (for example profile followers/favorites) should prefer channel/topic delivery instead of per-send recipient materialization whenever that audience can be maintained incrementally.
+6. **Canonical Event-Sourced Side Effects:** Push, topic/channel membership churn, telemetry, and social-counter refreshes must originate from the same canonical post-commit business/domain event (or authoritative transactional activity event) rather than from controller/UI glue. When multiple side effects depend on the same lifecycle transition, they share that authoritative source event.
 
 ---
 

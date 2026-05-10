@@ -72,6 +72,8 @@ Every invite is issued by an `inviter_principal`:
 - **User invites:** may target users already installed in the app and matched contacts directly. Unmatched local contacts use the external share-code branch from native app rather than a canonical in-app invite edge.
 - **Account Profile invites:** may target followers/favorites for broader reach; direct user targeting is also allowed as needed.
 - **Share codes:** allowed for both inviter types; eligibility rules still apply (user shares only to their contacts, account profiles can share to followers/favorites audiences).
+- **Push audience topology:** direct/private invite delivery must resolve concrete recipient user IDs by query before authoring the generic push message. Stable subscribable fan-out audiences such as followers/favorites should prefer channel/topic delivery when available, rather than re-materializing the same audience on every send. In both cases, the shared push pipeline is responsible for queueing/batching/provider delivery, not for tenant-wide user scanning to discover semantic audiences.
+- **Canonical side-effect source:** invite lifecycle side effects must hang off canonical post-commit invite events (or equivalent transactional activity events), not controller/UI glue. The same canonical event may feed push authoring, topic-membership churn, telemetry, and social-metric refresh consumers.
 
 ### B) Uniqueness (No Duplicate Invites From Same Inviter)
 We never allow the same inviter to invite the same receiver to the same invite target more than once.
@@ -107,6 +109,7 @@ When a user accepts via invites, exactly **one** invite becomes the credited acc
 - Direct invite issuance and share-code materialization must compute the initial lifecycle state against the receiver's current occurrence participation. If the receiver already has an active attendance confirmation for the target occurrence, any newly persisted invite edge for audit/idempotency is stored as `superseded` with `supersession_reason=direct_confirmation` and must not appear in pending feed projections. If a credited invite winner already exists for that same receiver surface + occurrence, newly persisted competing invite edges are stored as `superseded` with `supersession_reason=other_invite_credited`.
 - Event-level entry points must resolve the selected/default occurrence before invite or attendance attribution so an event never collapses unrelated attendance intents into one conversion.
 - Generic event confirmation surfaces must not silently choose a winning inviter when more than one pending inviter exists for the same occurrence target; attribution requires explicit selection.
+- Acceptance side effects must treat the credited acceptance event as the single authoritative trigger. That one canonical event may notify the original inviter through direct-recipient push (`invite_accepted`) and refresh social counters/telemetry consumers, but it must not be re-derived independently by controllers, feeds, or client state.
 - Any pre-release user-targeted acceptance behavior must be cut over to the same `receiver_account_profile_id`-keyed rule before release closure.
 
 ### D) Backend-Owned Limits (Tenant Settings + Enforcement)

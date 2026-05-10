@@ -1,9 +1,9 @@
 # TODO (Fast Follow): Invite Push Delivery, Live Reflection, and Share Metadata
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.
-**Status:** Active. This TODO owns the missing delivery loop for direct invite notifications and the public-share metadata contract for invite landing URLs.
+**Status:** Active. This TODO owns the missing delivery loop for invite lifecycle notifications and the public-share metadata contract for invite landing URLs.
 **Owners:** Delphi (Flutter/Laravel) + Tenant Admin / Operations
-**Goal:** make direct invites behave as a complete product loop: direct recipient receives push, an already-open app reflects the new invite without manual refresh, and `/invite?code=...` resolves production-safe share metadata/OG image for external sharing.
+**Goal:** make invite lifecycle notifications behave as a complete product loop: direct recipient receives push, an already-open app reflects new invite state without manual refresh, invite acceptance notifies the original sender, and `/invite?code=...` resolves production-safe share metadata/OG image for external sharing.
 
 ---
 
@@ -16,6 +16,7 @@
 The current invite stack is functionally incomplete for production behavior:
 
 - direct invites are persisted, but invite creation is not bridged into the push subsystem;
+- invite acceptance is persisted, but the original sender is not notified through the push subsystem and the same canonical invite lifecycle event is not yet reused for telemetry/social-metric refresh consumers;
 - the backend already exposes invite SSE deltas, but Flutter does not consume `/invites/stream`;
 - mobile Flutter can already upsert invite payloads when a compatible push arrives, but that path is only partial because the push is never authored automatically by invite creation;
 - web invite landing (`/invite?code=...`) already renders OG/Twitter metadata through the tenant public shell, but the current invite preview path still permits placeholder/generic metadata instead of a guaranteed share-safe branded preview.
@@ -39,7 +40,7 @@ Firebase/admin configuration is also a real dependency, but it is not the only b
 
 - **Current delivery stage:** `Implementation-Ready`
 - **Qualifiers:** `Fast-Follow`, `Cross-Stack`, `Config-Dependent`, `Production-Visible`
-- **Next exact step:** complete the backend-base refresh in `TODO-rebase-laravel-auth-hardening-onto-promoted-lane.md`, then implement the backend invite-to-push bridge, the Flutter invite realtime consumer, and the public invite metadata hardening on top of that refreshed base.
+- **Next exact step:** consume the already refreshed Laravel reconcile base plus the locally implemented `push_devices` structural cutover from `TODO-structural-push-query-based-audience-materialization.md`, then finish the backend invite-lifecycle push bridge (`invite_received` + `invite_accepted`), the bounded direct-recipient FCM batching contract, the server-managed channel/topic foundation for favorites and confirmed occurrences, the Flutter invite realtime consumer, the tenant-admin push/Firebase surfaces, and the public invite metadata hardening on top of that foundation.
 
 ## Complexity / Execution Profile
 
@@ -54,6 +55,8 @@ Firebase/admin configuration is also a real dependency, but it is not the only b
   - `foundation_documentation/modules/flutter_client_experience_module.md`
   - `foundation_documentation/modules/tenant_admin_module.md`
   - `foundation_documentation/endpoints_mvp_contracts.md`
+- **Structural prerequisite TODO:**
+  - `foundation_documentation/todos/active/fast_follow_required/TODO-structural-push-query-based-audience-materialization.md`
 - **Planned decision promotion targets:**
   - Invite & Social Loop module: delivery + reflection semantics for inbound invites
   - Flutter Client Experience module: realtime/push reflection posture
@@ -62,10 +65,12 @@ Firebase/admin configuration is also a real dependency, but it is not the only b
 ## Scope
 
 - Add the canonical backend bridge so `POST /invites` can trigger a recipient-targeted `invite_received` push when tenant push is configured and the recipient has an eligible registered device token.
+- Add the canonical backend bridge so invite acceptance can trigger an inviter-targeted `invite_accepted` push when tenant push is configured and the original sender has an eligible registered device token.
 - Deliver app-open automatic reflection for new inbound invites without requiring manual reload.
 - Ensure `/invite?code=...` share URLs resolve production-safe metadata and OG image/title/description for external sharing.
 - Freeze the minimum tenant-admin / Firebase operational checklist required for the feature to work end-to-end.
 - Produce evidence that separates configuration blockers from development blockers.
+- Freeze the rule that canonical invite lifecycle events are the approved source for push, telemetry, and social-metric refresh side effects.
 
 ## Out of Scope
 
@@ -116,6 +121,11 @@ Execution requirement frozen for this lane:
 - [x] `D-05` The invite preview title/description/image used for share metadata should be treated as the canonical preview source for invite-related public surfaces and push composition, so web share and push payloads do not drift.
 - [x] `D-06` Current web runtime remains push-disabled by design; therefore invite live reflection on web must close through the existing SSE infrastructure instead of waiting for web push.
 - [x] `D-07` Both Firebase public app config and FCM server credentials must remain tenant-dynamic and admin-managed. Local JSON files may be used only as operator input sources during this lane, never as a durable runtime configuration mechanism.
+- [x] `D-08` The structural push-audience hardening in `TODO-structural-push-query-based-audience-materialization.md` is part of the current invite-push delivery lane and must ship in the same promotion because scan-style explicit-user resolution is no longer accepted for this feature's runtime/performance posture.
+- [x] `D-09` This TODO does not itself authorize new follower/profile/event trigger policy. Any such trigger remains a separate future TODO after the structural audience work is complete.
+- [x] `D-10` Direct invite delivery remains a direct-recipient transport path even after the channel/topic foundation lands; stable recurring favorite/presence audiences are the ones that should move to server-managed channels/topics.
+- [x] `D-11` Canonical post-commit invite lifecycle events are the approved source for downstream side effects. Push, telemetry, and social-metric refresh consumers must subscribe to those events rather than duplicating trigger logic in controllers/UI.
+- [x] `D-12` Invite acceptance must notify the original inviter/sender through a direct-recipient `invite_accepted` push whenever runtime prerequisites are satisfied, and the same canonical acceptance event remains available to refresh social counters/telemetry consumers.
 
 ## Current Audit Snapshot (2026-05-09)
 
@@ -132,10 +142,12 @@ Execution requirement frozen for this lane:
   - Push save posts a `push` envelope, but `/settings/push` now requires direct payload keys.
   - The UI does not expose the dedicated `enable/disable` push actions even though the backend has explicit endpoints for them.
 - [x] `A-10` FCM server credentials are already tenant-dynamic in the backend through `PUT /push/credentials`, but the current tenant-admin UI does not expose that credential surface.
+- [x] `A-11` Invite acceptance already has canonical lifecycle state transitions, so the missing gap is the downstream event/push/metric wiring rather than a missing invite-domain concept.
 
 ## Implementation Tasks
 
 - [ ] ⚪ Add a backend invite-delivery bridge from direct invite creation into the push subsystem, with deterministic recipient resolution and `invite_received` type/route semantics.
+- [ ] ⚪ Add a backend invite-acceptance bridge from canonical acceptance into the push subsystem, with deterministic inviter-targeted `invite_accepted` type/route semantics.
 - [ ] ⚪ Repair tenant-admin Firebase settings save so it uses the direct `/settings/firebase` payload contract instead of the stale `firebase` envelope.
 - [ ] ⚪ Repair tenant-admin push settings save so it uses the direct `/settings/push` payload contract instead of the stale `push` envelope.
 - [ ] ⚪ Add tenant-admin enable/disable controls for push so operators can reach the backend-owned `POST /settings/push/enable` and `POST /settings/push/disable` actions.
@@ -143,7 +155,9 @@ Execution requirement frozen for this lane:
 - [ ] ⚪ Add tenant-admin CRUD/supporting UI for tenant-scoped FCM server credentials (`project_id`, `client_email`, `private_key`) against the existing `/push/credentials` backend contract.
 - [ ] ⚪ Ensure the admin/runtime flow treats local JSON files only as import/copy source during setup; the persisted source of truth must remain the tenant-owned backend credential/settings store.
 - [ ] ⚪ Define the canonical invite push payload shape so Flutter can deep-link to the intended invite flow and upsert the invite into the pending-invites state without extra fetch ambiguity.
+- [ ] ⚪ Define the canonical invite lifecycle event/payload ownership so `invite_received`, `invite_accepted`, telemetry, and social-metric refresh consumers all derive from the same post-commit source event.
 - [ ] ⚪ Add or reuse a Flutter invite realtime consumer for `/invites/stream` and wire it into `InvitesRepository` so app-open reflection works even when push is unavailable or delayed.
+- [ ] ⚪ Consume the `push_devices`-backed query/materialization-first recipient-resolution path from `TODO-structural-push-query-based-audience-materialization.md` so invite push does not keep depending on embedded `AccountUser.devices` or the legacy scan-style explicit-user path.
 - [ ] ⚪ Harden public invite-share metadata so `/invite?code=...` returns real preview-safe `title`, `description`, and `image` values and never falls back to placeholder/example image URLs in production runtime.
 - [ ] ⚪ Decide and implement the canonical preview-data owner used by both public invite metadata and invite-related push payload composition.
 - [ ] ⚪ Freeze the tenant-admin operational checklist for push readiness: Firebase public settings, FCM credential, push enabled state, message-type/route expectations, and device registration proof.
@@ -153,6 +167,8 @@ Execution requirement frozen for this lane:
 ## Acceptance Criteria
 
 - [ ] ⚪ Sending a direct invite to an eligible recipient produces a backend-authored `invite_received` push message and dispatches delivery when tenant push is configured and the recipient has a registered token.
+- [ ] ⚪ Accepting an invite as an eligible recipient produces a backend-authored `invite_accepted` push message to the original sender when tenant push is configured and the sender has a registered token.
+- [ ] ⚪ The direct invite recipient-targeting path no longer depends on tenant-wide user scanning or embedded `AccountUser.devices` once the structural push-audience TODO is complete.
 - [ ] ⚪ Tenant-admin can successfully save Firebase settings and push settings against the current backend contract without `422` envelope errors.
 - [ ] ⚪ Tenant-admin can explicitly enable and disable push from the current UI and the resulting `enabled` state is reflected in environment/status snapshots.
 - [ ] ⚪ Tenant-admin can create/update the tenant-scoped FCM server credential from the current UI without relying on ad hoc DB edits or external one-off scripts.
@@ -162,10 +178,13 @@ Execution requirement frozen for this lane:
 - [ ] ⚪ Firebase/tenant-admin configuration requirements are documented and validated as runtime prerequisites rather than left implicit.
 - [ ] ⚪ End-to-end evidence clearly distinguishes “feature missing” from “environment misconfigured.”
 - [ ] ⚪ The final local E2E proof uses the real Firebase/FCM integration values sourced from the frozen operator input files above, saved through the repaired tenant-admin UI on the local tenant.
+- [ ] ⚪ Invite lifecycle side effects are sourced from canonical post-commit invite events so the same event can drive push, telemetry, and social-counter refresh consumers without controller/UI duplication.
 
 ## Validation Steps
 
 - [ ] Laravel test lane: prove direct invite creation authors/dispatched invite push only when runtime prerequisites are satisfied and stays deterministic when prerequisites are missing.
+- [ ] Laravel acceptance lane: prove canonical invite acceptance authors/dispatched inviter-targeted push only when runtime prerequisites are satisfied and stays deterministic when prerequisites are missing.
+- [ ] Structural lane: prove invite-targeted explicit-user push now rides the `push_devices`-backed query/materialization-first recipient-resolution path from `TODO-structural-push-query-based-audience-materialization.md`.
 - [ ] Tenant-admin settings lane: prove Firebase/push saves no longer send stale envelopes and that enable/disable actions work against the live backend endpoints.
 - [ ] Tenant-admin credentials lane: prove the UI can write the tenant FCM server credential through `/push/credentials` and that the stored credential is then consumed by the FCM delivery path.
 - [ ] Flutter test lane: prove invite push payload upserts the repository and that invite SSE updates drive the same repository/screen state.
@@ -174,6 +193,7 @@ Execution requirement frozen for this lane:
 - [ ] Runtime lane (web): validate `/invite?code=...` share page metadata and invite reflection behavior through the browser-facing domain.
 - [ ] Tenant-admin readiness lane: validate `settings/firebase`, `settings/push/credentials`, `settings/push/enable`, and device-token registration against the target tenant.
 - [ ] Operator-input lane: validate that the frozen local Firebase/FCM input files are the exact values saved through tenant-admin before the final E2E run.
+- [ ] Canonical event lane: validate that invite lifecycle side effects are wired from canonical post-commit events and can fan out to push plus telemetry/social-counter refresh consumers.
 
 ## Assumptions Preview
 
