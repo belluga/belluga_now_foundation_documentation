@@ -132,9 +132,23 @@ Establish the public map bootstrap so the first render opens from the tenant `se
 ### Local CI-Equivalent Suite Matrix
 | Repository / CI Surface | Why In Scope | Local CI-Equivalent Command | Required Before (`APROVADO|Local-Implemented|promotion`) | Status (`planned|passed|blocked|waived|n/a`) | Evidence Artifact / Command | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| `flutter-app / targeted map controller regression` | Wave 1 changes controller bootstrap semantics. | `fvm flutter test test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart` | `Local-Implemented` | `planned` | `<pending>` | Fail-first preferred before implementation. |
-| `flutter-app / targeted map widget regression` | Wave 1 changes initial camera wiring at the widget layer. | `fvm flutter test test/presentation/tenant/map/screens/map_screen/widgets/map_layers_test.dart` | `Local-Implemented` | `planned` | `<pending>` | Fail-first preferred before implementation. |
-| `flutter-app / Flutter architecture analyzer gate` | Wave 1 touches Flutter production and test surfaces. | `fvm dart analyze --format machine` | `Local-Implemented` | `planned` | `<pending>` | Must run on reconciled state before claiming closure. |
+| `flutter-app / targeted map controller regression` | Wave 1 changes controller bootstrap semantics. | `fvm flutter test test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart` | `Local-Implemented` | `passed` | `worker checkpoint 31e0ed83540dc4d5869584e8389bc2773f890532; reconciled re-run passed on 2026-05-15 at flutter-app@b33b7d55` | Reconciled-state rerun completed after Wave 2 landed. |
+| `flutter-app / targeted map widget regression` | Wave 1 changes initial camera wiring at the widget layer. | `fvm flutter test test/presentation/tenant/map/screens/map_screen/widgets/map_layers_test.dart` | `Local-Implemented` | `passed` | `worker checkpoint 31e0ed83540dc4d5869584e8389bc2773f890532; reconciled re-run passed on 2026-05-15 at flutter-app@b33b7d55` | Reconciled-state rerun completed after Wave 2 landed. |
+| `flutter-app / Flutter architecture analyzer gate` | Wave 1 touches Flutter production and test surfaces. | `fvm dart analyze --format machine` | `Local-Implemented` | `passed` | `worker checkpoint 31e0ed83540dc4d5869584e8389bc2773f890532; reconciled analyzer passed on 2026-05-15 at flutter-app@b33b7d55` | Shared analyzer rerun executed on the final reconciled Flutter checkout. |
+
+## Execution Evidence
+- Worker checkpoint: `31e0ed83540dc4d5869584e8389bc2773f890532` (`fix(map): wave1 bootstrap tenant default origin`) on `/home/elton/Dev/repos/belluga-ecosystem/_worktrees/flutter-wave1-map-bootstrap-20260515`
+- Principal reconcile commit: `cfe6db19` in `flutter-app` on `reconcile/map-bootstrap-public-discoverability-20260515`
+- Reconciled automated validation:
+  - `fvm flutter test test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart` ✅
+  - `fvm flutter test test/presentation/tenant/map/screens/map_screen/widgets/map_layers_test.dart` ✅
+  - `fvm dart analyze --format machine` ✅
+- Runtime validation status:
+  - `blocked`
+  - Canonical preflight `./scripts/delphi/run_navigation_reconcile_validation.sh readonly` did not reach browser execution on `2026-05-15`.
+  - First blocker: `tools/flutter/run_web_navigation_smoke.sh` is not executable in the repo checkout, while the reconcile preflight requires `-x`.
+  - After a temporary local permission unlock for diagnosis, the same preflight stopped on runtime topology: `app service is not mounted from the principal checkout path: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/laravel-app`.
+  - No approved manual smoke packet was recorded for the first-open, one-time handoff, preserved-camera, or missing-config journeys.
 
 ## Complexity
 - `medium`
@@ -148,7 +162,7 @@ Establish the public map bootstrap so the first render opens from the tenant `se
 - D-05 (`Preserve`): missing tenant `default_origin` is a visible configuration error, not a fallback scenario.
 
 ## Current Delivery Stage
-- `In Progress`
+- `Blocked on runtime validation evidence`
 
 ## Qualifiers
 - `Contract-Defined`
@@ -156,7 +170,9 @@ Establish the public map bootstrap so the first render opens from the tenant `se
 - `Orchestration-Wave-1`
 - `Sequencing-Approved`
 - `Wave-Authorized`
-- `Worker-Dispatch-In-Flight`
+- `Code-Reconciled`
+- `Automated-Gates-Passed`
+- `Runtime-Harness-Blocked`
 
 ## Next Exact Step
-- Dispatch the Wave 1 worker on the isolated Flutter worktree, land the bootstrap fix, and reconcile the validated checkpoint into the principal `reconcile/*` checkout.
+- Restore the canonical local navigation surface for reconcile validation, then collect the approved runtime evidence for first open, one-time handoff, preserved camera memory, and missing-config error on the reconciled branch.
