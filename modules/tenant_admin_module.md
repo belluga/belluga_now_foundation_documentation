@@ -778,6 +778,7 @@ List profile type registry for the tenant.
       },
       "type_asset_url": "https://...?",
       "capabilities": {
+        "is_publicly_discoverable": true,
         "is_favoritable": true,
         "is_poi_enabled": false
       }
@@ -803,6 +804,7 @@ Create a profile type registry entry (tenant admin).
     "image_source": "avatar|cover|type_asset?"
   },
   "capabilities": {
+    "is_publicly_discoverable": true,
     "is_favoritable": true,
     "is_poi_enabled": false
   }
@@ -826,6 +828,7 @@ Create a profile type registry entry (tenant admin).
     },
     "type_asset_url": "https://...?",
     "capabilities": {
+      "is_publicly_discoverable": true,
       "is_favoritable": true,
       "is_poi_enabled": false
     }
@@ -849,6 +852,7 @@ Update a profile type registry entry (tenant admin).
     "image_source": "avatar|cover|type_asset?"
   },
   "capabilities": {
+    "is_publicly_discoverable": true,
     "is_favoritable": true,
     "is_poi_enabled": false
   }
@@ -872,6 +876,7 @@ Update a profile type registry entry (tenant admin).
     },
     "type_asset_url": "https://...?",
     "capabilities": {
+      "is_publicly_discoverable": true,
       "is_favoritable": true,
       "is_poi_enabled": false
     }
@@ -1226,7 +1231,8 @@ Delete an event type registry entry (tenant admin).
 - `profile_type_registry.visual.image_source` (enum): required when `visual.mode=image`; valid values are `avatar`, `cover`, `type_asset`.
 - `profile_type_registry.visual.image_url` (string): resolved canonical URL for `mode=image`; required on read payloads when the chosen source resolves successfully.
 - `profile_type_registry.type_asset_url` (string): convenience alias of the canonical uploaded type-owned image URL when `image_source=type_asset`.
-- `profile_type_registry.capabilities.is_favoritable` (bool): whether the profile type can be favorited.
+- `profile_type_registry.capabilities.is_publicly_discoverable` (bool): whether profiles of this type are eligible for tenant public discovery surfaces.
+- `profile_type_registry.capabilities.is_favoritable` (bool): whether the profile type can be favorited. This capability requires `is_publicly_discoverable=true`; admin UI must clear and disable favorites when public discovery is off.
 - `profile_type_registry.capabilities.is_poi_enabled` (bool): whether the profile type requires/participates in map POI location.
 - `map_poi_projection_impact.projection_count` (int): affected `map_pois` count shown in destructive confirmation before disabling POI capability.
 - `event_type_registry.visual` (object): canonical event-type visual contract used by tenant-admin and embedded event snapshots.
