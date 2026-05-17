@@ -18,8 +18,8 @@
 ## Governing TODO Set
 | ID | TODO | Role in Plan | Start Eligibility |
 | --- | --- | --- | --- |
-| `PLAN-MAP` | `foundation_documentation/todos/active/mvp_slices/TODO-v1-map-initial-origin-bootstrap.md` | `independent / Wave 1` | `can start after orchestration approval plus renewed map TODO approval` |
-| `PLAN-PUBLIC` | `foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-type-public-capability-admin-ui.md` | `independent / Wave 2 follow-on` | `blocked by Wave 1 closure on the active map lane or explicit lane-multiplexing approval` |
+| `PLAN-MAP` | `foundation_documentation/todos/promotion_lane/TODO-v1-map-initial-origin-bootstrap.md` | `independent / Wave 1` | `implementation complete; remaining closure is promotion-lane runtime evidence` |
+| `PLAN-PUBLIC` | `foundation_documentation/todos/promotion_lane/TODO-v1-account-profile-type-public-capability-admin-ui.md` | `independent / Wave 2 follow-on` | `implementation complete; remaining closure is promotion-lane runtime evidence` |
 
 ## Acceptance Traceability Matrix
 | Requirement ID | Source TODO / Criterion | Implementation Owner | Required Artifact / UI Marker | Implementation Evidence | Test Evidence | Runtime / Web Evidence | Status |

@@ -1,6 +1,6 @@
 # TODO (V1): Map Initial Origin Bootstrap
 
-**Status:** Active  
+**Status:** Promotion-lane candidate. Implementation and automated gates are complete on the canonical Flutter lane; remaining closure is approved runtime evidence on a non-`main` validation target.  
 **Owner:** Delphi  
 **Date:** 2026-05-15
 
@@ -33,7 +33,7 @@ Establish the public map bootstrap so the first render opens from the tenant `se
 - Flutter lane bootstrap commit already published: `933a8779` (`🔖 chore: bump app version to 0.0.1+6`)
 
 ## Cross-TODO Orchestration
-- Sibling tactical TODO: [TODO-v1-account-profile-type-public-capability-admin-ui.md](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/active/mvp_slices/TODO-v1-account-profile-type-public-capability-admin-ui.md)
+- Sibling tactical TODO: [TODO-v1-account-profile-type-public-capability-admin-ui.md](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/promotion_lane/TODO-v1-account-profile-type-public-capability-admin-ui.md)
 - Orchestration role: `Wave 1 / active lane owner`
 - Primary sequencing principle:
   - execute this slice first on the already-bootstrapped map lane
@@ -162,7 +162,7 @@ Establish the public map bootstrap so the first render opens from the tenant `se
 - D-05 (`Preserve`): missing tenant `default_origin` is a visible configuration error, not a fallback scenario.
 
 ## Current Delivery Stage
-- `Blocked on runtime validation evidence`
+- `Promotion lane / runtime evidence pending`
 
 ## Qualifiers
 - `Contract-Defined`
@@ -172,7 +172,8 @@ Establish the public map bootstrap so the first render opens from the tenant `se
 - `Wave-Authorized`
 - `Code-Reconciled`
 - `Automated-Gates-Passed`
-- `Runtime-Harness-Blocked`
+- `Promotion-Lane-Candidate`
+- `Runtime-Evidence-Pending`
 
 ## Next Exact Step
-- Restore the canonical local navigation surface for reconcile validation, then collect the approved runtime evidence for first open, one-time handoff, preserved camera memory, and missing-config error on the reconciled branch.
+- Collect approved non-`main` runtime evidence for first open, one-time handoff, preserved camera memory, and missing-config error, then close the remaining promotion-lane follow-through.

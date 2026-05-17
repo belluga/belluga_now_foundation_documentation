@@ -1,6 +1,6 @@
 # TODO (V1): Account Profile Type Public Discoverability Admin UI
 
-**Status:** Active  
+**Status:** Promotion-lane candidate. Implementation and automated gates are complete on the canonical Flutter lane; remaining closure is approved runtime evidence on a non-`main` validation target.  
 **Owner:** Delphi  
 **Date:** 2026-05-15
 
@@ -34,7 +34,7 @@ Establish tenant-admin support for editing the existing account profile type cap
 - Branch assignment: follow-on lane; not bound to the active map branch by default
 
 ## Cross-TODO Orchestration
-- Sibling tactical TODO: [TODO-v1-map-initial-origin-bootstrap.md](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/active/mvp_slices/TODO-v1-map-initial-origin-bootstrap.md)
+- Sibling tactical TODO: [TODO-v1-map-initial-origin-bootstrap.md](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/promotion_lane/TODO-v1-map-initial-origin-bootstrap.md)
 - Orchestration role: `Wave 2 / follow-on lane`
 - Primary sequencing principle:
   - keep this slice independent from the map bootstrap contract even though both are active in the same implementation cycle
@@ -184,7 +184,7 @@ Establish tenant-admin support for editing the existing account profile type cap
 - D-07 (`Preserve`): the canonical tenant-admin module docs must be updated to expose the public capability in the admin contract.
 
 ## Current Delivery Stage
-- `Blocked on runtime validation evidence`
+- `Promotion lane / runtime evidence pending`
 
 ## Qualifiers
 - `Contract-Defined`
@@ -195,7 +195,8 @@ Establish tenant-admin support for editing the existing account profile type cap
 - `Wave-Authorized`
 - `Code-Reconciled`
 - `Automated-Gates-Passed`
-- `Runtime-Harness-Blocked`
+- `Promotion-Lane-Candidate`
+- `Runtime-Evidence-Pending`
 
 ## Next Exact Step
-- Restore the canonical reconcile navigation surface and collect mutation/runtime evidence for the tenant-admin public-discovery toggle, the forced favoritable reset/disable behavior, and save-and-reload persistence on the reconciled branch.
+- Collect approved non-`main` runtime evidence for the tenant-admin public-discovery toggle, the forced favoritable reset/disable behavior, and save-and-reload persistence, then close the remaining promotion-lane follow-through.

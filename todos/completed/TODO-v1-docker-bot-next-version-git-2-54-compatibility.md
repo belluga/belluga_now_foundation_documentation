@@ -1,17 +1,17 @@
 # TODO (V1): Docker `bot/next-version` Receiver Compatibility With Git 2.54
 
-**Status:** Active  
+**Status:** Completed (`Docker main promotion and canonical dispatcher replay succeeded on 2026-05-17`)  
 **Owner:** Delphi  
 **Date:** 2026-05-16
 
 ## Objective
-Restore the canonical Docker submodule-sync receiver so `flutter-app stage` and `laravel-app stage` dispatches can once again create or refresh `origin/bot/next-version` automatically after Git 2.54 changed how `git add` behaves for submodules configured with `ignore=all`.
+Restore the canonical Docker submodule-sync receiver so `flutter-app stage` and `laravel-app stage` dispatches can once again create or refresh a promotion-only `origin/bot/next-version` branch when a real submodule gitlink diff exists after Git 2.54 changed how `git add` behaves for submodules configured with `ignore=all`.
 
 This slice is not about product behavior. It is a Docker CI/promotion-lane repair that must preserve the existing promotion topology:
 - `flutter-app` and `laravel-app` reach `stage`
 - they dispatch `repository_dispatch` to `belluga_now_docker`
 - Docker receives that callback on its default branch workflow
-- Docker creates or updates `origin/bot/next-version` from the latest `origin/dev`
+- Docker creates or updates `origin/bot/next-version` from the latest `origin/dev` only when a real submodule gitlink diff exists
 - only after that does the normal Docker promotion lane continue
 
 ## Framing Source
@@ -68,8 +68,8 @@ This slice is not about product behavior. It is a Docker CI/promotion-lane repai
 - The fix preserves `ignore=all` semantics and stages gitlink updates only through an explicit submodule path.
 - Docker workflow validation passes locally (`actionlint`) and through the repo's promotion lane.
 - The Docker workflow fix reaches `main`.
-- After the fix is on Docker `main`, rerunning the canonical `stage` dispatchers recreates or refreshes `origin/bot/next-version` automatically from the latest `origin/dev`.
-- The regenerated `origin/bot/next-version` contains only submodule gitlink changes and no regular file drift.
+- After the fix is on Docker `main`, rerunning the canonical `stage` dispatchers either recreates or refreshes `origin/bot/next-version` when a real gitlink diff exists, or exits cleanly with no branch recreation when `origin/dev` already matches the dispatched SHAs.
+- Any regenerated `origin/bot/next-version` contains only submodule gitlink changes and no regular file drift.
 - No manual `bot/next-version` reconstruction is required after the fix reaches `main`.
 
 ## Validation Steps
@@ -80,8 +80,8 @@ This slice is not about product behavior. It is a Docker CI/promotion-lane repai
 - After Docker `main` is updated, rerun the canonical dispatchers from:
   - `flutter-app stage`
   - `laravel-app stage` when needed for the active lane state
-- Confirm the resulting Docker `repository_dispatch` run creates or updates `origin/bot/next-version`.
-- `bash delphi-ai/tools/github_stage_promotion_preflight.sh --source origin/bot/next-version --base origin/dev --require-diff-shape submodule-only`
+- Confirm the resulting Docker `repository_dispatch` run either creates/updates `origin/bot/next-version` for a real gitlink diff or no-ops cleanly when no diff remains.
+- If a replay produces `origin/bot/next-version`, run `bash delphi-ai/tools/github_stage_promotion_preflight.sh --source origin/bot/next-version --base origin/dev --require-diff-shape submodule-only`
 - Complete the pending Docker promotion lane and finish with:
   - `bash delphi-ai/tools/github_promotion_completion_guard.sh --lane stage --scenario flutter-laravel --docker-repo belluga/belluga_now_docker --flutter-repo belluga/belluga_now_front --laravel-repo belluga/belluga_now_backend`
 
@@ -212,13 +212,13 @@ This slice is not about product behavior. It is a Docker CI/promotion-lane repai
   - PR `#620` `dev -> stage` merged as `945d549e8cdcfd46b3d705a656b924ed61a91127`
   - `stage` post-merge push run `25978078188` green
   - PR `#621` `stage -> main` merged as `1ac66d8454b5b98b198e425ecaf6dfbdd44221ec`
-  - `main` post-merge push run `25978450690` is still `in_progress` as of the latest local snapshot
+  - `main` post-merge push run `25978450690` completed `success`
 - Canonical dispatcher replay evidence:
   - Laravel dispatcher rerun: `belluga_now_backend` run `25978474557` (`stage`, `workflow_dispatch`) completed `success`
   - Docker callback from the rerun: `belluga_now_docker` repository-dispatch run `25978476580` completed `success`
   - Log evidence from `25978476580`: the fixed receiver ran on `main@1ac66d8454b5b98b198e425ecaf6dfbdd44221ec`, used `git add --force -- "$SUBMODULE"`, and concluded `INFO: no gitlink changes to commit.` because `laravel-app` already matched `origin/dev`
-  - Flutter dispatcher rerun: `belluga_now_front` run `25978474536` (`stage`, `workflow_dispatch`) is still `in_progress` as of the latest local snapshot
-  - `origin/bot/next-version` is still absent in the latest snapshot; the decisive callback is the pending Flutter rerun because the Laravel rerun alone cannot create a gitlink diff against `origin/dev`
+  - Flutter dispatcher rerun: `belluga_now_front` run `25978474536` (`stage`, `workflow_dispatch`) completed `success`
+  - `origin/bot/next-version` remained absent after the replay because the canonical source repos already matched `origin/dev`; this clean no-op is the expected steady-state outcome once no gitlink diff remains.
 
 ## Decision Baseline (Frozen)
 - D-01 (`Preserve`): keep the current sender topology; `flutter-app stage` and `laravel-app stage` remain the only authoritative sources for this automatic Docker sync.
@@ -228,7 +228,7 @@ This slice is not about product behavior. It is a Docker CI/promotion-lane repai
 - D-05 (`Preserve`): replay canonical dispatchers only after the repaired receiver is active on Docker `main`.
 
 ## Current Delivery Stage
-- `Promotion merged through main / canonical dispatcher replay still running`
+- `Completed`
 
 ## Qualifiers
 - `Root-Cause-Isolated`
@@ -240,8 +240,9 @@ This slice is not about product behavior. It is a Docker CI/promotion-lane repai
 - `Local-Implemented`
 - `Local-Gates-Passed`
 - `Promotion-Merged-Through-Main`
-- `Main-Post-Merge-Run-Pending`
-- `Dispatcher-Replay-In-Progress`
+- `Main-Post-Merge-Run-Succeeded`
+- `Canonical-Dispatcher-Replay-Succeeded`
+- `No-Manual-Reconstruction-Required`
 
 ## Next Exact Step
-- Wait for the Docker `main` post-merge push run and the rerun of the Flutter `stage` dispatcher to finish, then confirm that the resulting Docker repository-dispatch recreates `origin/bot/next-version` from `origin/dev` with submodule-only diff shape.
+- None. Future promotions should continue using the canonical dispatcher flow; `bot/next-version` should remain ephemeral and remote-only during active promotion when a real gitlink diff exists.
