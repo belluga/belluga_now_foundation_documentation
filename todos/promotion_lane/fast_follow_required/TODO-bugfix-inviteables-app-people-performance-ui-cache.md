@@ -1,14 +1,14 @@
 # TODO (Bugfix): Inviteables App People Performance, UI Semantics, and Repository Cache
 
-**Status:** Local-Implemented / Ready for packaging. Implementation, focused validation, ADB evidence, post-code audits, accepted-debt adjudication, and completion guard are complete.
+**Status:** Promotion-Lane / Ready for stage promotion. Implementation, focused validation, ADB evidence, post-code audits, accepted-debt adjudication, completion guard, commits, and branch publication are complete.
 
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
 
 ## Delivery Status Canon
-- **Current delivery stage:** `Local-Implemented / Ready for packaging`
+- **Current delivery stage:** `Promotion-Lane / Ready for stage promotion`
 - **Qualifiers:** `post-code audit accepted-debt`
-- **Next exact step:** package/commit the branch before promotion-lane movement.
+- **Next exact step:** start promotion-lane movement toward `stage`.
 
 ## Context
 - The invite-share `APP` pane shows `Carregando pessoas do app...` for several seconds again.
