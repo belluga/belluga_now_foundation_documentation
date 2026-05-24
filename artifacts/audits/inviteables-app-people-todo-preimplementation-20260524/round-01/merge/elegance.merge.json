@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-todo-preimplementation-20260524/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "elegance-structural-soundness"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Tighten the TODO before implementation by naming the canonical projection/read-model owner, retiring or converting the current read-time assembler path, and defining a single package-owned refresh/materialization boundary for all producer events."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-A5834BFF",
+      "severity": "high",
+      "title": "Projection writes lacked one canonical materializer boundary",
+      "rationale": "The broad trigger set is structurally risky. If each producer implements its own refresh behavior, the projection can diverge by event source, producing stale inviteables or inconsistent card semantics.",
+      "suggested_action": "Require a single package-owned inviteables projector/materializer with idempotent upsert/delete semantics and source-specific adapters that only call or enqueue that boundary.",
+      "reviewer_labels": [
+        "elegance-structural-soundness"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-002"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-D703FDDE",
+      "severity": "high",
+      "title": "Canonical GET cutover and old assembler fate were not explicit",
+      "rationale": "Without a named cutover for the old assembler, implementation can leave both the materialized projection and read-time assembly path alive, creating duplicate old/new paths likely to drift and reintroduce request-time correctness/performance regressions.",
+      "suggested_action": "Add a required architecture note naming the canonical GET path and the fate of InviteablePeopleService::inviteableItemsFor(), plus tests/guardrails proving GET does not read intermediate sources directly.",
+      "reviewer_labels": [
+        "elegance-structural-soundness"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-001"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-EA18662F",
+      "severity": "low",
+      "title": "Presentation mapping owner was not explicit",
+      "rationale": "A missing mapping owner can lead to repeated UI conditionals or leaking internal states into app cards, even if it is not a release blocker when behavior is tested.",
+      "suggested_action": "Add a non-blocking implementation note that inviteable card labels should be normalized in one presentation/domain mapping boundary and test that superseded never renders as an exposed internal state.",
+      "reviewer_labels": [
+        "elegance-structural-soundness"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-003"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

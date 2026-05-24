@@ -1,0 +1,48 @@
+{
+  "schema_version": "triple-audit-round-summary-v1",
+  "artifact_kind": "triple_audit_round_summary",
+  "authoritative": false,
+  "session_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-postcode-20260524/session.json",
+  "round": 1,
+  "merged_at": "2026-05-24T19:55:00+00:00",
+  "round_status": "needs_adjudication",
+  "conflicts": [
+    "recommended_path_conflict: reviewers proposed different recommended paths"
+  ],
+  "lanes": {
+    "elegance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-postcode-20260524/round-01/results/elegance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-postcode-20260524/round-01/merge/elegance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-postcode-20260524/round-01/merge/elegance.merge.md",
+      "overall_assessment": "No blocking elegance or structural-soundness risk is visible in the bounded package. The described implementation establishes a projection-backed backend read path, centralizes materialization, moves Flutter app-people ownership into a dedicated repository, and removes the old occurrence-scoped/cache-hydration paths from the route-critical flow.",
+      "recommended_path": "Treat the elegance lane as clean for this round, subject to the orchestrator validating the other lanes and recording the round result.",
+      "finding_count": 0,
+      "highest_finding_severity": "none",
+      "status": "clean"
+    },
+    "performance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-postcode-20260524/round-01/results/performance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-postcode-20260524/round-01/merge/performance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-postcode-20260524/round-01/merge/performance.merge.md",
+      "overall_assessment": "No concrete blocking performance, concurrency, or materialization risk is visible in the bounded package. The implemented direction moves route-critical inviteables reads to a projection-backed endpoint, separates Flutter inviteables ownership from invites/status state, removes client-side contact-import fanout, and records focused backend, Flutter, and ADB validation evidence.",
+      "recommended_path": "Proceed without performance-lane blocking findings for this round. Keep deeper query-plan or load benchmarking as non-blocking follow-up unless future evidence shows unbounded write-path materialization, stale projection leakage, or route-critical request loops returning.",
+      "finding_count": 0,
+      "highest_finding_severity": "none",
+      "status": "clean"
+    },
+    "test-quality": {
+      "review_kind": "test_quality_audit",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-postcode-20260524/round-01/results/test-quality.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-postcode-20260524/round-01/merge/test-quality.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-postcode-20260524/round-01/merge/test-quality.merge.md",
+      "overall_assessment": "blocking",
+      "recommended_path": "Do not close the TODO yet. Repair the evidence so the route-critical inviteables path is page-size bounded, real-backend ADB evidence actually exercises the Laravel tenant API, and write-side materialization is proven bounded under large imports before rerunning audit.",
+      "finding_count": 3,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    }
+  },
+  "exact_next_step": "Prepare a contradiction note, run the follow-up no-context challenge if needed, adjudicate the conflict explicitly, record the resolution with `record-resolution --status resolved`, then open the next round."
+}

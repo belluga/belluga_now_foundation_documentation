@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-todo-preimplementation-20260524/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "performance-operational-fit"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "mixed",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "regresses"
+  },
+  "recommended_paths": [
+    "Revise the TODO before implementation to define bounded projection materialization semantics, deployment/backfill gates, and backend performance evidence for the new read model."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-E0A4AB1C",
+      "severity": "high",
+      "title": "Projection refresh triggers were not bounded",
+      "rationale": "Without affected-scope resolution, incremental upsert/delete behavior, batching, idempotency, or coalescing, implementation can drift into fetch-all reconciliation, high-cardinality recompute, or write amplification on broad profile/capability/user-state changes.",
+      "suggested_action": "Require tenant/user/contact-bounded refresh semantics per event type, idempotent materialization, explicit batch limits, and a ban on full projection rebuilds outside controlled backfill/maintenance jobs.",
+      "reviewer_labels": [
+        "performance-operational-fit"
+      ],
+      "source_finding_ids": [
+        "PERF-001"
+      ],
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-BE7FDA4A",
+      "severity": "high",
+      "title": "Hard cutoff lacked projection backfill and readiness gate",
+      "rationale": "No backward compatibility and no GET repair are unsafe unless existing contacts are backfilled and readiness is proven before the endpoint depends exclusively on the projection.",
+      "suggested_action": "Add a required backfill/bootstrap plan, completion marker or health gate, cutover expectation, and tests proving existing matched contacts are visible from the projection immediately after deployment.",
+      "reviewer_labels": [
+        "performance-operational-fit"
+      ],
+      "source_finding_ids": [
+        "OPS-001"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-E8858467",
+      "severity": "high",
+      "title": "Backend read-model performance evidence was underspecified",
+      "rationale": "The TODO did not require query-count, query-shape, index, or projection-only assertions that would catch accidental read-time reconstruction from contact_hash_directory, favorite_edges, profiles, users, or capability tables.",
+      "suggested_action": "Extend acceptance criteria with backend performance tests for /contacts/inviteables on large fixtures: bounded query count, projection-first read path, required indexes, no N+1 enrichment, and no fallback reconstruction.",
+      "reviewer_labels": [
+        "performance-operational-fit"
+      ],
+      "source_finding_ids": [
+        "PERF-002"
+      ],
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

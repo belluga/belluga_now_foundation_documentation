@@ -1,0 +1,28 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-todo-preimplementation-20260524/round-02/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "reviewer_label": "test-quality-round-02",
+  "overall_assessment": "not_ready: one blocking test-quality gap remains in the TODO contract",
+  "recommended_path": "Amend the TODO before implementation continues so real-backend Flutter/navigation evidence is a mandatory validation gate, not preferred or implied evidence.",
+  "performance_position": "acceptable",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "TQ-R02-001",
+      "severity": "high",
+      "title": "Real-backend Flutter/navigation evidence was not a hard delivery gate",
+      "rationale": "The TODO identified app inviteables rendering, occurrence changes, and independent status loading as needing real backend evidence, but the required runtime lane was only ADB-preferred and the CI-equivalent matrix did not name a mandatory Flutter integration/device/web command.",
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "affected_paths": [
+        "foundation_documentation/todos/active/fast_follow_required/TODO-bugfix-inviteables-app-people-performance-ui-cache.md"
+      ],
+      "suggested_action": "Add an explicit validation gate and local-equivalent command requiring no-mock real-backend Flutter navigation evidence before Local-Implemented/promotion."
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-todo-preimplementation-20260524/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "regresses",
+    "elegance": "acceptable",
+    "structural_soundness": "regresses",
+    "operational_fit": "regresses"
+  },
+  "recommended_paths": [
+    "Update the TODO before implementation to require explicit fail-first tests for projection staleness/no-repair behavior, projection-refresh mutation sources, route-level Flutter cache persistence during contact-import refresh, 1200+ contact request-budget instrumentation, and CI-real-backend/no-mock execution evidence."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-93B06381",
+      "severity": "high",
+      "title": "Request-budget guardrail needed exact instrumentation",
+      "rationale": "A pass-the-test repair could use a small fixture, broad mocks, or assertions on rendered data only, failing to catch the high-cardinality request loop that motivated the TODO.",
+      "suggested_action": "Define the exact measured surface for the 1200+ fixture, forbidden method/endpoint calls, and expected request budget so the current chunk fanout fails before implementation.",
+      "reviewer_labels": [
+        "test-quality"
+      ],
+      "source_finding_ids": [
+        "TQ-03"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-3AC52427",
+      "severity": "high",
+      "title": "Repeated-entry Flutter route behavior needed explicit coverage",
+      "rationale": "Repository/unit tests can pass while the route still clears controller-local state, blocks on contact import refresh, or conflates inviteables cache with occurrence status overlay.",
+      "suggested_action": "Require a Flutter widget/integration regression test that enters the invite-share app-people pane, has cached inviteables available, simulates contact-import refresh continuing or re-entry, and asserts inviteables remain rendered without empty/loading regression.",
+      "reviewer_labels": [
+        "test-quality"
+      ],
+      "source_finding_ids": [
+        "TQ-02"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-8F78C2F6",
+      "severity": "high",
+      "title": "CI and real-backend execution gates were not explicit",
+      "rationale": "Without an execution gate, the TODO can be satisfied by local-only or mock-backed tests that do not prove production backend semantics or CI promotion safety.",
+      "suggested_action": "Add mandatory CI evidence requirements for Laravel projection tests against the real local backend and Flutter route/repository tests with production-parity wiring or explicit domain overrides, with no silent mock fallback.",
+      "reviewer_labels": [
+        "test-quality"
+      ],
+      "source_finding_ids": [
+        "TQ-04"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-A9B48ACA",
+      "severity": "high",
+      "title": "Backend projection contract tests were not explicit enough",
+      "rationale": "An implementation could add a projection while still passing tests that only validate final GET payloads, leaving stale projections or hidden request-time reconstruction unprotected.",
+      "suggested_action": "Require fail-first Laravel tests that seed stale or empty projection state plus valid intermediate sources and assert GET does not reconstruct, then cover each listed mutation source and assert projection refresh/materialization.",
+      "reviewer_labels": [
+        "test-quality"
+      ],
+      "source_finding_ids": [
+        "TQ-01"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

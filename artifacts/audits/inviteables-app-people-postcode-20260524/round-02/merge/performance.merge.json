@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-postcode-20260524/round-02/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "performance"
+  ],
+  "highest_finding_severity": "low",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "acceptable",
+    "operational_fit": "acceptable"
+  },
+  "recommended_paths": [
+    "Proceed with no unresolved blocking performance findings. Preserve the accepted non-blocking debt around deeper Mongo explain/query-planner evidence for promotion-stage verification if runtime planner behavior becomes a concern."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-122E1931",
+      "severity": "low",
+      "title": "Accepted-debt: deep Mongo explain evidence remains deferred",
+      "rationale": "Classification: accepted-debt. The package reports bounded query shape, default page=1/page_size=50, max page_size=100, projection indexes, exact-lookup scans with no high/medium findings, and real-backend ADB evidence showing page=1&page_size=50. It also explicitly records that deep Mongo explain evidence was not captured locally. That is not a release-blocking performance risk in this bounded audit because no concrete unbounded scan or request-loop path is shown, but it remains useful operational evidence for promotion-stage planner verification.",
+      "suggested_action": "Keep this as non-blocking promotion debt: capture Mongo explain/query-planner evidence for /api/v1/contacts/inviteables under representative tenant data before stage/main promotion if the release gate requires planner-level proof.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PERF-R02-AD-01"
+      ],
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

@@ -73,6 +73,7 @@ Every invite is issued by an `inviter_principal`:
 - **Account Profile invites:** may target followers/favorites for broader reach; direct user targeting is also allowed as needed.
 - **Share codes:** allowed for both inviter types; eligibility rules still apply (user shares only to their contacts, account profiles can share to followers/favorites audiences).
 - **Push audience topology:** direct/private invite delivery must resolve concrete recipient user IDs by query before authoring the generic push message. Stable subscribable fan-out audiences such as followers/favorites should prefer channel/topic delivery when available, rather than re-materializing the same audience on every send. In both cases, the shared push pipeline is responsible for queueing/batching/provider delivery, not for tenant-wide user scanning to discover semantic audiences.
+- **Invite push rich image:** invite push payloads use the backend-owned canonical event hero resolver for `event_image_url` / rich image selection. Invite services must consume the resolved event image and must not reimplement event media fallback order locally.
 - **Canonical side-effect source:** invite lifecycle side effects must hang off canonical post-commit invite events (or equivalent transactional activity events), not controller/UI glue. The same canonical event may feed push authoring, topic-membership churn, telemetry, and social-metric refresh consumers.
 
 ### B) Uniqueness (No Duplicate Invites From Same Inviter)
@@ -91,6 +92,13 @@ We never allow the same inviter to invite the same receiver to the same invite t
 If a duplicate attempt occurs:
 - Backend responds with `already_invited` and no record is created.
 - Client surfaces “Já convidado”.
+
+**Occurrence-scoped sent-status hydration:**
+- Sent invite state for a sender is hydrated only for one concrete `occurrence_id` through `GET /invites/sent-statuses`.
+- The authenticated bearer token and current tenant context define the inviter; client-supplied inviter identity fields are invalid and must be rejected.
+- `event_id` is optional consistency context only. Event-only sent-status lookup is invalid, and an `event_id`/`occurrence_id` mismatch must fail rather than widening the query.
+- The query is bounded by occurrence, authenticated inviter, and optional visible `recipient_account_profile_ids[]` (max 200). It must not scan all sender invites, page through all event invites, or perform recipient N+1 profile lookups.
+- `pending`, `accepted`, and `declined` are visible UI states. `expired`, `superseded`, and `suppressed` are hidden terminal/control states, but they remain counted/usable for reinvite blocking where applicable.
 
 **Launch cutover note (approved breaking change):**
 - The canonical recipient surface is `receiver_account_profile_id`, not raw `receiver_user_id`.
@@ -341,7 +349,37 @@ Authoritative viewer-scoped resume objects consumed by Flutter domain models for
 }
 ```
 
-### 3.4 Quotas & Throttling Snapshots
+### 3.4 `inviteable_people_projection`
+Authoritative viewer-scoped read model consumed by `GET /contacts/inviteables`. It is materialized from contact matches, favorites, reciprocal favorite/friend facts, profile capability/privacy changes, and user activation state. The GET endpoint must read this projection only; it must not reconstruct final inviteable recipients from `contact_hash_directory`, favorites, profiles, users, or capabilities on the request path.
+```json
+{
+  "_id": "ObjectId()",
+  "owner_user_id": "ObjectId()",
+  "receiver_user_id": "ObjectId() | null",
+  "receiver_account_profile_id": "ObjectId()",
+  "display_name": "String",
+  "avatar_url": "String | null",
+  "cover_url": "String | null",
+  "profile_type": "String",
+  "profile_exposure_level": "aggregate_only|capped_profile|full_profile",
+  "inviteable_reasons": ["contact_match|favorite_by_you|favorited_you|friend"],
+  "source_tags": ["contact_match|favorite_by_you|favorited_you|friend"],
+  "is_inviteable": "Boolean",
+  "contact_hash": "String | null",
+  "contact_type": "phone|email|null",
+  "sort_name": "String",
+  "materialized_at": "Date",
+  "created_at": "Date",
+  "updated_at": "Date"
+}
+```
+Required index support:
+- Unique upsert key: `{ owner_user_id: 1, receiver_account_profile_id: 1 }`.
+- Bounded list: `{ owner_user_id: 1, is_inviteable: 1, sort_name: 1, receiver_account_profile_id: 1 }`.
+- Impact lookup: `{ receiver_user_id: 1, owner_user_id: 1 }`.
+- Contact-hash impact lookup: `{ owner_user_id: 1, contact_hash: 1, receiver_account_profile_id: 1 }`.
+
+### 3.5 Quotas & Throttling Snapshots
 To enforce both anti-spam policies and account plan limits, the module maintains supporting documents:
 ```json
 {
@@ -365,6 +403,7 @@ To enforce both anti-spam policies and account plan limits, the module maintains
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/invites` | GET | Returns paginated grouped invite feed by target with stable inviter candidates, contextual prompts, quota status, and suppression flags. |
+| `/invites/sent-statuses` | GET | Returns occurrence-scoped sent invite state for the authenticated inviter, bounded by `occurrence_id` and optional visible recipient ids. |
 | `/invites` | POST | Creates direct invites for one or more recipients on a canonical invite target. |
 | `/invites/stream` | GET | Streams invite deltas for live updates (created/updated/deleted). |
 | `/invites/settings` | GET | Returns backend-owned tenant settings relevant to invite quotas, anti-spam, and client UX messaging. |
@@ -375,7 +414,7 @@ To enforce both anti-spam policies and account plan limits, the module maintains
 | `/invites/share/{code}/accept` | POST | Canonical authenticated/promoted share acceptance endpoint; rejects anonymous users with `401 auth_required`, resolves/materializes invite edge, and applies acceptance atomically. |
 | `/invites/share/{code}/materialize` | POST | Creates or reuses the canonical invite edge for the authenticated user before any accept/decline action. |
 | `/contacts/import` | POST | Imports hashed contacts for contact matching and inviteable acquisition. |
-| `/contacts/inviteables` | GET | Returns the backend-computed, deduplicated in-app inviteable recipient list with `receiver_account_profile_id`, `inviteable_reasons`, and `profile_exposure_level`. |
+| `/contacts/inviteables` | GET | Returns the projection-backed, deduplicated in-app inviteable recipient list with `receiver_account_profile_id`, `inviteable_reasons`, and `profile_exposure_level`; request is page bounded with default `page_size=50` and max `100`. |
 | `/contact-groups` | GET | Lists the authenticated user's private contact groups after pruning recipients that are no longer inviteable. |
 | `/contact-groups` | POST | Creates a private contact group over in-app inviteable `receiver_account_profile_id` members, deduplicating membership. |
 | `/contact-groups/{group_id}` | PATCH | Renames a private contact group and/or replaces its inviteable recipient membership. |
@@ -394,8 +433,9 @@ Native app is the full-fidelity invite client.
 - Each grouped card must include stable `inviter_candidates[]` entries with `invite_id` so the app can enforce explicit inviter selection when multiple pending inviters exist for the same target.
 - `POST /invites` is the native direct-send mutation for existing users or matched contacts.
 - Direct invite recipient identity is an approved breaking launch cutover to the recipient Account Profile surface. Pre-production user-targeted direct-invite contracts, persisted invite edges, and share materialization/acceptance paths must cut over to `receiver_account_profile_id`; `receiver_user_id` is not part of the release contract.
-- `GET /contacts/inviteables` is the canonical composer source for in-app recipients. It merges `contact_match`, `favorite_by_you`, `favorited_you`, and derived `friend` reasons into one row per `receiver_account_profile_id`, preserving all reasons for filtering and exposure decisions.
-- For `contact_match`, `/contacts/inviteables` must query matched contact-directory rows directly for the current viewer rather than fetching an arbitrary first page of all imported hashes and filtering in memory. Old unmatched rows must not be able to hide a later matched real contact.
+- `GET /contacts/inviteables` is the canonical composer source for in-app recipients. It reads `inviteable_people_projection` for the authenticated viewer, returns one row per `receiver_account_profile_id`, and preserves all materialized reasons for filtering/explanation and exposure decisions.
+- `/contacts/inviteables` is a bounded read-model query, not a repair path. It must require page-bounded access (`page`, `page_size`, default `50`, max `100`) and must not rebuild missing/stale inviteables from `contact_hash_directory`, favorites, profiles, users, or capability lookups during GET.
+- For `contact_match`, `/contacts/import`, identity materialization, and related write-side hooks are responsible for updating `inviteable_people_projection`. Old unmatched rows must not be able to hide a later matched real contact because the projection is maintained by bounded affected-row materialization, not by request-time scanning.
 - When OTP verification merges an anonymous app identity into a registered phone identity, invite/contact ownership migration includes `contact_hash_directory.importing_user_id`. Contact imports performed before login must remain visible to the registered viewer after merge without requiring a full route restart or reimport as the first correctness path.
 - `POST /contacts/import` must not expose a `user_id`-only invite target. If a matched installed user does not have an inviteable personal Account Profile, the release path must create/resolve the personal Account Profile before in-app targeting or leave the contact outside the canonical inviteable list.
 - `/convites/compartilhar` consumes one unified deduplicated inviteable list by default, not parallel duplicated sections per relation source. Relation/source tags stay attached to each row so Discovery-style filters can narrow the list without changing canonical recipient identity.
@@ -409,6 +449,8 @@ Native app is the full-fidelity invite client.
 - `POST /invites/{invite_id}/accept` accepts the selected invite edge, supersedes competing pending invites for the same `(receiver_account_profile_id,target_ref)`, and returns the resolved `attendance_policy` plus next-step metadata (`none`, `free_confirmation_created`, `reservation_required`, `commitment_choice_required`, or `open_app_to_continue`).
 - `POST /invites/{invite_id}/decline` declines only the selected edge; it does not silently decline other pending inviter candidates for the same target.
 - Pending invite feeds are registered user-linked state in the Flutter client. After OTP/login emits a registered identity, the app shell must refresh pending invites through the repository contract before invite inbox/share screens decide empty states. Future invite/social repositories that depend on registered identity must register the same post-auth hydration consumer instead of relying on route re-entry.
+- Sent invite button state is not global post-auth state. The app must request `GET /invites/sent-statuses` only when an occurrence-specific invite surface opens or refreshes, and must use the returned backend state instead of assuming local send state remains authoritative after route reload.
+- Profile social metrics are sender-side aggregates from `principal_social_metrics`: `invites_sent` counts invitations issued by the user, and `credited_invite_acceptances`/`invites_accepted` counts accepted conversions from that user's invitations. Profile rendering must not derive those metrics from received invites, pending inbox count, confirmed events, or request-path `invite_edges` scans.
 - Native app remains the trusted surface for grouped invite selection, invite inbox management, and any richer follow-up action beyond narrow web exceptions.
 
 ### 4.3 External Share Invites (New Users Attribution)

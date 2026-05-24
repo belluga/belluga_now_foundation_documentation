@@ -1,0 +1,63 @@
+# PACED Subagent Review Merge: test_quality_audit
+
+## Merge Identity
+- **Artifact kind:** `subagent_review_merge`
+- **Authoritative:** `false`
+- **Edit policy:** `derived_merge_packet`
+- **Dispatch path:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-postcode-20260524/round-01/dispatch/test-quality.dispatch.json`
+- **Review count:** `1`
+- **Highest finding severity:** `high`
+
+## Axis Summary
+- **Performance:** `regresses`
+- **Elegance:** `acceptable`
+- **Structural soundness:** `regresses`
+- **Operational fit:** `regresses`
+
+## Recommended Paths
+- `Do not close the TODO yet. Repair the evidence so the route-critical inviteables path is page-size bounded, real-backend ADB evidence actually exercises the Laravel tenant API, and write-side materialization is proven bounded under large imports before rerunning audit.`
+
+## Merged Findings
+### F-97A024E9 [high] Route-critical inviteables fetch still allows unbounded reads
+- **Reviewers:** test-quality
+- **Category:** `tests`
+- **Formalizable hint:** `yes`
+- **Candidate rule level:** `project`
+- **Candidate rule id:** `n/a`
+- **Suggested action:** Require route-critical inviteables clients to pass explicit pagination/bounds, and fail tests when /contacts/inviteables is consumed with an unbounded default fetch.
+- **Rationale:** The Flutter client and DAL test still codify an unpaged inviteables read: `LaravelInvitesBackend.fetchInviteableContacts()` calls `/api/v1/contacts/inviteables` with no query parameters, and the test asserts query parameters are empty. The backend unpaged branch then calls `inviteableItemsFor()` and the service performs `get()` without a default limit. These tests can pass while a high-cardinality projection fetch-all remains in the route-critical app pane. Evidence: flutter-app/lib/infrastructure/dal/dao/laravel_backend/invites_backend/laravel_invites_backend.dart:167, flutter-app/test/infrastructure/dal/laravel_invites_backend_test.dart:154, laravel-app/app/Http/Api/v1/Controllers/ContactInviteablesController.php:30, laravel-app/app/Application/Social/InviteablePeopleService.php:42.
+
+### F-C6668436 [high] Contact import materialization boundedness is not proven
+- **Reviewers:** test-quality
+- **Category:** `performance`
+- **Formalizable hint:** `yes`
+- **Candidate rule level:** `project`
+- **Candidate rule id:** `n/a`
+- **Suggested action:** Add large-fixture write-path tests proving contact import materialization is bounded to changed rows and does not recompute the full owner inviteables source set synchronously.
+- **Rationale:** The tests prove a single contact import creates a projection row, but they do not prove the write/materialization path is bounded. Current import calls `refreshInviteablePeopleForUser()` after every import, which delegates to `refreshForUser()`, which iterates `sourceInviteableItemsFor($viewer)` across the owner source set. That can move the original performance cliff from GET to POST while existing tests still pass. Evidence: laravel-app/packages/belluga/belluga_invites/src/Application/Contacts/ContactImportService.php:85, laravel-app/app/Integration/Invites/InviteIdentityGatewayAdapter.php:163, laravel-app/app/Application/Social/InviteablePeopleProjectionService.php:37, laravel-app/tests/Feature/Invites/StoreReleaseSocialGraphTest.php:506.
+
+### F-5D5BE4C8 [high] ADB evidence does not exercise the real Laravel tenant API
+- **Reviewers:** test-quality
+- **Category:** `tests`
+- **Formalizable hint:** `yes`
+- **Candidate rule level:** `project`
+- **Candidate rule id:** `n/a`
+- **Suggested action:** Separate widget/device-harness tests from real-backend integration evidence; require real-backend-tagged ADB tests to instantiate production repositories/backends and record actual tenant API calls.
+- **Rationale:** The cited ADB invite-share tests are not valid real-backend evidence for this TODO. The surface contract test injects `_FakeInvitesRepository`; the cold-cache test uses `_ColdCacheInvitesBackend`, which returns in-memory inviteables/import/status payloads. The DAL test uses `_RecordingAdapter`, not the configured tenant API. These tests can pass while auth, tenant routing, `/contacts/inviteables`, `/contacts/import`, or `/invites/sent-statuses` are broken in the real backend. Evidence: flutter-app/integration_test/feature_invite_share_surface_contract_test.dart:291, flutter-app/integration_test/feature_invite_share_cold_cache_persistence_test.dart:363, flutter-app/test/infrastructure/dal/laravel_invites_backend_test.dart:145.
+
+## Reviewer Summaries
+### test-quality
+- **Assessment:** blocking
+- **Recommended path:** `Do not close the TODO yet. Repair the evidence so the route-critical inviteables path is page-size bounded, real-backend ADB evidence actually exercises the Laravel tenant API, and write-side materialization is proven bounded under large imports before rerunning audit.`
+- **Performance:** `regresses`
+- **Elegance:** `acceptable`
+- **Structural soundness:** `regresses`
+- **Operational fit:** `regresses`
+- **Findings:**
+  - [high] TQ-01 Route-critical inviteables fetch still allows unbounded reads: The Flutter client and DAL test still codify an unpaged inviteables read: `LaravelInvitesBackend.fetchInviteableContacts()` calls `/api/v1/contacts/inviteables` with no query parameters, and the test asserts query parameters are empty. The backend unpaged branch then calls `inviteableItemsFor()` and the service performs `get()` without a default limit. These tests can pass while a high-cardinality projection fetch-all remains in the route-critical app pane. Evidence: flutter-app/lib/infrastructure/dal/dao/laravel_backend/invites_backend/laravel_invites_backend.dart:167, flutter-app/test/infrastructure/dal/laravel_invites_backend_test.dart:154, laravel-app/app/Http/Api/v1/Controllers/ContactInviteablesController.php:30, laravel-app/app/Application/Social/InviteablePeopleService.php:42.
+  - [high] TQ-02 ADB evidence does not exercise the real Laravel tenant API: The cited ADB invite-share tests are not valid real-backend evidence for this TODO. The surface contract test injects `_FakeInvitesRepository`; the cold-cache test uses `_ColdCacheInvitesBackend`, which returns in-memory inviteables/import/status payloads. The DAL test uses `_RecordingAdapter`, not the configured tenant API. These tests can pass while auth, tenant routing, `/contacts/inviteables`, `/contacts/import`, or `/invites/sent-statuses` are broken in the real backend. Evidence: flutter-app/integration_test/feature_invite_share_surface_contract_test.dart:291, flutter-app/integration_test/feature_invite_share_cold_cache_persistence_test.dart:363, flutter-app/test/infrastructure/dal/laravel_invites_backend_test.dart:145.
+  - [high] TQ-03 Contact import materialization boundedness is not proven: The tests prove a single contact import creates a projection row, but they do not prove the write/materialization path is bounded. Current import calls `refreshInviteablePeopleForUser()` after every import, which delegates to `refreshForUser()`, which iterates `sourceInviteableItemsFor($viewer)` across the owner source set. That can move the original performance cliff from GET to POST while existing tests still pass. Evidence: laravel-app/packages/belluga/belluga_invites/src/Application/Contacts/ContactImportService.php:85, laravel-app/app/Integration/Invites/InviteIdentityGatewayAdapter.php:163, laravel-app/app/Application/Social/InviteablePeopleProjectionService.php:37, laravel-app/tests/Feature/Invites/StoreReleaseSocialGraphTest.php:506.
+
+## Exact Next Step
+Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.
+

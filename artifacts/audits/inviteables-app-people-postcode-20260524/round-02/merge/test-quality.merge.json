@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-postcode-20260524/round-02/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality"
+  ],
+  "highest_finding_severity": "low",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "acceptable",
+    "operational_fit": "acceptable"
+  },
+  "recommended_paths": [
+    "Proceed without another audit round for test quality if CI promotion is expected to run separately. The bounded package now contains concrete regression protection for the original performance/UI-cache failure modes: bounded inviteables GET contract, real-backend ADB route evidence, and bounded write-side materialization proof."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-9E43FFE6",
+      "severity": "low",
+      "title": "Accepted-debt: real-backend ADB evidence proves the route and bounded query, not non-empty recipient semantics",
+      "rationale": "Classification: accepted-debt. The ADB output records domain=guarappari.belluga.space path=/api/v1/contacts/inviteables query=page=1&page_size=50 recipients=0. A non-empty payload rendering regression could theoretically escape this ADB test alone, but focused Laravel and Flutter repository/DAL tests cover payload/query assertions and materialization behavior.",
+      "suggested_action": "Accept for this bounded audit; consider adding a seeded non-empty real-backend fixture only if future promotion requires end-to-end payload semantics on-device.",
+      "reviewer_labels": [
+        "test-quality"
+      ],
+      "source_finding_ids": [
+        "TQ-R02-002"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-54275780",
+      "severity": "low",
+      "title": "Accepted-debt: CI execution is not evidenced in the bounded package",
+      "rationale": "Classification: accepted-debt. The package lists local Flutter analyzer/tests, Laravel safe-runner tests, heuristic scans, and ADB real-backend execution, but no CI run or CI job result. This does not reopen the original regression because local and ADB evidence cover the behavior directly; operational promotion still depends on CI running the relevant gates.",
+      "suggested_action": "Keep this as promotion-gate debt unless the TODO explicitly requires CI evidence before audit closure.",
+      "reviewer_labels": [
+        "test-quality"
+      ],
+      "source_finding_ids": [
+        "TQ-R02-001"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

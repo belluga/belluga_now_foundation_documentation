@@ -118,6 +118,7 @@ Invite Edge is the canonical social invitation record for an Event/Occurrence ta
 Key invariants:
 
 - It binds inviter principal, issuing user, target event snapshot, recipient user/contact target, status, expiry, and response timestamps.
+- Release invite recipient identity is Account Profile-scoped via `receiver_account_profile_id`; acting users remain audit/authorization context and must not redefine the recipient surface.
 - It records social conversion state; it does not by itself become reservation, attendance confirmation, or check-in proof.
 - Recipient addressing may use a canonical user id or a hashed contact target.
 
@@ -185,6 +186,8 @@ Key invariants:
 
 - It is a score/projection surface, not the principal entity itself.
 - It summarizes invite-driven social metrics and should not be treated as the canonical source of relationship state.
+- Sender profile metrics consume this projection directly: `invites_sent` counts invitations issued by the principal, and `credited_invite_acceptances` is exposed to clients as `invites_accepted`.
+- Runtime profile reads must not compute those metrics by scanning historical Invite Edges, pending received invites, or confirmed attendance records.
 
 ### 5.3 Favorite Snapshots and Invite Feed Projections
 

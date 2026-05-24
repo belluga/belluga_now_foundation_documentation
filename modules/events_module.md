@@ -99,7 +99,7 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 - Effective occurrence location for Store Release remains the event location. Programação item location references enrich only the programação cards and `Como Chegar`; occurrences do not own location overrides.
 - `Programação` is occurrence-exclusive. It is rendered only for the selected occurrence when that occurrence has programming items ordered by time. A programming item contains `time`, optional same-day `end_time`, optional `title`, and linked Account Profiles that are a subset of that occurrence's canonical related-profile set; title may fall back to the single linked profile display name only when exactly one profile is linked.
 - Event-form account-profile candidate discovery is type-driven and page-based: `related_account_profile` returns generic related account profiles without hardcoding one specific dynamic profile type and excludes canonical venue profiles, while `physical_host` returns POI-enabled profiles with valid coordinates.
-- Public event-image resolution order is deterministic: `event.thumb` first, then `linked_account_profiles` in canonical array order, then `venue` media. Runtime callers must not fall back to legacy `artists`.
+- Public event-image resolution order is deterministic and backend-owned by the canonical Laravel event hero resolver: `event.thumb` first, then `linked_account_profiles` in canonical array order, then `venue` media. Runtime callers must not reimplement this fallback chain and must not fall back to legacy `artists`; when deriving profile candidates from raw `event_parties`, `party_type=venue` is excluded so location imagery cannot win as account-profile fallback.
 
 ### 5.2 Write model
 

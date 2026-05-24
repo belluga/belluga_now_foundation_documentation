@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-todo-preimplementation-20260524/round-02/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality-round-02"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Amend the TODO before implementation continues so real-backend Flutter/navigation evidence is a mandatory validation gate, not preferred or implied evidence."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-87400EE1",
+      "severity": "high",
+      "title": "Real-backend Flutter/navigation evidence was not a hard delivery gate",
+      "rationale": "The TODO identified app inviteables rendering, occurrence changes, and independent status loading as needing real backend evidence, but the required runtime lane was only ADB-preferred and the CI-equivalent matrix did not name a mandatory Flutter integration/device/web command.",
+      "suggested_action": "Add an explicit validation gate and local-equivalent command requiring no-mock real-backend Flutter navigation evidence before Local-Implemented/promotion.",
+      "reviewer_labels": [
+        "test-quality-round-02"
+      ],
+      "source_finding_ids": [
+        "TQ-R02-001"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

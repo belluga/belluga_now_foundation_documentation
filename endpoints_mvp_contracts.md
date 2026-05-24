@@ -276,6 +276,7 @@
     "user_level": "basic|verified",
     "privacy_mode": "public|friends_only",
     "social_score": {
+      "invites_sent": 0,
       "invites_accepted": 0,
       "presences_confirmed": 0,
       "rank_label": "string?"
@@ -296,6 +297,9 @@
 **Field Definitions**
 - `user_level`: `basic`, `verified`.
 - `privacy_mode`: `public`, `friends_only`.
+- `social_score.invites_sent`: sender-side aggregate from `principal_social_metrics.invites_sent`; it is not computed by scanning invite edges on `/me`.
+- `social_score.invites_accepted`: sender-side aggregate from `principal_social_metrics.credited_invite_acceptances`; it measures how many people accepted this user's invites, not invites received by this user.
+- `counters.pending_invites`: receiver-side pending inbox count; do not use it as a sender social metric.
 
 ### `POST /favorites`
 **Purpose:** Create or idempotently persist a favorite edge for the current identity.  
@@ -603,6 +607,54 @@
 - `occurrence_id` is required for store-release invite and attendance runtime actions. `event_id` is denormalized parent context and must not define the target identity.
 - `message` is optional author input. Feed/share payloads may return `""` when no custom invite message was provided.
 - VNext roadmap: add cursor pagination for deep invite feed scrolling while preserving page-based compatibility in MVP clients.
+
+### `GET /invites/sent-statuses`
+**Purpose:** Occurrence-scoped hydration of invite-send state for the authenticated inviter so invite buttons can reflect backend truth when entering one specific event occurrence.
+**Request (query):**
+- `occurrence_id` (required): canonical occurrence target.
+- `event_id` (optional): parent event consistency context only; rejected when it does not own `occurrence_id`.
+- `recipient_account_profile_ids[]` (optional, max 200): narrows the result to the visible composer/detail recipients.
+**Rejected query fields:** `inviter_id`, `issued_by_user_id`, `inviter_principal_id`, `inviter_principal`, `tenant_id`, and `tenant`. The inviter identity is always derived from the authenticated bearer token and current tenant context.
+**Response (minimum):**
+```json
+{
+  "tenant_id": "string",
+  "data": {
+    "event_id": "string",
+    "occurrence_id": "string",
+    "summary": {
+      "pending": 1,
+      "accepted": 1,
+      "declined": 0,
+      "terminal_hidden": 0
+    },
+    "items": [
+      {
+        "invite_id": "string",
+        "recipient_key": "account_profile:string",
+        "receiver_account_profile_id": "string",
+        "receiver_user_id": "string?",
+        "display_name": "string?",
+        "avatar_url": "string?",
+        "status": "pending|accepted|declined",
+        "actionability": "already_invited|invite_accepted|invite_declined|blocked_terminal",
+        "sent_at": "2025-01-01T00:00:00Z?",
+        "responded_at": "2025-01-01T00:00:00Z?"
+      }
+    ]
+  },
+  "metadata": {
+    "request_id": "string",
+    "truncated": false,
+    "next_cursor": null
+  }
+}
+```
+**Notes:**
+- The endpoint is authenticated with the tenant-public bearer token and must be protected by tenant access guardrails.
+- The query must be bounded by `occurrence_id`, authenticated inviter identity, and optional visible recipient ids. It must not scan all sent invites for the user, page through event-wide invite edges, or perform recipient N+1 profile lookups.
+- Visible statuses are `pending`, `accepted`, and `declined`. Terminal/control states such as `expired`, `superseded`, and `suppressed` are hidden from `items` but still contribute to `summary.terminal_hidden` and may block reinvite through `actionability=blocked_terminal` when surfaced.
+- Flutter must call this endpoint when an occurrence-specific invite surface opens or refreshes. It is not part of global post-auth bootstrap hydration.
 
 ### `POST /invites`
 **Purpose:** Create direct invites for one or more recipients from the native app.  
@@ -1100,7 +1152,7 @@
 - **Tracking:** `share_visit` is analytics-only. `invite_sent` and `invite_accepted` should include a `source` (`direct_invite`, `share_url`). The project north-star metrics are `credited_invite_acceptances` and normalized `presences_confirmed` (successful free confirmations or paid reservations).
 - **Recipient identity migration:** the business recipient surface is `Account Profile`. Direct invite APIs, stored invite edges, and share-materialized invite flows must migrate to `receiver_account_profile_id`; backward compatibility with `receiver_user_id` is not required.
 - **Contacts/Friends (MVP):** hashed contact matches remain the canonical acquisition path for contacts and invite targeting. In the current MVP/release baseline, `contact_match` materializes from explicit `/contacts/import`: a successful match makes the person visible in `Contatos` and already invite-eligible when the resolved profile type is `is_inviteable=true`. `discoverable_by_contacts` is a separate privacy axis from public profile visibility and defaults to allowing contact discovery until a later privacy-settings surface changes it. Favorites on favoritable profiles may also contribute inviteability (`favorite_by_you`, `favorited_you`), while reciprocal favorites between personal Account Profiles derive `friend`. User-private `contact_groups` organize in-app inviteable recipients with many-to-many membership, including entries surfaced through `contact_match`, `favorite_by_you`, `favorited_you`, and `friend`; unmatched local contacts are not groupable. Group CRUD is required, but the invite composer is not the management surface; exact management UX may be refined separately. In V1, when a recipient ceases to be inviteable, their `contact_group` memberships are removed automatically. Raw PII is never stored server-side.
-- **Inviteable projection (MVP):** `/convites/compartilhar` consumes one unified in-app inviteable list, deduplicated by canonical recipient before rendering. Entries preserve relation/source metadata (`contact_match`, `favorite_by_you`, `favorited_you`, `friend`) so the client can filter by relation type without duplicating rows.
+- **Inviteable projection (MVP):** `/convites/compartilhar` consumes one unified in-app inviteable list, deduplicated by canonical recipient before rendering. Entries preserve relation/source metadata (`contact_match`, `favorite_by_you`, `favorited_you`, `friend`) so the client can filter by relation type without duplicating rows. The API source is `GET /contacts/inviteables`, a page-bounded read over `inviteable_people_projection`; it must not reconstruct final recipients from contact hashes, favorites, profiles, users, or capabilities during GET.
 - **External-contact share branch (native app only):** unmatched local contacts may be surfaced as per-contact external share targets that launch WhatsApp direct-share when available, otherwise the system share sheet. These entries are not part of the canonical inviteable list, relation filters, or `contact_groups`, and they do not exist on web.
 - **Onboarding follow-up note:** a separate follow-up (`TODO-vnext-onboarding-identity-reconciliation-reflection.md`) may later add identity-materialization reconciliation after OTP/onboarding completion, including a discovery-only inbound suggestion surface labeled `Talvez você conheça`. That follow-up must not create `Contato`, `inviteable_reason`, or group eligibility by itself; only explicit favorite may later promote the relationship into the normal inviteable rules.
 - **Delivery fallback:** if a contact hash matches an existing user, send push / canonical in-app invite. If no match, use the native-app external share action with the invite `code`. No dedicated per-contact backend tracking lane is required beyond canonical share-code analytics.
@@ -1148,7 +1200,42 @@
 - `contact_groups` are user-private, tag-like organization layered above in-app inviteable recipients. The same recipient may belong to multiple groups, including recipients surfaced through `contact_match`, `favorite_by_you`, `favorited_you`, and `friend`; unmatched local contacts are not groupable. Group CRUD is required but belongs to dedicated group/friends-management surfaces rather than the invite composer.
 - When bulk invite selection is composed from multiple contact groups, deduplicate by canonical recipient identity before quota counting and invite creation.
 - When an existing grouped recipient ceases to be inviteable, V1 removes that recipient from all contact groups automatically instead of retaining a disabled membership.
-- This endpoint is the contact-acquisition ingress only. `/convites/compartilhar` may merge contact matches with other inviteable sources such as `favorite_by_you`, `favorited_you`, and `friend` before building the final deduplicated inviteable list. Any later onboarding-owned reflection surface such as `Talvez você conheça` remains outside that inviteable list until explicit favorite.
+- This endpoint is the contact-acquisition ingress only. It may trigger bounded write-side materialization of `inviteable_people_projection` for affected matched rows. `/convites/compartilhar` must read the final deduplicated inviteable list from `GET /contacts/inviteables`, not merge contact matches and favorites on the client or on the GET request path. Any later onboarding-owned reflection surface such as `Talvez você conheça` remains outside that inviteable list until explicit favorite.
+
+### `GET /contacts/inviteables`
+**Purpose:** Return the authenticated viewer's in-app inviteable recipient list from the materialized `inviteable_people_projection` read model.
+
+**Request (query):**
+- `page` (`int`, optional, default `1`)
+- `page_size` (`int`, optional, default `50`, max `100`)
+
+**Response:**
+```json
+{
+  "items": [
+    {
+      "user_id": "string|null",
+      "receiver_account_profile_id": "string",
+      "display_name": "string",
+      "avatar_url": "string|null",
+      "cover_url": "string|null",
+      "profile_type": "string",
+      "profile_exposure_level": "aggregate_only|capped_profile|full_profile",
+      "is_inviteable": true,
+      "inviteable_reasons": ["contact_match|favorite_by_you|favorited_you|friend"],
+      "source_tags": ["contact_match|favorite_by_you|favorited_you|friend"]
+    }
+  ],
+  "metadata": {
+    "request_id": "string",
+    "page": 1,
+    "page_size": 50,
+    "has_more": false
+  }
+}
+```
+
+**Read-model rule:** this endpoint is projection-only. Missing or stale projection data is a materialization/backfill defect and must not be hidden by request-time reconstruction from `contact_hash_directory`, favorites, account profiles, account users, or profile-type capabilities.
 
 ---
 

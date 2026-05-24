@@ -1,0 +1,54 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-todo-preimplementation-20260524/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "performance-operational-fit",
+  "overall_assessment": "The direction is sound, but the TODO is not ready for implementation because the projection refresh and hard-cutover plan leave concrete runtime and operational failure modes open.",
+  "recommended_path": "Revise the TODO before implementation to define bounded projection materialization semantics, deployment/backfill gates, and backend performance evidence for the new read model.",
+  "performance_position": "mixed",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "regresses",
+  "findings": [
+    {
+      "finding_id": "PERF-001",
+      "severity": "high",
+      "title": "Projection refresh triggers were not bounded",
+      "rationale": "Without affected-scope resolution, incremental upsert/delete behavior, batching, idempotency, or coalescing, implementation can drift into fetch-all reconciliation, high-cardinality recompute, or write amplification on broad profile/capability/user-state changes.",
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "foundation_documentation/todos/active/fast_follow_required/TODO-bugfix-inviteables-app-people-performance-ui-cache.md"
+      ],
+      "suggested_action": "Require tenant/user/contact-bounded refresh semantics per event type, idempotent materialization, explicit batch limits, and a ban on full projection rebuilds outside controlled backfill/maintenance jobs."
+    },
+    {
+      "finding_id": "OPS-001",
+      "severity": "high",
+      "title": "Hard cutoff lacked projection backfill and readiness gate",
+      "rationale": "No backward compatibility and no GET repair are unsafe unless existing contacts are backfilled and readiness is proven before the endpoint depends exclusively on the projection.",
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "foundation_documentation/todos/active/fast_follow_required/TODO-bugfix-inviteables-app-people-performance-ui-cache.md"
+      ],
+      "suggested_action": "Add a required backfill/bootstrap plan, completion marker or health gate, cutover expectation, and tests proving existing matched contacts are visible from the projection immediately after deployment."
+    },
+    {
+      "finding_id": "PERF-002",
+      "severity": "high",
+      "title": "Backend read-model performance evidence was underspecified",
+      "rationale": "The TODO did not require query-count, query-shape, index, or projection-only assertions that would catch accidental read-time reconstruction from contact_hash_directory, favorite_edges, profiles, users, or capability tables.",
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "foundation_documentation/todos/active/fast_follow_required/TODO-bugfix-inviteables-app-people-performance-ui-cache.md"
+      ],
+      "suggested_action": "Extend acceptance criteria with backend performance tests for /contacts/inviteables on large fixtures: bounded query count, projection-first read path, required indexes, no N+1 enrichment, and no fallback reconstruction."
+    }
+  ]
+}

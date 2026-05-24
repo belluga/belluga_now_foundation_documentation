@@ -1,0 +1,48 @@
+{
+  "schema_version": "triple-audit-round-summary-v1",
+  "artifact_kind": "triple_audit_round_summary",
+  "authoritative": false,
+  "session_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-todo-preimplementation-20260524/session.json",
+  "round": 1,
+  "merged_at": "2026-05-24T17:01:39+00:00",
+  "round_status": "needs_adjudication",
+  "conflicts": [
+    "recommended_path_conflict: reviewers proposed different recommended paths"
+  ],
+  "lanes": {
+    "elegance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-todo-preimplementation-20260524/round-01/results/elegance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-todo-preimplementation-20260524/round-01/merge/elegance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-todo-preimplementation-20260524/round-01/merge/elegance.merge.md",
+      "overall_assessment": "needs_revision",
+      "recommended_path": "Tighten the TODO before implementation by naming the canonical projection/read-model owner, retiring or converting the current read-time assembler path, and defining a single package-owned refresh/materialization boundary for all producer events.",
+      "finding_count": 3,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    },
+    "performance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-todo-preimplementation-20260524/round-01/results/performance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-todo-preimplementation-20260524/round-01/merge/performance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-todo-preimplementation-20260524/round-01/merge/performance.merge.md",
+      "overall_assessment": "The direction is sound, but the TODO is not ready for implementation because the projection refresh and hard-cutover plan leave concrete runtime and operational failure modes open.",
+      "recommended_path": "Revise the TODO before implementation to define bounded projection materialization semantics, deployment/backfill gates, and backend performance evidence for the new read model.",
+      "finding_count": 3,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    },
+    "test-quality": {
+      "review_kind": "test_quality_audit",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-todo-preimplementation-20260524/round-01/results/test-quality.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-todo-preimplementation-20260524/round-01/merge/test-quality.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/inviteables-app-people-todo-preimplementation-20260524/round-01/merge/test-quality.merge.md",
+      "overall_assessment": "blocking: the planned direction is coherent, but the bounded package does not yet specify enough fail-first, real-behavior test gates for backend projection semantics, Flutter repeated-entry behavior, request-budget enforcement, and CI/real-backend execution.",
+      "recommended_path": "Update the TODO before implementation to require explicit fail-first tests for projection staleness/no-repair behavior, projection-refresh mutation sources, route-level Flutter cache persistence during contact-import refresh, 1200+ contact request-budget instrumentation, and CI-real-backend/no-mock execution evidence.",
+      "finding_count": 4,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    }
+  },
+  "exact_next_step": "Prepare a contradiction note, run the follow-up no-context challenge if needed, adjudicate the conflict explicitly, record the resolution with `record-resolution --status resolved`, then open the next round."
+}

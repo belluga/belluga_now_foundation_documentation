@@ -1,0 +1,34 @@
+```json
+{
+  "overall_assessment": "pass_with_accepted_debt — no blocking defects found; all primary blocking criteria from the reviewer instructions are addressed by the implementation and passing test evidence; two accepted-debt gaps should be closed in the already-required pending delivery gates before lane promotion",
+  "recommended_path": "proceed_to_pending_delivery_gates — close PCV (concurrent materializer) and security/privacy reviews as required by the TODO Derived Audit Floor, then run todo_completion_guard.py",
+  "findings": [
+    {
+      "severity": "accepted-debt",
+      "title": "Concurrent materialization convergence not explicitly evidenced in this audit package",
+      "evidence": "The Laravel projection suite filter ('inviteable_contacts|projection|contact_import_materializes|favorite_materialization|discoverability_revocation|backfill') reports 10 tests / 60 assertions but contains no term matching 'concurrent' or 'race'. The TODO validation gate explicitly requires 'Laravel tests prove concurrent materialization triggers for the same viewer converge without lost updates', and the Flow Evidence Matrix marks this row 'Mutation Lane Required: yes'. The unique index { owner_user_id: 1, receiver_account_profile_id: 1 } provides DB-level upsert conflict resolution — if the materializer uses atomic findOneAndUpdate/upsert against that index, application-layer races are structurally prevented. But the audit package neither names a concurrency test nor documents which write primitive the materializer uses, leaving the convergence guarantee implicit.",
+      "recommendation": "Resolve in the pending performance/concurrency review gate (already required). Confirm the materializer uses atomic upsert (not read-then-conditional-insert) against the unique index. If a dedicated concurrent-trigger test does not exist, add one or provide deterministic evidence that the upsert primitive makes it redundant. Record the resolution explicitly in the PCV gate artifact."
+    },
+    {
+      "severity": "accepted-debt",
+      "title": "Backfill readiness gate described as a command and test, not as a promotion-blocking coverage assertion",
+      "evidence": "D-18 and the Materialization/Cutover Contract require a readiness check proving projection coverage for existing inviteable sources before hard cutover. The audit package references a passing 'backfill' filter test and an explicit backfill command. ADB integration tests against a real backend passed (feature_invite_share_surface_contract_test 4/4, cold_cache_persistence_test 2/2), which implicitly validates that existing data is visible on the configured tenant. However, the package does not describe a coverage assertion (e.g., projection row count > 0 for at least one seeded tenant) that would surface a silent empty projection on a fresh deployment lane before the endpoint switches to projection-only reads.",
+      "recommendation": "Add a deployment-lane runbook step or CI-equivalent assertion that confirms projection population before promotion. ADB on the configured tenant provides real-world mitigation for the current lane; the formal coverage check is the safety net for future lanes and is the natural closure artifact for the backfill validation gate already listed as open in the TODO."
+    },
+    {
+      "severity": "accepted-debt",
+      "title": "Security/privacy review and performance/concurrency review remain open delivery gates",
+      "evidence": "Two of five open delivery gates are pending: (1) security/privacy review for tenant/profile exposure and projection pruning, and (2) performance/concurrency review for materialization/upsert/backfill boundaries. Both are marked non-waivable in the TODO Derived Audit Floor. No implementation defect is identified here — the discoverability_revocation test passed, superseded→Convidado is implemented and widget-tested, owner_user_id scoping is in place, and projection indexes are correct. The pending status reflects expected stage ('Validation / post-code audit'), not missing implementation.",
+      "recommendation": "These gates must close (clean or accepted-debt recorded) before todo_completion_guard.py can return 'go'. No code change is required; this is a tracking note confirming both gates remain open and must not be skipped before stage promotion."
+    },
+    {
+      "severity": "out-of-scope",
+      "title": "Test-only firstWhere anti-pattern in contact-group controller test",
+      "evidence": "Flutter exact lookup anti-pattern audit flagged one medium finding: a firstWhere call inside the contact-group controller test. This is in test infrastructure only, not in production code, and has no correctness or performance impact on the invite-share app-people flow.",
+      "recommendation": "No action required for this TODO. Can be addressed as opportunistic test-code cleanup in a future pass."
+    }
+  ]
+}
+```
+
+**Summary:** No blocking defects. The three core correctness blockers — projection-only GET path, Flutter repository separation, and chunk-fanout guardrail — are all addressed by passing implementation evidence and specific regression tests. The two accepted-debt findings (concurrent materializer evidence gap, backfill coverage formalization) are both cleanly owned by already-required pending delivery gates (PCV + security review) and do not require re-implementation work, only explicit documentation in those gate artifacts.
