@@ -132,7 +132,7 @@
 - [x] Confirmed out of scope: Push delivery or push handler behavior.
 
 ## Execution Lane Tracking
-- **Local implementation branches:** `laravel-app:fix/invite-sent-status-hydration-accepted-push-20260523`, `flutter-app:fix/invite-sent-status-hydration-accepted-push-20260523`, `foundation_documentation:fix/invite-share-contact-import-empty-state-flicker-20260521`
+- **Local implementation branches:** `docker-root:fix/inviteables-app-people-performance-ui-cache-20260524`, `laravel-app:fix/inviteables-app-people-performance-ui-cache-20260524`, `flutter-app:fix/inviteables-app-people-performance-ui-cache-20260524`, `foundation_documentation:fix/inviteables-app-people-performance-ui-cache-20260524`
 - **Promotion lane path:** `dev -> stage`
 - **Lane-promoted threshold for this TODO:** `stage`
 - **Production-ready threshold for this TODO:** `stage`
@@ -278,7 +278,7 @@ Populate this matrix before critique or delivery-side audit decisions are treate
 Use exact trigger names and exact enum values only.
 
 - **Canonical method:** `wf-docker-audit-escalation-method`
-- **Guard command:** `python3 delphi-ai/tools/audit_escalation_guard.py --todo foundation_documentation/todos/active/fast_follow_required/TODO-bugfix-inviteables-app-people-performance-ui-cache.md --json-output foundation_documentation/artifacts/tmp/inviteables-app-people-audit-escalation.json`
+- **Guard command:** `python3 delphi-ai/tools/audit_escalation_guard.py --todo foundation_documentation/todos/promotion_lane/fast_follow_required/TODO-bugfix-inviteables-app-people-performance-ui-cache.md --json-output foundation_documentation/artifacts/tmp/inviteables-app-people-audit-escalation.json`
 - **Latest TEACH evidence / artifact:** `foundation_documentation/artifacts/tmp/inviteables-app-people-audit-escalation.json`; guard returned `status: ready`, fingerprint `d31ae42d3bd9`, `Overall outcome: go`.
 
 | Trigger | Value | Notes |
@@ -361,11 +361,11 @@ Use exact trigger names and exact enum values only.
 | Triple audit round 01 resolution | `foundation_documentation/artifacts/audits/inviteables-app-people-postcode-20260524/round-01/resolution.md` | Recorded `resolved`; Test Quality blockers TQ-01/TQ-02/TQ-03 fixed before round 02 |
 | Triple audit round 02 | `foundation_documentation/artifacts/audits/inviteables-app-people-postcode-20260524/round-02/round-summary.md`; `round-02/resolution.md`; Claude CLI round 02 review | Recorded `accepted-debt`; no blockers |
 | Security/privacy review | `foundation_documentation/artifacts/validation/inviteables-app-people-security-review-20260524.md` | Passed; no blocking tenant/privacy issue |
-| Verification debt audit | `bash delphi-ai/tools/verification_debt_audit.sh --todo foundation_documentation/todos/active/fast_follow_required/TODO-bugfix-inviteables-app-people-performance-ui-cache.md --scan-git-modified` | Passed; outcome heuristic `none`, inline code TODO debt `none` |
+| Verification debt audit | `bash delphi-ai/tools/verification_debt_audit.sh --todo foundation_documentation/todos/promotion_lane/fast_follow_required/TODO-bugfix-inviteables-app-people-performance-ui-cache.md --scan-git-modified` | Passed; outcome heuristic `none`, inline code TODO debt `none` |
 
 ## Open Delivery Gates
 - [x] Required post-code audit/final-review loop recorded clean or accepted-debt.
 - [x] Required security/privacy review recorded for tenant/profile exposure and projection pruning.
 - [x] Required performance/concurrency review recorded for materialization/upsert/backfill boundaries.
 - [x] Canonical module docs updated for the stable inviteables projection and Flutter repository ownership decisions.
-- [x] `python3 delphi-ai/tools/todo_completion_guard.py foundation_documentation/todos/active/fast_follow_required/TODO-bugfix-inviteables-app-people-performance-ui-cache.md` returns `Overall outcome: go`.
+- [x] `python3 delphi-ai/tools/todo_completion_guard.py foundation_documentation/todos/promotion_lane/fast_follow_required/TODO-bugfix-inviteables-app-people-performance-ui-cache.md` returns `Overall outcome: go`.
