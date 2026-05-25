@@ -38,10 +38,10 @@ Concrete production evidence:
 - If implementation requires a new public API contract, update this TODO and the relevant module docs before delivery claim.
 
 ## Delivery Status Canon
-- **Current delivery stage:** `Lane-Promoted`
-- **Qualifiers:** `stage-green`, `Fast-Follow`, `Bugfix`, `Cross-Stack`, `Production-Visible`, `Push-UI`, `Future-Consistency`, `Read-Model-Contract-Cutoff`
+- **Current delivery stage:** `Production-Ready`
+- **Qualifiers:** `main-green`, `production-deployed`, `Fast-Follow`, `Bugfix`, `Cross-Stack`, `Production-Visible`, `Push-UI`, `Future-Consistency`, `Read-Model-Contract-Cutoff`
 - **Cutoff decision:** implemented. The next promoted version includes the definitive sent-invite read model split described in `D-12` through `D-15`; the interim row-bounded summary behavior is no longer the promoted contract.
-- **Next exact step:** operator manual validation on `stage`; no main promotion is authorized until the user explicitly approves it.
+- **Next exact step:** operator manual validation on production; any new defect must become a new TODO rather than reopening this completed promotion lane.
 - **Post-cutoff audit package:** `foundation_documentation/artifacts/audits/invite-sent-status-option-c-post-implementation-package-20260523.md`
 - **Post-cutoff triple audit:** `foundation_documentation/artifacts/audits/invite-sent-status-option-c-post-implementation-package-20260523-triple-audit-20260523T224638Z/session.json`
 - **Post-cutoff Claude CLI audit:** `foundation_documentation/artifacts/claude-cli-reviews/invite-sent-status-option-c-synthetic-claude-review-20260523.md`
@@ -80,6 +80,21 @@ Concrete production evidence:
 | Reviewer Surface / Package | Review Focus | Status | Evidence Artifact / Command | Findings | Resolution / Notes |
 | --- | --- | --- | --- | --- | --- |
 | Stage promotion PRs `front#341`, `backend#221`, `docker#754` | Copilot P1/P2 and CI blocker preflight for the promoted invite status/push package. | passed | Front Copilot finding `3296103125` fixed by PR `#342`; backend Copilot finding `3296100523` fixed by PR `#222`; stage runs `26384657417`, `26384653562`, and `26385254151` passed. | resolved | All P1/P2 findings were fixed before stage merge; completion guard returned `Overall outcome: go`. |
+
+## Main Promotion Blocker Replay - 2026-05-25
+| Surface | Finding | Classification | Fix | Evidence |
+| --- | --- | --- | --- | --- |
+| `backend#223` `stage -> main` | Codex P2 `3297444541`: `idx_invite_edges_sent_status_inviter_occurrence` placed unconstrained `inviter_principal.*` fields between equality filters and `created_at/_id` sort keys, risking blocking in-memory sort for sent-status/summary preview queries. | `confirmed defect`; within approved sent-status performance scope. | Added corrective tenant migration `2026_05_25_000100_rebuild_sent_status_inviter_occurrence_index.php` to rebuild the index as `issued_by_user_id,event_id,occurrence_id,created_at desc,_id desc`; strengthened `InvitesFlowTest` to assert the live migrated index key order and that the corrective migration does not include `inviter_principal`. | `docker compose exec -T app php -l ...` for migration/test passed; safe-runner tests passed for `test_sent_invite_statuses_use_bounded_direct_lookup_without_recipient_n_plus_one` and `test_sent_invite_summary_returns_exact_counts_over_more_than_200_sent_invites`; `exact_lookup_anti_pattern_audit.sh` passed high/medium clean. |
+
+## Main Promotion Evidence - 2026-05-25
+| Surface | Evidence | Final SHA / Run |
+| --- | --- | --- |
+| `flutter-app` source lane | PR `belluga/belluga_now_front#343` promoted `stage -> main` after stage validation. Post-merge main workflow triggered downstream web publish. | `main=86a0661b3afca5b1e359f2ddf32c3a9eb778483d`; run `26397321218` success. |
+| `web-app` derived follow-through | Downstream PR `belluga/belluga_now_web#359` merged into `main` from the Flutter main publish path. | `main=0fd3f155fe1900f9e1660347b7438438e277d54f`; PR run `26397612113` success; main branch run `26397657564` success. |
+| `laravel-app` source lane | PR `belluga/belluga_now_backend#223` promoted `stage -> main` after blocker replay through PRs `#224` and `#225`. | `main=c493c35ea017166e6783dd4afbe04a2a7a90c069`; run `26397314550` success. |
+| `belluga_now_docker` stage replay | Runtime gitlinks were replayed through PR `#755` (`bot/next-version -> dev`), PR `#756` (reconcile `dev`), and PR `#757` (`dev -> stage`) before main finalization. | `stage=149903c406a9ee105354395f1578e73a2d7a5ed2`; stage run `26398226578` success. |
+| `belluga_now_docker` production finalization | PR `belluga/belluga_now_docker#758` promoted `stage -> main`; production deployment completed green. | `main=7b105ceaf92faff2a7d78ab6358379ee14867981`; run `26399278143` success. |
+| Main completion guard | `bash delphi-ai/tools/github_promotion_completion_guard.sh --lane main --scenario flutter-laravel --docker-repo belluga/belluga_now_docker --flutter-repo belluga/belluga_now_front --laravel-repo belluga/belluga_now_backend --web-repo belluga/belluga_now_web --web-pr 359` | `Overall outcome: go`; Docker gitlinks aligned by app-main ancestry for Flutter `a718451812b574b1a981cdb645e49b2b4a1632c2` and Laravel `d899325c4ae8ffb6e02523a293e667cee136f9c8`. |
 
 ## Rule-Spirit Anti-Pattern Hunt
 | Rule / Principle Surface | Bypass or Anti-Pattern Search Lens | Status | Evidence Artifact / Command | Findings | Resolution / Notes |
