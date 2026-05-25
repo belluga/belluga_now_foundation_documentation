@@ -126,7 +126,7 @@ The broader architecture issue is that multiple Laravel consumers can locally re
 | `events_module` event image resolution | Public event-image resolution order is deterministic: `event.thumb` first, then `linked_account_profiles`, then `venue` media; runtime callers must not fall back to legacy `artists`. | `Preserve` | `foundation_documentation/modules/events_module.md` |
 | `flutter_client_experience_module` Event Hero Fallback Contract | Tenant-public event hero/image resolution uses `event.thumb`, linked account profiles, then venue media; Flutter must not fall back to legacy `artists`. | `Preserve` | `foundation_documentation/modules/flutter_client_experience_module.md` |
 | `flutter_client_experience_module` Account Profile Visual Resolution Contract | Account profile surfaces resolve media by surface family; hero/background uses `cover > avatar > type visuals`. | `Preserve` | `foundation_documentation/modules/flutter_client_experience_module.md` |
-| `invite_and_social_loop_module` invite notification/media contract | Invite push rich image must be the resolved canonical event image. | `Preserve` | `foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-invite-push-visual-asset-and-tap-routing.md` |
+| `invite_and_social_loop_module` invite notification/media contract | Invite push rich image must be the resolved canonical event image. | `Preserve` | `foundation_documentation/modules/invite_and_social_loop_module.md`; original visual TODO retired from the active lane after later promotion evidence superseded it. |
 
 ## Assumptions Preview
 | Assumption ID | Assumption | Evidence | If False | Confidence | Handling |

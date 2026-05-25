@@ -101,7 +101,7 @@ This TODO exists alongside the current push fast-follow so the learning is conso
 - `delphi-ai/skills/test-quality-audit/SKILL.md`
 - `delphi-ai/tools/endpoint_performance_review_scaffold.sh`
 - `delphi-ai/tools/exact_lookup_anti_pattern_audit.sh`
-- `foundation_documentation/todos/active/fast_follow_required/TODO-structural-push-query-based-audience-materialization.md`
+- `foundation_documentation/todos/active/vnext/TODO-vnext-push-provider-request-budget-hardening.md`
 
 ## Implementation Tasks
 
