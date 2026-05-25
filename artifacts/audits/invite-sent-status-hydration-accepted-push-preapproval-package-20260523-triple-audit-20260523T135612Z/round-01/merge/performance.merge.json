@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/invite-sent-status-hydration-accepted-push-preapproval-package-20260523-triple-audit-20260523T135612Z/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "performance-lane-auditor"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "mixed",
+    "elegance": "not_evaluated",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Update the TODO/package before implementation with bounded query/load behavior and test evidence for the new hydration path."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-79CBE632",
+      "severity": "high",
+      "title": "Sent-invite hydration lacks enforceable bounded query and load-amplification criteria",
+      "rationale": "The package correctly identifies that sent-status hydration must avoid unbounded event-wide scans, N+1 profile/avatar lookups, and Flutter page-walking, but the planned contract and fail-first tests do not make those constraints enforceable. The new Laravel read contract returns recipient identity, display name, avatar URL, status, sent time, and responded time, which can regress into event-wide invite scans plus per-recipient profile/avatar lookups. Flutter getSentInvitesForOccurrence() is planned to hydrate from backend, but the TODO does not specify cache/in-flight dedupe or a single direct occurrence-scoped call, leaving room for stream/listener/rebuild-driven load amplification.",
+      "suggested_action": "Before implementation, add explicit acceptance criteria and fail-first tests: Laravel must fetch by authenticated inviter plus tenant plus event/occurrence using a direct bounded query path, eager-load recipient profile/avatar data, and include a query-count or equivalent regression guard. Flutter must hydrate via one occurrence-scoped backend contract, not list/page walking, and must dedupe/cache in-flight hydration so UI rebuilds, stream subscriptions, restart recovery, and push reconciliation do not multiply backend calls.",
+      "reviewer_labels": [
+        "performance-lane-auditor"
+      ],
+      "source_finding_ids": [
+        "PERF-001"
+      ],
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/api-decisions/invite-sent-status-contract-triple-audit-20260523/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "elegance"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "acceptable"
+  },
+  "recommended_paths": [
+    "Promote the current Option A implementation if the promotion scope is the already-green tactical fix for visible-recipient hydration and invite_accepted push refresh. Record Option C as the vNext target: paginated /contacts/inviteables owns composer row actionability, an occurrence summary/preview contract owns exact counters and limited preview, and /invites/sent-statuses remains narrow for targeted refresh/reconciliation."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-C88DBBB5",
+      "severity": "high",
+      "title": "Unfiltered Option A summary can be truncated",
+      "rationale": "The package states unfiltered responses return up to 200 items and the summary is computed from returned rows. If event detail/footer presents those counters as exact whole-occurrence counts, users can see incorrect summary state once sent invites exceed the cap.",
+      "suggested_action": "For current promotion, either avoid presenting unfiltered Option A summary as exact or make truncation semantics explicit. For vNext, deliver the Option C occurrence summary/preview contract with exact aggregate counters.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "CORRECTNESS-001"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-7E798199",
+      "severity": "medium",
+      "title": "Option A mixes distinct read-model responsibilities",
+      "rationale": "The package states /invites/sent-statuses serves composer actionability, event summary/footer, and invite_accepted push refresh. This creates semantic drift risk because row actionability, targeted reconciliation, and occurrence summary have different volume, aggregation, and frontend-consumer needs.",
+      "suggested_action": "Adopt Option C as the target contract and document /invites/sent-statuses as narrow targeted hydration/reconciliation, not as the canonical broad summary source.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-001"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-35462DE6",
+      "severity": "medium",
+      "title": "Event summary/footer overfetches rows under Option A",
+      "rationale": "The event detail/footer needs counters plus small avatar preview, while Option A can return up to 200 full sent-invite rows. This is inefficient but not an unbounded runtime blocker.",
+      "suggested_action": "Move summary/footer to a dedicated aggregate/preview read model under Option C.",
+      "reviewer_labels": [
+        "elegance"
+      ],
+      "source_finding_ids": [
+        "PERFORMANCE-001"
+      ],
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

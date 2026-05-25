@@ -1,0 +1,48 @@
+{
+  "schema_version": "triple-audit-round-summary-v1",
+  "artifact_kind": "triple_audit_round_summary",
+  "authoritative": false,
+  "session_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/invite-sent-status-option-c-post-implementation-package-20260523-triple-audit-20260523T224638Z/session.json",
+  "round": 1,
+  "merged_at": "2026-05-23T22:59:44+00:00",
+  "round_status": "needs_adjudication",
+  "conflicts": [
+    "recommended_path_conflict: reviewers proposed different recommended paths"
+  ],
+  "lanes": {
+    "elegance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/invite-sent-status-option-c-post-implementation-package-20260523-triple-audit-20260523T224638Z/round-01/results/elegance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/invite-sent-status-option-c-post-implementation-package-20260523-triple-audit-20260523T224638Z/round-01/merge/elegance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/invite-sent-status-option-c-post-implementation-package-20260523-triple-audit-20260523T224638Z/round-01/merge/elegance.merge.md",
+      "overall_assessment": "Needs resolution. The implementation direction is sound, but the targeted sent-statuses endpoint still exposed a row-bounded summary that competed with the canonical exact sent-summary contract.",
+      "recommended_path": "Remove the row-bounded summary from sent-statuses or otherwise make it impossible for Flutter/future consumers to treat that endpoint as an exact occurrence summary source. Keep exact counters exclusively on sent-summary.",
+      "finding_count": 1,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    },
+    "performance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/invite-sent-status-option-c-post-implementation-package-20260523-triple-audit-20260523T224638Z/round-01/results/performance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/invite-sent-status-option-c-post-implementation-package-20260523-triple-audit-20260523T224638Z/round-01/merge/performance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/invite-sent-status-option-c-post-implementation-package-20260523-triple-audit-20260523T224638Z/round-01/merge/performance.merge.md",
+      "overall_assessment": "Needs resolution. Status enrichment is bounded to visible rows, but the occurrence-context inviteables endpoint still built the full inviteable list before slicing it in the controller.",
+      "recommended_path": "Move pagination into the inviteable service/source layer so occurrence-context requests fetch only the rows needed for the requested page plus the has-more probe.",
+      "finding_count": 1,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    },
+    "test-quality": {
+      "review_kind": "test_quality_audit",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/invite-sent-status-option-c-post-implementation-package-20260523-triple-audit-20260523T224638Z/round-01/results/test-quality.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/invite-sent-status-option-c-post-implementation-package-20260523-triple-audit-20260523T224638Z/round-01/merge/test-quality.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/invite-sent-status-option-c-post-implementation-package-20260523-triple-audit-20260523T224638Z/round-01/merge/test-quality.merge.md",
+      "overall_assessment": "Needs resolution before promotion readiness. The focused tests cover core behavior, but they did not yet prove the bounded page-service contract and they cannot substitute for the full local CI-equivalent matrix.",
+      "recommended_path": "Add a service-boundary test for the current-page inviteables path and keep the full CI-equivalent matrix as a required promotion gate after the code blockers are fixed.",
+      "finding_count": 2,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    }
+  },
+  "exact_next_step": "Prepare a contradiction note, run the follow-up no-context challenge if needed, adjudicate the conflict explicitly, record the resolution with `record-resolution --status resolved`, then open the next round."
+}

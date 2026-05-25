@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/invite-sent-status-option-c-post-implementation-package-20260523-triple-audit-20260523T224638Z/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "triple-audit-elegance-round01"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "not_evaluated",
+    "elegance": "regresses",
+    "structural_soundness": "mixed",
+    "operational_fit": "acceptable"
+  },
+  "recommended_paths": [
+    "Remove the row-bounded summary from sent-statuses or otherwise make it impossible for Flutter/future consumers to treat that endpoint as an exact occurrence summary source. Keep exact counters exclusively on sent-summary."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-74ACD6C9",
+      "severity": "high",
+      "title": "Targeted sent-statuses still exposes a competing bounded summary",
+      "rationale": "Option C requires exact counters to come from sent-summary and targeted status rows to remain a reconciliation surface only. Keeping data.summary on sent-statuses leaves an old/new read-model remnant that can drift and be reused incorrectly by future consumers.",
+      "suggested_action": "Remove data.summary from GET /invites/sent-statuses and assert that the response no longer exposes a summary. Keep exact counters exclusively in GET /invites/sent-summary.",
+      "reviewer_labels": [
+        "triple-audit-elegance-round01"
+      ],
+      "source_finding_ids": [
+        "ELEGANCE-001"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

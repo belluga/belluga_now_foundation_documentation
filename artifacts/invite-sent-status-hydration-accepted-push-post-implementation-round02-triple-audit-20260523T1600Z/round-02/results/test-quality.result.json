@@ -1,0 +1,48 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/invite-sent-status-hydration-accepted-push-post-implementation-round02-triple-audit-20260523T1600Z/round-02/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "reviewer_label": "test_quality_audit",
+  "overall_assessment": "Not closure-ready for test quality before the terminal-status fix. The package covers the main sent-status hydration, accepted-push, profile metrics, dedupe, and cross-tenant risks, but the Flutter tests do not yet prove declined/superseded status semantics through the repository/controller/widget path.",
+  "recommended_path": "Resolve TQA-R02-BLK-001 in Flutter terminal-status coverage, record TQA-R02-NBL-001 as non-blocking promotion-adjacent debt, then rerun audit.",
+  "performance_position": "acceptable",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "TQA-R02-BLK-001",
+      "severity": "high",
+      "title": "Flutter does not prove declined or hidden terminal sent statuses preserve actionability and summary semantics",
+      "rationale": "Backend tests cover declined and superseded actionability, but Flutter coverage only proves pending and accepted CTA states. Because terminal statuses were not explicitly modeled in InviteStatus, a backend superseded status could be flattened to pending, inflate pending counts, show hidden rows as active invite state, or reopen the invite action after restart without failing the existing tests.",
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "flutter-app/lib/domain/schedule/invite_status.dart",
+        "flutter-app/lib/infrastructure/dal/dao/invites/invites_response_decoder.dart",
+        "flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/widgets/invite_share_friend_card.dart",
+        "flutter-app/lib/presentation/tenant_public/invites/screens/invite_share_screen/widgets/invite_share_summary.dart",
+        "flutter-app/test/infrastructure/repositories/invites_repository_test.dart",
+        "flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/controllers/invite_share_screen_controller_test.dart",
+        "flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart"
+      ],
+      "suggested_action": "Add focused Flutter regression coverage that decodes superseded, preserves declined/superseded through the invite-share controller, disables repeat CTA for terminal rows, and proves summaries count only visible pending/accepted buckets instead of flattening terminal statuses to pending."
+    },
+    {
+      "finding_id": "TQA-R02-NBL-001",
+      "severity": "low",
+      "title": "Physical cold-start invite_accepted tap remains promotion evidence",
+      "rationale": "The package has source-level startup override coverage and accepted tap routing tests, but a real OS terminated-state notification tap is still a device lane proof rather than a local unit/widget proof.",
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "flutter-app/test/infrastructure/services/push/push_handler_wiring_test.dart",
+        "foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-invite-sent-status-hydration-and-accepted-push-presentation.md"
+      ],
+      "suggested_action": "Keep physical cold-start tap validation as explicit promotion/device evidence; do not block local code closure unless source-level startup override wiring regresses."
+    }
+  ]
+}

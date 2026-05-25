@@ -1,0 +1,29 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/invite-sent-status-option-c-post-implementation-package-20260523-triple-audit-20260523T224638Z/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "triple-audit-performance-round01",
+  "overall_assessment": "Needs resolution. Status enrichment is bounded to visible rows, but the occurrence-context inviteables endpoint still built the full inviteable list before slicing it in the controller.",
+  "recommended_path": "Move pagination into the inviteable service/source layer so occurrence-context requests fetch only the rows needed for the requested page plus the has-more probe.",
+  "performance_position": "regresses",
+  "elegance_position": "not_evaluated",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "PERF-001",
+      "severity": "high",
+      "title": "Inviteables occurrence-context request still fetches all candidates before page slicing",
+      "rationale": "The Option C contract requires current-page actionability. Loading all inviteable candidates into PHP before slicing preserves high-cardinality in-memory filtering under the new endpoint path and can scale poorly for large social graphs.",
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/app/Http/Api/v1/Controllers/ContactInviteablesController.php",
+        "laravel-app/app/Application/Social/InviteablePeopleService.php"
+      ],
+      "suggested_action": "Add a service-level page method and use bounded source-row limits based on offset plus page size plus one. Assert that occurrence-context requests use the bounded page service and do not call the full-list method."
+    }
+  ]
+}

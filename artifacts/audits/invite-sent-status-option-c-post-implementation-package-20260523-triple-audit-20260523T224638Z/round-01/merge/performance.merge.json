@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/invite-sent-status-option-c-post-implementation-package-20260523-triple-audit-20260523T224638Z/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "triple-audit-performance-round01"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "regresses",
+    "elegance": "not_evaluated",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Move pagination into the inviteable service/source layer so occurrence-context requests fetch only the rows needed for the requested page plus the has-more probe."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-6A6031A8",
+      "severity": "high",
+      "title": "Inviteables occurrence-context request still fetches all candidates before page slicing",
+      "rationale": "The Option C contract requires current-page actionability. Loading all inviteable candidates into PHP before slicing preserves high-cardinality in-memory filtering under the new endpoint path and can scale poorly for large social graphs.",
+      "suggested_action": "Add a service-level page method and use bounded source-row limits based on offset plus page size plus one. Assert that occurrence-context requests use the bounded page service and do not call the full-list method.",
+      "reviewer_labels": [
+        "triple-audit-performance-round01"
+      ],
+      "source_finding_ids": [
+        "PERF-001"
+      ],
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

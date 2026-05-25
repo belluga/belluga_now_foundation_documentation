@@ -1,0 +1,41 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/invite-sent-status-option-c-post-implementation-package-20260523-triple-audit-20260523T224638Z/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "reviewer_label": "triple-audit-test-quality-round01",
+  "overall_assessment": "Needs resolution before promotion readiness. The focused tests cover core behavior, but they did not yet prove the bounded page-service contract and they cannot substitute for the full local CI-equivalent matrix.",
+  "recommended_path": "Add a service-boundary test for the current-page inviteables path and keep the full CI-equivalent matrix as a required promotion gate after the code blockers are fixed.",
+  "performance_position": "not_evaluated",
+  "elegance_position": "not_evaluated",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "TQ-001",
+      "severity": "high",
+      "title": "No test proves occurrence-context inviteables use the bounded page service path",
+      "rationale": "A row-status test can pass even if the controller fetches all inviteable candidates and slices after the fact. The regression the cutoff is meant to prevent needs a test at the service/controller seam proving the page contract is used.",
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/tests/Feature/Invites/StoreReleaseSocialGraphTest.php"
+      ],
+      "suggested_action": "Add a test double for InviteablePeopleService asserting occurrence-context requests call inviteablePageFor(page, pageSize) and do not call inviteableItemsFor()."
+    },
+    {
+      "finding_id": "TQ-002",
+      "severity": "high",
+      "title": "Focused tests are not CI-equivalent promotion evidence",
+      "rationale": "The package lists focused Laravel and Flutter tests only. Those are useful implementation evidence, but the TODO explicitly invalidated earlier CI-equivalent evidence after the Option C cutoff.",
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-invite-sent-status-hydration-and-accepted-push-presentation.md"
+      ],
+      "suggested_action": "Do not declare the slice promotion-ready until the full local CI-equivalent Laravel and Flutter matrix passes after the cutoff implementation."
+    }
+  ]
+}

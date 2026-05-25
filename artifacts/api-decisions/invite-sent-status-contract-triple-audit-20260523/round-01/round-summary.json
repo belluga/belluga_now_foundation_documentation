@@ -1,0 +1,48 @@
+{
+  "schema_version": "triple-audit-round-summary-v1",
+  "artifact_kind": "triple_audit_round_summary",
+  "authoritative": false,
+  "session_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/api-decisions/invite-sent-status-contract-triple-audit-20260523/session.json",
+  "round": 1,
+  "merged_at": "2026-05-23T21:17:21+00:00",
+  "round_status": "needs_adjudication",
+  "conflicts": [
+    "recommended_path_conflict: reviewers proposed different recommended paths"
+  ],
+  "lanes": {
+    "elegance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/api-decisions/invite-sent-status-contract-triple-audit-20260523/round-01/results/elegance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/api-decisions/invite-sent-status-contract-triple-audit-20260523/round-01/merge/elegance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/api-decisions/invite-sent-status-contract-triple-audit-20260523/round-01/merge/elegance.merge.md",
+      "overall_assessment": "Option C is the best target contract. Current Option A is acceptable for current promotion only as a tactical, targeted sent-status hydration/read-reconciliation contract, especially when called with recipient_account_profile_ids[]. It should not be canonized as the long-term event summary/footer source.",
+      "recommended_path": "Promote the current Option A implementation if the promotion scope is the already-green tactical fix for visible-recipient hydration and invite_accepted push refresh. Record Option C as the vNext target: paginated /contacts/inviteables owns composer row actionability, an occurrence summary/preview contract owns exact counters and limited preview, and /invites/sent-statuses remains narrow for targeted refresh/reconciliation.",
+      "finding_count": 3,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    },
+    "performance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/api-decisions/invite-sent-status-contract-triple-audit-20260523/round-01/results/performance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/api-decisions/invite-sent-status-contract-triple-audit-20260523/round-01/merge/performance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/api-decisions/invite-sent-status-contract-triple-audit-20260523/round-01/merge/performance.merge.md",
+      "overall_assessment": "Option C is the best target contract. Current Option A is acceptable for current promotion as a bounded tactical contract, provided it is not treated as the final event-summary read model.",
+      "recommended_path": "Promote current Option A as non-blocking tactical behavior for targeted sent-status hydration and push reconciliation. Establish Option C as vNext: paginated inviteables own composer row actionability, an occurrence summary contract owns exact counters and preview, and /invites/sent-statuses remains narrow for targeted recipient refresh.",
+      "finding_count": 3,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    },
+    "test-quality": {
+      "review_kind": "test_quality_audit",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/api-decisions/invite-sent-status-contract-triple-audit-20260523/round-01/results/test-quality.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/api-decisions/invite-sent-status-contract-triple-audit-20260523/round-01/merge/test-quality.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/api-decisions/invite-sent-status-contract-triple-audit-20260523/round-01/merge/test-quality.merge.md",
+      "overall_assessment": "Option C is the best target contract. Current Option A is acceptable only as a tactical promotion step for targeted sent-status hydration, push reconciliation, and visible-recipient actionability. It becomes blocking if promoted as the final source for event summary/footer semantics because its unfiltered 200-item bounded response can produce truncated/non-exact summary behavior.",
+      "recommended_path": "Adopt Option C as the target architecture: enrich paginated inviteable rows for composer actionability, introduce a separate exact occurrence summary/preview read model, and retain GET /invites/sent-statuses as a narrow targeted hydration/push reconciliation contract. For current promotion, allow Option A only if the release claim is scoped to the already-defined bugfix behavior and does not claim exact full-occurrence summary semantics.",
+      "finding_count": 4,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    }
+  },
+  "exact_next_step": "Prepare a contradiction note, run the follow-up no-context challenge if needed, adjudicate the conflict explicitly, record the resolution with `record-resolution --status resolved`, then open the next round."
+}

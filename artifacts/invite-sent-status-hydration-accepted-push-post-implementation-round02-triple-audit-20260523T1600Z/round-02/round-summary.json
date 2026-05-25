@@ -1,0 +1,48 @@
+{
+  "schema_version": "triple-audit-round-summary-v1",
+  "artifact_kind": "triple_audit_round_summary",
+  "authoritative": false,
+  "session_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/invite-sent-status-hydration-accepted-push-post-implementation-round02-triple-audit-20260523T1600Z/session.json",
+  "round": 2,
+  "merged_at": "2026-05-23T16:38:42+00:00",
+  "round_status": "needs_adjudication",
+  "conflicts": [
+    "recommended_path_conflict: reviewers proposed different recommended paths"
+  ],
+  "lanes": {
+    "elegance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/invite-sent-status-hydration-accepted-push-post-implementation-round02-triple-audit-20260523T1600Z/round-02/results/elegance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/invite-sent-status-hydration-accepted-push-post-implementation-round02-triple-audit-20260523T1600Z/round-02/merge/elegance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/invite-sent-status-hydration-accepted-push-post-implementation-round02-triple-audit-20260523T1600Z/round-02/merge/elegance.merge.md",
+      "overall_assessment": "Clean for the bounded elegance lane. The package preserves canonical ownership across Laravel invite package services, Flutter DAO decoding, repository state ownership, controller mediation, and presenter responsibilities.",
+      "recommended_path": "Resolve TQA-R02-BLK-001 in Flutter terminal-status coverage, keep cold-start physical device validation as promotion evidence, then rerun audit.",
+      "finding_count": 0,
+      "highest_finding_severity": "none",
+      "status": "clean"
+    },
+    "performance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/invite-sent-status-hydration-accepted-push-post-implementation-round02-triple-audit-20260523T1600Z/round-02/results/performance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/invite-sent-status-hydration-accepted-push-post-implementation-round02-triple-audit-20260523T1600Z/round-02/merge/performance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/invite-sent-status-hydration-accepted-push-post-implementation-round02-triple-audit-20260523T1600Z/round-02/merge/performance.merge.md",
+      "overall_assessment": "Clean for the bounded performance lane. The sent-status path remains occurrence-scoped, indexed for authenticated sender/occurrence ordering, bounded to 200 rows, merged without page walking, and deduped for same-key in-flight refreshes.",
+      "recommended_path": "Resolve TQA-R02-BLK-001 in Flutter terminal-status coverage, keep cold-start physical device validation as promotion evidence, then rerun audit.",
+      "finding_count": 0,
+      "highest_finding_severity": "none",
+      "status": "clean"
+    },
+    "test-quality": {
+      "review_kind": "test_quality_audit",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/invite-sent-status-hydration-accepted-push-post-implementation-round02-triple-audit-20260523T1600Z/round-02/results/test-quality.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/invite-sent-status-hydration-accepted-push-post-implementation-round02-triple-audit-20260523T1600Z/round-02/merge/test-quality.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/invite-sent-status-hydration-accepted-push-post-implementation-round02-triple-audit-20260523T1600Z/round-02/merge/test-quality.merge.md",
+      "overall_assessment": "Not closure-ready for test quality before the terminal-status fix. The package covers the main sent-status hydration, accepted-push, profile metrics, dedupe, and cross-tenant risks, but the Flutter tests do not yet prove declined/superseded status semantics through the repository/controller/widget path.",
+      "recommended_path": "Resolve TQA-R02-BLK-001 in Flutter terminal-status coverage, record TQA-R02-NBL-001 as non-blocking promotion-adjacent debt, then rerun audit.",
+      "finding_count": 2,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    }
+  },
+  "exact_next_step": "Prepare a contradiction note, run the follow-up no-context challenge if needed, adjudicate the conflict explicitly, record the resolution with `record-resolution --status resolved`, then open the next round."
+}

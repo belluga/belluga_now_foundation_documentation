@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/invite-sent-status-hydration-accepted-push-preapproval-package-20260523-triple-audit-20260523T135612Z/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality-lane-auditor"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Revise the pre-approval TODO test contract before APROVADO to add explicit foreground/background/tap invite_accepted device assertions, production-like recipient identity matching fixtures, and declined/superseded status behavior assertions."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-2078A9DC",
+      "severity": "high",
+      "title": "invite_accepted push tests do not explicitly cover Android app-state and tap-routing boundaries",
+      "rationale": "The package requires Android foreground/background notification path evidence and says generic Push Handler fallback is not acceptable, but the fail-first list only names a foreground invite-specific visibility test and an applyInvitePushPayload repository update. The runtime/device target says to verify the inviter device receives/reacts, but it does not require separate foreground, background, terminated/cold-start, and notification-tap assertions. A regression that restores a generic Push Handler route for background/tap, or only updates state without visible invite-specific presentation, could still pass the named tests.",
+      "suggested_action": "Add explicit test/evidence targets for invite_accepted in foreground, background/resume, and notification tap/cold-start paths, each asserting invite-specific visible UX, state refresh for the occurrence, and no generic Push Handler screen fallback.",
+      "reviewer_labels": [
+        "test-quality-lane-auditor"
+      ],
+      "source_finding_ids": [
+        "TQ-01"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-EF8D66A0",
+      "severity": "high",
+      "title": "Restart hydration tests can pass with simplified IDs while missing the profile-id versus user-id production risk",
+      "rationale": "The package correctly identifies identity matching as a known risk, including account profile id versus account user id, but the fail-first targets only require payload identity fields and duplicate-invite disablement after restart. If fixtures use the same identifier on both sides, tests can pass while production still fails to match canonical backend recipients to InviteableRecipient entries, leaving buttons enabled after restart or failing to update accepted status.",
+      "suggested_action": "Add a fail-first Flutter hydration/controller test using production-like distinct account user id and profile id values, proving pending and accepted canonical recipients map to the displayed inviteable recipients and disable duplicate invites after restart.",
+      "reviewer_labels": [
+        "test-quality-lane-auditor"
+      ],
+      "source_finding_ids": [
+        "TQ-02"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-A9B46087",
+      "severity": "medium",
+      "title": "Declared declined and superseded status semantics lack fail-first behavior assertions",
+      "rationale": "The planned contract says the sent-invite read model must distinguish pending, accepted, declined, and intentionally hidden terminal/superseded statuses, and the risk list says status semantics must not re-enable invite buttons incorrectly. The concrete fail-first targets only name pending and accepted behavior. The main accepted regression is covered, but the wider declared contract could still ship with declined or superseded statuses mapped incorrectly or treated as inviteable without any named test failing.",
+      "suggested_action": "Add backend payload and Flutter behavior tests for declined and hidden terminal/superseded statuses, including whether each status should appear in summaries and whether it should disable or re-enable inviting that recipient.",
+      "reviewer_labels": [
+        "test-quality-lane-auditor"
+      ],
+      "source_finding_ids": [
+        "TQ-03"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

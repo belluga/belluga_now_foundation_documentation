@@ -1,0 +1,55 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/api-decisions/invite-sent-status-contract-triple-audit-20260523/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "reviewer_label": "test-quality",
+  "overall_assessment": "Option C is the best target contract. Current Option A is acceptable only as a tactical promotion step for targeted sent-status hydration, push reconciliation, and visible-recipient actionability. It becomes blocking if promoted as the final source for event summary/footer semantics because its unfiltered 200-item bounded response can produce truncated/non-exact summary behavior.",
+  "recommended_path": "Adopt Option C as the target architecture: enrich paginated inviteable rows for composer actionability, introduce a separate exact occurrence summary/preview read model, and retain GET /invites/sent-statuses as a narrow targeted hydration/push reconciliation contract. For current promotion, allow Option A only if the release claim is scoped to the already-defined bugfix behavior and does not claim exact full-occurrence summary semantics.",
+  "performance_position": "mixed",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "TQA-001",
+      "severity": "high",
+      "title": "Option A is not acceptable as the final event summary/footer contract",
+      "rationale": "The response is bounded to 200 items and its summary can be computed from returned rows rather than the whole occurrence. Tests could pass for small fixtures while production occurrences above the cap show incorrect pending/accepted counters.",
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "suggested_action": "If Option A is kept for any summary UI, add tests with more than 200 sent invites proving either exact full-occurrence counters independent of returned items or explicit truncated/non-authoritative UI handling."
+    },
+    {
+      "finding_id": "TQA-002",
+      "severity": "medium",
+      "title": "Option A is acceptable only when constrained to targeted hydration",
+      "rationale": "Option A is acceptable for current tactical promotion when constrained to targeted hydration, visible recipient filters, restart recovery, and invite_accepted push reconciliation, with backend and Flutter tests for those semantics.",
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "suggested_action": "Keep the release claim narrow and require backend contract tests plus Flutter repository/controller tests for restart hydration, accepted-push update, duplicate push idempotency, push-before-hydration, and button disablement."
+    },
+    {
+      "finding_id": "TQA-003",
+      "severity": "medium",
+      "title": "Option B is not sufficient as the sole target contract",
+      "rationale": "Composer row enrichment does not cover event summary/preview or targeted push reconciliation.",
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "suggested_action": "If B is adopted, add paginated inviteables contract tests and also add a separate summary contract or keep targeted sent-status hydration for push refresh."
+    },
+    {
+      "finding_id": "TQA-004",
+      "severity": "high",
+      "title": "Changing direction to Option C requires fresh tests/evidence before promotion of that changed behavior",
+      "rationale": "Option C introduces multiple contracts and frontend routing decisions. Without new tests, regressions could hide in contract routing: composer rows, summary preview, and push reconciliation could each pass independently while the integrated UI remains stale or inconsistent.",
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "suggested_action": "For Option C, require backend tests for exact occurrence summary counters/preview over more than 200 invites, inviteables enrichment tests, targeted sent-status hydration tests, and Flutter integration/controller tests proving each surface calls the correct read model."
+    }
+  ]
+}

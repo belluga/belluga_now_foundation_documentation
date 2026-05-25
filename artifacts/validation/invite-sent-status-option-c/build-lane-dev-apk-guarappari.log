@@ -1,0 +1,11 @@
+[build_lane] resolved lane: dev
+[build_lane] current branch: fix/invite-sent-status-hydration-accepted-push-20260523
+[build_lane] effective bootstrap origin: https://belluga.space (LANDLORD_DOMAIN from /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/config/defines/local.override.json)
+[build_lane] running: fvm flutter build apk --release --flavor guarappari --dart-define-from-file=/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/config/defines/dev.json --dart-define-from-file=/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/config/defines/local.override.json
+
+Running Gradle task 'assembleGuarappariRelease'...
+Font asset "BooraIcons-8880a991.ttf" was tree-shaken, reducing it from 33240 to 32276 bytes (2.9% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag when building your app.
+Font asset "MaterialIcons-Regular.otf" was tree-shaken, reducing it from 1645184 to 33100 bytes (98.0% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag when building your app.
+Running Gradle task 'assembleGuarappariRelease'...                544.6s
+✓ Built build/app/outputs/flutter-apk/app-guarappari-release.apk (98.8MB)
+[build_lane] validated APK artifact: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/build/app/outputs/flutter-apk/app-guarappari-release.apk

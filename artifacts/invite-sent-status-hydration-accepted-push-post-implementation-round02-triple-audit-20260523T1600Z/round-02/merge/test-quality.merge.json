@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/invite-sent-status-hydration-accepted-push-post-implementation-round02-triple-audit-20260523T1600Z/round-02/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test_quality_audit"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Resolve TQA-R02-BLK-001 in Flutter terminal-status coverage, record TQA-R02-NBL-001 as non-blocking promotion-adjacent debt, then rerun audit."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-D2A179D0",
+      "severity": "high",
+      "title": "Flutter does not prove declined or hidden terminal sent statuses preserve actionability and summary semantics",
+      "rationale": "Backend tests cover declined and superseded actionability, but Flutter coverage only proves pending and accepted CTA states. Because terminal statuses were not explicitly modeled in InviteStatus, a backend superseded status could be flattened to pending, inflate pending counts, show hidden rows as active invite state, or reopen the invite action after restart without failing the existing tests.",
+      "suggested_action": "Add focused Flutter regression coverage that decodes superseded, preserves declined/superseded through the invite-share controller, disables repeat CTA for terminal rows, and proves summaries count only visible pending/accepted buckets instead of flattening terminal statuses to pending.",
+      "reviewer_labels": [
+        "test_quality_audit"
+      ],
+      "source_finding_ids": [
+        "TQA-R02-BLK-001"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-3596FAD0",
+      "severity": "low",
+      "title": "Physical cold-start invite_accepted tap remains promotion evidence",
+      "rationale": "The package has source-level startup override coverage and accepted tap routing tests, but a real OS terminated-state notification tap is still a device lane proof rather than a local unit/widget proof.",
+      "suggested_action": "Keep physical cold-start tap validation as explicit promotion/device evidence; do not block local code closure unless source-level startup override wiring regresses.",
+      "reviewer_labels": [
+        "test_quality_audit"
+      ],
+      "source_finding_ids": [
+        "TQA-R02-NBL-001"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

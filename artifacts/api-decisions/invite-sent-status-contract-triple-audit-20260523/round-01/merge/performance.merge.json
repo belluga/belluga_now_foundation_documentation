@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/api-decisions/invite-sent-status-contract-triple-audit-20260523/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "performance"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "acceptable"
+  },
+  "recommended_paths": [
+    "Promote current Option A as non-blocking tactical behavior for targeted sent-status hydration and push reconciliation. Establish Option C as vNext: paginated inviteables own composer row actionability, an occurrence summary contract owns exact counters and preview, and /invites/sent-statuses remains narrow for targeted recipient refresh."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-7152E8CA",
+      "severity": "high",
+      "title": "Option A summary may be truncated when more than 200 sent invites exist",
+      "rationale": "The package states unfiltered summary can be truncated and not represent the full occurrence when more than 200 sent invites exist. If current promotion promises exact event-level counters, this becomes a correctness blocker; otherwise it is vNext debt.",
+      "suggested_action": "Define exact counters in the vNext occurrence summary contract and avoid using Option A as the authoritative summary source.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PACED-CORRECTNESS-001"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-DECB21B6",
+      "severity": "medium",
+      "title": "Event summary can overfetch up to 200 sent-invite rows",
+      "rationale": "Option A returns summary plus up to 200 items and event detail can call occurrence-level status hydration without a recipient filter. Summary/footer UI may load materially more row data than needed for counters plus a small avatar preview, but the package does not establish an unbounded runtime risk.",
+      "suggested_action": "Move event detail/footer to an occurrence summary/preview contract in vNext.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PACED-PERF-001"
+      ],
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-607DE8F8",
+      "severity": "medium",
+      "title": "Composer row actionability is better owned by paginated inviteables",
+      "rationale": "/contacts/inviteables is the canonical composer source and Option B/C would return sent_invite_status with each paginated inviteable row. The current two-read composer flow is acceptable when hydration is filtered, but is not the cleanest target contract.",
+      "suggested_action": "Adopt Option C vNext and enrich paginated inviteables with occurrence-scoped row actionability.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PACED-API-001"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

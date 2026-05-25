@@ -1,7 +1,7 @@
 # TODO (Bugfix): Invite Share Contact Import Empty-State Flicker
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [ ] ✅ Production-Ready`.
-**Status:** Local-Implemented on `2026-05-21`. Runtime/device evidence is now recorded on ADB, and the full in-scope Flutter CI-equivalent suite completed locally.
+**Status:** Production-Ready. Runtime/device evidence closed locally, the in-scope Flutter CI-equivalent suite passed, and the slice was carried through the lane to `main`.
 
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
@@ -23,10 +23,18 @@
 - It does not cover broader invite-match performance work, taxonomy/filter aggregation, or redesign of the share flow.
 
 ## Delivery Status Canon
-- **Current delivery stage:** `Local-Implemented`
+- **Current delivery stage:** `Production-Ready`
 - **Qualifiers:** `Bugfix`, `Flutter`, `Invites`, `UI-State`, `Contacts`
-- **Next exact step:** keep this slice isolated for the next promotion-lane packaging step; do not mix it with the vnext taxonomy/query study.
+- **Next exact step:** none for this TODO; the fix is now included in `main`.
 - **Promotion lane path:** `dev -> stage -> main`
+
+## Promotion Evidence
+- **Local branch/commit:** `flutter-app: fix/invite-share-contact-import-empty-state-flicker-20260521 @ b08bcde3`
+- **Promotion to `dev`:** `belluga_now_front#328`, topology reconcile `belluga_now_front#329`, root gitlink sync `belluga_now_docker#731/#732/#734`
+- **Promotion to `stage`:** `belluga_now_front#330`, root finalization `belluga_now_docker#733`
+- **Stage health proof:** `belluga_now_docker` run `26246018653` completed `success` and `github_promotion_completion_guard.sh --lane stage --scenario flutter-only` returned `Overall outcome: go`
+- **Promotion to `main`:** Flutter PR `belluga_now_front#331` merged `stage -> main` on `2026-05-22` at `be2b90ce68c299590b3549b96752da4abc99f6d0`; Docker production promotion PR `belluga_now_docker#751` merged `stage -> main` on `2026-05-23` and production run `26320227463` completed `success`.
+- **Docs sync note:** promotion of this TODO document remains local-only in this cycle because the promotion contract for this run forbids remote docs promotion.
 
 ## References
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
