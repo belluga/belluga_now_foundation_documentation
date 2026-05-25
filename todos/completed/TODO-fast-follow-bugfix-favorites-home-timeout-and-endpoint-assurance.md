@@ -52,9 +52,9 @@ and incorporates the evidence packet:
 - If any assumption or plan step changes `Scope`, `Out of Scope`, `Definition of Done`, required validation semantics, public contract, or frozen decisions, update the TODO contract first and request renewed approval before execution continues.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Local-Implemented`
-- **Qualifiers:** `scope-check review required due unrelated preexisting repo drift outside this slice; no Laravel production code change was required`
-- **Next exact step:** keep the implementation on the current bugfix branch; if `Completed`, `Lane-Promoted`, or `Production-Ready` is requested later, run the remaining derived audit-floor lanes (`security review`, `verification debt`, `final review`, and `triple review`) before changing delivery stage.
+- **Current delivery stage:** `Production-Ready`
+- **Qualifiers:** `scope-check review required due unrelated preexisting repo drift outside this slice; no Laravel production code change was required; implementation commit is present in origin/main`
+- **Next exact step:** closed. Any new favorites timeout/loading regression must open a new TODO with fresh runtime evidence.
 
 ## Scope
 - [x] Classify the root cause for the Sentry failure as `flutter-transport`, `laravel-endpoint`, or `mixed`, with evidence.
@@ -85,6 +85,11 @@ and incorporates the evidence packet:
 | `flutter transport + DAL tests` | `fix/sentry-invite-share-too-many-elements (workspace diff)` | `<pending>` | `<pending>` | `<pending>` | `local_implemented` |
 | `laravel endpoint tests / query-path hardening` | `dev (validated, no code diff)` | `n/a` | `n/a` | `n/a` | `validated_no_change` |
 | `foundation documentation / TODO evidence` | `fix/sentry-invite-share-too-many-elements (workspace diff)` | `n/a` | `n/a` | `<pending>` | `local_implemented` |
+
+### Closure Evidence
+- **Flutter implementation commit:** `9b6c6489 fix(favorites): enforce explicit backend timeouts`
+- **Promoted branch evidence:** `git -C flutter-app branch -r --contains 9b6c6489` includes `origin/dev`, `origin/stage`, and `origin/main`.
+- **Completion guard:** `python3 delphi-ai/tools/todo_completion_guard.py --require-delivery foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-bugfix-favorites-home-timeout-and-endpoint-assurance.md` returned `Overall outcome: go` before the file was moved to `todos/completed/`.
 
 ## Out of Scope
 - [ ] Redesigning the Home favorites UI, navigation, or visual contract.
