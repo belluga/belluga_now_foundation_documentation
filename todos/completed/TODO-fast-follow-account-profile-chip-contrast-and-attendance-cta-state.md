@@ -1,15 +1,32 @@
 # TODO (Fast Follow): Account Profile Chip Contrast and Attendance CTA State
 
-**Status:** Promotion-Lane / Ready for stage promotion. Focused Flutter tests, analyzer, APK build, ADB install, and operator-visible device validation passed; this slice now belongs in the promotion lane with the current Flutter branch.
+**Status:** Production-Ready at `stage` as of `2026-05-25`. Focused Flutter tests, analyzer, APK build, ADB install, operator-visible device validation, source PRs, Docker gitlink promotion, stage deploy, and completion guard passed.
 
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
 
 ## Delivery Status Canon
-- **Current delivery stage:** `Promotion-Lane / Ready for stage promotion`
-- **Qualifiers:** `Flutter`, `UI-Polish`, `Race-Guard`, `Tenant-Public`
-- **Next exact step:** carry this Flutter slice through the existing promotion-lane PR/check flow with the current branch.
+- **Current delivery stage:** `Production-Ready`
+- **Qualifiers:** `stage-green`, `Flutter`, `UI-Polish`, `Race-Guard`, `Tenant-Public`
+- **Next exact step:** no active TODO follow-up. Any new chip contrast or attendance CTA regression must open a separate TODO.
 - **Promotion lane path:** `dev -> stage`
+
+## Stage Promotion Evidence - 2026-05-25
+| Surface | Evidence | Final SHA / Run |
+| --- | --- | --- |
+| `flutter-app` source lane | PR `belluga/belluga_now_front#340` merged to `dev`; blocker fix PR `#342` replayed to `dev`; PR `#341` promoted `dev -> stage`. | `stage=a718451812b574b1a981cdb645e49b2b4a1632c2`; run `26384657417` success. |
+| `belluga_now_docker` derived runtime lane | PR `#752` carried the Flutter gitlink into Docker `dev`; PR `#754` promoted Docker `dev -> stage`. | `stage=bea62b8d18ab620b9bb9977be9f867bfa9b735db`; run `26385254151` success. |
+| Completion guard | `bash delphi-ai/tools/github_promotion_completion_guard.sh --lane stage --scenario flutter-laravel --docker-repo belluga/belluga_now_docker --flutter-repo belluga/belluga_now_front --laravel-repo belluga/belluga_now_backend` | `Overall outcome: go`; Docker stage `flutter-app` gitlink exact at `a718451812b574b1a981cdb645e49b2b4a1632c2`. |
+
+## Pipeline/Copilot P1/P2 Preflight
+| Reviewer Surface / Package | Review Focus | Status | Evidence Artifact / Command | Findings | Resolution / Notes |
+| --- | --- | --- | --- | --- | --- |
+| Stage promotion PRs `front#341` and `docker#754` | Copilot P1/P2 and CI blocker preflight for the promoted Flutter package. | passed | Front Copilot finding `3296103125` fixed by PR `#342`; stage runs `26384657417` and `26385254151` passed. | resolved | All P1/P2 findings were fixed before stage merge; completion guard returned `Overall outcome: go`. |
+
+## Rule-Spirit Anti-Pattern Hunt
+| Rule / Principle Surface | Bypass or Anti-Pattern Search Lens | Status | Evidence Artifact / Command | Findings | Resolution / Notes |
+| --- | --- | --- | --- | --- | --- |
+| Stage promotion lane and TODO governance | Checked source-owned fixes, derived `web-app` boundary, Docker gitlink path through `bot/next-version`, and TODO threshold/archive hygiene. | passed | `github-stage-promotion-orchestrator`; `github_promotion_completion_guard.sh`; TODO directory reconciliation. | no findings | Preserved source-owned fixes, did not manually promote `web-app`, promoted gitlinks through lane-owned Docker PRs, and archived this TODO only after its `stage` threshold was green. |
 
 ## Context
 - In the tenant-public Account Profile detail route, the reduced/collapsed header renders taxonomy/category chips whose label color does not guarantee contrast against the chip background.

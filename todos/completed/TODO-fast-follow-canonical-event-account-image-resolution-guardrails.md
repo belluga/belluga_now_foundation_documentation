@@ -1,7 +1,7 @@
 # TODO (Fast Follow): Canonical Event and Account Image Resolution Guardrails
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [ ] ✅ Production-Ready`.
-**Status:** Promotion-Lane / Ready for stage promotion. Laravel implementation, module docs, targeted tests, architecture guardrails, and full safe-runner CI-equivalent passed on 2026-05-23; this slice is included in the current Laravel promotion branch.
+**Status:** Production-Ready at `stage` as of `2026-05-25`. Laravel implementation, module docs, targeted tests, architecture guardrails, full safe-runner CI-equivalent, source PRs, Docker gitlink promotion, stage deploy, and completion guard passed.
 **Owners:** Delphi (Laravel)
 **Goal:** centralize event/account image resolution in Laravel and add guardrails so invite pushes, public metadata, and future backend consumers cannot silently reimplement fallback order.
 
@@ -30,9 +30,26 @@ The broader architecture issue is that multiple Laravel consumers can locally re
   - compact/avatar-specific account surfaces are out of scope unless a current Laravel consumer is already trying to derive a hero image.
 
 ## Delivery Status Canon
-- **Current delivery stage:** `Promotion-Lane / Ready for stage promotion`
-- **Qualifiers:** `Fast-Follow`, `Laravel`, `Architecture-Guardrail`, `Production-Visible`, `Cross-Module`, `Approved`
-- **Next exact step:** carry this Laravel slice through the existing promotion-lane PR/check flow with the current branch.
+- **Current delivery stage:** `Production-Ready`
+- **Qualifiers:** `stage-green`, `Fast-Follow`, `Laravel`, `Architecture-Guardrail`, `Production-Visible`, `Cross-Module`, `Approved`
+- **Next exact step:** no active TODO follow-up. Any new backend image-resolution drift must open a separate TODO.
+
+## Stage Promotion Evidence - 2026-05-25
+| Surface | Evidence | Final SHA / Run |
+| --- | --- | --- |
+| `laravel-app` source lane | PR `belluga/belluga_now_backend#220` merged to `dev`; blocker fix PR `#222` replayed to `dev`; PR `#221` promoted `dev -> stage`. | `stage=8fd46a8e50126f3a42f1b34f9400a1307ea09355`; run `26384653562` success. |
+| `belluga_now_docker` derived runtime lane | PR `#753` carried the Laravel gitlink into Docker `dev`; PR `#754` promoted Docker `dev -> stage`. | `stage=bea62b8d18ab620b9bb9977be9f867bfa9b735db`; run `26385254151` success. |
+| Completion guard | `bash delphi-ai/tools/github_promotion_completion_guard.sh --lane stage --scenario flutter-laravel --docker-repo belluga/belluga_now_docker --flutter-repo belluga/belluga_now_front --laravel-repo belluga/belluga_now_backend` | `Overall outcome: go`; Docker stage `laravel-app` gitlink exact at `8fd46a8e50126f3a42f1b34f9400a1307ea09355`. |
+
+## Pipeline/Copilot P1/P2 Preflight
+| Reviewer Surface / Package | Review Focus | Status | Evidence Artifact / Command | Findings | Resolution / Notes |
+| --- | --- | --- | --- | --- | --- |
+| Stage promotion PRs `backend#221` and `docker#754` | Copilot P1/P2 and CI blocker preflight for the promoted Laravel package. | passed | Backend Copilot finding `3296100523` fixed by PR `#222`; stage runs `26384653562` and `26385254151` passed. | resolved | All P1/P2 findings were fixed before stage merge; completion guard returned `Overall outcome: go`. |
+
+## Rule-Spirit Anti-Pattern Hunt
+| Rule / Principle Surface | Bypass or Anti-Pattern Search Lens | Status | Evidence Artifact / Command | Findings | Resolution / Notes |
+| --- | --- | --- | --- | --- | --- |
+| Stage promotion lane and TODO governance | Checked source-owned fixes, derived `web-app` boundary, Docker gitlink path through `bot/next-version`, and TODO threshold/archive hygiene. | passed | `github-stage-promotion-orchestrator`; `github_promotion_completion_guard.sh`; TODO directory reconciliation. | no findings | Preserved source-owned fixes, did not manually promote `web-app`, promoted gitlinks through lane-owned Docker PRs, and archived this TODO only after its `stage` threshold was green. |
 
 ## Scope
 - [x] Define the resolver payload contracts for event and account-profile image resolution so callers know the required loaded array shape.

@@ -1,14 +1,14 @@
 # TODO (Bugfix): Inviteables App People Performance, UI Semantics, and Repository Cache
 
-**Status:** Promotion-Lane / Ready for stage promotion. Implementation, focused validation, ADB evidence, post-code audits, accepted-debt adjudication, completion guard, commits, and branch publication are complete.
+**Status:** Production-Ready at `stage` as of `2026-05-25`. Implementation, focused validation, ADB evidence, post-code audits, accepted-debt adjudication, source PRs, Docker gitlink promotion, stage deploy, and completion guard are complete.
 
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
 
 ## Delivery Status Canon
-- **Current delivery stage:** `Promotion-Lane / Ready for stage promotion`
-- **Qualifiers:** `post-code audit accepted-debt`
-- **Next exact step:** start promotion-lane movement toward `stage`.
+- **Current delivery stage:** `Production-Ready`
+- **Qualifiers:** `stage-green`, `post-code audit accepted-debt`
+- **Next exact step:** no active TODO follow-up. Any new inviteables regression must open a separate TODO.
 
 ## Context
 - The invite-share `APP` pane shows `Carregando pessoas do app...` for several seconds again.
@@ -136,6 +136,24 @@
 - **Promotion lane path:** `dev -> stage`
 - **Lane-promoted threshold for this TODO:** `stage`
 - **Production-ready threshold for this TODO:** `stage`
+
+## Stage Promotion Evidence - 2026-05-25
+| Surface | Evidence | Final SHA / Run |
+| --- | --- | --- |
+| `flutter-app` source lane | PR `belluga/belluga_now_front#340` merged to `dev`; blocker fix PR `#342` replayed to `dev`; PR `#341` promoted `dev -> stage`. | `stage=a718451812b574b1a981cdb645e49b2b4a1632c2`; run `26384657417` success. |
+| `laravel-app` source lane | PR `belluga/belluga_now_backend#220` merged to `dev`; blocker fix PR `#222` replayed to `dev`; PR `#221` promoted `dev -> stage`. | `stage=8fd46a8e50126f3a42f1b34f9400a1307ea09355`; run `26384653562` success. |
+| `belluga_now_docker` derived runtime lane | `bot/next-version` was promoted in two submodule-only cycles because the dispatcher recreates the bot branch from current `dev`: PR `#752` carried Flutter, PR `#753` carried Laravel, and PR `#754` promoted `dev -> stage`. | `stage=bea62b8d18ab620b9bb9977be9f867bfa9b735db`; run `26385254151` success. |
+| Completion guard | `bash delphi-ai/tools/github_promotion_completion_guard.sh --lane stage --scenario flutter-laravel --docker-repo belluga/belluga_now_docker --flutter-repo belluga/belluga_now_front --laravel-repo belluga/belluga_now_backend` | `Overall outcome: go`; Docker stage gitlinks exact for Flutter `a7184518...` and Laravel `8fd46a8...`. |
+
+## Pipeline/Copilot P1/P2 Preflight
+| Reviewer Surface / Package | Review Focus | Status | Evidence Artifact / Command | Findings | Resolution / Notes |
+| --- | --- | --- | --- | --- | --- |
+| Stage promotion PRs `front#341`, `backend#221`, `docker#754` | Copilot P1/P2 and CI blocker preflight for the promoted package. | passed | Front Copilot finding `3296103125` fixed by PR `#342`; backend Copilot finding `3296100523` fixed by PR `#222`; stage runs `26384657417`, `26384653562`, and `26385254151` passed. | resolved | All P1/P2 findings were fixed before stage merge; completion guard returned `Overall outcome: go`. |
+
+## Rule-Spirit Anti-Pattern Hunt
+| Rule / Principle Surface | Bypass or Anti-Pattern Search Lens | Status | Evidence Artifact / Command | Findings | Resolution / Notes |
+| --- | --- | --- | --- | --- | --- |
+| Stage promotion lane and TODO governance | Checked source-owned fixes, derived `web-app` boundary, Docker gitlink path through `bot/next-version`, and TODO threshold/archive hygiene. | passed | `github-stage-promotion-orchestrator`; `github_promotion_completion_guard.sh`; TODO directory reconciliation. | no findings | Preserved source-owned fixes, did not manually promote `web-app`, promoted gitlinks through lane-owned Docker PRs, and archived only TODOs whose threshold was `stage`. |
 
 ## Bounded But Elastic Guardrails
 - **May stay inside this TODO:** backend projection materialization, Flutter inviteables repository/cache split, occurrence status overlay split, request-budget tests, and guardrail updates needed to block the exact chunk/request-loop regression.
