@@ -1,7 +1,7 @@
 # TODO (Fast Follow): Fail-Closed Pipeline Healthy Final State
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [x] ✅ Production-Ready`.
-**Status:** Provisional. The synchronized healthy-state implementation reached `main` and the forward production proof is green, but this governing TODO is not closed yet because its merged evidence matrix still needs reconciliation and `todo_completion_guard.py --require-delivery` is currently `no-go`.
+**Status:** Active / code-cross blocker found. The synchronized healthy-state implementation reached `main` and the forward production proof is green, but this governing TODO is not closed because its merged evidence matrix still needs reconciliation and real code still contains a fallback-zero violation in the web runtime SHA verification path.
 **Owners:** Delphi, DevOps/Platform
 **Goal:** establish and then deliver a fail-closed CI/CD process where any failure on `dev`, `stage`, or `main` promotion flow preserves or restores the last known healthy version instead of leaving a mixed or degraded runtime serving traffic.
 **Execution mandate:** implementation and promotion have reached `main` after explicit operator authorization. The remaining work is TODO-quality closure: reconcile row-level completion evidence, decide whether a live rollback drill is mandatory or explicitly non-applicable for this closure, and rerun the deterministic completion guard before moving this TODO to `completed`.
@@ -79,9 +79,9 @@ The preferred implementation shape for this initiative is:
 
 ## Delivery Status Canon
 
-- **Current delivery stage:** `Provisional`
+- **Current delivery stage:** `Pending`
 - **Qualifiers:** `Fast-Follow`, `Docker`, `CI/CD`, `Release-Safety`, `Fail-Closed`, `Main-Incident-Driven`, `External-Audit-Required`
-- **Next exact step:** reconcile the merged Completion Evidence Matrix and Local CI-Equivalent Suite Matrix, then rerun `python3 delphi-ai/tools/todo_completion_guard.py --require-delivery foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-fail-closed-pipeline-healthy-final-state.md`; do not move this TODO to `completed` until it returns `Overall outcome: go`.
+- **Next exact step:** first fix the real-code fallback-zero gap in `check_remote_web_runtime_sha_over_ssh.sh` and the missing guard in `verify_environment_ci.sh`; then reconcile the merged Completion Evidence Matrix and Local CI-Equivalent Suite Matrix and rerun `python3 delphi-ai/tools/todo_completion_guard.py --require-delivery foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-fail-closed-pipeline-healthy-final-state.md`.
 - **Evidence rule:** no `ready for promotion` claim is valid unless the matrix evidence was generated after the latest material CI/deploy/rollback change set in scope.
 
 ## Current Local Checkpoint
@@ -160,6 +160,11 @@ The preferred implementation shape for this initiative is:
 - `2026-05-22`: Docker PR `#737` completed `stage -> main` after healthy final-state hardening; merge commit `0c8e3527f420597adbc83df3bf917075e95599de`.
 - `2026-05-23`: Docker PRs `#749`, `#750`, and `#751` delivered the first trusted tuple bootstrap follow-up through `dev -> stage -> main`; production run `26320227463` passed preflight, production deploy, exact runtime SHA validation, public-edge/provenance, main mutation hard-block, readonly navigation smoke, and successful-release marking.
 - `2026-05-23`: TODO closure guard for this governing TODO remains `no-go` because this document still lacks row-level completion evidence for every merged DoD/validation item and still has unresolved rollback-drill/non-applicability evidence. This is a TODO documentation/evidence blocker, not a current production deploy failure.
+- `2026-05-24`: aggressive code-cross audit found a real residual blocker, not just documentation debt:
+  - `.github/scripts/check_remote_web_runtime_sha_over_ssh.sh` still falls back to `git -C "${repo_root}/web-app" rev-parse HEAD` when `EXPECTED_WEB_APP_RUNTIME_SHA` is empty;
+  - this contradicts the approved fallback-zero contract and the `WEB-*` sub-contract that makes the expected runtime SHA mandatory;
+  - `bash .github/scripts/verify_environment_ci.sh` still returns green, so the CI-equivalent invariant does not yet prohibit this fallback;
+  - this governing TODO must remain active until that fallback is removed, the guard is added, and the completion guard returns `Overall outcome: go`.
 
 ## References
 

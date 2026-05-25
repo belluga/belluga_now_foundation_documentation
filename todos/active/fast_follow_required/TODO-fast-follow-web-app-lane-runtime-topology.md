@@ -1,7 +1,7 @@
 # TODO (Fast Follow): Resolve Web-App Runtime By Lane With Explicit Repo Variable
 
 **Status legend:** `- [ ] Pending` - `- [ ] Local-Implemented` - `- [ ] Lane-Promoted` - `- [ ] Production-Ready`.
-**Status:** Provisional / merged sub-contract. The audited `WEB-*` runtime authority contract was implemented inside the synchronized healthy-final-state lane and reached `main`; this standalone TODO remains open only until its evidence is reconciled or explicitly superseded by the governing healthy-state TODO.
+**Status:** Active / code-cross blocker found. Most audited `WEB-*` runtime authority wiring reached `main`, but this standalone TODO must remain active because real code still contradicts fallback-zero in `check_remote_web_runtime_sha_over_ssh.sh`: when `EXPECTED_WEB_APP_RUNTIME_SHA` is absent, it falls back to the local `web-app` checkout instead of failing closed.
 
 ## Title
 Fast Follow: Resolve Web-App Runtime By Lane With Explicit Repo Variable
@@ -52,9 +52,19 @@ Fast Follow: Resolve Web-App Runtime By Lane With Explicit Repo Variable
   - closing `TODO-fast-follow-fail-closed-pipeline-healthy-final-state.md` without the Docker image artifact rollback path required by `TODO-vnext-deploy-artifact-rollforward-and-rollback-path.md`
 
 ## Delivery Status Canon
-- **Current delivery stage:** `Provisional`
+- **Current delivery stage:** `Pending`
 - **Qualifiers:** `Fast-Follow`, `Docker`, `CI-Runtime-Topology`, `Main-Promotion-Blocker`, `Rollback-Sensitive`, `Audit-Required`
-- **Next exact step:** reconcile this standalone TODO against the governing healthy-state completion evidence; do not close it independently while `TODO-fast-follow-fail-closed-pipeline-healthy-final-state.md` remains guard-blocked.
+- **Next exact step:** remove the local-checkout fallback from `check_remote_web_runtime_sha_over_ssh.sh`, add a deterministic invariant in `verify_environment_ci.sh` proving `EXPECTED_WEB_APP_RUNTIME_SHA` is mandatory, then reconcile this TODO against the governing healthy-state completion evidence.
+
+## Code-Cross Audit Checkpoint
+
+- `2026-05-24`: real-code inspection found that `.github/scripts/check_remote_web_runtime_sha_over_ssh.sh` still computes `expected_web_runtime_sha` from `git -C "${repo_root}/web-app" rev-parse HEAD` when `EXPECTED_WEB_APP_RUNTIME_SHA` is empty.
+- That path violates this TODO's explicit Scope item: `Remove local-checkout fallback from check_remote_web_runtime_sha_over_ssh.sh`; `EXPECTED_WEB_APP_RUNTIME_SHA` becomes mandatory.
+- `bash .github/scripts/verify_environment_ci.sh` currently passes despite this fallback, so the deterministic guard is incomplete and must be extended before this TODO can move to `completed`.
+- Related implemented surfaces remain real and should be preserved, not redone:
+  - `.github/scripts/resolve_web_app_runtime_sha.sh` hard-gates `DEPLOY_LANE` to `stage|main` and resolves `WEB_APP_REPO` from `vars`.
+  - `.github/workflows/orchestration-ci-cd.yml` passes `WEB_APP_REPO: ${{ vars.WEB_APP_REPO }}` and propagates resolved runtime SHA into deploy/proof steps.
+  - `.github/scripts/mark_successful_revision_over_ssh.sh` records `WEB_APP_RUNTIME_AUTHORITY=lane-resolved-sha` and `RUNTIME_TOPOLOGY_VERSION=web-app-lane-sha-v1`.
 
 ## Complexity Policy
 - **Complexity:** `big`

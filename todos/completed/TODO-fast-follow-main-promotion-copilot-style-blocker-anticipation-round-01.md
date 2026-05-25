@@ -1,7 +1,7 @@
 # TODO (Fast Follow): Main Promotion Copilot-Style Blocker Anticipation Audit Round 01
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [ ] 🟡 Provisional` · `- [ ] 🟧 Local-Implemented` · `- [ ] 🟣 Lane-Promoted` · `- [ ] ✅ Production-Ready`.
-**Status:** Provisional / audit complete. Round `01` audit execution is complete and adjudicated; the confirmed blocker TODOs were resolved through their own lanes and the later `main` promotion completed. This audit TODO remains open only for evidence reconciliation or archival.
+**Status:** Production-Ready / completed. Round `01` audit execution is complete and adjudicated; the confirmed blocker TODOs were resolved through their own lanes and the later `main` promotion completed.
 
 ## Title
 Fast Follow: Main Promotion Copilot-Style Blocker Anticipation Audit Round 01
@@ -36,9 +36,9 @@ Fast Follow: Main Promotion Copilot-Style Blocker Anticipation Audit Round 01
 - No production/code remediation may begin from this TODO alone.
 
 ## Delivery Status Canon
-- **Current delivery stage:** `Provisional`
-- **Qualifiers:** `Blocked`, `Fast-Follow`, `Docker`, `Flutter`, `Laravel`, `Main-Promotion-Gate`, `External-Audit-Required`, `Copilot-Style-Blocker-Only`
-- **Next exact step:** reconcile closure evidence and archive after the blocker TODOs moved to `completed`.
+- **Current delivery stage:** `Production-Ready`
+- **Qualifiers:** `Fast-Follow`, `Docker`, `Flutter`, `Laravel`, `Main-Promotion-Gate`, `External-Audit-Complete`, `Copilot-Style-Blocker-Only`
+- **Next exact step:** none; this audit lane is closed.
 
 ## Promotion Scope Under Audit
 - `belluga/belluga_now_front#331`
@@ -50,12 +50,12 @@ Fast Follow: Main Promotion Copilot-Style Blocker Anticipation Audit Round 01
   - laravel `4fc743828be9a959c0cb5e0314b86bd3312d8229`
 
 ## Scope
-- [ ] Freeze a bounded audit package for the exact current `stage -> main` candidate set.
-- [ ] Run a new triple external audit using blocker-only criteria aligned to the promotion skills' Copilot gate.
-- [ ] Run Claude CLI on the same bounded package with the same blocker-only framing.
-- [ ] Adjudicate contradictions across the reviewers.
-- [ ] Convert every validated blocker cluster into its own tactical TODO under `foundation_documentation/todos/active/fast_follow_required/`.
-- [ ] Explicitly classify every finding as `blocking`, `accepted-debt`, or `out-of-scope`.
+- [x] Freeze a bounded audit package for the exact current `stage -> main` candidate set.
+- [x] Run a new triple external audit using blocker-only criteria aligned to the promotion skills' Copilot gate.
+- [x] Run Claude CLI on the same bounded package with the same blocker-only framing.
+- [x] Adjudicate contradictions across the reviewers.
+- [x] Convert every validated blocker cluster into its own tactical TODO under `foundation_documentation/todos/active/fast_follow_required/`.
+- [x] Explicitly classify every finding as `blocking`, `accepted-debt`, or `out-of-scope`.
 
 ## Out of Scope
 - [ ] Fixing any blocker in this TODO.
@@ -64,19 +64,19 @@ Fast Follow: Main Promotion Copilot-Style Blocker Anticipation Audit Round 01
 - [ ] Any new promotion attempt to `main` before blocker adjudication is complete.
 
 ## Definition of Done
-- [ ] The bounded Round 01 audit packet exists and is frozen against the exact current promotion candidate.
-- [ ] Triple audit round `01` is executed and recorded.
-- [ ] Claude CLI blocker review is executed and recorded on the same packet.
-- [ ] Every finding is adjudicated under the blocker-only gate.
-- [ ] Every validated blocker cluster has a dedicated follow-up TODO created.
-- [ ] The final summary states whether `main` is currently blocked and by which TODOs.
+- [x] The bounded Round 01 audit packet exists and is frozen against the exact current promotion candidate.
+- [x] Triple audit round `01` is executed and recorded.
+- [x] Claude CLI blocker review is executed and recorded on the same packet.
+- [x] Every finding is adjudicated under the blocker-only gate.
+- [x] Every validated blocker cluster has a dedicated follow-up TODO created.
+- [x] The final summary states whether `main` is currently blocked and by which TODOs.
 
 ## Validation Steps
-- [ ] `python3 delphi-ai/tools/audit_escalation_guard.py --todo foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-main-promotion-copilot-style-blocker-anticipation-round-01.md --json-output <artifact>`
-- [ ] `python3 delphi-ai/skills/audit-protocol-triple-review/scripts/triple_audit_session.py start --package <bounded_package_path> --todo foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-main-promotion-copilot-style-blocker-anticipation-round-01.md`
-- [ ] Record three no-context audit results (`elegance`, `performance`, `test-quality`) and merge the round.
-- [ ] Run Claude CLI against the same packet and store the output in `foundation_documentation/artifacts/tmp/`.
-- [ ] `python3 delphi-ai/tools/todo_completion_guard.py foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-main-promotion-copilot-style-blocker-anticipation-round-01.md`
+- [x] `python3 delphi-ai/tools/audit_escalation_guard.py --todo foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-main-promotion-copilot-style-blocker-anticipation-round-01.md --json-output <artifact>`
+- [x] `python3 delphi-ai/skills/audit-protocol-triple-review/scripts/triple_audit_session.py start --package <bounded_package_path> --todo foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-main-promotion-copilot-style-blocker-anticipation-round-01.md`
+- [x] Record three no-context audit results (`elegance`, `performance`, `test-quality`) and merge the round.
+- [x] Run Claude CLI against the same packet and store the output in `foundation_documentation/artifacts/tmp/`.
+- [x] `python3 delphi-ai/tools/todo_completion_guard.py foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-main-promotion-copilot-style-blocker-anticipation-round-01.md`
 
 ## Execution Lane Tracking
 - **Primary execution profile:** `Operational / DevOps`
@@ -203,13 +203,34 @@ Use exact trigger names and exact enum values only.
 - Delphi adjudication recorded at:
   - [resolution.md](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/tmp/main-promotion-copilot-style-blocker-anticipation-round-01/triple-audit-20260521T235900Z/round-01/resolution.md:1)
 - Confirmed blocker TODOs opened from this round:
-  - [TODO-fast-follow-main-promotion-technical-integrations-initial-section-route-contract.md](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-main-promotion-technical-integrations-initial-section-route-contract.md:1)
-  - [TODO-fast-follow-main-promotion-rollback-root-queue-normalization-parity.md](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-main-promotion-rollback-root-queue-normalization-parity.md:1)
+  - [TODO-fast-follow-main-promotion-technical-integrations-initial-section-route-contract.md](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/completed/TODO-fast-follow-main-promotion-technical-integrations-initial-section-route-contract.md:1)
+  - [TODO-fast-follow-main-promotion-rollback-root-queue-normalization-parity.md](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/todos/completed/TODO-fast-follow-main-promotion-rollback-root-queue-normalization-parity.md:1)
 - Accepted non-blocking debt for later Docker-leg revisit:
   - `F-PR737-01` timeout-fragility in `navigation_harness_policy_test.cjs`
 - Claude CLI supplemental verdict:
   - [claude-cli-review.json](/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/tmp/main-promotion-copilot-style-blocker-anticipation-round-01/claude-cli-review.json:1)
   - `A=blocking`, `B=debt`, `C=blocking`
+
+## Completion Evidence Matrix
+| Criterion ID | Source Section | Criterion | Evidence Type | Evidence Artifact / Command | Runtime Target | Status | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `SCOPE-EXACT-01` | Scope | Freeze a bounded audit package for the exact current `stage -> main` candidate set. | audit packet | `foundation_documentation/artifacts/tmp/main-promotion-copilot-style-blocker-anticipation-round-01/package.md` | documentation | passed | Packet captured the exact Docker/Flutter/Laravel promotion candidate set. |
+| `SCOPE-EXACT-02` | Scope | Run a new triple external audit using blocker-only criteria aligned to the promotion skills' Copilot gate. | triple audit | `foundation_documentation/artifacts/tmp/main-promotion-copilot-style-blocker-anticipation-round-01/triple-audit-20260521T235900Z/session.json` | documentation | passed | Triple audit executed with blocker-only criteria. |
+| `SCOPE-EXACT-03` | Scope | Run Claude CLI on the same bounded package with the same blocker-only framing. | Claude CLI audit | `foundation_documentation/artifacts/tmp/main-promotion-copilot-style-blocker-anticipation-round-01/claude-cli-review.json` | documentation | passed | Claude CLI supplemental verdict recorded. |
+| `SCOPE-EXACT-04` | Scope | Adjudicate contradictions across the reviewers. | adjudication | `foundation_documentation/artifacts/tmp/main-promotion-copilot-style-blocker-anticipation-round-01/triple-audit-20260521T235900Z/round-01/resolution.md` | documentation | passed | Findings were resolved into blocker/debt/out-of-scope classifications. |
+| `SCOPE-EXACT-05` | Scope | Convert every validated blocker cluster into its own tactical TODO under `foundation_documentation/todos/active/fast_follow_required/`. | TODO ledger | `foundation_documentation/todos/completed/TODO-fast-follow-main-promotion-technical-integrations-initial-section-route-contract.md`; `foundation_documentation/todos/completed/TODO-fast-follow-main-promotion-rollback-root-queue-normalization-parity.md` | documentation | passed | Both validated blocker clusters became dedicated TODOs and later moved to completed. |
+| `SCOPE-EXACT-06` | Scope | Explicitly classify every finding as `blocking`, `accepted-debt`, or `out-of-scope`. | adjudication | `resolution.md`; `claude-cli-review.json` | documentation | passed | The final ledger classified blockers and accepted non-blocking debt. |
+| `DOD-EXACT-01` | Definition of Done | The bounded Round 01 audit packet exists and is frozen against the exact current promotion candidate. | audit packet | `package.md` | documentation | passed | The packet exists under the Round 01 artifact directory. |
+| `DOD-EXACT-02` | Definition of Done | Triple audit round `01` is executed and recorded. | triple audit | `session.json`; `round-01/resolution.md` | documentation | passed | Round 01 was executed and adjudicated. |
+| `DOD-EXACT-03` | Definition of Done | Claude CLI blocker review is executed and recorded on the same packet. | Claude CLI audit | `claude-cli-review.json` | documentation | passed | The same packet received Claude CLI review. |
+| `DOD-EXACT-04` | Definition of Done | Every finding is adjudicated under the blocker-only gate. | adjudication | `round-01/resolution.md` | documentation | passed | The blocker-only gate was applied before remediation TODOs were opened. |
+| `DOD-EXACT-05` | Definition of Done | Every validated blocker cluster has a dedicated follow-up TODO created. | TODO ledger | completed blocker TODOs listed above | documentation | passed | Technical integrations and rollback queue parity were tracked separately. |
+| `DOD-EXACT-06` | Definition of Done | The final summary states whether `main` is currently blocked and by which TODOs. | summary | Audit Outcome Snapshot in this TODO | documentation | passed | The snapshot names the confirmed blockers and accepted debt. |
+| `VAL-EXACT-01` | Validation Steps | `python3 delphi-ai/tools/audit_escalation_guard.py --todo foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-main-promotion-copilot-style-blocker-anticipation-round-01.md --json-output <artifact>` | guard evidence | `foundation_documentation/artifacts/tmp/main-promotion-copilot-style-blocker-anticipation-round-01/audit-escalation-guard.json` | documentation | passed | Audit escalation guard artifact recorded. |
+| `VAL-EXACT-02` | Validation Steps | `python3 delphi-ai/skills/audit-protocol-triple-review/scripts/triple_audit_session.py start --package <bounded_package_path> --todo foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-main-promotion-copilot-style-blocker-anticipation-round-01.md` | triple audit | `triple-audit-20260521T235900Z/session.json` | documentation | passed | Session exists for the bounded package. |
+| `VAL-EXACT-03` | Validation Steps | Record three no-context audit results (`elegance`, `performance`, `test-quality`) and merge the round. | triple audit | `triple-audit-20260521T235900Z/round-01/resolution.md` | documentation | passed | Round merge/adjudication is recorded. |
+| `VAL-EXACT-04` | Validation Steps | Run Claude CLI against the same packet and store the output in `foundation_documentation/artifacts/tmp/`. | Claude CLI audit | `claude-cli-review.json` | documentation | passed | Claude CLI output stored under the Round 01 artifact directory. |
+| `VAL-EXACT-05` | Validation Steps | `python3 delphi-ai/tools/todo_completion_guard.py foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-main-promotion-copilot-style-blocker-anticipation-round-01.md` | completion guard | `python3 delphi-ai/tools/todo_completion_guard.py --require-delivery foundation_documentation/todos/completed/TODO-fast-follow-main-promotion-copilot-style-blocker-anticipation-round-01.md` | local documentation guard | passed | Re-run after archival reconciliation before moving to completed. |
 
 ## References
 - `belluga/belluga_now_front#331`
