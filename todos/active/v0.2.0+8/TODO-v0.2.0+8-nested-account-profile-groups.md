@@ -175,6 +175,22 @@ The current public Account Profile screen already renders profile tabs from `Par
 - **Worker package minimum:** this TODO file, Account Profile and Tenant Admin module anchors, source inventory snapshot, frozen decisions `D-NEST-01..08`, frontend/consumer matrix, flow evidence matrix, and local CI-equivalent suite matrix.
 - **Orchestrator-owned checks:** verify worker output follows embedded `nested_profile_groups`, persists Account Profile ids, enforces `12/50` limits, and hides empty public tabs.
 
+## Approval
+- **Approved by:** user in chat
+- **Approved at:** `2026-05-26T23:49:44-03:00`
+- **Approval reference:** `APROVADO`
+- **Approval scope:** implementation and validation of this TODO as `NEST` inside `foundation_documentation/artifacts/execution-plans/v0.2.0-plus8-cross-stack-orchestration-plan.md`; no recursive hierarchy, Account Workspace permission model, or raw Account public rendering contract is authorized.
+
+## Rules Acknowledgement / Ingestion
+| Source | Why It Applies Now | Must Preserve | Must Avoid | Execution Impact |
+| --- | --- | --- | --- | --- |
+| `delphi-ai/rules/core/todo-driven-execution-model-decision.md` | This big tactical TODO is now approved for implementation in its own wave. | Approved scope, DoD, validation, and delivery gates. | Expanding into workspace permissions or recursive nesting. | Worker must stay bounded to embedded groups. |
+| `delphi-ai/workflows/docker/subagent-worktree-reconciliation-method.md` | This TODO is a dedicated late wave in the orchestration plan. | Worker-owned implementation and orchestrator-owned reconciliation. | Mixing with reference/settings implementation files. | Orchestrator dispatches as separate wave. |
+| `delphi-ai/rules/core/package-first-model-decision.md` | The feature introduces persisted cross-stack account-profile grouping behavior. | Package/reuse assessment and project-local rationale. | Creating generic hierarchy utilities without package-first check. | Worker records package-first evidence if new reusable helpers appear. |
+| `delphi-ai/rules/stacks/flutter/flutter-architecture-always-on.md` | The slice touches Flutter tenant-admin editor and public Account Profile tabs. | DTO-domain mapping, controller ownership, route discipline, analyzer-clean state. | Widget-owned persistence or local-only tab models. | Worker must cover DTO, admin, and public rendering. |
+| `delphi-ai/rules/stacks/laravel/shared/tenant-access-guardrails-model-decision.md` | Backend must validate tenant scope for linked Account Profiles. | Tenant boundary, validation, and bounded embedded document shape. | Cross-tenant links or unbounded arrays. | Worker must add tenant-boundary and limit tests. |
+| `/home/elton/Dev/repos/delphi-ai/skills/test-creation-standard/SKILL.md` | New persistence/projection/admin/public flows require broad focused coverage. | Semantic assertions for ordering, duplicates, and hidden empty tabs. | Status-only tests. | Worker creates Laravel and Flutter tests. |
+
 ## Completion Evidence Matrix
 | Criterion | Evidence | Status | Notes |
 | --- | --- | --- | --- |

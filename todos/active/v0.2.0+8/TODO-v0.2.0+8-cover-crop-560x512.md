@@ -112,6 +112,20 @@ Inspection found the shared cover slot ratio in the tenant-admin image crop and 
 - **Worker package minimum:** this TODO file, source inventory snapshot, frozen decisions `D-CVR-01..03`, validation steps, and local CI-equivalent suite matrix.
 - **Orchestrator-owned checks:** verify only cover ratio changes and avatar/other image slots remain unchanged.
 
+## Approval
+- **Approved by:** user in chat
+- **Approved at:** `2026-05-26T23:49:44-03:00`
+- **Approval reference:** `APROVADO`
+- **Approval scope:** implementation and validation of this TODO as `CVR` inside `foundation_documentation/artifacts/execution-plans/v0.2.0-plus8-cross-stack-orchestration-plan.md`; no media storage, CDN, public hero redesign, or entity-specific cover-ratio split is authorized.
+
+## Rules Acknowledgement / Ingestion
+| Source | Why It Applies Now | Must Preserve | Must Avoid | Execution Impact |
+| --- | --- | --- | --- | --- |
+| `delphi-ai/rules/core/todo-driven-execution-model-decision.md` | This TODO is now approved for tactical implementation. | Approved scope, DoD, validation, and delivery gates. | Code edits outside the TODO boundary. | Worker must update evidence before delivery. |
+| `delphi-ai/workflows/docker/subagent-worktree-reconciliation-method.md` | This TODO is executed inside the approved orchestration plan. | Worker-owned implementation and orchestrator-owned reconciliation. | Implementing directly in the orchestrator checkout. | Worker runs in isolated worktree and reports checkpoint evidence. |
+| `delphi-ai/rules/stacks/flutter/flutter-architecture-always-on.md` | The slice touches Flutter tenant-admin media UI/service code. | Existing Flutter architecture and analyzer-clean state. | Widget/service shortcuts that bypass established ownership. | Worker must run focused tests and analyzer. |
+| `/home/elton/Dev/repos/delphi-ai/skills/test-creation-standard/SKILL.md` | The slice requires focused regression tests for media ratio behavior. | Semantic assertions for cover ratio and unchanged slots. | Status-only or post-fix-only tests. | Worker uses fail-first or updated focused tests. |
+
 ## Completion Evidence Matrix
 | Criterion | Evidence | Status | Notes |
 | --- | --- | --- | --- |

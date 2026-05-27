@@ -160,6 +160,21 @@ The requested behavior is that tenant admins can select a filter icon/color/imag
 - **Required orchestration wave:** `Map Filter Wave 2` when paired with event-type hydration.
 - **Orchestrator-owned checks:** ensure the implementation preserves the split between filter-button visual and marker/item override before accepting worker output.
 
+## Approval
+- **Approved by:** user in chat
+- **Approved at:** `2026-05-26T23:49:44-03:00`
+- **Approval reference:** `APROVADO`
+- **Approval scope:** implementation and validation of this TODO as `MF-VIS` / Map Filter Wave 2 inside `foundation_documentation/artifacts/execution-plans/v0.2.0-plus8-cross-stack-orchestration-plan.md`; execution starts only after `MF-EVT` lands, and no map query redesign or new icon catalog is authorized.
+
+## Rules Acknowledgement / Ingestion
+| Source | Why It Applies Now | Must Preserve | Must Avoid | Execution Impact |
+| --- | --- | --- | --- | --- |
+| `delphi-ai/rules/core/todo-driven-execution-model-decision.md` | This TODO is now approved for tactical implementation. | Approved scope, DoD, validation, and delivery gates. | Changing behavior outside the filter visual/marker override split. | Worker must keep evidence criterion-specific. |
+| `delphi-ai/workflows/docker/subagent-worktree-reconciliation-method.md` | This TODO is a serial follow-on to Map Filter Wave 1. | Worker-owned implementation and post-wave reconciliation. | Running in parallel with event-type hydration. | Orchestrator dispatches after `MF-EVT` validation. |
+| `delphi-ai/rules/stacks/flutter/flutter-architecture-always-on.md` | The slice touches Flutter domain, DTO, tenant-admin, and public map UI paths. | DTO-domain projection discipline and analyzer-clean state. | UI-only fixes that lose backend/DTO payload. | Worker must cover admin and public consumers. |
+| `delphi-ai/rules/stacks/laravel/shared/todo-driven-execution-model-decision.md` | The slice may touch Laravel map filter API payloads. | API contract and test-backed backend behavior. | Backend changes without Laravel focused tests. | Worker must add `/api/v1/map/filters` coverage. |
+| `/home/elton/Dev/repos/delphi-ai/skills/test-creation-standard/SKILL.md` | The contract split can regress independently in admin and public rendering. | Semantic tests for readback and marker gating. | Status-only or aggregate tests. | Worker creates Laravel and Flutter focused tests. |
+
 ## Completion Evidence Matrix
 | Criterion | Evidence | Status | Notes |
 | --- | --- | --- | --- |

@@ -219,6 +219,22 @@ Additional route-launch behavior requested on 2026-05-25:
 - **Worker package minimum:** this TODO file, Event/Agenda/Flutter module anchors, source inventory snapshot, frozen decisions `D-DIR-01..15`, frontend/consumer matrix, flow evidence matrix, and local CI-equivalent suite matrix.
 - **Orchestrator-owned checks:** verify direct Waze/Uber actions never open the chooser, `Outros` always does, prompt copy/options are exact, Account Profile shortcut exists for Account Profile references, prompt is skipped when current location is already the canonical origin, route prompt persistence is settings-backed, reference-point choice populates provider origin/start point, and choosing a new `ponto de referência` resets the setting to `null`.
 
+## Approval
+- **Approved by:** user in chat
+- **Approved at:** `2026-05-26T23:49:44-03:00`
+- **Approval reference:** `APROVADO`
+- **Approval scope:** implementation and validation of this TODO as `DIR` inside `foundation_documentation/artifacts/execution-plans/v0.2.0-plus8-cross-stack-orchestration-plan.md`; execution depends on `REF-CORE` and must keep route prompt persistence settings-backed rather than local/AppData-only.
+
+## Rules Acknowledgement / Ingestion
+| Source | Why It Applies Now | Must Preserve | Must Avoid | Execution Impact |
+| --- | --- | --- | --- | --- |
+| `delphi-ai/rules/core/todo-driven-execution-model-decision.md` | This TODO is now approved for tactical implementation after dependency gates. | Approved scope, exact modal copy, DoD, and validation. | Changing provider hierarchy or settings owner without renewed approval. | Worker must preserve frozen decisions. |
+| `delphi-ai/workflows/docker/subagent-worktree-reconciliation-method.md` | This TODO shares a wave with reference-point actions. | Worker-owned implementation and orchestrator-owned reconciliation. | Conflicting reset or preference models between workers. | Orchestrator merges only one shared policy path. |
+| `delphi-ai/rules/stacks/flutter/flutter-architecture-always-on.md` | The slice touches Event detail UI, shared directions widgets, services, and repositories. | Controller/service ownership and analyzer-clean state. | Widget-local persistence or ad hoc navigation. | Worker must keep state in repository/settings contracts. |
+| `delphi-ai/rules/stacks/flutter/flutter-route-workflow-glob.md` | The prompt may navigate to Account Profile detail. | Canonical route/navigation discipline. | Raw Navigator shortcuts that bypass route policy. | Worker must use approved route/navigation patterns. |
+| `delphi-ai/rules/stacks/laravel/shared/settings-kernel-patch-contract-model-decision.md` | Backend settings/proximity persistence may be touched. | User preference ownership outside tenant-admin `map_ui`. | Treating this as tenant configuration. | Worker must test read/write/reset if backend is touched. |
+| `/home/elton/Dev/repos/delphi-ai/skills/test-creation-standard/SKILL.md` | Direct provider launch and tri-state prompt behavior need focused tests. | Exact-copy and semantic service tests. | Status-only UI tests. | Worker creates widget, service, and repository tests. |
+
 ## Completion Evidence Matrix
 | Criterion | Evidence | Status | Notes |
 | --- | --- | --- | --- |

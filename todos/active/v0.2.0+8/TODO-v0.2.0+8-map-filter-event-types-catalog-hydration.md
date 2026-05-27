@@ -124,6 +124,20 @@ Repository inspection shows the rule catalog builder already has an event-type i
 - **Required orchestration wave:** `Map Filter Wave 1` when paired with visual override decoupling.
 - **Orchestrator-owned checks:** confirm the worker fixed the actual reachable admin sheet path, not only a dormant builder.
 
+## Approval
+- **Approved by:** user in chat
+- **Approved at:** `2026-05-26T23:49:44-03:00`
+- **Approval reference:** `APROVADO`
+- **Approval scope:** implementation and validation of this TODO as `MF-EVT` / Map Filter Wave 1 inside `foundation_documentation/artifacts/execution-plans/v0.2.0-plus8-cross-stack-orchestration-plan.md`; no event type CRUD redesign or public map query redesign is authorized.
+
+## Rules Acknowledgement / Ingestion
+| Source | Why It Applies Now | Must Preserve | Must Avoid | Execution Impact |
+| --- | --- | --- | --- | --- |
+| `delphi-ai/rules/core/todo-driven-execution-model-decision.md` | This TODO is now approved for tactical implementation. | Approved scope, DoD, validation, and delivery gates. | Implementing visual override behavior in this wave. | Worker must stay limited to Event type hydration. |
+| `delphi-ai/workflows/docker/subagent-worktree-reconciliation-method.md` | This TODO is part of a serial map-filter wave. | Map Filter Wave 1 before visual override Wave 2. | Parallel execution with the visual override TODO. | Orchestrator dispatches this worker before `MF-VIS`. |
+| `delphi-ai/rules/stacks/flutter/flutter-architecture-always-on.md` | The slice touches Flutter tenant-admin controller/repository/widget paths. | Controller/repository ownership and analyzer-clean state. | Sheet-only fixes that bypass the reachable data path. | Worker must prove the actual admin sheet path. |
+| `/home/elton/Dev/repos/delphi-ai/skills/test-creation-standard/SKILL.md` | The bug requires regression coverage for populated and empty Event type catalogs. | Fail-first or focused semantic tests. | Status-only catalog tests that miss the caller path. | Worker creates builder and sheet/controller coverage. |
+
 ## Completion Evidence Matrix
 | Criterion | Evidence | Status | Notes |
 | --- | --- | --- | --- |

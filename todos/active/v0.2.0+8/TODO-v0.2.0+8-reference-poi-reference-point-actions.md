@@ -201,6 +201,22 @@ Additional detail requested on 2026-05-25:
 - **Worker package minimum:** this TODO file, reference-location core TODO status, proximity preference TODO status, module anchors, source inventory snapshot, frozen decisions `D-REF-ACT-01..10`, frontend/consumer matrix, flow evidence matrix, and local CI-equivalent suite matrix.
 - **Orchestrator-owned checks:** verify Account Profile-only first rollout, anonymous/auth persistence behavior, exact `ponto de referência` labels, route prompt reset to `null`, and active/current state before accepting worker output.
 
+## Approval
+- **Approved by:** user in chat
+- **Approved at:** `2026-05-26T23:49:44-03:00`
+- **Approval reference:** `APROVADO`
+- **Approval scope:** implementation and validation of this TODO as `REF-ACT` inside `foundation_documentation/artifacts/execution-plans/v0.2.0-plus8-cross-stack-orchestration-plan.md`; execution remains blocked until `REF-CORE` is green, and Event/Static reference actions or generic entity picker UX are not authorized.
+
+## Rules Acknowledgement / Ingestion
+| Source | Why It Applies Now | Must Preserve | Must Avoid | Execution Impact |
+| --- | --- | --- | --- | --- |
+| `delphi-ai/rules/core/todo-driven-execution-model-decision.md` | This TODO is now approved but dependent on blocker closure. | Approved scope, dependency gates, DoD, and validation. | Starting before `REF-CORE` is green. | Orchestrator dispatches only after blocker evidence passes. |
+| `delphi-ai/workflows/docker/subagent-worktree-reconciliation-method.md` | This TODO participates in the reference/settings orchestration wave. | Worker-owned implementation and shared reset semantics with `DIR`. | Hidden overlap with directions settings implementation. | Worker coordinates through shared plan gate. |
+| `delphi-ai/rules/core/package-first-model-decision.md` | The slice uses reusable fixed-reference/proximity contracts. | Existing package/lib-first reference core. | Duplicating reusable reference logic in UI-only code. | Worker consumes core instead of redefining it. |
+| `delphi-ai/rules/stacks/flutter/flutter-architecture-always-on.md` | The slice touches public map and Account Profile Flutter UI plus repository/domain mapping. | Controller/repository ownership, DTO-domain mapping, analyzer-clean state. | Widget-owned persistence or cross-controller relays. | Worker must use repository-owned preference state. |
+| `delphi-ai/rules/stacks/laravel/shared/tenant-access-guardrails-model-decision.md` | The slice persists tenant-scoped user preference metadata through Laravel when needed. | Tenant boundary and provenance validation. | Cross-tenant Account Profile references. | Worker must add tenant-boundary tests. |
+| `/home/elton/Dev/repos/delphi-ai/skills/test-creation-standard/SKILL.md` | The user-visible state and persistence payload need regression coverage. | Semantic tests for active state, labels, and provenance. | Status-only UI tests. | Worker creates Laravel and Flutter focused tests. |
+
 ## Completion Evidence Matrix
 | Criterion | Evidence | Status | Notes |
 | --- | --- | --- | --- |

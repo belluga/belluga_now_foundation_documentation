@@ -317,11 +317,17 @@ Use exact trigger names and exact enum values only.
   - froze the minimal disabled-resolution payload for preserved provenance plus disabled reason signaling (`D-REF-10`; ordered step `3`)
 - **Evidence / reference:** `.delphi_orchestration/orch-20260420/reviews/reference-location/critique/merge.md`
 
+## Approval
+- **Approved by:** user in chat
+- **Approved at:** `2026-05-26T23:49:44-03:00`
+- **Approval reference:** `APROVADO`
+- **Approval scope:** implementation and validation of this blocker as `REF-CORE` inside `foundation_documentation/artifacts/execution-plans/v0.2.0-plus8-cross-stack-orchestration-plan.md`; no promotion to `stage` or `main` and no broader proximity UI rollout is authorized by this approval.
+
 ## Rules Acknowledgement / Ingestion (Required After `APROVADO` and Before Execution)
 | Source | Why It Applies Now | Must Preserve | Must Avoid | Execution Impact |
 | --- | --- | --- | --- | --- |
 | `foundation_documentation/project_constitution.md` | The blocker is freezing whether this capability belongs in a reusable boundary now. | Package-capable boundaries when reuse is plausible. | Hardcoding a reusable contract straight into host-only code. | Anchors the package/lib-first decision. |
-| `foundation_documentation/modules/system_architecture_principles.md` | The new capability attaches to the typed profile registry model. | Registry-owned capability authority. | Inventing ad hoc subtype inheritance or freeform metadata. | Keeps the rule inside canonical capability governance. |
+| `delphi-ai/system_architecture_principles.md` | The new capability attaches to the typed profile registry model. | Registry-owned capability authority. | Inventing ad hoc subtype inheritance or freeform metadata. | Keeps the rule inside canonical capability governance. |
 | `foundation_documentation/modules/map_poi_module.md` | `is_poi_enabled` already has authoritative downstream semantics. | POI capability as a real enabling/disabling contract. | Treating `is_poi_enabled` as advisory-only. | Provides the precedent for dependent-capability enforcement. |
-| `laravel-app/app/Application/AccountProfiles/AccountProfileRegistryManagementService.php` | This is the current write-path surface for Account Profile type capabilities. | Deterministic capability normalization/merge behavior. | UI-only enforcement without backend guardrails. | Points to the first implementation owner for the dependency rule. |
-| `flutter-app/lib/domain/app_data/location_origin_settings.dart` | The main proximity TODO will extend the current Flutter-side origin contract. | Current local/device baseline until the next layer lands. | Replacing the baseline without a frozen shared core. | Keeps the downstream consumer work anchored to existing origin models. |
+| `foundation_documentation/modules/tenant_admin_module.md` | Tenant-admin registry capability editing is in scope. | Deterministic capability normalization/merge behavior. | UI-only enforcement without backend guardrails. | Points to the first implementation owner for the dependency rule. |
+| `foundation_documentation/modules/agenda_and_action_planner_module.md` | The main proximity TODO will extend the current origin contract. | Current local/device baseline until the next layer lands. | Replacing the baseline without a frozen shared core. | Keeps downstream consumer work anchored to existing origin models. |
