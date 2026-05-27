@@ -193,6 +193,14 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with 
 - The `100KB` cap is a dedicated Account Profile sanitized-content constraint for `bio` and `content`; it must not raise global short-description limits or alter unrelated field constraints.
 - Admin readback/preview surfaces must preserve the same rendering semantics as public detail instead of relying on whitespace-collapsing HTML stripping as a fidelity check.
 
+### 3.5.3 Account Profile Nested Group Authoring
+
+- Tenant-admin Account Profile create/edit surfaces expose `Abas de contas vinculadas` for custom nested groups such as `Parceiros`, `Patrocinadores`, `Apoiadores`, or `Equipe`.
+- The operator creates a group, edits the group label, reorders/removes groups, and selects linked Account Profiles from the tenant Account Profile catalog. The UI may label the picker as `Accounts`, but the persisted value is the Account Profile id.
+- Group label is the public tab title. Group order and member order are persisted. Empty groups remain editable in admin and are hidden on tenant-public profile detail.
+- Limits are fixed at max `12` groups per parent Account Profile and max `50` linked Account Profiles per group.
+- This authoring surface does not grant workspace membership, raw Account public rendering, or recursive account hierarchy.
+
 ### 3.6 Settings Multi-Screen Strategy (Hub + Dedicated Flows)
 
 - `/admin/settings` is the **Settings Hub** entrypoint.
@@ -1477,6 +1485,14 @@ Fetch account profile detail.
     "avatar_url": "string?",
     "cover_url": "string?",
     "bio": "string?",
+    "nested_profile_groups": [
+      {
+        "id": "string",
+        "label": "string",
+        "order": 0,
+        "account_profile_ids": ["string"]
+      }
+    ],
     "taxonomy_terms": [
       { "type": "string", "value": "string" }
     ],
@@ -1500,6 +1516,14 @@ Update account profile basic fields.
   "location": { "lat": 0.0, "lng": 0.0 },
   "taxonomy_terms": [{ "type": "string", "value": "string" }],
   "bio": "string?",
+  "nested_profile_groups": [
+    {
+      "id": "string",
+      "label": "string",
+      "order": 0,
+      "account_profile_ids": ["string"]
+    }
+  ],
   "avatar_url": "string?",
   "cover_url": "string?",
   "avatar": "file?",
@@ -1522,6 +1546,14 @@ Update account profile basic fields.
     "avatar_url": "string?",
     "cover_url": "string?",
     "bio": "string?",
+    "nested_profile_groups": [
+      {
+        "id": "string",
+        "label": "string",
+        "order": 0,
+        "account_profile_ids": ["string"]
+      }
+    ],
     "taxonomy_terms": [
       { "type": "string", "value": "string" }
     ],
@@ -2484,6 +2516,7 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TAD-12` | Approved | Tenant-admin taxonomy selections write machine keys but read display snapshots (`type`, `value`, `name`, `taxonomy_name`, optional `label`) across account profiles, static assets, events, occurrences, and map filter catalogs. | Keeps admin forms stable and query-safe while eliminating slug display in admin readback/detail/list UI. | Sections `4`, `5` |
 | `TAD-13` | Approved | Tenant-admin event authoring keeps shared event fields first and manages occurrences as a date section. Single-occurrence forms keep inline date fields plus add-date affordance; multi-occurrence forms render occurrence cards and open occurrence editors for date/time, own related profiles, and Programação with optional item-level location Account Profile/Map POI references. | Extends the intentional first-occurrence baseline without turning shared event fields into per-occurrence overrides and keeps multi-date authoring operator-scannable. | Sections `4`, `5` |
 | `TAD-14` | Approved | Store-release tenant-configurable backend settings namespaces must have a visible tenant-admin consumer before the delivery is considered complete. `outbound_integrations` is owned by technical integrations and exposes WhatsApp plus OTP webhook/policy settings. | Prevents release-critical backend configuration from being registered without an operator surface to configure it. | Sections `3.6`, `4` (`PATCH /admin/api/v1/settings/values/outbound_integrations`) |
+| `TAD-15` | Approved | Tenant-admin Account Profile forms own nested group authoring as bounded custom public tabs, persisting linked Account Profile ids under `nested_profile_groups`. | Gives operators flexible Account Profile relationship tabs while preserving tenant scope, one-level grouping, and public Account Profile identity semantics. | Sections `3.5.3`, `4` (`GET/PATCH /admin/api/v1/account_profiles/{account_profile_id}`) |
 
 ## 6. Tactical TODO Promotion Ledger
 
@@ -2493,6 +2526,7 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TODO-v1-events-location-gating-and-tenant-default-origin.md` | Map/agenda default-origin tenant settings contract | Promoted | `3.6`, `4`, `5` | Contract and Flutter local-preferences editor are both delivered; canonical baseline is now fully implemented. |
 | `TODO-v1-deeplink-host-resolved-well-known.md` | `.well-known` host-resolved serving + tenant `app_links` settings surface | In progress | `3.6`, `4`, `5` | Host-resolved endpoint path is delivered; runtime evidence remains tied to tenant credential rollout. |
 | `TODO-v1-app-domain-app-links-convergence.md` | Converge app identifiers into typed app domains + credential-only `settings.app_links` | Completed | `3.6`, `4`, `5` | Canonical split delivered with validation and tests; resolver/association/admin contracts synchronized. |
+| `TODO-v0.2.0+8-nested-account-profile-groups.md` | Nested Account Profile custom public tabs | Active | `3.5.3`, `4`, `5` | Promotes admin group authoring and `nested_profile_groups` read/write payloads for Account Profile detail/update. |
 | `TODO-post-release-tenant-app-domain-authorization-and-app-link-integrity-hardening.md` | Tenant app-domain route authorization and app-link trust-boundary hardening | Implementation checkpoint after audit follow-up | `4`, `5`, `6` | Promotes `auth:sanctum` + `CheckTenantAccess` + Sanctum `tenant-domains:read|update` abilities + current-tenant `tenant-domains:read|update` role ability as the app-domain and adjacent domain-management route contract; local implementation and final CI-equivalent validation are reconciled, with audit gates still pending. |
 | `TODO-v1-map-icon-color-config.md` | Type-level visuals + filter marker override + projection impact preview integration | Completed | `4`, `5` | Archived in `todos/completed`; canonical field ownership now lives under `visual`, while projection impact and filter marker metadata remain unchanged. |
 | `TODO-v1-event-type-canonical-poi-visuals.md` | Event-type canonical visuals across Laravel, tenant-admin, and map projection parity | In progress | `3.2`, `3.3`, `4`, `5` | Local implementation and automated coverage are in place; final closure still depends on manual admin/map smoke. |

@@ -16,19 +16,19 @@ The current public Account Profile screen already renders profile tabs from `Par
 - **Direct-to-TODO rationale:** the user supplied the required authoring model and public rendering semantics.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Pending`
-- **Qualifiers:** `Planning-Ready`, `Feature`, `Cross-Stack`, `Tenant-Admin`, `Tenant-Public`, `User-Visible`
-- **Next exact step:** run package-first/context refinement against the frozen embedded group contract, then request `APROVADO`.
+- **Current delivery stage:** `Local-Validated`
+- **Qualifiers:** `Feature`, `Cross-Stack`, `Tenant-Admin`, `Tenant-Public`, `User-Visible`, `Promotion-Lane-Pending`
+- **Next exact step:** promote this NEST wave into the v0.2.0+8 promotion lane after the orchestrator checkpoint commit and consolidated Wave 5 validation.
 
 ## Scope
-- [ ] Define a persisted nested group contract on Account Profile or a related Account Profile aggregate.
-- [ ] Each group has a stable key/id, display label, order, and selected linked Account Profile ids.
-- [ ] Tenant admin can create, rename, reorder, delete groups, and manage selected linked accounts/profiles in each group.
-- [ ] Public Account Profile detail renders one tab per non-empty group using the group label as the tab title.
-- [ ] Public tabs render selected linked profiles as cards using existing Account Profile visual/identity conventions.
-- [ ] Public payloads include enough nested group data for no-extra-query rendering, or explicitly define the repository lookup path.
-- [ ] Backend validates tenant scope, active/deleted profiles, duplicate prevention, and bounded list sizes.
-- [ ] Tests cover admin persistence/readback, public projection, Flutter DTO/domain parsing, and tab rendering.
+- [x] Define a persisted nested group contract on Account Profile or a related Account Profile aggregate.
+- [x] Each group has a stable key/id, display label, order, and selected linked Account Profile ids.
+- [x] Tenant admin can create, rename, reorder, delete groups, and manage selected linked accounts/profiles in each group.
+- [x] Public Account Profile detail renders one tab per non-empty group using the group label as the tab title.
+- [x] Public tabs render selected linked profiles as cards using existing Account Profile visual/identity conventions.
+- [x] Public payloads include enough nested group data for no-extra-query rendering, or explicitly define the repository lookup path.
+- [x] Backend validates tenant scope, active/deleted profiles, duplicate prevention, and bounded list sizes.
+- [x] Tests cover admin persistence/readback, public projection, Flutter DTO/domain parsing, and tab rendering.
 
 ## Out of Scope
 - [ ] Account Workspace membership/team permissions.
@@ -38,26 +38,26 @@ The current public Account Profile screen already renders profile tabs from `Par
 - [ ] New public profile module marketplace/editor beyond this nested-group capability.
 
 ## Dependencies & Sequencing
-- [ ] `DEP-01` Must preserve Account Profile as the public identity surface.
-- [ ] `DEP-02` Must not redefine Account Workspace permissions from `TODO-vnext-account-workspace.md`.
-- [ ] `DEP-03` Should run after any active Account Profile registry/persistence hardening if those changes touch the same request/formatter paths.
+- [x] `DEP-01` Must preserve Account Profile as the public identity surface.
+- [x] `DEP-02` Must not redefine Account Workspace permissions from `TODO-vnext-account-workspace.md`.
+- [x] `DEP-03` Should run after any active Account Profile registry/persistence hardening if those changes touch the same request/formatter paths.
 
 ## Definition of Done
-- [ ] Admin can add at least two custom groups with different labels and selected profiles.
-- [ ] Admin can update and read back group membership/order.
-- [ ] Public Account Profile detail exposes the groups in the intended order as tabs.
-- [ ] Empty groups do not render public tabs unless product explicitly approves empty-state tabs during planning.
-- [ ] Linked profile cards use existing profile identity/visual fallbacks and navigate to the linked profile detail when a route is available.
-- [ ] Backend enforces tenant boundary and rejects invalid or cross-tenant profile ids.
-- [ ] Tests prove no duplicate profile cards inside one group and deterministic ordering.
+- [x] Admin can add at least two custom groups with different labels and selected profiles.
+- [x] Admin can update and read back group membership/order.
+- [x] Public Account Profile detail exposes the groups in the intended order as tabs.
+- [x] Empty groups do not render public tabs unless product explicitly approves empty-state tabs during planning.
+- [x] Linked profile cards use existing profile identity/visual fallbacks and navigate to the linked profile detail when a route is available.
+- [x] Backend enforces tenant boundary and rejects invalid or cross-tenant profile ids.
+- [x] Tests prove no duplicate profile cards inside one group and deterministic ordering.
 
 ## Validation Steps
-- [ ] Laravel feature tests for create/update/read Account Profile nested groups.
-- [ ] Laravel public Account Profile detail/list projection test for nested groups.
-- [ ] Flutter DTO/domain tests for nested group decoding.
-- [ ] Flutter tenant-admin form/controller/widget tests for group editing.
-- [ ] Flutter public Account Profile detail widget/navigation test for custom tabs.
-- [ ] Analyzer/local CI-equivalent suite row completed before delivery.
+- [x] Laravel feature tests for create/update/read Account Profile nested groups.
+- [x] Laravel public Account Profile detail/list projection test for nested groups.
+- [x] Flutter DTO/domain tests for nested group decoding.
+- [x] Flutter tenant-admin form/controller/widget tests for group editing.
+- [x] Flutter public Account Profile detail widget/navigation test for custom tabs.
+- [x] Analyzer/local CI-equivalent suite row completed before delivery.
 
 ## Profile Scope & Handoffs
 - **Primary execution profile:** `operational-coder`
@@ -68,7 +68,7 @@ The current public Account Profile screen already renders profile tabs from `Par
 ### Handoff Log
 | From Profile | To Profile | Why The Handoff Exists | Touched Surfaces | Status / Evidence |
 | --- | --- | --- | --- | --- |
-| `operational-coder` | `assurance-tester-quality` | Cross-stack persisted/public tab behavior requires regression and flow validation. | `laravel-app`, `flutter-app`, tests | `planned` |
+| `operational-coder` | `assurance-tester-quality` | Cross-stack persisted/public tab behavior requires regression and flow validation. | `laravel-app`, `flutter-app`, tests | `completed`; focused Laravel, Flutter analyzer, Flutter DTO/admin/public widget/navigation tests passed. |
 
 ## Complexity
 - **Level:** `big`
@@ -165,10 +165,11 @@ The current public Account Profile screen already renders profile tabs from `Par
 | Public Account Profile detail nested group projection | Flutter tenant-public | profile detail tabs/cards | partners backend DAO + domain model | DTO + public widget tests |
 
 ## Local CI-Equivalent Suite Matrix
-| Repo | CI Surface | Local Command | Required Before Delivery |
-| --- | --- | --- | --- |
-| `laravel-app` | Laravel feature/unit tests | project safe Laravel test runner for Account Profile tests | `yes` |
-| `flutter-app` | analyzer + focused tests | `fvm dart analyze --format machine` and focused `fvm flutter test ...` | `yes` |
+| Repository / CI Surface | Why In Scope | Local CI-Equivalent Command | Required Before | Status | Evidence Artifact / Command | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| `laravel-app` Account Profile nested feature/projection tests | Backend persistence, validation, tenant-bound linked profiles, and public projection changed. | `./laravel-app/scripts/delphi/run_laravel_tests_safe.sh --filter=Nested` | `Local-Validated` | passed | `5` tests, `22` assertions passed on 2026-05-27. | Includes admin update persistence, invalid members, group/member limits, public projection, and one existing nested media unit test matched by the filter. |
+| `flutter-app` analyzer | Flutter domain, DTO, repository, controller, admin UI, public detail UI, and tests changed. | `fvm dart analyze --format machine` | `Local-Validated` | passed | `cd flutter-app && fvm dart analyze --format machine` exited `0` with no output on 2026-05-27. | Analyzer-clean after value-object refactor and integration-test fake updates. |
+| `flutter-app` focused nested group tests | DTO/domain parsing, tenant-admin editing, repository payloads, and public custom tab/navigation behavior changed. | `fvm flutter test --no-pub` with the five focused nested Account Profile test files | `Local-Validated` | passed | `6` tests passed on 2026-05-27. | Covers DTO parse, admin repository payload, controller forwarding, admin group editor candidate selection, public tab rendering/navigation, and content-only regression. |
 
 ## No-Context Orchestration Readiness
 - **Ready for no-context worker dispatch:** `yes after APROVADO`.
@@ -191,7 +192,66 @@ The current public Account Profile screen already renders profile tabs from `Par
 | `delphi-ai/rules/stacks/laravel/shared/tenant-access-guardrails-model-decision.md` | Backend must validate tenant scope for linked Account Profiles. | Tenant boundary, validation, and bounded embedded document shape. | Cross-tenant links or unbounded arrays. | Worker must add tenant-boundary and limit tests. |
 | `/home/elton/Dev/repos/delphi-ai/skills/test-creation-standard/SKILL.md` | New persistence/projection/admin/public flows require broad focused coverage. | Semantic assertions for ordering, duplicates, and hidden empty tabs. | Status-only tests. | Worker creates Laravel and Flutter tests. |
 
-## Completion Evidence Matrix
-| Criterion | Evidence | Status | Notes |
+## Package-First Assessment
+| Search / Surface | Command | Status | Finding | Decision |
+| --- | --- | --- | --- | --- |
+| Account Profile grouping reuse | `bash delphi-ai/tools/query_packages.sh --project-root . --search "account profile"` | passed | `0` package(s) found. | Local implementation is appropriate because this is host-specific Account Profile public-tab behavior. |
+| Nested grouping reuse | `bash delphi-ai/tools/query_packages.sh --project-root . --search "nested"` | passed | `0` package(s) found. | No package-owned generic hierarchy capability matched the bounded embedded `nested_profile_groups` contract. |
+
+## Decision Adherence
+| Decision | Implementation Evidence | Status | Notes |
 | --- | --- | --- | --- |
-| DoD + validation rows | `pending` | `planned` | Fill before any delivery claim. |
+| `D-NEST-01..08` | Laravel persists bounded embedded `nested_profile_groups`; Flutter admin selects Account Profile ids; public detail renders non-empty groups as custom tabs with linked Account Profile cards. | passed | No recursive hierarchy, Account Workspace membership, or raw Account public rendering was introduced. |
+| Module promotion targets | `modules/account_profile_catalog_module.md` records `PCO-14`; `modules/tenant_admin_module.md` records `TAD-15`. | passed | Stable storage/admin/public contracts were promoted to module docs. |
+
+## Security / Tenant Boundary Review
+| Surface | Review Focus | Status | Evidence | Notes |
+| --- | --- | --- | --- | --- |
+| Laravel nested group write/read | Tenant boundary, invalid ObjectId rejection, self-link rejection, active/deleted profile filtering, duplicate prevention, `12/50` bounds. | passed | `AccountProfileNestedGroupService`; `AccountProfilesControllerTest` nested tests. | Linked profiles are resolved in the tenant store and public projection filters unavailable/private profiles before render. |
+
+## Performance / Concurrency Review
+| Surface | Review Focus | Status | Evidence | Notes |
+| --- | --- | --- | --- | --- |
+| Embedded nested groups | Bounded document growth and public projection lookup cost. | passed | Limits in `InputConstraints`; Laravel tests for `12` groups and `50` members per group. | First implementation is bounded and one-level; no recursive query path or unbounded public expansion was introduced. |
+
+## Pipeline/Copilot P1/P2 Preflight
+| Reviewer Surface / Package | Review Focus | Status | Evidence Artifact / Command | Findings | Resolution / Notes |
+| --- | --- | --- | --- | --- | --- |
+| Local NEST wave diff across `laravel-app`, `flutter-app`, and foundation docs | CI/Copilot failure modes: analyzer regressions, backend validation gaps, tenant-boundary leaks, public navigation regressions, stale module docs. | passed | Laravel safe runner, Flutter analyzer, focused Flutter tests, package-first queries, scoped Rule-Spirit scans. | no p1 or p2 findings | Local validation and manual diff review found no blocker; remote PR/Copilot checks remain part of later promotion lane execution. |
+
+## Rule-Spirit Anti-Pattern Hunt
+| Rule / Principle Surface | Bypass or Anti-Pattern Search Lens | Status | Evidence Artifact / Command | Findings | Resolution / Notes |
+| --- | --- | --- | --- | --- | --- |
+| Flutter architecture and TODO delivery rules | Scoped scan over changed Flutter production paths for DTO/domain boundary bypass, presentation-owned persistence, imperative navigation, and build-side-effect patterns. | passed | `bash delphi-ai/tools/rule_spirit_anti_pattern_scan.sh --repo flutter-app --stack flutter --path ... --json-output foundation_documentation/artifacts/tmp/nested-account-profile-groups-rule-spirit-flutter.json` | no p1 or p2 findings | Scanner reported `9` warning-level import findings in infrastructure/DAO/repository files; triaged as scanner-scope false positives because the imports are inside infrastructure-owned paths, not presentation/application bypasses. |
+| Laravel tenant/access and TODO delivery rules | Scoped scan over changed Laravel production/test paths for tenant guard bypass, hard-coded runtime targets, and validation shortcuts. | passed | `bash delphi-ai/tools/rule_spirit_anti_pattern_scan.sh --repo laravel-app --stack laravel --path ... --json-output foundation_documentation/artifacts/tmp/nested-account-profile-groups-rule-spirit-laravel.json` | no p1 or p2 findings | Scanner reported one review-level fixture domain in `AccountProfilesControllerTest`; it is a tenant test fixture, not a runtime hard-code or guard bypass. |
+
+## Completion Evidence Matrix
+| Criterion ID | Source Section | Criterion | Evidence Type | Evidence Artifact / Command | Runtime Target | Status | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| SCOPE-01 | Scope | Define a persisted nested group contract on Account Profile or a related Account Profile aggregate. | code and docs | `AccountProfile::nested_profile_groups`; `AccountProfileNestedGroupService`; module docs `PCO-14` and `TAD-15` | Laravel + Foundation docs | passed | Contract is embedded on Account Profile with bounded group/member shape. |
+| SCOPE-02 | Scope | Each group has a stable key/id, display label, order, and selected linked Account Profile ids. | code and tests | Laravel request validation, service normalization, Flutter value objects, focused Flutter/Laravel tests | Cross-stack | passed | `id`, `label`, `order`, and ordered Account Profile ids are persisted and decoded. |
+| SCOPE-03 | Scope | Tenant admin can create, rename, reorder, delete groups, and manage selected linked accounts/profiles in each group. | widget/controller mutation tests | `tenant_admin_account_profiles_controller_test.dart`; `tenant_admin_account_profile_create_screen_test.dart` | Flutter tenant-admin widget/navigation test | passed | Admin create/edit drafts and controller operations manage groups and member selections. |
+| SCOPE-04 | Scope | Public Account Profile detail renders one tab per non-empty group using the group label as the tab title. | public widget/navigation test | `account_profile_detail_screen_test.dart` custom tab test | Flutter tenant-public widget/navigation test | passed | Public detail adds custom group tabs after configured tabs and hides empty groups. |
+| SCOPE-05 | Scope | Public tabs render selected linked profiles as cards using existing Account Profile visual/identity conventions. | public widget/navigation test | `account_profile_detail_screen_test.dart`; `AccountProfileIdentityBlock`; resolved profile visuals | Flutter tenant-public widget/navigation test | passed | Linked cards reuse existing identity/visual rendering and profile detail navigation. |
+| SCOPE-06 | Scope | Public payloads include enough nested group data for no-extra-query rendering, or explicitly define the repository lookup path. | backend projection and DTO test | `AccountProfileFormatterService`; `LaravelAccountProfilesBackend` nested group parse test | Laravel + Flutter DTO | passed | Public detail projects `nested_profile_groups[].profiles` snapshots for direct rendering. |
+| SCOPE-07 | Scope | Backend validates tenant scope, active/deleted profiles, duplicate prevention, and bounded list sizes. | Laravel feature tests | `./laravel-app/scripts/delphi/run_laravel_tests_safe.sh --filter=Nested` | Laravel | passed | Invalid members, duplicate/self-link handling, active/public filtering, and limits are covered. |
+| SCOPE-08 | Scope | Tests cover admin persistence/readback, public projection, Flutter DTO/domain parsing, and tab rendering. | focused test suites | Laravel safe runner plus focused Flutter nested group command | Cross-stack | passed | Backend and Flutter coverage passed after final value-object refactor. |
+| DOD-01 | Definition of Done | Admin can add at least two custom groups with different labels and selected profiles. | admin widget/navigation mutation test and controller test | `tenant_admin_account_profile_create_screen_test.dart`; controller group operation tests | Flutter tenant-admin widget/navigation test | passed | UI can add groups and select Account candidates; controller supports rename/reorder/remove/member toggles. |
+| DOD-02 | Definition of Done | Admin can update and read back group membership/order. | backend mutation test and Flutter repository/widget navigation evidence | `test_account_profile_update_persists_nested_profile_groups_in_order`; repository payload test; tenant-admin widget/navigation group editor test | Laravel + Flutter repository/widget navigation test | passed | Persisted group and member order round-trip through API and Flutter payload encoding. |
+| DOD-03 | Definition of Done | Public Account Profile detail exposes the groups in the intended order as tabs. | public widget/navigation test | `renders nested account profile groups as custom tabs and navigates linked profile` | Flutter tenant-public widget/navigation test | passed | Groups sort by persisted `order`. |
+| DOD-04 | Definition of Done | Empty groups do not render public tabs unless product explicitly approves empty-state tabs during planning. | Laravel projection test and public widget/navigation test | `test_public_account_profile_detail_projects_nested_groups_and_hides_empty_groups`; content-only public widget/navigation regression | Laravel + Flutter public detail widget/navigation test | passed | Empty groups remain admin-editable but are absent from public detail tabs. |
+| DOD-05 | Definition of Done | Linked profile cards use existing profile identity/visual fallbacks and navigate to the linked profile detail when a route is available. | public navigation test and widget route test | `account_profile_detail_screen_test.dart` route assertion for `/parceiro/{slug}` | Flutter tenant-public navigation test | passed | Tapping linked card navigates to route `/parceiro/{slug}`. |
+| DOD-06 | Definition of Done | Backend enforces tenant boundary and rejects invalid or cross-tenant profile ids. | Laravel validation/service tests | `test_account_profile_update_rejects_invalid_nested_profile_group_members`; tenant-bound service lookup | Laravel | passed | Service validates ObjectIds and tenant-local active profiles before accepting members. |
+| DOD-07 | Definition of Done | Tests prove no duplicate profile cards inside one group and deterministic ordering. | Laravel and Flutter focused tests | Nested group update/projection tests and public tab render test | Cross-stack | passed | Service deduplicates/rejects duplicates and rendering follows persisted order. |
+| VAL-01 | Validation Steps | Laravel feature tests for create/update/read Account Profile nested groups. | Laravel feature tests | `./laravel-app/scripts/delphi/run_laravel_tests_safe.sh --filter=Nested` | Laravel | passed | Includes update persistence/readback. |
+| VAL-02 | Validation Steps | Laravel public Account Profile detail/list projection test for nested groups. | Laravel projection test plus public widget/navigation consumer test | `test_public_account_profile_detail_projects_nested_groups_and_hides_empty_groups`; public widget/navigation custom tabs test | Laravel + Flutter public widget/navigation test | passed | Public detail projection includes visible groups and hides empty/unavailable links, then Flutter consumes the projection as custom tabs. |
+| VAL-03 | Validation Steps | Flutter DTO/domain tests for nested group decoding. | Flutter DTO/domain test | `fetchAccountProfileBySlug parses nested account profile groups` | Flutter | passed | Public DAO parses nested group and member value objects. |
+| VAL-04 | Validation Steps | Flutter tenant-admin form/controller/widget tests for group editing. | Flutter tenant-admin form/controller/widget navigation tests | Controller update forwarding test plus create-screen group editor candidate widget/navigation test | Flutter tenant-admin widget/controller navigation test | passed | Admin editor and repository payload coverage passed. |
+| VAL-05 | Validation Steps | Flutter public Account Profile detail widget/navigation test for custom tabs. | Flutter public widget/navigation test | `renders nested account profile groups as custom tabs and navigates linked profile` | Flutter tenant-public widget/navigation test | passed | Custom tab rendering and linked profile navigation are covered. |
+| VAL-06 | Validation Steps | Analyzer/local CI-equivalent suite row completed before delivery. | local CI-equivalent | Local CI-Equivalent Suite Matrix rows above | Cross-stack | passed | Laravel safe runner, Flutter analyzer, and focused Flutter tests passed on 2026-05-27. |
+
+## TODO Closeout Disposition
+- **Disposition:** `keep-active`
+- **Disposition reason:** local NEST implementation is validated, but the v0.2.0+8 orchestration package still needs the orchestrator checkpoint commit, consolidated Wave 5 validation, and promotion-lane follow-through before moving this TODO.
+- **Post-commit/push status:** `pending`
+- **Next path/status action:** after the orchestrator checkpoint commit and consolidated Wave 5 validation, move this TODO with the v0.2.0+8 package into `foundation_documentation/todos/promotion_lane/` or update this disposition with the remaining lane blocker.
