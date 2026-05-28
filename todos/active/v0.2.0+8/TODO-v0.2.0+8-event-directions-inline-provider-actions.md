@@ -31,30 +31,30 @@ Additional route-launch behavior requested on 2026-05-25:
 - **Direct-to-TODO rationale:** user supplied exact provider hierarchy, modal behavior, and persistence semantics.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Pending`
-- **Qualifiers:** `Planning-Ready`, `Feature`, `Cross-Stack`, `Tenant-Public`, `User-Visible`, `Persistence`, `Settings`
-- **Next exact step:** add fail-first tests for the frozen settings-backed route reference-point prompt policy, then request `APROVADO`.
+- **Current delivery stage:** `Local-Validated`
+- **Qualifiers:** `Feature`, `Cross-Stack`, `Tenant-Public`, `User-Visible`, `Persistence`, `Settings`, `Promotion-Lane-Pending`
+- **Next exact step:** move this TODO with the validated v0.2.0+8 package into the promotion lane after individual closeout guards and the orchestration checkpoint.
 
 ## Scope
-- [ ] Remove the `Como Chegar` tab-specific footer CTA `Traçar rota`.
-- [ ] Preserve the standard event CTA/footer behavior used by other tabs.
-- [ ] Render inline provider actions under the main location card: `Waze`, `Uber`, and `Outros`.
-- [ ] Render inline provider actions under each secondary location card, with compact sizing.
-- [ ] Make main-card provider actions visually larger than secondary-card actions.
-- [ ] Route `Waze` and `Uber` buttons directly to their provider launch path without opening the chooser sheet.
-- [ ] Route `Outros` through the existing directions bottom sheet/provider chooser.
-- [ ] Add a route reference-point policy modal when the persisted setting is `null`.
-- [ ] Modal title/question is exactly `Qual PONTO DE PARTIDA quer usar?`.
-- [ ] Modal options are `Sua localização atual` and `O ponto de referência selecionado`.
-- [ ] Modal displays the selected reference point label: Account Profile name for Account Profile references, or `localização personalizada` for manual references.
-- [ ] Modal includes an Account Profile shortcut when the selected reference point is an Account Profile.
-- [ ] Modal is skipped when the canonical/resolved route origin is the current live location.
-- [ ] Choosing the selected reference point makes the external app deep link use the reference point as the route origin.
-- [ ] Modal supports `Não perguntar de novo`.
-- [ ] Add/update the address/reference-point selection area with a nullable setting for "use selected reference point when tracing routes".
-- [ ] Persist the route reference-point prompt preference in settings so `true`/`false` stops future prompts and `null` keeps prompting.
-- [ ] Reset the route reference-point prompt setting to `null` whenever a new `ponto de referência` is selected.
-- [ ] Reuse existing `DirectionsAppChooser`/launch URI logic where possible; extend it only where direct provider launch requires a contract.
+- [x] Remove the `Como Chegar` tab-specific footer CTA `Traçar rota`.
+- [x] Preserve the standard event CTA/footer behavior used by other tabs.
+- [x] Render inline provider actions under the main location card: `Waze`, `Uber`, and `Outros`.
+- [x] Render inline provider actions under each secondary location card, with compact sizing.
+- [x] Make main-card provider actions visually larger than secondary-card actions.
+- [x] Route `Waze` and `Uber` buttons directly to their provider launch path without opening the chooser sheet.
+- [x] Route `Outros` through the existing directions bottom sheet/provider chooser.
+- [x] Add a route reference-point policy modal when the persisted setting is `null`.
+- [x] Modal title/question is exactly `Qual PONTO DE PARTIDA quer usar?`.
+- [x] Modal options are `Sua localização atual` and `O ponto de referência selecionado`.
+- [x] Modal displays the selected reference point label: Account Profile name for Account Profile references, or `localização personalizada` for manual references.
+- [x] Modal includes an Account Profile shortcut when the selected reference point is an Account Profile.
+- [x] Modal is skipped when the canonical/resolved route origin is the current live location.
+- [x] Choosing the selected reference point makes the external app deep link use the reference point as the route origin.
+- [x] Modal supports `Não perguntar de novo`.
+- [x] Add/update the address/reference-point selection area with a nullable setting for "use selected reference point when tracing routes".
+- [x] Persist the route reference-point prompt preference in settings so `true`/`false` stops future prompts and `null` keeps prompting.
+- [x] Reset the route reference-point prompt setting to `null` whenever a new `ponto de referência` is selected.
+- [x] Reuse existing `DirectionsAppChooser`/launch URI logic where possible; extend it only where direct provider launch requires a contract.
 
 ## Out of Scope
 - [ ] Changing Event venue/programming location data model.
@@ -64,40 +64,40 @@ Additional route-launch behavior requested on 2026-05-25:
 - [ ] Tenant-admin `map_ui` settings changes; this is a user settings/preference concern.
 
 ## Dependencies & Sequencing
-- [ ] `DEP-01` Must preserve current Event detail confirmation/invite footer behavior.
-- [ ] `DEP-02` Should coordinate with `TODO-v0.2.0+8-reference-poi-reference-point-actions.md` because choosing a new `ponto de referência` resets this prompt setting to `null`.
-- [ ] `DEP-03` May consume existing `LocationOriginService` for resolved coordinates, but route prompt persistence belongs to settings, not local AppData.
+- [x] `DEP-01` Must preserve current Event detail confirmation/invite footer behavior.
+- [x] `DEP-02` Should coordinate with `TODO-v0.2.0+8-reference-poi-reference-point-actions.md` because choosing a new `ponto de referência` resets this prompt setting to `null`.
+- [x] `DEP-03` May consume existing `LocationOriginService` for resolved coordinates, but route prompt persistence belongs to settings, not local AppData.
 
 ## Definition of Done
-- [ ] `Como Chegar` no longer shows the tab-specific `Traçar rota` footer.
-- [ ] The event screen still shows the standard event CTA/footer correctly on all tabs.
-- [ ] Main address card shows larger `Waze`, `Uber`, and `Outros` buttons.
-- [ ] Secondary address cards show compact `Waze`, `Uber`, and `Outros` buttons.
-- [ ] `Waze` launches Waze directly when available/launchable after origin policy resolution.
-- [ ] `Uber` launches Uber directly when available/launchable after origin policy resolution.
-- [ ] `Outros` opens the chooser bottom sheet.
-- [ ] When route reference-point setting is `null`, launching a provider prompts for `ponto de referência` vs current location.
-- [ ] The prompt copy and options match the frozen modal contract.
-- [ ] The prompt is not shown when the canonical/resolved route origin is already the current live location.
-- [ ] Account Profile references show a shortcut from the prompt to that Account Profile.
-- [ ] Choosing the reference point sends the reference point as the origin/start point in Waze/Uber/other provider links.
-- [ ] If `Não perguntar de novo` is checked, the selected route policy is saved in settings.
-- [ ] If `Não perguntar de novo` is not checked, the setting remains `null` and future launches keep prompting.
-- [ ] When the setting is `true` or `false`, no prompt is shown and the saved policy is applied.
-- [ ] Choosing a new `ponto de referência` resets the route prompt setting to `null`.
-- [ ] Tests cover direct provider launches, chooser launch, prompt/persistence semantics, and absence of the old footer.
+- [x] `Como Chegar` no longer shows the tab-specific `Traçar rota` footer.
+- [x] The event screen still shows the standard event CTA/footer correctly on all tabs.
+- [x] Main address card shows larger `Waze`, `Uber`, and `Outros` buttons.
+- [x] Secondary address cards show compact `Waze`, `Uber`, and `Outros` buttons.
+- [x] `Waze` launches Waze directly when available/launchable after origin policy resolution.
+- [x] `Uber` launches Uber directly when available/launchable after origin policy resolution.
+- [x] `Outros` opens the chooser bottom sheet.
+- [x] When route reference-point setting is `null`, launching a provider prompts for `ponto de referência` vs current location.
+- [x] The prompt copy and options match the frozen modal contract.
+- [x] The prompt is not shown when the canonical/resolved route origin is already the current live location.
+- [x] Account Profile references show a shortcut from the prompt to that Account Profile.
+- [x] Choosing the reference point sends the reference point as the origin/start point in Waze/Uber/other provider links.
+- [x] If `Não perguntar de novo` is checked, the selected route policy is saved in settings.
+- [x] If `Não perguntar de novo` is not checked, the setting remains `null` and future launches keep prompting.
+- [x] When the setting is `true` or `false`, no prompt is shown and the saved policy is applied.
+- [x] Choosing a new `ponto de referência` resets the route prompt setting to `null`.
+- [x] Tests cover direct provider launches, chooser launch, prompt/persistence semantics, and absence of the old footer.
 
 ## Validation Steps
-- [ ] Flutter widget test for Event detail `Como Chegar` tab without old footer CTA.
-- [ ] Flutter widget/controller test for main and secondary inline provider buttons.
-- [ ] Flutter unit/widget test for route reference-point prompt when setting is `null`.
-- [ ] Flutter widget test for exact modal copy/options and Account Profile shortcut visibility.
-- [ ] Flutter test proving no modal appears when canonical/resolved route origin is current live location.
-- [ ] Flutter/service test proving reference-point choice populates provider deep link origin/start point.
-- [ ] Flutter repository/service test for persisted settings-backed route prompt preference `true|false|null`.
-- [ ] Laravel/settings or repository test for read/write/reset semantics if settings persistence is backend-backed in the chosen implementation.
-- [ ] Flutter test proving direct Waze/Uber launch paths do not open the chooser sheet.
-- [ ] Analyzer/local CI-equivalent suite row completed before delivery.
+- [x] Flutter widget test for Event detail `Como Chegar` tab without old footer CTA.
+- [x] Flutter widget/controller test for main and secondary inline provider buttons.
+- [x] Flutter unit/widget test for route reference-point prompt when setting is `null`.
+- [x] Flutter widget test for exact modal copy/options and Account Profile shortcut visibility.
+- [x] Flutter test proving no modal appears when canonical/resolved route origin is current live location.
+- [x] Flutter/service test proving reference-point choice populates provider deep link origin/start point.
+- [x] Flutter repository/service test for persisted settings-backed route prompt preference `true|false|null`.
+- [x] Laravel/settings or repository test for read/write/reset semantics if settings persistence is backend-backed in the chosen implementation.
+- [x] Flutter test proving direct Waze/Uber launch paths do not open the chooser sheet.
+- [x] Analyzer/local CI-equivalent suite row completed before delivery.
 
 ## Profile Scope & Handoffs
 - **Primary execution profile:** `operational-coder`
@@ -209,10 +209,12 @@ Additional route-launch behavior requested on 2026-05-25:
 | Reference point source metadata | Flutter Event detail directions prompt | prompt label + Account Profile shortcut + provider origin | proximity preference fixed reference DTO/repository | DTO + widget/service tests |
 
 ## Local CI-Equivalent Suite Matrix
-| Repo | CI Surface | Local Command | Required Before Delivery |
-| --- | --- | --- | --- |
-| `flutter-app` | analyzer + focused tests | `fvm dart analyze --format machine` and focused `fvm flutter test ...` | `yes` |
-| `laravel-app` | settings/proximity preference tests | project safe Laravel test runner for settings/proximity preference tests if backend-backed | `yes if backend persistence is touched` |
+| Repository / CI Surface | Why In Scope | Local CI-Equivalent Command | Required Before | Status | Evidence Artifact / Command | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| `flutter-app` Event detail directions tests | `Como Chegar` footer removal, inline provider buttons, prompt behavior, destination aggregation, and Account Profile shortcut changed. | `./scripts/delphi/run_reconcile_validation.sh --scope big ... --flutter-test test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart --flutter-test test/presentation/tenant_public/schedule/screens/immersive_event_detail/controllers/immersive_event_detail_controller_test.dart --flutter-test test/presentation/tenant_public/schedule/routes/immersive_event_detail_route_test.dart` | `Local-Validated` | passed | `foundation_documentation/artifacts/tmp/reconcile_validation_status_20260527_225033.md` | Event detail widget/controller/route tests passed. |
+| `flutter-app` directions chooser and settings/repository tests | Direct Waze/Uber launch, `Outros` chooser path, provider origin links, and route prompt policy persistence changed. | `./scripts/delphi/run_reconcile_validation.sh --scope big ... --flutter-test test/presentation/shared/widgets/directions_app_chooser/directions_app_chooser_test.dart --flutter-test test/infrastructure/repositories/app_data_repository_location_origin_test.dart --flutter-test test/infrastructure/repositories/proximity_preferences_repository_test.dart --flutter-analyze` | `Local-Validated` | passed | `foundation_documentation/artifacts/tmp/reconcile_validation_status_20260527_225033.md` | Directions chooser, settings/repository tests, and analyzer passed. |
+| `laravel-app` settings/proximity support tests | Settings-backed route policy and reference-point reset rely on proximity preference backend behavior. | `./scripts/delphi/run_reconcile_validation.sh --scope big ... --laravel-test tests/Feature/Profile/ProfileProximityPreferencesControllerTest.php --laravel-test tests/Feature/Identity/AnonymousIdentityMergerProximityPreferenceTest.php` | `Local-Validated` | passed | `foundation_documentation/artifacts/tmp/reconcile_validation_status_20260527_225033.md` | Backend preference and identity tests passed. |
+| `flutter_rule_matrix` architecture lint | Event detail, directions chooser, repository, and route paths participated in the reconciliation set. | `bash tool/belluga_analysis_plugin/bin/validate_rule_matrix.sh` through the reconcile wrapper. | `Local-Validated` | passed | `foundation_documentation/artifacts/tmp/reconcile_validation_status_20260527_225033.md` | Rule matrix stage passed with recorded lint-code coverage. |
 
 ## No-Context Orchestration Readiness
 - **Ready for no-context worker dispatch:** `yes after APROVADO`.
@@ -235,7 +237,84 @@ Additional route-launch behavior requested on 2026-05-25:
 | `delphi-ai/rules/stacks/laravel/shared/settings-kernel-patch-contract-model-decision.md` | Backend settings/proximity persistence may be touched. | User preference ownership outside tenant-admin `map_ui`. | Treating this as tenant configuration. | Worker must test read/write/reset if backend is touched. |
 | `/home/elton/Dev/repos/delphi-ai/skills/test-creation-standard/SKILL.md` | Direct provider launch and tri-state prompt behavior need focused tests. | Exact-copy and semantic service tests. | Status-only UI tests. | Worker creates widget, service, and repository tests. |
 
-## Completion Evidence Matrix
-| Criterion | Evidence | Status | Notes |
+## Decision Adherence
+| Decision | Implementation Evidence | Status | Notes |
 | --- | --- | --- | --- |
-| DoD + validation rows | `pending` | `planned` | Fill before any delivery claim. |
+| `D-DIR-01..15` | Event detail uses Waze/Uber direct actions plus `Outros`, settings-backed tri-state route prompt policy, exact modal copy/options, Account Profile shortcut, skip-current-origin behavior, and reference-point origin deep links. | passed | No tenant-admin `map_ui`, local/AppData-only preference, new provider brand, or venue data model change was introduced. |
+
+## Security / Tenant Boundary Review
+| Surface | Review Focus | Status | Evidence | Notes |
+| --- | --- | --- | --- | --- |
+| Route prompt policy and external provider launch | User-owned settings persistence, safe reference metadata usage, and external-app handoff scope. | passed | `ProfileProximityPreferencesControllerTest.php`; `proximity_preferences_repository_test.dart`; `directions_app_chooser_test.dart`; Event detail widget tests. | External launch URLs use selected origin/destination data and do not mutate tenant-admin configuration. |
+
+## Performance / Concurrency Review
+| Surface | Review Focus | Status | Evidence | Notes |
+| --- | --- | --- | --- | --- |
+| Event detail `Como Chegar` route actions | Avoid chooser construction on Waze/Uber direct path and avoid repeated prompt persistence writes. | passed | `immersive_event_detail_screen_test.dart`; `directions_app_chooser_test.dart`; analyzer. | Direct provider path resolves origin policy before launch; `Outros` remains the only chooser path. |
+
+## Pipeline/Copilot P1/P2 Preflight
+| Reviewer Surface / Package | Review Focus | Status | Evidence Artifact / Command | Findings | Resolution / Notes |
+| --- | --- | --- | --- | --- | --- |
+| Event directions local reconciliation | CI/Copilot failure modes: old footer regression, provider hierarchy mismatch, prompt copy drift, settings persistence regression, reference origin omission, analyzer failures. | passed | `foundation_documentation/artifacts/tmp/reconcile_validation_status_20260527_225033.md` | no p1 or p2 findings | Consolidated wrapper finished `promotion-ready`; remote PR/Copilot checks remain part of later promotion lane execution. |
+
+## Rule-Spirit Anti-Pattern Hunt
+| Rule / Principle Surface | Bypass or Anti-Pattern Search Lens | Status | Evidence Artifact / Command | Findings | Resolution / Notes |
+| --- | --- | --- | --- | --- | --- |
+| Flutter Event/detail routing architecture | Scoped v0.2.0+8 Flutter scan for widget-owned persistence, imperative navigation, build-side effects, and route policy bypasses. | passed | `foundation_documentation/artifacts/tmp/v0.2.0-plus8-rule-spirit-flutter.json` | no p1 or p2 findings | Three review-level Navigator findings are local modal close affordances covered by widget tests, not raw route transitions or delivery blockers. |
+| Laravel settings/proximity guardrails | Scoped v0.2.0+8 Laravel scan for tenant guard bypasses, fixture domains, and validation shortcuts. | passed | `foundation_documentation/artifacts/tmp/v0.2.0-plus8-rule-spirit-laravel.json` | no p1 or p2 findings | Review-level findings were tenant/domain test fixtures rather than deployable host constants or guard bypasses. |
+
+## Completion Evidence Matrix
+| Criterion ID | Source Section | Criterion | Evidence Type | Evidence Artifact / Command | Runtime Target | Status | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| SCOPE-01 | Scope | Remove the `Como Chegar` tab-specific footer CTA `Traçar rota`. | Flutter route widget/navigation test | `immersive_event_detail_screen_test.dart`; consolidated wrapper report | Flutter Event detail route widget/navigation test | passed | `Como Chegar` no longer renders the tab-specific `Traçar rota` footer CTA. |
+| SCOPE-02 | Scope | Preserve the standard event CTA/footer behavior used by other tabs. | Flutter widget test | `immersive_event_detail_screen_test.dart`; `immersive_event_detail_route_test.dart` | Flutter Event detail widget/navigation test | passed | Standard Event CTA/footer remains available. |
+| SCOPE-03 | Scope | Render inline provider actions under the main location card: `Waze`, `Uber`, and `Outros`. | Flutter widget test | `immersive_event_detail_screen_test.dart` | Flutter Event detail widget test | passed | Main card renders the three inline route actions. |
+| SCOPE-04 | Scope | Render inline provider actions under each secondary location card, with compact sizing. | Flutter widget test | `immersive_event_detail_screen_test.dart` | Flutter Event detail widget test | passed | Secondary location cards render compact Waze/Uber/Outros actions. |
+| SCOPE-05 | Scope | Make main-card provider actions visually larger than secondary-card actions. | Flutter widget test | `immersive_event_detail_screen_test.dart` | Flutter Event detail widget test | passed | Main actions use the larger action presentation. |
+| SCOPE-06 | Scope | Route `Waze` and `Uber` buttons directly to their provider launch path without opening the chooser sheet. | route widget/service tests | `immersive_event_detail_screen_test.dart`; `directions_app_chooser_test.dart` | Flutter route widget/service tests | passed | Direct provider route taps skip the chooser. |
+| SCOPE-07 | Scope | Route `Outros` through the existing directions bottom sheet/provider chooser. | route widget test | `immersive_event_detail_screen_test.dart`; `directions_app_chooser_test.dart` | Flutter route widget/service tests | passed | `Outros` opens the route chooser path. |
+| SCOPE-08 | Scope | Add a route reference-point policy modal when the persisted setting is `null`. | route widget/repository tests | `immersive_event_detail_screen_test.dart`; `app_data_repository_location_origin_test.dart`; `proximity_preferences_repository_test.dart` | Flutter route widget/repository tests | passed | Null route policy triggers the prompt. |
+| SCOPE-09 | Scope | Modal title/question is exactly `Qual PONTO DE PARTIDA quer usar?`. | exact-copy widget test | `immersive_event_detail_screen_test.dart` | Flutter widget test | passed | Prompt title matches the frozen string. |
+| SCOPE-10 | Scope | Modal options are `Sua localização atual` and `O ponto de referência selecionado`. | exact-copy widget test | `immersive_event_detail_screen_test.dart` | Flutter widget test | passed | Both modal options match the frozen labels. |
+| SCOPE-11 | Scope | Modal displays the selected reference point label: Account Profile name for Account Profile references, or `localização personalizada` for manual references. | widget/repository tests | `immersive_event_detail_screen_test.dart`; `proximity_preferences_repository_test.dart` | Flutter widget/repository tests | passed | Account Profile and manual labels are represented for prompt consumers. |
+| SCOPE-12 | Scope | Modal includes an Account Profile shortcut when the selected reference point is an Account Profile. | widget/navigation test | `immersive_event_detail_screen_test.dart`; `account_profile_detail_controller_test.dart` | Flutter widget/navigation test | passed | Account Profile-backed reference points expose a detail shortcut. |
+| SCOPE-13 | Scope | Modal is skipped when the canonical/resolved route origin is the current live location. | route widget/service test | `immersive_event_detail_screen_test.dart`; `app_data_repository_location_origin_test.dart` | Flutter route widget/service test | passed | Current-live-location route origin skips the prompt. |
+| SCOPE-14 | Scope | Choosing the selected reference point makes the external app deep link use the reference point as the route origin. | route directions service/widget test | `directions_app_chooser_test.dart`; `immersive_event_detail_screen_test.dart` | Flutter route service/widget test | passed | Provider route launch target includes the reference point origin. |
+| SCOPE-15 | Scope | Modal supports `Não perguntar de novo`. | widget/repository test | `immersive_event_detail_screen_test.dart`; `app_data_repository_location_origin_test.dart` | Flutter widget/repository test | passed | Persist checkbox behavior is covered. |
+| SCOPE-16 | Scope | Add/update the address/reference-point selection area with a nullable setting for "use selected reference point when tracing routes". | repository/settings tests | `app_data_repository_location_origin_test.dart`; `proximity_preferences_repository_test.dart` | Flutter repository/settings tests | passed | Route policy supports `true`, `false`, and `null`. |
+| SCOPE-17 | Scope | Persist the route reference-point prompt preference in settings so `true`/`false` stops future prompts and `null` keeps prompting. | route policy repository and widget tests | `app_data_repository_location_origin_test.dart`; `immersive_event_detail_screen_test.dart` | Flutter route repository/widget tests | passed | Persisted route policy true/false suppresses future prompts; null keeps prompting. |
+| SCOPE-18 | Scope | Reset the route reference-point prompt setting to `null` whenever a new `ponto de referência` is selected. | route policy repository reset tests | `app_data_repository_location_origin_test.dart`; `proximity_preferences_repository_test.dart` | Flutter route repository tests | passed | New reference selection clears the route policy. |
+| SCOPE-19 | Scope | Reuse existing `DirectionsAppChooser`/launch URI logic where possible; extend it only where direct provider launch requires a contract. | directions chooser tests | `directions_app_chooser_test.dart` | Flutter service/widget test | passed | Shared chooser/launch logic remains the provider path, extended for direct launch. |
+| DOD-01 | Definition of Done | `Como Chegar` no longer shows the tab-specific `Traçar rota` footer. | Flutter route widget/navigation test | `immersive_event_detail_screen_test.dart` | Flutter Event detail route widget/navigation test | passed | Old `Traçar rota` footer CTA is absent. |
+| DOD-02 | Definition of Done | The event screen still shows the standard event CTA/footer correctly on all tabs. | Flutter widget/navigation test | `immersive_event_detail_screen_test.dart`; `immersive_event_detail_route_test.dart` | Flutter Event detail widget/navigation test | passed | Standard footer remains intact. |
+| DOD-03 | Definition of Done | Main address card shows larger `Waze`, `Uber`, and `Outros` buttons. | Flutter widget/navigation test | `immersive_event_detail_screen_test.dart` | Flutter widget/navigation test | passed | Main card buttons use the larger presentation in the route actions flow. |
+| DOD-04 | Definition of Done | Secondary address cards show compact `Waze`, `Uber`, and `Outros` buttons. | Flutter widget/navigation test | `immersive_event_detail_screen_test.dart` | Flutter widget/navigation test | passed | Secondary cards use compact route actions. |
+| DOD-05 | Definition of Done | `Waze` launches Waze directly when available/launchable after origin policy resolution. | route directions widget/service test | `directions_app_chooser_test.dart`; `immersive_event_detail_screen_test.dart` | Flutter route widget/service test | passed | Waze direct route path resolves origin policy before launch. |
+| DOD-06 | Definition of Done | `Uber` launches Uber directly when available/launchable after origin policy resolution. | route directions widget/service test | `directions_app_chooser_test.dart`; `immersive_event_detail_screen_test.dart` | Flutter route widget/service test | passed | Uber direct route path resolves origin policy before launch. |
+| DOD-07 | Definition of Done | `Outros` opens the chooser bottom sheet. | Flutter widget/navigation test | `immersive_event_detail_screen_test.dart`; `directions_app_chooser_test.dart` | Flutter widget/navigation service test | passed | `Outros` remains the route chooser entry point. |
+| DOD-08 | Definition of Done | When route reference-point setting is `null`, launching a provider prompts for `ponto de referência` vs current location. | route widget/repository test | `immersive_event_detail_screen_test.dart`; `app_data_repository_location_origin_test.dart` | Flutter route widget/repository test | passed | Null route policy shows the modal. |
+| DOD-09 | Definition of Done | The prompt copy and options match the frozen modal contract. | exact-copy widget/navigation test | `immersive_event_detail_screen_test.dart` | Flutter widget/navigation test | passed | Title and option copy match the frozen modal route contract. |
+| DOD-10 | Definition of Done | The prompt is not shown when the canonical/resolved route origin is already the current live location. | route widget/service test | `immersive_event_detail_screen_test.dart`; `app_data_repository_location_origin_test.dart` | Flutter route widget/service test | passed | Current route origin bypasses prompt. |
+| DOD-11 | Definition of Done | Account Profile references show a shortcut from the prompt to that Account Profile. | widget/navigation test | `immersive_event_detail_screen_test.dart` | Flutter widget/navigation test | passed | Account Profile shortcut is visible for Account Profile-backed references. |
+| DOD-12 | Definition of Done | Choosing the reference point sends the reference point as the origin/start point in Waze/Uber/other provider links. | directions service/widget test | `directions_app_chooser_test.dart`; `immersive_event_detail_screen_test.dart` | Flutter service/widget test | passed | Provider links receive reference point origin/start coordinates. |
+| DOD-13 | Definition of Done | If `Não perguntar de novo` is checked, the selected route policy is saved in settings. | route widget navigation test plus repository save mutation test | `immersive_event_detail_screen_test.dart`; `app_data_repository_location_origin_test.dart` | Flutter route widget navigation test plus repository save mutation test | passed | Checked selection saves the selected route policy as `true` or `false`. |
+| DOD-14 | Definition of Done | If `Não perguntar de novo` is not checked, the setting remains `null` and future launches keep prompting. | widget/repository test | `immersive_event_detail_screen_test.dart`; `app_data_repository_location_origin_test.dart` | Flutter widget/repository test | passed | Unchecked selection leaves policy null. |
+| DOD-15 | Definition of Done | When the setting is `true` or `false`, no prompt is shown and the saved policy is applied. | widget/repository test | `immersive_event_detail_screen_test.dart`; `app_data_repository_location_origin_test.dart` | Flutter widget/repository test | passed | Persisted policy applies without modal. |
+| DOD-16 | Definition of Done | Choosing a new `ponto de referência` resets the route prompt setting to `null`. | route policy repository reset test | `app_data_repository_location_origin_test.dart`; `proximity_preferences_repository_test.dart` | Flutter route repository tests | passed | Reference update clears the route policy. |
+| DOD-17 | Definition of Done | Tests cover direct provider launches, chooser launch, prompt/persistence semantics, and absence of the old footer. | focused test suites | Local CI-Equivalent Suite Matrix rows above | Cross-stack focused tests | passed | Direct launch, chooser, modal persistence, reset, and footer absence are covered. |
+| VAL-01 | Validation Steps | Flutter widget test for Event detail `Como Chegar` tab without old footer CTA. | Flutter widget test | `test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart` through the reconcile wrapper | Flutter Event detail widget/navigation test | passed | Old footer CTA absence is covered. |
+| VAL-02 | Validation Steps | Flutter widget/controller test for main and secondary inline provider buttons. | Flutter widget/controller test | `immersive_event_detail_screen_test.dart`; `immersive_event_detail_controller_test.dart` | Flutter widget/controller test | passed | Main and secondary provider actions are covered. |
+| VAL-03 | Validation Steps | Flutter unit/widget test for route reference-point prompt when setting is `null`. | Flutter route widget/repository test | `immersive_event_detail_screen_test.dart`; `app_data_repository_location_origin_test.dart` | Flutter route widget/repository test | passed | Null route setting prompt behavior is covered. |
+| VAL-04 | Validation Steps | Flutter widget test for exact modal copy/options and Account Profile shortcut visibility. | Flutter widget/navigation test | `immersive_event_detail_screen_test.dart` | Flutter widget/navigation test | passed | Exact copy/options and Account Profile shortcut are covered. |
+| VAL-05 | Validation Steps | Flutter test proving no modal appears when canonical/resolved route origin is current live location. | Flutter route widget/service navigation test | `immersive_event_detail_screen_test.dart`; `app_data_repository_location_origin_test.dart` | Flutter route widget/service navigation test | passed | Current route origin skip condition is covered. |
+| VAL-06 | Validation Steps | Flutter/service test proving reference-point choice populates provider deep link origin/start point. | Flutter service/widget test | `directions_app_chooser_test.dart`; `immersive_event_detail_screen_test.dart` | Flutter service/widget test | passed | Provider origin/start point is covered. |
+| VAL-07 | Validation Steps | Flutter repository/service test for persisted settings-backed route prompt preference true false null. | Flutter route repository save/read test plus widget navigation test | `app_data_repository_location_origin_test.dart`; `proximity_preferences_repository_test.dart`; `immersive_event_detail_screen_test.dart` | Flutter route repository/service save mutation test plus widget navigation test | passed | Tri-state settings-backed route policy is covered. |
+| VAL-08 | Validation Steps | Laravel/settings or repository test for read/write/reset semantics if settings persistence is backend-backed in the chosen implementation. | Laravel/Flutter persistence mutation tests plus widget navigation test | `ProfileProximityPreferencesControllerTest.php`; `app_data_repository_location_origin_test.dart`; `proximity_preferences_repository_test.dart`; `immersive_event_detail_screen_test.dart` | Laravel API plus Flutter repository mutation and widget navigation test | passed | Backend-backed preference path and Flutter repository reset semantics are covered. |
+| VAL-09 | Validation Steps | Flutter test proving direct Waze/Uber launch paths do not open the chooser sheet. | Flutter route widget/service navigation test | `directions_app_chooser_test.dart`; `immersive_event_detail_screen_test.dart` | Flutter route widget/service navigation test | passed | Direct provider route launches bypass chooser. |
+| VAL-10 | Validation Steps | Analyzer/local CI-equivalent suite row completed before delivery. | local CI-equivalent | Local CI-Equivalent Suite Matrix rows above | Cross-stack test/analyzer wrapper | passed | Consolidated wrapper passed Flutter tests, Laravel support tests, analyzer, and rule matrix. |
+
+## TODO Closeout Disposition
+- **Disposition:** `keep-active`
+- **Disposition reason:** local implementation and validation are complete, but this TODO remains in the active v0.2.0+8 package until promotion-lane movement is performed for the whole approved set.
+- **Post-commit/push status:** `pending`
+- **Next path/status action:** after individual closeout guards pass and the orchestration checkpoint is committed, move this TODO with the v0.2.0+8 package into `foundation_documentation/todos/promotion_lane/` or update this disposition with any real lane blocker.

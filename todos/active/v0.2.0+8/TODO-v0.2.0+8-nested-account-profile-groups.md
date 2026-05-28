@@ -18,7 +18,7 @@ The current public Account Profile screen already renders profile tabs from `Par
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Local-Validated`
 - **Qualifiers:** `Feature`, `Cross-Stack`, `Tenant-Admin`, `Tenant-Public`, `User-Visible`, `Promotion-Lane-Pending`
-- **Next exact step:** promote this NEST wave into the v0.2.0+8 promotion lane after the orchestrator checkpoint commit and consolidated Wave 5 validation.
+- **Next exact step:** move this TODO with the validated v0.2.0+8 package into the promotion lane after individual closeout guards and the orchestration checkpoint.
 
 ## Scope
 - [x] Define a persisted nested group contract on Account Profile or a related Account Profile aggregate.
@@ -170,6 +170,7 @@ The current public Account Profile screen already renders profile tabs from `Par
 | `laravel-app` Account Profile nested feature/projection tests | Backend persistence, validation, tenant-bound linked profiles, and public projection changed. | `./laravel-app/scripts/delphi/run_laravel_tests_safe.sh --filter=Nested` | `Local-Validated` | passed | `5` tests, `22` assertions passed on 2026-05-27. | Includes admin update persistence, invalid members, group/member limits, public projection, and one existing nested media unit test matched by the filter. |
 | `flutter-app` analyzer | Flutter domain, DTO, repository, controller, admin UI, public detail UI, and tests changed. | `fvm dart analyze --format machine` | `Local-Validated` | passed | `cd flutter-app && fvm dart analyze --format machine` exited `0` with no output on 2026-05-27. | Analyzer-clean after value-object refactor and integration-test fake updates. |
 | `flutter-app` focused nested group tests | DTO/domain parsing, tenant-admin editing, repository payloads, and public custom tab/navigation behavior changed. | `fvm flutter test --no-pub` with the five focused nested Account Profile test files | `Local-Validated` | passed | `6` tests passed on 2026-05-27. | Covers DTO parse, admin repository payload, controller forwarding, admin group editor candidate selection, public tab rendering/navigation, and content-only regression. |
+| v0.2.0+8 consolidated reconciliation wrapper | NEST must remain green with the full approved v0.2.0+8 package after later waves landed. | `./scripts/delphi/run_reconcile_validation.sh --scope big --intent "v0.2.0+8 consolidated focused validation rerun after WSL disconnect"` with NEST Laravel/Flutter targets plus package targets. | `Local-Validated` | passed | `foundation_documentation/artifacts/tmp/reconcile_validation_status_20260527_225033.md` | Consolidated wrapper reported Laravel tests, Flutter tests, Flutter analyzer, and Flutter rule matrix passed. |
 
 ## No-Context Orchestration Readiness
 - **Ready for no-context worker dispatch:** `yes after APROVADO`.
@@ -252,6 +253,6 @@ The current public Account Profile screen already renders profile tabs from `Par
 
 ## TODO Closeout Disposition
 - **Disposition:** `keep-active`
-- **Disposition reason:** local NEST implementation is validated, but the v0.2.0+8 orchestration package still needs the orchestrator checkpoint commit, consolidated Wave 5 validation, and promotion-lane follow-through before moving this TODO.
+- **Disposition reason:** local NEST implementation and consolidated v0.2.0+8 validation are complete, but this TODO remains in the active package until promotion-lane movement is performed for the whole approved set.
 - **Post-commit/push status:** `pending`
-- **Next path/status action:** after the orchestrator checkpoint commit and consolidated Wave 5 validation, move this TODO with the v0.2.0+8 package into `foundation_documentation/todos/promotion_lane/` or update this disposition with the remaining lane blocker.
+- **Next path/status action:** after individual closeout guards pass and the orchestration checkpoint is committed, move this TODO with the v0.2.0+8 package into `foundation_documentation/todos/promotion_lane/` or update this disposition with any real lane blocker.

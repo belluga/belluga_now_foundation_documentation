@@ -16,16 +16,16 @@ Repository inspection shows the rule catalog builder already has an event-type i
 - **Direct-to-TODO rationale:** expected behavior is explicit and already matches documented type parity for Account Profile, Static Asset, and Event types.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Pending`
-- **Qualifiers:** `Planning-Ready`, `Bugfix`, `Flutter-Focused`, `Tenant-Admin`, `User-Visible`
-- **Next exact step:** run TODO refinement, identify the exact caller path, add fail-first coverage, and request `APROVADO`.
+- **Current delivery stage:** `Local-Validated`
+- **Qualifiers:** `Bugfix`, `Flutter-Focused`, `Tenant-Admin`, `User-Visible`, `Promotion-Lane-Pending`
+- **Next exact step:** move this TODO with the validated v0.2.0+8 package into the promotion lane after individual closeout guards and the orchestration checkpoint.
 
 ## Scope
-- [ ] Ensure event types are fetched from the tenant-admin event type source used by the current runtime.
-- [ ] Pass event types into `TenantAdminDiscoveryFilterRuleCatalogBuilder` or any current equivalent catalog builder.
-- [ ] Ensure Event source `Tipos` lists current event types with labels/slugs consistent with existing Account Profile and Asset behavior.
-- [ ] Preserve empty-state behavior only when the tenant truly has no event types.
-- [ ] Add regression tests for Event type hydration in the filter rule sheet/catalog.
+- [x] Ensure event types are fetched from the tenant-admin event type source used by the current runtime.
+- [x] Pass event types into `TenantAdminDiscoveryFilterRuleCatalogBuilder` or any current equivalent catalog builder.
+- [x] Ensure Event source `Tipos` lists current event types with labels/slugs consistent with existing Account Profile and Asset behavior.
+- [x] Preserve empty-state behavior only when the tenant truly has no event types.
+- [x] Add regression tests for Event type hydration in the filter rule sheet/catalog.
 
 ## Out of Scope
 - [ ] Changing event type CRUD or registry persistence.
@@ -34,20 +34,20 @@ Repository inspection shows the rule catalog builder already has an event-type i
 - [ ] Adding taxonomy hydration beyond the current expected type list behavior.
 
 ## Dependencies & Sequencing
-- [ ] `DEP-01` Preserve Event type parity documented in `map_poi_module.md` and `tenant_admin_module.md`.
-- [ ] `DEP-02` Do not execute in parallel with `TODO-v0.2.0+8-map-filter-visual-override-decoupling.md`. If both map-filter TODOs are in one orchestration plan, this TODO is **Map Filter Wave 1** and the visual override TODO follows as Wave 2.
+- [x] `DEP-01` Preserve Event type parity documented in `map_poi_module.md` and `tenant_admin_module.md`.
+- [x] `DEP-02` Do not execute in parallel with `TODO-v0.2.0+8-map-filter-visual-override-decoupling.md`. If both map-filter TODOs are in one orchestration plan, this TODO is **Map Filter Wave 1** and the visual override TODO follows as Wave 2.
 
 ## Definition of Done
-- [ ] Event source in the rule sheet shows event type options when event types exist.
-- [ ] Account Profile and Asset type lists still work.
-- [ ] Empty-state text appears for Event only when event types are genuinely absent.
-- [ ] Saved rules using event type filters still serialize the expected payload.
-- [ ] Tests cover both populated and empty Event type catalogs.
+- [x] Event source in the rule sheet shows event type options when event types exist.
+- [x] Account Profile and Asset type lists still work.
+- [x] Empty-state text appears for Event only when event types are genuinely absent.
+- [x] Saved rules using event type filters still serialize the expected payload.
+- [x] Tests cover both populated and empty Event type catalogs.
 
 ## Validation Steps
-- [ ] Focused Flutter test for `TenantAdminDiscoveryFilterRuleCatalogBuilder` with event types.
-- [ ] Focused widget/controller/repository test for the actual admin sheet path that previously showed `Sem tipos para essa origem`.
-- [ ] Analyzer/local CI-equivalent suite row completed before delivery.
+- [x] Focused Flutter test for `TenantAdminDiscoveryFilterRuleCatalogBuilder` with event types.
+- [x] Focused widget/controller/repository test for the actual admin sheet path that previously showed `Sem tipos para essa origem`.
+- [x] Analyzer/local CI-equivalent suite row completed before delivery.
 
 ## Profile Scope & Handoffs
 - **Primary execution profile:** `operational-coder`
@@ -114,9 +114,11 @@ Repository inspection shows the rule catalog builder already has an event-type i
 | Event type rule serializes correctly | Admin mutation path | `shared-android-web` | widget/repository | `yes` | controller/repository test for rule payload |
 
 ## Local CI-Equivalent Suite Matrix
-| Repo | CI Surface | Local Command | Required Before Delivery |
-| --- | --- | --- | --- |
-| `flutter-app` | analyzer + focused tests | `fvm dart analyze --format machine` and focused `fvm flutter test ...` | `yes` |
+| Repository / CI Surface | Why In Scope | Local CI-Equivalent Command | Required Before | Status | Evidence Artifact / Command | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| `flutter-app` tenant-admin discovery filter tests | Event type hydration, rule sheet rendering, empty state, serialization, and regression parity changed. | `./scripts/delphi/run_reconcile_validation.sh --scope big --intent "v0.2.0+8 consolidated focused validation rerun after WSL disconnect" --flutter-test test/presentation/tenant_admin/discovery_filters/tenant_admin_discovery_filters_settings_test.dart --flutter-test test/presentation/tenant_admin/settings/tenant_admin_settings_screen_test.dart --flutter-test test/infrastructure/repositories/tenant_admin_settings_repository_test.dart --flutter-test test/infrastructure/dal/dto/map/map_filter_category_dto_test.dart --flutter-analyze` | `Local-Validated` | passed | `foundation_documentation/artifacts/tmp/reconcile_validation_status_20260527_225033.md` | Consolidated wrapper reported Flutter focused tests and analyzer passed. |
+| `laravel-app` map/type API regression coverage | Runtime filter/type catalog consumers depend on backend type and map filter contracts. | `./scripts/delphi/run_reconcile_validation.sh --scope big ... --laravel-test tests/Feature/AccountProfiles/AccountProfileTypesControllerTest.php --laravel-test tests/Feature/Map/MapPoisControllerTest.php --laravel-test tests/Unit/Map/MapPoiQueryFormattingTest.php` | `Local-Validated` | passed | `foundation_documentation/artifacts/tmp/reconcile_validation_status_20260527_225033.md` | Backend map/type focused tests passed in the consolidated wrapper. |
+| `flutter_rule_matrix` architecture lint | Tenant-admin filter controller/repository/widget paths participated in the reconciliation set. | `bash tool/belluga_analysis_plugin/bin/validate_rule_matrix.sh` through the reconcile wrapper. | `Local-Validated` | passed | `foundation_documentation/artifacts/tmp/reconcile_validation_status_20260527_225033.md` | Rule matrix stage passed with recorded lint-code coverage. |
 
 ## No-Context Orchestration Readiness
 - **Ready for no-context worker dispatch:** `yes after APROVADO`.
@@ -138,7 +140,51 @@ Repository inspection shows the rule catalog builder already has an event-type i
 | `delphi-ai/rules/stacks/flutter/flutter-architecture-always-on.md` | The slice touches Flutter tenant-admin controller/repository/widget paths. | Controller/repository ownership and analyzer-clean state. | Sheet-only fixes that bypass the reachable data path. | Worker must prove the actual admin sheet path. |
 | `/home/elton/Dev/repos/delphi-ai/skills/test-creation-standard/SKILL.md` | The bug requires regression coverage for populated and empty Event type catalogs. | Fail-first or focused semantic tests. | Status-only catalog tests that miss the caller path. | Worker creates builder and sheet/controller coverage. |
 
-## Completion Evidence Matrix
-| Criterion | Evidence | Status | Notes |
+## Decision Adherence
+| Decision | Implementation Evidence | Status | Notes |
 | --- | --- | --- | --- |
-| DoD + validation rows | `pending` | `planned` | Fill before any delivery claim. |
+| `D-MFE-01..04` | Event type hydration flows through the reachable admin filter sheet path; empty Event state is reserved for a genuinely empty registry; visual override work stayed in the separate Map Filter Wave 2. | passed | Account Profile and Asset type behavior remains covered by the same filter tests. |
+
+## Security / Tenant Boundary Review
+| Surface | Review Focus | Status | Evidence | Notes |
+| --- | --- | --- | --- | --- |
+| Tenant-admin event type catalog hydration | Tenant-scoped type data and absence of public query expansion. | passed | Flutter focused tests plus Laravel account profile type/map filter tests. | The slice reuses existing tenant-admin type sources and does not widen public map query semantics. |
+
+## Performance / Concurrency Review
+| Surface | Review Focus | Status | Evidence | Notes |
+| --- | --- | --- | --- | --- |
+| Admin filter rule sheet catalog build | Avoid repeated expensive rebuilds or ad hoc fetches inside widget build. | passed | Focused widget/controller/repository tests and analyzer. | Event type data is supplied through the existing controller/repository path used by the sheet. |
+
+## Pipeline/Copilot P1/P2 Preflight
+| Reviewer Surface / Package | Review Focus | Status | Evidence Artifact / Command | Findings | Resolution / Notes |
+| --- | --- | --- | --- | --- | --- |
+| Map Filter Wave 1 local reconciliation | CI/Copilot failure modes: missing Event type fixtures, broken Account Profile/Asset parity, empty-state regression, serialization mismatch, analyzer failures. | passed | `foundation_documentation/artifacts/tmp/reconcile_validation_status_20260527_225033.md` | no p1 or p2 findings | Consolidated wrapper finished `promotion-ready`; remote PR/Copilot checks remain part of later promotion lane execution. |
+
+## Rule-Spirit Anti-Pattern Hunt
+| Rule / Principle Surface | Bypass or Anti-Pattern Search Lens | Status | Evidence Artifact / Command | Findings | Resolution / Notes |
+| --- | --- | --- | --- | --- | --- |
+| Flutter tenant-admin architecture | Scoped v0.2.0+8 Flutter scan for widget-owned persistence, controller/repository bypasses, DTO/domain shortcutting, and build-side-effect patterns. | passed | `foundation_documentation/artifacts/tmp/v0.2.0-plus8-rule-spirit-flutter.json` | no p1 or p2 findings | Scanner findings were warning/review-level and triaged as fixture/infrastructure-path noise or modal-close affordances outside this wave. |
+| Laravel map/type contracts | Scoped v0.2.0+8 Laravel scan for tenant guard bypasses, fixture domains, and validation shortcuts. | passed | `foundation_documentation/artifacts/tmp/v0.2.0-plus8-rule-spirit-laravel.json` | no p1 or p2 findings | Review-level findings were tenant/domain test fixtures rather than deployable host constants or guard bypasses. |
+
+## Completion Evidence Matrix
+| Criterion ID | Source Section | Criterion | Evidence Type | Evidence Artifact / Command | Runtime Target | Status | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| SCOPE-01 | Scope | Ensure event types are fetched from the tenant-admin event type source used by the current runtime. | Flutter repository/controller tests | `tenant_admin_discovery_filters_settings_test.dart`; `tenant_admin_settings_screen_test.dart`; consolidated wrapper report | Flutter tenant-admin widget/controller tests | passed | The reachable sheet path receives hydrated Event type data. |
+| SCOPE-02 | Scope | Pass event types into `TenantAdminDiscoveryFilterRuleCatalogBuilder` or any current equivalent catalog builder. | catalog/widget tests | `tenant_admin_discovery_filters_settings_test.dart`; `tenant_admin_settings_screen_test.dart` | Flutter widget/controller tests | passed | Catalog builder consumers receive Event type options. |
+| SCOPE-03 | Scope | Ensure Event source `Tipos` lists current event types with labels/slugs consistent with existing Account Profile and Asset behavior. | focused UI regression tests | `tenant_admin_settings_screen_test.dart`; backend type tests in consolidated wrapper | Flutter widget tests plus Laravel type tests | passed | Event type labels/slugs render alongside existing Account Profile and Asset parity. |
+| SCOPE-04 | Scope | Preserve empty-state behavior only when the tenant truly has no event types. | focused empty-state test | `tenant_admin_settings_screen_test.dart` event empty-registry coverage | Flutter widget test | passed | `Sem tipos para essa origem` is retained only for empty Event registry state. |
+| SCOPE-05 | Scope | Add regression tests for Event type hydration in the filter rule sheet/catalog. | focused regression tests | `tenant_admin_discovery_filters_settings_test.dart`; `tenant_admin_settings_screen_test.dart` | Flutter widget/controller tests | passed | Populated and empty Event catalogs are covered. |
+| DOD-01 | Definition of Done | Event source in the rule sheet shows event type options when event types exist. | widget/navigation test | `tenant_admin_settings_screen_test.dart` | Flutter tenant-admin widget/navigation test | passed | Existing tenant Event types appear as selectable `Tipos` in the admin sheet flow. |
+| DOD-02 | Definition of Done | Account Profile and Asset type lists still work. | regression tests | `tenant_admin_settings_screen_test.dart`; `tenant_admin_discovery_filters_settings_test.dart` | Flutter widget/controller tests | passed | Existing type sources remain functional. |
+| DOD-03 | Definition of Done | Empty-state text appears for Event only when event types are genuinely absent. | widget empty-state test | `tenant_admin_settings_screen_test.dart` | Flutter tenant-admin widget test | passed | Empty-state copy is tied to empty registry, not missing hydration. |
+| DOD-04 | Definition of Done | Saved rules using event type filters still serialize the expected payload. | repository/settings mutation tests plus widget/navigation flow | `tenant_admin_settings_repository_test.dart`; `map_filter_category_dto_test.dart`; `tenant_admin_settings_screen_test.dart` | Flutter repository/DTO mutation tests plus widget/navigation test | passed | Event type filter save mutation payload round-trips through settings and DTO paths. |
+| DOD-05 | Definition of Done | Tests cover both populated and empty Event type catalogs. | focused regression widget navigation test | `tenant_admin_discovery_filters_settings_test.dart`; `tenant_admin_settings_screen_test.dart` | Flutter widget/controller navigation test | passed | Both populated Event type and empty registry paths are asserted in the admin sheet flow. |
+| VAL-01 | Validation Steps | Focused Flutter test for `TenantAdminDiscoveryFilterRuleCatalogBuilder` with event types. | focused Flutter test | `tenant_admin_discovery_filters_settings_test.dart` through the reconcile wrapper | Flutter controller/catalog test | passed | Catalog-level Event type hydration is covered. |
+| VAL-02 | Validation Steps | Focused widget/controller/repository test for the actual admin sheet path that previously showed `Sem tipos para essa origem`. | focused Flutter widget navigation test/controller/repository tests | `tenant_admin_settings_screen_test.dart`; `tenant_admin_settings_repository_test.dart` | Flutter tenant-admin widget navigation test/controller/repository tests | passed | Reachable admin sheet flow no longer shows the empty state for populated Event types. |
+| VAL-03 | Validation Steps | Analyzer/local CI-equivalent suite row completed before delivery. | local CI-equivalent | Local CI-Equivalent Suite Matrix rows above | Cross-stack test/analyzer wrapper | passed | Consolidated wrapper passed Flutter tests, Laravel supporting tests, analyzer, and rule matrix. |
+
+## TODO Closeout Disposition
+- **Disposition:** `keep-active`
+- **Disposition reason:** local implementation and validation are complete, but this TODO remains in the active v0.2.0+8 package until promotion-lane movement is performed for the whole approved set.
+- **Post-commit/push status:** `pending`
+- **Next path/status action:** after individual closeout guards pass and the orchestration checkpoint is committed, move this TODO with the v0.2.0+8 package into `foundation_documentation/todos/promotion_lane/` or update this disposition with any real lane blocker.
