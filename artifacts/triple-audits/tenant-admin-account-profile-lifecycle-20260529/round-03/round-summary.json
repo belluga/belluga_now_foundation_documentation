@@ -1,0 +1,48 @@
+{
+  "schema_version": "triple-audit-round-summary-v1",
+  "artifact_kind": "triple_audit_round_summary",
+  "authoritative": false,
+  "session_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/tenant-admin-account-profile-lifecycle-20260529/session.json",
+  "round": 3,
+  "merged_at": "2026-05-29T18:19:34+00:00",
+  "round_status": "needs_adjudication",
+  "conflicts": [
+    "recommended_path_conflict: reviewers proposed different recommended paths"
+  ],
+  "lanes": {
+    "elegance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/tenant-admin-account-profile-lifecycle-20260529/round-03/results/elegance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/tenant-admin-account-profile-lifecycle-20260529/round-03/merge/elegance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/tenant-admin-account-profile-lifecycle-20260529/round-03/merge/elegance.merge.md",
+      "overall_assessment": "clean",
+      "recommended_path": "Proceed with renewed APROVADO for the planning contract. Implementation remains blocked until todo_authority_guard.py passes and the listed validation gates are satisfied.",
+      "finding_count": 0,
+      "highest_finding_severity": "none",
+      "status": "clean"
+    },
+    "performance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/tenant-admin-account-profile-lifecycle-20260529/round-03/results/performance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/tenant-admin-account-profile-lifecycle-20260529/round-03/merge/performance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/tenant-admin-account-profile-lifecycle-20260529/round-03/merge/performance.merge.md",
+      "overall_assessment": "clean",
+      "recommended_path": "Renew APROVADO for the planning contract. No implementation or data repair is authorized by this audit result.",
+      "finding_count": 0,
+      "highest_finding_severity": "none",
+      "status": "clean"
+    },
+    "test-quality": {
+      "review_kind": "test_quality_audit",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/tenant-admin-account-profile-lifecycle-20260529/round-03/results/test-quality.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/tenant-admin-account-profile-lifecycle-20260529/round-03/merge/test-quality.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/tenant-admin-account-profile-lifecycle-20260529/round-03/merge/test-quality.merge.md",
+      "overall_assessment": "clean",
+      "recommended_path": "approval_ready_for_renewed_APROVADO; implementation remains blocked until todo_authority_guard.py passes",
+      "finding_count": 0,
+      "highest_finding_severity": "none",
+      "status": "clean"
+    }
+  },
+  "exact_next_step": "Prepare a contradiction note, run the follow-up no-context challenge if needed, adjudicate the conflict explicitly, record the resolution with `record-resolution --status resolved`, then open the next round."
+}

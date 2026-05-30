@@ -1,0 +1,29 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/canonical-event-image-resolver-20260525/triple-audit-session/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "performance",
+  "overall_assessment": "The main agenda endpoint path is bounded: it slices to the public page-size cap before calling formatEvents(), so the new parent Event lookup stays page-scoped there. However, the account-profile agenda path now materializes every future matching occurrence and then batch-loads parent Events for the full result set, which is a concrete public-runtime fetch-all/resource-amplification risk.",
+  "recommended_path": "Do not close this round as clean until AccountProfileAgendaOccurrencesService applies an explicit public bound, pagination contract, or chunk/windowed formatting path before calling formatEvents(). Keep the EventQueryService parent lookup, but only feed it bounded slices or make the formatter enforce a bounded contract.",
+  "performance_position": "regresses",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "regresses",
+  "findings": [
+    {
+      "finding_id": "PERF-001",
+      "severity": "high",
+      "title": "Account profile agenda now fetches and formats an unbounded public occurrence set",
+      "rationale": "AccountProfileAgendaOccurrencesService::forProfile builds a public-facing query for published future occurrences, orders it, and calls get() with no limit or pagination before passing the full Collection to EventQueryService::formatEvents(). formatEvents() then materializes the iterable again and performs a whereIn parent Event lookup across all occurrence event_ids. For a venue/profile with high-cardinality future occurrences, one request can load all matching occurrence models, build a large parent-id candidate list, load all parent Events, and format the full response in memory.",
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/app/Application/AccountProfiles/AccountProfileAgendaOccurrencesService.php",
+        "laravel-app/packages/belluga/belluga_events/src/Application/Events/EventQueryService.php"
+      ],
+      "suggested_action": "Add an explicit bounded contract for account-profile agenda occurrences, such as page/page_size with the same public max used by agenda, or a fixed upcoming-occurrence cap. Fetch only that bounded slice before calling formatEvents(); if all results are truly required, introduce a chunked parent-context formatter and avoid a single unbounded get()/whereIn()/in-memory response path."
+    }
+  ]
+}

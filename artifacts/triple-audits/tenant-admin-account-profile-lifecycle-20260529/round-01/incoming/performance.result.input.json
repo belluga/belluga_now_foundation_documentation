@@ -1,0 +1,54 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/tenant-admin-account-profile-lifecycle-20260529/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "performance",
+  "overall_assessment": "not_ready",
+  "recommended_path": "Revise the TODO before renewed APROVADO to make the deletion invariant concurrency-safe and to make the repair command fail-closed, tenant-bounded, and operationally bounded.",
+  "performance_position": "mixed",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "PERF-01",
+      "severity": "high",
+      "title": "Last-profile delete guard is not specified as atomic under concurrent deletion.",
+      "rationale": "The package requires a service-level guard and lists the multiple-active-profiles case, but does not require a transaction, row/account lock, conditional delete, or concurrent-delete regression evidence.",
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/app/Application/AccountProfiles/AccountProfileManagementService.php"
+      ],
+      "suggested_action": "Require atomic invariant enforcement keyed to the account, with a narrowly scoped aggregate-delete bypass and evidence for the race-sensitive path. Reject a plain count-then-delete implementation outside a transaction/lock boundary."
+    },
+    {
+      "finding_id": "PERF-02",
+      "severity": "high",
+      "title": "Repair command policy is stated but not enforceably bounded.",
+      "rationale": "The execution plan does not require hard tenant selection, environment refusal, dry-run default, execute confirmation, row limits, chunking, or indexed anti-join/query shape.",
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/routes/console.php"
+      ],
+      "suggested_action": "Require fail-closed command semantics: explicit tenant argument, dry-run by default, execute requiring an explicit confirmation flag/token, refusal outside approved local environment unless separately approved, bounded/chunked indexed queries, and structured residual reporting."
+    },
+    {
+      "finding_id": "PERF-03",
+      "severity": "medium",
+      "title": "Playwright cleanup replacement does not specify bounded account lookup.",
+      "rationale": "The package does not state that cleanup must use captured onboarding account identifiers or a direct aggregate cleanup API.",
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "tools/flutter/web_app_tests"
+      ],
+      "suggested_action": "Require onboarding-created accounts to be cleaned up through known account identifiers or session-owned metadata via the aggregate lifecycle, with source-scan evidence that no profile-delete-only cleanup remains."
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/canonical-event-image-resolver-20260525/triple-audit-session/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "performance"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "regresses",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "regresses"
+  },
+  "recommended_paths": [
+    "Do not close this round as clean until AccountProfileAgendaOccurrencesService applies an explicit public bound, pagination contract, or chunk/windowed formatting path before calling formatEvents(). Keep the EventQueryService parent lookup, but only feed it bounded slices or make the formatter enforce a bounded contract."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-EFAFF1CF",
+      "severity": "high",
+      "title": "Account profile agenda now fetches and formats an unbounded public occurrence set",
+      "rationale": "AccountProfileAgendaOccurrencesService::forProfile builds a public-facing query for published future occurrences, orders it, and calls get() with no limit or pagination before passing the full Collection to EventQueryService::formatEvents(). formatEvents() then materializes the iterable again and performs a whereIn parent Event lookup across all occurrence event_ids. For a venue/profile with high-cardinality future occurrences, one request can load all matching occurrence models, build a large parent-id candidate list, load all parent Events, and format the full response in memory.",
+      "suggested_action": "Add an explicit bounded contract for account-profile agenda occurrences, such as page/page_size with the same public max used by agenda, or a fixed upcoming-occurrence cap. Fetch only that bounded slice before calling formatEvents(); if all results are truly required, introduce a chunked parent-context formatter and avoid a single unbounded get()/whereIn()/in-memory response path.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PERF-001"
+      ],
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

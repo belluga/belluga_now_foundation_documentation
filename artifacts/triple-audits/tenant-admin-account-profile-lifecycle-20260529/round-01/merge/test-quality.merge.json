@@ -1,0 +1,93 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/tenant-admin-account-profile-lifecycle-20260529/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Block renewed approval until the TODO/package tightens the test plan for force-delete coverage, repair-command regression coverage, and CI-equivalent real-backend validation gates."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-61C38C03",
+      "severity": "high",
+      "title": "delete and forceDelete need explicit last-profile regression coverage.",
+      "rationale": "The package states both delete and forceDelete lack last-profile guards, but the execution plan only calls out a failing feature test for direct deletion and aggregate account delete.",
+      "suggested_action": "Require explicit regression tests for both delete() and forceDelete() last-profile rejection, plus aggregate account deletion proving the intended bypass remains valid.",
+      "reviewer_labels": [
+        "test-quality"
+      ],
+      "source_finding_ids": [
+        "TQ-01"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-3B7B4DEA",
+      "severity": "high",
+      "title": "Repair command/service needs fixture-backed tests for every policy branch.",
+      "rationale": "D-04 defines a nuanced repair policy with delete, restore, and skip branches, but the plan only says to add a command and run dry-run/execute locally.",
+      "suggested_action": "Require backend tests for dry-run versus execute parity, known test-seed aggregate deletion, safe restore, ambiguous skip/report, missing profile type skip/report, and post-run zero-invalid-row assertion.",
+      "reviewer_labels": [
+        "test-quality"
+      ],
+      "source_finding_ids": [
+        "TQ-02"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-BCD31D67",
+      "severity": "high",
+      "title": "CI-equivalent real-backend validation gates are too loose.",
+      "rationale": "The plan says to run focused Laravel tests and targeted Playwright mutation shard where feasible, but does not define exact commands, pass criteria, or blocked handling if Playwright cannot run.",
+      "suggested_action": "Replace where-feasible wording with required validation gates: exact Laravel targets, exact Playwright mutation specs or documented blocker, cleanup source-scan criteria, and post-validation backend invariant query proving no live account lacks an active profile.",
+      "reviewer_labels": [
+        "test-quality"
+      ],
+      "source_finding_ids": [
+        "TQ-03"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-52AC5F86",
+      "severity": "medium",
+      "title": "Mutation rejection assertions need persisted-state checks.",
+      "rationale": "The planned direct-delete regression test is described only at behavior level and could assert only an error response.",
+      "suggested_action": "Assert response status/error, profile remains active, account remains live, active-profile count is unchanged, and multi-profile deletion still behaves as intended.",
+      "reviewer_labels": [
+        "test-quality"
+      ],
+      "source_finding_ids": [
+        "TQ-04"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}
