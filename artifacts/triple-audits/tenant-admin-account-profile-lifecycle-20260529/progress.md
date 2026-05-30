@@ -47,4 +47,3 @@
 
 ## Exact Next Step
 Update the bounded package with this resolution/adjudication record, then open the next round with `next-round`.
-

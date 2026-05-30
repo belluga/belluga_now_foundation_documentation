@@ -43,4 +43,3 @@ Bounded critique with performance focus. Treat performance and operational fit a
 
 ## Result Contract
 Each reviewer should answer in JSON compatible with `schemas/subagent_review_result.schema.json`.
-

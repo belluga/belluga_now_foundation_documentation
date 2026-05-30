@@ -43,4 +43,3 @@ Round 03 pre-approval critique after linked-data and forceDelete gate fixes
 
 ## Result Contract
 Each reviewer should answer in JSON compatible with `schemas/subagent_review_result.schema.json`.
-

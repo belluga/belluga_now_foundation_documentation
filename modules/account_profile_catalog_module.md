@@ -1,7 +1,7 @@
 # Documentation: Account Profile Catalog Module
 
-**Version:** 1.0  
-**Date:** February 28, 2025  
+**Version:** 1.0
+**Date:** February 28, 2025
 **Authors:** Delphi (Belluga Co-Engineering)
 
 **Authority note (2026-04-18):** this document is currently the authority for tenant-public account-profile catalog/detail/discovery contracts. The deferred `offer` concern should be read as a planned capability, not as a separate current runtime authority; whether that capability later stays here or is promoted to its own module is an implementation-time decision.
@@ -161,8 +161,8 @@ Aggregated dashboard data remains a future authenticated workspace-facing read c
 
 ### 4.1 Tenant-Public Discovery Listing Contract
 
-**EnvironmentType:** `tenant`  
-**Main scope:** `tenant_public`  
+**EnvironmentType:** `tenant`
+**Main scope:** `tenant_public`
 **Subscope:** `n/a`
 
 | Route | Host Context | EnvironmentType | Main Scope | Subscope | Guard/Identity |

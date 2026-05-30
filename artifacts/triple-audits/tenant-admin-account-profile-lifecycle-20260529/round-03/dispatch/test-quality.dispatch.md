@@ -43,4 +43,3 @@ Bounded test-quality audit. Treat regression protection, assertion effectiveness
 
 ## Result Contract
 Each reviewer should answer in JSON compatible with `schemas/subagent_review_result.schema.json`.
-

@@ -43,4 +43,3 @@ Bounded critique with elegance focus. Treat elegance and structural soundness as
 
 ## Result Contract
 Each reviewer should answer in JSON compatible with `schemas/subagent_review_result.schema.json`.
-

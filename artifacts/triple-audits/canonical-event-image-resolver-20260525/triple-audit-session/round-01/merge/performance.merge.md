@@ -40,4 +40,3 @@
 
 ## Exact Next Step
 Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.
-

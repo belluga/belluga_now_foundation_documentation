@@ -43,4 +43,3 @@ Pre-approval critique for tenant-admin account/profile lifecycle integrity TODO
 
 ## Result Contract
 Each reviewer should answer in JSON compatible with `schemas/subagent_review_result.schema.json`.
-

@@ -1,7 +1,7 @@
 # Documentation: Tenant Administration Module
 
-**Version:** 0.2 (Active Canonical Module)  
-**Date:** April 12, 2026  
+**Version:** 0.2 (Active Canonical Module)
+**Date:** April 12, 2026
 **Authors:** Delphi (Belluga Co-Engineering)
 
 ## 1. Purpose

@@ -36,4 +36,3 @@
 
 ## Exact Next Step
 Prepare a contradiction note, run the follow-up no-context challenge if needed, adjudicate the conflict explicitly, record the resolution with `record-resolution --status resolved`, then open the next round.
-

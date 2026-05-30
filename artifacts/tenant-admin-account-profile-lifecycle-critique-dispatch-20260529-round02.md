@@ -43,4 +43,3 @@ Round 02 pre-approval critique after audit hardening for tenant-admin account/pr
 
 ## Result Contract
 Each reviewer should answer in JSON compatible with `schemas/subagent_review_result.schema.json`.
-
