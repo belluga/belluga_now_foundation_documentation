@@ -96,7 +96,7 @@ For future POI delta adoption, a persistent SSE connection may be used. The back
 Filtering is server-query driven (`categories`, `source`, `types`, `taxonomy`, `tags`, `search`, `max_distance_meters`) and controlled by controller-owned state.
 
 **FAB filters (current Flutter behavior):**
-- FAB category actions are built dynamically from `/api/v1/map/filters` categories (`label` + optional `image_uri`), including tenant-admin decoration via `settings.map_ui.filters`.
+- FAB category actions are built dynamically from `/api/v1/map/filters` categories (`label` + optional `image_uri`), including tenant-admin decoration via `settings.discovery_filters.surfaces.public_map.primary.filters`.
 - Each category can ship a normalized backend `query` payload (`source`, `types[]`, `categories[]`, `taxonomy[]`, `tags[]`); tapping a FAB applies this payload directly.
 - If a category has no explicit query payload, the fallback behavior applies category key filtering (`categories=[key]`).
 - Tapping an already-active FAB clears filters (toggle-off behavior).
@@ -294,7 +294,7 @@ Response shape (example):
     -   Response fields: `ref_type`, `ref_id`, `ref_slug`, `ref_path` (`/{ref_type}/{ref_slug}`), `title`, `subtitle?`, `category`, `location`, `distance_meters`, `is_happening_now`, `updated_at`, `avatar_url?`, `cover_url?`, `visual?`, `badge?`, `time_start?`, `time_end?`, plus `tags[]`, display-ready `taxonomy_terms[]` (`{type, value, name, taxonomy_name, label?}`), and event `occurrence_facets[]` with read-time `is_happening_now` freshness.
 3.  **Filter Discovery Endpoint:** `GET /api/v1/map/filters`
     -   Returns all available categories and their associated tags to dynamically build the filter UI.
-    -   Category payload can be decorated by `settings.map_ui.filters` (tenant-admin managed):
+    -   Category payload is decorated by `settings.discovery_filters.surfaces.public_map.primary.filters` (tenant-admin managed); legacy persisted `settings.map_ui.filters` is compatibility fallback only when no canonical public Map surface is configured:
         - `label` override per key;
         - optional `image_uri`;
         - optional marker override (`override_marker`, `marker_override.mode`, `marker_override.icon`, `marker_override.color`, `marker_override.image_uri`), where `marker_override.color` also applies to image-mode overrides;

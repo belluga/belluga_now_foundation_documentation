@@ -252,9 +252,9 @@
 - `profile_types`: Tenant profile type registry entries used to drive profile UI, favorites, and inviteable-surface eligibility.
 - `settings.map_ui.radius.default_km`: Default radius for map/agenda filters (km).
 - `settings.map_ui.radius.max_km`: Maximum radius bound for map/agenda filters (km).
-- `settings.map_ui.filters[]`: Ordered map filter catalog used by tenant-admin and map filter discovery payload decoration.
+- `settings.map_ui.filters[]`: Derived environment compatibility payload for public Map filters. The editable source of truth is `settings.discovery_filters.surfaces.public_map.primary.filters[]`.
 - `settings.map_ui.filters[].key`: Stable category key aligned with `/map/filters.categories[].key`.
-- `settings.map_ui.filters[].label`: Tenant-facing display label override for the filter key.
+- `settings.map_ui.filters[].label`: Tenant-facing display label from the canonical public Map discovery-filter surface.
 - `settings.map_ui.filters[].image_uri`: Optional image URL rendered in map filter button surfaces.
 
 **Branding assets:** use default paths `GET /logo-light.png`, `/logo-dark.png`, `/icon-light.png`, `/icon-dark.png`. These file-like URLs are backend-owned tenant-aware routes, not bundle-local static assets, so ingress must route them to Laravel before any local-file fallback.
@@ -1732,10 +1732,10 @@ Not returned by `/agenda` and `/events/{event_id}`:
 ```
 **Field Definitions**
 - `categories[].key`: `culture`, `beach`, `nature`, `historic`, `restaurant`.
-- `categories[].label`: tenant-facing label; when `settings.map_ui.filters` defines the key, the configured label overrides fallback label.
+- `categories[].label`: tenant-facing label from `settings.discovery_filters.surfaces.public_map.primary.filters`; legacy persisted `settings.map_ui.filters` is compatibility fallback only when no canonical public Map surface is configured.
 - `categories[].image_uri`: optional tenant-configured image URL for map filter button surfaces.
 - `categories[].query`: normalized backend filter payload used when the category is selected (includes `source`, `types[]`, `categories[]`, `taxonomy[]`, `tags[]` as applicable).
-- `categories[]` ordering: backend mirrors `settings.map_ui.filters` order and includes configured entries even when `count = 0`.
+- `categories[]` ordering: backend mirrors `settings.discovery_filters.surfaces.public_map.primary.filters` order and includes configured entries even when `count = 0`.
 - `taxonomy_terms[].type`: taxonomy group slug (e.g., `cuisine`, `music_genre`, `vibe`).
 
 ---

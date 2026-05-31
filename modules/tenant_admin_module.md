@@ -205,11 +205,12 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with 
 
 - `/admin/settings` is the **Settings Hub** entrypoint.
 - Dedicated settings routes:
-  - `/admin/settings/local-preferences` → local preferences (`map_ui.radius` bounds + `map_ui.default_origin` fallback seed + `map_ui.filters` catalog + theme)
+  - `/admin/settings/local-preferences` → local preferences (`map_ui.radius` bounds + `map_ui.default_origin` fallback seed + theme)
   - `/admin/settings/visual-identity` → branding/visual identity
   - `/admin/settings/technical-integrations` → app links + firebase/push/telemetry + resend email delivery + outbound WhatsApp/OTP webhook delivery
   - `/admin/settings/domains` → tenant web-domain management (active list/create/delete; deleted-domain lifecycle stays outside the current settings read flow)
   - `/admin/settings/environment-snapshot` → read-only environment diagnostics
+- The Settings Hub exposes a `Filtros` entry that navigates to the canonical discovery-filter surface list at `/admin/filters`; map filter editing continues through `/admin/filters/surface?surface=public_map.primary` and persists `settings.discovery_filters.surfaces.public_map.primary.filters[]`.
 - The settings controller remains the state owner; each settings screen consumes only the relevant state slices and actions.
 - `/admin/settings/visual-identity` is the canonical owner of tenant runtime branding identity in V1:
   - editing `Nome do tenant` persists the canonical tenant record used by `/api/v1/environment` and `manifest.json`;
@@ -1816,9 +1817,9 @@ Proxy an external image URL and return raw image bytes for client-side ingestion
 - Blocks `localhost`, private IPs, and reserved IP ranges (SSRF guardrail)
 
 ### `POST /admin/api/v1/media/map-filter-image`
-Upload and persist a tenant-scoped image asset for `map_ui.filters[].image_uri`.
+Upload and persist a tenant-scoped image asset for public Map discovery-filter image fields.
 
-**Purpose:** Preserve the same upload/crop ingestion pattern used by tenant-admin media flows while storing a stable URL that can be referenced by map filter catalog entries.
+**Purpose:** Preserve the same upload/crop ingestion pattern used by tenant-admin media flows while storing a stable URL that can be referenced by `discovery_filters.surfaces.public_map.primary.filters[]` entries.
 
 **Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `account-users:create,account-users:update`
 
