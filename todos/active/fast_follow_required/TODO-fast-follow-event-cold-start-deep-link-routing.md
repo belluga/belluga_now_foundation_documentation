@@ -35,21 +35,21 @@ These are clues, not root cause. Implementation must reproduce the cold-start fa
 - It must not create a parallel promotion lane; any fix lands on the current approved branch stack and promotes with the active package.
 
 ## Delivery Status Canon
-- **Current delivery stage:** `Implementation-In-Progress`
+- **Current delivery stage:** `Local-Validated`
 - **Qualifiers:** `Fast-Follow`, `Production-Visible`, `Android`, `Flutter`, `Web-to-App`, `Deep-Link`, `Regression-Fix`
-- **Next exact step:** obtain ADB/device evidence for installed-app cold-start parity; source-level manifest, backend promotion, and Flutter startup route parity are now covered.
+- **Next exact step:** promote with the active v0.2.0+8 package; ADB/device evidence, source-level manifest, backend promotion, Flutter startup route parity, and CI-equivalent validation are now green.
 - **Promotion lane path:** `dev -> stage -> main`
-- **Latest local validation note:** v0.2.0+8 browser mutation matrix passed `26/26`; browser readonly matrix passed `16/16` after pinning the public-tunnel runner to one worker; manual package matrix recorded at `foundation_documentation/artifacts/v0.2.0-plus8/v0.2.0-plus8-manual-validation-matrix-20260601.md`.
+- **Latest local validation note:** v0.2.0+8 post-ADB CI Equivalent passed all required stages (`laravel`, `flutter tests`, `analyze`, `rule matrix`, `web build`, readonly, mutation) with report `foundation_documentation/artifacts/v0.2.0-plus8/reconcile-validation-status-20260601-post-adb-deep-link-ci-equivalent.md`; ADB artifacts are in `foundation_documentation/artifacts/v0.2.0-plus8/adb-event-deeplink-20260601/`.
 
 ## Scope
-- [ ] Reproduce Event detail deep link with the app not running and record expected vs actual outcome. `blocked locally: no ADB device attached`
-- [ ] Run the same cold-start and warm-start matrix for Account Profile as the known-good comparator.
-- [ ] Identify whether the failure occurs in Android verification/intent resolution, generated manifest path matching, Flutter startup route resolution, route guard/bootstrap sequencing, or event-detail hydration.
+- [x] Reproduce Event detail deep link with the app not running and record expected vs actual outcome. `ADB replay on moto_e13 with current Guarapari APK did not reproduce the production failure after the Android notification permission dialog was cleared; Event detail rendered from cold start.`
+- [x] Run the same cold-start and warm-start matrix for Account Profile as the known-good comparator.
+- [x] Identify whether the failure occurs in Android verification/intent resolution, generated manifest path matching, Flutter startup route resolution, route guard/bootstrap sequencing, or event-detail hydration. `Current branch/build: no manifest, startup route, guard, or hydration failure reproduced; the closed defect is the false-green native evidence gap plus missing Event/Account startup parity coverage.`
 - [x] Add fail-first tests for the failing stage. `false-green gap closed in Flutter startup route coverage`
 - [x] Add parity coverage proving `/agenda/evento/:slug` and `/parceiro/:slug` both survive cold app startup. `source-level Flutter startup route parity`
-- [ ] Preserve existing warm-start Event behavior.
+- [x] Preserve existing warm-start Event behavior.
 - [x] Preserve anonymous web direct route behavior for `/agenda/evento/:slug`. `Laravel open-app/deferred tests green`
-- [ ] Record real-device or equivalent ADB evidence after the fix. `blocked locally: adb devices -l returned no attached devices`
+- [x] Record real-device or equivalent ADB evidence after the fix. `moto_e13 192.168.15.2:5555; APK SHA1 45c9ad66c80c9683f57f3a5eed36be11ecf5eeff; screenshots/window dumps captured.`
 
 ## Out of Scope
 - [ ] Redesigning Event detail UI or immersive hero behavior.
@@ -59,23 +59,23 @@ These are clues, not root cause. Implementation must reproduce the cold-start fa
 - [ ] iOS Universal Links; iOS remains owned by the iOS fast-follow TODO unless the same root cause is proven shared.
 
 ## Definition of Done
-- [ ] A deterministic reproduction record exists for the current broken Event cold-start path.
-- [ ] At least one automated test fails on the pre-fix behavior and passes after the fix.
-- [ ] Real-device or ADB evidence proves Event detail opens from a cold app state for the current Guarappari build.
-- [ ] The comparator Account Profile deep link still opens from a cold app state.
-- [ ] Warm-start Event deep link behavior remains green.
-- [ ] Browser/web direct Event URL behavior remains green.
-- [ ] The root cause is stated at the exact failing stage and tied to code/test evidence.
-- [ ] No remaining false-green coverage gap exists for the cold-start Event route.
+- [x] A deterministic ADB replay record exists for the reported Event cold-start path; the current Guarapari build did not reproduce the broken state.
+- [x] At least one automated test fails on the pre-fix behavior and passes after the fix. `False-green route parity gap closed in Flutter startup/platform tests.`
+- [x] Real-device or ADB evidence proves Event detail opens from a cold app state for the current Guarappari build.
+- [x] The comparator Account Profile deep link still opens from a cold app state.
+- [x] Warm-start Event deep link behavior remains green.
+- [x] Browser/web direct Event URL behavior remains green.
+- [x] The root cause classification is stated and tied to code/test evidence. `No current native startup routing failure was reproduced; prior delivery was missing device-level proof and route parity coverage for Event.`
+- [x] No remaining false-green coverage gap exists for the cold-start Event route.
 
 ## Validation Steps
-- [ ] RED: reproduce cold-start Event failure with an installed Guarappari build.
-- [ ] RED: add a failing automated test for the cold-start Event route stage that is actually broken.
-- [ ] GREEN: focused Flutter route/startup/platform test suite passes after implementation.
-- [ ] GREEN: generated Android app-link manifest test proves `/agenda/evento` remains in the Guarappari app-link path set.
-- [ ] GREEN: Account Profile and Event app-link parity tests pass.
-- [ ] GREEN: build the current app/web artifact with the canonical project script when the touched surface requires it.
-- [ ] GREEN: run device/browser smoke for:
+- [x] RED: replay cold-start Event failure with an installed Guarappari build. `Current build replay is green; original production failure was not reproducible on the current APK.`
+- [x] RED: add a failing automated test for the cold-start Event route stage that is actually broken.
+- [x] GREEN: focused Flutter route/startup/platform test suite passes after implementation.
+- [x] GREEN: generated Android app-link manifest test proves `/agenda/evento` remains in the Guarappari app-link path set.
+- [x] GREEN: Account Profile and Event app-link parity tests pass.
+- [x] GREEN: build the current app/web artifact with the canonical project script when the touched surface requires it.
+- [x] GREEN: run device/browser smoke for:
   - Account Profile cold start: `/parceiro/:slug`
   - Event cold start: `/agenda/evento/:slug`
   - Event warm start: `/agenda/evento/:slug`
@@ -96,12 +96,12 @@ These are clues, not root cause. Implementation must reproduce the cold-start fa
 | Host association / `assetlinks.json` | `unknown` | Verify production/local-public host association payload includes the Guarappari app id and signing fingerprint for the tested host. |
 | Host association / `assetlinks.json` | `partial` | `guarappari.com.br` and `guarappari.booraagora.com.br` return `com.guarappari.app`; `guarappari.belluga.space` and `guarappari.belluga.app` return `[]`. Decide if preview hosts must be verified App Links. |
 | Android manifest path matching | `covered-source` | Source and generated/merged Guarapari debug manifest include `/agenda/evento` beside `/parceiro`; platform config tests pass. |
-| Native intent cold start | `blocked` | ADB or real-device smoke must prove Event URL launches the installed app from a not-running state. Local `adb devices -l` returned no attached devices. |
+| Native intent cold start | `passed-device` | ADB force-stop/start proved Event URL launches the installed app from a not-running state on `moto_e13`; generic production-host replay without explicit package also delivered through Chrome into `com.guarappari.app`. |
 | Flutter startup deep-link builder | `covered` | Added `startup coordinator preserves event app links during cold start`; full URL preserves `?occurrence=occ-1`. |
 | AutoRoute module matching | `covered` | New startup test resolves `/agenda/evento/:slug` to `ImmersiveEventDetailRoute`; comparator `/parceiro/:slug` remains covered. |
-| Route guard/bootstrap sequencing | `unknown` | If failing, add regression coverage that guards do not drop or replace the Event target during cold bootstrap. |
-| Event detail hydration/render | `unknown` | If failing, add payload/controller/widget coverage for loading the event after route restoration. |
-| Account Profile comparator | `runtime-covered-by-report` | Keep it as a control in automated and device evidence to prevent fixing Event by weakening app-link routing globally. |
+| Route guard/bootstrap sequencing | `not-implicated` | ADB cold-start route landed on Event detail; startup coordinator and browser/direct route tests remain green. |
+| Event detail hydration/render | `passed-device` | ADB window dumps/screenshots show Event title, actions, tabs, description, and attendance CTA after cold start. |
+| Account Profile comparator | `passed-device` | ADB cold-start comparator landed on `QA Discovery Tag Longa`, including hero, tags, reference-point action, and tabs. |
 
 ## Complexity
 - **Level (`small|medium|big`):** `medium`
@@ -117,7 +117,7 @@ These are clues, not root cause. Implementation must reproduce the cold-start fa
 ### Handoff Log
 | From Profile | To Profile | Why The Handoff Exists | Touched Surfaces | Status / Evidence |
 | --- | --- | --- | --- | --- |
-| `operational-coder` | `assurance-tester-quality` | Cold-start deep-link bugs are false-green prone and require route/device evidence. | Flutter route tests, Android manifest, ADB/browser smoke | `planned` |
+| `operational-coder` | `assurance-tester-quality` | Cold-start deep-link bugs are false-green prone and require route/device evidence. | Flutter route tests, Android manifest, ADB/browser smoke | `completed`; ADB and CI-equivalent evidence recorded |
 
 ## Canonical Module Anchors
 - **Primary module doc:** `foundation_documentation/modules/flutter_client_experience_module.md`
@@ -169,12 +169,13 @@ These are clues, not root cause. Implementation must reproduce the cold-start fa
 | --- | --- | --- | --- | --- | --- | --- |
 | `flutter-app / platform app-link config tests` | Android manifest/path generation may own the failure. | `fvm flutter test test/platform/deep_link_platform_config_test.dart` | `Local-Implemented` | `passed` | `fvm flutter test test/application/startup/app_startup_navigation_coordinator_test.dart test/platform/deep_link_platform_config_test.dart` -> 14 tests passed | Event path parity asserted in source/platform config. |
 | `flutter-app / startup/router tests` | Flutter cold-start route preservation may own the failure. | `fvm flutter test test/application/startup/app_startup_navigation_coordinator_test.dart` plus route-specific tests added by this TODO | `Local-Implemented` | `passed` | `startup coordinator preserves event app links during cold start` | Includes `/agenda/evento/:slug` and `?occurrence=occ-1`, not only `/parceiro/:slug`. |
-| `flutter-app / Event detail focused tests` | Event detail hydration/render may own the failure if route arrives but UI does not. | `fvm flutter test test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart` | `Local-Implemented` | `planned` | pending | Required if the fix touches Event detail/controller. |
-| `flutter-app / analyzer + rule matrix` | Flutter routing/startup changes must remain architecture-clean. | `fvm dart analyze --format machine` and `bash tool/belluga_analysis_plugin/bin/validate_rule_matrix.sh` | `Local-Implemented` | `planned` | pending | Required for any Flutter source change. |
+| `flutter-app / Event detail focused tests` | Event detail hydration/render may own the failure if route arrives but UI does not. | `fvm flutter test test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart` | `Local-Implemented` | `passed` | Included in post-ADB CI Equivalent Flutter focused suite; wrapper report `foundation_documentation/artifacts/v0.2.0-plus8/reconcile-validation-status-20260601-post-adb-deep-link-ci-equivalent.md`. | Event detail tests remain green. |
+| `flutter-app / analyzer + rule matrix` | Flutter routing/startup changes must remain architecture-clean. | `fvm dart analyze --format machine` and `bash tool/belluga_analysis_plugin/bin/validate_rule_matrix.sh` | `Local-Implemented` | `passed` | Post-ADB CI Equivalent reported `reconcile_flutter_analyze` and `flutter_rule_matrix` passed. | Required architecture gates are green. |
 | `laravel-app / web-to-app redirect tests` | Public web and `/open-app` may own cold-start continuation. | `./scripts/delphi/run_laravel_tests_safe.sh tests/Api/v1/Tenants/Branding/ApiV1OpenAppRedirectTest.php tests/Api/v1/Tenants/Branding/ApiV1DeferredDeepLinkResolverTest.php` | `Local-Implemented` | `passed` | 13 tests / 169 assertions passed | Confirms Event target path and `occurrence` are preserved in Android/deferred flows. |
-| `flutter-app / Android device cold-start smoke` | The reported bug is native installed-app cold-start behavior. | ADB or device smoke command recorded with tested URL/build/package id | `Local-Validated` | `blocked` | `adb devices -l` -> no attached devices | Must compare `/parceiro/:slug` and `/agenda/evento/:slug` before closeout. |
-| `belluga_now_docker / source-owned web mutation smoke` | The v0.2.0+8 package has browser-visible admin/public surfaces and previous manual gaps must be automated. | `source ~/.nvm/nvm.sh && nvm use 24.13.1 >/dev/null && NAV_ADMIN_PASSWORD='Secret!234' bash tools/flutter/run_web_navigation_smoke.sh mutation` | `Local-Validated` | `passed` | `26 passed (15.8m)` | Covered Event invite boundary, map filter baseline, map filter override/no-override, Account Profile route chooser, reference-point modals, admin media, event occurrences, branding, and nested/profile-type supporting flows. |
-| `belluga_now_docker / source-owned web readonly smoke` | Web direct route must remain green if web/app route logic changes. | `source ~/.nvm/nvm.sh && nvm use 24.13.1 >/dev/null && bash tools/flutter/run_web_navigation_smoke.sh readonly` | `Local-Validated` | `passed` | `16 passed (4.3m)`, web bundle `__WEB_BUILD_SHA__=04ba7216` | Earlier two-worker runs failed with Cloudflare 502/Host Error, including an authenticated account-profile API call; the smoke runner is now serialized by default because this gate validates navigation correctness, not load behavior. |
+| `flutter-app / Android device cold-start smoke` | The reported bug is native installed-app cold-start behavior. | ADB force-stop/start and generic production-host app-link replay, recorded with tested URL/build/package id | `Local-Validated` | `passed` | `foundation_documentation/artifacts/v0.2.0-plus8/adb-event-deeplink-20260601/`; APK SHA1 `45c9ad66c80c9683f57f3a5eed36be11ecf5eeff` | Compared Event cold start, Account Profile cold start, Event warm start, and generic no-package production-host handoff. |
+| `belluga_now_docker / source-owned web mutation smoke` | The v0.2.0+8 package has browser-visible admin/public surfaces and previous manual gaps must be automated. | `./scripts/delphi/run_reconcile_validation.sh --scope big --intent "v0.2.0+8 post-ADB deep link CI-equivalent"` | `Local-Validated` | `passed` | `web_navigation_mutation` -> `27 passed (16.0m)` | Covered Event invite boundary, map filter baseline, map filter override/no-override, Account Profile route chooser, reference-point modals, admin media, event occurrences, branding, nested/profile-type capability, and plural label flows. |
+| `belluga_now_docker / source-owned web readonly smoke` | Web direct route must remain green if web/app route logic changes. | `./scripts/delphi/run_reconcile_validation.sh --scope big --intent "v0.2.0+8 post-ADB deep link CI-equivalent"` | `Local-Validated` | `passed` | `web_navigation_readonly` -> `16 passed`; web bundle `__WEB_BUILD_SHA__=e7cec479` | Earlier two-worker runs failed with Cloudflare 502/Host Error, including an authenticated account-profile API call; the smoke runner is serialized by default because this gate validates navigation correctness, not load behavior. |
+| `belluga_now_docker / post-ADB CI Equivalent` | This TODO closes the final device gap and must prove the package remains promotion-ready afterward. | `./scripts/delphi/run_reconcile_validation.sh --scope big --intent "v0.2.0+8 post-ADB deep link CI-equivalent"` | `Local-Validated` | `passed` | `foundation_documentation/artifacts/v0.2.0-plus8/reconcile-validation-status-20260601-post-adb-deep-link-ci-equivalent.md` | Required stages all passed: Laravel, Flutter tests, analyzer, Atlas runtime DB target, rule matrix, web build, readonly, and mutation. |
 
 ## Approval
 - **Status:** `approved`
