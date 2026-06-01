@@ -195,7 +195,8 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with 
 
 ### 3.5.3 Account Profile Nested Group Authoring
 
-- Tenant-admin Account Profile create/edit surfaces expose `Abas de contas vinculadas` for custom nested groups such as `Parceiros`, `Patrocinadores`, `Apoiadores`, or `Equipe`.
+- Tenant-admin Account Profile create/edit surfaces expose `Abas de contas vinculadas` only when the selected Account Profile type has `capabilities.has_nested_profile_groups=true`. Types without this capability must hide the nested-group editor and must not submit a non-empty `nested_profile_groups` payload.
+- Tenant-admin Account Profile type create/edit exposes the `Abas de contas vinculadas` capability switch under the type capability set, so the operator explicitly chooses which profile types can author custom nested groups such as `Parceiros`, `Patrocinadores`, `Apoiadores`, or `Equipe`.
 - The operator creates a group, edits the group label, reorders/removes groups, and selects linked Account Profiles from the tenant Account Profile catalog. The UI may label the picker as `Accounts`, but the persisted value is the Account Profile id.
 - Group label is the public tab title. Group order and member order are persisted. Empty groups remain editable in admin and are hidden on tenant-public profile detail.
 - Limits are fixed at max `12` groups per parent Account Profile and max `50` linked Account Profiles per group.
@@ -789,7 +790,8 @@ List profile type registry for the tenant.
       "capabilities": {
         "is_publicly_discoverable": true,
         "is_favoritable": true,
-        "is_poi_enabled": false
+        "is_poi_enabled": false,
+        "has_nested_profile_groups": false
       }
     }
   ]
@@ -815,7 +817,8 @@ Create a profile type registry entry (tenant admin).
   "capabilities": {
     "is_publicly_discoverable": true,
     "is_favoritable": true,
-    "is_poi_enabled": false
+    "is_poi_enabled": false,
+    "has_nested_profile_groups": false
   }
 }
 ```
@@ -839,7 +842,8 @@ Create a profile type registry entry (tenant admin).
     "capabilities": {
       "is_publicly_discoverable": true,
       "is_favoritable": true,
-      "is_poi_enabled": false
+      "is_poi_enabled": false,
+      "has_nested_profile_groups": false
     }
   }
 }
@@ -863,7 +867,8 @@ Update a profile type registry entry (tenant admin).
   "capabilities": {
     "is_publicly_discoverable": true,
     "is_favoritable": true,
-    "is_poi_enabled": false
+    "is_poi_enabled": false,
+    "has_nested_profile_groups": false
   }
 }
 ```
@@ -887,7 +892,8 @@ Update a profile type registry entry (tenant admin).
     "capabilities": {
       "is_publicly_discoverable": true,
       "is_favoritable": true,
-      "is_poi_enabled": false
+      "is_poi_enabled": false,
+      "has_nested_profile_groups": false
     }
   }
 }
@@ -1243,6 +1249,7 @@ Delete an event type registry entry (tenant admin).
 - `profile_type_registry.capabilities.is_publicly_discoverable` (bool): whether profiles of this type are eligible for tenant public discovery surfaces.
 - `profile_type_registry.capabilities.is_favoritable` (bool): whether the profile type can be favorited. This capability requires `is_publicly_discoverable=true`; admin UI must clear and disable favorites when public discovery is off.
 - `profile_type_registry.capabilities.is_poi_enabled` (bool): whether the profile type requires/participates in map POI location.
+- `profile_type_registry.capabilities.has_nested_profile_groups` (bool): whether Account Profiles of this type may author and expose bounded linked-account tab groups. Tenant-admin Account Profile forms must hide the nested-group editor when this capability is false, and backend writes must reject non-empty `nested_profile_groups` payloads for disabled types.
 - `map_poi_projection_impact.projection_count` (int): affected `map_pois` count shown in destructive confirmation before disabling POI capability.
 - `event_type_registry.visual` (object): canonical event-type visual contract used by tenant-admin and embedded event snapshots.
 - `event_type_registry.poi_visual` (object): compatibility mirror for legacy/read consumers; backend writes must converge on `visual`.
@@ -2517,7 +2524,7 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TAD-12` | Approved | Tenant-admin taxonomy selections write machine keys but read display snapshots (`type`, `value`, `name`, `taxonomy_name`, optional `label`) across account profiles, static assets, events, occurrences, and map filter catalogs. | Keeps admin forms stable and query-safe while eliminating slug display in admin readback/detail/list UI. | Sections `4`, `5` |
 | `TAD-13` | Approved | Tenant-admin event authoring keeps shared event fields first and manages occurrences as a date section. Single-occurrence forms keep inline date fields plus add-date affordance; multi-occurrence forms render occurrence cards and open occurrence editors for date/time, own related profiles, and Programação with optional item-level location Account Profile/Map POI references. | Extends the intentional first-occurrence baseline without turning shared event fields into per-occurrence overrides and keeps multi-date authoring operator-scannable. | Sections `4`, `5` |
 | `TAD-14` | Approved | Store-release tenant-configurable backend settings namespaces must have a visible tenant-admin consumer before the delivery is considered complete. `outbound_integrations` is owned by technical integrations and exposes WhatsApp plus OTP webhook/policy settings. | Prevents release-critical backend configuration from being registered without an operator surface to configure it. | Sections `3.6`, `4` (`PATCH /admin/api/v1/settings/values/outbound_integrations`) |
-| `TAD-15` | Approved | Tenant-admin Account Profile forms own nested group authoring as bounded custom public tabs, persisting linked Account Profile ids under `nested_profile_groups`. | Gives operators flexible Account Profile relationship tabs while preserving tenant scope, one-level grouping, and public Account Profile identity semantics. | Sections `3.5.3`, `4` (`GET/PATCH /admin/api/v1/account_profiles/{account_profile_id}`) |
+| `TAD-15` | Approved | Tenant-admin Account Profile forms own nested group authoring as bounded custom public tabs, persisting linked Account Profile ids under `nested_profile_groups`, but the editor is available only for profile types with `capabilities.has_nested_profile_groups=true`. | Gives operators flexible Account Profile relationship tabs while preserving tenant scope, one-level grouping, public Account Profile identity semantics, and type-level capability gating. | Sections `3.5.3`, `4` (`GET/PATCH /admin/api/v1/account_profiles/{account_profile_id}`, `POST/PATCH /admin/api/v1/account_profile_types`) |
 
 ## 6. Tactical TODO Promotion Ledger
 
