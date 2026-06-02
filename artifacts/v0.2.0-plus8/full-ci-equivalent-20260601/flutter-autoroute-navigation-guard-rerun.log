@@ -1,0 +1,5 @@
+
+Waiting for another flutter command to release the startup lock...
+00:00 +0: loading /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/architecture/autoroute_navigation_guardrail_test.dart
+00:00 +0: codebase uses AutoRoute navigation APIs instead of Navigator
+00:04 +1: All tests passed!

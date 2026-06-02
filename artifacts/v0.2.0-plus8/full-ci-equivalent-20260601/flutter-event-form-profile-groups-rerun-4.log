@@ -1,0 +1,45 @@
+
+00:00 +0: loading /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart
+00:00 +0: submits selected taxonomy terms on create
+00:06 +1: single occurrence edit exposes occurrence taxonomy without programming items
+00:06 +2: filters event taxonomy UI and submit payload by selected event type
+00:07 +3: edit flow keeps taxonomy UI visible when event type catalog omits allowed taxonomies
+00:08 +4: reloads taxonomy terms in one batch when event type changes
+00:08 +5: hides taxonomy section when selected event type allows none
+00:09 +6: renders empty state when allowed taxonomy has no terms
+00:09 +7: guards against duplicate create submit taps
+00:10 +8: clears optional end date from the first occurrence form
+00:11 +9: dirty event form asks before closing without saving
+00:11 +10: adds a second occurrence date before create submit
+00:12 +11: authors occurrence taxonomy overrides from the date editor
+00:13 +12: authors occurrence programming optional end time from the date editor
+00:14 +13: adds a second occurrence date before edit submit
+00:15 +14: editing unrelated event fields preserves occurrence-owned profiles and programming in update draft
+00:15 +15: authors occurrence scoped programming from occurrence participants without promoting event-level related profiles
+00:17 +16: removing an occurrence participant also removes it from occurrence programming links
+00:19 +17: edits occurrence programming item location in admin UI
+00:20 +18: programming location picker filters venues by search
+00:21 +19: single-occurrence root programming is preserved after adding a second date
+00:23 +20: multi-occurrence editor accumulates multiple programming items without occurrence save boundary
+00:24 +21: multi-occurrence editor accumulates programming items that add occurrence profiles
+00:25 +22: update multi-occurrence editor accumulates programming items without occurrence save boundary
+00:26 +23: update multi-occurrence editor preserves programming items after closing and reopening date
+00:27 +24: update event with three occurrences preserves programming items on the third date
+00:29 +25: update event with three occurrences preserves programming items when reusing an occurrence profile
+00:30 +26: update event occurrence sheet keeps unsaved programming item after dragging modal
+00:30 +27: update event programming item sheet keeps unsaved linked profile after dragging modal
+00:31 +28: update event occurrence sheet keeps unsaved programming item after layout metrics change
+00:31 +29: uses own-account endpoint when account slug is provided
+00:32 +30: online mode omits venue coordinates on submit
+00:32 +31: physical mode venue picker filters venues by search
+00:33 +32: submits without description text (content optional)
+00:34 +33: related account profile group selector keeps checkbox state canonical
+00:35 +34: shows explicit empty states when no host/related profile candidates
+00:35 +35: related account profile group selector filters loaded candidates after typing
+00:36 +36: adding a filtered related account profile keeps its summary visible on the form
+00:36 +37: adding a later-page related account profile keeps its summary visible on the form
+00:36 +38: editing preserves selected related account profile summaries after candidate preload completes
+00:37 +39: candidate preload failure keeps selected related account profile summaries visible
+00:37 +40: uses rich text editor for event description content
+00:37 +41: normalizes description content to the approved HTML subset before submit
+00:38 +42: All tests passed!

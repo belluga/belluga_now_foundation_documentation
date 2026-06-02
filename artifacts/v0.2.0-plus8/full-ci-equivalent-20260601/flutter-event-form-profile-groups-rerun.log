@@ -1,0 +1,103 @@
+
+00:00 +0: loading /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart
+00:00 +0: submits selected taxonomy terms on create
+00:07 +1: single occurrence edit exposes occurrence taxonomy without programming items
+00:09 +2: filters event taxonomy UI and submit payload by selected event type
+00:10 +3: edit flow keeps taxonomy UI visible when event type catalog omits allowed taxonomies
+00:11 +4: reloads taxonomy terms in one batch when event type changes
+00:12 +5: hides taxonomy section when selected event type allows none
+00:13 +6: renders empty state when allowed taxonomy has no terms
+00:14 +7: guards against duplicate create submit taps
+00:16 +8: clears optional end date from the first occurrence form
+00:17 +9: dirty event form asks before closing without saving
+00:18 +10: adds a second occurrence date before create submit
+00:20 +11: authors occurrence taxonomy overrides from the date editor
+00:21 +12: authors occurrence programming optional end time from the date editor
+00:22 +13: adds a second occurrence date before edit submit
+00:23 +14: editing unrelated event fields preserves occurrence-owned profiles and programming in update draft
+00:23 +15: authors occurrence scoped programming from occurrence participants without promoting event-level related profiles
+00:25 +16: removing an occurrence participant also removes it from occurrence programming links
+00:27 +17: edits occurrence programming item location in admin UI
+00:29 +18: programming location picker filters venues by search
+00:30 +19: single-occurrence root programming is preserved after adding a second date
+00:31 +20: multi-occurrence editor accumulates multiple programming items without occurrence save boundary
+00:33 +21: multi-occurrence editor accumulates programming items that add occurrence profiles
+00:34 +22: update multi-occurrence editor accumulates programming items without occurrence save boundary
+00:35 +23: update multi-occurrence editor preserves programming items after closing and reopening date
+00:36 +24: update event with three occurrences preserves programming items on the third date
+00:37 +25: update event with three occurrences preserves programming items when reusing an occurrence profile
+00:37 +26: update event occurrence sheet keeps unsaved programming item after dragging modal
+00:38 +27: update event programming item sheet keeps unsaved linked profile after dragging modal
+00:39 +28: update event occurrence sheet keeps unsaved programming item after layout metrics change
+00:39 +29: uses own-account endpoint when account slug is provided
+00:40 +30: online mode omits venue coordinates on submit
+00:40 +31: physical mode venue picker filters venues by search
+00:41 +32: submits without description text (content optional)
+00:42 +33: related account profile group selector keeps checkbox state canonical
+00:42 +34: shows explicit empty states when no host/related profile candidates
+00:43 +35: related account profile group selector filters loaded candidates after typing
+00:43 +36: adding a filtered related account profile keeps its summary visible on the form
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 2 widgets with text "Artist B": [
+            Text("Artist B", dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+            Text("Artist B", dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+          ]>
+   Which: is too many
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart:3170:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart line 3170
+The test description was:
+  adding a filtered related account profile keeps its summary visible on the form
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:46 +36 -1: adding a filtered related account profile keeps its summary visible on the form [E]
+  Test failed. See exception logs above.
+  The test description was: adding a filtered related account profile keeps its summary visible on the form
+  
+00:46 +36 -1: adding a later-page related account profile keeps its summary visible on the form
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 2 widgets with text "Legacy Artist Page 2 021": [
+            Text("Legacy Artist Page 2 021", dependencies: [DefaultSelectionStyle, DefaultTextStyle,
+MediaQuery]),
+            Text("Legacy Artist Page 2 021", dependencies: [DefaultSelectionStyle, DefaultTextStyle,
+MediaQuery]),
+          ]>
+   Which: is too many
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart:3226:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart line 3226
+The test description was:
+  adding a later-page related account profile keeps its summary visible on the form
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:48 +36 -2: adding a later-page related account profile keeps its summary visible on the form [E]
+  Test failed. See exception logs above.
+  The test description was: adding a later-page related account profile keeps its summary visible on the form
+  
+00:48 +36 -2: editing preserves selected related account profile summaries after candidate preload completes
+00:49 +37 -2: candidate preload failure keeps selected related account profile summaries visible
+00:49 +38 -2: uses rich text editor for event description content
+00:50 +39 -2: normalizes description content to the approved HTML subset before submit
+00:50 +40 -2: Some tests failed.

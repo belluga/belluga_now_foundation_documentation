@@ -1,0 +1,366 @@
+
+00:00 +0: loading /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dao/tenant_admin/tenant_admin_events_request_encoder_test.dart
+00:00 +0: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dao/tenant_admin/tenant_admin_events_request_encoder_test.dart: encodes selected related account profiles as minimal canonical event_parties payload
+00:00 +1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dao/tenant_admin/tenant_admin_events_request_encoder_test.dart: encodes profile groups and derives canonical event_parties from them
+00:00 +2: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dao/tenant_admin/tenant_admin_events_request_encoder_test.dart: encodes empty canonical event_parties payload when no related account profiles are selected
+00:00 +3: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dao/tenant_admin/tenant_admin_events_request_encoder_test.dart: encodes occurrence identity and explicit empty occurrence arrays for full-form clears
+00:00 +4: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dao/tenant_admin/tenant_admin_events_request_encoder_test.dart: encodes occurrence-owned profiles and programação place refs
+00:02 +5: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dto/schedule/event_dto_test.dart: parses agenda occurrence payload shape without throwing
+00:03 +6: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dto/schedule/event_dto_test.dart: uses occurrence_id as fallback id when event_id is missing
+00:03 +7: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dto/schedule/event_dto_test.dart: parses public profile groups for custom dynamic event tabs
+00:03 +8: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dto/schedule/event_dto_test.dart: preserves sanitized rich html content for public event rendering
+00:03 +9: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dto/schedule/event_dto_test.dart: derives latitude and longitude from location.geo when root keys are absent
+00:03 +10: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dto/schedule/event_dto_test.dart: maps live_now agenda payload shape from production-compatible contract
+00:03 +11: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dto/schedule/event_dto_test.dart: parses linked account profiles with taxonomy names for dynamic tabs
+00:03 +12: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dto/schedule/event_dto_test.dart: falls back linked account profile taxonomy labels to value
+00:03 +13: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dto/schedule/event_dto_test.dart: does not synthesize linked account profiles from artists or venue
+00:03 +14: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dto/schedule/event_dto_test.dart: accepts account-profile slug aliases in linked account profiles
+00:03 +15: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dto/schedule/event_dto_test.dart: throws when linked account profile slug is missing after enrichment
+00:03 +16: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dto/schedule/event_dto_test.dart: parses event detail occurrences and selected programming items
+00:04 +17: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dto/schedule/event_dto_test.dart: maps online occurrence location label into non-empty domain location
+00:07 +18: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: deleteEvent rethrows repository errors and updates error stream
+00:07 +19: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: loadEvents forwards default temporal filters to repository
+00:07 +20: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: loadEvents forwards specific date, venue, and related profile filters
+00:07 +21: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: loadEvents records repository errors when a filtered reload fails
+00:07 +22: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: clearEventEndAt clears the optional first occurrence end date
+00:07 +23: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: related account profile selection preserves order and supports reorder
+00:07 +24: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: upsertOccurrence keeps occurrence programming profiles out of event-level related selection
+00:07 +25: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: selectSpecificDateFilter expands temporal buckets and clearing restores defaults
+00:07 +26: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: resetEventFilters clears specific date, venue, related profile, and restores default temporal selection
+00:07 +27: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: toggleTemporalFilter keeps at least one bucket selected
+00:07 +28: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: event type taxonomy term loading ignores stale in-flight responses after empty transition
+00:07 +29: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: event type taxonomy term loading ignores stale in-flight responses after cache hit transition
+00:07 +30: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: account-scoped loadFormDependencies uses dedicated event types endpoint and account-profile candidate pages
+00:08 +31: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: loadFormDependencies hydrates default event type and terms in controller
+00:08 +32: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: occurrence taxonomy overrides are scoped to the selected event type
+00:08 +33: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: account-scoped submitCreate does not refresh tenant-admin events list
+00:08 +34: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: submitCreate ignores concurrent submission while loading
+00:08 +35: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: tenant scope change without landlord token skips admin events load
+00:08 +36: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: saveEventType sends null description when edit description is cleared
+00:08 +37: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: saveEventType delegates canonical visual mutation when requested
+00:08 +38: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: related account profile search is backend-driven, paginated, and resets on query change
+00:08 +39: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: inspectLegacyEventParties delegates to repository
+00:08 +40: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_events_controller_test.dart: repairLegacyEventParties delegates and reloads events
+00:48 +41: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart: (setUpAll)
+00:48 +41: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart: anonymous confirm presence redirects to login without persisting attendance
+00:56 +42: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: submits selected taxonomy terms on create
+00:58 +43: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: submits selected taxonomy terms on create
+00:59 +44: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: submits selected taxonomy terms on create
+01:01 +45: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: submits selected taxonomy terms on create
+01:02 +46: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: submits selected taxonomy terms on create
+01:03 +47: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: submits selected taxonomy terms on create
+01:05 +48: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: submits selected taxonomy terms on create
+01:05 +49: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: submits selected taxonomy terms on create
+01:06 +50: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: submits selected taxonomy terms on create
+01:07 +51: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: submits selected taxonomy terms on create
+01:08 +52: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: submits selected taxonomy terms on create
+01:10 +53: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: submits selected taxonomy terms on create
+01:11 +54: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: submits selected taxonomy terms on create
+01:13 +55: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: submits selected taxonomy terms on create
+01:14 +56: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: submits selected taxonomy terms on create
+01:15 +57: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart: horizontal swipe backward on the first Programação occurrence moves to the previous tab
+01:15 +58: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: single occurrence edit exposes occurrence taxonomy without programming items
+01:16 +59: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: single occurrence edit exposes occurrence taxonomy without programming items
+01:18 +60: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: single occurrence edit exposes occurrence taxonomy without programming items
+01:19 +61: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart: event detail replaces Line-up with dynamic profile category tabs and cards
+01:20 +62: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: filters event taxonomy UI and submit payload by selected event type
+01:21 +63: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: filters event taxonomy UI and submit payload by selected event type
+01:22 +64: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart: event hero compacts many linked profiles and opens first profile type tab
+01:22 +65: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: edit flow keeps taxonomy UI visible when event type catalog omits allowed taxonomies
+01:23 +66: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: edit flow keeps taxonomy UI visible when event type catalog omits allowed taxonomies
+01:24 +67: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart: event hero keeps three linked profiles expanded and opens first profile type tab
+01:24 +68: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: reloads taxonomy terms in one batch when event type changes
+01:25 +69: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: reloads taxonomy terms in one batch when event type changes
+01:27 +70: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: reloads taxonomy terms in one batch when event type changes
+01:27 +71: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart: event detail programming tab renders occurrence schedule
+01:28 +72: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: hides taxonomy section when selected event type allows none
+01:29 +73: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: hides taxonomy section when selected event type allows none
+01:29 +74: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart: event detail programming recenters the newly selected occurrence after tap
+01:29 +75: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: renders empty state when allowed taxonomy has no terms
+01:29 +76: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: renders empty state when allowed taxonomy has no terms
+01:29 +77: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: renders empty state when allowed taxonomy has no terms
+01:30 +78: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart: event detail programming renders large schedules progressively
+01:31 +79: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: guards against duplicate create submit taps
+01:32 +80: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: guards against duplicate create submit taps
+01:33 +81: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: guards against duplicate create submit taps
+01:35 +82: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: guards against duplicate create submit taps
+01:35 +83: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart: event detail programming profile chips ellipsize long labels
+01:35 +84: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: clears optional end date from the first occurrence form
+01:36 +85: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: clears optional end date from the first occurrence form
+01:36 +86: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: clears optional end date from the first occurrence form
+01:37 +87: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: clears optional end date from the first occurrence form
+01:38 +88: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart: event detail programming occurrence tap emits one selected-occurrence update even when route state rebuilds
+01:39 +89: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: dirty event form asks before closing without saving
+01:40 +90: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart: event detail programming keeps later occurrences visible after route rebuilds on a phone-width rail
+01:44 +91: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: adds a second occurrence date before create submit
+01:44 +92: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart: event detail programming tab shows empty state when selected date has no items
+01:45 +93: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: authors occurrence taxonomy overrides from the date editor
+01:45 +94: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: authors occurrence taxonomy overrides from the date editor
+01:46 +95: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: authors occurrence taxonomy overrides from the date editor
+01:46 +96: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: authors occurrence taxonomy overrides from the date editor
+01:46 +97: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: authors occurrence taxonomy overrides from the date editor
+01:47 +98: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: authors occurrence taxonomy overrides from the date editor
+01:47 +99: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: authors occurrence taxonomy overrides from the date editor
+01:47 +100: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_public/schedule/screens/immersive_event_detail/immersive_event_detail_screen_test.dart: event detail route launch prompts for reference point and persists checked policy
+01:48 +101: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: authors occurrence programming optional end time from the date editor
+01:49 +102: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: authors occurrence programming optional end time from the date editor
+01:50 +103: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: adds a second occurrence date before edit submit
+01:50 +104: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: editing unrelated event fields preserves occurrence-owned profiles and programming in update draft
+01:51 +105: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: authors occurrence scoped programming from occurrence participants without promoting event-level related profiles
+01:53 +106: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: removing an occurrence participant also removes it from occurrence programming links
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+The finder "Found 0 widgets with key [<'tenantAdminOccurrenceAddProfileButton'>]: []" (used in a
+call to "tap()") could not find any matching widgets.
+
+When the exception was thrown, this was the stack:
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2090:7)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1942:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1075:7)
+#3      main.<anonymous closure> (file:///home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart:1376:18)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  removing an occurrence participant also removes it from occurrence programming links
+════════════════════════════════════════════════════════════════════════════════════════════════════
+01:56 +106 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: removing an occurrence participant also removes it from occurrence programming links [E]
+  Test failed. See exception logs above.
+  The test description was: removing an occurrence participant also removes it from occurrence programming links
+  
+01:56 +106 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: edits occurrence programming item location in admin UI
+01:57 +107 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: programming location picker filters venues by search
+01:58 +108 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: single-occurrence root programming is preserved after adding a second date
+02:00 +109 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: multi-occurrence editor accumulates multiple programming items without occurrence save boundary
+02:01 +110 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: multi-occurrence editor accumulates programming items that add occurrence profiles
+02:03 +111 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: update multi-occurrence editor accumulates programming items without occurrence save boundary
+02:04 +112 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: update multi-occurrence editor preserves programming items after closing and reopening date
+02:05 +113 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: update event with three occurrences preserves programming items on the third date
+02:06 +114 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: update event with three occurrences preserves programming items when reusing an occurrence profile
+02:07 +115 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: update event occurrence sheet keeps unsaved programming item after dragging modal
+02:08 +116 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: update event programming item sheet keeps unsaved linked profile after dragging modal
+02:08 +117 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: update event occurrence sheet keeps unsaved programming item after layout metrics change
+02:09 +118 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: uses own-account endpoint when account slug is provided
+02:09 +119 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: online mode omits venue coordinates on submit
+02:10 +120 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: physical mode venue picker filters venues by search
+02:11 +121 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: submits without description text (content optional)
+02:12 +122 -1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: related account profile picker disables already selected profiles on subsequent open
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: No element
+
+When the exception was thrown, this was the stack:
+#0      Iterable.single (dart:core/iterable.dart:694:25)
+#1      WidgetController.element (package:flutter_test/src/controller.dart:883:30)
+#2      WidgetController.dragUntilVisible.<anonymous closure> (package:flutter_test/src/controller.dart:2475:38)
+<asynchronous suspension>
+#3      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#4      WidgetController.scrollUntilVisible.<anonymous closure> (package:flutter_test/src/controller.dart:2432:7)
+<asynchronous suspension>
+#5      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart:2970:5)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  related account profile picker disables already selected profiles on subsequent open
+════════════════════════════════════════════════════════════════════════════════════════════════════
+02:14 +122 -2: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: related account profile picker disables already selected profiles on subsequent open [E]
+  Test failed. See exception logs above.
+  The test description was: related account profile picker disables already selected profiles on subsequent open
+  
+02:14 +122 -2: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: shows explicit empty states when no host/related profile candidates
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: No element
+
+When the exception was thrown, this was the stack:
+#0      Iterable.single (dart:core/iterable.dart:694:25)
+#1      WidgetController.element (package:flutter_test/src/controller.dart:883:30)
+#2      WidgetController.dragUntilVisible.<anonymous closure> (package:flutter_test/src/controller.dart:2475:38)
+<asynchronous suspension>
+#3      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#4      WidgetController.scrollUntilVisible.<anonymous closure> (package:flutter_test/src/controller.dart:2432:7)
+<asynchronous suspension>
+#5      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart:3031:5)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  shows explicit empty states when no host/related profile candidates
+════════════════════════════════════════════════════════════════════════════════════════════════════
+02:16 +122 -3: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: shows explicit empty states when no host/related profile candidates [E]
+  Test failed. See exception logs above.
+  The test description was: shows explicit empty states when no host/related profile candidates
+  
+02:16 +122 -3: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: related account profile picker performs backend search after typing
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: No element
+
+When the exception was thrown, this was the stack:
+#0      Iterable.single (dart:core/iterable.dart:694:25)
+#1      WidgetController.element (package:flutter_test/src/controller.dart:883:30)
+#2      WidgetController.dragUntilVisible.<anonymous closure> (package:flutter_test/src/controller.dart:2475:38)
+<asynchronous suspension>
+#3      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#4      WidgetController.scrollUntilVisible.<anonymous closure> (package:flutter_test/src/controller.dart:2432:7)
+<asynchronous suspension>
+#5      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart:3078:5)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  related account profile picker performs backend search after typing
+════════════════════════════════════════════════════════════════════════════════════════════════════
+02:17 +122 -4: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: related account profile picker performs backend search after typing [E]
+  Test failed. See exception logs above.
+  The test description was: related account profile picker performs backend search after typing
+  
+02:17 +122 -4: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: adding a searched related account profile keeps its summary visible on the form
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: No element
+
+When the exception was thrown, this was the stack:
+#0      Iterable.single (dart:core/iterable.dart:694:25)
+#1      WidgetController.element (package:flutter_test/src/controller.dart:883:30)
+#2      WidgetController.dragUntilVisible.<anonymous closure> (package:flutter_test/src/controller.dart:2475:38)
+<asynchronous suspension>
+#3      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#4      WidgetController.scrollUntilVisible.<anonymous closure> (package:flutter_test/src/controller.dart:2432:7)
+<asynchronous suspension>
+#5      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart:3129:5)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  adding a searched related account profile keeps its summary visible on the form
+════════════════════════════════════════════════════════════════════════════════════════════════════
+02:20 +122 -5: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: adding a searched related account profile keeps its summary visible on the form [E]
+  Test failed. See exception logs above.
+  The test description was: adding a searched related account profile keeps its summary visible on the form
+  
+02:20 +122 -5: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: adding a later-page related account profile keeps its summary visible on the form
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: No element
+
+When the exception was thrown, this was the stack:
+#0      Iterable.single (dart:core/iterable.dart:694:25)
+#1      WidgetController.element (package:flutter_test/src/controller.dart:883:30)
+#2      WidgetController.dragUntilVisible.<anonymous closure> (package:flutter_test/src/controller.dart:2475:38)
+<asynchronous suspension>
+#3      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#4      WidgetController.scrollUntilVisible.<anonymous closure> (package:flutter_test/src/controller.dart:2432:7)
+<asynchronous suspension>
+#5      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart:3180:5)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  adding a later-page related account profile keeps its summary visible on the form
+════════════════════════════════════════════════════════════════════════════════════════════════════
+02:21 +122 -6: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: adding a later-page related account profile keeps its summary visible on the form [E]
+  Test failed. See exception logs above.
+  The test description was: adding a later-page related account profile keeps its summary visible on the form
+  
+02:21 +122 -6: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: editing preserves selected related account profile summaries after candidate preload completes
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Zulu Artist": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart:3274:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart line 3274
+The test description was:
+  editing preserves selected related account profile summaries after candidate preload completes
+════════════════════════════════════════════════════════════════════════════════════════════════════
+02:22 +122 -7: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: editing preserves selected related account profile summaries after candidate preload completes [E]
+  Test failed. See exception logs above.
+  The test description was: editing preserves selected related account profile summaries after candidate preload completes
+  
+02:22 +122 -7: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: candidate preload failure keeps selected related account profile summaries visible
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Zulu Artist": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart:3351:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart line 3351
+The test description was:
+  candidate preload failure keeps selected related account profile summaries visible
+════════════════════════════════════════════════════════════════════════════════════════════════════
+02:23 +122 -8: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: candidate preload failure keeps selected related account profile summaries visible [E]
+  Test failed. See exception logs above.
+  The test description was: candidate preload failure keeps selected related account profile summaries visible
+  
+02:23 +122 -8: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: uses rich text editor for event description content
+02:24 +123 -8: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart: normalizes description content to the approved HTML subset before submit
+02:24 +124 -8: Some tests failed.

@@ -1,0 +1,3 @@
+[validate_rule_matrix] 02:22:08 running analyze...
+[validate_rule_matrix] success: expected 58 lint codes were detected.
+[validate_rule_matrix] total distinct codes emitted: 59

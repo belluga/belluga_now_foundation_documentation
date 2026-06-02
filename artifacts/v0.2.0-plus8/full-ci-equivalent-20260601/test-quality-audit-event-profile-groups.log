@@ -1,0 +1,91 @@
+Test Quality Audit
+Repository: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker
+Outcome heuristic: medium
+
+Scan paths:
+  - /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/tools/flutter/web_app_tests
+
+Hard bypass markers:
+  - none
+
+Test-only support route usage:
+  - none
+
+Auth shortcut hints:
+  - none
+
+Status-only assertion hints:
+  - 295:  expect(response.status(), 'Account profile types must load.').toBe(200);
+  - 339:  ).toBe(201);
+  - 361:  expect(response.status(), 'Account onboarding must succeed.').toBe(201);
+  - 410:  expect(response.status(), 'APD detail event seed must succeed.').toBe(201);
+  - 429:  expect(response.status(), 'APD event type seed must succeed.').toBe(201);
+  - 335:  expect(response.status(), 'Event type seed must succeed.').toBe(201);
+  - 361:    .toBe(200);
+  - 411:  expect(response.status(), 'Rich-text event seed must succeed.').toBe(201);
+  - 456:      .toBe(200);
+  - 320:  ).toBe(200);
+  - 333:  expect(response.status(), 'Account profile types must load.').toBe(200);
+  - 378:  ).toBe(201);
+  - 400:    .toBe(201);
+  - 422:    expect(response.status(), `Admin events page ${page} must load.`).toBe(200);
+  - 445:  expect(response.status(), 'Admin event readback must succeed.').toBe(200);
+  - 538:  expect(response.status(), 'Share-code creation must succeed.').toBe(200);
+  - 553:  expect(response.status(), 'Share-code preview must succeed.').toBe(200);
+  - 571:    expect(response.status(), 'Public agenda lookup must succeed.').toBe(200);
+  - 177:  expect(createResponse.status(), `Taxonomy ${slug} must be created.`).toBe(201);
+  - 193:    ).toBe(201);
+  - 231:  expect(response.status(), `Event type ${slug} must be created.`).toBe(201);
+  - 283:  ).toBe(201);
+  - 628:  expect(response.status(), 'Event type seed must succeed.').toBe(201);
+  - 675:  expect(response.status(), `Tenant-admin ${type} candidates must load.`).toBe(200);
+  - 699:  expect(response.status(), 'Account profile types must load.').toBe(200);
+  - 740:    .toBe(201);
+  - 816:    .toBe(201);
+  - 1025:  ).toBe(201);
+  - 1125:    .toBe(201);
+  - 1189:    .toBe(201);
+  - 1274:    expect(response.status(), 'Public agenda occurrence lookup must succeed.').toBe(200);
+  - 1324:      .toBe(200);
+  - 246:  ).toBe(200);
+  - 256:    .toBe(200);
+  - 266:    .toBe(200);
+  - 276:    .toBe(200);
+  - 499:  expect(response.status(), 'Public environment payload must load.').toBe(200);
+  - 706:  expect(response.status(), `Taxonomy ${slug} must be created.`).toBe(201);
+  - 722:    ).toBe(201);
+  - 907:  expect(response.status(), `Event type ${slug} must be created.`).toBe(201);
+  - 1014:  ).toBe(201);
+  - 1493:    ).toBe(201);
+  - 1509:    ).toBe(200);
+  - 1566:    ).toBe(200);
+  - 459:    .toBe(200);
+  - 531:  ).toBe(200);
+  - 734:  expect(createResponse.status(), `Taxonomy ${slug} must be created.`).toBe(201);
+  - 750:    ).toBe(201);
+  - 800:  expect(response.status(), `Event type ${slug} must be created.`).toBe(201);
+  - 1207:      .toBe(200);
+  - 1269:      .toBe(200);
+  - 102:  expect(response.status(), 'Event type seed must succeed.').toBe(201);
+  - 120:  ).toBe(200);
+  - 133:  expect(response.status(), 'Account profile types must load.').toBe(200);
+  - 180:    .toBe(201);
+  - 201:  expect(response.status(), 'Physical host seed must succeed.').toBe(201);
+  - 258:  expect(response.status(), 'Event share seed event must be created.').toBe(201);
+  - 297:  expect(response.status(), 'Account profile types must load.').toBe(200);
+  - 358:  ).toBe(201);
+  - 391:  expect(response.status(), 'Account onboarding must succeed.').toBe(201);
+  - 437:    .toBe(200);
+  - 450:    .toBe(200);
+  - 69:  ).toBe(200);
+
+No-exception-only assertion hints:
+  - 49:  }, `Endpoint must return parseable JSON: ${endpoint}`).not.toThrow();
+
+DI override hints:
+  - none
+
+Mock / fallback hints:
+  - none
+
+Counts: hard_bypass=0 test_support=0 auth_shortcut=0 status_only=63 no_exception_only=1 di_override=0 mock_hint=0

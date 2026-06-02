@@ -9,6 +9,9 @@ Account Profiles need a nested-account capability. Tenant admins must be able to
 
 The current public Account Profile screen already renders profile tabs from `PartnerProfileConfig`, and there is a skeletal `supportedEntities` module. The new requirement needs a real persisted/admin-managed grouping contract instead of hardcoded type-driven tabs.
 
+### Event / Occurrence Expansion Authority
+The detailed event and occurrence related-profile grouping behavior, deterministic consistency contract, and full automated/manual validation matrix are tracked by `TODO-v0.2.0+8-event-profile-groups-canonical-consistency.md`. This TODO remains the parent capability for shared one-level profile group semantics. For event/occurrence implementation details, the child TODO is the controlling contract after its own `APROVADO`.
+
 ## Framing Source & Story Slice
 - **Feature brief:** `direct-to-todo`
 - **Primary story ID:** `nested-account-profile-groups`

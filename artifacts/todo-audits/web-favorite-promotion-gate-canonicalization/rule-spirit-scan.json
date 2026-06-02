@@ -1,0 +1,50 @@
+{
+  "active_finding_count": 2,
+  "allowlist_path": null,
+  "allowlisted_finding_count": 0,
+  "expired_allowlist_count": 0,
+  "finding_count": 2,
+  "findings": [
+    {
+      "allowed": false,
+      "allowlist": null,
+      "evidence": "import 'package:belluga_now/infrastructure/services/location_origin_resolution_request_factory.dart';",
+      "key": "28b6fadfa67ff499",
+      "lens": "presentation/application importing infrastructure or DTO surfaces",
+      "location": "flutter-app/lib/presentation/tenant_public/discovery/controllers/discovery_screen_controller.dart:17",
+      "severity": "warning",
+      "stack": "flutter"
+    },
+    {
+      "allowed": false,
+      "allowlist": null,
+      "evidence": "          onPressed: () => Navigator.of(context).maybePop(),",
+      "key": "5aa45e0ab876a87f",
+      "lens": "imperative Navigator usage; verify route/controller boundary",
+      "location": "flutter-app/lib/presentation/shared/promotion/screens/app_promotion_screen/widgets/app_promotion_modal.dart:91",
+      "severity": "review",
+      "stack": "flutter"
+    }
+  ],
+  "generated_at_utc": "2026-06-02T17:19:03.211750Z",
+  "max_active_severity": "warning",
+  "paths": [
+    "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/shared/favorites",
+    "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/shared/promotion/screens/app_promotion_screen/widgets",
+    "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/shared/widgets/immersive_detail_screen/immersive_detail_screen.dart",
+    "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_public/partners/controllers/account_profile_detail_controller.dart",
+    "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_public/discovery/controllers/discovery_screen_controller.dart",
+    "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/lib/presentation/tenant_public/schedule/screens/immersive_event_detail/controllers/immersive_event_detail_controller.dart",
+    "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/tools/flutter/web_app_tests/favorite_auth_gate_runtime.diagnostic.spec.js"
+  ],
+  "repository": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker",
+  "schema_version": "rule-spirit-scan-v1",
+  "severity_taxonomy": [
+    "review",
+    "warning",
+    "blocker"
+  ],
+  "stacks": [
+    "flutter"
+  ]
+}

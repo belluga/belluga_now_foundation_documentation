@@ -1,0 +1,25 @@
+
+Waiting for another flutter command to release the startup lock...
+00:00 +0: loading /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant_public/partners/account_profile_detail_screen_test.dart
+00:00 +0: hero saves eligible account profile as ponto de referência with provenance
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+00:05 +1: All tests passed!

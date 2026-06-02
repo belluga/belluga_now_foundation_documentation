@@ -1,0 +1,667 @@
+
+00:00 +0: loading /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/application/icons/boora_icons_font_asset_test.dart
+00:00 +0: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/shared/icons/map_marker_icon_catalog_test.dart: fromStorage resolves canonical keys and legacy aliases
+00:00 +1: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/application/icons/boora_icons_font_asset_test.dart: Boora icon declarations match the uploaded font asset contract
+00:00 +2: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/application/icons/boora_icons_font_asset_test.dart: Boora icon declarations match the uploaded font asset contract
+00:00 +3: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/application/icons/boora_icons_font_asset_test.dart: Boora icon declarations match the uploaded font asset contract
+00:00 +4: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/application/icons/boora_icons_font_asset_test.dart: Boora icon declarations match the uploaded font asset contract
+00:00 +5: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/application/icons/boora_icons_font_asset_test.dart: Boora icon declarations match the uploaded font asset contract
+00:00 +6: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/application/icons/boora_icons_font_asset_test.dart: pubspec registers canonical and legacy Boora icon families
+00:01 +7: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/shared/widgets/directions_app_chooser/directions_provider_actions_test.dart: renders visible direct providers with their brand treatment
+00:47 +8: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: renders inviteables without rejected relation filter chips
+00:50 +9: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda refresh appears only on Telefone pane
+00:57 +10: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda refresh appears only on Telefone pane
+00:57 +11: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda refresh appears only on Telefone pane
+00:57 +12: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda refresh appears only on Telefone pane
+00:57 +13: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda refresh appears only on Telefone pane
+00:57 +14: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda refresh appears only on Telefone pane
+00:58 +15: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: invite button enters sending state and blocks duplicate taps
+00:59 +16: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: invite send failure shows feedback and keeps CTA retryable
+00:59 +17: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: pane segmented button ignores empty and multi-selection payloads
+01:00 +18: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: app pane shows loading before empty state resolves
+01:01 +19: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: app pane keeps loading when cache only knows empty imported matches and inviteables are still refreshing
+01:01 +20: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: app pane does not wait for imported contact matches to resolve
+01:02 +21: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: app pane still renders backend inviteables immediately while imported matches refresh in background
+01:02 +22: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/infrastructure/dal/dto/app_data_dto_test.dart: AppDataDTO profile type visual registry parses canonical visual payload into public registry
+01:02 +23: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda pane shows loading before empty state resolves
+01:03 +24: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda pane shows loading before empty state resolves
+01:03 +25: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda pane shows loading before empty state resolves
+01:03 +26: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda pane shows loading before empty state resolves
+01:03 +27: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda pane shows loading before empty state resolves
+01:03 +28: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda pane shows loading before empty state resolves
+01:03 +29: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda pane shows loading before empty state resolves
+01:03 +30: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda pane shows loading before empty state resolves
+01:03 +31: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda pane shows loading before empty state resolves
+01:03 +32: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda pane reuses cached phone contacts even when imported matches are still unresolved
+01:04 +33: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: agenda pane keeps loading when permission-granted first load briefly publishes empty targets
+01:04 +34: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: reopening invite share with repository cache skips loading on app and agenda panes
+01:05 +35: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: reopening invite share reuses cached app targets from the first live load
+01:05 +36: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: inviteable list builds visible cards lazily
+01:06 +37: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: inviteable list builds visible cards lazily
+01:06 +38: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: inviteable list builds visible cards lazily
+01:07 +39: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: sent non-null invite status cards disable repeat invite CTA
+01:07 +40: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: sending invite card disables the CTA while the request is in flight
+01:07 +41: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: summary uses exact counters and bounded visible preview
+01:07 +42: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: share CTA leaves Gerando state after failure and can retry
+01:07 +43: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: renders phone contacts in a separate external-share pane
+01:08 +44: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: external phone contact share launches normalized WhatsApp target
+01:08 +45: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: external contact share falls back to system share
+01:09 +46: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: external phone contact share does not assume Brazil outside Brazilian locale
+01:09 +47: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/invites/screens/invite_share_screen/invite_share_screen_test.dart: screen does not overwrite an explicit contact region with locale fallback
+01:11 +48: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: (setUpAll)
+01:11 +48: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry logs poi_opened when selecting a poi
+01:12 +49: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry keeps last selected poi memory when closing the card explicitly
+01:12 +50: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry clears selected poi memory after user pan interaction
+01:12 +51: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry empty tap on map collapses search tray back to discovery
+01:12 +52: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry pan gesture on map collapses expanded filters back to discovery
+01:12 +53: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry logs search submit and clear events
+01:12 +54: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry typing search text debounces requests and uses the latest term
+01:12 +55: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry clearing typed search restores nearby suggestions payload
+01:13 +56: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry search tray captures current map center and preserves it on clear
+01:13 +57: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry logs filter apply and clear events
+01:13 +58: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry catalog filter apply does not emit global loading status message
+01:13 +59: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry catalog filter apply opens filter results tray
+01:13 +60: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry filter clear keeps pending chip label without global loading message
+01:13 +61: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry applies dynamic category filters using category keys
+01:13 +62: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry catalog filter focuses the first dock result by distance without auto-selecting a poi
+01:13 +63: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry event catalog filter focuses the next upcoming event before nearer later events
+01:13 +64: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry orderedFilterResultPois keeps happening-now and upcoming events ahead of past ones
+01:13 +65: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry orderedFilterResultPois also treats plural events filter keys as event context
+01:13 +66: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry tapping the same active catalog filter reopens filter results tray
+01:13 +67: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry applies catalog filter query metadata when available
+01:13 +68: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry supports source/types query metadata without category key fallback
+01:13 +69: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry keeps stale map data visible when loadPois fails
+Failed to load POIs: Exception: forced fetch failure
+01:13 +70: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry locks filter interactions while a filter reload is in flight
+01:13 +71: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry ignores marker taps while a filter reload is in flight
+01:13 +72: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry ignores marker taps immediately after a filter reload settles
+01:13 +73: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry accepts marker taps after post-filter suppression window expires
+01:14 +74: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry marker tap keeps card closed until account profile hydration completes and keeps avatar cover scoped to selection
+01:14 +75: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry duplicate tap on the same poi while hydrating is dropped
+01:14 +76: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry cluster marker tap opens picker dock instead of detailed card
+01:14 +77: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry cluster picker selection hydrates chosen poi like direct selection
+01:14 +78: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry deck poi selection hydrates account profile with avatar and cover
+01:14 +79: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry marker tap hydrates account-profile poi aliases with avatar and cover
+01:14 +80: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry deck poi selection hydrates event imagery from the canonical cover fallback chain
+01:14 +81: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry clearing selection before hydration completes ignores stale result
+01:14 +82: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry different poi taps are last-write-wins during hydration
+01:14 +83: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry empty tap on the map closes an open cluster picker
+01:14 +84: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry applies marker override key only after catalog reload completes
+01:14 +85: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry keeps the latest loadPois result after overlapping requests
+01:15 +86: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry refreshes query origin from the latest tracked user location
+01:15 +87: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry logs directions and ride share events
+01:15 +88: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry hydrates selected poi from initial query when top-level list has match
+01:15 +89: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry skips auto-centering on user when initial poi query is provided
+01:15 +90: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry does not auto-center on user but still triggers permission resolution on plain map load
+01:15 +91: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry fails closed when tenant default origin is missing during bootstrap
+01:15 +92: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry keeps location feedback in loading state and suppresses false unavailable notice while refresh is unresolved
+01:15 +93: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry reconciles to live location after refresh resolves and reloads points from the resolved origin
+01:15 +94: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry recenters once to the live user origin after the first bootstrap when the map becomes ready
+01:15 +95: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry does not re-enter poi reload churn when rapid nearby live updates keep the same semantic origin state
+01:15 +96: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry permission-resolution overlap reloads points only once when live origin resolves during the request
+01:15 +97: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry soft-gate map entry skips interactive resolution and exposes fixed-location notice
+01:15 +98: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry centerOnUser silently no-ops when map is not ready yet
+01:15 +99: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry centerOnUser does not emit status when target camera already matches the current user location
+01:15 +100: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry hydrates selected poi from stack query when poi is not in top-level list
+01:15 +101: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry hydrates selected poi from backend lookup when typed query is outside loaded payload
+01:15 +102: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry hydrates account profile lookup before exposing reference point eligibility
+01:15 +103: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry hydrates initial poi before refreshIfPermitted completes
+01:15 +104: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry sets deterministic status when initial poi query cannot be resolved
+01:15 +105: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry buildPoiQueryKey normalizes ref_type:ref_id key
+01:15 +106: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry handleMarkerTap focuses selected poi in the upper viewport safe zone
+01:15 +107: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController telemetry applies initial poi focus after first map event when deep link query is present
+01:15 +108: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back map root system back falls back to home when no history exists
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:16 +109: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back map detail system back falls back to city map when no history exists
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:17 +110: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back map visible back returns to previous route when history exists
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:17 +111: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back map screen shows filter-first bottom dock and discovery tray
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:17 +112: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back selected poi lifts card focus and hides bottom controls band
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:18 +113: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back starting a new poi loading hides the previous selected card immediately
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:18 +114: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back overflowing filter cluster exposes handle and expands on tap
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:18 +115: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back dragging overflowing collapsed filter cluster upward expands it
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:19 +116: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back dragging expanded filter cluster downward collapses to discovery
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:20 +117: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back tapping dock search launcher opens search mode
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:20 +118: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back status banner renders above the dock instead of over it
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:20 +119: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back location utility stays circular and dock search launcher keeps tray height
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:21 +120: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back selected card height follows the selected poi even when stack metadata exists
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:21 +121: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back filtered deck height follows the tallest visible card instead of only the selected poi
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:22 +122: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back cluster picker popover stays near map while discovery dock remains active
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:23 +123: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back search tray shows Nessa área with a scrollable result list
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:23 +124: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back filter results tray keeps filters on top and orders nearest first
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:24 +125: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back filter results tray orders event filters by next start time before distance
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:24 +126: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back selected filter state exposes an explicit clear affordance
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:25 +127: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back selected filter chip shows spinner while filter update is pending
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:25 +128: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back selected filter chip adopts override colors for icon-based backend category
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:25 +129: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back selected filter chip adopts backend visual colors when marker override is disabled
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:25 +130: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back selected filter chip keeps backend category icon while clear is pending
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:25 +131: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back active filter keeps backend position instead of jumping to the first slot
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:25 +132: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back expanded filter cluster uses only the handle as the collapse affordance
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:26 +133: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back filter tray renders only backend catalog entries
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+01:26 +134: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back visible catalog categories preserve backend entries and honor tenant ordering
+01:26 +135: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back showFiltersTray retries backend filter fetch when catalog is still missing
+Failed to load POI filters: Exception: forced filters failure
+01:26 +136: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back ver detalhes pushes partner detail route for account profile poi
+01:26 +137: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back map controller saves eligible account profile poi as ponto de referência
+01:26 +138: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back map controller detects current ponto de referência selected state
+01:26 +139: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back map deck asks for confirmation before saving account profile reference point
+01:26 +140: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back ver detalhes pushes static asset detail route for static poi
+01:27 +141: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back event cards keep the same CTA labels as other pois
+01:27 +142: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back event cards use the canonical invite icon in the map deck
+01:27 +143: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back close button aligns with the top of the selected card
+01:27 +144: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back static poi hydration merges cover, type, and description from details
+01:27 +145: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back selected poi from filter results uses filtered carousel and keeps tapped item active
+01:29 +146: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back dragging filtered carousel with remote-cover cards does not throw while the current card leaves the viewport
+01:29 +147: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreen safe back filtered carousel lazily hydrates semi-visible cards and reuses cached hydration
+01:29 +148: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController late hydration dependencies marker tap still hydrates account profiles when the profile repository is registered after poi repository construction
+01:29 +149: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: MapScreenController late hydration dependencies marker tap still hydrates static assets when the static assets repository is registered after poi repository construction
+01:29 +150: /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart: (tearDownAll)
+01:29 +150: All tests passed!
