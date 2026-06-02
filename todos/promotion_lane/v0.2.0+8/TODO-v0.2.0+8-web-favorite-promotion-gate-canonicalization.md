@@ -23,7 +23,7 @@ The right direction is to make the favorite auth gate consume the canonical app-
 ## Delivery Status Canon
 - **Current delivery stage:** `Local-Complete`
 - **Qualifiers:** `Flutter`, `Web`, `Tenant-Public`, `Regression-Fix`, `Architecture`, `User-Visible`, `Requires-APROVADO`
-- **Next exact step:** route this TODO with the v0.2.0+8 promotion bundle; local commits and pushes are complete.
+- **Next exact step:** promote with the v0.2.0+8 bundle from `todos/promotion_lane/v0.2.0+8/`; local commits and pushes are complete.
 - **Promotion lane path:** current v0.2.0+8 package lane; no parallel version or branch.
 
 ## Scope
@@ -285,7 +285,7 @@ Use exact trigger names and exact enum values only.
 - **Disposition reason:** implementation, validation, audits, security review, final review, and deterministic guards are complete; this TODO should travel with the current v0.2.0+8 package promotion.
 - **Post-commit/push status:** `complete`
 - **Post-commit/push evidence:** `flutter-app@88227417fa1af06cb0d415f5e04fea0cd1014d15`; `web-app@dcaa3ffd62d3844e3a13ec8137ae913123ffe8f2`; `foundation_documentation@1d060acf62cdcaa888a3422b1fb9599e2f2e3f19`; root `belluga_now_docker@1c8e2d62e63d725e3c499152db6420200aadf7a6`.
-- **Next path/status action:** route this TODO into the v0.2.0+8 promotion bundle with the rest of the package; no standalone promotion-lane split was created.
+- **Next path/status action:** promote this TODO with the rest of the v0.2.0+8 package from `todos/promotion_lane/v0.2.0+8/`.
 
 ## Manual Validation Matrix
 | ID | Surface | Steps | Expected Result |
