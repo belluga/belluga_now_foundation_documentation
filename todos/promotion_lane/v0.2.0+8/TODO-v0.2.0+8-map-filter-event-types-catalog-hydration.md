@@ -1,5 +1,5 @@
 # Title
-VNext: Map Filter Event Type Catalog Hydration
+v0.2.0+8: Map Filter Event Type Catalog Hydration
 
 ## Artifact Identity
 - **Artifact type:** `tactical_execution_contract`
@@ -8,6 +8,8 @@ VNext: Map Filter Event Type Catalog Hydration
 In tenant-admin map/discovery filter rule editing, selecting `Account Profile` or `Asset` correctly shows selectable `Tipos`. Selecting `Evento` incorrectly shows `Sem tipos para essa origem`.
 
 Repository inspection shows the rule catalog builder already has an event-type input path. The likely gap is that the caller/repository/controller path does not fetch and pass current event types into the catalog, or a legacy settings sheet still uses a catalog path without event hydration.
+
+Manual validation on 2026-06-03 added `PTODO-004`: the Account Profile type selector in map-filter configuration must list only Account Profile types that can appear on the map. Account Profile types without effective POI capability must not be selectable for map filters, because they cannot produce map POIs.
 
 ## Framing Source & Story Slice
 - **Feature brief:** `direct-to-todo`
@@ -18,7 +20,7 @@ Repository inspection shows the rule catalog builder already has an event-type i
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Local-Validated`
 - **Qualifiers:** `Bugfix`, `Flutter-Focused`, `Tenant-Admin`, `User-Visible`, `Promotion-Lane-Pending`
-- **Next exact step:** move this TODO with the validated v0.2.0+8 package into the promotion lane after individual closeout guards and the orchestration checkpoint.
+- **Next exact step:** carry this TODO in `promotion_lane/` while the remaining v0.2.0+8 package blockers finish their package-wide review loop.
 
 ## Scope
 - [x] Ensure event types are fetched from the tenant-admin event type source used by the current runtime.
@@ -26,6 +28,7 @@ Repository inspection shows the rule catalog builder already has an event-type i
 - [x] Ensure Event source `Tipos` lists current event types with labels/slugs consistent with existing Account Profile and Asset behavior.
 - [x] Preserve empty-state behavior only when the tenant truly has no event types.
 - [x] Add regression tests for Event type hydration in the filter rule sheet/catalog.
+- [x] `PTODO-004` Filter Account Profile type options in map-filter authoring to effective POI-enabled Account Profile types only.
 
 ## Out of Scope
 - [ ] Changing event type CRUD or registry persistence.
@@ -40,6 +43,7 @@ Repository inspection shows the rule catalog builder already has an event-type i
 ## Definition of Done
 - [x] Event source in the rule sheet shows event type options when event types exist.
 - [x] Account Profile and Asset type lists still work.
+- [x] Account Profile type lists in map-filter authoring exclude non-POI-enabled types.
 - [x] Empty-state text appears for Event only when event types are genuinely absent.
 - [x] Saved rules using event type filters still serialize the expected payload.
 - [x] Tests cover both populated and empty Event type catalogs.
@@ -47,6 +51,7 @@ Repository inspection shows the rule catalog builder already has an event-type i
 ## Validation Steps
 - [x] Focused Flutter test for `TenantAdminDiscoveryFilterRuleCatalogBuilder` with event types.
 - [x] Focused widget/controller/repository test for the actual admin sheet path that previously showed `Sem tipos para essa origem`.
+- [x] Focused widget/controller/repository test proves Account Profile type options include POI-enabled types and exclude non-POI-enabled types in the reachable map-filter authoring path.
 - [x] Analyzer/local CI-equivalent suite row completed before delivery.
 
 ## Profile Scope & Handoffs
@@ -112,12 +117,14 @@ Repository inspection shows the rule catalog builder already has an event-type i
 | --- | --- | --- | --- | --- | --- |
 | Event type list appears in admin filter sheet | Admin visible flow | `shared-android-web` | widget | `no` | Flutter widget/controller test |
 | Event type rule serializes correctly | Admin mutation path | `shared-android-web` | widget/repository | `yes` | controller/repository test for rule payload |
+| Account Profile POI-enabled type eligibility | Admin visible flow | `shared-android-web` | widget/controller/repository | `no` | Account Profile type catalog/filter option test |
 
 ## Local CI-Equivalent Suite Matrix
 | Repository / CI Surface | Why In Scope | Local CI-Equivalent Command | Required Before | Status | Evidence Artifact / Command | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | `flutter-app` tenant-admin discovery filter tests | Event type hydration, rule sheet rendering, empty state, serialization, and regression parity changed. | `./scripts/delphi/run_reconcile_validation.sh --scope big --intent "v0.2.0+8 consolidated focused validation rerun after WSL disconnect" --flutter-test test/presentation/tenant_admin/discovery_filters/tenant_admin_discovery_filters_settings_test.dart --flutter-test test/presentation/tenant_admin/settings/tenant_admin_settings_screen_test.dart --flutter-test test/infrastructure/repositories/tenant_admin_settings_repository_test.dart --flutter-test test/infrastructure/dal/dto/map/map_filter_category_dto_test.dart --flutter-analyze` | `Local-Validated` | passed | `foundation_documentation/artifacts/tmp/reconcile_validation_status_20260527_225033.md` | Consolidated wrapper reported Flutter focused tests and analyzer passed. |
 | `laravel-app` map/type API regression coverage | Runtime filter/type catalog consumers depend on backend type and map filter contracts. | `./scripts/delphi/run_reconcile_validation.sh --scope big ... --laravel-test tests/Feature/AccountProfiles/AccountProfileTypesControllerTest.php --laravel-test tests/Feature/Map/MapPoisControllerTest.php --laravel-test tests/Unit/Map/MapPoiQueryFormattingTest.php` | `Local-Validated` | passed | `foundation_documentation/artifacts/tmp/reconcile_validation_status_20260527_225033.md` | Backend map/type focused tests passed in the consolidated wrapper. |
+| `flutter-app` Account Profile POI-enabled map-filter eligibility tests | `PTODO-004` requires the reachable admin selector to exclude Account Profile types that cannot appear on map. | `cd flutter-app && fvm flutter test --no-pub test/application/tenant_admin/discovery_filters/tenant_admin_discovery_filter_rule_catalog_builder_test.dart` | `Local-Validated` | passed | command output, 2026-06-03 | Added positive POI-enabled and negative non-POI-enabled fixture types; catalog now includes only POI-enabled Account Profile types. |
 | `flutter_rule_matrix` architecture lint | Tenant-admin filter controller/repository/widget paths participated in the reconciliation set. | `bash tool/belluga_analysis_plugin/bin/validate_rule_matrix.sh` through the reconcile wrapper. | `Local-Validated` | passed | `foundation_documentation/artifacts/tmp/reconcile_validation_status_20260527_225033.md` | Rule matrix stage passed with recorded lint-code coverage. |
 | v0.2.0+8 final Atlas-backed reconciliation matrix | This TODO participates in the approved consolidated v0.2.0+8 package and must stay green after web/runtime lanes. | `./scripts/delphi/run_reconcile_validation.sh --scope big --intent "v0.2.0+8 full CI-equivalent against Atlas-backed dev runtime" ...` | `Promotion-Lane-Pending` | passed | `foundation_documentation/artifacts/tmp/reconcile_validation_status_20260528_012558_full_ci_equivalent_atlas_runtime.md` | Passed `atlas_runtime_db_target`, `reconcile_laravel_tests`, `reconcile_flutter_tests`, `reconcile_flutter_analyze`, `flutter_rule_matrix`, `flutter_web_build`, `web_navigation_readonly`, and `web_navigation_mutation` where applicable. |
 
@@ -126,6 +133,21 @@ Repository inspection shows the rule catalog builder already has an event-type i
 - **Worker package minimum:** this TODO file, source inventory snapshot, validation steps, flow evidence matrix, and local CI-equivalent suite matrix.
 - **Required orchestration wave:** `Map Filter Wave 1` when paired with visual override decoupling.
 - **Orchestrator-owned checks:** confirm the worker fixed the actual reachable admin sheet path, not only a dormant builder.
+
+## Reopened / Addendum Finding - 2026-06-03
+- `PTODO-004`: Account Profile type options in map-filter authoring must be scoped to map-visible/POI-enabled Account Profile types. This remains inside this TODO's catalog-hydration objective because it corrects the same authoring catalog eligibility surface and does not change public map query semantics.
+- Implementation must not hide non-POI types by display label or visual state only. They must be absent from the selectable filter options and covered by a negative test.
+
+## Addendum Evidence - 2026-06-07
+- Focused Flutter proof reran and passed:
+  - `cd flutter-app && fvm flutter test --no-pub test/application/tenant_admin/discovery_filters/tenant_admin_discovery_filter_rule_catalog_builder_test.dart`
+  - Includes `build exposes only poi enabled account profile types for map filters`.
+- Authoritative browser admin-path proof reran and passed:
+  - `NAV_WEB_SHARD=map-admin bash scripts/delphi/run_navigation_reconcile_validation.sh mutation`
+  - Result: `1 passed`, including `@mutation tenant-admin keeps public Map filter config in the canonical filters editor`.
+- Authoritative browser filter-universe proof reran and passed:
+  - `NAV_WEB_SHARD=filters bash scripts/delphi/run_navigation_reconcile_validation.sh mutation`
+  - Result: `5 passed`, including the strengthened Home/Discovery zero-result assertions for type and taxonomy runtime facets.
 
 ## Approval
 - **Approved by:** user in chat
@@ -183,9 +205,10 @@ Repository inspection shows the rule catalog builder already has an event-type i
 | VAL-01 | Validation Steps | Focused Flutter test for `TenantAdminDiscoveryFilterRuleCatalogBuilder` with event types. | focused Flutter test | `tenant_admin_discovery_filters_settings_test.dart` through the reconcile wrapper | Flutter controller/catalog test | passed | Catalog-level Event type hydration is covered. |
 | VAL-02 | Validation Steps | Focused widget/controller/repository test for the actual admin sheet path that previously showed `Sem tipos para essa origem`. | focused Flutter widget navigation test/controller/repository tests | `tenant_admin_settings_screen_test.dart`; `tenant_admin_settings_repository_test.dart` | Flutter tenant-admin widget navigation test/controller/repository tests | passed | Reachable admin sheet flow no longer shows the empty state for populated Event types. |
 | VAL-03 | Validation Steps | Analyzer/local CI-equivalent suite row completed before delivery. | local CI-equivalent | Local CI-Equivalent Suite Matrix rows above | Cross-stack test/analyzer wrapper | passed | Consolidated wrapper passed Flutter tests, Laravel supporting tests, analyzer, and rule matrix. |
+| VAL-04 | Validation Steps / 2026-06-03 addendum | Account Profile type selector for map-filter authoring excludes non-POI-enabled Account Profile types. | focused Flutter catalog test | `cd flutter-app && fvm flutter test --no-pub test/application/tenant_admin/discovery_filters/tenant_admin_discovery_filter_rule_catalog_builder_test.dart` | Flutter tenant-admin discovery filter catalog test | passed | Test fixture includes `restaurant` with POI enabled and `sponsor` without POI; only `restaurant` remains selectable. |
 
 ## TODO Closeout Disposition
-- **Disposition:** `keep-active`
-- **Disposition reason:** local implementation and validation are complete, but this TODO remains in the active v0.2.0+8 package until promotion-lane movement is performed for the whole approved set.
+- **Disposition:** `move-promotion-lane`
+- **Disposition reason:** the package-wide review loop reran the focused Flutter proof plus authoritative `map-admin` and `filters` browser lanes on 2026-06-07 with no reopened finding on this TODO.
 - **Post-commit/push status:** `pending`
-- **Next path/status action:** after individual closeout guards pass and the orchestration checkpoint is committed, move this TODO with the v0.2.0+8 package into `foundation_documentation/todos/promotion_lane/` or update this disposition with any real lane blocker.
+- **Next path/status action:** move this TODO into `foundation_documentation/todos/promotion_lane/v0.2.0+8/` and keep only package-level carry-forward validation in the orchestration ledger.
