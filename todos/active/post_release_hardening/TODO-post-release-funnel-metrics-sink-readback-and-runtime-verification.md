@@ -6,7 +6,7 @@ Post-Release Hardening: Funnel Metrics Sink Readback and Runtime Verification
 
 ## Classification Note
 - **Created on:** `2026-05-03`
-- **Source split:** `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-funnel-metrics-validation.md`
+- **Source split:** `foundation_documentation/todos/completed/TODO-store-release-funnel-metrics-validation.md`
 - **Why this exists:** the pre-publication T4 subset is already locally validated and can move through promotion, but the remaining proof requires published/runtime conditions and real telemetry-sink readback that cannot be closed honestly before release.
 - **Release-gate status:** not a blocker for the current Android publication cut unless a new business decision explicitly promotes it back into the release gate.
 
@@ -38,10 +38,10 @@ This TODO owns that post-release closure and nothing broader.
 - **Next exact step:** once the published runtime and sink access are available, execute the journey matrix below and capture real Mixpanel readback for each missing milestone.
 
 ## References
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-funnel-metrics-validation.md`
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- `foundation_documentation/todos/completed/TODO-store-release-funnel-metrics-validation.md`
+- `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md`
+- `foundation_documentation/todos/completed/TODO-store-release-phone-otp-auth-and-contact-match.md`
+- `foundation_documentation/todos/completed/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
 - `foundation_documentation/modules/onboarding_flow_module.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`

@@ -48,7 +48,7 @@ The Google Play reviewer-access slice that originally shared this TODO has alrea
 - **Next exact step:** reproduce the `challenge` and `verify` race paths under real concurrent requests, freeze the invariant per path, then implement the atomicity/serialization changes behind fail-first coverage.
 
 ## References
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
+- `foundation_documentation/todos/completed/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/todos/completed/TODO-post-release-phone-otp-play-review-access.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-post-release-docker-rollback-runtime-web-fidelity.md`
 - `foundation_documentation/modules/onboarding_flow_module.md`

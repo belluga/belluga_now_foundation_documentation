@@ -2,7 +2,7 @@
 
 **Derived artifact:** no authoritative product truth. Use the TODO and module docs as canonical after review.
 
-**TODO:** `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-funnel-metrics-validation.md`
+**TODO:** `foundation_documentation/todos/completed/TODO-store-release-funnel-metrics-validation.md`
 
 **Gate under review:** local implementation candidate for Android store-release funnel metrics validation. This packet does not claim final production closure because ADB/device execution and external telemetry sink/query readback are intentionally deferred to the final consolidated runtime phase.
 
@@ -69,7 +69,7 @@ Reviewers should classify findings as:
   - Promotes auth wall/signup/OTP/merge telemetry baseline.
 - `foundation_documentation/modules/flutter_client_experience_module.md`
   - Promotes client rule for `store_channel=web` and Android deferred `store_channel` fallback.
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-funnel-metrics-validation.md`
+- `foundation_documentation/todos/completed/TODO-store-release-funnel-metrics-validation.md`
   - Adds local candidate notes, frozen matrix, completion evidence, and deferred final-runtime status.
 
 ## Event Matrix

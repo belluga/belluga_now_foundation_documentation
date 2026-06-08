@@ -1,0 +1,300 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature\Tenants;
+
+use App\Application\Environment\TenantEnvironmentSnapshotService;
+use App\Jobs\Environment\RebuildTenantEnvironmentSnapshotJob;
+use App\Application\Initialization\InitializationPayload;
+use App\Application\Initialization\SystemInitializationService;
+use App\Models\Landlord\Tenant;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
+use Tests\Helpers\TenantLabels;
+use Tests\TestCaseTenant;
+use Tests\Traits\RefreshLandlordAndTenantDatabases;
+
+class TenantBrandingControllerTest extends TestCaseTenant
+{
+    use RefreshLandlordAndTenantDatabases;
+
+    protected TenantLabels $tenant {
+        get {
+            return $this->landlord->tenant_primary;
+        }
+    }
+
+    private static bool $bootstrapped = false;
+
+    private array $headers;
+
+    private string $baseUrl;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        if (! self::$bootstrapped) {
+            $this->refreshLandlordAndTenantDatabases();
+            $this->initializeSystem();
+            self::$bootstrapped = true;
+        }
+
+        Tenant::query()->firstOrFail()->makeCurrent();
+        $this->baseUrl = "{$this->base_tenant_api_admin}branding/update";
+        $this->headers = $this->getHeaders();
+        unset($this->headers['Content-Type']);
+        $this->headers['X-App-Domain'] = 'tenant-sigma.test';
+    }
+
+    public function test_update_persists_branding_data(): void
+    {
+        $payload = [
+            'theme_data_settings' => [
+                'brightness_default' => 'light',
+                'primary_seed_color' => '#ffffff',
+                'secondary_seed_color' => '#eeeeee',
+            ],
+        ];
+
+        $response = $this->withHeaders($this->headers)
+            ->postJson($this->baseUrl, $payload);
+
+        $response->assertOk();
+        $tenant = Tenant::query()->first()->fresh();
+        $this->assertSame(
+            '#ffffff',
+            $tenant->branding_data['theme_data_settings']['primary_seed_color']
+        );
+    }
+
+    public function test_update_stores_uploaded_logos(): void
+    {
+        Storage::fake('public');
+
+        $file = UploadedFile::fake()->image('light_logo.png', 120, 40);
+
+        $response = $this->withHeaders($this->headers)
+            ->post($this->baseUrl, [
+                'logo_settings' => [
+                    'light_logo_uri' => $file,
+                ],
+            ]);
+
+        $response->assertOk();
+        $lightLogoUri = (string) $response->json('branding_data.logo_settings.light_logo_uri');
+
+        $this->assertStringContainsString('/logo-light.png', $lightLogoUri);
+        $this->assertStringContainsString('?v=', $lightLogoUri);
+
+        $this->get($lightLogoUri)
+            ->assertOk()
+            ->assertHeader('Content-Type', 'image/png');
+    }
+
+    public function test_update_stores_uploaded_pwa_variants_on_canonical_branding_routes(): void
+    {
+        Storage::fake('public');
+
+        $response = $this->withHeaders($this->headers)
+            ->post($this->baseUrl, [
+                'logo_settings' => [
+                    'pwa_icon' => UploadedFile::fake()->image('tenant-pwa.png', 1024, 1024),
+                ],
+            ]);
+
+        $response->assertOk();
+
+        $sourceUri = (string) $response->json('branding_data.pwa_icon.source_uri');
+        $icon192Uri = (string) $response->json('branding_data.pwa_icon.icon192_uri');
+        $icon512Uri = (string) $response->json('branding_data.pwa_icon.icon512_uri');
+        $maskableUri = (string) $response->json('branding_data.pwa_icon.icon_maskable512_uri');
+
+        $this->assertStringContainsString('/icon/icon-source.png', $sourceUri);
+        $this->assertStringContainsString('/icon/icon-192x192.png', $icon192Uri);
+        $this->assertStringContainsString('/icon/icon-512x512.png', $icon512Uri);
+        $this->assertStringContainsString('/icon/icon-maskable-512x512.png', $maskableUri);
+        $this->assertStringContainsString('?v=', $sourceUri);
+        $this->assertStringContainsString('?v=', $icon192Uri);
+        $this->assertStringContainsString('?v=', $icon512Uri);
+        $this->assertStringContainsString('?v=', $maskableUri);
+
+        $this->get($sourceUri)
+            ->assertOk()
+            ->assertHeader('Content-Type', 'image/png');
+        $this->get($icon192Uri)
+            ->assertOk()
+            ->assertHeader('Content-Type', 'image/png');
+        $this->get($icon512Uri)
+            ->assertOk()
+            ->assertHeader('Content-Type', 'image/png');
+        $this->get($maskableUri)
+            ->assertOk()
+            ->assertHeader('Content-Type', 'image/png');
+    }
+
+    public function test_update_persists_name_and_reflects_public_branding_metadata(): void
+    {
+        $tenant = Tenant::query()->firstOrFail();
+        $originalSlug = (string) $tenant->slug;
+
+        $response = $this->withHeaders($this->headers)
+            ->postJson($this->baseUrl, [
+                'name' => 'Guarappari',
+            ]);
+
+        $response->assertOk();
+
+        $freshTenant = $tenant->fresh();
+
+        $this->assertSame('Guarappari', $freshTenant?->name);
+        $this->assertSame('Guarappari', $freshTenant?->short_name);
+        $this->assertSame($originalSlug, $freshTenant?->slug);
+
+        $this->withoutHeader('X-App-Domain')
+            ->getJson("{$this->base_api_tenant}environment")
+            ->assertOk()
+            ->assertJsonPath('name', 'Guarappari');
+
+        $manifestResponse = $this->get("{$this->base_tenant_url}manifest.json");
+
+        $manifestResponse
+            ->assertOk()
+            ->assertJsonPath('name', 'Guarappari')
+            ->assertJsonPath('short_name', 'Guarappari');
+
+        $manifestCacheControl = (string) $manifestResponse->headers->get('Cache-Control');
+        $this->assertStringContainsString('no-store', $manifestCacheControl);
+        $this->assertStringContainsString('no-cache', $manifestCacheControl);
+        $this->assertStringContainsString('must-revalidate', $manifestCacheControl);
+        $this->assertStringContainsString('max-age=0', $manifestCacheControl);
+    }
+
+    public function test_update_persists_public_web_default_image_using_canonical_media_url(): void
+    {
+        Storage::fake('public');
+
+        $tenant = Tenant::query()->firstOrFail();
+        $canonicalPath = "/api/v1/media/branding-public-web/{$tenant->_id}/default_image";
+
+        $response = $this->withHeaders($this->headers)
+            ->post($this->baseUrl, [
+                'public_web_metadata' => [
+                    'default_image' => UploadedFile::fake()->image('default-image.jpg', 1200, 630),
+                ],
+            ]);
+
+        $response->assertOk();
+        $resolvedUrl = (string) $response->json('branding_data.public_web_metadata.default_image');
+        $this->assertStringContainsString($canonicalPath, $resolvedUrl);
+        $this->assertStringContainsString('?v=', $resolvedUrl);
+
+        $environment = $this->withoutHeader('X-App-Domain')
+            ->getJson("{$this->base_api_tenant}environment");
+
+        $environment->assertOk();
+        $environment->assertJsonPath('public_web_metadata.default_image', $resolvedUrl);
+
+        $mediaResponse = $this->get($resolvedUrl);
+
+        $mediaResponse->assertOk();
+        $mediaResponse->assertHeader('Content-Type', 'image/jpeg');
+    }
+
+    public function test_update_refreshes_environment_snapshot_synchronously_when_stale_snapshot_exists(): void
+    {
+        Storage::fake('public');
+
+        $tenant = Tenant::query()->firstOrFail();
+        $tenant->makeCurrent();
+        $brandingData = is_array($tenant->branding_data) ? $tenant->branding_data : [];
+        $brandingData['public_web_metadata']['default_image'] = '';
+        $tenant->branding_data = $brandingData;
+        $tenant->save();
+
+        app(TenantEnvironmentSnapshotService::class)->repair(
+            $tenant,
+            'test_seed_stale_snapshot',
+            ['case' => 'branding_default_image_runtime_refresh'],
+        );
+
+        Queue::fake();
+
+        $staleEnvironment = $this->withoutHeader('X-App-Domain')
+            ->getJson("{$this->base_api_tenant}environment");
+        $staleEnvironment->assertOk();
+        $staleDefaultImage = (string) $staleEnvironment->json('public_web_metadata.default_image');
+        $this->assertSame('', $staleDefaultImage);
+
+        $response = $this->withHeaders($this->headers)
+            ->post($this->baseUrl, [
+                'public_web_metadata' => [
+                    'default_image' => UploadedFile::fake()->image('default-image.jpg', 1200, 630),
+                ],
+            ]);
+
+        $response->assertOk();
+        $resolvedUrl = (string) $response->json('branding_data.public_web_metadata.default_image');
+        $this->assertNotSame('', $resolvedUrl);
+
+        Queue::assertPushed(RebuildTenantEnvironmentSnapshotJob::class);
+
+        $environment = $this->withoutHeader('X-App-Domain')
+            ->getJson("{$this->base_api_tenant}environment");
+
+        $environment->assertOk();
+        $environment->assertJsonPath('public_web_metadata.default_image', $resolvedUrl);
+    }
+
+    public function test_canonical_branding_media_route_serves_legacy_public_web_image(): void
+    {
+        Storage::fake('public');
+
+        $tenant = Tenant::query()->firstOrFail();
+        $legacyFile = UploadedFile::fake()->image('legacy-default-image.jpg', 1200, 630);
+        $legacyPath = "tenants/{$tenant->slug}/public-web/default-image.jpg";
+        Storage::disk('public')->put($legacyPath, file_get_contents($legacyFile->getRealPath()));
+
+        $tenant->branding_data = array_replace_recursive(
+            $tenant->branding_data ?? [],
+            [
+                'public_web_metadata' => [
+                    'default_image' => "https://belluga.space/storage/{$legacyPath}",
+                ],
+            ]
+        );
+        $tenant->save();
+
+        $canonicalUrl = rtrim($this->base_tenant_url, '/')
+            ."/api/v1/media/branding-public-web/{$tenant->_id}/default_image";
+
+        $response = $this->get($canonicalUrl);
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'image/jpeg');
+    }
+
+    private function initializeSystem(): void
+    {
+        $service = $this->app->make(SystemInitializationService::class);
+
+        $payload = new InitializationPayload(
+            landlord: ['name' => 'Landlord HQ'],
+            tenant: ['name' => 'Tenant Sigma', 'subdomain' => 'tenant-sigma'],
+            role: ['name' => 'Root', 'permissions' => ['*']],
+            user: ['name' => 'Root User', 'email' => 'root@example.org', 'password' => 'Secret!234'],
+            themeDataSettings: [
+                'brightness_default' => 'light',
+                'primary_seed_color' => '#fff',
+                'secondary_seed_color' => '#000',
+            ],
+            logoSettings: ['light_logo_uri' => '/logos/light.png'],
+            pwaIcon: ['icon192_uri' => '/pwa/icon192.png'],
+            tenantDomains: ['tenant-sigma.test']
+        );
+
+        $service->initialize($payload);
+    }
+}

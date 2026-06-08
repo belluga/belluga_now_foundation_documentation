@@ -1,0 +1,56 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Unit\Application\LandlordUsers;
+
+use App\Application\LandlordUsers\LandlordUserCreator;
+use App\Models\Landlord\LandlordRole;
+use App\Models\Landlord\LandlordUser;
+use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
+use Tests\Traits\RefreshLandlordAndTenantDatabases;
+
+class LandlordUserCreatorTest extends TestCase
+{
+    use RefreshLandlordAndTenantDatabases;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->refreshLandlordAndTenantDatabases();
+    }
+
+    public function test_creates_user_with_promotion_audit(): void
+    {
+        $role = LandlordRole::create([
+            'name' => 'Support Role',
+            'permissions' => ['landlord-users:view'],
+        ]);
+
+        $creator = $this->app->make(LandlordUserCreator::class);
+
+        $user = $creator->create(
+            [
+                'name' => 'New Support',
+                'email' => 'support@example.org',
+                'password' => 'Secret!234',
+            ],
+            (string) $role->_id,
+            operatorId: '507f1f77bcf86cd799439011'
+        );
+
+        $this->assertSame(1, LandlordUser::query()->count());
+        $this->assertEquals('New Support', $user->name);
+        $this->assertEquals('registered', $user->identity_state);
+        $this->assertCount(1, $user->promotion_audit);
+        $this->assertEquals('anonymous', $user->promotion_audit[0]['from_state']);
+        $this->assertEquals('registered', $user->promotion_audit[0]['to_state']);
+        $credential = collect($user->fresh()->credentials ?? [])
+            ->first(static fn (array $credential): bool => ($credential['provider'] ?? null) === 'password'
+                && ($credential['subject'] ?? null) === 'support@example.org');
+        $this->assertNull($user->fresh()?->getAttribute('password'));
+        $this->assertIsArray($credential);
+        $this->assertTrue(Hash::check('Secret!234', (string) $credential['secret_hash']));
+    }
+}

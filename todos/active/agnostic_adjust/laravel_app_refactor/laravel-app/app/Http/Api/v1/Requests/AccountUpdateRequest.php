@@ -1,0 +1,58 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Api\v1\Requests;
+
+use App\Support\Validation\InputConstraints;
+use Illuminate\Foundation\Http\FormRequest;
+
+class AccountUpdateRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'name' => 'sometimes|string|max:'.InputConstraints::NAME_MAX,
+            'slug' => [
+                'sometimes',
+                'string',
+                'max:'.InputConstraints::NAME_MAX,
+                'regex:/^[a-z0-9]+(?:[-_][a-z0-9]+)*$/',
+            ],
+            'document' => 'sometimes|array',
+            'document.type' => 'required_with:document.number|string|in:cpf,cnpj',
+            'document.number' => 'required_with:document.type|string|max:'.InputConstraints::NAME_MAX,
+            'organization_id' => 'sometimes|string|size:'.InputConstraints::OBJECT_ID_LENGTH,
+            'ownership_state' => 'sometimes|string|in:tenant_owned,unmanaged',
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'document.type.required' => 'O tipo do documento é obrigatório',
+            'document.type.in' => 'O tipo do documento deve ser cpf ou cnpj',
+            'document.number.required' => 'O número do documento é obrigatório',
+            'document.number.max' => 'O número do documento não pode ter mais que :max caracteres',
+            'slug.regex' => 'O slug deve usar apenas letras minúsculas, números, hífen ou underscore.',
+        ];
+    }
+}

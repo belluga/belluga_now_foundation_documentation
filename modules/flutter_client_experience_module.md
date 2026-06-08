@@ -19,11 +19,12 @@
   - `foundation_documentation/modules/tenant_admin_module.md`
 - Tactical TODO streams:
   - `foundation_documentation/todos/completed/TODO-store-release-android.md`
-  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
-  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
-  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-web-to-app-conversion-gate.md`
+  - `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-phone-otp-auth-and-contact-match.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-minimal-friends-and-favorites-mvp.md`
   - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-invites-occurrence-target-migration.md`
-  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-funnel-metrics-validation.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-funnel-metrics-validation.md`
   - `foundation_documentation/todos/completed/TODO-store-release-account-profile-rich-text-fidelity.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-onboarding-identity-reconciliation-reflection.md`
   - `foundation_documentation/todos/completed/TODO-v1-events-and-agenda-frontend.md`
@@ -451,9 +452,9 @@ Invite flows must be proven in layers:
 | `TODO-v1-tenant-public-safe-back-navigation.md` | Centralized tenant-public safe-back policy and direct-entry fallback matrix | Completed | `2.1`, `3`, `7` | Shared back behavior for event detail, public account-profile detail, agenda, and map; archived from `active` during the 2026-04-09 MVP TODO cleanup after delivery confirmation. |
 | `TODO-v1-canonical-back-navigation-governance-cutover.md` | Canonical route-back governance across tenant-public, tenant-admin, landlord root, workspace, and identity-boundary entry routes | In progress | `2.1`, `7` | Structural rule promoted now: governed route families are meta-declared, screens/shells consume canonical helpers, and semantic linting remains a later phase. |
 | `TODO-v1-home-agenda-canonical-stream-ownership-hardening.md` | Home/Agenda stream ownership and controller-boundary hardening | Completed | `2.1.1`, `7` | Widget-controller privacy, repository-owned shared settings, single-writer stream ownership, and single-scroll-truth governance are now promoted and reflected in the current repo. |
-| `TODO-store-release-funnel-metrics-validation.md` | Store-release funnel metrics validation | Promotion lane candidate | `2.6` | Promotes client-side telemetry attribution rules for web promotion and Android deferred-capture events; post-release sink/runtime verification is split into the dedicated hardening TODO. |
-| `TODO-store-release-phone-otp-auth-and-contact-match.md` | Phone-OTP auth upgrade and identity handoff | In progress | `2.1`, `7` | Promotes the post-auth hydration handoff after registered identity emission. |
-| `TODO-store-release-home-favorites-refresh-regression.md` | Home/account-profile favorite refresh regression | Promotion Lane | `2.1`, `7` | User-linked favorite state participates in post-auth hydration and clears stale empty remote results. |
+| `TODO-store-release-funnel-metrics-validation.md` | Store-release funnel metrics validation | Completed | `2.6` | Freezes client-side telemetry attribution rules for web promotion and Android deferred-capture events; published sink/runtime verification continues in the dedicated hardening TODO. |
+| `TODO-store-release-phone-otp-auth-and-contact-match.md` | Phone-OTP auth upgrade and identity handoff | Completed | `2.1`, `7` | The post-auth hydration handoff after registered identity emission is now archival-complete. |
+| `TODO-store-release-home-favorites-refresh-regression.md` | Home/account-profile favorite refresh regression | Completed | `2.1`, `7` | User-linked favorite state now participates in post-auth hydration and clears stale empty remote results under the archived contract. |
 | `TODO-vnext-tenant-user-account-profile-area.md` | Workspace scope and route ownership | In progress | `2.0`, `3` | Account workspace/subscope integrity. |
 | `TODO-store-release-event-multi-occurrence-ux-and-authoring-model.md` | Tenant-public multi-occurrence event detail and route hydration | Promotion Lane | `2.1`, `2.2`, `7` | Promotes selected-occurrence query hydration, `Datas` active occurrence highlight, and conditional `Programação` rendering. |
 | `TODO-store-release-invites-occurrence-target-migration.md` | Occurrence-scoped invite cutover plus share-code session-context addendum | Reopened addendum | `2.1`, `2.2`, `7` | Promotes selected-occurrence invite identity and the Store Release app-session pending invite projection. |

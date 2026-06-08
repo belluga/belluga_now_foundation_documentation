@@ -41,7 +41,7 @@
 
 - **Current delivery stage:** `Implementation-Ready`
 - **Qualifiers:** `Business-Defined`, `Policy-Frozen`, `Sequenced-After-Android`
-- **Next exact step:** freeze the QR bootstrap/session lifecycle against the current implementation snapshot below, then hand execution to a cross-stack no-context agent after `TODO-store-release-web-to-app-conversion-gate.md` reaches closure.
+- **Next exact step:** freeze the QR bootstrap/session lifecycle against the current implementation snapshot below, then hand execution to a cross-stack no-context agent after `TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md` reaches closure.
 
 ## Decision Baseline (Frozen 2026-04-17)
 
@@ -63,8 +63,9 @@
 - `foundation_documentation/modules/onboarding_flow_module.md`
 - `foundation_documentation/system_roadmap.md`
 - `foundation_documentation/endpoints_mvp_contracts.md`
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md`
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
+- `foundation_documentation/todos/completed/TODO-store-release-web-to-app-conversion-gate.md`
+- `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md`
+- `foundation_documentation/todos/completed/TODO-store-release-phone-otp-auth-and-contact-match.md`
 
 ## Module Anchors & Decision Consolidation Targets
 
@@ -85,8 +86,8 @@
 
 ## Dependencies & Sequencing
 
-- [ ] `DEP-01` `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-web-to-app-conversion-gate.md` must close first. QR-authenticated web cannot start from a stale tester-waitlist promotion boundary.
-- [ ] `DEP-02` `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md` remains the authority for authenticated app identity. QR web login depends on that app-side identity path and must not fork a second native auth method.
+- [ ] `DEP-01` `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md` must close first. QR-authenticated web should not start until the residual Android runtime/store/deferred lane is closed on top of the already-archived baseline in `TODO-store-release-web-to-app-conversion-gate.md`.
+- [ ] `DEP-02` `foundation_documentation/todos/completed/TODO-store-release-phone-otp-auth-and-contact-match.md` remains the authority for authenticated app identity. QR web login depends on that app-side identity path and must not fork a second native auth method.
 - [x] `DEP-03` This lane is already frozen as mandatory fast-follow rather than speculative VNext.
 - [x] `DEP-04` iOS universal-links/deferred-capture validation is a sibling fast-follow lane, not a blocker for QR-authenticated web delivery.
 

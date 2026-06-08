@@ -1,0 +1,326 @@
+#!/usr/bin/env node
+
+const assert = require('assert');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const { spawnSync } = require('child_process');
+
+const repoRoot = path.resolve(__dirname, '..', '..', '..');
+const guardScript = path.join(__dirname, 'guard_web_navigation_policy.cjs');
+const shardsScript = path.join(__dirname, 'web_navigation_shards.cjs');
+const smokeScript = path.join(repoRoot, 'project', 'tests', 'run_web_navigation_smoke.sh');
+const localNavigationEnv = path.join(repoRoot, '.env.local.navigation');
+const localNavigationEnvExample = path.join(repoRoot, '.env.local.navigation.example');
+const orchestrationWorkflow = path.join(repoRoot, '.github', 'workflows', 'orchestration-ci-cd.yml');
+
+function run(command, args, env = {}) {
+  return spawnSync(command, args, {
+    cwd: repoRoot,
+    env: {
+      ...process.env,
+      NAV_WEB_TEST_TYPE: 'mutation',
+      NAV_DEPLOY_LANE: 'orchestrator',
+      NAV_ADMIN_EMAIL: 'policy@example.test',
+      NAV_ADMIN_PASSWORD: 'policy-secret',
+      ...env,
+    },
+    encoding: 'utf8',
+  });
+}
+
+function withTempDir(callback) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'belluga-nav-policy-'));
+  try {
+    callback(dir);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+function assertFailsForSource(name, source, expectedMessage) {
+  withTempDir((dir) => {
+    fs.writeFileSync(path.join(dir, `${name}.spec.js`), source);
+    const result = run('node', [guardScript], {
+      NAV_WEB_TESTS_DIR: dir,
+    });
+    assert.notStrictEqual(result.status, 0, `${name} should fail closed`);
+    assert.match(
+      `${result.stdout}\n${result.stderr}`,
+      expectedMessage,
+      `${name} should explain the policy violation`,
+    );
+  });
+}
+
+function assertGuardPassesCleanFixture() {
+  withTempDir((dir) => {
+    fs.writeFileSync(
+      path.join(dir, 'clean.spec.js'),
+      "async function choose(page) { await page.getByRole('option', { name: 'A' }).click(); }\n",
+    );
+    const result = run('node', [guardScript], {
+      NAV_WEB_TESTS_DIR: dir,
+    });
+    assert.strictEqual(result.status, 0, result.stderr);
+  });
+}
+
+function assertShardValidationFails({ manifest, list, shard, expectedMessage }) {
+  withTempDir((dir) => {
+    const manifestPath = path.join(dir, 'navigation_mutation_shards.json');
+    const listPath = path.join(dir, 'selected-tests.txt');
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+    fs.writeFileSync(listPath, list);
+
+    const result = run('node', [shardsScript, 'validate', 'mutation', shard, listPath], {
+      NAV_WEB_SHARD_MANIFEST: manifestPath,
+    });
+    assert.notStrictEqual(result.status, 0, 'shard validation should fail closed');
+    assert.match(`${result.stdout}\n${result.stderr}`, expectedMessage);
+  });
+}
+
+function assertStageMutationWorkflowSuppliesRuntimeCredentials() {
+  const source = fs.readFileSync(orchestrationWorkflow, 'utf8');
+  const stepMatch = source.match(
+    /- name: Run stage mutation navigation smoke[\s\S]*?run: bash project\/tests\/run_web_navigation_smoke\.sh mutation/,
+  );
+  assert.ok(stepMatch, 'stage mutation navigation smoke step should exist');
+  assert.match(
+    stepMatch[0],
+    /NAV_ADMIN_EMAIL:\s*\$\{\{\s*vars\.STAGE_NAV_ADMIN_EMAIL\s*\}\}/,
+    'stage mutation smoke must supply NAV_ADMIN_EMAIL from stage variable',
+  );
+  assert.match(
+    stepMatch[0],
+    /NAV_ADMIN_PASSWORD:\s*\$\{\{\s*secrets\.STAGE_NAV_ADMIN_PASSWORD\s*\}\}/,
+    'stage mutation smoke must supply NAV_ADMIN_PASSWORD from stage secret',
+  );
+}
+
+function assertLocalNavigationEnvAutomationIsSafe() {
+  const gitignore = fs.readFileSync(path.join(repoRoot, '.gitignore'), 'utf8');
+  assert.match(
+    gitignore,
+    /^\.env\.local\.navigation$/m,
+    'local navigation env file must be gitignored',
+  );
+
+  const example = fs.readFileSync(localNavigationEnvExample, 'utf8');
+  assert.match(example, /^NAV_LANDLORD_URL=https:\/\/belluga\.space$/m);
+  assert.match(example, /^NAV_TENANT_URL=https:\/\/guarappari\.belluga\.space$/m);
+  assert.match(example, /^# NAV_ADMIN_EMAIL=$/m);
+  assert.match(example, /^# NAV_ADMIN_PASSWORD=$/m);
+  assert.doesNotMatch(
+    example,
+    /^NAV_ADMIN_PASSWORD=.+$/m,
+    'example file must not commit a real admin password',
+  );
+}
+
+function listWebNavigationSources(dir) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  return entries.flatMap((entry) => {
+    const entryPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      return listWebNavigationSources(entryPath);
+    }
+    if (!/\.(?:cjs|js)$/.test(entry.name)) {
+      return [];
+    }
+    return [entryPath];
+  });
+}
+
+function assertAdminSessionSecretsAreDerivedFromLogin() {
+  const forbiddenPattern =
+    /NAV_ADMIN_(?:TOKEN|USER_ID)|requireSeededLandlordSession/;
+  for (const sourcePath of listWebNavigationSources(__dirname)) {
+    if (sourcePath === __filename) {
+      continue;
+    }
+    const source = fs.readFileSync(sourcePath, 'utf8');
+    assert.doesNotMatch(
+      source,
+      forbiddenPattern,
+      `${path.relative(repoRoot, sourcePath)} must derive admin token/user id from runtime login instead of fixed env vars`,
+    );
+  }
+}
+
+function assertSmokeRunnerLoadsLocalNavigationEnv() {
+  const previousExists = fs.existsSync(localNavigationEnv);
+  const previousContent = previousExists
+    ? fs.readFileSync(localNavigationEnv, 'utf8')
+    : null;
+  const previousMode = previousExists
+    ? fs.statSync(localNavigationEnv).mode & 0o777
+    : null;
+
+  try {
+    fs.writeFileSync(
+      localNavigationEnv,
+      [
+        'NAV_LANDLORD_URL=https://belluga.space',
+        'NAV_TENANT_URL=https://guarappari.belluga.space',
+        'NAV_DEPLOY_LANE=dev',
+        'PLAYWRIGHT_IGNORE_HTTPS_ERRORS=true',
+        'NAV_ADMIN_EMAIL=policy@example.test',
+        'NAV_ADMIN_PASSWORD=policy-secret',
+        '',
+      ].join('\n'),
+      { mode: 0o600 },
+    );
+
+    const env = {
+      ...process.env,
+      NAV_WEB_TEST_TYPE: 'mutation',
+      NAV_DEPLOY_LANE: 'orchestrator',
+      NAV_WEB_SHARD: 'missing',
+    };
+    delete env.NAV_ADMIN_EMAIL;
+    delete env.NAV_ADMIN_PASSWORD;
+
+    const result = spawnSync('bash', [smokeScript, 'mutation'], {
+      cwd: repoRoot,
+      env,
+      encoding: 'utf8',
+    });
+    assert.notStrictEqual(result.status, 0, 'unknown shard should fail after env loads');
+    assert.match(
+      `${result.stdout}\n${result.stderr}`,
+      /Unknown mutation shard/,
+      'local navigation env should satisfy credential guard before shard validation fails',
+    );
+  } finally {
+    if (previousExists) {
+      fs.writeFileSync(localNavigationEnv, previousContent, { mode: previousMode });
+      fs.chmodSync(localNavigationEnv, previousMode);
+    } else {
+      fs.rmSync(localNavigationEnv, { force: true });
+    }
+  }
+}
+
+function assertRunWithTimeoutPropagatesWrappedExitStatus() {
+  const source = fs.readFileSync(smokeScript, 'utf8');
+  const match = source.match(/run_with_timeout\(\) \{[\s\S]*?\n\}/);
+  assert.ok(match, 'run_with_timeout helper should exist in smoke runner');
+
+  const result = spawnSync(
+    'bash',
+    [
+      '-lc',
+      [
+        'set -euo pipefail',
+        match[0],
+        'set +e',
+        "( run_with_timeout 'timeout-case' 1 bash -lc 'sleep 2' )",
+        'timeout_status=$?',
+        "( run_with_timeout 'failing-case' 1 bash -lc 'exit 42' )",
+        'failing_status=$?',
+        'set -e',
+        'printf "timeout=%s\\nfailing=%s\\n" "$timeout_status" "$failing_status"',
+        '[[ "$timeout_status" -eq 124 ]]',
+        '[[ "$failing_status" -eq 42 ]]',
+      ].join('\n'),
+    ],
+    {
+      cwd: repoRoot,
+      encoding: 'utf8',
+    },
+  );
+
+  assert.strictEqual(
+    result.status,
+    0,
+    `run_with_timeout should preserve wrapped failure statuses.\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`,
+  );
+}
+
+assertGuardPassesCleanFixture();
+assertStageMutationWorkflowSuppliesRuntimeCredentials();
+assertLocalNavigationEnvAutomationIsSafe();
+assertAdminSessionSecretsAreDerivedFromLogin();
+assertSmokeRunnerLoadsLocalNavigationEnv();
+assertRunWithTimeoutPropagatesWrappedExitStatus();
+
+assertFailsForSource(
+  'coordinate-click',
+  'async function bad(page) { await page.' + 'mouse.' + 'click(12, 24); }\n',
+  /mouse\.click coordinate fallbacks/,
+);
+
+assertFailsForSource(
+  'forced-click',
+  "async function bad(button) { await button." + "click({ " + "force: true }); }\n",
+  /click\(\{ force: true \}\)/,
+);
+
+assertFailsForSource(
+  'credential-fallback',
+  "const adminEmail = process.env.NAV_ADMIN_EMAIL " + "|| 'admin@example.test';\n",
+  /credential fallbacks/,
+);
+
+assertFailsForSource(
+  'dropdown-text-fallback',
+  "async function bad(page, optionText) { await page." + "getByText(optionText).click(); }\n",
+  /dropdown selection must use semantic option\/menuitem locators/,
+);
+
+assertFailsForSource(
+  'dropdown-keyboard-fallback',
+  "async function bad(page) { await page." + "keyboard." + "press('ArrowDown'); }\n",
+  /dropdown selection must use semantic option\/menuitem locators/,
+);
+
+assertFailsForSource(
+  'local-dropdown-helper',
+  'async ' + 'function ' + 'selectDropdownOption(page) { return page; }\n',
+  /dropdown helper logic must be centralized/,
+);
+
+const manifest = {
+  mutation: {
+    shards: {
+      alpha: {
+        grep_extra: 'alpha',
+        expected_titles: ['@mutation alpha path'],
+      },
+    },
+  },
+};
+
+const unknownShard = run('node', [shardsScript, 'grep', 'mutation', 'missing'], {
+  NAV_WEB_SHARD_MANIFEST: path.join(__dirname, 'navigation_mutation_shards.json'),
+});
+assert.notStrictEqual(unknownShard.status, 0, 'unknown shard id should fail');
+assert.match(`${unknownShard.stdout}\n${unknownShard.stderr}`, /Unknown mutation shard/);
+
+assertShardValidationFails({
+  manifest,
+  list: '  test › @mutation beta path\n',
+  shard: 'alpha',
+  expectedMessage: /Missing expected titles/,
+});
+
+assertShardValidationFails({
+  manifest,
+  list: '  test › @mutation alpha path\n  test › @mutation beta path\n',
+  shard: 'alpha',
+  expectedMessage: /Unexpected selected titles/,
+});
+
+const rawGrepResult = run('bash', [smokeScript, 'mutation'], {
+  NAV_WEB_GREP_EXTRA: 'manual',
+  NAV_WEB_ALLOW_RAW_GREP: '0',
+});
+assert.notStrictEqual(rawGrepResult.status, 0, 'raw grep should fail without explicit allowance');
+assert.match(
+  `${rawGrepResult.stdout}\n${rawGrepResult.stderr}`,
+  /NAV_WEB_GREP_EXTRA is ad-hoc/,
+);
+
+console.log('Navigation harness policy regression tests passed.');
