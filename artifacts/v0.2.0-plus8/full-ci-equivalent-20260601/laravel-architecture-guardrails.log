@@ -1,4 +1,0 @@
-> @php scripts/architecture_guardrails.php
-[ARCH-GUARDRAILS] FAIL - architecture violations detected:
- - [LAR-MONGO-CAST-BAN] app/Models/Tenants/AccountProfile.php:52 Mongo-backed model uses forbidden cast type `array` in $casts.
-Script @php scripts/architecture_guardrails.php handling the architecture:guardrails event returned with error code 1

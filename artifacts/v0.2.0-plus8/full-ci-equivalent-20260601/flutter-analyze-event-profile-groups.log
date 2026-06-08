@@ -1,9 +1,0 @@
-
-Analyzing flutter-app...                                        
-
-   info • The constant name 'invitation_outlined' isn't a lowerCamelCase identifier • assets/fonts/boora_icons_source/icomoon/boora_icons_icomoon.dart:19:25 • constant_identifier_names
-   info • The constant name 'invitation_outlined' isn't a lowerCamelCase identifier • assets/fonts/boora_icons_source/icomoon/boora_icons_icomoon.dart:19:25 • constant_identifier_names
-warning • The declaration '_SearchableCandidatesEventsRepository' isn't referenced • test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart:4211:7 • unused_element
-warning • The declaration '_SearchableCandidatesEventsRepository' isn't referenced • test/presentation/tenant_admin/events/tenant_admin_event_form_screen_test.dart:4211:7 • unused_element
-
-4 issues found. (ran in 122.5s)

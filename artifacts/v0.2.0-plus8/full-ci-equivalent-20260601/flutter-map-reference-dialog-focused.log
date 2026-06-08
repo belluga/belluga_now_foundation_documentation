@@ -1,6 +1,0 @@
-
-00:00 +0: loading /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/flutter-app/test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart
-00:00 +0: (setUpAll)
-00:00 +0: MapScreen safe back map deck asks for confirmation before saving account profile reference point
-00:03 +1: (tearDownAll)
-00:04 +1: All tests passed!

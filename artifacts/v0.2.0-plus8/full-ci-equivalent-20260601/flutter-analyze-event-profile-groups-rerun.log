@@ -1,7 +1,0 @@
-
-Analyzing flutter-app...                                        
-
-   info • The constant name 'invitation_outlined' isn't a lowerCamelCase identifier • assets/fonts/boora_icons_source/icomoon/boora_icons_icomoon.dart:19:25 • constant_identifier_names
-   info • The constant name 'invitation_outlined' isn't a lowerCamelCase identifier • assets/fonts/boora_icons_source/icomoon/boora_icons_icomoon.dart:19:25 • constant_identifier_names
-
-2 issues found. (ran in 114.9s)

@@ -172,7 +172,7 @@ Aggregated dashboard data remains a future authenticated workspace-facing read c
 
 Discovery runtime behavior for tenant-public account-profile listing is fixed as follows:
 - Default discovery hierarchy uses `Tocando agora` + `Perto de você` as the top composition, followed by `Descubra` with registry-driven single-select category chips.
-- Discovery category chips and type options must be derived only from the centralized public account-profile catalog scope; contacts/friends-only profile types such as `personal` must not appear as public Discovery filters, and legacy public non-`personal` types without the new flag must keep rendering during rollout.
+- Discovery category chips and type options start from the centralized public account-profile catalog scope, then are pruned by backend-owned runtime facets computed from the full currently filtered universe before pagination. Contacts/friends-only profile types such as `personal` must not appear as public Discovery filters, legacy public non-`personal` types without the new flag must keep rendering during rollout, and Flutter must not locally synthesize candidate filters from current-page items.
 - Entering search mode hides `Tocando agora`, `Perto de você`, and the `Descubra` heading/chip chrome.
 - While search mode is active with an empty query, the unfiltered base discovery grid remains visible; text filtering begins only after the user types.
 - Discovery-side profile entrypoints continue to launch the canonical public account-profile detail route `/parceiro/:slug`; detail-route behavior is governed separately.

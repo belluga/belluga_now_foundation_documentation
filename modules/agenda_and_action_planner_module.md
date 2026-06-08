@@ -92,7 +92,7 @@ Events use canonical `location` + `place_ref`; venue projection is resolved from
 - Home Agenda UX rule: the selected Home radius is a persisted user/device preference (including anonymous sessions) carried through the app runtime settings path, but this V1 persistence applies only to the Home Agenda surface until schedule/discovery radius consumers are intentionally unified.
 - Home Agenda chrome rule: compact/expanded radius chrome must derive from the same scroll source that moves the rendered agenda list. If an agenda widget controller owns that local chrome state, it remains subtree-private; any shared/persisted radius preference remains repository-owned rather than controller-relayed.
 - Home Agenda status/radius chrome rule: the invite-status action and radius action are mutually exclusive in their expanded visual state. The status action is compact by default, expands as `Convites` for received/pending invitation filtering, and expands as `Confirmados` for occurrences where the user confirmed attendance regardless of invite origin.
-- Event card rendering rule: compact agenda event cards compress multiple linked Account Profiles as first profile plus `e mais X`, reserve a stable trailing action slot, and render explicit time ranges as `start às end`.
+- Event card rendering rule: compact agenda event cards compress multiple linked Account Profiles as first profile plus `e mais X`, reserve a stable trailing action slot, and consume model/projection-owned human-ready schedule labels. When a day header already owns the date context, same-day ranges render compactly as `20h-22h`; cross-day ranges retain both date contexts.
 
 **Response**
 ```json
@@ -175,7 +175,7 @@ Events use canonical `location` + `place_ref`; venue projection is resolved from
 }
 ```
 
-**Display rule:** chips use `event.tags` if provided; otherwise aggregate all `artists[*].genres`; if both are empty, show no chips. Artists list itself may be empty.
+**Display rule:** chips use the canonical effective `taxonomy_terms` display snapshot for the occurrence/event being rendered. Only when the effective event taxonomy snapshot is empty may the consumer fall back to artist genres; raw persisted event `tags[]` is never a public payload/display contract here.
 
 ### Field Definitions
 - `thumb.type` ∈ {`image`}

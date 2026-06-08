@@ -139,7 +139,7 @@ This module is the canonical source for stable Events decisions. Tactical TODOs 
 ### 5.4 Search and index lifecycle model
 
 - Text search is disabled for MVP agenda/events listing (`search` is prohibited).
-- Filtering baseline is categorical + taxonomy + geo (`categories`, `tags`, `taxonomy`, origin/radius).
+- Filtering baseline is categorical + taxonomy + geo (`categories`, `taxonomy`, origin/radius). Legacy raw `tags` query parameters are prohibited on touched public event flows.
 - `live_now_only=true` is supported on `/agenda` to return only currently-running occurrences and is used by Discovery "Tocando agora" surfaces.
 - Consumer alignment note (Flutter Discovery MVP): the `Tocando agora` section is artist-driven and remains hidden when live-now payload has no artists, even if occurrences are currently live.
 - Taxonomy filters use typed slug pairs (`taxonomy[].type`, `taxonomy[].value`) across effective occurrence taxonomy, venue taxonomy, linked-account-profile taxonomy, and compatibility artist taxonomy; display fields (`name`, `taxonomy_name`, `label`) are never query keys. Effective occurrence taxonomy means occurrence-owned terms replace event-level terms when present, otherwise the event terms apply.

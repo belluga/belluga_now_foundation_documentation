@@ -1,0 +1,67 @@
+{
+  "round": 1,
+  "reviewer_id": "critique-subagent-r01",
+  "overall_assessment": "The bounded package demonstrates a well-structured canonical approach to queryability/navigability separation with centralized enforcement. The layered evidence (Laravel feature/unit tests, Flutter unit tests, browser runtime diagnostic, guardrail script) is coherent and covers the primary regression vector. No concrete severe blocking findings identified. Several non-blocking debt items are noted for structural honesty.",
+  "recommended_path": "advance",
+  "performance_position": "pass",
+  "elegance_position": "pass",
+  "structural_soundness_position": "pass",
+  "operational_fit_position": "pass",
+  "findings": [
+    {
+      "finding_id": "F-01",
+      "severity": "non_blocking_debt",
+      "axis": "performance",
+      "category": "query_filtering_verification",
+      "title": "Type-set filtering push-down not directly verified in package evidence",
+      "description": "The bounded package asserts that filtering is type-set pushed into queries rather than broad fetch + in-memory filtering, but the evidence provided does not include query-level assertions (e.g., EXPLAIN output, query log assertions, or test stubs that verify the WHERE clause shape). The test names confirm behavioral exclusion but do not confirm that the exclusion happens at the DB layer vs. a post-fetch PHP filter. For current cardinalities this is likely non-risky, but if AccountProfiles grow to high cardinality or the query service is reused in a list/aggregate path, an unverified in-memory filter would become a concrete performance risk.",
+      "formalizable_hint": "Add a query-count or query-log assertion in AccountProfileQueryServiceTest to confirm that the capability scope reduces the DB query predicate, not a post-hydration collection filter.",
+      "candidate_rule_level": "recommended",
+      "blocking": false
+    },
+    {
+      "finding_id": "F-02",
+      "severity": "non_blocking_debt",
+      "axis": "elegance",
+      "category": "allowlist_scope_discipline",
+      "title": "Allowlist audit output reviewed but allowlist breadth not challenged in evidence",
+      "description": "The guardrail script passes and produces an allowlisted findings report with audit checklist output, but the bounded package does not expose the contents of the allowlist or assert a maximum cardinality. An unconstrained allowlist risks becoming a convenience bypass accumulator over time. The current evidence confirms the mechanism works but does not bound its scope.",
+      "formalizable_hint": "The AccountProfileQueryabilityGuardrailsTest should assert an upper bound on allowlist entries (e.g., <= N) and verify each entry has a non-empty owner and rationale field to prevent silent accumulation.",
+      "candidate_rule_level": "recommended",
+      "blocking": false
+    },
+    {
+      "finding_id": "F-03",
+      "severity": "non_blocking_debt",
+      "axis": "structural_soundness",
+      "category": "consumer_locality_residual",
+      "title": "Map widget layer (poi_base_card, poi_detail_card_builder, etc.) capability decisions not explicitly audited",
+      "description": "Several Flutter map POI widgets are listed as touched surfaces. The evidence confirms the map controller test passes for 'account profile poi' but does not confirm that the individual widget files do not contain local is_queryable or slug-inference logic that would duplicate the backend contract. If any widget performs local capability inference it creates a dual-authority path that can diverge silently.",
+      "formalizable_hint": "A grep/static check asserting that touched map widget files do not reference any local queryability field or slug-only navigation inference would close this gap definitively.",
+      "candidate_rule_level": "recommended",
+      "blocking": false
+    },
+    {
+      "finding_id": "F-04",
+      "severity": "non_blocking_debt",
+      "axis": "operational_fit",
+      "category": "bundle_hash_verification_protocol",
+      "title": "Bundle hash verified but the verification step is manual and ephemeral",
+      "description": "The bundle hash comparison between local build and served asset is a strong operational verification step. However, it is manual and not captured in a repeatable CI artifact. If the deployment step is repeated or a cache invalidation occurs, the hash check is not automatically re-run. This is not a blocking risk for this delivery, but the verification step should be promoted to a repeatable script or CI gate for future deployments.",
+      "formalizable_hint": "Promote the hash comparison to a post-deploy verification script callable from CI so bundle integrity is not solely reliant on manual author verification.",
+      "candidate_rule_level": "optional",
+      "blocking": false
+    },
+    {
+      "finding_id": "F-05",
+      "severity": "non_blocking_debt",
+      "axis": "performance",
+      "category": "favorites_snapshot_builder_path",
+      "title": "FavoritesQueryService snapshot builder touched but no query-bounding evidence provided",
+      "description": "AccountProfileFavoriteSnapshotBuilder and FavoritesQueryService are listed as touched surfaces. Favorites snapshot builders are a historically common location for fetch-all or high-cardinality in-memory enrichment patterns. The evidence confirms the favorites section controller origin flow test passes but does not confirm the snapshot builder path is query-bounded (e.g., it fetches only capability-qualified profiles, not all then filters). At current scale this is non-blocking, but the path warrants a note.",
+      "formalizable_hint": "Add a test or query-log assertion in the favorites snapshot builder path confirming that only queryable/navigable profiles are fetched, not a full profile set filtered post-hydration.",
+      "candidate_rule_level": "recommended",
+      "blocking": false
+    }
+  ]
+}

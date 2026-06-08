@@ -1,0 +1,85 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/ux-audits/canonical-event-action-surface/triple-audit-session/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "reviewer_label": "test-quality-claude",
+  "overall_assessment": "blocking for implementation until test evidence is specified",
+  "recommended_path": "block implementation until concrete test matrix is part of the TODO",
+  "performance_position": "acceptable",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "regresses",
+  "findings": [
+    {
+      "finding_id": "TQ-001",
+      "severity": "high",
+      "category": "tests",
+      "title": "WhatsApp hero action lacks dedicated direct-launch coverage",
+      "rationale": "The proposal depends on WhatsApp remaining an immediate shortcut/fallback, but current test coverage was reported as missing for this behavior.",
+      "suggested_action": "Require widget/controller test proving WhatsApp hero action invokes the WhatsApp/fallback launcher directly and does not open the canonical sheet.",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project"
+    },
+    {
+      "finding_id": "TQ-002",
+      "severity": "high",
+      "category": "tests",
+      "title": "Sheet-first Convidar navigation contract is untested",
+      "rationale": "Current tests validate direct navigation to InviteShareRoute. The proposed behavior needs the inverse: first open canonical sheet, then route only after explicit action.",
+      "suggested_action": "Require test: tap Convidar -> canonical action sheet visible -> tap full composer action -> InviteShareRoute pushed; fail if route is pushed immediately.",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project"
+    },
+    {
+      "finding_id": "TQ-003",
+      "severity": "high",
+      "category": "tests",
+      "title": "Promotion variant must prove shared action-sheet anatomy",
+      "rationale": "The proposal purpose is visual/surface canonicalization. Existing modal tests validate content but not shared surface anatomy.",
+      "suggested_action": "Require promotion gate test asserting the canonical action-sheet component/keys are used and phone-login UI is absent on web anonymous.",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project"
+    },
+    {
+      "finding_id": "TQ-004",
+      "severity": "high",
+      "category": "tests",
+      "title": "Web anonymous runtime gate needs Playwright coverage",
+      "rationale": "The critical operational contract is web anonymous gate -> promotion surface, with no phone login and no auto-open app before CTA. Widget tests alone are insufficient for browser/runtime behavior.",
+      "suggested_action": "Require source-owned Playwright coverage for web anonymous desktop/mobile-frame favorite or action gate behavior.",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project"
+    },
+    {
+      "finding_id": "TQ-005",
+      "severity": "high",
+      "category": "tests",
+      "title": "CI execution evidence for runtime navigation must be explicit",
+      "rationale": "Integration/runtime tests are only valuable if the correct runner includes them. The proposal must name the commands/CI-equivalent path.",
+      "suggested_action": "Implementation TODO must list exact focused Flutter, analyzer, rule matrix, build web, and Playwright commands before delivery.",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project"
+    },
+    {
+      "finding_id": "TQ-006",
+      "severity": "low",
+      "category": "tests",
+      "title": "System share tests may rely on fake launcher only",
+      "rationale": "Fake launcher validates payload formatting but not platform/plugin behavior. This is acceptable for focused unit coverage but weaker than runtime proof.",
+      "suggested_action": "Keep fake-launcher assertions for determinism and add runtime/browser smoke only where platform behavior is release-critical.",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "none"
+    },
+    {
+      "finding_id": "TQ-007",
+      "severity": "low",
+      "category": "tests",
+      "title": "Invite backend mutation coverage is outside proposal but will matter if composer logic changes",
+      "rationale": "The UX proposal does not change backend invite semantics, but any implementation that changes send/share-code/status behavior must add backend/controller coverage.",
+      "suggested_action": "Keep backend invite semantics out of this TODO; if touched, require mutation/contract tests.",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "none"
+    }
+  ]
+}

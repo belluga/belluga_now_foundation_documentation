@@ -1,0 +1,46 @@
+{
+  "overall_assessment": "The bounded package demonstrates a well-structured canonical implementation for the account profile queryability and public navigation contract. The separation of concerns between capability catalog, query gateway, and consumer surfaces is architecturally sound. Validation evidence is comprehensive and the regression coverage appears materially complete. No blocking findings identified; minor non-blocking debt noted.",
+  "recommended_path": "approve",
+  "performance_position": "pass",
+  "elegance_position": "pass",
+  "structural_soundness_position": "pass",
+  "operational_fit_position": "pass",
+  "findings": [
+    {
+      "finding_id": "F-01",
+      "category": "elegance",
+      "formalizable_hint": "Verify that AccountProfileNestedGroupService does not perform its own capability filtering locally — it should delegate entirely to AccountProfileQueryService or the capability catalog rather than re-implementing any queryability guard logic inline.",
+      "candidate_rule_level": "advisory",
+      "severity": "non_blocking",
+      "description": "The bounded package lists AccountProfileNestedGroupService as a touched surface alongside the canonical AccountProfileQueryService. If NestedGroupService performs any local capability check (e.g., filtering groups by queryability inline rather than routing through the gateway), this creates a second enforcement path that can silently drift from the canonical guard. The package does not explicitly confirm whether NestedGroupService delegates fully or holds a local copy of capability logic.",
+      "recommendation": "Confirm that AccountProfileNestedGroupService contains no inline queryability or navigability filtering. All such decisions must flow through AccountProfileQueryService or AccountProfileTypeCapabilityCatalog. If a local filter exists, extract it to the gateway. Flag as debt if confirmed but low-risk."
+    },
+    {
+      "finding_id": "F-02",
+      "category": "structural_soundness",
+      "formalizable_hint": "The allowlist audit output must name each allowlisted bypass with an owner and rationale; spot-check that the guardrail script enforces non-empty owner/rationale fields and does not accept silent wildcard entries.",
+      "candidate_rule_level": "advisory",
+      "severity": "non_blocking",
+      "description": "The guardrail script passes with 'allowlisted findings report and required audit checklist output'. The package does not reveal how many entries are allowlisted or whether any entry carries a wildcard or empty rationale. A broad allowlist with underspecified rationale defeats the purpose of the guardrail and creates a compliance surface that can grow silently.",
+      "recommendation": "Ensure the guardrail script enforces non-empty owner and rationale for every allowlisted path. Audit the current allowlist count; if it is larger than expected for the bounded scope, review each entry for legitimate necessity."
+    },
+    {
+      "finding_id": "F-03",
+      "category": "performance",
+      "formalizable_hint": "Confirm that AccountProfileQueryService builds the non-queryable type exclusion as a set-based WHERE clause (e.g., whereNotIn on type_id) that is pushed to the database, not as a post-fetch in-memory filter on a broad result set.",
+      "candidate_rule_level": "advisory",
+      "severity": "non_blocking",
+      "description": "The package claims filtering is type-set pushed into queries but does not reproduce the query builder logic. If the capability catalog produces a PHP array that is consumed after a broad fetch (e.g., Collection::filter in application code after an unscoped Eloquent all()), this is a latent performance regression at scale. The audit focus explicitly requests this challenge.",
+      "recommendation": "Confirm the WHERE constraint is applied at the query level (Eloquent scope or query builder whereNotIn/whereHas). If in-memory filtering exists anywhere in the bounded path, migrate it to the query layer and add a regression note."
+    },
+    {
+      "finding_id": "F-04",
+      "category": "operational_fit",
+      "formalizable_hint": "The Playwright diagnostic requires NAV_RUNTIME_DB_MUTATION_ALLOWED=1 to run the mutation path; confirm this guard flag is documented in CI and that the mutation path is not silently skipped in standard CI runs, leaving the non-queryable suppression assertion unexercised in automated pipelines.",
+      "candidate_rule_level": "advisory",
+      "severity": "non_blocking",
+      "description": "The browser runtime diagnostic passes only with NAV_RUNTIME_DB_MUTATION_ALLOWED=1. If CI runs the spec without this flag, the mutation branch (stale-reference suppression assertion) will be skipped, meaning the user-visible regression case is not covered in standard CI. The package does not state whether this flag is set in the CI environment for this spec.",
+      "recommendation": "Document whether the mutation path executes in CI. If not, ensure the non-mutation path still exercises the key assertions (hidden profile absent from public tab, non-navigable participant remains on event detail) under the default flag. If CI skips the mutation branch entirely, escalate to ensure at minimum the suppression assertion runs in a scheduled or pre-merge context."
+    }
+  ]
+}

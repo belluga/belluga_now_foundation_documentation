@@ -186,3 +186,16 @@ Every production runtime query-path change must answer:
 5. Did we avoid default abstract-contract fallbacks that simulate pagination locally?
 
 If any answer is `no`, the change is not ready.
+
+## Hard-Cut Reviewer Lens
+
+When the governing TODO or project constitution declares a hard cutoff, query-path review must include a dedicated `cutover-integrity` pass.
+
+That reviewer should challenge:
+
+1. Did we create a pseudo-canonical field or alias only to preserve the old path?
+2. Did we add query-time stitching to hide that canonical ownership/materialization is still missing?
+3. Did a "temporary" fallback become the new steady-state request path?
+4. Would removing the bridge immediately reveal that the real canonical contract is still absent?
+
+If any answer is `yes`, the path is workaround architecture and the slice should block or rescope instead of claiming completion.

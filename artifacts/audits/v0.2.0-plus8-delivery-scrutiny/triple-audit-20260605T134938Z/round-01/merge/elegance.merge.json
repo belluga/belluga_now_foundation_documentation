@@ -1,0 +1,161 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/v0.2.0-plus8-delivery-scrutiny/triple-audit-20260605T134938Z/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "Claude Elegance"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "unknown",
+    "elegance": "regresses",
+    "structural_soundness": "regresses",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "block"
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-B56DFF86",
+      "severity": "high",
+      "title": "Worktree not promotion-frozen: uncommitted test spec modification and untracked directory",
+      "rationale": "git status shows M tools/flutter/web_app_tests/discovery_filters.spec.js (modified, not staged or committed) and ?? .playwright-mcp/ (untracked). A lane entering promotion-lane preparation must have a fully committed, artifact-stable worktree. The uncommitted modification means the current test content is invisible to CI and cannot be treated as delivered evidence. The untracked .playwright-mcp/ directory indicates active tooling state that has not been formally resolved. Declaring promotion readiness from a dirty worktree is an operational fit failure.",
+      "suggested_action": "Commit the discovery_filters.spec.js modification (or revert if it represents abandoned work), resolve .playwright-mcp/ by either adding it to .gitignore or committing it as a governed artifact, and confirm git status is clean before any promotion-lane claim is advanced.",
+      "reviewer_labels": [
+        "Claude Elegance"
+      ],
+      "source_finding_ids": [
+        "ELE-04"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-D74F95C5",
+      "severity": "high",
+      "title": "Seven TODOs with post-commit/push pending are non-terminal and cannot be counted as closed",
+      "rationale": "cover-crop-560x512, event-directions-inline-provider-actions, map-filter-event-types-catalog-hydration, map-filter-visual-override-decoupling, reference-poi-reference-point-actions, route-scoped-detail-controller-resolution, and tenant-public-action-sheet-and-event-time-language are all at Local-Validated but show post-commit/push: pending. Local-Validated is not a terminal stage: delivery gates, todo_completion_guard.py pass, package closeout, and push confirmation are required. Treating these seven as delivered creates a false-green lane state \u2014 7 of 13 TODOs are in a non-terminal state at the time of this audit.",
+      "suggested_action": "Advance all seven TODOs through their remaining delivery gates sequentially. Do not aggregate them as ready-for-promotion-lane until each one passes todo_completion_guard.py, completes post-commit and post-push, and records package closeout. A lane-wide promotion claim requires all active-set TODOs to be individually closed, not just locally validated.",
+      "reviewer_labels": [
+        "Claude Elegance"
+      ],
+      "source_finding_ids": [
+        "ELE-05"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-225A833A",
+      "severity": "high",
+      "title": "Reopened addendum TODO missing device evidence on confirmed navigation regression",
+      "rationale": "event-profile-groups-canonical-consistency is explicitly marked Reopened / Addendum Browser-Validated Pending Consolidated CI-Equivalent with ADB/device navigation still pending. The user already reproduced real device-level navigation failures in this exact area: Outro Grupo navigation enforcement and non-navigable profile card semantics. Missing device evidence is not a paperwork omission \u2014 it is absent sign-off on the exact platform where the regression was observed and confirmed. This is a direct release risk.",
+      "suggested_action": "Complete ADB/device navigation validation for event-profile-groups-canonical-consistency covering at minimum: (1) Outro Grupo non-navigable enforcement on a real device or emulator, (2) aggregate tab visibility after admin authoring through the date/programming sheet path, (3) chip-count/readback consistency between admin and public surfaces. All three must pass before this TODO can progress to Local-Validated.",
+      "reviewer_labels": [
+        "Claude Elegance"
+      ],
+      "source_finding_ids": [
+        "ELE-03"
+      ],
+      "category": "adherence",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-257B5368",
+      "severity": "high",
+      "title": "Release-blocking TODO at Pending stage in active lane set",
+      "rationale": "public-taxonomy-canonicalization-and-runtime-facets remains at stage Pending \u2014 the earliest possible TODO stage \u2014 with its DOD/VAL matrix broadly unchecked. A lane cannot claim promotion readiness while an active TODO in its own active set has not cleared even initial implementation. The stage designation Pending is unambiguous. No delivery claim for the lane survives this: the active set is the authority boundary and a Pending member in that set means the lane scope is not satisfied.",
+      "suggested_action": "Either advance public-taxonomy-canonicalization-and-runtime-facets through all required stages (Implementation-Ready \u2192 Local-Implemented \u2192 Local-Validated \u2192 closed with todo_completion_guard.py pass) or explicitly defer it out of the v0.2.0+8 lane with a formal deferral record in the lane's constitution artifact before any promotion claim is advanced. Deferral without documentation is not acceptable \u2014 it would silently shrink the delivered scope.",
+      "reviewer_labels": [
+        "Claude Elegance"
+      ],
+      "source_finding_ids": [
+        "ELE-01"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-A9C6C89C",
+      "severity": "high",
+      "title": "Parent/child TODO split creates indeterminate lane closure path",
+      "rationale": "nested-account-profile-groups is the declared parent capability surface and remains at Implementation-Ready. The actual event/occurrence delivery burden migrated into event-profile-groups-canonical-consistency. This split was never formally resolved: the parent is not closed and the child is explicitly reopened. The lane cannot close deterministically while the parent is open. Any implicit claim that the child's delivery satisfies the parent's scope is ungoverned. This is a structural elegance failure \u2014 the authority hierarchy of the TODO set is incoherent and makes the close condition indeterminate.",
+      "suggested_action": "Resolve the parent/child relationship explicitly before any promotion claim. Either close nested-account-profile-groups with a formal delegation record pointing to event-profile-groups-canonical-consistency as the delivery vehicle, or advance the parent through its own delivery gates independently. Do not allow the child to close first while the parent remains at Implementation-Ready.",
+      "reviewer_labels": [
+        "Claude Elegance"
+      ],
+      "source_finding_ids": [
+        "ELE-02"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-F6AE626C",
+      "severity": "medium",
+      "title": "account-profile-queryability-navigation-contract at Local-Implemented with confirmed non-navigable card regression unresolved",
+      "rationale": "This TODO is at Local-Implemented \u2014 not yet validated \u2014 while the package documents a user-reported regression where non-queryable or non-navigable profiles still appear or still navigate on the runtime surface. The gap between Local-Implemented and Local-Validated is precisely where the regression is most likely to survive undetected. The diagnostic browser spec exists but its coverage of the non-navigable enforcement path has not been confirmed against the real regression.",
+      "suggested_action": "Advance account-profile-queryability-navigation-contract through explicit validation targeting the real runtime surfaces where non-navigable cards appeared. Confirm that account_profile_queryability_runtime.diagnostic.spec.js exercises non-queryable profile rendering suppression and navigation enforcement \u2014 not only the happy path \u2014 before marking this TODO Local-Validated.",
+      "reviewer_labels": [
+        "Claude Elegance"
+      ],
+      "source_finding_ids": [
+        "ELE-08"
+      ],
+      "category": "adherence",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-D0D4EF3E",
+      "severity": "medium",
+      "title": "Status-only assertions in modified browser spec cannot detect the reported label regression",
+      "rationale": "The test quality audit flagged status-only assertion hints in the modified discovery_filters.spec.js. The user-reported regression in this area is specifically about filter labels: blank or placeholder labels visible before any user selection instead of resolved human labels. A browser spec that asserts HTTP status codes or filter key presence but not rendered label content is structurally incapable of detecting this regression. This is not marginal polish \u2014 the failing behavior requires DOM-level label assertion to be catchable by any automated test.",
+      "suggested_action": "Add assertions to discovery_filters.spec.js that verify: (1) resolved human-readable labels are rendered on filter chips before any user interaction, (2) no placeholder or blank states appear on initial render, (3) the full-universe aggregation produces non-empty filter option sets with visible labels. These must be DOM-level content assertions, not HTTP status or key-presence checks.",
+      "reviewer_labels": [
+        "Claude Elegance"
+      ],
+      "source_finding_ids": [
+        "ELE-07"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-7EF85DC5",
+      "severity": "medium",
+      "title": "Stale shared evidence artifact cited across multiple TODOs after addendum period",
+      "rationale": "Multiple TODOs cite foundation_documentation/artifacts/tmp/reconcile_validation_status_20260528_012558_full_ci_equivalent_atlas_runtime.md (dated 2026-05-28) as their primary CI-equivalent evidence. User-reported regressions and addendum work occurred after that date. An evidence artifact predating the addendum period cannot certify post-addendum behavior. This is an elegance failure in the evidence chain: the lane's green signals are ambiguous because the primary evidence source is stale relative to the confirmed regression timeline.",
+      "suggested_action": "For each TODO that reopened an addendum or received a user-reported regression after 2026-05-28, generate a fresh consolidated CI-equivalent artifact explicitly covering the addendum scope. The 2026-05-28 artifact may remain as historical context but must not serve as the primary evidence source for any post-addendum validation claim.",
+      "reviewer_labels": [
+        "Claude Elegance"
+      ],
+      "source_finding_ids": [
+        "ELE-06"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

@@ -97,3 +97,22 @@ Practical rules:
 - If a legacy active file violates the naming rule, rename it the next time it is touched as part of otherwise safe work.
 - Update durable cross-references in the same change when a rename happens.
 - Do not let disposable local artifacts such as `artifacts/tmp/**` block safe naming cleanup in the canonical TODO tree.
+
+## 7) Hard-Cut Review Requirement
+
+When a TODO declares any of the following:
+- hard cutoff / no backward compatibility,
+- canonical cutover,
+- legacy contract retirement,
+- replacement of temporary/legacy fields or paths,
+- read-model or query-path ownership migration,
+
+it must explicitly add a dedicated `cutover-integrity` review gate to its contract/evidence model.
+
+Minimum expectation:
+- define the reviewer in the TODO's review/audit plan or validation matrix;
+- state that the reviewer is checking for workaround architecture, not style;
+- treat as blocking any durable shim disguised as final architecture, including pseudo-canonical `*_effective` fields, silent fallback mirrors, dual-read/dual-write bridges left in place, or query-time stitching that compensates for missing canonical ownership;
+- if a temporary compatibility construct is truly unavoidable, record it as temporary, bounded, and closure-blocking until removal.
+
+Do not rely on "Elegance" review alone to cover this. The purpose of `cutover-integrity` is narrower and more adversarial: verify that the path chosen is actually canonical and not a workaround that happened to pass the tests.
