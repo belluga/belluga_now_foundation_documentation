@@ -1,0 +1,69 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "foundation_documentation/artifacts/tenant-admin-account-profile-lifecycle-critique-dispatch-20260529.json",
+  "review_kind": "critique",
+  "reviewer_label": "pre-approval-critique",
+  "overall_assessment": "not_ready",
+  "recommended_path": "Revise the TODO before renewed APROVADO to make the invariant atomic, make repair safety predicates explicit, and define aggregate deletion bypass as a narrow lifecycle boundary.",
+  "performance_position": "mixed",
+  "elegance_position": "mixed",
+  "structural_soundness_position": "regresses",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "CRIT-01",
+      "severity": "high",
+      "title": "Last-profile deletion prevention must be atomic under concurrent deletes.",
+      "rationale": "The package requires service-level guards for delete and forceDelete but does not require transaction or locking semantics. Two direct profile deletes can both observe another active profile and then both delete, leaving a live account with zero active profiles.",
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/app/Application/AccountProfiles/AccountProfileManagementService.php"
+      ],
+      "suggested_action": "Add an explicit atomicity requirement for the guard, such as locking the account/profile set or an equivalent transactional invariant, and require a concurrency regression test covering simultaneous profile deletion."
+    },
+    {
+      "finding_id": "CRIT-02",
+      "severity": "high",
+      "title": "Repair execute mode needs enumerated safe-delete, safe-restore, and skip predicates.",
+      "rationale": "D-04 recommends deleting known test-seed aggregates, restoring safe non-test rows, and skipping ambiguous rows, but the approval decision does not define mandatory safety predicates.",
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/routes/console.php"
+      ],
+      "suggested_action": "Define exact execute-mode predicates before approval: tenant match, ownership/source evidence, allowed test prefixes, linked-data handling, profile type existence, single-vs-multiple soft-deleted profile behavior, and residual reporting format."
+    },
+    {
+      "finding_id": "CRIT-03",
+      "severity": "medium",
+      "title": "Aggregate account deletion bypass must be a named lifecycle boundary.",
+      "rationale": "The plan preserves aggregate account deletion and may need a bypass context, but an implicit or broadly callable bypass could reintroduce direct profile deletion as an invariant escape hatch.",
+      "category": "adherence",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/app/Application/Accounts/AccountManagementService.php",
+        "laravel-app/app/Application/AccountProfiles/AccountProfileManagementService.php"
+      ],
+      "suggested_action": "State that profile deletion may bypass the last-profile guard only inside the account aggregate deletion transaction/service path, and require a regression test proving direct callers cannot use that bypass."
+    },
+    {
+      "finding_id": "CRIT-04",
+      "severity": "medium",
+      "title": "Invariant checks and repair scans must be bounded by indexed predicates.",
+      "rationale": "The plan does not state query-shape or index expectations for the guard or repair enumeration.",
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/app/Application/AccountProfiles/AccountProfileManagementService.php",
+        "laravel-app/routes/console.php"
+      ],
+      "suggested_action": "Require bounded indexed lookups for account_id/deleted_at-style predicates and include query/log evidence from focused tests or dry-run repair."
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/ux-audits/canonical-event-action-surface/triple-audit-session/round-01/dispatch/elegance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "elegance-claude"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "acceptable",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "accept with documented debt and migration constraints"
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-8EE173C3",
+      "severity": "medium",
+      "title": "Test matrix needs concrete navigation and component assertions",
+      "rationale": "The package lists generic test requirements but does not name deterministic assertions. Implementation could pass shallow tests while missing the canonical sheet-first contract.",
+      "suggested_action": "Before implementation, define exact widget keys, route assertions, and launcher assertions for Convidar, Compartilhar, WhatsApp, promotion, and full composer reachability.",
+      "reviewer_labels": [
+        "elegance-claude"
+      ],
+      "source_finding_ids": [
+        "TEST-001"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-F19EA453",
+      "severity": "medium",
+      "title": "Full invite composer route must remain explicitly reachable",
+      "rationale": "Moving from direct route to sheet-first creates a migration risk: the advanced composer could be orphaned if the explicit route action is omitted.",
+      "suggested_action": "Make the full composer action mandatory in the sheet and test Convidar -> sheet -> full composer navigation.",
+      "reviewer_labels": [
+        "elegance-claude"
+      ],
+      "source_finding_ids": [
+        "OPS-001"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-5AD8E520",
+      "severity": "low",
+      "title": "Shared action sheet may over-abstract distinct contexts",
+      "rationale": "Promotion, invite first-touch, and share overflow have different data sources and density. A shared component is sound only if it owns anatomy/tokens, not business variant logic.",
+      "suggested_action": "Define the shared surface as anatomy/layout primitives plus action model; keep business content in feature-owned builders.",
+      "reviewer_labels": [
+        "elegance-claude"
+      ],
+      "source_finding_ids": [
+        "STR-001"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-0E670276",
+      "severity": "low",
+      "title": "Promotion modal migration creates churn risk after approval",
+      "rationale": "The current promotion modal was manually approved. Moving it to the action-sheet family is still strategically coherent, but requires a migration rationale and regression evidence to avoid gratuitous visual churn.",
+      "suggested_action": "Migrate promotion only as part of the canonical surface system and require regression evidence that approved web gate behavior remains intact.",
+      "reviewer_labels": [
+        "elegance-claude"
+      ],
+      "source_finding_ids": [
+        "ELG-002"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-F08F3C3B",
+      "severity": "low",
+      "title": "Hero action interaction depth is asymmetric",
+      "rationale": "Convidar would open a sheet while Compartilhar and WhatsApp remain immediate. The distinction is product-defensible because invite has domain state, but it should be documented to avoid accidental UX drift.",
+      "suggested_action": "Document the accepted tradeoff: Convidar is modal because it has multiple invite paths and domain state; Compartilhar/WhatsApp are single-intent launchers.",
+      "reviewer_labels": [
+        "elegance-claude"
+      ],
+      "source_finding_ids": [
+        "ELG-001"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-5F62C17D",
+      "severity": "low",
+      "title": "First-touch sheet should defer heavy invite hydration",
+      "rationale": "The first-touch sheet should remain immediate. Eager loading contacts, inviteable recipients, sent statuses, or contact matching on sheet open would create avoidable latency.",
+      "suggested_action": "State that the first-touch sheet must not hydrate recipient/contact/status data until the user opens the full composer or a specific action requires it.",
+      "reviewer_labels": [
+        "elegance-claude"
+      ],
+      "source_finding_ids": [
+        "PERF-001"
+      ],
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

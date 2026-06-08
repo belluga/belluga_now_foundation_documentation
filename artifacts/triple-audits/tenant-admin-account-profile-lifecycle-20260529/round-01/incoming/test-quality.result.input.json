@@ -1,0 +1,67 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/tenant-admin-account-profile-lifecycle-20260529/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "reviewer_label": "test-quality",
+  "overall_assessment": "not_ready",
+  "recommended_path": "Block renewed approval until the TODO/package tightens the test plan for force-delete coverage, repair-command regression coverage, and CI-equivalent real-backend validation gates.",
+  "performance_position": "acceptable",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "mixed",
+  "operational_fit_position": "mixed",
+  "findings": [
+    {
+      "finding_id": "TQ-01",
+      "severity": "high",
+      "title": "delete and forceDelete need explicit last-profile regression coverage.",
+      "rationale": "The package states both delete and forceDelete lack last-profile guards, but the execution plan only calls out a failing feature test for direct deletion and aggregate account delete.",
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/tests"
+      ],
+      "suggested_action": "Require explicit regression tests for both delete() and forceDelete() last-profile rejection, plus aggregate account deletion proving the intended bypass remains valid."
+    },
+    {
+      "finding_id": "TQ-02",
+      "severity": "high",
+      "title": "Repair command/service needs fixture-backed tests for every policy branch.",
+      "rationale": "D-04 defines a nuanced repair policy with delete, restore, and skip branches, but the plan only says to add a command and run dry-run/execute locally.",
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/tests"
+      ],
+      "suggested_action": "Require backend tests for dry-run versus execute parity, known test-seed aggregate deletion, safe restore, ambiguous skip/report, missing profile type skip/report, and post-run zero-invalid-row assertion."
+    },
+    {
+      "finding_id": "TQ-03",
+      "severity": "high",
+      "title": "CI-equivalent real-backend validation gates are too loose.",
+      "rationale": "The plan says to run focused Laravel tests and targeted Playwright mutation shard where feasible, but does not define exact commands, pass criteria, or blocked handling if Playwright cannot run.",
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "foundation_documentation/todos/active/fast_follow_required/TODO-fast-follow-tenant-admin-account-profile-lifecycle-integrity.md"
+      ],
+      "suggested_action": "Replace where-feasible wording with required validation gates: exact Laravel targets, exact Playwright mutation specs or documented blocker, cleanup source-scan criteria, and post-validation backend invariant query proving no live account lacks an active profile."
+    },
+    {
+      "finding_id": "TQ-04",
+      "severity": "medium",
+      "title": "Mutation rejection assertions need persisted-state checks.",
+      "rationale": "The planned direct-delete regression test is described only at behavior level and could assert only an error response.",
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "affected_paths": [
+        "laravel-app/tests"
+      ],
+      "suggested_action": "Assert response status/error, profile remains active, account remains live, active-profile count is unchanged, and multi-profile deletion still behaves as intended."
+    }
+  ]
+}

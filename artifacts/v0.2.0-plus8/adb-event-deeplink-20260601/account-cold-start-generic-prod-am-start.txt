@@ -1,0 +1,7 @@
+Starting: Intent { act=android.intent.action.VIEW cat=[android.intent.category.BROWSABLE] dat=https://guarappari.com.br/... }
+Status: ok
+LaunchState: WARM
+Activity: com.android.chrome/org.chromium.chrome.browser.ChromeTabbedActivity
+TotalTime: 464
+WaitTime: 470
+Complete

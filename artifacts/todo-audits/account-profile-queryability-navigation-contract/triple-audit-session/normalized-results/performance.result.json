@@ -1,0 +1,70 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/todo-audits/account-profile-queryability-navigation-contract/triple-audit-session/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "reviewer_label": "claude-cli-performance-r01",
+  "overall_assessment": "The bounded package demonstrates a well-structured canonical approach to queryability/navigability separation with centralized enforcement. The layered evidence (Laravel feature/unit tests, Flutter unit tests, browser runtime diagnostic, guardrail script) is coherent and covers the primary regression vector. No concrete severe blocking findings identified. Several non-blocking debt items are noted for structural honesty.",
+  "recommended_path": "advance",
+  "performance_position": "acceptable",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "acceptable",
+  "operational_fit_position": "acceptable",
+  "findings": [
+    {
+      "finding_id": "F-01",
+      "severity": "high",
+      "title": "Type-set filtering push-down not directly verified in package evidence",
+      "rationale": "The bounded package asserts that filtering is type-set pushed into queries rather than broad fetch + in-memory filtering, but the evidence provided does not include query-level assertions (e.g., EXPLAIN output, query log assertions, or test stubs that verify the WHERE clause shape). The test names confirm behavioral exclusion but do not confirm that the exclusion happens at the DB layer vs. a post-fetch PHP filter. For current cardinalities this is likely non-risky, but if AccountProfiles grow to high cardinality or the query service is reused in a list/aggregate path, an unverified in-memory filter would become a concrete performance risk.",
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [],
+      "suggested_action": "Add a query-count or query-log assertion in AccountProfileQueryServiceTest to confirm that the capability scope reduces the DB query predicate, not a post-hydration collection filter."
+    },
+    {
+      "finding_id": "F-02",
+      "severity": "high",
+      "title": "Allowlist audit output reviewed but allowlist breadth not challenged in evidence",
+      "rationale": "The guardrail script passes and produces an allowlisted findings report with audit checklist output, but the bounded package does not expose the contents of the allowlist or assert a maximum cardinality. An unconstrained allowlist risks becoming a convenience bypass accumulator over time. The current evidence confirms the mechanism works but does not bound its scope.",
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [],
+      "suggested_action": "The AccountProfileQueryabilityGuardrailsTest should assert an upper bound on allowlist entries (e.g., <= N) and verify each entry has a non-empty owner and rationale field to prevent silent accumulation."
+    },
+    {
+      "finding_id": "F-03",
+      "severity": "high",
+      "title": "Map widget layer (poi_base_card, poi_detail_card_builder, etc.) capability decisions not explicitly audited",
+      "rationale": "Several Flutter map POI widgets are listed as touched surfaces. The evidence confirms the map controller test passes for 'account profile poi' but does not confirm that the individual widget files do not contain local is_queryable or slug-inference logic that would duplicate the backend contract. If any widget performs local capability inference it creates a dual-authority path that can diverge silently.",
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [],
+      "suggested_action": "A grep/static check asserting that touched map widget files do not reference any local queryability field or slug-only navigation inference would close this gap definitively."
+    },
+    {
+      "finding_id": "F-04",
+      "severity": "high",
+      "title": "Bundle hash verified but the verification step is manual and ephemeral",
+      "rationale": "The bundle hash comparison between local build and served asset is a strong operational verification step. However, it is manual and not captured in a repeatable CI artifact. If the deployment step is repeated or a cache invalidation occurs, the hash check is not automatically re-run. This is not a blocking risk for this delivery, but the verification step should be promoted to a repeatable script or CI gate for future deployments.",
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "none",
+      "affected_paths": [],
+      "suggested_action": "Promote the hash comparison to a post-deploy verification script callable from CI so bundle integrity is not solely reliant on manual author verification."
+    },
+    {
+      "finding_id": "F-05",
+      "severity": "high",
+      "title": "FavoritesQueryService snapshot builder touched but no query-bounding evidence provided",
+      "rationale": "AccountProfileFavoriteSnapshotBuilder and FavoritesQueryService are listed as touched surfaces. Favorites snapshot builders are a historically common location for fetch-all or high-cardinality in-memory enrichment patterns. The evidence confirms the favorites section controller origin flow test passes but does not confirm the snapshot builder path is query-bounded (e.g., it fetches only capability-qualified profiles, not all then filters). At current scale this is non-blocking, but the path warrants a note.",
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "affected_paths": [],
+      "suggested_action": "Add a test or query-log assertion in the favorites snapshot builder path confirming that only queryable/navigable profiles are fetched, not a full profile set filtered post-hydration."
+    }
+  ]
+}

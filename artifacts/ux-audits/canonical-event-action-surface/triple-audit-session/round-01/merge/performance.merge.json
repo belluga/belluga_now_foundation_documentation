@@ -1,0 +1,93 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/ux-audits/canonical-event-action-surface/triple-audit-session/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "performance-claude"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "approve strategic direction with lazy-load, package-location, and mandatory web gate test constraints"
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-36DB2BAB",
+      "severity": "high",
+      "title": "Web anonymous promotion gate must be a mandatory pre-merge gate",
+      "rationale": "The favorite/app-promotion behavior was the critical regression. The proposal lists Playwright evidence but must make it mandatory before merge, including no phone login and no auto-open app before explicit CTA.",
+      "suggested_action": "Elevate Playwright coverage for web anonymous promotion gate to a non-negotiable implementation gate.",
+      "reviewer_labels": [
+        "performance-claude"
+      ],
+      "source_finding_ids": [
+        "TEST-01"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-5289256E",
+      "severity": "low",
+      "title": "Shared package ownership needs clarification",
+      "rationale": "The proposal names TenantPublicActionSheet/BellugaActionSheet but not its package location. Putting it under invite or promotion would create ownership/circular dependency risk.",
+      "suggested_action": "Place canonical action sheet primitives under shared presentation, e.g. lib/presentation/shared/action_sheets/, with feature-owned content builders.",
+      "reviewer_labels": [
+        "performance-claude"
+      ],
+      "source_finding_ids": [
+        "STRUCT-01"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-E703E71E",
+      "severity": "low",
+      "title": "Lazy-load boundary is not yet formalized",
+      "rationale": "The proposal asks whether first-touch should avoid eager hydration but does not make it a requirement. Without that, implementation might fetch inviteable recipients, sent statuses, or contacts on sheet open.",
+      "suggested_action": "Add a hard requirement: first-touch action sheet shall render from static event/promotion data and defer invite recipient/status/contact hydration until full composer or explicit action.",
+      "reviewer_labels": [
+        "performance-claude"
+      ],
+      "source_finding_ids": [
+        "PERF-01"
+      ],
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-A017E95A",
+      "severity": "low",
+      "title": "Convidar modal vs share immediate is an accepted tradeoff",
+      "rationale": "Two hero actions are immediate and one opens a sheet. This is justified by invite domain state, but should be explicit in the contract.",
+      "suggested_action": "Document the semantic split between multi-path invite and single-intent share launchers.",
+      "reviewer_labels": [
+        "performance-claude"
+      ],
+      "source_finding_ids": [
+        "UX-01"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

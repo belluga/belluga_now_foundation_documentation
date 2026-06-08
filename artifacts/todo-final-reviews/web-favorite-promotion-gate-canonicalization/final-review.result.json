@@ -1,0 +1,48 @@
+{
+  "schema_version": "subagent-review-result-v1",
+  "artifact_kind": "subagent_review_result",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/todo-final-reviews/web-favorite-promotion-gate-canonicalization/final-review.dispatch.json",
+  "review_kind": "final_review",
+  "reviewer_label": "claude-final-review",
+  "overall_assessment": "ready_for_delivery",
+  "recommended_path": "approve",
+  "performance_position": "acceptable",
+  "elegance_position": "acceptable",
+  "structural_soundness_position": "strong_positive",
+  "operational_fit_position": "strong_positive",
+  "findings": [
+    {
+      "severity": "low",
+      "title": "Event linked-profile favorite lacks dedicated Playwright runtime scenario",
+      "rationale": "Event linked-profile favorite is covered by controller and screen tests but not by a third Playwright runtime scenario in this TODO. This is acknowledged residual risk and does not block delivery given existing unit and integration coverage.",
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "runtime-coverage-completeness",
+      "affected_paths": [],
+      "suggested_action": "Consider adding event linked-profile favorite Playwright scenario in future TODO for complete runtime coverage parity."
+    },
+    {
+      "severity": "low",
+      "title": "Explicit telemetry and URI parity assertions deferred",
+      "rationale": "Current modal uses the controller and shared store action widget, providing implicit parity with route promotion screen. Explicit telemetry and URI assertions could strengthen confidence but are not blocking given shared implementation surface and passing navigation smoke tests.",
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "telemetry-uri-parity-assertions",
+      "affected_paths": [],
+      "suggested_action": "Add explicit telemetry and URI parity assertions in future test hardening iteration."
+    },
+    {
+      "severity": "low",
+      "title": "Legacy AppPromotionDialog remains for non-favorite surfaces",
+      "rationale": "Legacy AppPromotionDialog is still present for non-favorite surfaces. Source scan confirms favorite paths no longer use it. This is acceptable residual technical debt as favorite gate canonicalization is complete and the old dialog does not interfere with delivered changes.",
+      "category": "residual_risk",
+      "formalizable_hint": "no",
+      "candidate_rule_level": "none",
+      "candidate_rule_id": "",
+      "affected_paths": [],
+      "suggested_action": "Plan future TODO to migrate remaining non-favorite surfaces to canonical modal and remove legacy AppPromotionDialog."
+    }
+  ]
+}

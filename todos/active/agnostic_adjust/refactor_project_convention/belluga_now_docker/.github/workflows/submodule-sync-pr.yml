@@ -1,0 +1,314 @@
+name: Sync Submodule Pins PR
+
+on:
+  repository_dispatch:
+    types:
+      - submodule-updated
+  workflow_dispatch:
+    inputs:
+      submodule:
+        description: "Submodule path in this repo (flutter-app, laravel-app, or web-app)"
+        required: true
+        type: string
+      sha:
+        description: "Target commit SHA in that submodule repo"
+        required: true
+        type: string
+      lane:
+        description: "Deprecated: use base_branch. Target base branch in docker repo (automatic sync uses dev)."
+        required: false
+        default: dev
+        type: string
+      base_branch:
+        description: "Target base branch in docker repo (automatic sync uses dev)."
+        required: false
+        default: dev
+        type: string
+      target_branch:
+        description: "Target branch to receive submodule pin updates."
+        required: false
+        default: bot/next-version
+        type: string
+      flutter_sha:
+        description: "Optional: full flutter-app SHA that produced the web artifact"
+        required: false
+        type: string
+      source_repo:
+        description: "Optional: source repo that triggered this sync (for PR body)"
+        required: false
+        type: string
+      source_branch:
+        description: "Optional: source branch that triggered this sync (for PR body)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: docker-submodule-sync-${{ github.event.client_payload.base_branch || github.event.client_payload.lane || github.event.client_payload.source_branch || inputs.base_branch || inputs.lane || 'dev' }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Open/Update PR Syncing Submodule Pins
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve inputs
+        id: inputs
+        env:
+          DISPATCH_SUBMODULE: ${{ github.event.client_payload.submodule }}
+          DISPATCH_SHA: ${{ github.event.client_payload.sha }}
+          DISPATCH_LANE: ${{ github.event.client_payload.lane }}
+          DISPATCH_BASE_BRANCH: ${{ github.event.client_payload.base_branch }}
+          DISPATCH_TARGET_BRANCH: ${{ github.event.client_payload.target_branch }}
+          DISPATCH_FLUTTER_SHA: ${{ github.event.client_payload.flutter_sha }}
+          DISPATCH_SOURCE_REPO: ${{ github.event.client_payload.source_repo }}
+          DISPATCH_SOURCE_BRANCH: ${{ github.event.client_payload.source_branch }}
+          INPUT_SUBMODULE: ${{ inputs.submodule }}
+          INPUT_SHA: ${{ inputs.sha }}
+          INPUT_LANE: ${{ inputs.lane }}
+          INPUT_BASE_BRANCH: ${{ inputs.base_branch }}
+          INPUT_TARGET_BRANCH: ${{ inputs.target_branch }}
+          INPUT_FLUTTER_SHA: ${{ inputs.flutter_sha }}
+          INPUT_SOURCE_REPO: ${{ inputs.source_repo }}
+          INPUT_SOURCE_BRANCH: ${{ inputs.source_branch }}
+        run: |
+          set -euo pipefail
+
+          if [[ "${GITHUB_EVENT_NAME}" == "repository_dispatch" ]]; then
+            submodule="${DISPATCH_SUBMODULE:-}"
+            sha="${DISPATCH_SHA:-}"
+            lane="${DISPATCH_BASE_BRANCH:-${DISPATCH_LANE:-${DISPATCH_SOURCE_BRANCH:-}}}"
+            target_branch="${DISPATCH_TARGET_BRANCH:-}"
+            flutter_sha="${DISPATCH_FLUTTER_SHA:-}"
+            source_repo="${DISPATCH_SOURCE_REPO:-}"
+            source_branch="${DISPATCH_SOURCE_BRANCH:-}"
+          else
+            submodule="${INPUT_SUBMODULE:-}"
+            sha="${INPUT_SHA:-}"
+            lane="${INPUT_BASE_BRANCH:-${INPUT_LANE:-}}"
+            target_branch="${INPUT_TARGET_BRANCH:-}"
+            flutter_sha="${INPUT_FLUTTER_SHA:-}"
+            source_repo="${INPUT_SOURCE_REPO:-}"
+            source_branch="${INPUT_SOURCE_BRANCH:-}"
+          fi
+
+          if [[ -z "$submodule" || -z "$sha" ]]; then
+            echo "ERROR: missing required submodule/sha." >&2
+            exit 1
+          fi
+
+          if [[ -z "$lane" ]]; then
+            lane="dev"
+          fi
+          if [[ -z "$target_branch" ]]; then
+            target_branch="bot/next-version"
+          fi
+
+          skip="false"
+          skip_reason=""
+
+          case "$lane" in
+            dev|stage|main) ;;
+            *)
+              echo "ERROR: unsupported lane '$lane'. Allowed lanes: dev, stage, main." >&2
+              exit 1
+              ;;
+          esac
+
+          case "$submodule" in
+            flutter-app|laravel-app|web-app) ;;
+            *)
+              skip="true"
+              skip_reason="unsupported submodule '$submodule' (automatic sync supports only flutter-app, laravel-app, and web-app)"
+              ;;
+          esac
+
+          if [[ "$skip" != "true" && "$target_branch" != "bot/next-version" ]]; then
+            skip="true"
+            skip_reason="target branch must be 'bot/next-version' (received '$target_branch')"
+          fi
+
+          if [[ "$skip" != "true" && "$lane" != "dev" ]]; then
+            skip="true"
+            skip_reason="automatic submodule sync is restricted to lane 'dev' (received lane='$lane')"
+          fi
+
+          bot_branch="$target_branch"
+
+          echo "submodule=$submodule" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "lane=$lane" >> "$GITHUB_OUTPUT"
+          echo "target_branch=$target_branch" >> "$GITHUB_OUTPUT"
+          echo "flutter_sha=$flutter_sha" >> "$GITHUB_OUTPUT"
+          echo "bot_branch=$bot_branch" >> "$GITHUB_OUTPUT"
+          echo "source_repo=$source_repo" >> "$GITHUB_OUTPUT"
+          echo "source_branch=$source_branch" >> "$GITHUB_OUTPUT"
+          echo "skip=$skip" >> "$GITHUB_OUTPUT"
+          echo "skip_reason=$skip_reason" >> "$GITHUB_OUTPUT"
+
+      - name: Skip unsupported dispatch
+        if: steps.inputs.outputs.skip == 'true'
+        run: |
+          echo "INFO: skipping submodule sync dispatch: ${{ steps.inputs.outputs.skip_reason }}"
+
+      - name: Checkout docker repo
+        if: steps.inputs.outputs.skip != 'true'
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Configure private submodule auth
+        if: steps.inputs.outputs.skip != 'true'
+        env:
+          SUBMODULES_REPO_TOKEN: ${{ secrets.SUBMODULES_REPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${SUBMODULES_REPO_TOKEN:-}" ]]; then
+            echo "ERROR: missing required secret SUBMODULES_REPO_TOKEN." >&2
+            exit 1
+          fi
+          echo "::add-mask::$SUBMODULES_REPO_TOKEN"
+          # Avoid forcing GITHUB_TOKEN auth for subsequent git pushes. We want
+          # to use the PAT so synchronize events can trigger downstream PR CI.
+          git config --local --unset-all http.https://github.com/.extraheader || true
+          git config --global --unset-all url.https://github.com/.insteadOf || true
+          git config --global url."https://x-access-token:${SUBMODULES_REPO_TOKEN}@github.com/".insteadOf "https://github.com/"
+
+      - name: Create/update fixed candidate branch from lane base
+        if: steps.inputs.outputs.skip != 'true'
+        id: branch_base
+        env:
+          BASE_BRANCH: ${{ steps.inputs.outputs.lane }}
+          BOT_BRANCH: ${{ steps.inputs.outputs.bot_branch }}
+        run: |
+          set -euo pipefail
+
+          remote_bot_exists="false"
+          remote_bot_sha=""
+
+          git fetch origin "$BASE_BRANCH" --quiet
+          if git ls-remote --exit-code --heads origin "$BOT_BRANCH" >/dev/null 2>&1; then
+            git fetch origin "$BOT_BRANCH" --quiet
+            remote_bot_exists="true"
+            remote_bot_sha="$(git rev-parse "origin/$BOT_BRANCH")"
+          fi
+
+          base_sha="$(git rev-parse "origin/$BASE_BRANCH")"
+          git checkout -B "$BOT_BRANCH" "origin/$BASE_BRANCH"
+
+          branch_needs_reset="false"
+          if [[ "$remote_bot_exists" == "true" && "$remote_bot_sha" != "$base_sha" ]]; then
+            branch_needs_reset="true"
+          fi
+
+          echo "remote_bot_exists=$remote_bot_exists" >> "$GITHUB_OUTPUT"
+          echo "remote_bot_sha=$remote_bot_sha" >> "$GITHUB_OUTPUT"
+          echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
+          echo "branch_needs_reset=$branch_needs_reset" >> "$GITHUB_OUTPUT"
+
+      - name: Update submodule pin
+        if: steps.inputs.outputs.skip != 'true'
+        env:
+          SUBMODULE: ${{ steps.inputs.outputs.submodule }}
+          TARGET_SHA: ${{ steps.inputs.outputs.sha }}
+        run: |
+          set -euo pipefail
+
+          case "$SUBMODULE" in
+            flutter-app|laravel-app|web-app) ;;
+            *)
+              echo "ERROR: unsupported submodule '$SUBMODULE'." >&2
+              echo "Allowed: flutter-app, laravel-app, web-app" >&2
+              exit 1
+              ;;
+          esac
+
+          git submodule sync --recursive
+
+          # Ensure submodule is present at the currently pinned gitlink so we can
+          # compare build metadata before/after updating the pin.
+          git submodule update --init --recursive "$SUBMODULE"
+
+          git -C "$SUBMODULE" fetch origin --prune --quiet
+          git -C "$SUBMODULE" checkout --detach "$TARGET_SHA"
+
+          # Git 2.54+ requires explicit force when a submodule uses
+          # submodule.<name>.ignore=all and we intentionally want to update
+          # the gitlink for that specific path.
+          git add --force -- "$SUBMODULE"
+
+      - name: Commit changes (if any)
+        if: steps.inputs.outputs.skip != 'true'
+        id: commit
+        env:
+          SUBMODULE: ${{ steps.inputs.outputs.submodule }}
+          TARGET_SHA: ${{ steps.inputs.outputs.sha }}
+        run: |
+          set -euo pipefail
+
+          # Submodules are configured with ignore=all in this repository.
+          # Force diff to consider staged gitlink updates; otherwise this
+          # check can incorrectly report "no changes" for submodule pin bumps.
+          if git diff --cached --ignore-submodules=none --quiet; then
+            echo "no_changes=true" >> "$GITHUB_OUTPUT"
+            echo "INFO: no gitlink changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          short_sha="$(echo "$TARGET_SHA" | cut -c1-7)"
+          git commit -m "🔗 chore(submodules): sync ${SUBMODULE} pin to ${short_sha}"
+          echo "no_changes=false" >> "$GITHUB_OUTPUT"
+
+      - name: Push bot branch
+        if: >-
+          steps.inputs.outputs.skip != 'true' &&
+          (
+            steps.commit.outputs.no_changes != 'true' ||
+            steps.branch_base.outputs.branch_needs_reset == 'true'
+          )
+        env:
+          BOT_BRANCH: ${{ steps.inputs.outputs.bot_branch }}
+        run: |
+          set -euo pipefail
+          # Keep a single fixed candidate branch rooted on the current lane base.
+          # If the remote bot branch drifted onto an older lane base, force-push the
+          # reset branch even when the target gitlink already matches the base lane.
+          git push --force-with-lease -u origin "$BOT_BRANCH"
+
+      - name: Report candidate branch ready for manual PR
+        if: steps.inputs.outputs.skip != 'true' && steps.commit.outputs.no_changes != 'true'
+        env:
+          BASE_BRANCH: ${{ steps.inputs.outputs.lane }}
+          BOT_BRANCH: ${{ steps.inputs.outputs.bot_branch }}
+          SUBMODULE: ${{ steps.inputs.outputs.submodule }}
+          TARGET_SHA: ${{ steps.inputs.outputs.sha }}
+          LANE: ${{ steps.inputs.outputs.lane }}
+          SOURCE_REPO: ${{ steps.inputs.outputs.source_repo }}
+          SOURCE_BRANCH: ${{ steps.inputs.outputs.source_branch }}
+        run: |
+          set -euo pipefail
+
+          short_sha="$(echo "$TARGET_SHA" | cut -c1-7)"
+          {
+            echo "### Submodule candidate branch updated"
+            echo "- Base branch: ${BASE_BRANCH}"
+            echo "- Candidate branch: ${BOT_BRANCH}"
+            echo "- Submodule: ${SUBMODULE}"
+            echo "- Commit: ${TARGET_SHA}"
+            if [[ -n "${SOURCE_REPO}" ]]; then
+              echo "- Source repo: ${SOURCE_REPO}"
+            fi
+            if [[ -n "${SOURCE_BRANCH}" ]]; then
+              echo "- Source branch: ${SOURCE_BRANCH}"
+            fi
+            echo "- Next action: open/update the PR manually if the diff is valid gitlink-only against ${BASE_BRANCH}."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "INFO: ${BOT_BRANCH} updated with ${SUBMODULE} pin ${short_sha}; manual PR creation is required."

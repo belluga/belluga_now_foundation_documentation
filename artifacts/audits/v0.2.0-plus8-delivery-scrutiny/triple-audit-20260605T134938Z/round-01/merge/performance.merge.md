@@ -1,0 +1,123 @@
+# PACED Subagent Review Merge: critique
+
+## Merge Identity
+- **Artifact kind:** `subagent_review_merge`
+- **Authoritative:** `false`
+- **Edit policy:** `derived_merge_packet`
+- **Dispatch path:** `/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/v0.2.0-plus8-delivery-scrutiny/triple-audit-20260605T134938Z/round-01/dispatch/performance.dispatch.json`
+- **Review count:** `1`
+- **Highest finding severity:** `high`
+
+## Axis Summary
+- **Performance:** `regresses`
+- **Elegance:** `mixed`
+- **Structural soundness:** `regresses`
+- **Operational fit:** `regresses`
+
+## Recommended Paths
+- `block`
+
+## Merged Findings
+### F-ADCE57BD [high] public-taxonomy-canonicalization-and-runtime-facets is Pending — release-blocking incomplete TODO with no implementation evidence
+- **Reviewers:** Claude Performance
+- **Category:** `structural_soundness`
+- **Formalizable hint:** `yes`
+- **Candidate rule level:** `paced`
+- **Candidate rule id:** `n/a`
+- **Suggested action:** This TODO must reach at minimum Local-Implemented with a concrete VAL matrix entry before any promotion-lane preparation begins. Its current Pending state is a hard block on lane readiness and must be treated as such, not deferred to a follow-on increment.
+- **Rationale:** The stage snapshot shows this TODO as Pending with its DOD/VAL matrix broadly unchecked. This is not a paperwork gap. Taxonomy canonicalization is load-bearing for the runtime-facet correctness of Home/Discovery filter behavior, which is one of the lane's primary user-facing deliveries and the subject of confirmed reproductions. No implementation exists to validate. The lane cannot deterministically close while this TODO has no implementation evidence, and no promotion gate can honestly clear it.
+
+### F-02F038A4 [high] event-profile-groups-canonical-consistency explicitly reopened with user-confirmed regressions and missing device sign-off
+- **Reviewers:** Claude Performance
+- **Category:** `structural_soundness`
+- **Formalizable hint:** `yes`
+- **Candidate rule level:** `paced`
+- **Candidate rule id:** `n/a`
+- **Suggested action:** Resolve all outstanding items in the reopened addendum: produce consolidated CI-equivalent evidence post-addendum, execute and record ADB/device validation for the navigation flow, and confirm the chip-count readback matches the actual rendered chip count in the admin authoring path before reopened status can be cleared.
+- **Rationale:** This TODO is in Reopened / Addendum Browser-Validated Pending Consolidated CI-Equivalent state. The user confirmed real runtime reproductions on this flow: admin chip-count mismatch (readback says 4, chips show 2), missing aggregate public tabs on real event routes, and broken navigation semantics for non-navigable profiles. The ADB/device row remains pending. Given the user already found real route/back-flow problems on actual device flows, treating missing device evidence as a paperwork omission rather than a real release-risk signal is not defensible. Any sibling or ancestor TODO treated as closed while this one is reopened with unresolved device evidence creates an unprovable closure chain.
+
+### F-EEF486C1 [high] Runtime-facet aggregation for Home/Discovery carries no query-shape evidence — page-walk or client-side synthesis unruled out
+- **Reviewers:** Claude Performance
+- **Category:** `performance`
+- **Formalizable hint:** `yes`
+- **Candidate rule level:** `paced`
+- **Candidate rule id:** `n/a`
+- **Suggested action:** Before closing map-filter-event-types-catalog-hydration and public-taxonomy-canonicalization, produce: (a) the SQL or ORM query shape behind the filter-options endpoint confirming aggregation is done in a single bounded query without per-page iteration; (b) at least one test assertion proving non-empty, empty-result-free filter options under a seeded universe rather than a static catalog; (c) a manual app validation pass showing resolved human labels visible on both Home and Discovery before any selection is made.
+- **Rationale:** The lane's core delivery claim for Home/Discovery filters is that available type/taxonomy options reflect a full-universe aggregation, not the current page or a static catalog. The map-filter-event-types-catalog-hydration and public-taxonomy-canonicalization TODOs are still open. The modified discovery_filters.spec.js was flagged by the test-quality audit for status-only assertion hints. No SQL or ORM query shape, no explain plan, and no backend aggregation contract is cited anywhere in the evidence set. Under normal tenant event volumes a per-page filter-options scan or a high-cardinality in-memory grouping is a concrete server-side risk. The test-quality signal means the current green state for this path could reflect a cached or page-scoped response rather than a true bounded backend universe aggregation.
+
+### F-565599A9 [high] Parent/child TODO structural drift leaves nested-account-profile-groups formally undelivered while child claims delivery
+- **Reviewers:** Claude Performance
+- **Category:** `structural_soundness`
+- **Formalizable hint:** `yes`
+- **Candidate rule level:** `paced`
+- **Candidate rule id:** `n/a`
+- **Suggested action:** Either formally close the parent TODO by recording the child as its delivery evidence with explicit cross-reference in both files, or advance the parent through its own delivery gates independently. This structural contradiction must be resolved before promotion-lane entry, not after.
+- **Rationale:** nested-account-profile-groups is the parent capability surface and remains at Implementation-Ready. The actual delivery burden for event/occurrence group display migrated to the child TODO event-profile-groups-canonical-consistency. The parent has not advanced past Implementation-Ready and no delivery claim has been recorded against it. Any promotion gate that checks the parent TODO stage will correctly block. Any gate that only checks the child will miss the parent regression surface. The current split is not coherent as a closure chain.
+
+### F-1E90DBD4 [high] No test binds the exact admin chip-count/readback mismatch or the public aggregate-tab gap
+- **Reviewers:** Claude Performance
+- **Category:** `tests`
+- **Formalizable hint:** `yes`
+- **Candidate rule level:** `project`
+- **Candidate rule id:** `n/a`
+- **Suggested action:** Add a targeted browser or integration test that seeds groups through the admin programming/date sheet authoring path (not direct API injection), reads back the group count from the admin surface, asserts rendered chip count equals readback count, then opens the public event route and asserts the expected aggregate tab is present. The test must fail on the known-bad state before it counts as regression evidence.
+- **Rationale:** The package asks whether existing tests would fail on the state where admin readback says 4 selected but chips show 2, and where the public event still misses the expected aggregate tab. The cited test files rely on synthetic fixtures and API-level seeding. There is no test that: authors groups through the real admin occurrence/programming sheet path, reads back the chip count from the same surface, asserts rendered chip count equals the readback count, or verifies the public event has the expected aggregate tab for admin-authored occurrence groups. The confirmed regression would pass all existing tests unchanged. This is a blocking test gap because the failing surface is a CRUD/mutation path with a known reproduction.
+
+### F-1CFF79F0 [high] Discovery filter tests carry status-only assertions and do not prove empty-result-free options or resolved default labels
+- **Reviewers:** Claude Performance
+- **Category:** `tests`
+- **Formalizable hint:** `yes`
+- **Candidate rule level:** `project`
+- **Candidate rule id:** `n/a`
+- **Suggested action:** Extend discovery_filters.spec.js to: assert rendered filter option labels match expected human-readable strings before any selection; assert filter option counts are non-zero under the test-universe seed; assert that after applying a filter, the result set is non-empty for at least one valid type/taxonomy option. Each assertion must bind visible DOM state, not just API response codes. Commit the file before treating it as evidence.
+- **Rationale:** The modified discovery_filters.spec.js was flagged by the test-quality audit for status-only assertion hints. The user confirmed blank/placeholder filter labels and empty-result options as a real regression. A test that only checks a 200 response passes even when the returned options are empty or unlabeled. The package explicitly asks whether current tests prove no empty-result filter options in actual UI, full-universe aggregation before pagination, and resolved human labels visible before selection. The answer from available evidence is no. The worktree shows this file is modified but not committed, meaning the current test state is also not in a stable, reviewable form.
+
+### F-CC2404D3 [medium] account-profile-queryability-navigation-contract still at Local-Implemented with validation cycle incomplete
+- **Reviewers:** Claude Performance
+- **Category:** `operational_fit`
+- **Formalizable hint:** `partial`
+- **Candidate rule level:** `project`
+- **Candidate rule id:** `n/a`
+- **Suggested action:** Complete the validation cycle: execute and record the manual app validation, confirm non-queryable profile cards do not render as navigable in the real runtime, and advance the TODO to its appropriate post-validation stage before promotion-lane preparation is considered.
+- **Rationale:** This TODO has not completed its validation cycle. The package notes queryability/non-navigable public card regressions are confirmed reproductions. The runtime diagnostic spec is listed as pending manual app validation. A non-navigable profile appearing as clickable in real runtime is a user-visible regression. Leaving this TODO at Local-Implemented without completed validation means the regression surface is unverified for the current lane state.
+
+### F-409A6685 [medium] Stale 2026-05-28 CI-equivalent artifact reused across TODOs that received post-date regressions and addenda
+- **Reviewers:** Claude Performance
+- **Category:** `adherence`
+- **Formalizable hint:** `yes`
+- **Candidate rule level:** `paced`
+- **Candidate rule id:** `n/a`
+- **Suggested action:** Retire the 2026-05-28 artifact as a standalone validation source for any TODO that received an addendum or user-regression report after that date. Each affected TODO must produce a new post-addendum CI-equivalent artifact covering the specific regression surface before it can be treated as validated.
+- **Rationale:** Multiple TODOs still cite foundation_documentation/artifacts/tmp/reconcile_validation_status_20260528_012558_full_ci_equivalent_atlas_runtime.md as their validation evidence. User-confirmed regressions — chip-count mismatch, missing aggregate tabs, broken back-navigation, blank filter labels — were reproduced after that artifact was created. Any performance or behavioral claim backed solely by this artifact is unverified for the current lane state. The addendum model exists precisely to handle this situation; using a pre-regression artifact as a current CI-equivalent signal is a structural false-green.
+
+### F-3725C026 [medium] Six TODOs share simultaneous Promotion-Lane-Pending / post-commit-push-pending closure drift — systemic pattern, not isolated
+- **Reviewers:** Claude Performance
+- **Category:** `elegance`
+- **Formalizable hint:** `partial`
+- **Candidate rule level:** `paced`
+- **Candidate rule id:** `n/a`
+- **Suggested action:** Close each TODO individually through its complete gate sequence (commit, push, package closeout) before treating the lane as ready for promotion. Do not batch closeout under a single promotion commit. Each TODO's closure record must be independently traceable and auditable.
+- **Rationale:** cover-crop-560x512, event-directions-inline-provider-actions, map-filter-event-types-catalog-hydration, map-filter-visual-override-decoupling, reference-poi-reference-point-actions, and route-scoped-detail-controller-resolution are all at Local-Validated with post-commit/push pending and package closeout pending simultaneously. This is a systemic pattern indicating closure discipline was not enforced incrementally — work was treated as done at validation time and closeout was deferred as a batch. This creates a false aggregate green state and makes it impossible to audit which TODOs are genuinely complete. It also means any one of these TODOs could surface a blocking finding during batch closeout, stalling the entire promotion sequence.
+
+## Reviewer Summaries
+### Claude Performance
+- **Assessment:** The lane is not genuinely ready to proceed toward promotion-lane preparation. Three hard blockers prevent honest release-readiness: (1) public-taxonomy-canonicalization-and-runtime-facets remains Pending with no implementation evidence while being load-bearing for the runtime-facet correctness of Home/Discovery; (2) event-profile-groups-canonical-consistency is explicitly reopened with user-confirmed chip-count/aggregate-tab regressions and missing device sign-off; (3) the runtime-facet aggregation contract for Home/Discovery carries no query-shape evidence that full-universe aggregation is bounded and backend-owned rather than client-side page walking or per-page scoping. Current green signals are materially false: the stale 2026-05-28 evidence artifact pre-dates confirmed regressions, the parent/child TODO split leaves nested-account-profile-groups formally undelivered, and existing tests do not bind the exact failure modes the user observed. The worktree is not in a frozen promotion-candidate state (modified discovery_filters.spec.js uncommitted).
+- **Recommended path:** `block`
+- **Performance:** `regresses`
+- **Elegance:** `mixed`
+- **Structural soundness:** `regresses`
+- **Operational fit:** `regresses`
+- **Findings:**
+  - [high] PERF-01 Runtime-facet aggregation for Home/Discovery carries no query-shape evidence — page-walk or client-side synthesis unruled out: The lane's core delivery claim for Home/Discovery filters is that available type/taxonomy options reflect a full-universe aggregation, not the current page or a static catalog. The map-filter-event-types-catalog-hydration and public-taxonomy-canonicalization TODOs are still open. The modified discovery_filters.spec.js was flagged by the test-quality audit for status-only assertion hints. No SQL or ORM query shape, no explain plan, and no backend aggregation contract is cited anywhere in the evidence set. Under normal tenant event volumes a per-page filter-options scan or a high-cardinality in-memory grouping is a concrete server-side risk. The test-quality signal means the current green state for this path could reflect a cached or page-scoped response rather than a true bounded backend universe aggregation.
+  - [medium] PERF-02 Stale 2026-05-28 CI-equivalent artifact reused across TODOs that received post-date regressions and addenda: Multiple TODOs still cite foundation_documentation/artifacts/tmp/reconcile_validation_status_20260528_012558_full_ci_equivalent_atlas_runtime.md as their validation evidence. User-confirmed regressions — chip-count mismatch, missing aggregate tabs, broken back-navigation, blank filter labels — were reproduced after that artifact was created. Any performance or behavioral claim backed solely by this artifact is unverified for the current lane state. The addendum model exists precisely to handle this situation; using a pre-regression artifact as a current CI-equivalent signal is a structural false-green.
+  - [high] STRUCT-01 public-taxonomy-canonicalization-and-runtime-facets is Pending — release-blocking incomplete TODO with no implementation evidence: The stage snapshot shows this TODO as Pending with its DOD/VAL matrix broadly unchecked. This is not a paperwork gap. Taxonomy canonicalization is load-bearing for the runtime-facet correctness of Home/Discovery filter behavior, which is one of the lane's primary user-facing deliveries and the subject of confirmed reproductions. No implementation exists to validate. The lane cannot deterministically close while this TODO has no implementation evidence, and no promotion gate can honestly clear it.
+  - [high] STRUCT-02 event-profile-groups-canonical-consistency explicitly reopened with user-confirmed regressions and missing device sign-off: This TODO is in Reopened / Addendum Browser-Validated Pending Consolidated CI-Equivalent state. The user confirmed real runtime reproductions on this flow: admin chip-count mismatch (readback says 4, chips show 2), missing aggregate public tabs on real event routes, and broken navigation semantics for non-navigable profiles. The ADB/device row remains pending. Given the user already found real route/back-flow problems on actual device flows, treating missing device evidence as a paperwork omission rather than a real release-risk signal is not defensible. Any sibling or ancestor TODO treated as closed while this one is reopened with unresolved device evidence creates an unprovable closure chain.
+  - [high] STRUCT-03 Parent/child TODO structural drift leaves nested-account-profile-groups formally undelivered while child claims delivery: nested-account-profile-groups is the parent capability surface and remains at Implementation-Ready. The actual delivery burden for event/occurrence group display migrated to the child TODO event-profile-groups-canonical-consistency. The parent has not advanced past Implementation-Ready and no delivery claim has been recorded against it. Any promotion gate that checks the parent TODO stage will correctly block. Any gate that only checks the child will miss the parent regression surface. The current split is not coherent as a closure chain.
+  - [high] OPFIT-01 No test binds the exact admin chip-count/readback mismatch or the public aggregate-tab gap: The package asks whether existing tests would fail on the state where admin readback says 4 selected but chips show 2, and where the public event still misses the expected aggregate tab. The cited test files rely on synthetic fixtures and API-level seeding. There is no test that: authors groups through the real admin occurrence/programming sheet path, reads back the chip count from the same surface, asserts rendered chip count equals the readback count, or verifies the public event has the expected aggregate tab for admin-authored occurrence groups. The confirmed regression would pass all existing tests unchanged. This is a blocking test gap because the failing surface is a CRUD/mutation path with a known reproduction.
+  - [high] OPFIT-02 Discovery filter tests carry status-only assertions and do not prove empty-result-free options or resolved default labels: The modified discovery_filters.spec.js was flagged by the test-quality audit for status-only assertion hints. The user confirmed blank/placeholder filter labels and empty-result options as a real regression. A test that only checks a 200 response passes even when the returned options are empty or unlabeled. The package explicitly asks whether current tests prove no empty-result filter options in actual UI, full-universe aggregation before pagination, and resolved human labels visible before selection. The answer from available evidence is no. The worktree shows this file is modified but not committed, meaning the current test state is also not in a stable, reviewable form.
+  - [medium] OPFIT-03 account-profile-queryability-navigation-contract still at Local-Implemented with validation cycle incomplete: This TODO has not completed its validation cycle. The package notes queryability/non-navigable public card regressions are confirmed reproductions. The runtime diagnostic spec is listed as pending manual app validation. A non-navigable profile appearing as clickable in real runtime is a user-visible regression. Leaving this TODO at Local-Implemented without completed validation means the regression surface is unverified for the current lane state.
+  - [medium] ELEG-01 Six TODOs share simultaneous Promotion-Lane-Pending / post-commit-push-pending closure drift — systemic pattern, not isolated: cover-crop-560x512, event-directions-inline-provider-actions, map-filter-event-types-catalog-hydration, map-filter-visual-override-decoupling, reference-poi-reference-point-actions, and route-scoped-detail-controller-resolution are all at Local-Validated with post-commit/push pending and package closeout pending simultaneously. This is a systemic pattern indicating closure discipline was not enforced incrementally — work was treated as done at validation time and closeout was deferred as a batch. This creates a false aggregate green state and makes it impossible to audit which TODOs are genuinely complete. It also means any one of these TODOs could surface a blocking finding during batch closeout, stalling the entire promotion sequence.
+
+## Exact Next Step
+Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.
+

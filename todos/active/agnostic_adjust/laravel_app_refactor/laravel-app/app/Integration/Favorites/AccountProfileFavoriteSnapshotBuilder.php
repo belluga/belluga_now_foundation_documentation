@@ -1,0 +1,90 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Integration\Favorites;
+
+use App\Models\Tenants\AccountProfile;
+use Belluga\Events\Models\Tenants\EventOccurrence;
+use Belluga\Favorites\Contracts\FavoriteSnapshotBuilderContract;
+use Belluga\Favorites\Support\FavoriteRegistryDefinition;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+
+class AccountProfileFavoriteSnapshotBuilder implements FavoriteSnapshotBuilderContract
+{
+    public function build(string $targetId, FavoriteRegistryDefinition $definition): ?array
+    {
+        $profile = AccountProfile::withTrashed()->where('_id', $targetId)->first();
+        if (! $profile || $profile->trashed() || (bool) ($profile->is_active ?? true) === false) {
+            return null;
+        }
+
+        $now = Carbon::now();
+
+        $liveNowOccurrence = $this->baseOccurrenceQuery($targetId)
+            ->where('starts_at', '<=', $now)
+            ->where('effective_ends_at', '>', $now)
+            ->orderBy('starts_at')
+            ->orderBy('_id')
+            ->first();
+
+        $nextOccurrence = $this->baseOccurrenceQuery($targetId)
+            ->where('starts_at', '>=', $now)
+            ->orderBy('starts_at')
+            ->orderBy('_id')
+            ->first();
+
+        $lastOccurrence = $this->baseOccurrenceQuery($targetId)
+            ->where('starts_at', '<', $now)
+            ->orderBy('starts_at', 'desc')
+            ->orderBy('_id', 'desc')
+            ->first();
+
+        $liveNowOccurrenceId = $liveNowOccurrence ? (string) $liveNowOccurrence->getAttribute('_id') : null;
+        $liveNowOccurrenceAt = $liveNowOccurrence?->starts_at;
+        $nextOccurrenceId = $nextOccurrence ? (string) $nextOccurrence->getAttribute('_id') : null;
+        $nextOccurrenceAt = $nextOccurrence?->starts_at;
+        $lastOccurrenceAt = $lastOccurrence?->starts_at;
+        $slug = $profile->slug ? (string) $profile->slug : null;
+
+        return [
+            'target' => [
+                'id' => (string) $profile->getAttribute('_id'),
+                'slug' => $slug ?? '',
+                'display_name' => (string) ($profile->display_name ?? ''),
+                'avatar_url' => $profile->avatar_url ?? null,
+                'cover_url' => $profile->cover_url ?? null,
+                'profile_type' => $profile->profile_type ? (string) $profile->profile_type : null,
+            ],
+            'snapshot' => [
+                'live_now_event_occurrence_id' => $liveNowOccurrenceId,
+                'live_now_event_occurrence_at' => $liveNowOccurrenceAt,
+                'next_event_occurrence_id' => $nextOccurrenceId,
+                'next_event_occurrence_at' => $nextOccurrenceAt,
+                'last_event_occurrence_at' => $lastOccurrenceAt,
+            ],
+            'live_now_event_occurrence_id' => $liveNowOccurrenceId,
+            'live_now_event_occurrence_at' => $liveNowOccurrenceAt,
+            'next_event_occurrence_id' => $nextOccurrenceId,
+            'next_event_occurrence_at' => $nextOccurrenceAt,
+            'last_event_occurrence_at' => $lastOccurrenceAt,
+            'navigation' => [
+                'kind' => 'account_profile',
+                'target_slug' => $slug,
+            ],
+        ];
+    }
+
+    private function baseOccurrenceQuery(string $profileId): Builder
+    {
+        return EventOccurrence::query()
+            ->where('deleted_at', null)
+            ->where('is_event_published', true)
+            ->where(static function (Builder $query) use ($profileId): void {
+                $query->where('venue.id', $profileId)
+                    ->orWhere('linked_account_profiles.id', $profileId)
+                    ->orWhere('artists.id', $profileId);
+            });
+    }
+}

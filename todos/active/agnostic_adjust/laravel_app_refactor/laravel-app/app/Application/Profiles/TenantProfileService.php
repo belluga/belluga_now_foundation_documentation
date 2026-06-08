@@ -1,0 +1,305 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Application\Profiles;
+
+use App\Application\AccountProfiles\AccountProfileBootstrapService;
+use App\Application\AccountProfiles\AccountProfileManagementService;
+use App\Application\AccountProfiles\AccountProfileMediaService;
+use App\Application\Auth\PasswordResetFlowService;
+use App\Models\Landlord\Tenant;
+use App\Models\Tenants\AccountProfile;
+use App\Models\Tenants\AccountUser;
+use App\Support\Helpers\PhoneNumberParser;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
+use Throwable;
+
+class TenantProfileService
+{
+    public function __construct(
+        private readonly AccountProfileBootstrapService $profileBootstrapper,
+        private readonly AccountProfileManagementService $profileManagementService,
+        private readonly AccountProfileMediaService $profileMediaService,
+        private readonly PasswordResetFlowService $passwordResetFlowService,
+    ) {}
+
+    public function updateProfile(AccountUser $user, array $attributes, Request $request): AccountUser
+    {
+        $hasAvatarMutation = $request->hasFile('avatar')
+            || $request->boolean('remove_avatar')
+            || array_key_exists('avatar_url', $attributes);
+
+        if ($attributes === [] && ! $hasAvatarMutation) {
+            throw ValidationException::withMessages([
+                'empty' => 'Nenhum dado recebido para atualizar.',
+            ]);
+        }
+
+        $userAttributes = [];
+        if (array_key_exists('name', $attributes)) {
+            $userAttributes['name'] = $attributes['name'];
+        }
+        if (array_key_exists('timezone', $attributes)) {
+            $userAttributes['timezone'] = $attributes['timezone'];
+        }
+
+        if ($userAttributes !== []) {
+            $user->fill($userAttributes);
+            $user->save();
+        }
+
+        $profileAttributes = [];
+        if (array_key_exists('name', $attributes)) {
+            $profileAttributes['display_name'] = $attributes['name'];
+        }
+        if (array_key_exists('bio', $attributes)) {
+            $profileAttributes['bio'] = $attributes['bio'];
+        }
+        if (array_key_exists('avatar_url', $attributes)) {
+            $profileAttributes['avatar_url'] = $attributes['avatar_url'];
+        }
+
+        if ($profileAttributes !== [] || $hasAvatarMutation) {
+            $profile = $this->ensurePersonalProfile($user);
+            if ($profileAttributes !== []) {
+                $profileAttributes['updated_by'] = (string) $user->_id;
+                $profileAttributes['updated_by_type'] = 'tenant';
+                $profile = $this->profileManagementService->update($profile, $profileAttributes);
+            }
+            $this->profileMediaService->applyUploads($request, $profile);
+        }
+
+        return $user->fresh();
+    }
+
+    public function updatePassword(AccountUser $user, string $password): void
+    {
+        $user->password = Hash::make($password);
+        $user->password_type = 'laravel';
+        $user->save();
+    }
+
+    public function sendResetToken(string $email): void
+    {
+        $user = $this->findByEmail($email);
+
+        $this->passwordResetFlowService->issue(
+            email: $email,
+            broker: \App\Application\Auth\PasswordResetTokenService::TENANT_USERS_BROKER,
+            scope: $this->tenantScope(),
+            user: $user,
+            userIdResolver: static fn (AccountUser $resolvedUser): mixed => $resolvedUser->id,
+        );
+    }
+
+    public function resetPassword(string $email, string $token, string $password): void
+    {
+        $user = $this->findByEmail($email);
+
+        $this->passwordResetFlowService->reset(
+            email: $email,
+            token: $token,
+            password: $password,
+            broker: \App\Application\Auth\PasswordResetTokenService::TENANT_USERS_BROKER,
+            scope: $this->tenantScope(),
+            user: $user,
+            userIdResolver: static fn (AccountUser $resolvedUser): mixed => $resolvedUser->id,
+            applyReset: function (AccountUser $resolvedUser, string $newPassword): void {
+                $this->applyResetPassword($resolvedUser, $newPassword);
+            },
+        );
+    }
+
+    public function addEmail(AccountUser $user, string $email): AccountUser
+    {
+        $normalizedEmail = strtolower($email);
+
+        if (in_array($normalizedEmail, $user->emails ?? [], true)) {
+            throw ValidationException::withMessages([
+                'email' => ['This email is already associated with your profile.'],
+            ]);
+        }
+
+        $exists = AccountUser::query()
+            ->where('emails', 'all', [$normalizedEmail])
+            ->where('_id', '!=', $user->_id)
+            ->exists();
+
+        if ($exists) {
+            $this->fail(
+                'An email already exists.',
+                ['email' => ['The provided email already exists.']]
+            );
+        }
+
+        $emails = $user->emails ?? [];
+        $emails[] = $normalizedEmail;
+        $user->emails = array_values($emails);
+        $user->save();
+
+        return $user->fresh();
+    }
+
+    public function removeEmail(AccountUser $user, string $email): AccountUser
+    {
+        $emails = $user->emails ?? [];
+
+        if (count($emails) <= 1) {
+            $this->fail(
+                'Você não pode remover o único email da conta. Adicione outro email antes de remover esse.',
+                ['email' => ['Você não pode remover o único email da conta. Adicione outro email antes de remover esse.']]
+            );
+        }
+
+        $filtered = array_values(array_filter($emails, static fn (string $existing): bool => $existing !== $email));
+        $user->emails = $filtered;
+        $user->save();
+
+        return $user->fresh();
+    }
+
+    /**
+     * @param  array<int, string>  $phones
+     */
+    public function addPhones(AccountUser $user, array $phones): AccountUser
+    {
+        $parsedPhones = $this->parsePhones($phones);
+
+        if ($parsedPhones === []) {
+            throw ValidationException::withMessages([
+                'phones' => ['None of the provided phones are valid. Please provide a valid phone number.'],
+            ]);
+        }
+
+        foreach ($parsedPhones as $phone) {
+            $exists = AccountUser::query()
+                ->where('phones', 'all', [$phone])
+                ->where('_id', '!=', $user->_id)
+                ->exists();
+
+            if ($exists) {
+                $this->fail(
+                    'One of the provided phones already exists.',
+                    ['phones' => ['One of the provided phones already exists']]
+                );
+            }
+        }
+
+        $currentPhones = $user->phones ?? [];
+        foreach ($parsedPhones as $phone) {
+            if (! in_array($phone, $currentPhones, true)) {
+                $currentPhones[] = $phone;
+            }
+        }
+
+        $user->phones = array_values($currentPhones);
+        $user->save();
+
+        return $user->fresh();
+    }
+
+    public function removePhone(AccountUser $user, string $phone): AccountUser
+    {
+        try {
+            $parsed = PhoneNumberParser::parse($phone);
+        } catch (\Throwable) {
+            $parsed = null;
+        }
+
+        if (! $parsed) {
+            throw ValidationException::withMessages([
+                'phone' => ['The provided phone number is invalid. Please provide a valid phone number.'],
+            ]);
+        }
+
+        $phones = array_values(array_filter(
+            $user->phones ?? [],
+            static fn (string $existing): bool => $existing !== $parsed
+        ));
+
+        $user->phones = $phones;
+        $user->save();
+
+        return $user->fresh();
+    }
+
+    private function findByEmail(string $email): ?AccountUser
+    {
+        return AccountUser::query()
+            ->where('emails', 'all', [strtolower($email)])
+            ->first();
+    }
+
+    private function tenantScope(): string
+    {
+        return trim((string) Tenant::resolve()->getKey());
+    }
+
+    protected function applyResetPassword(AccountUser $user, string $password): void
+    {
+        $user->password = Hash::make($password);
+        $user->password_type = 'laravel';
+        $user->save();
+        $user->tokens()->delete();
+    }
+
+    /**
+     * @param  array<int, string>  $phones
+     * @return array<int, string>
+     */
+    private function parsePhones(array $phones): array
+    {
+        $validated = [];
+
+        foreach ($phones as $phone) {
+            try {
+                $parsed = PhoneNumberParser::parse($phone);
+            } catch (\Throwable) {
+                $parsed = null;
+            }
+
+            if ($parsed) {
+                $validated[] = $parsed;
+            }
+        }
+
+        return $validated;
+    }
+
+    /**
+     * @param  array<string, array<int, string>>  $errors
+     */
+    private function fail(string $message, array $errors): never
+    {
+        throw new HttpResponseException(response()->json([
+            'message' => $message,
+            'errors' => $errors,
+        ], 422));
+    }
+
+    private function ensurePersonalProfile(AccountUser $user): AccountProfile
+    {
+        $this->profileBootstrapper->ensurePersonalAccount($user);
+
+        /** @var AccountProfile|null $profile */
+        $profile = AccountProfile::query()
+            ->where('created_by', (string) $user->_id)
+            ->where('created_by_type', 'tenant')
+            ->where('profile_type', 'personal')
+            ->where('deleted_at', null)
+            ->orderBy('_id')
+            ->first();
+
+        if (! $profile instanceof AccountProfile) {
+            throw ValidationException::withMessages([
+                'profile' => ['Perfil pessoal não encontrado para o usuário autenticado.'],
+            ]);
+        }
+
+        return $profile;
+    }
+}

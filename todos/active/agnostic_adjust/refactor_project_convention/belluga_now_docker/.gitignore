@@ -1,0 +1,33 @@
+.env
+.env.testing
+.env.local.tunnel
+.env.local.navigation
+# exclude everything
+application/*
+.idea/*
+
+# exception to the rule
+!application/.gitkeep
+
+/.vscode/settings.json
+
+# AI Agents
+AGENTS.md
+delphi-ai
+skills
+GEMINI.md
+gemini_memory.md
+.agent
+.agents
+.codex/
+foundation_documentation_tmp/
+
+# CLINE
+CLINE.md
+.cline
+.clinerules
+
+# CLAUDE
+CLAUDE.md
+.claude
+.claude/

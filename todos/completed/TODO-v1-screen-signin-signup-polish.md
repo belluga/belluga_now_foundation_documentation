@@ -1,6 +1,6 @@
 # TODO (V1): Screen Polish - Sign In / Sign Up
 
-**Superseded note (2026-04-17):** this standalone sign-in/sign-up polish slice is obsolete. MVP tenant-public auth now belongs to `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`, which replaces email/social auth entry with phone OTP and absorbs the auth-entry polish requirements that used to live here.
+**Superseded note (2026-04-17):** this standalone sign-in/sign-up polish slice is obsolete. MVP tenant-public auth now belongs to `foundation_documentation/todos/completed/TODO-store-release-phone-otp-auth-and-contact-match.md`, which replaces email/social auth entry with phone OTP and absorbs the auth-entry polish requirements that used to live here.
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [x] ✅ Production-Ready`.
 **Status:** Completed
@@ -11,7 +11,7 @@
 
 ## References
 - `foundation_documentation/todos/completed/TODO-v1-targeted-visual-polish.md`
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
+- `foundation_documentation/todos/completed/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/policies/scope_subscope_governance.md`
 
 ## Scope (Single Screen)

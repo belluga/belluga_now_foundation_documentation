@@ -1,0 +1,35 @@
+  * Task{8ed1f7c #961 type=standard I=com.guarappari.app/com.belluga_now.MainActivity U=0 visible=true visibleRequested=true mode=fullscreen translucent=false sz=1}
+    topResumedActivity=ActivityRecord{1192d76 u0 com.guarappari.app/com.belluga_now.MainActivity} t961 d0}
+    * Hist  #0: ActivityRecord{1192d76 u0 com.guarappari.app/com.belluga_now.MainActivity} t961 d0}
+      packageName=com.guarappari.app processName=com.guarappari.app
+      app=ProcessRecord{2d67f77 26791:com.guarappari.app/u0a170}
+      Intent { act=android.intent.action.VIEW cat=[android.intent.category.BROWSABLE] dat=https://guarappari.belluga.space/parceiro/qa-discovery-tag-longa flg=0x10000000 pkg=com.guarappari.app cmp=com.guarappari.app/com.belluga_now.MainActivity }
+      rootOfTask=true task=Task{8ed1f7c #961 type=standard I=com.guarappari.app/com.belluga_now.MainActivity U=0 visible=true visibleRequested=true mode=fullscreen translucent=false sz=1}
+      mActivityComponent=com.guarappari.app/com.belluga_now.MainActivity
+      baseDir=/data/app/~~TjWm0CJho_ifWcgfHOppCA==/com.guarappari.app-YwlOn6SKxrJcU1IFkZ5gbA==/base.apk
+      dataDir=/data/user/0/com.guarappari.app
+      taskDescription: label="" icon=null iconResource=com.guarappari.app/0 iconFilename=null primaryColor=ff33618d
+      windows=[Window{834176a u0 com.guarappari.app/com.belluga_now.MainActivity}]
+    Resumed: ActivityRecord{1192d76 u0 com.guarappari.app/com.belluga_now.MainActivity} t961 d0}
+  ResumedActivity: ActivityRecord{1192d76 u0 com.guarappari.app/com.belluga_now.MainActivity} t961 d0}
+  topDisplayFocusedRootTask=Task{8ed1f7c #961 type=standard I=com.guarappari.app/com.belluga_now.MainActivity U=0 visible=true visibleRequested=true mode=fullscreen translucent=false sz=1}
+  deepestLastOrientationSource=ActivityRecord{1192d76 u0 com.guarappari.app/com.belluga_now.MainActivity} t961 d0}
+  mCurrentFocus=Window{834176a u0 com.guarappari.app/com.belluga_now.MainActivity}
+  mFocusedApp=ActivityRecord{1192d76 u0 com.guarappari.app/com.belluga_now.MainActivity} t961 d0}
+      mPreferredTopFocusableRootTask=Task{8ed1f7c #961 type=standard I=com.guarappari.app/com.belluga_now.MainActivity U=0 visible=true visibleRequested=true mode=fullscreen translucent=false sz=1}
+      mLastFocusedRootTask=Task{8ed1f7c #961 type=standard I=com.guarappari.app/com.belluga_now.MainActivity U=0 visible=true visibleRequested=true mode=fullscreen translucent=false sz=1}
+      * Task{8ed1f7c #961 type=standard I=com.guarappari.app/com.belluga_now.MainActivity U=0 visible=true visibleRequested=true mode=fullscreen translucent=false sz=1}
+        * ActivityRecord{1192d76 u0 com.guarappari.app/com.belluga_now.MainActivity} t961 d0}
+    mFocusedWindow=Window{834176a u0 com.guarappari.app/com.belluga_now.MainActivity}
+    mTopFullscreenOpaqueWindowState=Window{834176a u0 com.guarappari.app/com.belluga_now.MainActivity}
+    mNavBarColorWindowCandidate=Window{834176a u0 com.guarappari.app/com.belluga_now.MainActivity}
+    mNavBarBackgroundWindow=Window{834176a u0 com.guarappari.app/com.belluga_now.MainActivity}
+      Window{834176a u0 com.guarappari.app/com.belluga_now.MainActivity}
+      ITYPE_IME -> Window{834176a u0 com.guarappari.app/com.belluga_now.MainActivity}
+      ITYPE_NAVIGATION_BAR -> Window{834176a u0 com.guarappari.app/com.belluga_now.MainActivity}
+      ITYPE_STATUS_BAR -> Window{834176a u0 com.guarappari.app/com.belluga_now.MainActivity}
+        mControlTarget=Window{834176a u0 com.guarappari.app/com.belluga_now.MainActivity}
+        mControlTarget=Window{834176a u0 com.guarappari.app/com.belluga_now.MainActivity}
+        mControlTarget=Window{834176a u0 com.guarappari.app/com.belluga_now.MainActivity}
+        (fullscreen) Task{8ed1f7c #961 type=standard I=com.guarappari.app/com.belluga_now.MainActivity U=0 visible=true visibleRequested=true mode=fullscreen translucent=false sz=1}
+  VisibleActivityProcess:[ ProcessRecord{2d67f77 26791:com.guarappari.app/u0a170}]

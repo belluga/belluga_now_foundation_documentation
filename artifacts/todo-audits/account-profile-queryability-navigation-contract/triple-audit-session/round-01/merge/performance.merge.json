@@ -1,0 +1,110 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/todo-audits/account-profile-queryability-navigation-contract/triple-audit-session/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "claude-cli-performance-r01"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "acceptable",
+    "operational_fit": "acceptable"
+  },
+  "recommended_paths": [
+    "advance"
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-9E74B1B9",
+      "severity": "high",
+      "title": "Type-set filtering push-down not directly verified in package evidence",
+      "rationale": "The bounded package asserts that filtering is type-set pushed into queries rather than broad fetch + in-memory filtering, but the evidence provided does not include query-level assertions (e.g., EXPLAIN output, query log assertions, or test stubs that verify the WHERE clause shape). The test names confirm behavioral exclusion but do not confirm that the exclusion happens at the DB layer vs. a post-fetch PHP filter. For current cardinalities this is likely non-risky, but if AccountProfiles grow to high cardinality or the query service is reused in a list/aggregate path, an unverified in-memory filter would become a concrete performance risk.",
+      "suggested_action": "Add a query-count or query-log assertion in AccountProfileQueryServiceTest to confirm that the capability scope reduces the DB query predicate, not a post-hydration collection filter.",
+      "reviewer_labels": [
+        "claude-cli-performance-r01"
+      ],
+      "source_finding_ids": [
+        "F-01"
+      ],
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-68144284",
+      "severity": "high",
+      "title": "Map widget layer (poi_base_card, poi_detail_card_builder, etc.) capability decisions not explicitly audited",
+      "rationale": "Several Flutter map POI widgets are listed as touched surfaces. The evidence confirms the map controller test passes for 'account profile poi' but does not confirm that the individual widget files do not contain local is_queryable or slug-inference logic that would duplicate the backend contract. If any widget performs local capability inference it creates a dual-authority path that can diverge silently.",
+      "suggested_action": "A grep/static check asserting that touched map widget files do not reference any local queryability field or slug-only navigation inference would close this gap definitively.",
+      "reviewer_labels": [
+        "claude-cli-performance-r01"
+      ],
+      "source_finding_ids": [
+        "F-03"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-B6246A4B",
+      "severity": "high",
+      "title": "FavoritesQueryService snapshot builder touched but no query-bounding evidence provided",
+      "rationale": "AccountProfileFavoriteSnapshotBuilder and FavoritesQueryService are listed as touched surfaces. Favorites snapshot builders are a historically common location for fetch-all or high-cardinality in-memory enrichment patterns. The evidence confirms the favorites section controller origin flow test passes but does not confirm the snapshot builder path is query-bounded (e.g., it fetches only capability-qualified profiles, not all then filters). At current scale this is non-blocking, but the path warrants a note.",
+      "suggested_action": "Add a test or query-log assertion in the favorites snapshot builder path confirming that only queryable/navigable profiles are fetched, not a full profile set filtered post-hydration.",
+      "reviewer_labels": [
+        "claude-cli-performance-r01"
+      ],
+      "source_finding_ids": [
+        "F-05"
+      ],
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-8750021B",
+      "severity": "high",
+      "title": "Bundle hash verified but the verification step is manual and ephemeral",
+      "rationale": "The bundle hash comparison between local build and served asset is a strong operational verification step. However, it is manual and not captured in a repeatable CI artifact. If the deployment step is repeated or a cache invalidation occurs, the hash check is not automatically re-run. This is not a blocking risk for this delivery, but the verification step should be promoted to a repeatable script or CI gate for future deployments.",
+      "suggested_action": "Promote the hash comparison to a post-deploy verification script callable from CI so bundle integrity is not solely reliant on manual author verification.",
+      "reviewer_labels": [
+        "claude-cli-performance-r01"
+      ],
+      "source_finding_ids": [
+        "F-04"
+      ],
+      "category": "performance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "none",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-1AD6269D",
+      "severity": "high",
+      "title": "Allowlist audit output reviewed but allowlist breadth not challenged in evidence",
+      "rationale": "The guardrail script passes and produces an allowlisted findings report with audit checklist output, but the bounded package does not expose the contents of the allowlist or assert a maximum cardinality. An unconstrained allowlist risks becoming a convenience bypass accumulator over time. The current evidence confirms the mechanism works but does not bound its scope.",
+      "suggested_action": "The AccountProfileQueryabilityGuardrailsTest should assert an upper bound on allowlist entries (e.g., <= N) and verify each entry has a non-empty owner and rationale field to prevent silent accumulation.",
+      "reviewer_labels": [
+        "claude-cli-performance-r01"
+      ],
+      "source_finding_ids": [
+        "F-02"
+      ],
+      "category": "elegance",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

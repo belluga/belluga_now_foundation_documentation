@@ -1,0 +1,545 @@
+const { test, expect } = require('@playwright/test');
+
+const landlordUrl = process.env.NAV_LANDLORD_URL;
+const tenantUrl = process.env.NAV_TENANT_URL;
+const appBootTimeoutMs = 90000;
+
+// The stage smoke exercises multiple live tenant routes sequentially.
+// Keep the file timeout above the per-route boot budget so slow-but-healthy
+// hosts do not fail before the readonly sweep finishes.
+test.describe.configure({ timeout: 300000 });
+
+function requireNavigationUrls() {
+  expect(
+    landlordUrl,
+    'Missing NAV_LANDLORD_URL. Readonly web navigation suite requires live landlord URL.',
+  ).toBeTruthy();
+  expect(
+    tenantUrl,
+    'Missing NAV_TENANT_URL. Readonly web navigation suite requires live tenant URL.',
+  ).toBeTruthy();
+
+  return { landlordUrl, tenantUrl };
+}
+
+function applicationOrigins() {
+  return [landlordUrl, tenantUrl]
+    .filter(Boolean)
+    .map((value) => new URL(value).origin);
+}
+
+function isApplicationApiRequest(rawUrl) {
+  let parsed;
+  try {
+    parsed = new URL(rawUrl);
+  } catch (_) {
+    return false;
+  }
+
+  return applicationOrigins().includes(parsed.origin) && parsed.pathname.startsWith('/api/');
+}
+
+function installFailureCollectors(page) {
+  const runtimeErrors = [];
+  const failedRequests = [];
+  const consoleErrors = [];
+  const mutatingApiRequests = [];
+
+  page.on('pageerror', (error) => runtimeErrors.push(error.message));
+  page.on('request', (request) => {
+    const method = (request.method() || '').toUpperCase();
+    if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {
+      return;
+    }
+    const url = request.url();
+    if (!isApplicationApiRequest(url)) {
+      return;
+    }
+    mutatingApiRequests.push(`${method} ${url}`);
+  });
+  page.on('requestfailed', (request) => {
+    const failureText = request.failure()?.errorText || 'unknown';
+    if (failureText === 'net::ERR_ABORTED') {
+      return;
+    }
+
+    failedRequests.push(`${request.method()} ${request.url()} (${failureText})`);
+  });
+  page.on('console', (message) => {
+    if (message.type() === 'error') {
+      consoleErrors.push(message.text());
+    }
+  });
+
+  return { runtimeErrors, failedRequests, consoleErrors, mutatingApiRequests };
+}
+
+async function assertAppBooted(page) {
+  await expect(page.locator('flt-glass-pane')).toHaveCount(1, {
+    timeout: appBootTimeoutMs,
+  });
+  await expect(page.locator('#splash-screen')).toHaveCount(0, {
+    timeout: appBootTimeoutMs,
+  });
+}
+
+async function waitForLanding(page, allowedPrefixes) {
+  await page.waitForFunction(
+    (prefixes) => {
+      const { pathname, hash } = window.location;
+      const pathOk = prefixes.some((prefix) =>
+        prefix === '/' ? pathname === '/' : pathname.startsWith(prefix)
+      );
+      const hashOk = prefixes.some((prefix) => {
+        if (prefix === '/') {
+          return hash === '#' || hash === '#/';
+        }
+        return hash.startsWith(`#${prefix}`);
+      });
+      return pathOk || hashOk;
+    },
+    allowedPrefixes,
+    { timeout: 90000 }
+  );
+}
+
+async function logLandingHref(page, lane) {
+  const landingHref = await page.evaluate(() => window.location.href);
+  console.log(`[nav][${lane}] landing href: ${landingHref}`);
+}
+
+async function probePath(page, baseUrl, path, allowedPrefixes, lane) {
+  const targetUrl = new URL(path, baseUrl).toString();
+  const response = await page.goto(targetUrl, { waitUntil: 'domcontentloaded' });
+  expect(response, `Response should be available for ${targetUrl}`).not.toBeNull();
+  expect(response.status(), `Response should be successful for ${targetUrl}`).toBeLessThan(400);
+
+  await assertAppBooted(page);
+  await waitForLanding(page, allowedPrefixes);
+  await logLandingHref(page, `${lane}:${path}`);
+
+  const reloadResponse = await page.reload({ waitUntil: 'domcontentloaded' });
+  expect(
+    reloadResponse,
+    `Reload response should be available for ${targetUrl}`
+  ).not.toBeNull();
+  expect(
+    reloadResponse.status(),
+    `Reload response should be successful for ${targetUrl}`
+  ).toBeLessThan(400);
+  await assertAppBooted(page);
+  await waitForLanding(page, allowedPrefixes);
+  await logLandingHref(page, `${lane}:${path}:reload`);
+}
+
+async function assertEnvironmentType(page, baseUrl, expectedType) {
+  const url = new URL('/api/v1/environment', baseUrl).toString();
+  const response = await page.request.get(url);
+  expect(response.status(), `Environment endpoint should succeed for ${url}`).toBeLessThan(400);
+
+  const payload = await response.json();
+  expect(payload?.type, `Environment payload type mismatch for ${url}`).toBe(expectedType);
+  return payload;
+}
+
+function resolveDefaultOrigin(environmentPayload) {
+  const mapUi = environmentPayload?.settings?.map_ui;
+  if (!mapUi || typeof mapUi !== 'object') {
+    return null;
+  }
+
+  if (mapUi.default_origin && typeof mapUi.default_origin === 'object') {
+    return mapUi.default_origin;
+  }
+
+  const lat = mapUi['default_origin.lat'];
+  const lng = mapUi['default_origin.lng'];
+  if (lat == null || lng == null) {
+    return null;
+  }
+
+  return {
+    lat,
+    lng,
+    label: mapUi['default_origin.label'] ?? null,
+  };
+}
+
+async function enableAccessibilityIfNeeded(page) {
+  const placeholder = page
+    .locator('flt-semantics-placeholder[aria-label="Enable accessibility"]')
+    .first();
+  const a11yButton = page.getByRole('button', { name: /Enable accessibility/i });
+
+  for (let attempt = 0; attempt < 25; attempt += 1) {
+    if ((await page.getByRole('button').count()) > 1) {
+      return;
+    }
+
+    if ((await placeholder.count()) > 0) {
+      await placeholder.focus();
+      await page.keyboard.press('Enter');
+      await page.waitForTimeout(300);
+      if ((await page.getByRole('button').count()) > 1) {
+        return;
+      }
+    } else if ((await a11yButton.count()) > 0) {
+      await a11yButton.first().click();
+      await page.waitForTimeout(300);
+      if ((await page.getByRole('button').count()) > 1) {
+        return;
+      }
+    }
+
+    await page.waitForTimeout(200);
+  }
+}
+
+test('@readonly landlord domain bootstraps as landlord and navigates', async ({ page }) => {
+  const { landlordUrl } = requireNavigationUrls();
+  const collectors = installFailureCollectors(page);
+
+  const response = await page.goto(landlordUrl, { waitUntil: 'domcontentloaded' });
+  expect(response, 'Landlord response should be available').not.toBeNull();
+  expect(response.status(), 'Landlord response should be successful').toBeLessThan(400);
+
+  await assertEnvironmentType(page, landlordUrl, 'landlord');
+
+  await assertAppBooted(page);
+  await waitForLanding(page, ['/', '/invites', '/convites', '/profile']);
+  await logLandingHref(page, 'landlord');
+
+  await probePath(
+    page,
+    landlordUrl,
+    '/admin',
+    ['/', '/admin', '/landlord', '/auth/login'],
+    'landlord'
+  );
+  await probePath(
+    page,
+    landlordUrl,
+    '/home',
+    ['/admin', '/auth/login', '/'],
+    'landlord'
+  );
+  await probePath(
+    page,
+    landlordUrl,
+    '/landlord',
+    ['/admin', '/auth/login', '/'],
+    'landlord'
+  );
+
+  expect(collectors.runtimeErrors, `Unexpected runtime errors:\n${collectors.runtimeErrors.join('\n')}`).toEqual([]);
+  expect(collectors.failedRequests, `Failed requests:\n${collectors.failedRequests.join('\n')}`).toEqual([]);
+  expect(collectors.consoleErrors, `Console errors:\n${collectors.consoleErrors.join('\n')}`).toEqual([]);
+  expect(
+    collectors.mutatingApiRequests,
+    `Readonly landlord flow must not issue mutating API requests:\n${collectors.mutatingApiRequests.join('\n')}`,
+  ).toEqual([]);
+});
+
+test('@readonly tenant domain bootstraps as tenant and navigates to tenant routes', async ({ page }) => {
+  const { tenantUrl } = requireNavigationUrls();
+  const collectors = installFailureCollectors(page);
+  let anonymousIdentityStatus = null;
+
+  page.on('response', (response) => {
+    if (response.url().includes('/api/v1/anonymous/identities')) {
+      anonymousIdentityStatus = response.status();
+    }
+  });
+
+  const response = await page.goto(tenantUrl, { waitUntil: 'domcontentloaded' });
+  expect(response, 'Tenant response should be available').not.toBeNull();
+  expect(response.status(), 'Tenant response should be successful').toBeLessThan(400);
+
+  await assertEnvironmentType(page, tenantUrl, 'tenant');
+
+  await assertAppBooted(page);
+  await waitForLanding(page, ['/', '/invites', '/convites', '/profile']);
+  await logLandingHref(page, 'tenant');
+  await page.waitForTimeout(1500);
+
+  if (anonymousIdentityStatus != null) {
+    expect(
+      [200, 201],
+      'Anonymous identity bootstrap, when present, must be successful.',
+    ).toContain(anonymousIdentityStatus);
+  }
+
+  await probePath(
+    page,
+    tenantUrl,
+    '/admin',
+    ['/admin', '/auth/login', '/'],
+    'tenant'
+  );
+  await probePath(
+    page,
+    tenantUrl,
+    '/home',
+    ['/', '/auth/login'],
+    'tenant'
+  );
+  await probePath(
+    page,
+    tenantUrl,
+    '/landlord',
+    ['/admin', '/landlord', '/', '/auth/login'],
+    'tenant'
+  );
+  await probePath(
+    page,
+    tenantUrl,
+    '/workspace',
+    ['/workspace', '/baixe-o-app', '/auth/login', '/'],
+    'tenant'
+  );
+  await probePath(
+    page,
+    tenantUrl,
+    '/workspace/account-demo',
+    ['/workspace/account-demo', '/workspace', '/baixe-o-app', '/auth/login'],
+    'tenant'
+  );
+
+  expect(collectors.runtimeErrors, `Unexpected runtime errors:\n${collectors.runtimeErrors.join('\n')}`).toEqual([]);
+  expect(collectors.failedRequests, `Failed requests:\n${collectors.failedRequests.join('\n')}`).toEqual([]);
+  const criticalConsoleErrors = collectors.consoleErrors.filter(
+    (entry) => !entry.includes('status of 401'),
+  );
+  expect(
+    criticalConsoleErrors,
+    `Critical console errors:\n${criticalConsoleErrors.join('\n')}`,
+  ).toEqual([]);
+});
+
+test('@mutation tenant agenda UI state matches tenant agenda API payload', async ({ browser }) => {
+  const { tenantUrl } = requireNavigationUrls();
+  const tenantOrigin = new URL(tenantUrl).origin;
+  const isHomeAgendaRequest = (sample) =>
+    (sample.pastOnly == null || sample.pastOnly === '0') &&
+    (sample.confirmedOnly == null || sample.confirmedOnly === '0') &&
+    (sample.searchQuery == null || sample.searchQuery.trim() === '');
+
+  const context = await browser.newContext({
+    ignoreHTTPSErrors: true,
+    geolocation: { latitude: -20.671339, longitude: -40.495395 },
+    permissions: ['geolocation'],
+  });
+  const page = await context.newPage();
+  const collectors = installFailureCollectors(page);
+  const agendaResponses = [];
+  const homeAgendaResponses = [];
+  const agendaErrorResponses = [];
+  const agendaSamples = [];
+  const homeAgendaSamples = [];
+  const homeAgendaParseErrors = [];
+  let anonymousIdentityStatus = null;
+
+  const tenantEnvironment = await assertEnvironmentType(page, tenantUrl, 'tenant');
+  const defaultOrigin = resolveDefaultOrigin(tenantEnvironment);
+  if (defaultOrigin != null) {
+    expect(
+      Number.isFinite(Number(defaultOrigin.lat)),
+      'default_origin.lat must be numeric when default_origin is exposed.',
+    ).toBeTruthy();
+    expect(
+      Number.isFinite(Number(defaultOrigin.lng)),
+      'default_origin.lng must be numeric when default_origin is exposed.',
+    ).toBeTruthy();
+  }
+
+  page.on('response', async (response) => {
+    const url = response.url();
+    if (url.includes('/api/v1/anonymous/identities')) {
+      anonymousIdentityStatus = response.status();
+      return;
+    }
+    if (!url.includes('/api/v1/agenda')) {
+      return;
+    }
+    const requestUrl = new URL(url);
+    const sampleBase = {
+      page: requestUrl.searchParams.get('page') ?? '1',
+      pageSize: requestUrl.searchParams.get('page_size'),
+      pastOnly: requestUrl.searchParams.get('past_only'),
+      confirmedOnly: requestUrl.searchParams.get('confirmed_only'),
+      searchQuery: requestUrl.searchParams.get('search'),
+      originLat: requestUrl.searchParams.get('origin_lat'),
+      originLng: requestUrl.searchParams.get('origin_lng'),
+      url,
+      status: response.status(),
+    };
+    if (response.status() >= 400) {
+      agendaErrorResponses.push(sampleBase);
+      return;
+    }
+    agendaResponses.push(sampleBase);
+    const isHomeRequest = isHomeAgendaRequest(sampleBase);
+    if (isHomeRequest) {
+      homeAgendaResponses.push(sampleBase);
+    }
+    try {
+      const body = await response.json();
+      const hasCanonicalItemsArray =
+        Array.isArray(body?.items) || Array.isArray(body?.data?.items);
+      if (!hasCanonicalItemsArray) {
+        if (isHomeRequest) {
+          homeAgendaParseErrors.push(
+            `Canonical home agenda payload missing items array: ${sampleBase.status} ${sampleBase.url}`,
+          );
+        }
+        return;
+      }
+      const items = Array.isArray(body?.items) ? body.items : body.data.items;
+      agendaSamples.push({
+        page: sampleBase.page,
+        count: items.length,
+        originLat: sampleBase.originLat,
+        originLng: sampleBase.originLng,
+        url: sampleBase.url,
+        status: sampleBase.status,
+      });
+      if (isHomeRequest) {
+        homeAgendaSamples.push({
+          page: sampleBase.page,
+          count: items.length,
+          originLat: sampleBase.originLat,
+          originLng: sampleBase.originLng,
+          url: sampleBase.url,
+          status: sampleBase.status,
+        });
+      }
+    } catch (_) {
+      if (isHomeRequest) {
+        homeAgendaParseErrors.push(
+          `Canonical home agenda payload is not valid JSON: ${sampleBase.status} ${sampleBase.url}`,
+        );
+      }
+    }
+  });
+
+  const response = await page.goto(tenantUrl, { waitUntil: 'domcontentloaded' });
+  expect(response, 'Tenant response should be available').not.toBeNull();
+  expect(response.status(), 'Tenant response should be successful').toBeLessThan(400);
+  await assertAppBooted(page);
+  await enableAccessibilityIfNeeded(page);
+  await page.waitForTimeout(12000);
+
+  expect(
+    anonymousIdentityStatus,
+    'Expected anonymous identity bootstrap call on tenant public startup.',
+  ).not.toBeNull();
+  expect(
+    [200, 201],
+    'Anonymous identity bootstrap must be idempotent-success (200/201).',
+  ).toContain(anonymousIdentityStatus);
+  expect(
+    agendaErrorResponses,
+    `Agenda API returned HTTP >= 400:\n${agendaErrorResponses
+      .map((sample) => `${sample.status} ${sample.url}`)
+      .join('\n')}`,
+  ).toEqual([]);
+
+  const samplesWithClientPageSize = agendaResponses.filter(
+    (sample) => sample.pageSize != null,
+  );
+  expect(
+    samplesWithClientPageSize,
+    `Agenda requests must rely on the API default page size and omit client-sent page_size:\n${samplesWithClientPageSize
+      .map((sample) => sample.url)
+      .join('\n')}`,
+  ).toEqual([]);
+
+  const defaultEmptyStateText = page.getByText('Nenhum evento disponível no momento');
+  const filteredEmptyStateText = page.getByText('Nenhum resultado encontrado');
+  const hasVisibleEmptyState =
+    (await defaultEmptyStateText.count()) > 0 ||
+    (await filteredEmptyStateText.count()) > 0;
+  const hasHomeAgendaResponses = homeAgendaResponses.length > 0;
+  if (!hasHomeAgendaResponses) {
+    expect(
+      hasVisibleEmptyState,
+      `Expected canonical home /api/v1/agenda request ` +
+        `(past_only=0, confirmed_only=0, no search, API-default page size) ` +
+        `or explicit empty-state UI when home agenda is unavailable.\n` +
+        `Observed agenda requests:\n${agendaResponses.map((sample) => sample.url).join('\n')}`,
+    ).toBeTruthy();
+  }
+
+  expect(
+    homeAgendaParseErrors,
+    `Canonical home agenda payload parse/contract failures:\n${homeAgendaParseErrors.join('\n')}`,
+  ).toEqual([]);
+
+  const firstPageHomeSamples = homeAgendaResponses.filter((sample) => sample.page === '1');
+  const originSamples = firstPageHomeSamples.length > 0 ? firstPageHomeSamples : homeAgendaResponses;
+  const samplesMissingOrigin = originSamples.filter(
+    (sample) => !sample.originLat || !sample.originLng,
+  );
+  expect(
+    samplesMissingOrigin,
+    `All inspected agenda requests must include origin_lat/origin_lng:\n${samplesMissingOrigin
+      .map((sample) => sample.url)
+      .join('\n')}`,
+  ).toEqual([]);
+
+  const samplesWithInvalidOrigin = originSamples.filter(
+    (sample) =>
+      !Number.isFinite(Number(sample.originLat)) ||
+      !Number.isFinite(Number(sample.originLng)),
+  );
+  expect(
+    samplesWithInvalidOrigin,
+    `All inspected agenda requests must include numeric origin_lat/origin_lng:\n${samplesWithInvalidOrigin
+      .map((sample) => `${sample.url} [lat=${sample.originLat}, lng=${sample.originLng}]`)
+      .join('\n')}`,
+  ).toEqual([]);
+
+  const firstPageHomePayloadSamples = homeAgendaSamples.filter((sample) => sample.page === '1');
+  const payloadSamples = firstPageHomePayloadSamples.length > 0
+    ? firstPageHomePayloadSamples
+    : homeAgendaSamples;
+  const maxAgendaCount = payloadSamples.reduce(
+    (currentMax, sample) => (sample.count > currentMax ? sample.count : currentMax),
+    0,
+  );
+
+  if (maxAgendaCount > 0) {
+    await expect(
+      defaultEmptyStateText,
+      'Agenda API returned items, but UI still shows empty state.',
+    ).toHaveCount(0);
+    await expect(
+      filteredEmptyStateText,
+      'Agenda API returned items, but UI still shows filtered-empty state.',
+    ).toHaveCount(0);
+  }
+
+  const criticalFailedRequests = collectors.failedRequests.filter((entry) =>
+    entry.includes(tenantOrigin) && entry.includes('/api/'),
+  );
+  const criticalConsoleErrors = collectors.consoleErrors.filter((entry) =>
+    entry.includes('/api/v1/') ||
+    entry.includes('FormatException') ||
+    entry.includes('Landlord login failed'),
+  );
+
+  expect(
+    collectors.runtimeErrors,
+    `Unexpected runtime errors:\n${collectors.runtimeErrors.join('\n')}`,
+  ).toEqual([]);
+  expect(
+    criticalFailedRequests,
+    `Critical failed API requests:\n${criticalFailedRequests.join('\n')}`,
+  ).toEqual([]);
+  expect(
+    criticalConsoleErrors,
+    `Critical console errors:\n${criticalConsoleErrors.join('\n')}`,
+  ).toEqual([]);
+
+  await context.close();
+});

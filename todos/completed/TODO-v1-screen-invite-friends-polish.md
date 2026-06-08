@@ -1,6 +1,6 @@
 # TODO (V1): Screen Polish - Invite Friends
 
-**Superseded note (2026-04-17):** this standalone polish-only lane is no longer needed. The active authority for any release-facing rework of `/convites` now lives in `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`, because that feature slice is expected to deliver the proper screens rather than only visual cleanup on the existing flow.
+**Superseded note (2026-04-17):** this standalone polish-only lane is no longer needed. The active authority for any release-facing rework of `/convites` now lives in `foundation_documentation/todos/completed/TODO-store-release-minimal-friends-and-favorites-mvp.md`, because that feature slice is expected to deliver the proper screens rather than only visual cleanup on the existing flow.
 
 **Status legend:** `- [ ] ⚪ Pending` · `- [x] ✅ Production-Ready`.
 **Status:** Completed
@@ -11,7 +11,7 @@
 
 ## References
 - `foundation_documentation/todos/completed/TODO-v1-targeted-visual-polish.md`
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+- `foundation_documentation/todos/completed/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
 
 ## Scope (Single Screen/Flow)

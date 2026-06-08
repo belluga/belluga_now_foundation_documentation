@@ -1,7 +1,7 @@
 # Documentation: Account Profile Catalog Module
 
-**Version:** 1.0  
-**Date:** February 28, 2025  
+**Version:** 1.0
+**Date:** February 28, 2025
 **Authors:** Delphi (Belluga Co-Engineering)
 
 **Authority note (2026-04-18):** this document is currently the authority for tenant-public account-profile catalog/detail/discovery contracts. The deferred `offer` concern should be read as a planned capability, not as a separate current runtime authority; whether that capability later stays here or is promoted to its own module is an implementation-time decision.
@@ -23,8 +23,8 @@ The Account Profile Catalog module (MOD-304) maintains the canonical representat
 - Tactical TODO streams:
   - `foundation_documentation/todos/active/vnext/TODO-vnext-tenant-user-account-profile-area.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`
-  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-home-favorites-refresh-regression.md`
-  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-home-favorites-refresh-regression.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-minimal-friends-and-favorites-mvp.md`
   - `foundation_documentation/todos/completed/TODO-store-release-account-profile-rich-text-fidelity.md`
   - `foundation_documentation/todos/completed/TODO-v1-public-account-profile-discovery-ui.md`
   - `foundation_documentation/todos/completed/TODO-v1-static-assets-media-parity-with-account-profiles.md`
@@ -68,6 +68,14 @@ The Account Profile Catalog module (MOD-304) maintains the canonical representat
   },
   "badges": ["String"],
   "verification_flags": ["String"],
+  "nested_profile_groups": [
+    {
+      "id": "String",
+      "label": "String",
+      "order": 0,
+      "account_profile_ids": ["ObjectId()"]
+    }
+  ],
   "created_at": "Date",
   "updated_at": "Date"
 }
@@ -129,6 +137,14 @@ Aggregated dashboard data remains a future authenticated workspace-facing read c
 - Legacy/plain-text values with newline breaks are canonicalized at render time so paragraph breaks and explicit line breaks remain visible.
 - Backend persistence validates a dedicated `100KB` sanitized-content cap per field for `bio` and `content`; this does not raise global short-description limits for unrelated fields.
 
+**Nested Account Profile groups**
+- `account_profiles.nested_profile_groups` is a bounded embedded one-level grouping contract: max `12` groups per parent and max `50` linked Account Profiles per group.
+- Profile type capability `capabilities.has_nested_profile_groups=true` is required before a parent Account Profile may author or expose nested groups. Disabled types reject non-empty admin writes and suppress any stored nested group projection from tenant-public detail.
+- Each group stores `id`, `label`, `order`, and ordered `account_profile_ids`; the group `label` is the tenant-public tab title.
+- Tenant-public `/api/v1/account_profiles/{account_profile_slug}` projects only non-empty public groups as `nested_profile_groups[].profiles`, using existing Account Profile identity/media/taxonomy snapshots so Flutter can render tabs without extra queries.
+- Public detail hides empty groups and groups whose linked profiles are not active, public, and public-catalog eligible. Admin readback keeps empty groups editable.
+- Nested groups are custom tabs, not recursive account hierarchy, workspace membership, or raw Account rendering.
+
 **Favorites client-state contract**
 - Public account-profile catalog/detail reads remain anonymous-capable and favoritable by profile type, but viewer-specific favorite ids are registered user-linked state in Flutter.
 - Account Profile favorite ids must be refreshed through the Flutter post-auth hydration contract after OTP/login, then published through repository-owned streams for Discovery, public detail, Home favorites, and inviteable/social consumers.
@@ -146,8 +162,8 @@ Aggregated dashboard data remains a future authenticated workspace-facing read c
 
 ### 4.1 Tenant-Public Discovery Listing Contract
 
-**EnvironmentType:** `tenant`  
-**Main scope:** `tenant_public`  
+**EnvironmentType:** `tenant`
+**Main scope:** `tenant_public`
 **Subscope:** `n/a`
 
 | Route | Host Context | EnvironmentType | Main Scope | Subscope | Guard/Identity |
@@ -156,7 +172,7 @@ Aggregated dashboard data remains a future authenticated workspace-facing read c
 
 Discovery runtime behavior for tenant-public account-profile listing is fixed as follows:
 - Default discovery hierarchy uses `Tocando agora` + `Perto de você` as the top composition, followed by `Descubra` with registry-driven single-select category chips.
-- Discovery category chips and type options must be derived only from the centralized public account-profile catalog scope; contacts/friends-only profile types such as `personal` must not appear as public Discovery filters, and legacy public non-`personal` types without the new flag must keep rendering during rollout.
+- Discovery category chips and type options start from the centralized public account-profile catalog scope, then are pruned by backend-owned runtime facets computed from the full currently filtered universe before pagination. Contacts/friends-only profile types such as `personal` must not appear as public Discovery filters, legacy public non-`personal` types without the new flag must keep rendering during rollout, and Flutter must not locally synthesize candidate filters from current-page items.
 - Entering search mode hides `Tocando agora`, `Perto de você`, and the `Descubra` heading/chip chrome.
 - While search mode is active with an empty query, the unfiltered base discovery grid remains visible; text filtering begins only after the user types.
 - Discovery-side profile entrypoints continue to launch the canonical public account-profile detail route `/parceiro/:slug`; detail-route behavior is governed separately.
@@ -195,6 +211,7 @@ Discovery runtime behavior for tenant-public account-profile listing is fixed as
 | `PCO-12` | Approved | Laravel-owned account-profile hero metadata resolution is centralized in the canonical account-profile hero resolver. Runtime metadata/payload consumers must not reimplement the `cover > avatar > type visual` fallback chain locally, while serializers/projections may still expose raw media fields. | Prevents public metadata and notification consumers from drifting from the approved surface-specific media precedence. | Sections `4`, `7` |
 | `PCO-12` | Approved | Account Profile taxonomy terms are read/display snapshots using `{type, value, name, taxonomy_name, label?}` while filters stay on machine keys (`type`, `value`, `type:value`). | Prevents slug rendering in public/admin UI without adding runtime taxonomy joins to list/detail reads. | Sections `4`, `7` |
 | `PCO-13` | Approved | Viewer favorite ids for Account Profiles are registered user-linked client state and must be refreshed by Flutter post-auth hydration after registered identity emission. | Prevents stale favorite flags after OTP login and keeps Discovery/detail/Home/inviteable consumers aligned through repository-owned streams. | Sections `4`, `7`; `foundation_documentation/modules/flutter_client_experience_module.md` `FCX-12` |
+| `PCO-14` | Approved | Account Profile nested groups are bounded embedded one-level custom groups on the parent profile; each non-empty public group renders as a custom tenant-public Account Profile detail tab whose cards are linked Account Profiles, gated by `profile_types.capabilities.has_nested_profile_groups=true`. | Delivers custom `Parceiros`/`Patrocinadores`/`Equipe` tabs only for explicitly enabled profile types, without introducing recursive hierarchy, Account Workspace permissions, or raw Account public rendering. | Sections `3.1`, `4`, `7` |
 
 ## 8. Tactical TODO Promotion Ledger
 
@@ -205,4 +222,5 @@ Discovery runtime behavior for tenant-public account-profile listing is fixed as
 | `TODO-v1-tenant-public-safe-back-navigation.md` | Shared tenant-public account-profile-detail back/fallback policy | Completed | `4`, `7` | Freezes `/parceiro/:slug -> /descobrir` when root-opened; archived from `active` during the 2026-04-09 MVP TODO cleanup after delivery confirmation. |
 | `TODO-store-release-account-profile-rich-text-fidelity.md` | Account Profile `bio`/`content` rich-text fidelity and long-form cap | Promotion Lane | `4`, `7` | Promotes the Store Release contract for independent capability-backed rich-text fields, public `Sobre` rendering, safe subset canonicalization, and `100KB` per-field sanitized-content validation. |
 | `TODO-store-release-taxonomy-term-display-snapshots.md` | Taxonomy term display snapshots for account/profile/event/static/map read models | Promotion Lane | `4`, `7` | Promotes display-ready taxonomy snapshots while preserving machine-key filtering and idempotent backfill/fanout. |
-| `TODO-store-release-home-favorites-refresh-regression.md` | Account Profile favorite-id hydration for Home/detail/discovery consumers | Promotion Lane | `4`, `7` | Promotes registered-identity favorite refresh and stale-state clearing through repository-owned streams. |
+| `TODO-store-release-home-favorites-refresh-regression.md` | Account Profile favorite-id hydration for Home/detail/discovery consumers | Completed | `4`, `7` | Registered-identity favorite refresh and stale-state clearing now live under the archived repository-owned contract. |
+| `TODO-v0.2.0+8-nested-account-profile-groups.md` | Nested Account Profile custom public tabs | Active | `3.1`, `4`, `7` | Promotes embedded `nested_profile_groups`, admin-managed group/member order, and public custom tabs with linked Account Profile cards. |

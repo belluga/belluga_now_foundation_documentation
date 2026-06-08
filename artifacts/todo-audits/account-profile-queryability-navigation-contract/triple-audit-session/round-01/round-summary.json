@@ -1,0 +1,48 @@
+{
+  "schema_version": "triple-audit-round-summary-v1",
+  "artifact_kind": "triple_audit_round_summary",
+  "authoritative": false,
+  "session_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/todo-audits/account-profile-queryability-navigation-contract/triple-audit-session/session.json",
+  "round": 1,
+  "merged_at": "2026-06-04T21:09:30+00:00",
+  "round_status": "needs_adjudication",
+  "conflicts": [
+    "recommended_path_conflict: reviewers proposed different recommended paths"
+  ],
+  "lanes": {
+    "elegance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/todo-audits/account-profile-queryability-navigation-contract/triple-audit-session/round-01/results/elegance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/todo-audits/account-profile-queryability-navigation-contract/triple-audit-session/round-01/merge/elegance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/todo-audits/account-profile-queryability-navigation-contract/triple-audit-session/round-01/merge/elegance.merge.md",
+      "overall_assessment": "The bounded package demonstrates a well-structured canonical implementation for the account profile queryability and public navigation contract. The separation of concerns between capability catalog, query gateway, and consumer surfaces is architecturally sound. Validation evidence is comprehensive and the regression coverage appears materially complete. No blocking findings identified; minor non-blocking debt noted.",
+      "recommended_path": "approve",
+      "finding_count": 4,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    },
+    "performance": {
+      "review_kind": "critique",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/todo-audits/account-profile-queryability-navigation-contract/triple-audit-session/round-01/results/performance.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/todo-audits/account-profile-queryability-navigation-contract/triple-audit-session/round-01/merge/performance.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/todo-audits/account-profile-queryability-navigation-contract/triple-audit-session/round-01/merge/performance.merge.md",
+      "overall_assessment": "The bounded package demonstrates a well-structured canonical approach to queryability/navigability separation with centralized enforcement. The layered evidence (Laravel feature/unit tests, Flutter unit tests, browser runtime diagnostic, guardrail script) is coherent and covers the primary regression vector. No concrete severe blocking findings identified. Several non-blocking debt items are noted for structural honesty.",
+      "recommended_path": "advance",
+      "finding_count": 5,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    },
+    "test-quality": {
+      "review_kind": "test_quality_audit",
+      "result_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/todo-audits/account-profile-queryability-navigation-contract/triple-audit-session/round-01/results/test-quality.result.json",
+      "merge_json_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/todo-audits/account-profile-queryability-navigation-contract/triple-audit-session/round-01/merge/test-quality.merge.json",
+      "merge_markdown_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/todo-audits/account-profile-queryability-navigation-contract/triple-audit-session/round-01/merge/test-quality.merge.md",
+      "overall_assessment": "PASS_WITH_DEBT",
+      "recommended_path": "CLOSE_WITH_DEBT",
+      "finding_count": 5,
+      "highest_finding_severity": "high",
+      "status": "needs_resolution"
+    }
+  },
+  "exact_next_step": "Prepare a contradiction note, run the follow-up no-context challenge if needed, adjudicate the conflict explicitly, record the resolution with `record-resolution --status resolved`, then open the next round."
+}

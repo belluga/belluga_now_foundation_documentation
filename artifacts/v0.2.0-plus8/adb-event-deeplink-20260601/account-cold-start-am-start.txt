@@ -1,0 +1,6 @@
+Starting: Intent { act=android.intent.action.VIEW cat=[android.intent.category.BROWSABLE] dat=https://guarappari.belluga.space/... pkg=com.guarappari.app }
+Status: timeout
+LaunchState: UNKNOWN (-1)
+Activity: com.guarappari.app/com.belluga_now.MainActivity
+WaitTime: 10163
+Complete

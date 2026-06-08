@@ -1,0 +1,195 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/audits/v0.2.0-plus8-delivery-scrutiny/triple-audit-20260605T134938Z/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "Claude Test Quality"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "mixed",
+    "elegance": "mixed",
+    "structural_soundness": "regresses",
+    "operational_fit": "regresses"
+  },
+  "recommended_paths": [
+    "block"
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-971BF993",
+      "severity": "high",
+      "title": "public-taxonomy-canonicalization-and-runtime-facets is at Pending stage with zero associated test coverage",
+      "rationale": "This TODO is explicitly labeled release-blocking and remains at Pending stage. No test for its acceptance criteria can exist yet because implementation has not started. The lane cannot achieve meaningful test-quality closure while a release-blocking TODO has no implementation and therefore no tests. Any lane-level green signal that ignores this TODO is structurally false.",
+      "suggested_action": "Treat this as an absolute blocker for promotion-lane readiness. The TODO must reach at minimum Local-Implemented with its own test matrix before a lane-level test-quality assessment can pass. Do not aggregate this TODO's state into any green readiness signal until tests exist and pass.",
+      "reviewer_labels": [
+        "Claude Test Quality"
+      ],
+      "source_finding_ids": [
+        "TQ-05"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-D0200A06",
+      "severity": "high",
+      "title": "discovery_filters.spec.js carries status-only assertions that cannot catch visible-label regression",
+      "rationale": "The test quality audit scan explicitly flagged status-only assertion hints in the modified browser spec. The user reported that filter labels remained blank/placeholder until selection, meaning the regression is a DOM-visible-label failure. A status-only assertion (e.g., response key present, HTTP 200) passes whether or not the resolved human label is rendered in the DOM before selection. The current spec modification does not demonstrate it asserts the pre-selection visible label state that was confirmed broken.",
+      "suggested_action": "Add DOM-level assertions that confirm each filter chip/option renders its resolved human-readable label before any user selection event. Drive the browser to the Discovery and Home filter surfaces without interacting and assert visible text content for each filter dimension. These assertions must fail on the pre-fix state to be valid regression guards.",
+      "reviewer_labels": [
+        "Claude Test Quality"
+      ],
+      "source_finding_ids": [
+        "TQ-01"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-750664A4",
+      "severity": "high",
+      "title": "Synthetic fixtures in event_related_profile_groups_test.dart cannot reproduce admin chip-count readback mismatch",
+      "rationale": "The confirmed regression is: admin surface reports 4 profiles selected, but the group editor renders only 2 chips. This failure requires the real admin authoring cycle \u2014 admin creates/edits a group with 4 profiles, persists via the actual API path, then re-reads the group state for rendering. Synthetic fixtures inject pre-shaped domain objects and bypass the persistence and readback steps entirely. Any fixture that correctly supplies 2 or 4 profiles will green-pass the test regardless of whether the real authoring path is broken.",
+      "suggested_action": "Add an integration test or diagnostic spec that performs the full admin authoring cycle via real API endpoints: create group with N profiles, persist, fetch readback, assert rendered chip count matches N. This must be driven through the same API surface the admin UI uses, not a test-owned fixture builder.",
+      "reviewer_labels": [
+        "Claude Test Quality"
+      ],
+      "source_finding_ids": [
+        "TQ-02"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-E870402C",
+      "severity": "high",
+      "title": "No end-to-end test covers public event aggregate tab after admin occurrence + profile-group authoring",
+      "rationale": "The user confirmed that the public event page still shows missing aggregate tabs after admin editing. The path that must be validated is: admin creates occurrence \u2192 assigns profile groups to occurrence \u2192 public event route is loaded \u2192 aggregate group/tab appears. The identified tests (immersive_event_detail_screen_test.dart, event_related_profile_groups_test.dart) use synthetic domain objects and do not exercise the persistence-to-public-render cycle. This is a final-behavior gap as defined by the gate calibration.",
+      "suggested_action": "Add a browser or integration test that: (1) authors an occurrence with at least one profile group via the admin API path, (2) loads the public event route for that event, (3) asserts the aggregate tab/group heading is visible. This test must fail before the fix and pass after to qualify as valid regression coverage.",
+      "reviewer_labels": [
+        "Claude Test Quality"
+      ],
+      "source_finding_ids": [
+        "TQ-06"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-FF535AC2",
+      "severity": "high",
+      "title": "API-level seeding in event_profile_groups_runtime.diagnostic.spec.js bypasses the admin authoring path that produced the regression",
+      "rationale": "The diagnostic spec seeds profile-group state directly at API level. The chip-count/readback mismatch and the missing public aggregate tab are both downstream of the admin editor persisting groups through the full UI-to-API-to-store-to-readback path. If the defect lives in the admin editor's write path, field merging, or the group membership serializer, API seeding injects already-correct state and the spec will permanently pass while the actual admin authoring path remains broken.",
+      "suggested_action": "Extend the diagnostic spec to include at least one scenario where the group is authored through the admin UI form (or the same HTTP payload the admin form sends) rather than a pre-shaped API call. Assert the readback state and public event tab presence after this authored-path write.",
+      "reviewer_labels": [
+        "Claude Test Quality"
+      ],
+      "source_finding_ids": [
+        "TQ-03"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-5ABB4743",
+      "severity": "high",
+      "title": "ADB/device navigation evidence still pending for event-profile-groups despite confirmed real-device back-navigation failure",
+      "rationale": "The event-profile-groups-canonical-consistency TODO explicitly carries ADB/device navigation as pending. The user confirmed broken back-navigation semantics on real device/runtime routes \u2014 some profiles remained clickable when they should not navigate. Device navigation failures are not reproducible by browser or unit tests alone; they require the native navigation stack. Treating device evidence as paperwork rather than a blocking gap misclassifies a confirmed regression category.",
+      "suggested_action": "Before promotion-lane entry, require at minimum one recorded device test run (ADB or physical device) that navigates the implicated profile-group routes, asserts non-navigable profiles do not respond to tap, and completes back-navigation without state corruption. Record session output as a formal CI-equivalent artifact post-addendum.",
+      "reviewer_labels": [
+        "Claude Test Quality"
+      ],
+      "source_finding_ids": [
+        "TQ-04"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-C125FE1F",
+      "severity": "medium",
+      "title": "nested-account-profile-groups parent TODO at Implementation-Ready while child is treated as delivery-complete",
+      "rationale": "The structural split where the child TODO (event-profile-groups-canonical-consistency) carries the delivery claim while the parent TODO (nested-account-profile-groups) remains at Implementation-Ready creates a coverage coherence gap. Tests written against the child scope may not cover the parent's full acceptance criteria. If the parent TODO's DOD includes behaviors that were not re-scoped into the child, those behaviors have no test coverage and no delivery claim.",
+      "suggested_action": "Reconcile the parent and child TODO DOD matrices explicitly. Either formally close the parent by mapping each of its acceptance criteria to a child delivery artifact, or identify any parent-scope criteria that remain undelivered and untest. Do not accept the lane as closed while this split is unresolved.",
+      "reviewer_labels": [
+        "Claude Test Quality"
+      ],
+      "source_finding_ids": [
+        "TQ-10"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-B7BF0519",
+      "severity": "medium",
+      "title": "Stale 2026-05-28 CI-equivalent artifact over-reused across multiple TODOs whose addenda postdate it",
+      "rationale": "Multiple TODOs cite the same reconcile_validation_status_20260528_012558_full_ci_equivalent_atlas_runtime.md artifact as their CI-equivalent evidence. User-reported regressions and addenda were filed after that date. Validation evidence collected before an addendum was opened is not valid evidence that the addendum's acceptance criteria are met. Tests that were green at 2026-05-28 may be green against an older code state that did not include the addendum changes.",
+      "suggested_action": "Require each TODO that has an open or recently closed addendum to produce a fresh CI-equivalent artifact timestamped after the addendum's last substantive change. The 2026-05-28 artifact should be explicitly retired as primary evidence for any TODO with post-2026-05-28 addendum activity.",
+      "reviewer_labels": [
+        "Claude Test Quality"
+      ],
+      "source_finding_ids": [
+        "TQ-08"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-744579BB",
+      "severity": "medium",
+      "title": "Non-navigable public profile card coverage does not demonstrate runtime surface suppression",
+      "rationale": "The queryability tests (account_profile_queryability_runtime.diagnostic.spec.js and AccountProfilesControllerTest.php) validate that the backend correctly marks profiles as non-queryable or non-navigable in API responses. They do not demonstrate that the frontend actually suppresses or disables navigation for those cards in the rendered UI. The confirmed regression was that non-navigable profiles still appeared clickable. Backend-correct flags are necessary but not sufficient; the UI rendering path must also be covered.",
+      "suggested_action": "Add a browser-level assertion that, given a profile with non-navigable flag set, the rendered card either has no tap handler, displays no navigation affordance, or explicitly navigates nowhere. This assertion must be driven against the rendered DOM/widget state, not the API response.",
+      "reviewer_labels": [
+        "Claude Test Quality"
+      ],
+      "source_finding_ids": [
+        "TQ-09"
+      ],
+      "category": "tests",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-DAE62399",
+      "severity": "medium",
+      "title": "Full-universe aggregation assertion absent from Home and Discovery filter test suites",
+      "rationale": "The user reported empty-result filter options appearing in production, which directly implies the filter option universe is being computed from a paginated or filtered result set rather than the full backend universe. The current test suite for tenant_home_agenda_controller and discovery_screen_controller asserts that filter keys are present in API responses, but does not assert that the option set is independent of the current pagination window or result subset. A test that queries with a narrow filter and then checks the available filter options may still pass even if the options are scoped to the filtered result.",
+      "suggested_action": "Add assertions that verify filter option counts/values remain stable (full-universe) when the result set is narrowed by an unrelated filter dimension. For example: apply a date range filter, then assert that event-type filter options still enumerate the full catalog. Pair this with a backend test that verifies the aggregation query shape does not include a WHERE clause derived from unrelated active filters.",
+      "reviewer_labels": [
+        "Claude Test Quality"
+      ],
+      "source_finding_ids": [
+        "TQ-07"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

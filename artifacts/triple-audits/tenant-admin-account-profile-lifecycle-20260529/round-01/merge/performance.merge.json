@@ -1,0 +1,76 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/tenant-admin-account-profile-lifecycle-20260529/round-01/dispatch/performance.dispatch.json",
+  "review_kind": "critique",
+  "review_count": 1,
+  "reviewer_labels": [
+    "performance"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "mixed",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Revise the TODO before renewed APROVADO to make the deletion invariant concurrency-safe and to make the repair command fail-closed, tenant-bounded, and operationally bounded."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-C27B94F3",
+      "severity": "high",
+      "title": "Repair command policy is stated but not enforceably bounded.",
+      "rationale": "The execution plan does not require hard tenant selection, environment refusal, dry-run default, execute confirmation, row limits, chunking, or indexed anti-join/query shape.",
+      "suggested_action": "Require fail-closed command semantics: explicit tenant argument, dry-run by default, execute requiring an explicit confirmation flag/token, refusal outside approved local environment unless separately approved, bounded/chunked indexed queries, and structured residual reporting.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PERF-02"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-BD711690",
+      "severity": "high",
+      "title": "Last-profile delete guard is not specified as atomic under concurrent deletion.",
+      "rationale": "The package requires a service-level guard and lists the multiple-active-profiles case, but does not require a transaction, row/account lock, conditional delete, or concurrent-delete regression evidence.",
+      "suggested_action": "Require atomic invariant enforcement keyed to the account, with a narrowly scoped aggregate-delete bypass and evidence for the race-sensitive path. Reject a plain count-then-delete implementation outside a transaction/lock boundary.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PERF-01"
+      ],
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-0CB1992B",
+      "severity": "medium",
+      "title": "Playwright cleanup replacement does not specify bounded account lookup.",
+      "rationale": "The package does not state that cleanup must use captured onboarding account identifiers or a direct aggregate cleanup API.",
+      "suggested_action": "Require onboarding-created accounts to be cleaned up through known account identifiers or session-owned metadata via the aggregate lifecycle, with source-scan evidence that no profile-delete-only cleanup remains.",
+      "reviewer_labels": [
+        "performance"
+      ],
+      "source_finding_ids": [
+        "PERF-03"
+      ],
+      "category": "performance",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

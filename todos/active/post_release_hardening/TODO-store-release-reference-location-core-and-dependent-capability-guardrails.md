@@ -317,11 +317,41 @@ Use exact trigger names and exact enum values only.
   - froze the minimal disabled-resolution payload for preserved provenance plus disabled reason signaling (`D-REF-10`; ordered step `3`)
 - **Evidence / reference:** `.delphi_orchestration/orch-20260420/reviews/reference-location/critique/merge.md`
 
+## Approval
+- **Approved by:** user in chat
+- **Approved at:** `2026-05-26T23:49:44-03:00`
+- **Approval reference:** `APROVADO`
+- **Approval scope:** implementation and validation of this blocker as `REF-CORE` inside `foundation_documentation/artifacts/execution-plans/v0.2.0-plus8-cross-stack-orchestration-plan.md`; no promotion to `stage` or `main` and no broader proximity UI rollout is authorized by this approval.
+
 ## Rules Acknowledgement / Ingestion (Required After `APROVADO` and Before Execution)
 | Source | Why It Applies Now | Must Preserve | Must Avoid | Execution Impact |
 | --- | --- | --- | --- | --- |
 | `foundation_documentation/project_constitution.md` | The blocker is freezing whether this capability belongs in a reusable boundary now. | Package-capable boundaries when reuse is plausible. | Hardcoding a reusable contract straight into host-only code. | Anchors the package/lib-first decision. |
-| `foundation_documentation/modules/system_architecture_principles.md` | The new capability attaches to the typed profile registry model. | Registry-owned capability authority. | Inventing ad hoc subtype inheritance or freeform metadata. | Keeps the rule inside canonical capability governance. |
+| `delphi-ai/system_architecture_principles.md` | The new capability attaches to the typed profile registry model. | Registry-owned capability authority. | Inventing ad hoc subtype inheritance or freeform metadata. | Keeps the rule inside canonical capability governance. |
 | `foundation_documentation/modules/map_poi_module.md` | `is_poi_enabled` already has authoritative downstream semantics. | POI capability as a real enabling/disabling contract. | Treating `is_poi_enabled` as advisory-only. | Provides the precedent for dependent-capability enforcement. |
-| `laravel-app/app/Application/AccountProfiles/AccountProfileRegistryManagementService.php` | This is the current write-path surface for Account Profile type capabilities. | Deterministic capability normalization/merge behavior. | UI-only enforcement without backend guardrails. | Points to the first implementation owner for the dependency rule. |
-| `flutter-app/lib/domain/app_data/location_origin_settings.dart` | The main proximity TODO will extend the current Flutter-side origin contract. | Current local/device baseline until the next layer lands. | Replacing the baseline without a frozen shared core. | Keeps the downstream consumer work anchored to existing origin models. |
+| `foundation_documentation/modules/tenant_admin_module.md` | Tenant-admin registry capability editing is in scope. | Deterministic capability normalization/merge behavior. | UI-only enforcement without backend guardrails. | Points to the first implementation owner for the dependency rule. |
+| `foundation_documentation/modules/agenda_and_action_planner_module.md` | The main proximity TODO will extend the current origin contract. | Current local/device baseline until the next layer lands. | Replacing the baseline without a frozen shared core. | Keeps downstream consumer work anchored to existing origin models. |
+
+## Worker Checkpoint Evidence (2026-05-27)
+- **Worker:** `worker-reference-core`
+- **Branches:** `laravel-app: worker/v020plus8-reference-core-laravel-20260526`; `flutter-app: worker/v020plus8-reference-core-flutter-20260526`; `foundation_documentation: worker/v020plus8-reference-core-foundation-20260526`
+- **Implemented contract:** `reference_status`, `reference_status_reason`, and `blocked_capability_key` now flow through Laravel proximity preference payload resolution and Flutter DTO/domain/repository consumption while preserving coordinate snapshot plus generic provenance (`source_kind`, `entity_namespace`, `entity_type`, `entity_id`).
+- **Scope control:** Wave 3 UI/directions work remained out of scope; no reference-point save UI, directions modal, Waze/Uber action, public action surface, or broader proximity UX was implemented by this worker.
+
+### Worker-Local Validation
+| Surface | Command | Status | Evidence / Notes |
+| --- | --- | --- | --- |
+| Package-first | `bash delphi-ai/tools/query_packages.sh --project-root /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker --search "location"` | `passed` | `0 package(s) found`; no package owner exists for the local reusable reference-location boundary. |
+| Package-first | `bash delphi-ai/tools/query_packages.sh --project-root /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker --search "proximity"` | `passed` | `0 package(s) found`. |
+| Package-first | `bash delphi-ai/tools/query_packages.sh --project-root /home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker --search "map"` | `passed` | `0 package(s) found`. |
+| Authority gate | `python3 delphi-ai/tools/todo_authority_guard.py foundation_documentation/todos/active/post_release_hardening/TODO-store-release-reference-location-core-and-dependent-capability-guardrails.md` | `passed` | `Overall outcome: go`. |
+| Flutter focused tests | `fvm flutter test --no-pub test/infrastructure/dal/dto/proximity_preference_dto_test.dart test/infrastructure/repositories/proximity_preferences_repository_test.dart` | `passed` | DTO/domain test proves disabled metadata and provenance mapping; repository test proves disabled entity references are not mirrored as active local origins. |
+| Flutter analyzer | `fvm dart analyze --format machine` | `passed` | Exit code `0`; final rerun emitted no machine-output diagnostics. |
+| Flutter diff hygiene | `git diff --check` | `passed` | No whitespace errors in Flutter worktree. |
+| Laravel diff hygiene | `git diff --check` | `passed` | No whitespace errors in Laravel worktree. |
+
+### Worker-Local Blocker
+- **Surface:** Laravel focused test execution in isolated worker worktree.
+- **Status:** `blocked-worker-local`
+- **Cause:** the required project safe runner does not exist in `/home/elton/Dev/repos/belluga-ecosystem/_worktrees/laravel-reference-core-v020plus8-20260526`; `ls -l scripts/delphi/run_laravel_tests_safe.sh` returned `No such file or directory`, and `rg --files | rg 'run_laravel_tests_safe|laravel.*safe|test.*safe|delphi'` found no usable Laravel safe-runner script. Per orchestration instruction, this worker did not run `docker compose run` or mount a Laravel runtime locally.
+- **Required follow-through:** orchestrator must validate Laravel focused tests from the principal checkout using the official wrapper.

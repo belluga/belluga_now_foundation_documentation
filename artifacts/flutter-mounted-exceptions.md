@@ -25,6 +25,7 @@ Track explicitly approved `mounted`/`context.mounted` exceptions so future scans
 | MNT-011 | `flutter-app/lib/presentation/tenant_admin/static_assets/screens/tenant_admin_static_asset_edit_screen.dart` | Deferred | Same pattern as MNT-007 for static-asset edit image flows (device/URL + crop). Guards prevent late effects after dismissal. | 2026-02-17 | Delphi |
 | MNT-012 | `flutter-app/lib/presentation/tenant_admin/settings/screens/tenant_admin_settings_screen.dart` | Deferred | Branding image flows await source sheet + optional URL fetch + crop sheet. `mounted` checks only guard late UI updates/effects when the settings screen is dismissed mid-flow; no controller navigation ownership was introduced. | 2026-02-19 | Delphi |
 | MNT-013 | `flutter-app/lib/presentation/shared/widgets/directions_app_chooser/directions_app_chooser_sheet.dart` | Canceled | Ephemeral route-app chooser sheet loads dynamic options asynchronously before rendering rows. The local `mounted` guard only prevents late `setState` after the sheet is dismissed; no navigation or controller-owned state crosses the async gap. | 2026-04-03 | Delphi |
+| MNT-014 | `flutter-app/lib/presentation/tenant_public/partners/account_profile_detail_screen.dart` | Canceled | Account Profile reference-point confirmation awaits an ephemeral dialog and controller-owned persistence; `mounted` only guards post-await snackbar UI effects when the detail screen is dismissed mid-flow. | 2026-05-31 | Delphi |
 
 ## Notes
 - Exceptions must be removed or updated once refactors eliminate the `mounted` usage.

@@ -20,9 +20,9 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 - Tactical TODO streams:
   - `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`
   - `foundation_documentation/todos/completed/TODO-store-release-android.md`
-  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
-  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-minimal-friends-and-favorites-mvp.md`
-  - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-funnel-metrics-validation.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-phone-otp-auth-and-contact-match.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-minimal-friends-and-favorites-mvp.md`
+  - `foundation_documentation/todos/completed/TODO-store-release-funnel-metrics-validation.md`
   - `foundation_documentation/todos/active/vnext/TODO-vnext-onboarding-identity-reconciliation-reflection.md`
 
 ## 2. Entry Paths
@@ -143,8 +143,8 @@ The Onboarding Flow module (MOD-307) owns the full first-time experience across 
 | --- | --- | --- | --- | --- |
 | `TODO-v1-invites-implementation.md` | Invite acceptance/contact-import flow contracts | Completed (2026-03-12) | `2`, `4`, `6` | Main authority for invite/onboarding boundary. |
 | `TODO-store-release-android.md` | Android release orchestration authority | Completed | `1.1`, `5`, `7` | Historical Android publication orchestrator for the completed Android-first release wave. |
-| `TODO-store-release-phone-otp-auth-and-contact-match.md` | Phone-OTP upgrade and identity baseline | In progress | `2`, `3`, `4`, `6`, `7` | Freezes the authenticated upgrade path that onboarding must hand off into, including the immediate post-auth hydration handoff for registered user-linked repositories. |
-| `TODO-store-release-minimal-friends-and-favorites-mvp.md` | Minimal user-level friends/favorites release contract | In progress | `2`, `4` | Owns the release-facing friend preview/social-proof contract referenced by onboarding. |
-| `TODO-store-release-funnel-metrics-validation.md` | Release funnel metrics validation | Promotion lane candidate | `3`, `7` | Freezes identity funnel event/property evidence for auth wall, signup, OTP challenge, OTP verification, and anonymous merge; post-release sink/readback hardening moved to the dedicated post-release TODO. |
+| `TODO-store-release-phone-otp-auth-and-contact-match.md` | Phone-OTP upgrade and identity baseline | Completed | `2`, `3`, `4`, `6`, `7` | The authenticated upgrade path and immediate post-auth hydration handoff are now archival-complete. |
+| `TODO-store-release-minimal-friends-and-favorites-mvp.md` | Minimal user-level friends/favorites release contract | Completed | `2`, `4` | The release-facing friend preview/social-proof contract referenced by onboarding is now archival-complete. |
+| `TODO-store-release-funnel-metrics-validation.md` | Release funnel metrics validation | Completed | `3`, `7` | Freezes identity funnel event/property evidence for auth wall, signup, OTP challenge, OTP verification, and anonymous merge; post-release sink/readback hardening moved to the dedicated post-release TODO. |
 | `TODO-post-release-tenant-app-domain-authorization-and-app-link-integrity-hardening.md` | App-link trust-boundary hardening for tenant-owned app identifiers | Implementation checkpoint after audit follow-up | `5`, `6`, `7` | Promotes that onboarding/web-to-app flows consume app-link trust only from tenant-admin-owned app domains and `settings.app_links`; local implementation and final CI-equivalent validation are reconciled, with audit gates still pending. |
 | `TODO-vnext-onboarding-identity-reconciliation-reflection.md` | Late identity-materialization reconciliation + advisory reflection surfaces | Pending follow-up | `3`, `4`, `6`, `7` | Owns post-onboarding reflection (`Talvez você conheça`, informational lifecycle hints) after canonical identity materialization. |

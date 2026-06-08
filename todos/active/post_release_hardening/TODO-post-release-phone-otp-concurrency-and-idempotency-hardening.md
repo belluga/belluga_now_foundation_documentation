@@ -37,7 +37,7 @@ These are real auth hardening gaps. The current evidence does not show tenant cr
 - **Next exact step:** reproduce the `challenge` and `verify` race paths under real concurrent requests, freeze the invariant and policy per path, then implement atomic state transitions with regression coverage.
 
 ## References
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
+- `foundation_documentation/todos/completed/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/modules/onboarding_flow_module.md`
 - `foundation_documentation/modules/flutter_client_experience_module.md`
 - `laravel-app/app/Application/Auth/TenantPhoneOtpAuthService.php`

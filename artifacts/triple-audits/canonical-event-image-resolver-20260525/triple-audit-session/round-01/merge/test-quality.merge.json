@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/canonical-event-image-resolver-20260525/triple-audit-session/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "TEST-QUALITY"
+  ],
+  "highest_finding_severity": "medium",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "acceptable",
+    "operational_fit": "acceptable"
+  },
+  "recommended_paths": [
+    "Proceed, with one non-blocking evidence tightening recommended for the account-profile public agenda surface: add or record an exact image assertion at that endpoint boundary if the gate requires every listed public consumer surface to be semantically proven independently, not only through the shared formatEvents path."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-50CC34BB",
+      "severity": "medium",
+      "title": "Account-profile public agenda surface evidence is integration-present but semantically thin",
+      "rationale": "The Consumer Matrix lists Account profile public agenda occurrences as an affected public surface and says the service now uses formatEvents, but the cited selected test is test_public_account_profile_show_by_slug_includes_agenda_occurrences_for_future_venue_occurrences. From the bounded package, that name only proves occurrences are included; it does not prove the account-profile endpoint response carries the canonical Event image, parent linked-profile fallback, or Venue-not-winning behavior. The shared agenda tests strongly cover formatEvents itself, so this is not a clear blocker, but the endpoint-specific evidence is weaker than the agenda and detail surfaces.",
+      "suggested_action": "Add or cite an account-profile public endpoint assertion that checks the serialized agenda occurrence image URL against the expected Event/Profile candidate and confirms Venue does not win when stale occurrence media exists.",
+      "reviewer_labels": [
+        "TEST-QUALITY"
+      ],
+      "source_finding_ids": [
+        "TQ-001"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

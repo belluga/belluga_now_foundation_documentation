@@ -1,0 +1,144 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/ux-audits/canonical-event-action-surface/triple-audit-session/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "test-quality-claude"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "regresses"
+  },
+  "recommended_paths": [
+    "block implementation until concrete test matrix is part of the TODO"
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-9FD5A477",
+      "severity": "high",
+      "title": "WhatsApp hero action lacks dedicated direct-launch coverage",
+      "rationale": "The proposal depends on WhatsApp remaining an immediate shortcut/fallback, but current test coverage was reported as missing for this behavior.",
+      "suggested_action": "Require widget/controller test proving WhatsApp hero action invokes the WhatsApp/fallback launcher directly and does not open the canonical sheet.",
+      "reviewer_labels": [
+        "test-quality-claude"
+      ],
+      "source_finding_ids": [
+        "TQ-001"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-D2CF7040",
+      "severity": "high",
+      "title": "Web anonymous runtime gate needs Playwright coverage",
+      "rationale": "The critical operational contract is web anonymous gate -> promotion surface, with no phone login and no auto-open app before CTA. Widget tests alone are insufficient for browser/runtime behavior.",
+      "suggested_action": "Require source-owned Playwright coverage for web anonymous desktop/mobile-frame favorite or action gate behavior.",
+      "reviewer_labels": [
+        "test-quality-claude"
+      ],
+      "source_finding_ids": [
+        "TQ-004"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-21D6A433",
+      "severity": "high",
+      "title": "Sheet-first Convidar navigation contract is untested",
+      "rationale": "Current tests validate direct navigation to InviteShareRoute. The proposed behavior needs the inverse: first open canonical sheet, then route only after explicit action.",
+      "suggested_action": "Require test: tap Convidar -> canonical action sheet visible -> tap full composer action -> InviteShareRoute pushed; fail if route is pushed immediately.",
+      "reviewer_labels": [
+        "test-quality-claude"
+      ],
+      "source_finding_ids": [
+        "TQ-002"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-0F2B8583",
+      "severity": "high",
+      "title": "Promotion variant must prove shared action-sheet anatomy",
+      "rationale": "The proposal purpose is visual/surface canonicalization. Existing modal tests validate content but not shared surface anatomy.",
+      "suggested_action": "Require promotion gate test asserting the canonical action-sheet component/keys are used and phone-login UI is absent on web anonymous.",
+      "reviewer_labels": [
+        "test-quality-claude"
+      ],
+      "source_finding_ids": [
+        "TQ-003"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-4C19EE74",
+      "severity": "high",
+      "title": "CI execution evidence for runtime navigation must be explicit",
+      "rationale": "Integration/runtime tests are only valuable if the correct runner includes them. The proposal must name the commands/CI-equivalent path.",
+      "suggested_action": "Implementation TODO must list exact focused Flutter, analyzer, rule matrix, build web, and Playwright commands before delivery.",
+      "reviewer_labels": [
+        "test-quality-claude"
+      ],
+      "source_finding_ids": [
+        "TQ-005"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-5333A12E",
+      "severity": "low",
+      "title": "System share tests may rely on fake launcher only",
+      "rationale": "Fake launcher validates payload formatting but not platform/plugin behavior. This is acceptable for focused unit coverage but weaker than runtime proof.",
+      "suggested_action": "Keep fake-launcher assertions for determinism and add runtime/browser smoke only where platform behavior is release-critical.",
+      "reviewer_labels": [
+        "test-quality-claude"
+      ],
+      "source_finding_ids": [
+        "TQ-006"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "none",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-A1C57BD6",
+      "severity": "low",
+      "title": "Invite backend mutation coverage is outside proposal but will matter if composer logic changes",
+      "rationale": "The UX proposal does not change backend invite semantics, but any implementation that changes send/share-code/status behavior must add backend/controller coverage.",
+      "suggested_action": "Keep backend invite semantics out of this TODO; if touched, require mutation/contract tests.",
+      "reviewer_labels": [
+        "test-quality-claude"
+      ],
+      "source_finding_ids": [
+        "TQ-007"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "none",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

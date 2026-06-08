@@ -10,8 +10,8 @@ Establish the VNext delivery stream for the tenant/admin Account Profile area (a
 ## References
 - `foundation_documentation/todos/completed/TODO-v1-account-profile-implementation.md`
 - `foundation_documentation/todos/completed/TODO-v1-tenant-admin-data-layer-rebuild.md`
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-phone-otp-auth-and-contact-match.md`
-- `foundation_documentation/todos/promotion_lane/store_release_android/TODO-v1-screen-user-profile-polish.md`
+- `foundation_documentation/todos/completed/TODO-store-release-phone-otp-auth-and-contact-match.md`
+- `foundation_documentation/todos/completed/TODO-v1-screen-user-profile-polish.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-account-workspace.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-account-claim-flow.md`
 

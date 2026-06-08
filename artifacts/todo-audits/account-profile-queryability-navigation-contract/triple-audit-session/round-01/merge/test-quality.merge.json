@@ -1,0 +1,110 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/todo-audits/account-profile-queryability-navigation-contract/triple-audit-session/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "claude-cli-test-quality-r01"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "acceptable",
+    "operational_fit": "acceptable"
+  },
+  "recommended_paths": [
+    "CLOSE_WITH_DEBT"
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-C30EE626",
+      "severity": "high",
+      "title": "Unit guardrail test scope and allowlist audit surface appear sufficient but cannot be fully validated without seeing the actual test bodies.",
+      "rationale": "The bounded package records `3 passed` for `AccountProfileQueryabilityGuardrailsTest.php` and notes the guardrail script produces an allowlist report with audit checklist output. However, the package does not show the test bodies or what the 3 cases cover. Given the guardrail is a developer-workflow artifact (PHP script), the risk that the 3 cases are shallow smoke tests rather than exhaustive path coverage is real. This is non-blocking because the script output is also validated at the integration level via docker exec, but it is debt if the unit test cases do not cover: (a) a newly introduced raw query that is not allowlisted, (b) an allowlisted entry with missing rationale/owner fields, (c) the audit checklist output format itself.",
+      "suggested_action": "Rule: guardrail unit tests must cover the negative path (unallowlisted raw query detected and reported as violation) in addition to the allowlist pass path.",
+      "reviewer_labels": [
+        "claude-cli-test-quality-r01"
+      ],
+      "source_finding_ids": [
+        "TQA-R01-003"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-DA0CB789",
+      "severity": "high",
+      "title": "Laravel feature tests assert suppression and marking but do not assert the explicit `is_publicly_navigable` field value on the payload DTO boundary.",
+      "rationale": "The bounded package lists test row `public event detail suppresses non queryable profiles and marks non-navigable participants` and `public account profile show by slug requires public navigation capability`. These rows confirm behavioral suppression and navigation gate, but the package does not show whether the feature tests also assert the explicit DTO field projection \u2014 i.e., that the Laravel payload includes `is_publicly_navigable: false` for non-navigable participants rather than merely omitting them. The Flutter consumer depends on the explicit field to distinguish 'visible but not navigable' from 'suppressed'. Without a direct DTO-field assertion, a refactor that changes field name or projection logic could silently break the Flutter consumer while keeping the behavioral suppression test green.",
+      "suggested_action": "Rule: payload contract tests must assert the presence and value of every explicit navigability/queryability field in the response body, not only behavioral outcomes (redirect, 404, absence from list).",
+      "reviewer_labels": [
+        "claude-cli-test-quality-r01"
+      ],
+      "source_finding_ids": [
+        "TQA-R01-002"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-17402D29",
+      "severity": "high",
+      "title": "Flutter map controller test was corrected from awaiting `handleMarkerTap()` to direct POI hydration/selection; residual risk that the original regression path (tap-triggered navigation) is not independently covered.",
+      "rationale": "The package notes the map controller test was corrected because awaiting `handleMarkerTap()` without a ready map handle caused the test to fail. The fix hydrates/selects the POI directly. This is a valid unit-test approach, but it means the test no longer exercises the user-trigger path (marker tap \u2192 navigation gate check). The navigability contract check is now only tested at the POI-selection level, not at the gesture-to-navigation level. For a contract that was introduced specifically to prevent a user-visible navigation regression, the absence of a tap-triggered path in tests is mild but real structural debt.",
+      "suggested_action": "Rule: when a test is corrected to bypass a gesture/callback trigger for setup reasons, a separate test case or integration note must document that the gesture path is covered elsewhere or is deferred as known debt.",
+      "reviewer_labels": [
+        "claude-cli-test-quality-r01"
+      ],
+      "source_finding_ids": [
+        "TQA-R01-004"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-4510DB01",
+      "severity": "high",
+      "title": "Browser diagnostic spec is mutation-gated; CI-equivalent dry run is not independently documented.",
+      "rationale": "The Playwright diagnostic `account_profile_queryability_runtime.diagnostic.spec.js` requires `NAV_RUNTIME_DB_MUTATION_ALLOWED=1` to exercise the stale-reference suppression path. The bounded package records that a first run failed and a re-run with the flag passed. This is acceptable for a runtime diagnostic, but the package does not confirm that a standard CI pipeline run (without the mutation flag) exercises any fallback or at minimum asserts the non-mutation contract. If CI runs the spec without the flag and the spec silently skips the mutation block, the most important assertion \u2014 hidden non-queryable profile absent from public tab after stale write \u2014 would not execute in regular CI. This is debt, not a blocker, because the local validation did pass with the flag and all three critical assertions fired.",
+      "suggested_action": "Rule: any mutation-gated browser spec MUST have a documented CI invocation strategy or a dry-run skip/warn mode that asserts the flag is present when the mutation block is reached, preventing silent skip in CI.",
+      "reviewer_labels": [
+        "claude-cli-test-quality-r01"
+      ],
+      "source_finding_ids": [
+        "TQA-R01-001"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-4AE14D2D",
+      "severity": "high",
+      "title": "Admin selector coverage (Tenant Admin candidate lists excluding non-queryable types) is asserted via `EventCrudControllerTest.php` but browser-level admin mutation is covered only by the diagnostic spec, not by a dedicated admin-path web spec.",
+      "rationale": "The frontend/consumer matrix lists `Tenant Admin selectors / candidate resolvers` as a required coverage surface and points to both the Laravel feature test and the browser mutation spec. The browser mutation spec is a diagnostic spec (not a standard regression spec) and is mutation-flag-gated. There is no standalone browser spec that exercises the admin candidate selector UI asserting non-queryable types are absent. This is non-blocking because the Laravel feature test is the authoritative contract gate for the backend, and the admin UI change is thin, but it is operational debt if the admin selector ever drifts without a browser-level regression catching it.",
+      "suggested_action": "Rule: for each consumer surface in the Frontend/Consumer Matrix that has a 'Required behavior' entry, at least one browser-executable (non-flag-gated) spec must exist asserting that behavior, or an explicit debt note must document the gap.",
+      "reviewer_labels": [
+        "claude-cli-test-quality-r01"
+      ],
+      "source_finding_ids": [
+        "TQA-R01-005"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

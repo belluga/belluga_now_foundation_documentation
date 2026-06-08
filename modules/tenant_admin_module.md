@@ -1,7 +1,7 @@
 # Documentation: Tenant Administration Module
 
-**Version:** 0.2 (Active Canonical Module)  
-**Date:** April 12, 2026  
+**Version:** 0.2 (Active Canonical Module)
+**Date:** April 12, 2026
 **Authors:** Delphi (Belluga Co-Engineering)
 
 ## 1. Purpose
@@ -193,15 +193,25 @@ Tenant Admin now runs as a landlord-authenticated shell on tenant domains, with 
 - The `100KB` cap is a dedicated Account Profile sanitized-content constraint for `bio` and `content`; it must not raise global short-description limits or alter unrelated field constraints.
 - Admin readback/preview surfaces must preserve the same rendering semantics as public detail instead of relying on whitespace-collapsing HTML stripping as a fidelity check.
 
+### 3.5.3 Account Profile Nested Group Authoring
+
+- Tenant-admin Account Profile create/edit surfaces expose `Abas de contas vinculadas` only when the selected Account Profile type has `capabilities.has_nested_profile_groups=true`. Types without this capability must hide the nested-group editor and must not submit a non-empty `nested_profile_groups` payload.
+- Tenant-admin Account Profile type create/edit exposes the `Abas de contas vinculadas` capability switch under the type capability set, so the operator explicitly chooses which profile types can author custom nested groups such as `Parceiros`, `Patrocinadores`, `Apoiadores`, or `Equipe`.
+- The operator creates a group, edits the group label, reorders/removes groups, and selects linked Account Profiles from the tenant Account Profile catalog. The UI may label the picker as `Accounts`, but the persisted value is the Account Profile id.
+- Group label is the public tab title. Group order and member order are persisted. Empty groups remain editable in admin and are hidden on tenant-public profile detail.
+- Limits are fixed at max `12` groups per parent Account Profile and max `50` linked Account Profiles per group.
+- This authoring surface does not grant workspace membership, raw Account public rendering, or recursive account hierarchy.
+
 ### 3.6 Settings Multi-Screen Strategy (Hub + Dedicated Flows)
 
 - `/admin/settings` is the **Settings Hub** entrypoint.
 - Dedicated settings routes:
-  - `/admin/settings/local-preferences` → local preferences (`map_ui.radius` bounds + `map_ui.default_origin` fallback seed + `map_ui.filters` catalog + theme)
+  - `/admin/settings/local-preferences` → local preferences (`map_ui.radius` bounds + `map_ui.default_origin` fallback seed + theme)
   - `/admin/settings/visual-identity` → branding/visual identity
   - `/admin/settings/technical-integrations` → app links + firebase/push/telemetry + resend email delivery + outbound WhatsApp/OTP webhook delivery
   - `/admin/settings/domains` → tenant web-domain management (active list/create/delete; deleted-domain lifecycle stays outside the current settings read flow)
   - `/admin/settings/environment-snapshot` → read-only environment diagnostics
+- The Settings Hub exposes a `Filtros` entry that navigates to the canonical discovery-filter surface list at `/admin/filters`; map filter editing continues through `/admin/filters/surface?surface=public_map.primary` and persists `settings.discovery_filters.surfaces.public_map.primary.filters[]`.
 - The settings controller remains the state owner; each settings screen consumes only the relevant state slices and actions.
 - `/admin/settings/visual-identity` is the canonical owner of tenant runtime branding identity in V1:
   - editing `Nome do tenant` persists the canonical tenant record used by `/api/v1/environment` and `manifest.json`;
@@ -780,7 +790,8 @@ List profile type registry for the tenant.
       "capabilities": {
         "is_publicly_discoverable": true,
         "is_favoritable": true,
-        "is_poi_enabled": false
+        "is_poi_enabled": false,
+        "has_nested_profile_groups": false
       }
     }
   ]
@@ -806,7 +817,8 @@ Create a profile type registry entry (tenant admin).
   "capabilities": {
     "is_publicly_discoverable": true,
     "is_favoritable": true,
-    "is_poi_enabled": false
+    "is_poi_enabled": false,
+    "has_nested_profile_groups": false
   }
 }
 ```
@@ -830,7 +842,8 @@ Create a profile type registry entry (tenant admin).
     "capabilities": {
       "is_publicly_discoverable": true,
       "is_favoritable": true,
-      "is_poi_enabled": false
+      "is_poi_enabled": false,
+      "has_nested_profile_groups": false
     }
   }
 }
@@ -854,7 +867,8 @@ Update a profile type registry entry (tenant admin).
   "capabilities": {
     "is_publicly_discoverable": true,
     "is_favoritable": true,
-    "is_poi_enabled": false
+    "is_poi_enabled": false,
+    "has_nested_profile_groups": false
   }
 }
 ```
@@ -878,7 +892,8 @@ Update a profile type registry entry (tenant admin).
     "capabilities": {
       "is_publicly_discoverable": true,
       "is_favoritable": true,
-      "is_poi_enabled": false
+      "is_poi_enabled": false,
+      "has_nested_profile_groups": false
     }
   }
 }
@@ -1234,6 +1249,7 @@ Delete an event type registry entry (tenant admin).
 - `profile_type_registry.capabilities.is_publicly_discoverable` (bool): whether profiles of this type are eligible for tenant public discovery surfaces.
 - `profile_type_registry.capabilities.is_favoritable` (bool): whether the profile type can be favorited. This capability requires `is_publicly_discoverable=true`; admin UI must clear and disable favorites when public discovery is off.
 - `profile_type_registry.capabilities.is_poi_enabled` (bool): whether the profile type requires/participates in map POI location.
+- `profile_type_registry.capabilities.has_nested_profile_groups` (bool): whether Account Profiles of this type may author and expose bounded linked-account tab groups. Tenant-admin Account Profile forms must hide the nested-group editor when this capability is false, and backend writes must reject non-empty `nested_profile_groups` payloads for disabled types.
 - `map_poi_projection_impact.projection_count` (int): affected `map_pois` count shown in destructive confirmation before disabling POI capability.
 - `event_type_registry.visual` (object): canonical event-type visual contract used by tenant-admin and embedded event snapshots.
 - `event_type_registry.poi_visual` (object): compatibility mirror for legacy/read consumers; backend writes must converge on `visual`.
@@ -1477,6 +1493,14 @@ Fetch account profile detail.
     "avatar_url": "string?",
     "cover_url": "string?",
     "bio": "string?",
+    "nested_profile_groups": [
+      {
+        "id": "string",
+        "label": "string",
+        "order": 0,
+        "account_profile_ids": ["string"]
+      }
+    ],
     "taxonomy_terms": [
       { "type": "string", "value": "string" }
     ],
@@ -1500,6 +1524,14 @@ Update account profile basic fields.
   "location": { "lat": 0.0, "lng": 0.0 },
   "taxonomy_terms": [{ "type": "string", "value": "string" }],
   "bio": "string?",
+  "nested_profile_groups": [
+    {
+      "id": "string",
+      "label": "string",
+      "order": 0,
+      "account_profile_ids": ["string"]
+    }
+  ],
   "avatar_url": "string?",
   "cover_url": "string?",
   "avatar": "file?",
@@ -1522,6 +1554,14 @@ Update account profile basic fields.
     "avatar_url": "string?",
     "cover_url": "string?",
     "bio": "string?",
+    "nested_profile_groups": [
+      {
+        "id": "string",
+        "label": "string",
+        "order": 0,
+        "account_profile_ids": ["string"]
+      }
+    ],
     "taxonomy_terms": [
       { "type": "string", "value": "string" }
     ],
@@ -1784,9 +1824,9 @@ Proxy an external image URL and return raw image bytes for client-side ingestion
 - Blocks `localhost`, private IPs, and reserved IP ranges (SSRF guardrail)
 
 ### `POST /admin/api/v1/media/map-filter-image`
-Upload and persist a tenant-scoped image asset for `map_ui.filters[].image_uri`.
+Upload and persist a tenant-scoped image asset for public Map discovery-filter image fields.
 
-**Purpose:** Preserve the same upload/crop ingestion pattern used by tenant-admin media flows while storing a stable URL that can be referenced by map filter catalog entries.
+**Purpose:** Preserve the same upload/crop ingestion pattern used by tenant-admin media flows while storing a stable URL that can be referenced by `discovery_filters.surfaces.public_map.primary.filters[]` entries.
 
 **Auth/Middleware:** `auth:sanctum` + `CheckTenantAccess` + abilities `account-users:create,account-users:update`
 
@@ -2484,6 +2524,7 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TAD-12` | Approved | Tenant-admin taxonomy selections write machine keys but read display snapshots (`type`, `value`, `name`, `taxonomy_name`, optional `label`) across account profiles, static assets, events, occurrences, and map filter catalogs. | Keeps admin forms stable and query-safe while eliminating slug display in admin readback/detail/list UI. | Sections `4`, `5` |
 | `TAD-13` | Approved | Tenant-admin event authoring keeps shared event fields first and manages occurrences as a date section. Single-occurrence forms keep inline date fields plus add-date affordance; multi-occurrence forms render occurrence cards and open occurrence editors for date/time, own related profiles, and Programação with optional item-level location Account Profile/Map POI references. | Extends the intentional first-occurrence baseline without turning shared event fields into per-occurrence overrides and keeps multi-date authoring operator-scannable. | Sections `4`, `5` |
 | `TAD-14` | Approved | Store-release tenant-configurable backend settings namespaces must have a visible tenant-admin consumer before the delivery is considered complete. `outbound_integrations` is owned by technical integrations and exposes WhatsApp plus OTP webhook/policy settings. | Prevents release-critical backend configuration from being registered without an operator surface to configure it. | Sections `3.6`, `4` (`PATCH /admin/api/v1/settings/values/outbound_integrations`) |
+| `TAD-15` | Approved | Tenant-admin Account Profile forms own nested group authoring as bounded custom public tabs, persisting linked Account Profile ids under `nested_profile_groups`, but the editor is available only for profile types with `capabilities.has_nested_profile_groups=true`. | Gives operators flexible Account Profile relationship tabs while preserving tenant scope, one-level grouping, public Account Profile identity semantics, and type-level capability gating. | Sections `3.5.3`, `4` (`GET/PATCH /admin/api/v1/account_profiles/{account_profile_id}`, `POST/PATCH /admin/api/v1/account_profile_types`) |
 
 ## 6. Tactical TODO Promotion Ledger
 
@@ -2493,6 +2534,7 @@ Defer detailed schemas and APIs until the core consumer modules are stable. Tena
 | `TODO-v1-events-location-gating-and-tenant-default-origin.md` | Map/agenda default-origin tenant settings contract | Promoted | `3.6`, `4`, `5` | Contract and Flutter local-preferences editor are both delivered; canonical baseline is now fully implemented. |
 | `TODO-v1-deeplink-host-resolved-well-known.md` | `.well-known` host-resolved serving + tenant `app_links` settings surface | In progress | `3.6`, `4`, `5` | Host-resolved endpoint path is delivered; runtime evidence remains tied to tenant credential rollout. |
 | `TODO-v1-app-domain-app-links-convergence.md` | Converge app identifiers into typed app domains + credential-only `settings.app_links` | Completed | `3.6`, `4`, `5` | Canonical split delivered with validation and tests; resolver/association/admin contracts synchronized. |
+| `TODO-v0.2.0+8-nested-account-profile-groups.md` | Nested Account Profile custom public tabs | Active | `3.5.3`, `4`, `5` | Promotes admin group authoring and `nested_profile_groups` read/write payloads for Account Profile detail/update. |
 | `TODO-post-release-tenant-app-domain-authorization-and-app-link-integrity-hardening.md` | Tenant app-domain route authorization and app-link trust-boundary hardening | Implementation checkpoint after audit follow-up | `4`, `5`, `6` | Promotes `auth:sanctum` + `CheckTenantAccess` + Sanctum `tenant-domains:read|update` abilities + current-tenant `tenant-domains:read|update` role ability as the app-domain and adjacent domain-management route contract; local implementation and final CI-equivalent validation are reconciled, with audit gates still pending. |
 | `TODO-v1-map-icon-color-config.md` | Type-level visuals + filter marker override + projection impact preview integration | Completed | `4`, `5` | Archived in `todos/completed`; canonical field ownership now lives under `visual`, while projection impact and filter marker metadata remain unchanged. |
 | `TODO-v1-event-type-canonical-poi-visuals.md` | Event-type canonical visuals across Laravel, tenant-admin, and map projection parity | In progress | `3.2`, `3.3`, `4`, `5` | Local implementation and automated coverage are in place; final closure still depends on manual admin/map smoke. |
