@@ -19,6 +19,10 @@ Choose the active lane deliberately:
 - `active/store_release_android/` for Android-first publication-critical work that blocks the next app-store release.
 - `active/fast_follow_required/` for business-defined work sequenced immediately after the Android release cut (for example iOS fast-follow and QR login/web auth), not speculative backlog.
 - `active/vnext/` for explicitly deferred backlog that should stay visible but must not be mixed into current Android-release or fast-follow execution lanes.
+- Post-version grouping buckets are allowed only **inside** approved active lanes. Example:
+  - `foundation_documentation/todos/active/fast_follow_required/followup/`
+  - `foundation_documentation/todos/active/post_release_hardening/hardening/`
+  These are grouping folders, not new lane names. The originating release/package version belongs in the TODO title/body and routing ledger, not in the directory name.
 
 When implementation and local validation are done but canonical lane promotion is still pending, move the TODO out of `active/` and into:
 
@@ -64,6 +68,7 @@ Use the directory tree as a second filter before opening or moving a TODO:
 - `active/store_release_android/` is the authoritative lane for the current Android-first publication milestone.
 - `active/fast_follow_required/` is for work that is already defined by the business and must follow immediately after Android release, but is intentionally sequenced out of the Android gate.
 - `active/vnext/` is backlog-visible by design. Do not place current release execution there just because the topic is important.
+- Post-version grouping folders such as `followup/` and `hardening/` may exist only beneath an approved active lane root like `fast_follow_required/` or `post_release_hardening/`. They organize findings that were triaged out of a release/promotion review; they do not create a fourth active lane.
 - `promotion_lane/<lane>/` is for TODOs whose implementation is locally complete and validated, but which still need canonical promotion through `dev`/`stage`/`main` before archive.
 - `completed/` is only for closed lanes that no longer need active follow-up.
 - `ephemeral/` is only for local-only maintenance/regression execution artifacts; do not treat it as backlog or canonical planning inventory.
@@ -116,3 +121,18 @@ Minimum expectation:
 - if a temporary compatibility construct is truly unavoidable, record it as temporary, bounded, and closure-blocking until removal.
 
 Do not rely on "Elegance" review alone to cover this. The purpose of `cutover-integrity` is narrower and more adversarial: verify that the path chosen is actually canonical and not a workaround that happened to pass the tests.
+
+## 8) Review Finding Classification
+
+Copilot-mimic, Copilot real, no-context subagents, and other auditors keep their normal detection behavior. Do **not** weaken or reword reviewer prompts just to reduce findings.
+
+What changes is the **post-review triage** after findings are collected and deduplicated. Every finding must be classified as one of:
+- `release-blocker`: breaks or materially risks the current release/package and must be fixed before promotion continues.
+- `follow-up-fast-follow`: real issue, but not a blocker for the current release package; split into a TODO under `active/fast_follow_required/followup/`.
+- `follow-up-hardening`: real issue, but not a blocker for the current release package; split into a TODO under `active/post_release_hardening/hardening/`.
+- `by-design/no-action`: expected behavior, noise, or already-approved intent; record rationale and do not patch blindly.
+
+Routing rules:
+- Only `release-blocker` findings block the current release/promotion claim.
+- Follow-up/hardening findings must not stay as vague notes. They require an explicit TODO path/reference in the `Promotion Finding Routing Ledger`.
+- For a package promotion such as `v0.2.0+8`, record the source version/package in the TODO metadata and routing ledger so the post-version TODO still points back to the release that originated it.

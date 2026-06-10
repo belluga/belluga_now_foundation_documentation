@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/v0.2.0-plus8-bootstrap-startup-boundary-20260610T1545Z/round-01/dispatch/cutover-integrity.dispatch.json",
+  "review_kind": "cutover_integrity_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "Delphi"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "needs_resolution"
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-76061351",
+      "severity": "high",
+      "title": "Document reentry remains a cutover-sensitive bridge without explicit authorization or removal criteria in the bounded package",
+      "rationale": "The changed surface introduces `location_permission_granted_document_reentry*` helpers plus `web/flutter_bootstrap.js`, and the package states that 'fresh-document reentry' is the accepted fix path for same-document geolocation failure. That may be the correct root-owned solution, but this bounded package does not carry the governing TODO decision that authorizes this as canonical final architecture or, if temporary, defines scope and removal criteria. Under the cutover gate, browser-specific reentry/bootstrap behavior cannot be treated as obviously canonical on assertion alone.",
+      "suggested_action": "Amend the bounded package with the governing TODO excerpt that either designates fresh-document reentry as the canonical web startup boundary for permission-granted map entry, or marks it as a temporary compatibility construct with explicit scope, exit criteria, and owner. If neither exists, create that contract before closing the audit.",
+      "reviewer_labels": [
+        "Delphi"
+      ],
+      "source_finding_ids": [
+        "cutover-integrity-001"
+      ],
+      "category": "structural_soundness",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-6E663A96",
+      "severity": "medium",
+      "title": "Package evidence proves first-grant success but does not prove adjacent flows are free from hidden fallback dependence",
+      "rationale": "The runtime proof shows one successful `/location/permission -> /mapa` first-grant path and the first `/map/pois` request carrying origin coordinates. That is good evidence for the target slice, but the package does not include cutover-oriented proof that other protected tenant-public reads no longer rely on broad bootstrap side effects or on implicit retry/fallback behavior once reentry occurs. Given the audit goal's emphasis on hidden shims, the package leaves a residual integrity gap between the asserted boundary split and broader consumer behavior.",
+      "suggested_action": "Add package evidence that the narrowed identity-readiness path is the only route used by the affected protected tenant-public consumers, and that no silent fallback to broad auth bootstrap remains after the cutover.",
+      "reviewer_labels": [
+        "Delphi"
+      ],
+      "source_finding_ids": [
+        "cutover-integrity-002"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

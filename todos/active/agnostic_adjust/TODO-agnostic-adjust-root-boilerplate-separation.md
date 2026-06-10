@@ -40,23 +40,26 @@ O usuário aprovou a seguinte ordem operacional:
 - Se a fatia exigir absorver mudanças funcionais de `laravel-app`, `flutter-app` ou `web-app`, atualizar ou dividir o TODO antes de seguir.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Pending`
-- **Qualifiers:** `Docker`, `Root-Orchestration`, `Boilerplate-Separation`, `Report-Gated`
-- **Next exact step:** produzir a diff real da fatia root, classificar `base vs overlay vs exclude`, e revisar o relatório com o usuário antes de qualquer implementação.
+- **Current delivery stage:** `Provisional`
+- **Qualifiers:** `Docker`, `Root-Orchestration`, `Boilerplate-Separation`, `Blocked`
+- **Next exact step:** decidir com o usuário se o bloqueio de `verify_environment_ci.sh` será resolvido numa fatia separada de `web-app` pin/update ou se haverá waiver explícito para fechar esta fatia root sem declarar `Local-Implemented`.
 
 ## Active Work State (Required While TODO Remains In `active/`)
-- **Work state:** `implementation`
-- **Why this state now:** a fatia já entrou em execução operacional, mas ainda está na etapa obrigatória de materialização local, diff real e relatório pré-implementação.
-- **Exit condition:** relatório consolidado revisado com o usuário e decisões materiais fechadas para poder pedir `APROVADO` antes da implementação.
+- **Work state:** `blocked`
+- **Why this state now:** a separação root foi materializada e as validações locais diretas passaram, mas o fechamento local ficou bloqueado por um erro objetivo de `verify_environment_ci.sh` em workflows pinados do `web-app`, fora da fatia root aprovada.
+- **Exit condition:** o bloqueio do verificador root é resolvido ou explicitamente waivado, e então o TODO pode consolidar `Local-Implemented` ou closeout equivalente.
+
+## Blocker Notes
+- `2026-06-08`: `bash .github/scripts/verify_environment_ci.sh` falha porque os workflows pinados em `web-app` ainda referenciam `peter-evans/repository-dispatch@v3` (`web-app/.github/workflows/dispatch-docker-sync.yml:55` e `web-app/.github/workflows/lane-auto-promotion.yml:85`). Corrigir isso exige atualização/promoção de submódulo fora da fatia root aprovada neste TODO.
 
 ## Scope
-- [ ] Materializar localmente, fora do repositório autoritativo, apenas os arquivos exportados relevantes para a fatia root.
-- [ ] Comparar os arquivos materializados com o estado atual do root `belluga_now_docker` para produzir a diff real desta fatia.
-- [ ] Classificar cada superfície relevante do root como `boilerplate base`, `project overlay / Belluga Now-specific`, ou `exclude / stale export noise`.
-- [ ] Produzir um relatório consolidado da diff real com impacto, classificação proposta, regressos versus o estado atual, e ambiguidades/riscos.
-- [ ] Revisar esse relatório com o usuário antes de qualquer implementação.
-- [ ] Após a revisão e aprovação do usuário, separar no root apenas as superfícies aprovadas desta fatia, mantendo a coerência com o estado atual de `tools/flutter/**`.
-- [ ] Preservar o contrato de branch desta frente: trabalho isolado agora e rebase posterior após a promoção da base `v0.2.0+8`.
+- [x] Materializar localmente, fora do repositório autoritativo, apenas os arquivos exportados relevantes para a fatia root.
+- [x] Comparar os arquivos materializados com o estado atual do root `belluga_now_docker` para produzir a diff real desta fatia.
+- [x] Classificar cada superfície relevante do root como `boilerplate base`, `project overlay / Belluga Now-specific`, ou `exclude / stale export noise`.
+- [x] Produzir um relatório consolidado da diff real com impacto, classificação proposta, regressos versus o estado atual, e ambiguidades/riscos.
+- [x] Revisar esse relatório com o usuário antes de qualquer implementação.
+- [x] Após a revisão e aprovação do usuário, separar no root apenas as superfícies aprovadas desta fatia, mantendo a coerência com o estado atual de `tools/flutter/**`.
+- [x] Preservar o contrato de branch desta frente: trabalho isolado agora e rebase posterior após a promoção da base `v0.2.0+8`.
 
 ## Delivery Status Semantics
 - `Pending`: no meaningful delivery milestone has been reached yet.
@@ -81,7 +84,7 @@ O usuário aprovou a seguinte ordem operacional:
 ## Promotion Evidence (Required Before `🟣 Lane-Promoted` / `✅ Production-Ready`)
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| `root boilerplate cutline and separation` | `reconcile/agnostic-adjust-boilerplate-cutline-20260608 @ <pending>` | `<pending>` | `<pending>` | `<pending>` | `pending` |
+| `root boilerplate cutline and separation` | `reconcile/agnostic-adjust-boilerplate-cutline-20260608 @ working tree` | `<pending>` | `<pending>` | `<pending>` | `blocked on root verifier` |
 | `foundation documentation framing and TODO authority` | `existing local branch @ <pending> (currently reconcile/v0.2.0-plus8-cross-stack-20260526; no TODO branch)` | `n/a` | `n/a` | `<pending>` | `pending` |
 
 ## Out of Scope
@@ -96,38 +99,38 @@ O usuário aprovou a seguinte ordem operacional:
 - **Must update or split the TODO:** qualquer mudança que force absorção de contratos funcionais de `laravel-app`, reescrita ampla de route semantics, ou triagem detalhada do bloco `laravel_app_refactor`.
 
 ## Definition of Done
-- [ ] `DOD-01` A diff real da fatia root foi produzida sobre o checkout atual e não sobre transporte cego do snapshot exportado.
-- [ ] `DOD-02` Cada superfície relevante do root foi classificada como `boilerplate base`, `project overlay / Belluga Now-specific`, ou `exclude / stale export noise`.
-- [ ] `DOD-03` O relatório consolidado da diff real foi apresentado e avaliado com o usuário antes da implementação.
-- [ ] `DOD-04` Após aprovação, o root separa corretamente base genérica e overlay downstream nas superfícies aprovadas desta fatia.
-- [ ] `DOD-05` O contrato canônico de tooling/browser workflow permanece coerente com `tools/flutter/**` e não regride para o estado exportado em `project/tests/**`.
-- [ ] `DOD-06` Defaults, exemplos e nomes Belluga Now não permanecem hardcoded nas superfícies do root que forem definidas como Boilerplate base.
+- [x] `DOD-01` A diff real da fatia root foi produzida sobre o checkout atual e não sobre transporte cego do snapshot exportado.
+- [x] `DOD-02` Cada superfície relevante do root foi classificada como `boilerplate base`, `project overlay / Belluga Now-specific`, ou `exclude / stale export noise`.
+- [x] `DOD-03` O relatório consolidado da diff real foi apresentado e avaliado com o usuário antes da implementação.
+- [x] `DOD-04` Após aprovação, o root separa corretamente base genérica e overlay downstream nas superfícies aprovadas desta fatia.
+- [x] `DOD-05` O contrato canônico de tooling/browser workflow permanece coerente com `tools/flutter/**` e não regride para o estado exportado em `project/tests/**`.
+- [x] `DOD-06` Defaults, exemplos e nomes Belluga Now não permanecem hardcoded nas superfícies do root que forem definidas como Boilerplate base.
 - [ ] `DOD-07` As validações root em escopo passam no estado reconciliado desta branch.
 
 ## Validation Steps
-- [ ] Produzir a diff real da fatia root contra o checkout atual.
-- [ ] Consolidar a classificação `base vs overlay vs exclude`.
-- [ ] Revisar o relatório com o usuário antes de qualquer implementação e fechar as decisões materiais.
-- [ ] Após implementação aprovada, rodar `bash -n` nas superfícies shell tocadas.
+- [x] Produzir a diff real da fatia root contra o checkout atual.
+- [x] Consolidar a classificação `base vs overlay vs exclude`.
+- [x] Revisar o relatório com o usuário antes de qualquer implementação e fechar as decisões materiais.
+- [x] Após implementação aprovada, rodar `bash -n` nas superfícies shell tocadas.
 - [ ] Após implementação aprovada, rodar as validações root CI-equivalent em escopo, incluindo `bash .github/scripts/verify_environment_ci.sh`.
-- [ ] Quando NGINX/tooling de navegação forem tocados, executar a verificação adicional correspondente (`docker compose config`, harness checks, ou smoke/navigation evidence) conforme a diff final.
+- [x] Quando NGINX/tooling de navegação forem tocados, executar a verificação adicional correspondente (`docker compose config`, harness checks, ou smoke/navigation evidence) conforme a diff final.
 
 ## Completion Evidence Matrix (Required Before Delivery Claim)
 | Criterion ID | Source Section | Criterion | Evidence Type | Evidence Artifact / Command | Runtime Target | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `DOD-01` | `Definition of Done` | `DOD-01` A diff real da fatia root foi produzida sobre o checkout atual e não sobre transporte cego do snapshot exportado. | `review` | `<planned root real-diff report>` | `local review` | `planned` | O relatório precisa citar a base real e a materialização local usada. |
-| `DOD-02` | `Definition of Done` | `DOD-02` Cada superfície relevante do root foi classificada como `boilerplate base`, `project overlay / Belluga Now-specific`, ou `exclude / stale export noise`. | `review` | `<planned root real-diff report>` | `local review` | `planned` | A classificação precisa ser critério a critério. |
-| `DOD-03` | `Definition of Done` | `DOD-03` O relatório consolidado da diff real foi apresentado e avaliado com o usuário antes da implementação. | `review` | `<planned user review checkpoint>` | `conversation gate` | `planned` | Gate obrigatório antes de `APROVADO`. |
-| `DOD-04` | `Definition of Done` | `DOD-04` Após aprovação, o root separa corretamente base genérica e overlay downstream nas superfícies aprovadas desta fatia. | `code+review` | `<planned implementation diff + report update>` | `local root branch` | `planned` | Só pode mudar para `passed` após a implementação aprovada. |
-| `DOD-05` | `Definition of Done` | `DOD-05` O contrato canônico de tooling/browser workflow permanece coerente com `tools/flutter/**` e não regride para o estado exportado em `project/tests/**`. | `review+test` | `<planned CI/tooling validation>` | `local root + navigation tooling` | `planned` | Critério material da fatia root. |
-| `DOD-06` | `Definition of Done` | `DOD-06` Defaults, exemplos e nomes Belluga Now não permanecem hardcoded nas superfícies do root que forem definidas como Boilerplate base. | `review` | `<planned implementation diff + report update>` | `local root branch` | `planned` | A neutralização deve respeitar a linha de corte aprovada. |
-| `DOD-07` | `Definition of Done` | `DOD-07` As validações root em escopo passam no estado reconciliado desta branch. | `test` | `<planned bash -n / verify_environment_ci / compose validation>` | `local root branch` | `planned` | Fechamento técnico da fatia. |
-| `VAL-01` | `Validation Steps` | Produzir a diff real da fatia root contra o checkout atual. | `review` | `<planned root real-diff report>` | `local review` | `planned` | Primeiro gate operacional. |
-| `VAL-02` | `Validation Steps` | Consolidar a classificação `base vs overlay vs exclude`. | `review` | `<planned root real-diff report>` | `local review` | `planned` | Continua o gate pré-implementação. |
-| `VAL-03` | `Validation Steps` | Revisar o relatório com o usuário antes de qualquer implementação e fechar as decisões materiais. | `review` | `<planned user review checkpoint>` | `conversation gate` | `planned` | Sem isso não há `APROVADO`. |
-| `VAL-04` | `Validation Steps` | Após implementação aprovada, rodar `bash -n` nas superfícies shell tocadas. | `test` | `<planned commands>` | `local root branch` | `planned` | Só após a diff final ser conhecida. |
-| `VAL-05` | `Validation Steps` | Após implementação aprovada, rodar `bash .github/scripts/verify_environment_ci.sh`. | `test` | `bash .github/scripts/verify_environment_ci.sh` | `local root branch` | `planned` | CI-equivalent base da fatia root. |
-| `VAL-06` | `Validation Steps` | Quando NGINX/tooling de navegação forem tocados, executar a verificação adicional correspondente. | `test` | `<planned compose/tooling/browser checks>` | `local root branch` | `planned` | O comando exato depende da diff final aprovada. |
+| `DOD-01` | `Definition of Done` | `DOD-01` A diff real da fatia root foi produzida sobre o checkout atual e não sobre transporte cego do snapshot exportado. | `review` | `foundation_documentation/artifacts/status-audits/agnostic-adjust-root-cutline-report-20260608.md` | `local review` | `passed` | O relatório foi consolidado a partir da comparação do checkout atual com o snapshot exportado relevante. |
+| `DOD-02` | `Definition of Done` | `DOD-02` Cada superfície relevante do root foi classificada como `boilerplate base`, `project overlay / Belluga Now-specific`, ou `exclude / stale export noise`. | `review` | `foundation_documentation/artifacts/status-audits/agnostic-adjust-root-cutline-report-20260608.md` | `local review` | `passed` | O relatório registra a classificação superfície por superfície. |
+| `DOD-03` | `Definition of Done` | `DOD-03` O relatório consolidado da diff real foi apresentado e avaliado com o usuário antes da implementação. | `review` | `conversation review on 2026-06-08 + foundation_documentation/artifacts/status-audits/agnostic-adjust-root-cutline-report-20260608.md` | `conversation gate` | `passed` | O usuário aprovou seguir com os pontos levantados e refinou explicitamente o tratamento do tooling compartilhado vs projeto-específico. |
+| `DOD-04` | `Definition of Done` | `DOD-04` Após aprovação, o root separa corretamente base genérica e overlay downstream nas superfícies aprovadas desta fatia. | `code+review` | `root diff on reconcile/agnostic-adjust-boilerplate-cutline-20260608 + project/** overlays + root neutralization changes` | `local root branch` | `passed` | O root agora distingue base compartilhada de overlays downstream em `project/**`, incluindo rotas NGINX e guardrails runtime específicos. |
+| `DOD-05` | `Definition of Done` | `DOD-05` O contrato canônico de tooling/browser workflow permanece coerente com `tools/flutter/**` e não regride para o estado exportado em `project/tests/**`. | `review+test` | `timeout 120s node --test tools/flutter/web_app_tests/navigation_harness_policy_test.cjs` | `local root + navigation tooling` | `passed` | O wrapper específico ficou em `project/tests/setup_local_navigation_env.sh`; a engine compartilhada permaneceu em `tools/flutter/**` e o harness policy passou. |
+| `DOD-06` | `Definition of Done` | `DOD-06` Defaults, exemplos e nomes Belluga Now não permanecem hardcoded nas superfícies do root que forem definidas como Boilerplate base. | `review` | `root diff review + belluga/guarappari search constrained to project/** on 2026-06-08` | `local root branch` | `passed` | As referências Belluga remanescentes ficaram confinadas a `project/**`; a base compartilhada foi neutralizada em docs, compose, tags, workflow text, tooling names e entrypoint/runtime guard hooks. |
+| `DOD-07` | `Definition of Done` | `DOD-07` As validações root em escopo passam no estado reconciliado desta branch. | `test` | `bash -n ... ; docker compose config ; timeout 120s node --test ... ; bash .github/scripts/verify_environment_ci.sh` | `local root branch` | `blocked` | `verify_environment_ci.sh` falha por workflows pinados do `web-app` ainda usarem `peter-evans/repository-dispatch@v3`; isso exige atualização de submódulo fora desta fatia root. |
+| `VAL-01` | `Validation Steps` | Produzir a diff real da fatia root contra o checkout atual. | `review` | `foundation_documentation/artifacts/status-audits/agnostic-adjust-root-cutline-report-20260608.md` | `local review` | `passed` | Primeiro gate operacional já consolidado. |
+| `VAL-02` | `Validation Steps` | Consolidar a classificação `base vs overlay vs exclude`. | `review` | `foundation_documentation/artifacts/status-audits/agnostic-adjust-root-cutline-report-20260608.md` | `local review` | `passed` | Classificação consolidada no relatório root. |
+| `VAL-03` | `Validation Steps` | Revisar o relatório com o usuário antes de qualquer implementação e fechar as decisões materiais. | `review` | `conversation review on 2026-06-08 + foundation_documentation/artifacts/status-audits/agnostic-adjust-root-cutline-report-20260608.md` | `conversation gate` | `passed` | O checkpoint foi fechado antes da implementação. |
+| `VAL-04` | `Validation Steps` | Após implementação aprovada, rodar `bash -n` nas superfícies shell tocadas. | `test` | `bash -n docker/laravel-app/entrypoint.sh .github/scripts/verify_environment_ci.sh .github/scripts/preflight_promotion_runtime_builds.sh .github/scripts/resolve_lane_navigation_targets.sh .github/scripts/upsert_source_promotion_pr.sh .github/scripts/rollback_over_ssh.sh project/tests/setup_local_navigation_env.sh` | `local root branch` | `passed` | Shell syntax aprovada para todas as superfícies tocadas em shell. |
+| `VAL-05` | `Validation Steps` | Após implementação aprovada, rodar `bash .github/scripts/verify_environment_ci.sh`. | `test` | `bash .github/scripts/verify_environment_ci.sh` | `local root branch` | `blocked` | O verificador falha em `web-app/.github/workflows/dispatch-docker-sync.yml:55` e `web-app/.github/workflows/lane-auto-promotion.yml:85` por `peter-evans/repository-dispatch@v3` pinado fora desta fatia root. |
+| `VAL-06` | `Validation Steps` | Quando NGINX/tooling de navegação forem tocados, executar a verificação adicional correspondente. | `test` | `docker compose config` + `timeout 120s node --test tools/flutter/web_app_tests/navigation_harness_policy_test.cjs` | `local root branch` | `passed` | Compose estruturado corretamente e harness policy compartilhado aprovado em ~100s. |
 
 ## Profile Scope & Handoffs (Required Before `APROVADO`)
 - **Primary execution profile:** `operational-devops`
@@ -139,6 +142,8 @@ O usuário aprovou a seguinte ordem operacional:
 | From Profile | To Profile | Why the Handoff Exists | Touched Surfaces | Status / Evidence |
 | --- | --- | --- | --- | --- |
 | `strategic-cto` | `operational-devops` | A linha de corte foi definida estrategicamente; a primeira fatia operacional agora trata só do root `belluga_now_docker` com relatório pré-implementação obrigatório. | `belluga_now_docker root`, `foundation_documentation/todos/active/agnostic_adjust/**`, `foundation_documentation/artifacts/feature-briefs/**` | `active` |
+
+- **Profile scope note:** os caminhos marcados como `unknown` pelo `profile_scope_check.py` nesta fatia (`.github/scripts/**`, `README.md`, `tools/flutter/**`, `project/**`, `.gitmodules.boilerplate.example`) são superfícies operacionais de suporte ao contrato root aprovado neste TODO; permanecem dentro do mesmo objetivo e não abrem handoff adicional enquanto não alterarem contratos funcionais dos subprojetos.
 
 - Se a execução exigir mudança canônica em `project_constitution.md`, registrar handoff de volta para `Strategic / CTO-Tech-Lead` em vez de editar a constituição silenciosamente.
 
@@ -158,15 +163,19 @@ O usuário aprovou a seguinte ordem operacional:
   - `system_architecture_principles.md` sections `3 Platform & Tenant Model` and `6 Documentation Rules`
 
 ## Decision Pending (Resolve Before Freeze)
-- [ ] `D-01` O tooling/browser workflow canônico para Boilerplate base deve continuar em `tools/flutter/**` com eventual suporte downstream, ou deve haver uma migração controlada para outra superfície explícita.
-- [ ] `D-02` O inventário de rotas públicas Belluga Now (`/parceiro`, `/descobrir`, `/convites`, `/baixe-o-app`, `/agenda/evento`, etc.) deve sair das templates base de NGINX e residir apenas em overlay downstream explícito.
-- [ ] `D-03` Names e defaults de runtime image (`belluga-now-*` vs nomes neutros) devem ser definidos como base genérica parametrizável ou como overlay downstream.
-- [ ] `D-04` `.gitmodules` e onboarding do root devem subir ao Boilerplate com placeholders/documentação neutra, sem identidade `belluga_now_*` embutida.
+- [x] `D-01` `tools/flutter/**` permanece a engine canônica compartilhada do workflow/browser tooling; o que for Belluga Now-specific deve entrar apenas como wrapper/config/fixture explícita em `project/**`, não como suíte paralela competindo com a base.
+- [x] `D-02` O inventário de rotas públicas Belluga Now (`/parceiro`, `/descobrir`, `/convites`, `/baixe-o-app`, `/agenda/evento`, etc.) deve sair das templates base de NGINX e residir apenas em overlay downstream explícito.
+- [x] `D-03` Names e defaults de runtime image/preflight tags devem ser neutros na base, mantendo override downstream por variáveis quando necessário.
+- [x] `D-04` O root deve separar a documentação/template boilerplate-facing da identidade real de remotes do projeto atual; a implementação desta fatia não deve quebrar o `.gitmodules` funcional do projeto de referência.
 
 ## Decisions (Resolved Before Freeze)
 - [x] `D-05` Esta frente deve nascer da branch atual de review `v0.2.0+8`, seguir isolada em branch dedicada, e ser rebaseada quando a base for conciliada e promovida.
 - [x] `D-06` Antes de qualquer implementação no root, deve existir um relatório consolidado da diff real e uma avaliação conjunta com o usuário.
 - [x] `D-07` A primeira fatia operacional desta iniciativa é o root `belluga_now_docker`; o bloco `laravel_app_refactor` fica explicitamente fora desta primeira execução.
+- [x] `D-01` `tools/flutter/**` permanece a engine canônica compartilhada; projeto específico entra como wrapper/config/fixture em `project/**`.
+- [x] `D-02` Rotas públicas Belluga Now deixam as templates base de NGINX e passam para overlay downstream explícito.
+- [x] `D-03` Runtime image names e preflight tags ficam neutros na base com override downstream por variável.
+- [x] `D-04` A separação boilerplate-facing de submodule/onboarding deve existir sem quebrar o `.gitmodules` funcional deste projeto de referência.
 
 ## Module Decision Baseline Snapshot (Required Before APROVADO)
 - | Module Decision Ref | Current Module Decision | Planned Handling (`Preserve|Supersede (Intentional)|Out of Scope`) | Evidence |
@@ -179,10 +188,34 @@ O usuário aprovou a seguinte ordem operacional:
 - [x] `D-05` A branch desta frente deriva da frente atual de review `v0.2.0+8` e receberá rebase posterior após a promoção da base.
 - [x] `D-06` Não haverá implementação antes do relatório consolidado da diff real e da avaliação conjunta com o usuário.
 - [x] `D-07` A primeira fatia fica restrita ao root `belluga_now_docker`; `laravel_app_refactor` não entra nesta execução inicial.
+- [x] `D-01` A engine compartilhada de navigation/browser tooling permanece em `tools/flutter/**`; apenas wrappers/config/fixtures específicas de projeto entram em `project/**`.
+- [x] `D-02` As rotas públicas Belluga Now saem das templates base de NGINX e passam para um overlay downstream explícito.
+- [x] `D-03` Runtime image names e preflight tags são neutros na base e continuam overrideáveis por variável.
+- [x] `D-04` A documentação/template boilerplate-facing para submodule/onboarding deve ser separada da identidade real deste projeto, sem quebrar o `.gitmodules` funcional atual.
+
+## Approval
+- **Approved by:** user, conversation on `2026-06-08`
+- **Approval token evidence:** approved to proceed for this tactical root slice on `2026-06-08`
+- **Approval evidence:** "Beleza. A ideia aqui é fazer essas implementações, deixando essa separação genérica bem definida e validando o funcionamento adequado usando esse projeto como referência. Diante disso, e com os ajustes propostos, pode seguir com os pontos que você levantou."
+- **Approval scope:** executar a fatia root aprovada neste TODO, mantendo `tools/flutter/**` como base compartilhada, extraindo superfícies Belluga para `project/**` quando necessário, neutralizando defaults Belluga nas superfícies base, ajustando scripts/docs/root tooling estritamente necessários para esse contrato e validando localmente o resultado.
+- **Explicit exclusions:** `laravel_app_refactor`, mudanças funcionais em `laravel-app`/`flutter-app`/`web-app`, promoção para Boilerplate nesta sessão, e qualquer alteração silenciosa em `project_constitution.md`.
+- **Renewed-approval trigger:** qualquer expansão para além da fatia root aprovada, alteração de contratos funcionais ou necessidade de mexer em constituição/módulos canônicos fora do já previsto.
+
+## Rules Acknowledgement / Ingestion
+| Source | Why It Applies Now | Must Preserve | Must Avoid | Execution Impact |
+| --- | --- | --- | --- | --- |
+| `delphi-ai/main_instructions.md` | Governa o modo de execução Delphi/PACED nesta sessão operacional. | Disciplina de método, agnosticismo de Delphi, contexto canônico do projeto e host-user ownership. | Canonizar regra de projeto em `delphi-ai/` ou seguir sem workflow carregado. | Mantém a execução ancorada em TODO, docs canônicos e validação local objetiva. |
+| `delphi-ai/workflows/docker/profile-selection-method.md` | Define o perfil ativo e o escopo técnico desta frente. | `Operational / DevOps` como perfil primário e escopo `docker` com suporte `cross-stack` apenas quando necessário. | Misturar fronteiras de responsabilidade sem handoff explícito. | Justifica tocar root orchestration, CI, compose, nginx e tooling compartilhado. |
+| `delphi-ai/rules/core/todo-driven-execution-model-decision.md` | Este trabalho depende de um TODO tático aprovado e de gates de entrega. | Escopo congelado, baseline de decisões, evidência por critério e validações antes de `Local-Implemented`. | Expandir escopo silenciosamente ou fechar sem guards/evidências. | Obriga manter o TODO sincronizado com a execução e revalidar os guards no fechamento. |
+| `delphi-ai/workflows/docker/todo-driven-execution-method.md` | É o state machine canônico do TODO durante implementação e entrega. | Sequência aprovação -> execução -> delivery gates -> closeout. | Pular fase ou declarar entrega sem evidências/guards. | Estrutura o restante desta execução e a atualização final do TODO. |
+| `delphi-ai/workflows/docker/environment-readiness-method.md` | A fatia toca runtime/CI/compose/nginx e exige validação de topologia local. | Uso das superfícies já declaradas no projeto (`README`, compose, scripts e tooling). | Inferir topologia/hosts por suposição fora das superfícies do projeto. | Direciona `verify_environment_ci.sh`, `docker compose config` e validações de tooling. |
+| `foundation_documentation/project_mandate.md` | A separação precisa respeitar a postura replicável multi-tenant do produto. | Núcleo reutilizável da plataforma com branding/tenant posture downstream. | Deixar identidade Belluga/Bóora hardcoded onde a base deve ser neutra. | Sustenta a linha de corte entre base boilerplate e overlay downstream. |
+| `foundation_documentation/project_constitution.md` | Define autoridade local, boundary do root e derivação do `web-app`. | `foundation_documentation` como fonte canônica, `web-app` como derivado, e governança root no repo de orquestração. | Mover autoridade para artefatos derivados ou quebrar a doutrina de reuse/local sovereignty. | Reforça que a extração fica no root/project overlay e não no `web-app`. |
+| `foundation_documentation/policies/scope_subscope_governance.md` | As mudanças tocam roteamento host-aware e superfícies de navegação web. | Resolução host-aware e autoria dos testes em `tools/flutter/web_app_tests/**`. | Reintroduzir governança canônica direto no `web-app` ou criar escopos implícitos. | Mantém a extração de rotas no NGINX/root sem quebrar a política de origem dos testes. |
 
 ## Questions To Close
-- [ ] A superfície downstream de testes/navegação específica de projeto deve ser um `project/**` explícito, ou um wrapper/downstream contract sobre `tools/flutter/**`?
-- [ ] O contrato de rotas públicas específicas Belluga Now deve ser extraído para `project/nginx/routes.conf` puro, ou parte dele deve permanecer no host app/Laravel por semântica canônica?
+- [x] A superfície downstream de testes/navegação específica de projeto deve ser um wrapper/downstream contract explícito sobre `tools/flutter/**`.
+- [x] O contrato de rotas públicas específicas Belluga Now deve ser extraído para `project/nginx/routes.conf` explícito nesta fatia root.
 
 ## Assumptions Preview (Required Before Plan Review)
 | Assumption ID | Assumption | Evidence | If False | Confidence (`High|Medium|Low`) | Handling (`Keep as Assumption|Promote to Decision|Block`) |
@@ -231,10 +264,10 @@ Execution planning describes **HOW** Delphi intends to deliver the TODO contract
 ### Local CI-Equivalent Suite Matrix (Required Before `APROVADO` and Before Delivery Claim)
 | Repository / CI Surface | Why In Scope | Local CI-Equivalent Command | Required Before (`APROVADO|Local-Implemented|promotion`) | Status (`planned|passed|blocked|waived|n/a`) | Evidence Artifact / Command | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| `belluga_now_docker / root deterministic CI guard` | Any root CI, compose, NGINX, or tooling separation must remain compatible with the canonical root verifier. | `bash .github/scripts/verify_environment_ci.sh` | `Local-Implemented` | `planned` | `bash .github/scripts/verify_environment_ci.sh` | Mandatory after implementation. |
-| `belluga_now_docker / shell syntax` | Shell entrypoints may be touched (`entrypoint`, verifier helpers, smoke wrappers). | `bash -n docker/laravel-app/entrypoint.sh .github/scripts/verify_environment_ci.sh .github/scripts/preflight_promotion_runtime_builds.sh` | `Local-Implemented` | `planned` | `<planned commands>` | Final file list depends on approved diff. |
-| `belluga_now_docker / compose validation` | `docker-compose.yml` and NGINX template changes must stay structurally valid. | `docker compose config` | `Local-Implemented` | `planned` | `docker compose config` | Required if compose/nginx surfaces are touched. |
-| `belluga_now_docker / navigation harness policy` | If navigation tooling/harness references move, the root harness contract must remain deterministic. | `node --test tools/flutter/web_app_tests/navigation_harness_policy_test.cjs` | `Local-Implemented` | `planned` | `node --test tools/flutter/web_app_tests/navigation_harness_policy_test.cjs` | Required if the approved cutline touches tooling/browser references. |
+| `belluga_now_docker / root deterministic CI guard` | Any root CI, compose, NGINX, or tooling separation must remain compatible with the canonical root verifier. | `bash .github/scripts/verify_environment_ci.sh` | `Local-Implemented` | `blocked` | `bash .github/scripts/verify_environment_ci.sh` | Bloqueado por workflows pinados do `web-app` ainda em `repository-dispatch@v3`, fora desta fatia root. |
+| `belluga_now_docker / shell syntax` | Shell entrypoints may be touched (`entrypoint`, verifier helpers, smoke wrappers). | `bash -n docker/laravel-app/entrypoint.sh .github/scripts/verify_environment_ci.sh .github/scripts/preflight_promotion_runtime_builds.sh` | `Local-Implemented` | `passed` | `bash -n docker/laravel-app/entrypoint.sh .github/scripts/verify_environment_ci.sh .github/scripts/preflight_promotion_runtime_builds.sh .github/scripts/resolve_lane_navigation_targets.sh .github/scripts/upsert_source_promotion_pr.sh .github/scripts/rollback_over_ssh.sh project/tests/setup_local_navigation_env.sh` | Lista final expandida para todas as superfícies shell tocadas. |
+| `belluga_now_docker / compose validation` | `docker-compose.yml` and NGINX template changes must stay structurally valid. | `docker compose config` | `Local-Implemented` | `passed` | `docker compose config` | Compose válido com overlays `project/nginx` montados no serviço NGINX. |
+| `belluga_now_docker / navigation harness policy` | If navigation tooling/harness references move, the root harness contract must remain deterministic. | `node --test tools/flutter/web_app_tests/navigation_harness_policy_test.cjs` | `Local-Implemented` | `passed` | `timeout 120s node --test tools/flutter/web_app_tests/navigation_harness_policy_test.cjs` | Harness policy compartilhado passou em ~100s. |
 
 ### Runtime / Rollout Notes
 - Root implementation must happen on `reconcile/agnostic-adjust-boilerplate-cutline-20260608`, derived from the current `v0.2.0+8` review front.

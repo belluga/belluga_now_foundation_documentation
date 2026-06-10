@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/v0.2.0-plus8-bootstrap-startup-boundary-20260610T1545Z/round-02/dispatch/cutover-integrity.dispatch.json",
+  "review_kind": "cutover_integrity_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "cutover-integrity"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "mixed",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Fail closed at the shared auth boundary and prove that protected tenant-public consumers stop before issuing requests when readiness cannot supply a bearer. That is the remaining cutover-integrity blocker from this round."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-2AF60C5F",
+      "severity": "high",
+      "title": "Shared protected-read auth boundary still contains a silent fallback path",
+      "rationale": "The package positions `TenantPublicAuthHeaders` as the canonical cutover point for protected tenant-public reads, but the helper can still yield an empty bearer instead of halting the request. That is effectively a hidden fallback bridge: downstream DAL consumers keep running and rely on later failures or tolerant endpoints rather than on one deterministic boundary decision.",
+      "suggested_action": "Remove the silent fallback by making the shared helper throw when bearer readiness is unavailable, then add focused coverage showing schedule, invites, map, and proximity consumers do not emit protected requests in that state.",
+      "reviewer_labels": [
+        "cutover-integrity"
+      ],
+      "source_finding_ids": [
+        "CUTOVER-001"
+      ],
+      "category": "architecture",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

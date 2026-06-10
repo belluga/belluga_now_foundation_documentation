@@ -1,0 +1,25 @@
+{
+  "buildSha": "cc385490-88e93bb34b6f",
+  "mainScriptSrc": "https://guarappari.belluga.space/main.dart.js?v=cc385490-88e93bb34b6f",
+  "bootstrapScriptSrc": "https://guarappari.belluga.space/flutter_bootstrap.js?v=cc385490-88e93bb34b6f",
+  "home": {
+    "finalUrl": "https://guarappari.belluga.space/",
+    "anonymousIdentityStatuses": [
+      201
+    ],
+    "protectedReadFailures": [],
+    "openAppUrls": [],
+    "popupUrls": [],
+    "consoleErrors": [],
+    "pageErrors": [],
+    "agendaVisible": true,
+    "promotionTextCount": 0
+  },
+  "guardedAction": {
+    "currentUrl": "https://guarappari.belluga.space/descobrir",
+    "promotionHeadlineVisible": true,
+    "openAppUrls": [],
+    "popupUrls": [],
+    "favoriteMutations": []
+  }
+}

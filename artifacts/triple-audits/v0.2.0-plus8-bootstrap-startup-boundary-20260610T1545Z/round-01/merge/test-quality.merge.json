@@ -1,0 +1,59 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/v0.2.0-plus8-bootstrap-startup-boundary-20260610T1545Z/round-01/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "Delphi Test Quality Audit"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Add durable integration evidence for the served web permission-grant reentry flow and tighten the package so every claimed affected suite is explicitly evidenced, then re-run the audit."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-84A47737",
+      "severity": "high",
+      "title": "The browser-specific permission-grant reentry fix lacks durable regression coverage at the actual document/bootstrap boundary",
+      "rationale": "The package says the root cause was same-document geolocation availability on web and that the accepted fix relies on route-owned grant results plus fresh-document reentry in `flutter_bootstrap.js`. The listed automated evidence is unit-focused (guards, controller, flow, startup resolver) plus a single successful served-bundle probe. That does not demonstrate a repeatable automated check of the exact browser/runtime lifecycle that previously failed, so a future bootstrap or JS reentry regression could pass the current suite unnoticed.",
+      "suggested_action": "Add an automated integration/browser validation that exercises anonymous Home -> Mapa -> permission grant -> fresh-document reentry -> first `/api/v1/map/pois` success on a served web bundle, and include that result in the bounded package.",
+      "reviewer_labels": [
+        "Delphi Test Quality Audit"
+      ],
+      "source_finding_ids": [
+        "TQ-001"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    },
+    {
+      "finding_id": "F-3852D9F2",
+      "severity": "medium",
+      "title": "Several claimed validation surfaces are summarized but not evidenced precisely enough inside the package",
+      "rationale": "The package asserts that earlier guard tests and affected tenant-public backend tests passed, and that runtime proof confirmed request payload and response details, but it does not provide exact command/result mapping for each claimed suite or a reproducible artifact for the served-bundle probe. For a bounded audit, this weakens confidence that all touched consumer surfaces are covered rather than described from prior local context.",
+      "suggested_action": "Update the package to enumerate each executed test command with explicit pass status for every cited surface and attach a small reproducible runtime evidence artifact for the served web probe.",
+      "reviewer_labels": [
+        "Delphi Test Quality Audit"
+      ],
+      "source_finding_ids": [
+        "TQ-002"
+      ],
+      "category": "operational_fit",
+      "formalizable_hint": "yes",
+      "candidate_rule_level": "paced",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}

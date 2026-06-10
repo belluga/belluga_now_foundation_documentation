@@ -109,4 +109,4 @@ Quando a execução for autorizada, este ledger deve handoffar para um TODO tát
 
 ## 7. Next Exact Step
 
-- Validar esta linha de corte estratégica e, quando autorizado, abrir o TODO tático da primeira fatia operacional seguindo o processo previsto em `4.A Planned Operational Handoff Process`, incluindo branch derivada da frente atual de review `v0.2.0+8`, checkpoint obrigatório de relatório e avaliação conjunta antes da primeira mudança, e rebase posterior após a promoção da base, começando pela separação do root (`belluga_now_docker`) antes de decidir qualquer promoção do bloco `laravel_app_refactor`.
+- Revisar com o usuário o relatório `foundation_documentation/artifacts/status-audits/agnostic-adjust-root-cutline-report-20260608.md`, fechar as decisões materiais da fatia root, e só depois decidir se/como abrir a implementação da primeira fatia operacional (`belluga_now_docker`) antes de qualquer discussão de promoção do bloco `laravel_app_refactor`.

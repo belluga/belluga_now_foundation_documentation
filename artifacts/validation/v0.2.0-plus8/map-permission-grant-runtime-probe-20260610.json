@@ -1,0 +1,24 @@
+{
+  "finalUrl": "https://guarappari.belluga.space/mapa",
+  "buildSha": "cc385490-88e93bb34b6f",
+  "mainScriptSrc": "https://guarappari.belluga.space/main.dart.js?v=cc385490-88e93bb34b6f",
+  "bootstrapScriptSrc": "https://guarappari.belluga.space/flutter_bootstrap.js?v=cc385490-88e93bb34b6f",
+  "poiRequests": [
+    "https://guarappari.belluga.space/api/v1/map/pois?origin_lat=-20.671339&origin_lng=-40.495395"
+  ],
+  "poiResponses": [
+    {
+      "status": 200,
+      "url": "https://guarappari.belluga.space/api/v1/map/pois?origin_lat=-20.671339&origin_lng=-40.495395",
+      "stackCount": 4,
+      "parseError": null,
+      "bodyPreview": "{\"tenant_id\":\"6a05b9195a1d5868950d2a62\",\"server_time\":\"2026-06-10T20:13:42.418482Z\",\"bounds\":{\"ne_lat\":null,\"ne_lng\":null,\"sw_lat\":null,\"sw_lng\":null},\"stacks\":[{\"stack_key\":\"-20.67134,-40.49540\",\"center\":{\"lat\":-20.67134,\"lng\":-40.4954},\"stack_count\":18,\"top_poi\":{\"ref_type\":\"account_profile\",\"ref_id\":\"6a0616f455735299af064cce\",\"ref_slug\":\"promotion-smoke-perfil-publico\",\"ref_path\":\"\\/parceiro\\/promotion-smoke-perfil-publico\",\"title\":\"Promotion Smoke Perfil P\\u00fablico\",\"subtitle\":null,\"name\":\"Promotion Smoke Perfil P\\u00fablico\",\"description\":null,\"address\":null,\"category\":\"promotion-smoke-public-profile\",\"source_type\":\"promotion-smoke-public-profile\",\"location\":{\"lat\":-20.67134,\"lng\":-40.4954},\"is_happening_now\":false,\"priority\":40,\"updated_at\":\"2026-05-14T18:47:26+00:00\",\"time_start\":"
+    }
+  ],
+  "failedRequests": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "errorBannerCount": 0,
+  "firstPoiOriginLat": "-20.671339",
+  "firstPoiOriginLng": "-40.495395"
+}

@@ -11,6 +11,12 @@ The required direction is a single group authoring pattern for Account Profile g
 
 Manual validation later found a gap inside the tenant-admin occurrence/date programming sheet (`Editar data` -> `Adicionar item de programação`). The action `Adicionar perfil à data` can still add a related Account Profile directly to the occurrence/date flat relation, bypassing the new occurrence-owned `profile_groups` authoring model. That path must be brought under the same canonical group contract instead of continuing to write legacy-only relationship state.
 
+Runtime contradiction recorded on 2026-06-09:
+
+- Manual validation on the served runtime contradicted the prior closure evidence for selected-occurrence switching inside `Programação`.
+- The accepted aggregate-tabs direction remains unchanged: tabs stay aggregate across occurrences.
+- What is reopened is the interaction contract itself: both clicking the Programação occurrence/date selector and dragging it laterally still trigger page reload instead of warm SPA/runtime switching.
+
 ## Framing Source & Story Slice
 - **Feature brief:** `direct-to-todo`
 - **Primary story ID:** `event-profile-groups-canonical-consistency`
@@ -19,9 +25,9 @@ Manual validation later found a gap inside the tenant-admin occurrence/date prog
 - **Direct-to-TODO rationale:** the user identified the canonicality risk and requested a TODO with full test matrix and validation behavior.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Local-Validated`
-- **Qualifiers:** `Feature`, `Cross-Stack`, `Tenant-Admin`, `Tenant-Public`, `Events`, `User-Visible`, `Contract-Driven`, `Promotion-Lane-Pending`, `Requires-APROVADO`
-- **Next exact step:** carry this TODO from `promotion_lane/v0.2.0+8/` through the remaining package-wide promotion follow-through; the current Copilot-mimic loop reopened this scope, the authoritative mutation shard was repaired, and the scope is now clean/no-reopen locally.
+- **Current delivery stage:** `Reopened / Runtime-Contradicted`
+- **Qualifiers:** `Feature`, `Cross-Stack`, `Tenant-Admin`, `Tenant-Public`, `Events`, `User-Visible`, `Contract-Driven`, `Release-Blocker`, `Promotion-Lane-Paused`, `Requires-APROVADO`
+- **Next exact step:** repair and revalidate Programação occurrence switching on the current served bundle for both click and drag, keeping aggregate tabs stable while removing the hard reload behavior, then rerun the authoritative browser proof before returning to package follow-through.
 
 ## Scope
 - [ ] Define a shared `ProfileGroup` contract for Account Profile nested groups, event related-profile groups, and occurrence related-profile groups.
@@ -38,6 +44,7 @@ Manual validation later found a gap inside the tenant-admin occurrence/date prog
 - [ ] Legacy fallback aggregation is event-wide for public UI: legacy event/occurrence linked profiles can contribute to the aggregate fallback tab set without binding tabs to the selected occurrence.
 - [ ] Tenant-admin event editing hydrates legacy fallback groups as editable generated groups and persists them as explicit `profile_groups` on save.
 - [ ] Public selected occurrence detail preserves the aggregate event profile-tab set while applying the selected occurrence only to date/programming/location context.
+- [ ] Programação occurrence switching stays inside the live SPA/runtime flow for both click and drag interactions; it must update URL/date/programming without hard reloading the page.
 - [ ] Existing `linked_account_profiles[]`, occurrence `own_linked_account_profiles[]`, and programming linked-profile projections remain available for hero/image fallback, direct navigation, maps, programming, and compatibility consumers.
 - [ ] Existing programming semantics are preserved: programming remains occurrence-owned and can reference only Account Profiles linked to the same occurrence-owned related-profile set.
 - [x] The programming/date sheet action that adds a new profile to the date must write through occurrence-owned `profile_groups`, not through a legacy flat occurrence relation.
@@ -65,6 +72,7 @@ Manual validation later found a gap inside the tenant-admin occurrence/date prog
 - [ ] Public legacy fallback renders the old type-plural tabs without exposing a public legacy warning or repair message.
 - [ ] Public event detail can render mixed Account Profile types in one custom group.
 - [ ] Public selected occurrence detail intentionally shows profile groups from every occurrence in the aggregate event tab set; this is not a leak. Programming/date content remains selected-occurrence scoped.
+- [ ] Programação occurrence switching keeps aggregate tabs stable and updates the selected occurrence for both click and drag without hard reloading the page.
 - [ ] Programming still works with grouped occurrence profiles and rejects profiles no longer linked to the selected occurrence.
 - [x] `Adicionar perfil à data` never creates a legacy-only occurrence profile link; it requires a selected occurrence group and persists the member in that group.
 - [x] When no occurrence groups exist, `Adicionar perfil à data` is disabled with clear inline prerequisite copy; touch/mobile UX does not depend on tooltip-only feedback.
@@ -122,6 +130,7 @@ Manual validation later found a gap inside the tenant-admin occurrence/date prog
 - [ ] Public event detail builds related-profile tabs from the whole event payload: event-level groups plus every occurrence's own groups.
 - [ ] Selecting/switching an occurrence must not rebuild, replace, or narrow related-profile tabs/cards.
 - [ ] Selecting/switching an occurrence updates date, programming, route query, and selected-occurrence state only.
+- [ ] Selecting/switching an occurrence from Programação uses warm SPA/runtime transition semantics for both click and drag; it must not perform a document reload.
 - [ ] If explicit groups exist anywhere in the aggregate event/occurrence set, public tabs use those group labels and order, merging duplicate normalized labels into one tab and deduping cards.
 - [ ] If no explicit groups exist anywhere in the aggregate event/occurrence set, fallback tabs are derived from the aggregate linked Account Profiles by Account Profile type plural label.
 - [ ] Fallback tabs render only non-empty groups and use deterministic type ordering; empty type buckets are hidden.
@@ -236,6 +245,7 @@ Manual validation later found a gap inside the tenant-admin occurrence/date prog
 | `PUB-EVG-13` | Event explicit tabs and selected occurrence fallback overlap in member ids. | Public tabs do not duplicate or move profiles into type-plural fallback tabs after explicit grouping. | Public detail regression test. |
 | `PUB-EVG-14` | Real browser validates new explicit groups, legacy no-group fallback, and historical invalid profile-group data. | Custom labels differ from type plural labels and render as saved; legacy fallback uses type plural labels; invalid group-only members do not render publicly. | Browser diagnostic navigation test. |
 | `PUB-EVG-15` | Real browser validates an event with multiple occurrences and different occurrence-owned groups. | Both occurrence group tabs/members render as one aggregate event tab set; switching occurrences changes programming/date but not profile tabs. | Browser diagnostic navigation test. |
+| `PUB-EVG-16` | Real browser validates Programação occurrence switching on the current served bundle. | Both clicking and dragging the occurrence/date selector update URL/date/programming without a document reload while aggregate tabs stay stable. | Browser diagnostic or mutation navigation test. |
 
 ## Manual Validation Matrix
 | ID | Surface | Steps | Expected Result |
@@ -258,6 +268,7 @@ Manual validation later found a gap inside the tenant-admin occurrence/date prog
 | `MAN-EVG-16` | Tenant Admin | Open the same legacy event in edit mode. | Admin sees generated editable groups plus compact generated-state indication before save. |
 | `MAN-EVG-17` | Tenant Admin/Public | Save generated fallback groups, then reopen public event. | Public event renders the now-explicit saved group labels and ordering. |
 | `MAN-EVG-18` | Tenant Admin/Public | Validate event explicit groups with occurrences that have fallback-only profiles. | Final public tabs remain aggregate event tabs; selected occurrence changes do not hide/show profile tabs. |
+| `MAN-EVG-18A` | Public Web | Switch occurrences from `Programação` using click and drag on the occurrence/date selector. | URL/date/programming update without hard reload; aggregate related-profile tabs remain stable. |
 | `MAN-EVG-19` | Tenant Admin/Public | Validate event fallback with occurrence explicit groups. | Final public tabs include aggregate fallback/custom occurrence labels and remain stable across occurrence switches. |
 | `MAN-EVG-20` | Public Web | Validate legacy fallback ordering with multiple profile types. | Tab order is stable across reloads and does not change with database/result order. |
 | `MAN-EVG-21` | Tenant Admin | Open a date/occurrence with no groups, enter `Adicionar item de programação`, and inspect `Adicionar perfil à data`. | The action is unavailable and inline copy explains that a group must be created first; UX does not rely on tooltip-only feedback. |
@@ -332,9 +343,9 @@ Manual validation later found a gap inside the tenant-admin occurrence/date prog
 - Reopened authoritative mutation proof resolved on 2026-06-07: `NAV_WEB_SHARD=occurrences bash scripts/delphi/run_navigation_reconcile_validation.sh mutation` passed `3/3` after two deterministic hardening fixes. First, the shared tenant-admin group chip render path now exposes stable per-chip semantics (`Perfil selecionado <displayName>`) so browser readback can validate persisted chips without depending on brittle partial text nodes. Second, the EVG Playwright assertions now prove public tab activation through rendered member cards instead of overfitting on exact intermediate activation text. The repaired authoritative shard explicitly passed `@mutation admin-authored occurrence profile groups persist full chip readback and public aggregation`.
 
 ## TODO Closeout Disposition
-- **Disposition:** `move-promotion-lane`
-- **Disposition reason:** the current package-wide mimic loop reopened this TODO, the reopened authoritative `occurrences` shard is now green end to end, and the scope is clean/no-reopen locally. Remaining work is package-level promotion follow-through, not further EVG implementation.
-- **Next path/status action:** move this TODO into `foundation_documentation/todos/promotion_lane/v0.2.0+8/` and carry it with the rest of the v0.2.0+8 package.
+- **Disposition:** `reopened-current-package-blocker`
+- **Disposition reason:** manual runtime validation on 2026-06-09 contradicted the earlier warm-switch closure evidence. The aggregate-tabs contract remains approved, but Programação occurrence switching still reloads the page on both click and drag in the served runtime.
+- **Next path/status action:** keep this TODO in `foundation_documentation/todos/promotion_lane/v0.2.0+8/`, repair the warm-switch interaction contract, and rerun authoritative browser/runtime proof for both click and drag before any promotion claim resumes.
 - Selected-occurrence programming clarification from manual validation on 2026-06-03: an occurrence/date with no programming items must show the existing empty-state widget. That is expected behavior, not a delivery gap. The regression contract is two-sided: when the selected occurrence has programming items, switching occurrence must update the programming list; when it has none, the selected occurrence must show the empty state without changing the aggregate profile tabs. Final focused Flutter suite after hero follow-up passed `00:35 +120`; EVG runtime diagnostic passed again with `1 passed (2.7m)`, opening occurrence index `1` and returning to index `0` while preserving aggregate tabs and selected-occurrence programming behavior.
 - `EVG-PROG-ADD-01`: manual validation found that `Editar data` -> `Adicionar item de programação` -> `Adicionar perfil à data` can still write occurrence/date profile membership outside the new occurrence-group format. This is a delivery gap in the existing event-profile-groups TODO, not a separate product concept.
 - `2026-06-03 orchestration classification`: covered by the already approved EVG objective, because the approved contract already requires one mutable source for event/occurrence related-profile membership through `profile_groups` with derived/materialized `event_parties`. This addendum prevents a reachable admin path from bypassing that approved contract; it does not add a separate product capability.

@@ -37,6 +37,12 @@ Additional route-launch behavior requested on 2026-05-25:
 - If the canonical/resolved route origin is already the current live location, do not show the dialog.
 - If the user chooses the selected reference point, the destination app deep link must use the reference point as the route starting point/origin.
 
+Runtime contradiction recorded on 2026-06-09:
+
+- Manual validation on the served `belluga.space` bundle contradicted the prior closure evidence for the map POI card route entrypoint.
+- From the focused public map POI card, tapping `Traçar rota` still no-ops instead of opening the shared chooser/origin-resolution flow.
+- This TODO is therefore reopened as a current-package release blocker until the map POI route entrypoint is revalidated on the repaired bundle.
+
 ## Framing Source & Story Slice
 - **Feature brief:** `direct-to-todo`
 - **Primary story ID:** `event-directions-inline-provider-actions`
@@ -44,9 +50,9 @@ Additional route-launch behavior requested on 2026-05-25:
 - **Direct-to-TODO rationale:** user supplied exact provider hierarchy, modal behavior, and persistence semantics.
 
 ## Delivery Status Canon (Required)
-- **Current delivery stage:** `Local-Validated`
-- **Qualifiers:** `Feature`, `Cross-Stack`, `Tenant-Public`, `User-Visible`, `Persistence`, `Settings`, `Promotion-Lane-Pending`
-- **Next exact step:** carry this TODO from `promotion_lane/v0.2.0+8/` through authorized lane follow-through; local implementation is complete and the current package-wide mimic loop has not reopened this scope.
+- **Current delivery stage:** `Reopened / Runtime-Contradicted`
+- **Qualifiers:** `Feature`, `Cross-Stack`, `Tenant-Public`, `User-Visible`, `Persistence`, `Settings`, `Release-Blocker`, `Promotion-Lane-Paused`
+- **Next exact step:** repair and revalidate the public map POI card `Traçar rota` entrypoint on the current served bundle, rerun focused Flutter/browser evidence for the canonical chooser/origin-resolution flow, and only then return this TODO to package-wide promotion follow-through.
 
 ## Scope
 - [x] Remove the `Como Chegar` tab-specific footer CTA `Traçar rota`.
@@ -72,6 +78,7 @@ Additional route-launch behavior requested on 2026-05-25:
 - [x] Extract shared `Como Chegar` content for Event, Account Profile, and Static Asset immersive detail screens while preserving each screen's own data, map target, and route handlers.
 - [x] Render Waze/Uber direct actions and chooser rows through a shared provider brand catalog using Waze/Uber brand assets.
 - [x] Render a compact `Outros` chooser sheet with Google Maps, Waze, Uber, and 99 branded rows, no repeated row subtitles, and no duplicated web fallback row.
+- [ ] The focused public map POI card `Traçar rota` CTA opens the same shared chooser/origin-resolution flow and must never no-op on the served bundle.
 
 ## Out of Scope
 - [ ] Changing Event venue/programming location data model.
@@ -107,6 +114,7 @@ Additional route-launch behavior requested on 2026-05-25:
 - [x] Event, Account Profile, and Static Asset `Como Chegar` content consumes the shared directions section with inline provider actions.
 - [x] Waze/Uber visible provider actions and chooser rows render brand assets from a shared catalog, with `Outros` remaining neutral.
 - [x] The chooser sheet is visually compact and uses branded Google Maps/Waze/Uber/99 rows; web does not show `Abrir no navegador` as a duplicate Google Maps option.
+- [ ] The focused public map POI card `Traçar rota` CTA opens the canonical chooser/origin-resolution flow on the current served bundle.
 
 ## Validation Steps
 - [x] Flutter widget test for Event detail `Como Chegar` tab without old footer CTA.
@@ -122,6 +130,7 @@ Additional route-launch behavior requested on 2026-05-25:
 - [x] Analyzer/local CI-equivalent suite row completed before delivery.
 - [x] Browser-rendered visual QA for Account Profile mobile/desktop `Como Chegar`, Event mobile `Como Chegar`, and `Outros` chooser sheet after web build.
 - [x] Browser-rendered visual QA confirms the compact branded chooser sheet after adding Google Maps/99 assets and removing the duplicate browser fallback row.
+- [ ] Focused runtime/browser proof on the current served bundle validates that the public map POI card `Traçar rota` CTA opens the canonical chooser/origin-resolution flow instead of no-oping.
 
 ## Profile Scope & Handoffs
 - **Primary execution profile:** `operational-coder`
@@ -388,7 +397,7 @@ Additional route-launch behavior requested on 2026-05-25:
 | VAL-13 | Validation Steps | Browser-rendered visual QA confirms the compact branded chooser sheet after adding Google Maps/99 assets and removing the duplicate browser fallback row. | Playwright/Chrome browser render pass | Source-owned spec `tools/flutter/web_app_tests/directions_brand_visual.spec.js`; project runner command `NAV_WEB_ALLOW_RAW_GREP=1 NAV_WEB_GREP_EXTRA=NAV-DIR-BRAND NAV_TENANT_URL=https://guarappari.belluga.space NAV_DEPLOY_LANE=dev bash tools/flutter/run_web_navigation_smoke.sh readonly`; screenshots `/tmp/belluga-directions-brand-compact-final-color-wait/account-mobile-other-sheet.png`; build proof `CLEAN_OUTPUT=1 bash flutter-app/scripts/build_web.sh web-app dev` | web browser runtime `https://guarappari.belluga.space` tenant lane `dev` serving final `web-app` bundle | passed | Visual QA confirmed compact modal, colored Google Maps logo, Waze/Uber/99 branded rows, and no `Abrir no navegador` duplicate; Playwright runner passed `1 passed (35.3s)`. |
 
 ## TODO Closeout Disposition
-- **Disposition:** `move-promotion-lane`
-- **Disposition reason:** local implementation and validation are complete, and the current package-wide mimic loop kept this TODO clean with no reopened findings; only authorized lane follow-through remains.
-- **Post-commit/push status:** `ready-for-promotion-lane`
-- **Next path/status action:** move this TODO into `foundation_documentation/todos/promotion_lane/v0.2.0+8/` and carry it through the current v0.2.0+8 package promotion.
+- **Disposition:** `reopened-current-package-blocker`
+- **Disposition reason:** manual runtime validation on 2026-06-09 contradicted the earlier closure evidence. The map POI card `Traçar rota` CTA still no-ops on the served bundle, so this TODO is no longer eligible for promotion follow-through.
+- **Post-commit/push status:** `reopened-runtime-regression`
+- **Next path/status action:** keep this TODO in `foundation_documentation/todos/promotion_lane/v0.2.0+8/`, repair the map POI route entrypoint, and rerun authoritative browser/runtime proof on the rebuilt bundle before any promotion claim resumes.

@@ -1,0 +1,42 @@
+{
+  "schema_version": "subagent-review-merge-v2",
+  "artifact_kind": "subagent_review_merge",
+  "authoritative": false,
+  "edit_policy": "derived_merge_packet",
+  "dispatch_path": "/home/elton/Dev/repos/belluga-ecosystem/belluga_now_docker/foundation_documentation/artifacts/triple-audits/v0.2.0-plus8-bootstrap-startup-boundary-20260610T1545Z/round-02/dispatch/test-quality.dispatch.json",
+  "review_kind": "test_quality_audit",
+  "review_count": 1,
+  "reviewer_labels": [
+    "Delphi Test Quality Audit"
+  ],
+  "highest_finding_severity": "high",
+  "axis_summary": {
+    "performance": "acceptable",
+    "elegance": "acceptable",
+    "structural_soundness": "mixed",
+    "operational_fit": "mixed"
+  },
+  "recommended_paths": [
+    "Add a served-bundle runtime probe that starts on anonymous Home, proves no automatic promotion/open-app handoff occurs, and then exercises one protected action that opens the canonical app-promotion gate without mutation side effects."
+  ],
+  "exact_next_step": "Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.",
+  "findings": [
+    {
+      "finding_id": "F-1DE2104B",
+      "severity": "high",
+      "title": "Served-bundle runtime proof is still too map-specific to cover the absorbed Home startup contract",
+      "rationale": "The bounded package includes a served-bundle proof for permission-granted map entry, but the absorbed startup rule also claims anonymous Home remains public and only guarded routes or actions should trigger the canonical promotion surface. Without a browser/runtime proof for that exact cold-start contract, a startup regression could slip through while the map probe remains green.",
+      "suggested_action": "Capture a served-bundle runtime artifact proving anonymous Home cold start stays public with no `/open-app`, no automatic promotion UI, no protected-read failures, and one representative guarded action that opens the canonical app-promotion surface without favorite mutation.",
+      "reviewer_labels": [
+        "Delphi Test Quality Audit"
+      ],
+      "source_finding_ids": [
+        "TQ-003"
+      ],
+      "category": "tests",
+      "formalizable_hint": "partial",
+      "candidate_rule_level": "project",
+      "candidate_rule_id": "n/a"
+    }
+  ]
+}
