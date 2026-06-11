@@ -41,11 +41,11 @@ This TODO exists to establish the canonical ownership boundary for tenant-public
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Pending`
 - **Qualifiers:** `none`
-- **Next exact step:** implement the Laravel/Flutter/bootstrap changes inside this owner TODO under the tightened startup boundary contract, then close them with focused runtime/test evidence.
+- **Next exact step:** close the remaining runtime/browser proof gap for the permission-granted map path on the authoritative served bundle, then complete the delivery-gate matrix before moving this owner TODO into `promotion_lane/v0.2.0+8/`.
 
 ## Active Work State (Required While TODO Remains In `active/`)
-- **Work state:** `implementation`
-- **Why this state now:** execution authority is active and the bootstrap/map boundary is being ratified with local/runtime evidence, but the absorbed first-route startup rule, final doc ownership sync, and external review are not fully closed yet.
+- **Work state:** `review`
+- **Why this state now:** the current-package implementation is materially landed on the reconcile branches and focused local validation is green, but authoritative runtime/browser proof for the permission-granted map path and downstream promotion review are still open.
 - **Exit condition:** bootstrap/startup ownership is implemented, runtime evidence proves the first-entry map path and representative first direct public-route behavior, and the TODO is ready to move into `promotion_lane/v0.2.0+8/`.
 
 ## Execution Notes
@@ -64,6 +64,10 @@ This TODO exists to establish the canonical ownership boundary for tenant-public
 - `2026-06-10` external Claude CLI `fable` audit was attempted after the local/runtime proof, but the OAuth-authenticated CLI hit its session limit before review completion (`You've hit your session limit · resets 4:40pm (America/Sao_Paulo)`). No API-key fallback was available, so the audit remains pending rather than being downgraded to `--bare`.
 - `2026-06-11` user clarified that the startup exception is broader than Home: the first direct public-route entry must remain free of promotion UI before any interaction, while direct Android entry may still attempt installed-app handoff. The absorbed Android/Instagram concern is specifically the failed/no-app browser fallback resolving to promotion instead of the original public route.
 - `2026-06-11` Claude CLI `fable` review follow-ups were incorporated into the owner contract: the exception now has an explicit cold direct-entry criterion, Android direct entry must reuse the canonical `/open-app` handoff boundary, and delivery-channel/bootstrap-asset fixes must name the specific bootstrap-path causality they close.
+- `2026-06-11` Laravel ratification landed the direct-public Android handoff fix on `laravel-app@ade40d3` (`fix: preserve public-route fallback for android direct entry`): representative public-shell routes still route through canonical `/open-app`, but `web_direct` now sends `fallback=target`, and focused validation passed with `./scripts/delphi/run_laravel_tests_safe.sh tests/Api/v1/Tenants/Branding/ApiV1OpenAppRedirectTest.php tests/Feature/Tenants/PublicWebMetadataShellTest.php`.
+- `2026-06-11` Flutter local cleanup landed on `flutter-app@210e95c2` (`fix: clean async map reference dialog flow`) to remove the remaining async-navigation analyzer dirt in the touched map-reference dialog surface without weakening the route/controller architecture. Focused validation passed with `fvm dart analyze --format machine`, `fvm flutter test --no-pub test/infrastructure/repositories/auth_repository_identity_bootstrap_test.dart test/application/startup/app_startup_navigation_coordinator_test.dart test/application/router/support/tenant_public_map_entry_flow_test.dart test/presentation/shared/location_permission/controllers/location_permission_controller_test.dart test/presentation/shared/promotion/support/web_installed_app_handoff_test.dart`, and `fvm flutter test --no-pub test/presentation/tenant/map/screens/map_screen/controllers/map_screen_controller_test.dart`.
+- `2026-06-11` the startup/public-home runtime probe remained green against `https://guarappari.belluga.space`, proving anonymous bootstrap still materializes before protected reads and guarded actions still promote without unsolicited first-route promotion (`bash tools/flutter/run_startup_public_home_guard_action_runtime_probe.sh`).
+- `2026-06-11` the dedicated permission-grant map runtime probe did not produce a new contradictory app failure, but headless Chromium on the served bundle failed to materialize interactive Flutter semantics during this rerun, so the probe stopped before exercising the grant CTA. That leaves `DOD-03` runtime closure dependent on the prior `2026-06-10` served-bundle proof until the probe is rerun under a browser mode that exposes the permission CTA or equivalent manual/device-backed evidence is captured.
 
 ## Pre-Landed Local Baseline To Ratify During Execution
 The closeout tracker already captured bootstrap-related source remediations on `2026-06-10`. They are not yet a delivery claim. This TODO owns the decision to ratify, revise, or replace them under one current-package contract so ingress/build/bootstrap fixes do not float outside tactical ownership.
@@ -106,8 +110,8 @@ The closeout tracker already captured bootstrap-related source remediations on `
 ## Promotion Evidence (Required Before `🟣 Lane-Promoted` / `✅ Production-Ready`)
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
-| `bootstrap/startup boundary implementation` | `reconcile/v0.2.0-plus8-cross-stack-20260526@<pending>` | `<pending>` | `<pending>` | `<pending>` | `pending` |
-| `direct public-route startup fallback implementation` | `reconcile/v0.2.0-plus8-cross-stack-20260526@<pending>` | `<pending>` | `<pending>` | `<pending>` | `pending` |
+| `bootstrap/startup boundary implementation` | `reconcile/v0.2.0-plus8-cross-stack-20260526@210e95c2 (+ prior local reconcile series)` | `<pending>` | `<pending>` | `<pending>` | `local-implemented` |
+| `direct public-route startup fallback implementation` | `reconcile/v0.2.0-plus8-cross-stack-20260526@ade40d3` | `<pending>` | `<pending>` | `<pending>` | `local-implemented` |
 | `bootstrap delivery-channel ratification (cache/fingerprint/service-worker)` | `reconcile/v0.2.0-plus8-cross-stack-20260526@<pending>` | `<pending>` | `<pending>` | `<pending>` | `pending-ratification` |
 | `map first-entry runtime proof` | `reconcile/v0.2.0-plus8-cross-stack-20260526@<pending>` | `<pending>` | `<pending>` | `<pending>` | `pending` |
 
