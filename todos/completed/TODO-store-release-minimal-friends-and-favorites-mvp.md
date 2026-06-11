@@ -54,7 +54,7 @@
 - `foundation_documentation/artifacts/execution-plans/store-release-wave2-social-consumer-gaps-orchestration-plan.md`
 - `foundation_documentation/todos/completed/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/todos/completed/TODO-store-release-web-to-app-conversion-gate.md`
-- `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md`
+- `foundation_documentation/todos/active/v0.2.0+8/TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md`
 - `foundation_documentation/todos/completed/TODO-store-release-home-favorites-refresh-regression.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-onboarding-identity-reconciliation-reflection.md`
 - `foundation_documentation/todos/active/vnext/TODO-vnext-connections-package.md`
@@ -150,7 +150,7 @@
 - **Contact-group membership cleanup is implemented locally:** when a grouped recipient ceases to be inviteable, V1 removes that recipient from group memberships automatically.
 - **Invite recipient identity, invite persistence, and share-to-invite conversion are still user-centric in current implementation/contracts and now require explicit launch cutover:** release delivery must move direct invites, stored invite edges, duplicate/credited-acceptance semantics, and share-code materialization/acceptance to canonical `Account Profile` targets. This is a pre-production cutover, not a production migration; backward compatibility with raw `User` targeting is not required.
 - **Onboarding-driven identity-materialization reflection was split into follow-up ownership:** future `Talvez você conheça` and advisory "contact entered the app" notifications are no longer owned by this release TODO and now live in `TODO-vnext-onboarding-identity-reconciliation-reflection.md`. Operational hash reconciliation for `contact_match` materialization remains release-owned here.
-- **Historical note on anonymous-account-profile favorites:** this TODO originally left anonymous app favorites alignment to the web-to-app conversion lane. That implementation gap was later closed; only residual Android runtime/browser verification now remains in `TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md`.
+- **Historical note on anonymous-account-profile favorites:** this TODO originally left anonymous app favorites alignment to the web-to-app conversion lane. That implementation gap was later closed; the residual/current-package startup-boundary verification now remains in `TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md`.
 - **Favorites also have zero backward-compatibility burden:** account-profile favorites, personal-profile favorites, friend derivation, Home Favorites streams, and favorite inviteable reasons are first-production release capabilities. Pre-release local storage/cache/API behavior may be replaced outright when it conflicts with the launch contract.
 - **Review and promotion rule:** any reviewer, Claude run, PR comment, or promotion note asking for backward compatibility in favorites, invites, friends, contact groups, or contact-match inviteable behavior must be treated as out of scope for this release lane unless it raises an independent security, integrity, data-loss, tenant-isolation, or release-regression risk.
 
@@ -194,7 +194,7 @@
 ## Dependencies & Sequencing
 
 - [x] `DEP-01` `foundation_documentation/todos/completed/TODO-store-release-phone-otp-auth-and-contact-match.md` remains a hard dependency for stable authenticated user identity and contact-match reliability.
-- [x] `DEP-02` `foundation_documentation/todos/completed/TODO-store-release-web-to-app-conversion-gate.md` archives the delivered promotion-boundary baseline, while `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md` owns only the residual Android runtime/browser verification of that behavior.
+- [x] `DEP-02` `foundation_documentation/todos/completed/TODO-store-release-web-to-app-conversion-gate.md` archives the delivered promotion-boundary baseline, while `foundation_documentation/todos/active/v0.2.0+8/TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md` owns the residual/current-package startup-boundary verification of that behavior.
 - [x] `DEP-03` `foundation_documentation/todos/active/vnext/TODO-vnext-connections-package.md` remains the authority for everything beyond this minimal store-release contract.
 
 ## Approval & Rules Acknowledgement (Wave 2 Reopened Invite Share Slice)

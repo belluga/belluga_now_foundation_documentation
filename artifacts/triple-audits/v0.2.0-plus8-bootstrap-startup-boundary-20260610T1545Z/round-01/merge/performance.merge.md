@@ -24,8 +24,8 @@
 - **Formalizable hint:** `partial`
 - **Candidate rule level:** `project`
 - **Candidate rule id:** `n/a`
-- **Suggested action:** Record the missing guarded-route/action evidence and the v0.2.1+9 ownership handoff artifact in the bounded package before declaring the TODO operationally complete.
-- **Rationale:** The package claims the Home-start rule was absorbed into this TODO and preserved without weakening guarded-route or guarded-action promotion behavior elsewhere, but the listed evidence is narrower: it proves anonymous Home startup and the permission-granted map handoff, not the broader guarded-route/action continuation path or the ownership reconciliation with v0.2.1+9 required by DOD-05 and DOD-06. This is not a concrete performance blocker, but it leaves operational closure incomplete for the bounded slice.
+- **Suggested action:** Record the missing guarded-route/action evidence and the current `v0.2.0+8` owner TODO artifact in the bounded package before declaring the TODO operationally complete.
+- **Rationale:** The package claims the first-route startup rule was absorbed into this TODO and preserved without weakening guarded-route or guarded-action promotion behavior elsewhere, but the listed evidence is narrower: it proves anonymous Home startup and the permission-granted map handoff, not the broader guarded-route/action continuation path or the ownership reconciliation with the current v0.2.0+8 owner required by DOD-05 and DOD-06. This is not a concrete performance blocker, but it leaves operational closure incomplete for the bounded slice.
 
 ### F-F291A31C [low] Delivery-channel freshness is still asserted more than evidenced
 - **Reviewers:** performance
@@ -46,7 +46,7 @@
 - **Operational fit:** `mixed`
 - **Findings:**
   - [low] PERF-001 Delivery-channel freshness is still asserted more than evidenced: The governing TODO explicitly keeps cache, fingerprint, and service-worker behavior inside scope when they determine whether the published runtime executes the canonical bootstrap path. The bounded package reports green behavior only after rebuilding the served dev bundle, but it does not record explicit fingerprint/cache/service-worker evidence showing stale clients cannot continue running the pre-fix bootstrap path. That leaves an operational residual risk on published web clients, even though no direct server-side performance regression is shown.
-  - [medium] PERF-002 Absorbed startup-boundary scope is not yet fully evidenced in the package: The package claims the Home-start rule was absorbed into this TODO and preserved without weakening guarded-route or guarded-action promotion behavior elsewhere, but the listed evidence is narrower: it proves anonymous Home startup and the permission-granted map handoff, not the broader guarded-route/action continuation path or the ownership reconciliation with v0.2.1+9 required by DOD-05 and DOD-06. This is not a concrete performance blocker, but it leaves operational closure incomplete for the bounded slice.
+  - [medium] PERF-002 Absorbed startup-boundary scope is not yet fully evidenced in the package: The package claims the first-route startup rule was absorbed into this TODO and preserved without weakening guarded-route or guarded-action promotion behavior elsewhere, but the listed evidence is narrower: it proves anonymous Home startup and the permission-granted map handoff, not the broader guarded-route/action continuation path or the ownership reconciliation with the current v0.2.0+8 owner required by DOD-05 and DOD-06. This is not a concrete performance blocker, but it leaves operational closure incomplete for the bounded slice.
 
 ## Exact Next Step
 Record reviewer resolutions in the governing TODO using the machine-checkable resolution table or equivalent gate ledger, then extract the derived resolution packet and decide whether another bounded review pass is still required.

@@ -5,9 +5,9 @@
 
 ## Approval
 - **Approved by:** explicit user `APROVADO` on `2026-06-10` for implementation under this contract.
-- **Approval scope:** implement the current-package owner TODO for tenant-public bootstrap/startup hardening and absorb the Home initial-open startup rule from `v0.2.1+9` into this contract.
-- **Exact exclusions:** no reopening of anonymous-web policy beyond the already-approved Home-start exception; no absorption of the external Android store/deferred validation lane; no fallback to raw unauthenticated tenant-public reads.
-- **Renewed approval required when:** implementation would broaden anonymous-web capability, reopen raw unauthenticated reads, change `/baixe-o-app` product semantics, or absorb iOS/QR-auth/store-runtime scope.
+- **Approval scope:** implement the current-package owner TODO for tenant-public bootstrap/startup hardening, including the first direct public-route startup rule: cold direct entry into any anonymous-readable tenant-public route must not surface the promotion boundary before user interaction. On Android direct public entry, installed-app handoff may still happen through the canonical `/open-app` handoff boundary; when the app is absent, blocked, or the handoff fails, the browser fallback must remain on the original public route instead of promotion. This absorbed scope covers representative public direct-entry routes such as tenant Home, invite landing, account-profile detail, and event detail; those routes are examples of the rule, not its boundary definition.
+- **Exact exclusions:** no reopening of anonymous-web policy beyond the approved first-route exception; no broad Android store/deferred campaign expansion beyond the absorbed startup correction; no fallback to raw unauthenticated tenant-public reads; no redesign of `/baixe-o-app` or explicit CTA/gate conversion UX.
+- **Renewed approval required when:** implementation would broaden anonymous-web capability, reopen raw unauthenticated reads, change explicit CTA/gate promotion semantics, or absorb iOS/QR-auth/store-runtime scope.
 
 ## Context
 `v0.2.0+8` is blocked by a structural tenant-public bootstrap problem, not by an isolated `agenda` bug.
@@ -18,33 +18,35 @@ Current evidence already proves:
 - the current request boundary helper can trigger `AuthRepository.init()` from inside protected public requests;
 - `AuthRepository.init()` currently owns too much: token/storage restore, stale-token reset, anonymous identity issuance, and post-auth side effects such as proximity-preferences sync;
 - the first permission-granted map entry can still fail when bootstrap/order is wrong, even though warm-entry and targeted contract tests are green;
-- the startup/open-app decision that had been planned in `v0.2.1+9` is structurally coupled to this bootstrap boundary: startup must deterministically choose between keeping the user on the public HTML/Flutter surface or sending the user into app-promotion/open-app, and Home initial open is part of that contract.
+- the startup/open-app decision that had been planned in `v0.2.1+9` is structurally coupled to this bootstrap boundary: startup must deterministically choose between keeping the user on the public HTML/Flutter surface or sending the user into app-promotion/open-app, and the first direct public-route entry is part of that contract;
+- the former Android/Instagram concern exposed that Laravel public-shell `web_direct` Android entry currently resolves its failed/no-app browser fallback to promotion instead of the original public route, which violates the desired first-route startup contract.
 
 This TODO exists to establish the canonical ownership boundary for tenant-public identity readiness and startup routing before promotion continues.
 
 ## Framing Source & Story Slice
 - **Feature brief:** `direct-to-todo`
 - **Primary story ID:** `v0-2-0-plus8-tenant-public-bootstrap-boundary`
-- **Why this is the right current slice:** the blocker is concrete, current-package critical, and already narrowed to one cohesive cross-stack boundary: tenant-public bootstrap/readiness plus startup decision ownership.
-- **Direct-to-TODO rationale (required when `Feature brief = direct-to-todo`):** the user explicitly requested that the bootstrap structural fix absorb the startup/open-app initial-entry rule that had been parked in `v0.2.1+9`, and the affected surfaces are already known.
+- **Why this is the right current slice:** the blocker is concrete, current-package critical, and already narrowed to one cohesive cross-stack boundary: tenant-public bootstrap/readiness plus first-route startup decision ownership.
+- **Direct-to-TODO rationale (required when `Feature brief = direct-to-todo`):** the user explicitly requested that the bootstrap structural fix absorb the startup/open-app initial-entry rule that had been parked in `v0.2.1+9`, then clarified that the exception is not Home-only but applies to the first direct public-route entry before any interaction.
 
 ## Contract Boundary
 - This TODO owns the canonical tenant-public identity-readiness boundary for protected public requests and the startup decision boundary that depends on it.
 - It owns the current-package fix for the first permission-granted map entry only insofar as that failure depends on bootstrap ordering, identity readiness, startup sequencing, or canonical origin handoff.
-- It also owns delivery-channel/bootstrap-asset corrections when cache, fingerprint, or service-worker behavior determine whether the published runtime executes the canonical bootstrap path at all.
-- It absorbs implementation ownership of the startup rule previously planned in `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md`: anonymous web Home initial open must not auto-trigger app-promotion/open-app on startup.
-- It does **not** own full post-version Android store/install/deferred runtime proof. That external validation remains owned by the `v0.2.1+9` TODO after this contract is implemented.
-- It does **not** authorize reopening tenant-public anonymous web policy broadly. Guarded routes and guarded actions still promote the app; only the initial Home-start behavior is being absorbed here because it is bootstrap-owned.
+- It also owns delivery-channel/bootstrap-asset corrections when cache, fingerprint, or service-worker behavior determine whether the published runtime executes the canonical bootstrap path at all, but each absorbed correction must record the exact bootstrap-path causality it closes so unrelated cache/asset work is rejected at the gate.
+- It absorbs implementation ownership of the startup rule that had previously been parked in `v0.2.1+9`: cold direct entry into any anonymous-readable tenant-public route must not surface the promotion boundary before user interaction. The named routes in this TODO are representative examples, not an exhaustive whitelist.
+- It owns the current-package correction for direct public web entry on Android (`web_direct`) because failed/no-app browser fallback is part of the same first-route startup boundary. Direct entry may still attempt installed-app handoff, but that attempt must reuse the canonical `/open-app` handoff boundary; only the failure fallback destination changes. When that handoff cannot complete, the browser fallback must resolve to the original public route instead of promotion. Explicit CTA/gate flows remain promotion-owned.
+- It does **not** own a broad Android store/install/deferred runtime campaign beyond the startup correction absorbed here.
+- It does **not** authorize reopening tenant-public anonymous web policy broadly. Guarded routes and guarded actions still promote the app; only the initial direct public-route startup behavior is being absorbed here because it is bootstrap-owned.
 
 ## Delivery Status Canon (Required)
 - **Current delivery stage:** `Pending`
 - **Qualifiers:** `none`
-- **Next exact step:** finalize the execution contract, validate the plan with Claude CLI `fable`, and only then request `APROVADO` for implementation.
+- **Next exact step:** implement the Laravel/Flutter/bootstrap changes inside this owner TODO under the tightened startup boundary contract, then close them with focused runtime/test evidence.
 
 ## Active Work State (Required While TODO Remains In `active/`)
 - **Work state:** `implementation`
-- **Why this state now:** execution authority is active and the bootstrap/map boundary is being ratified with local/runtime evidence, but the absorbed Home-start rule, final doc ownership sync, and external review are not fully closed yet.
-- **Exit condition:** bootstrap/startup ownership is implemented, runtime evidence proves the first-entry map path and Home/startup boundary, and the TODO is ready to move into `promotion_lane/v0.2.0+8/`.
+- **Why this state now:** execution authority is active and the bootstrap/map boundary is being ratified with local/runtime evidence, but the absorbed first-route startup rule, final doc ownership sync, and external review are not fully closed yet.
+- **Exit condition:** bootstrap/startup ownership is implemented, runtime evidence proves the first-entry map path and representative first direct public-route behavior, and the TODO is ready to move into `promotion_lane/v0.2.0+8/`.
 
 ## Execution Notes
 - `2026-06-10` local implementation ratified the narrow tenant-public identity-readiness split so protected public request helpers no longer depend on broad `AuthRepository.init()` side effects.
@@ -60,6 +62,8 @@ This TODO exists to establish the canonical ownership boundary for tenant-public
   - the first POI response is `200`, JSON-decodable, and returns non-empty `stacks`
   - the public `Não foi possível carregar os pontos de interesse` banner does not appear
 - `2026-06-10` external Claude CLI `fable` audit was attempted after the local/runtime proof, but the OAuth-authenticated CLI hit its session limit before review completion (`You've hit your session limit · resets 4:40pm (America/Sao_Paulo)`). No API-key fallback was available, so the audit remains pending rather than being downgraded to `--bare`.
+- `2026-06-11` user clarified that the startup exception is broader than Home: the first direct public-route entry must remain free of promotion UI before any interaction, while direct Android entry may still attempt installed-app handoff. The absorbed Android/Instagram concern is specifically the failed/no-app browser fallback resolving to promotion instead of the original public route.
+- `2026-06-11` Claude CLI `fable` review follow-ups were incorporated into the owner contract: the exception now has an explicit cold direct-entry criterion, Android direct entry must reuse the canonical `/open-app` handoff boundary, and delivery-channel/bootstrap-asset fixes must name the specific bootstrap-path causality they close.
 
 ## Pre-Landed Local Baseline To Ratify During Execution
 The closeout tracker already captured bootstrap-related source remediations on `2026-06-10`. They are not yet a delivery claim. This TODO owns the decision to ratify, revise, or replace them under one current-package contract so ingress/build/bootstrap fixes do not float outside tactical ownership.
@@ -68,16 +72,16 @@ The closeout tracker already captured bootstrap-related source remediations on `
 | --- | --- | --- | --- |
 | `sync-header removal + protected consumer async path` | `flutter-app/lib/infrastructure/dal/dao/laravel_backend/shared/tenant_public_auth_headers.dart`, `flutter-app/lib/infrastructure/dal/dao/laravel_backend/schedule_backend/laravel_schedule_backend.dart`, `flutter-app/lib/infrastructure/dal/dao/laravel_backend/invites_backend/laravel_invites_backend.dart`, `flutter-app/lib/infrastructure/dal/dao/laravel_backend/proximity_preferences_backend/laravel_proximity_preferences_backend.dart` | `SCOPE-01`, `SCOPE-02`, `SCOPE-03` | Keep only if execution proves these surfaces now consume one canonical readiness boundary without hidden side effects. |
 | `map origin fail-closed hardening` | `flutter-app/lib/infrastructure/dal/dao/laravel_backend/map/laravel_map_poi_http_service.dart`, `flutter-app/lib/infrastructure/repositories/city_map_repository.dart`, `flutter-app/lib/infrastructure/repositories/poi_repository.dart`, `flutter-app/lib/presentation/tenant_public/map/screens/map_screen/controllers/map_screen_controller.dart` | `SCOPE-04` | Keep only if execution proves first-entry map requests wait for canonical origin/identity readiness and do not regress the explicit `continue without location` path. |
-| `bootstrap delivery-channel hardening` | `flutter-app/web/flutter_bootstrap.js`, `docker/nginx/prod.conf.template`, `delphi-ai/scripts/flutter/build_web.sh` | `SCOPE-03`, `SCOPE-04` | Keep only if execution proves stale bundles cannot bypass canonical anonymous bootstrap and bootstrap asset URLs rotate deterministically when the bundle changes. |
+| `bootstrap delivery-channel hardening` | `flutter-app/web/flutter_bootstrap.js`, `docker/nginx/prod.conf.template`, `delphi-ai/scripts/flutter/build_web.sh` | `SCOPE-03`, `SCOPE-04` | Keep only if execution proves stale bundles cannot bypass canonical anonymous bootstrap, bootstrap asset URLs rotate deterministically when the bundle changes, and each retained change names the specific bootstrap-path causality it closes. |
 
 ## Scope
 - [ ] `SCOPE-01` Establish one canonical tenant-public identity-readiness owner for protected public reads and writes that require the anonymous/authenticated bearer.
 - [ ] `SCOPE-02` Split identity readiness from unrelated side effects so protected request boundaries no longer depend on a broad `AuthRepository.init()` with incidental post-auth behavior.
 - [ ] `SCOPE-03` Route all protected tenant-public consumers through the canonical readiness boundary instead of per-surface bootstrap compensation, and ratify or replace any already-landed bootstrap-delivery changes required so the published runtime actually executes that boundary.
 - [ ] `SCOPE-04` Fix the first permission-granted map entry so `/map/filters` and `/map/pois` are issued only after identity readiness and canonical origin resolution are both satisfied, with explicit fail-closed behavior for under-scoped first requests.
-- [ ] `SCOPE-05` Absorb and implement the startup decision rule previously planned in `v0.2.1+9`: anonymous web Home initial open must stay on the public experience and must not auto-open the promotion modal or `/open-app`.
-- [ ] `SCOPE-06` Preserve the existing route-gated and action-gated anonymous-web promotion contract everywhere else: guarded routes/actions still resolve to canonical app-promotion/open-app behavior.
-- [ ] `SCOPE-07` Update TODO/doc ownership so `v0.2.1+9` keeps only the residual external Android store/deferred validation lane instead of overlapping implementation authority.
+- [ ] `SCOPE-05` Absorb and implement the startup decision rule that had previously been parked in `v0.2.1+9`: the first direct tenant-public route entry must stay free of promotion UI before user interaction.
+- [ ] `SCOPE-06` Apply `SCOPE-05` to representative public direct-entry routes, including tenant Home, invite landing, account-profile detail, event detail, and same-class anonymous-readable public-shell routes that meet the cold direct-entry criterion. On Android `web_direct`, preserve installed-app handoff when possible by reusing the canonical `/open-app` boundary, but route failed/blocked/no-app browser fallback to the original public route instead of promotion.
+- [ ] `SCOPE-07` Preserve the existing route-gated and action-gated anonymous-web promotion contract everywhere else: guarded routes/actions and explicit CTA/gate promotion flows still resolve to canonical app-promotion/open-app behavior.
 
 ## Delivery Status Semantics
 - `Pending`: no meaningful delivery milestone has been reached yet.
@@ -103,37 +107,35 @@ The closeout tracker already captured bootstrap-related source remediations on `
 | Scope Item | Local Branch/Commit | PR to lane threshold | PR to `stage` | PR to `main` | Current Status |
 | --- | --- | --- | --- | --- | --- |
 | `bootstrap/startup boundary implementation` | `reconcile/v0.2.0-plus8-cross-stack-20260526@<pending>` | `<pending>` | `<pending>` | `<pending>` | `pending` |
+| `direct public-route startup fallback implementation` | `reconcile/v0.2.0-plus8-cross-stack-20260526@<pending>` | `<pending>` | `<pending>` | `<pending>` | `pending` |
 | `bootstrap delivery-channel ratification (cache/fingerprint/service-worker)` | `reconcile/v0.2.0-plus8-cross-stack-20260526@<pending>` | `<pending>` | `<pending>` | `<pending>` | `pending-ratification` |
 | `map first-entry runtime proof` | `reconcile/v0.2.0-plus8-cross-stack-20260526@<pending>` | `<pending>` | `<pending>` | `<pending>` | `pending` |
-| `v0.2.1+9 ownership reconciliation` | `foundation_documentation/main@<pending>` | `n/a` | `n/a` | `<pending>` | `pending` |
 
 ## Out of Scope
 - [ ] Full Android Play Store/install-referrer/deferred first-open validation after the bootstrap contract lands.
 - [ ] iOS deferred/universal-link validation.
 - [ ] QR-authenticated web bootstrap/session work.
-- [ ] Redesign of `/baixe-o-app`, promotion copy, or store UX beyond the absorbed Home-initial-open rule.
+- [ ] Redesign of `/baixe-o-app`, promotion copy, or store UX beyond the absorbed first-route startup rule.
 - [ ] Reopening anonymous web into a general login-capable surface.
 
 ## Bounded But Elastic Guardrails
-- **May stay inside this TODO:** identity-readiness refactor, request-boundary centralization, startup decision ownership, map first-entry bootstrap ordering, focused Laravel/Flutter/browser tests, ingress/bootstrap cache rules, service-worker cleanup behavior, build fingerprint rotation, and the ownership split with `v0.2.1+9`.
+- **May stay inside this TODO:** identity-readiness refactor, request-boundary centralization, startup decision ownership, direct public-route handoff suppression before interaction, map first-entry bootstrap ordering, focused Laravel/Flutter/browser tests, ingress/bootstrap cache rules, service-worker cleanup behavior, and build fingerprint rotation, but every delivery-channel/bootstrap-asset change must be justified by a named bootstrap-path causality in this TODO.
 - **Must update or split the TODO:** broader web-to-app policy redesign, store/deferred external runtime campaigns, iOS work, QR-auth web, or any change that widens anonymous web capability beyond the already approved contract.
 
 ## Definition of Done
 - [ ] `DOD-01` Protected tenant-public requests no longer own ad hoc bootstrap semantics; they consume one canonical identity-readiness boundary.
 - [ ] `DOD-02` Anonymous identity readiness is separated from unrelated post-auth/bootstrap side effects strongly enough that request boundaries do not trigger incidental sync/hydration work.
 - [ ] `DOD-03` First permission-granted map entry does not emit protected map requests before identity readiness and canonical origin resolution complete.
-- [ ] `DOD-04` Anonymous web Home initial open no longer auto-opens app-promotion/open-app and remains an uninterrupted public entry.
-- [ ] `DOD-05` Guarded routes and guarded actions outside that Home-start exception still use the canonical promotion/open-app boundary.
-- [ ] `DOD-06` `v0.2.1+9` no longer overlaps this implementation authority; it references this TODO for the absorbed startup rule and keeps only the residual external validation lane.
+- [ ] `DOD-04` Cold direct entry into any anonymous-readable tenant-public route no longer surfaces the promotion boundary before user interaction; on Android `web_direct`, installed-app handoff still reuses the canonical `/open-app` boundary, but failed/blocked/no-app browser fallback returns to the original public route across representative public routes.
+- [ ] `DOD-05` Guarded routes, guarded actions, and explicit CTA/gate promotion flows outside that first-route exception still use the canonical promotion/open-app boundary.
 
 ## Validation Steps
 - [ ] `VAL-01` Add fail-first coverage proving protected tenant-public request boundaries do not proceed without the canonical identity-readiness gate.
-- [ ] `VAL-02` Add fail-first coverage proving the absorbed Home-start rule: initial anonymous web Home entry stays in place while guarded routes/actions still promote.
+- [ ] `VAL-02` Add fail-first coverage proving the absorbed first-route startup rule: initial anonymous web public-route entry stays in place while guarded routes/actions and explicit CTA/gate promotion still promote.
 - [ ] `VAL-03` Add or tighten fail-first coverage for the permission-granted map entry path so first-request order is explicit and deterministic.
 - [ ] `VAL-04` Run focused Flutter/Laravel suites for auth repository, startup routing, map/bootstrap ordering, and affected tenant-public backends.
 - [ ] `VAL-05` Run browser/runtime evidence against the served bundle to prove request order and startup behavior on the actual target host. For `DOD-03`, the authoritative lane must include the real permission-grant path; if headless grant remains inconclusive, escalate to scripted manual/device-backed evidence with captured request/response order. Warm pre-granted evidence alone cannot close `DOD-03`.
 - [ ] `VAL-06` Re-run local CI-equivalent surfaces that cover the touched Flutter/Laravel/browser scope before any promotion claim.
-- [ ] `VAL-07` Record the `v0.2.1+9` TODO ownership adjustment and any module-truth updates in canonical docs.
 
 ## Completion Evidence Matrix (Required Before Delivery Claim)
 | Criterion ID | Source Section | Criterion | Evidence Type | Evidence Artifact / Command | Runtime Target | Status | Notes |
@@ -141,16 +143,14 @@ The closeout tracker already captured bootstrap-related source remediations on `
 | `DOD-01` | `Definition of Done` | `DOD-01` Protected tenant-public requests no longer own ad hoc bootstrap semantics; they consume one canonical identity-readiness boundary. | `test+review` | `<planned focused backend/client tests + source review>` | `local` | `planned` | Must name the shared owner surface explicitly. |
 | `DOD-02` | `Definition of Done` | `DOD-02` Anonymous identity readiness is separated from unrelated post-auth/bootstrap side effects strongly enough that request boundaries do not trigger incidental sync/hydration work. | `test+review` | `<planned auth/bootstrap unit + integration coverage>` | `local` | `planned` | This is the core architecture correction. |
 | `DOD-03` | `Definition of Done` | `DOD-03` First permission-granted map entry does not emit protected map requests before identity readiness and canonical origin resolution complete. | `runtime+test` | `<planned focused map tests + served-bundle permission-grant proof with request/response order; escalate to device/manual capture if headless grant remains inconclusive>` | `browser (+device/manual if needed)` | `planned` | Warm pre-granted evidence alone is insufficient; closure must prove the real permission-grant path. |
-| `DOD-04` | `Definition of Done` | `DOD-04` Anonymous web Home initial open no longer auto-opens app-promotion/open-app and remains an uninterrupted public entry. | `runtime+test` | `<planned startup/home browser test + focused Flutter route/guard test>` | `browser` | `planned` | Absorbed from `v0.2.1+9`. |
-| `DOD-05` | `Definition of Done` | `DOD-05` Guarded routes and guarded actions outside that Home-start exception still use the canonical promotion/open-app boundary. | `runtime+test` | `<planned browser/runtime guarded-route and action-gate evidence>` | `browser+device if needed` | `planned` | Ensures the exception does not weaken the broader contract. |
-| `DOD-06` | `Definition of Done` | `DOD-06` `v0.2.1+9` no longer overlaps this implementation authority; it references this TODO for the absorbed startup rule and keeps only the residual external validation lane. | `doc` | `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md` | `foundation docs` | `planned` | Ownership must be explicit. |
+| `DOD-04` | `Definition of Done` | `DOD-04` The first direct tenant-public route entry no longer surfaces the promotion boundary before user interaction; on Android `web_direct`, installed-app handoff may still occur, but failed/blocked/no-app browser fallback returns to the original public route across representative public routes. | `runtime+test` | `<planned startup/public-entry browser test + focused Laravel/Flutter route evidence>` | `browser` | `planned` | Absorbed from `v0.2.1+9` and refined by the 2026-06-11 user clarification. |
+| `DOD-05` | `Definition of Done` | `DOD-05` Guarded routes, guarded actions, and explicit CTA/gate promotion flows outside that first-route exception still use the canonical promotion/open-app boundary. | `runtime+test` | `<planned browser/runtime guarded-route, action-gate, and CTA evidence>` | `browser+device if needed` | `planned` | Ensures the exception does not weaken the broader contract. |
 | `VAL-01` | `Validation Steps` | `VAL-01` Add fail-first coverage proving protected tenant-public request boundaries do not proceed without the canonical identity-readiness gate. | `test` | `<planned Flutter/Laravel test additions>` | `local` | `planned` | Coverage must model request order, not only final success. |
-| `VAL-02` | `Validation Steps` | `VAL-02` Add fail-first coverage proving the absorbed Home-start rule: initial anonymous web Home entry stays in place while guarded routes/actions still promote. | `test` | `<planned startup/home route tests>` | `local` | `planned` | Must encode the policy difference explicitly. |
+| `VAL-02` | `Validation Steps` | `VAL-02` Add fail-first coverage proving the absorbed first-route startup rule: representative initial anonymous web public-route entries stay in place while guarded routes/actions and explicit CTA/gate promotion still promote. | `test` | `<planned startup/public-route route tests>` | `local` | `planned` | Must encode the policy difference explicitly. |
 | `VAL-03` | `Validation Steps` | `VAL-03` Add or tighten fail-first coverage for the permission-granted map entry path so first-request order is explicit and deterministic. | `test` | `<planned map/bootstrap tests>` | `local` | `planned` | Required to pin root cause. |
 | `VAL-04` | `Validation Steps` | `VAL-04` Run focused Flutter/Laravel suites for auth repository, startup routing, map/bootstrap ordering, and affected tenant-public backends. | `test` | `<planned command matrix below>` | `local` | `planned` | Must include touched suites, not only one slice. |
 | `VAL-05` | `Validation Steps` | `VAL-05` Run browser/runtime evidence against the served bundle to prove request order and startup behavior on the actual target host. | `runtime` | `<planned Playwright/runtime probe plus scripted manual/device-backed fallback if the permission-grant prompt cannot be reproduced headlessly>` | `browser (+device/manual if needed)` | `planned` | Must prove served-bundle truth and the real permission-grant path, not only warm re-entry. |
 | `VAL-06` | `Validation Steps` | `VAL-06` Re-run local CI-equivalent surfaces that cover the touched Flutter/Laravel/browser scope before any promotion claim. | `test+build` | `<planned CI-equivalent commands>` | `local` | `planned` | Required before moving back toward promotion. |
-| `VAL-07` | `Validation Steps` | `VAL-07` Record the `v0.2.1+9` TODO ownership adjustment and any module-truth updates in canonical docs. | `doc+review` | `<planned TODO/module updates>` | `foundation docs` | `planned` | Prevents overlap drift. |
 
 ## External Dependency Readiness (Required When External Systems Matter)
 | Dependency | Why It Matters | Status (`unknown|healthy|degraded|failing|rate-limited|stale`) | Last Verified | Verification Method | Adjustment / Workaround |
@@ -173,7 +173,7 @@ The closeout tracker already captured bootstrap-related source remediations on `
 ## Complexity
 - **Level (`small|medium|big`):** `medium`
 - **Checkpoint policy:** `one checkpoint`
-- **Why this level:** one cohesive architectural slice spans Flutter, Laravel, browser/runtime validation, and startup policy, but it remains one current-package blocker rather than a broad program.
+- **Why this level:** one cohesive architectural slice spans Flutter, Laravel, browser/runtime validation, and first-route startup policy, but it remains one current-package blocker rather than a broad program.
 
 ## Canonical Module Anchors (Required Before APROVADO)
 - **Primary module doc:** `foundation_documentation/modules/flutter_client_experience_module.md`
@@ -192,15 +192,15 @@ The closeout tracker already captured bootstrap-related source remediations on `
 - [x] `D-01` Tenant-public public reads remain `anonymous-authenticated`; this TODO must not solve the problem by reopening raw unauthenticated reads.
 - [x] `D-02` Protected request boundaries may depend only on a canonical identity-readiness owner, not on broad bootstrap methods with incidental side effects.
 - [x] `D-03` The current-package fix must prefer cause-root ownership over per-surface compensation. `agenda`, `map`, `discovery`, `invites`, and similar consumers may reuse a shared gate/client, but they must not each invent startup/bootstrap behavior.
-- [x] `D-04` Anonymous web Home initial open is absorbed into this TODO because it is a startup-boundary decision; it must stay on the public experience and must not auto-open app-promotion/open-app on startup.
-- [x] `D-05` The Home-start exception does not weaken the broader anonymous-web rule: guarded routes and guarded actions still resolve to the canonical promotion/open-app boundary.
-- [x] `D-06` `v0.2.1+9` keeps only external Android store/deferred runtime validation after this startup rule is absorbed here.
+- [x] `D-04` The first direct tenant-public route entry is absorbed into this TODO because it is a startup-boundary decision; it must not surface the promotion boundary on startup before user interaction.
+- [x] `D-05` The first-route exception does not weaken the broader anonymous-web rule: guarded routes and guarded actions still resolve to the canonical promotion/open-app boundary.
+- [x] `D-06` The absorbed first-route startup correction now lives entirely inside this owner TODO; no parallel implementation owner remains for the same boundary.
 - [x] `D-07` For the web permission-granted map entry, same-origin fresh-document reentry is the canonical boundary when browser geolocation is not yet reliable on the pre-grant SPA document. This is not a mutable compatibility singleton. It is the current web startup/document owner for finishing canonical location bootstrap after permission grant.
 
 ## Module Decision Baseline Snapshot (Required Before APROVADO)
 - | Module Decision Ref | Current Module Decision | Planned Handling (`Preserve|Supersede (Intentional)|Out of Scope`) | Evidence |
 - | --- | --- | --- | --- |
-- | `FCX auth/startup policy` | Anonymous web hard/auth gates promote app; action gates may use the canonical compact promotion modal; Home is part of the anonymous read-only baseline. | `Preserve` | `foundation_documentation/modules/flutter_client_experience_module.md:76-99` |
+- | `FCX auth/startup policy` | Anonymous web hard/auth gates promote app; action gates may use the canonical compact promotion modal; first direct public-route entry belongs to the anonymous read-only baseline. | `Supersede (Intentional)` | `foundation_documentation/modules/flutter_client_experience_module.md:76-99` |
 - | `INV web-to-app rule` | Guarded routes on anonymous web hand off to canonical app-promotion and `/open-app`; install/open must preserve intent. | `Preserve` | `foundation_documentation/modules/invite_and_social_loop_module.md:497-503` |
 - | `policy web-to-app hard gate` | Hard/auth gate on tenant-public web resolves to canonical app-promotion/open-app, not anonymous web login. | `Preserve` | `foundation_documentation/policies/web_to_app_promotion_policy.md:53-118` |
 - | `No Prior Decision` | No canonical module decision currently defines a dedicated identity-readiness owner distinct from broader auth/bootstrap side effects. | `Supersede (Intentional)` | Current root-cause analysis in `EPHEMERAL-v0208-canonical-closeout-before-review-20260608.md` and repo code review. |
@@ -209,15 +209,15 @@ The closeout tracker already captured bootstrap-related source remediations on `
 - [x] `D-01` The final architecture must expose one canonical tenant-public identity-readiness boundary.
 - [x] `D-02` Request-layer helpers must not remain hidden owners of broad auth/bootstrap side effects.
 - [x] `D-03` First-entry map correctness depends on both identity readiness and canonical origin readiness.
-- [x] `D-04` Startup must not auto-promote anonymous web Home on first open.
-- [x] `D-05` The Home-start exception must not erode guarded-route/action promotion behavior elsewhere.
+- [x] `D-04` Startup must not auto-promote cold direct entry into any anonymous-readable tenant-public route on first open, but Android direct entry may still attempt installed-app handoff through the canonical `/open-app` boundary before falling back to the original public route.
+- [x] `D-05` The first-route exception must not erode guarded-route/action promotion behavior elsewhere.
 - [x] `D-06` Web permission-grant completion is allowed to re-enter the same-origin document when that is the only reliable way to complete canonical location bootstrap after browser permission grant; any future simplification must preserve the same route-owned/bootstrap-owned ownership and the same first-request guarantees.
 
 ## Assumptions Preview (Required Before Plan Review)
 | Assumption ID | Assumption | Evidence | If False | Confidence (`High|Medium|Low`) | Handling (`Keep as Assumption|Promote to Decision|Block`) |
 | --- | --- | --- | --- | --- | --- |
 | `A-01` | The dominant coupling problem is not endpoint-specific; it is the lack of a dedicated tenant-public identity-readiness owner. | `tenant_public_auth_headers.dart` calls `authRepository.init()`, while `AuthRepository.init()` owns token restore, stale reset, anonymous issuance, and sync side effects. | The fix may shrink to a simpler startup-order bug instead of a structural boundary correction. | `High` | `Keep as Assumption` |
-| `A-02` | Home initial-open interruption belongs to the same startup boundary as the bootstrap defect and should be absorbed now instead of staying in a later external-validation TODO. | User explicit request on `2026-06-10`; current `v0.2.1+9` TODO already framed this as a startup/open-app rule rather than a store-runtime-only concern. | Ownership stays split and the same boundary will be changed twice in separate lanes. | `High` | `Keep as Assumption` |
+| `A-02` | First direct public-route interruption belongs to the same startup boundary as the bootstrap defect and should be absorbed now instead of staying in a later external-validation TODO. | User explicit request on `2026-06-10`, then clarification on `2026-06-11` that the exception is not Home-only and applies before any interaction on representative public direct-entry routes. | Ownership stays split and the same boundary will be changed twice in separate lanes. | `High` | `Keep as Assumption` |
 | `A-03` | The first-entry map failure still has a browser/runtime proof burden even after local focused tests. | Manual runtime contradiction and closeout tracker notes remain authoritative. | The TODO may overinvest in browser proof when the remaining failure is already fully unit-covered. | `High` | `Keep as Assumption` |
 
 ## Execution Plan (Required Before `APROVADO`)
@@ -237,28 +237,33 @@ The closeout tracker already captured bootstrap-related source remediations on `
 - `docker/nginx/prod.conf.template`
 - `delphi-ai/scripts/flutter/build_web.sh`
 - `tools/flutter/web_app_tests/map_permission_grant_runtime.readonly.spec.js`
-- `laravel-app/**` only if the final root cause proves the backend contract itself is still inconsistent
-- `foundation_documentation/todos/active/v0.2.1+9/**`
+- `laravel-app/app/Http/Controllers/TenantPublicShellController.php`
+- `laravel-app/packages/belluga/belluga_deep_links/src/Application/WebToAppPromotionService.php`
+- `laravel-app/packages/belluga/belluga_deep_links/src/Http/Web/Controllers/OpenAppRedirectController.php`
+- `laravel-app/tests/Api/v1/Tenants/Branding/ApiV1OpenAppRedirectTest.php`
+- `laravel-app/tests/Feature/Tenants/PublicWebMetadataShellTest.php`
+- `foundation_documentation/policies/web_to_app_promotion_policy.md`
 
 ### Ordered Steps
 1. Define the canonical identity-readiness boundary and the minimal responsibilities it owns.
 2. Split bootstrap side effects so request boundaries can depend on readiness without pulling incidental sync/hydration work.
 3. Route affected protected tenant-public consumers through the shared boundary.
-4. Implement the absorbed Home-start rule in the startup/promotion path.
+4. Implement the absorbed first-route startup rule in the startup/promotion path, including `web_direct` failed/no-app fallback semantics.
 5. Repair the first-entry map path against the final readiness/origin contract.
 6. Revalidate local suites, then runtime/browser proof, then reconcile TODO ownership/docs.
 
 ### Test Strategy
 - **Strategy:** `test-first`
 - **Why:** this is a user-visible regression/blocker with already known race/order failure modes.
-- **Fail-first target(s) (when required):** protected tenant-public request readiness, anonymous web Home-start no-promotion path, permission-granted map first-entry request order.
+- **Fail-first target(s) (when required):** protected tenant-public request readiness, anonymous web first-route no-promotion path, Android `web_direct` fallback-to-public-route path, permission-granted map first-entry request order.
 
 ### Flow Evidence Planning Matrix (Required Before `APROVADO`)
 | Criterion / Flow | Why Flow-Impacting | Platform Parity (`android-only|web-only|shared-android-web|divergent-android-web|n/a`) | Required Runtime Lane | Mutation Lane Required? | Backend Real-Data Required? | Planned Evidence | Non-Applicability Rationale |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Protected tenant-public bootstrap before first read | Controls whether first public screens render or 401/fail. | `shared-android-web` | `both` | `no` | `yes` | focused tests + browser/runtime request-order probe | `n/a` |
-| Home initial anonymous web start stays in place | Startup route decision is visible and policy-owned. | `web-only` | `Playwright readonly` | `no` | `yes` | startup/home browser proof on served bundle | `n/a` |
-| Guarded route/action still promotes app | The absorbed exception must not weaken the broader web boundary. | `web-only` | `Playwright readonly` | `no` | `yes` | guarded-route/action browser proof | `n/a` |
+| First direct public-route entry stays free of promotion UI | Startup route decision is visible and policy-owned. | `web-only` | `Playwright readonly` | `no` | `yes` | startup/public-route browser proof on served bundle | `n/a` |
+| Android `web_direct` preserves app-first but falls back to public route | The absorbed exception must not break installed-app handoff while removing promotion fallback from first direct entry. | `android-only` | `browser + device` | `no` | `yes` | Laravel redirect tests + Android/browser redirect-chain proof | `n/a` |
+| Guarded route/action and explicit CTA still promote app | The absorbed exception must not weaken the broader web boundary. | `web-only` | `Playwright readonly` | `no` | `yes` | guarded-route/action/CTA browser proof | `n/a` |
 | First permission-granted map entry | Current package blocker with first-request ordering risk. | `shared-android-web` | `both` | `no` | `yes` | focused map tests + served-bundle permission-grant probe; if headless permission grant remains inconclusive, mandatory manual/device-backed capture with request/response order | `n/a` |
 | Bootstrap delivery-channel freshness | Published runtime can stay stale and silently bypass the intended bootstrap path if cache/service-worker/fingerprint behavior drifts. | `web-only` | `Playwright readonly` | `no` | `yes` | source review + published bundle fingerprint + asset-cache/runtime probe | `n/a` |
 
@@ -269,7 +274,7 @@ The closeout tracker already captured bootstrap-related source remediations on `
 | `flutter-app analyze` | Bootstrap/startup refactor must stay analyzer-clean. | `fvm dart analyze --format machine` | `Local-Implemented` | `planned` | `<pending>` | Required. |
 | `flutter-app web build` | Startup/home/browser proof depends on the served bundle and its rotated bootstrap asset URLs. | `cd flutter-app && CLEAN_OUTPUT=1 BUILD_HEARTBEAT_SECONDS=30 bash scripts/build_web.sh ../web-app dev --clean-output` | `Local-Implemented` | `planned` | `<pending>` | Required before browser proof and before ratifying delivery-channel bootstrap fixes. |
 | `browser/runtime navigation proof` | Closure depends on served-bundle truth, not only local tests. | `bash tools/flutter/run_web_navigation_smoke.sh readonly` | `promotion` | `planned` | `<pending>` | Use focused spec/tag selection for the absorbed startup + map paths. |
-| `laravel-app targeted tests` | Required only if implementation touches backend contract or auth guards. | `./scripts/delphi/run_laravel_tests_safe.sh <targeted-tests>` | `Local-Implemented` | `planned` | `<pending>` | Skip only if no Laravel surface changes. |
+| `laravel-app targeted tests` | First-route startup now includes canonical `web_direct` fallback behavior in Laravel. | `./scripts/delphi/run_laravel_tests_safe.sh tests/Api/v1/Tenants/Branding/ApiV1OpenAppRedirectTest.php tests/Feature/Tenants/PublicWebMetadataShellTest.php` | `Local-Implemented` | `planned` | `<pending>` | Required for the absorbed Android/public-entry slice. |
 
 ### Runtime / Rollout Notes
 - The browser lane must prove the currently served bundle fingerprint before any closure claim.
@@ -318,9 +323,9 @@ The closeout tracker already captured bootstrap-related source remediations on `
 
 - **Issue ID:** `ARCH-02`
   - **Severity:** `high`
-  - **Evidence:** `TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md` currently still owns the Home initial-open exception even though the behavior is startup-boundary logic.
-  - **Why it matters now:** leaving Home-start behavior in a later external-validation TODO would split one startup boundary across two lanes and force rework.
-  - **Option A (Recommended):** absorb the Home-start rule into the current bootstrap TODO and leave `v0.2.1+9` with external runtime/store validation only.
+  - **Evidence:** the former `v0.2.1+9` startup-validation TODO and the former Instagram direct-entry TODO had split ownership around first-route startup versus Android direct-web fallback even though both are startup-boundary logic.
+  - **Why it matters now:** leaving first-route behavior in parallel TODOs would split one startup boundary across multiple lanes and force rework.
+  - **Option A (Recommended):** absorb the first-route startup rule plus Android `web_direct` fallback semantics into the current bootstrap TODO and retire overlapping TODO owners.
     - **Effort:** `low`
     - **Risk:** `low`
     - **Blast radius:** `local`
@@ -336,7 +341,7 @@ The closeout tracker already captured bootstrap-related source remediations on `
     - **Performance impact:** `neutral`
     - **Elegance impact:** `regresses`
     - **Structural soundness impact:** `regresses`
-  - **Option C (Do Nothing):** defer the Home-start rule and keep the current package blocker isolated to map/bootstrap only.
+  - **Option C (Do Nothing):** defer the first-route startup rule and keep the current package blocker isolated to map/bootstrap only.
     - **Effort:** `low`
     - **Risk:** `medium`
     - **Blast radius:** `module`
@@ -347,7 +352,7 @@ The closeout tracker already captured bootstrap-related source remediations on `
 
 ### Failure Modes & Edge Cases
 - The first request could remain ordered correctly in unit tests but still fail in the served bundle because startup or browser permission timing differs.
-- A naive Home-start exception could accidentally weaken guarded-route/action promotion behavior and silently expand anonymous web capability.
+- A naive first-route exception could accidentally weaken guarded-route/action promotion behavior and silently expand anonymous web capability.
 - Refactoring `AuthRepository.init()` could break authenticated bootstrap, stale-token cleanup, or post-auth hydration if the ownership split is not explicit.
 
 ### Residual Unknowns / Risks
@@ -357,7 +362,7 @@ The closeout tracker already captured bootstrap-related source remediations on `
 ## Rules Acknowledgement / Ingestion
 | Source | Why it applies now | Must preserve | Must avoid | Execution impact |
 | --- | --- | --- | --- | --- |
-| `foundation_documentation/policies/web_to_app_promotion_policy.md` | The absorbed Home-start rule must stay inside the approved anonymous-web promotion posture. | Hard/auth gates still promote app; `/open-app` remains canonical. | Treating the Home-start exception as a general relaxation of anonymous web. | Startup and guarded-route behavior must be split explicitly. |
+| `foundation_documentation/policies/web_to_app_promotion_policy.md` | The absorbed first-route startup rule must stay inside the approved anonymous-web promotion posture. | Hard/auth gates still promote app; `/open-app` remains canonical for explicit promotion and successful app-first handoff. | Treating the first-route exception as a general relaxation of anonymous web. | Startup and guarded-route behavior must be split explicitly. |
 | `foundation_documentation/modules/flutter_client_experience_module.md` | Canonical Flutter startup, auth, promotion, and map behavior live here. | Anonymous app baseline, action-gated modal path, route-gated promotion path, and startup/navigation ownership. | Per-screen ad hoc promotion/bootstrap branching or hidden request-layer ownership. | Implementation must converge on one startup/readiness boundary. |
 | `foundation_documentation/modules/invite_and_social_loop_module.md` | Preserves continuation and web-to-app intent rules across guarded routes. | Promotion/open-app continuity and invite/detail intent preservation. | Losing continuation context while fixing startup behavior. | Route/startup changes must not break invite/deep-link continuity. |
 | `delphi-ai/rules/core/todo-driven-execution-model-decision.md` | This is a medium cross-stack execution slice with a real tactical TODO owner. | TODO authority, approval gate, and delivery-gate discipline. | Implementing from the tracker or from memory instead of the governing TODO. | Code changes begin only after explicit `APROVADO`. |

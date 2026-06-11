@@ -23,7 +23,7 @@
 ## No-Context Handoff Boundaries
 
 - **Frozen here:** Android-first sequencing, anonymous-web promotion/read-only posture, anonymous-app baseline, QR-only authenticated web, OTP-only authenticated app, canonical `/open-app` ownership, canonical deferred resolver ownership, route-intent preservation rule, and telemetry semantics already approved elsewhere must not be reopened here.
-- **Not owned here:** Android runtime/store/deferred closure remains in `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md`, while the delivered Android-first baseline is archived in `foundation_documentation/todos/completed/TODO-store-release-web-to-app-conversion-gate.md`. QR-authenticated web remains in `foundation_documentation/todos/active/fast_follow_required/TODO-qr-login-web-auth.md`. iOS push/App Store readiness remains in `foundation_documentation/todos/active/fast_follow_required/TODO-ios-push-and-app-store-review-readiness.md`. Any broader participation/check-in semantics remain outside this TODO.
+- **Not owned here:** current-package Android/bootstrap startup closure remains in `foundation_documentation/todos/active/v0.2.0+8/TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md`, while the delivered Android-first baseline is archived in `foundation_documentation/todos/completed/TODO-store-release-web-to-app-conversion-gate.md`. QR-authenticated web remains in `foundation_documentation/todos/active/fast_follow_required/TODO-qr-login-web-auth.md`. iOS push/App Store readiness remains in `foundation_documentation/todos/active/fast_follow_required/TODO-ios-push-and-app-store-review-readiness.md`. Any broader participation/check-in semantics remain outside this TODO.
 - **Executor rule:** treat this TODO as an iOS implementation/validation packet, not as a place to redesign shared web-to-app policy or shared deep-link contracts. If execution discovers a necessary shared-contract change, update the canonical policy/contracts in the same change set and record that propagation explicitly instead of silently redefining them here.
 
 ## Decision Baseline (Frozen 2026-04-18)
@@ -41,7 +41,7 @@
 - `foundation_documentation/todos/completed/TODO-v1-invite-deeplink-identity-first-delivery.md`
 - `foundation_documentation/todos/completed/TODO-v1-deeplink-host-resolved-well-known.md`
 - `foundation_documentation/todos/completed/TODO-store-release-web-to-app-conversion-gate.md`
-- `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md`
+- `foundation_documentation/todos/active/v0.2.0+8/TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-qr-login-web-auth.md`
 - `foundation_documentation/endpoints_mvp_contracts.md`
 - `laravel-app/app/Application/Branding/DeepLinkAssociationService.php`
@@ -51,7 +51,7 @@
 
 ## Dependencies & Sequencing
 
-- [ ] `DEP-01` `foundation_documentation/todos/completed/TODO-store-release-web-to-app-conversion-gate.md` remains the archival authority for the delivered Android-first baseline, and `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md` remains the active owner of the unfinished Android runtime closure. This TODO specializes that baseline for iOS and must not diverge from it.
+- [ ] `DEP-01` `foundation_documentation/todos/completed/TODO-store-release-web-to-app-conversion-gate.md` remains the archival authority for the delivered Android-first baseline, and `foundation_documentation/todos/active/v0.2.0+8/TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md` remains the active owner of the unfinished current-package Android startup/bootstrap closure. This TODO specializes that baseline for iOS and must not diverge from it.
 - [x] `DEP-02` This lane is already frozen as mandatory fast-follow rather than optional backlog.
 - [x] `DEP-03` `foundation_documentation/todos/active/fast_follow_required/TODO-qr-login-web-auth.md` is a sibling fast-follow lane, not a blocker for iOS Universal Links / deferred-capture delivery.
 

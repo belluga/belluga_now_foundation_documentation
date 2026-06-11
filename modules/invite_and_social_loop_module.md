@@ -23,7 +23,7 @@ The Invite & Social Loop module (MOD-302) governs the tenant app virality engine
   - `foundation_documentation/todos/completed/TODO-v1-invites-implementation.md`
   - `foundation_documentation/todos/completed/TODO-store-release-android.md`
   - `foundation_documentation/todos/completed/TODO-store-release-web-to-app-conversion-gate.md`
-  - `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md`
+  - `foundation_documentation/todos/active/v0.2.0+8/TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md`
   - `foundation_documentation/todos/completed/TODO-store-release-phone-otp-auth-and-contact-match.md`
   - `foundation_documentation/todos/completed/TODO-store-release-minimal-friends-and-favorites-mvp.md`
   - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-invites-occurrence-target-migration.md`
@@ -644,8 +644,8 @@ Canonical invite APIs remain Sanctum-validated, with identity behavior split by 
 | TODO | Purpose | Promotion Status | Promoted Sections | Notes |
 | --- | --- | --- | --- | --- |
 | `TODO-v1-invites-implementation.md` | Invite backend/client flow hardening | Completed (2026-03-12) | `2.1`, `3`, `4` | Canonical stream for invite delivery decisions. |
-| `TODO-store-release-web-to-app-conversion-gate.md` | Delivered Android release promotion-boundary and continuation contract for the web-to-app conversion path | Completed (split archival catch-up 2026-06-08) | `4.3`, `4.4` | Canonical policy and the delivered promotion-boundary slice are now archival-complete; residual Android runtime/store/deferred proof moved to the split `v0.2.1+9` TODO below. |
-| `TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md` | Residual Android browser/device/store/deferred runtime closure for the web-to-app path | In progress | `4.3`, `4.4` | Owns the remaining real runtime/store/deferred proof after the overloaded promotion-lane packet was split. |
+| `TODO-store-release-web-to-app-conversion-gate.md` | Delivered Android release promotion-boundary and continuation contract for the web-to-app path | Completed (split archival catch-up 2026-06-08) | `4.3`, `4.4` | Canonical policy and the delivered promotion-boundary slice are archival-complete; later startup/bootstrap follow-through was absorbed into the active `v0.2.0+8` owner below. |
+| `TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md` | Current-package tenant-public bootstrap/startup hardening, including first direct public-route startup behavior and Android `web_direct` fallback correction | In progress | `4.3`, `4.4` | Absorbed the former residual Android startup/runtime owner and now carries the current-package startup-boundary correction without reopening the broader promotion contract. |
 | `TODO-vnext-onboarding-identity-reconciliation-reflection.md` | Late identity-materialization reconciliation + advisory reflection surfaces | Pending follow-up | `2.4`, `4.1`, `4.5` | Owns post-onboarding reconciliation timing plus `Talvez você conheça` / informational lifecycle hints. |
 | `TODO-store-release-minimal-friends-and-favorites-mvp.md` | Store-release contacts/favorites/friends core | Completed | `2.5`, `3.3`, `4.5` | Contact-match, reciprocal-friend, viewer-scoped exposure, and invite-share composer behavior are now archival-complete for the release lane. |
 | `TODO-store-release-invites-occurrence-target-migration.md` | Store-release occurrence-scoped invite and participation cutover plus share-code session-context addendum | Reopened addendum | `2.1`, `2.4`, `3.1`, `4.5`, `7` | Owns occurrence target identity and the Store Release app-session share-code context before explicit acceptance. |

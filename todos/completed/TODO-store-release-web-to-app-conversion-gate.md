@@ -1,6 +1,6 @@
 # TODO (Store Release): Web-to-App Conversion Gate
 
-**Split archival note (2026-06-08):** this TODO was a stale super-packet mixing already-promoted product behavior with still-missing external runtime/store validation. On `2026-06-08`, the delivered slice was archived here and the remaining Android runtime/store/deferred proof was split into `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md`.
+**Split archival note (2026-06-08, refreshed 2026-06-11):** this TODO was a stale super-packet mixing already-promoted product behavior with still-missing runtime/startup validation. On `2026-06-08`, the delivered slice was archived here and the remaining Android runtime/store/deferred proof was split out. On `2026-06-11`, that residual owner was absorbed into `foundation_documentation/todos/active/v0.2.0+8/TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md`, which now owns the current-package startup/bootstrap correction explicitly.
 
 **Status:** Completed historical archival catch-up on `2026-06-08`. `origin/main` already carries the delivered promotion-boundary, publication-target, redirect-preservation, and installed-app handoff behavior that this TODO used to own. This completed artifact now closes only that delivered slice.
 **Owners:** Delphi (Product/Flutter) + Backend Team + Web Team
@@ -46,7 +46,7 @@ That residual work is not archived here. It moved into a new active TODO so this
 
 - This completed TODO owns only the delivered Android-first web-to-app conversion slice that is already absorbed in `origin/main`.
 - It includes the canonical promotion boundary, dynamic publication-target filtering, redirect-intent preservation, and installed-app handoff behavior.
-- It does **not** own the remaining real-device/browser/store/deferred validation. That work moved to `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md`.
+- It does **not** own the remaining current-package runtime/startup validation. That work now lives in `foundation_documentation/todos/active/v0.2.0+8/TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md`.
 - It does **not** own iOS Universal Links / deferred capture, QR-authenticated web, or telemetry sink/readback hardening.
 
 ## Delivery Status Canon
@@ -62,7 +62,7 @@ That residual work is not archived here. It moved into a new active TODO so this
 - `foundation_documentation/modules/flutter_client_experience_module.md`
 - `foundation_documentation/modules/invite_and_social_loop_module.md`
 - `foundation_documentation/modules/onboarding_flow_module.md`
-- `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md`
+- `foundation_documentation/todos/active/v0.2.0+8/TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md`
 - `foundation_documentation/todos/completed/TODO-store-release-funnel-metrics-validation.md`
 - `foundation_documentation/todos/completed/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/todos/active/fast_follow_required/TODO-ios-universal-links-production-validation.md`
@@ -105,7 +105,7 @@ That residual work is not archived here. It moved into a new active TODO so this
 
 ## Dependencies & Sequencing
 
-- [x] `DEP-01` The residual Android external runtime/store/deferred validation now lives in `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md`.
+- [x] `DEP-01` The residual/current-package Android startup/bootstrap validation now lives in `foundation_documentation/todos/active/v0.2.0+8/TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md`.
 - [x] `DEP-02` iOS specialization remains a sibling fast-follow lane in `TODO-ios-universal-links-production-validation.md`.
 - [x] `DEP-03` QR-authenticated web remains a sibling fast-follow lane in `TODO-qr-login-web-auth.md`.
 - [x] `DEP-04` Published funnel sink/readback hardening remains a sibling post-release lane in `TODO-post-release-funnel-metrics-sink-readback-and-runtime-verification.md`.
@@ -150,7 +150,7 @@ That residual work is not archived here. It moved into a new active TODO so this
 | `SCOPE-03` | Scope | `SCOPE-03` Archive the delivered `/open-app` redirect-intent preservation contract (`target_path`, `store_channel`, safe-path filtering). | `test review` | `git -C laravel-app show origin/main:tests/Api/v1/Tenants/Branding/ApiV1OpenAppRedirectTest.php`; `git -C laravel-app show origin/main:tests/Api/v1/Tenants/Branding/ApiV1DeferredDeepLinkResolverTest.php` | `origin/main Laravel` | `passed` | `origin/main` still asserts `target_path` and `store_channel` for invite, detail-route, and fallback cases. |
 | `SCOPE-04` | Scope | `SCOPE-04` Archive the delivered installed-app Android handoff that opens the preserved target directly and leaves Guard only as the absent-app fallback. | `test+historical runtime review` | `origin/main tests/Api/v1/Tenants/Branding/ApiV1OpenAppRedirectTest.php`; historical T1 installed-app evidence: ADB/device validation plus Playwright `deeplink_contract.spec.js` open-app checks recorded in the former promotion-lane packet | `origin/main Laravel + historical browser/device` | `passed` | The routing contract remains on `origin/main`, and the archival packet already carried browser/device evidence for installed-app handoff while keeping the Guard as fallback when the app is absent. |
 | `SCOPE-05` | Scope | `SCOPE-05` Archive the delivered anonymous-web promotion boundary where tenant-public hard/auth gates do not continue to web login. | `historical browser review` | `foundation_documentation/policies/web_to_app_promotion_policy.md`; `foundation_documentation/modules/flutter_client_experience_module.md`; `foundation_documentation/modules/invite_and_social_loop_module.md`; former T1 packet web/browser evidence for read-only/public-link and no-web-login behavior | `web browser + canonical docs` | `passed` | The policy/modules still freeze the anonymous-web promotion boundary, and the former packet already recorded web/browser evidence for no `/auth/login` continuation on the covered flows. |
-| `SCOPE-06` | Scope | `SCOPE-06` Split the remaining external Android runtime/store/deferred validation into a new narrower active owner. | `documentation` | `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md` | `foundation docs` | `passed` | Residual real-device/store/deferred proof remains explicit and active. |
+| `SCOPE-06` | Scope | `SCOPE-06` Split the remaining external Android runtime/store/deferred validation into a new narrower active owner. | `documentation` | `foundation_documentation/todos/active/v0.2.0+8/TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md` | `foundation docs` | `passed` | Residual/current-package startup-boundary proof remains explicit and active after absorption. |
 | `DOD-01` | Definition of Done | `DOD-01` `origin/main` uses the real app-promotion/store-handoff experience for the canonical `/baixe-o-app` boundary instead of the legacy tester-waitlist default. | `code+test review` | Same evidence as `SCOPE-01` | `origin/main Flutter` | `passed` | The default experience is `appDownload` on `origin/main`. |
 | `DOD-02` | Definition of Done | `DOD-02` Promotion/open-app surfaces only render active publication store targets with configured URLs. | `test review` | Same evidence as `SCOPE-02` | `origin/main Flutter + historical local validation` | `passed` | Active-target filtering remains covered and no longer belongs to an open release packet. |
 | `DOD-03` | Definition of Done | `DOD-03` `/open-app` and deferred resolver contracts preserve safe invite/detail/guarded-route continuation through `target_path` and `store_channel`. | `test+historical navigation review` | `origin/main tests/Api/v1/Tenants/Branding/ApiV1OpenAppRedirectTest.php`; `origin/main tests/Api/v1/Tenants/Branding/ApiV1DeferredDeepLinkResolverTest.php`; historical Playwright `deeplink_contract.spec.js` open-app and direct-public-links evidence from the former T1 packet | `origin/main Laravel + historical browser` | `passed` | The backend contract remains on `origin/main`, and the former packet already tied it to browser-facing open-app/public-link navigation evidence. |
@@ -160,7 +160,7 @@ That residual work is not archived here. It moved into a new active TODO so this
 | `VAL-01` | Validation Steps | `VAL-01` Review `origin/main` Flutter promotion controller and promotion UI tests for the delivered `/baixe-o-app` and publication-target behavior. | `review` | `origin/main lib/presentation/shared/promotion/screens/app_promotion_screen/controllers/app_promotion_screen_controller.dart`; `origin/main test/presentation/shared/promotion/screens/app_promotion_screen/app_promotion_screen_test.dart` | `origin/main Flutter` | `waived` | Waiver approval: explicit user request on `2026-06-08` for documentation-only archival catch-up. This is a structure-only review step; exact browser/device flow acceptance is carried by `DOD-01`, `DOD-04`, and `DOD-05`. |
 | `VAL-02` | Validation Steps | `VAL-02` Review `origin/main` Laravel `/open-app` and deferred resolver tests for redirect preservation and store-channel continuity. | `review` | `origin/main tests/Api/v1/Tenants/Branding/ApiV1OpenAppRedirectTest.php`; `origin/main tests/Api/v1/Tenants/Branding/ApiV1DeferredDeepLinkResolverTest.php` | `origin/main Laravel` | `waived` | Waiver approval: explicit user request on `2026-06-08` for documentation-only archival catch-up. This is a structure-only review step; exact browser/device flow acceptance for continuation restoration is carried by `DOD-03` and `DOD-04`. |
 | `VAL-03` | Validation Steps | `VAL-03` Review canonical module/policy docs to confirm the promoted web-to-app boundary remains encoded outside this TODO. | `review` | `foundation_documentation/policies/web_to_app_promotion_policy.md`; `foundation_documentation/modules/flutter_client_experience_module.md`; `foundation_documentation/modules/invite_and_social_loop_module.md` | `foundation docs` | `passed` | The contract is not stranded in this archival file. |
-| `VAL-04` | Validation Steps | `VAL-04` Confirm the remaining external runtime/store/deferred work is explicitly split into a new active TODO instead of being silently dropped. | `review` | `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md` | `foundation docs` | `passed` | The residual work now has a truthful active owner. |
+| `VAL-04` | Validation Steps | `VAL-04` Confirm the remaining external runtime/store/deferred work is explicitly split into a new active TODO instead of being silently dropped. | `review` | `foundation_documentation/todos/active/v0.2.0+8/TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md` | `foundation docs` | `passed` | The residual/current-package startup work now has a truthful active owner. |
 
 ## Local CI-Equivalent Suite Matrix
 
@@ -201,7 +201,7 @@ That residual work is not archived here. It moved into a new active TODO so this
 ## TODO Closeout Disposition
 
 - **Completed path:** `foundation_documentation/todos/completed/TODO-store-release-web-to-app-conversion-gate.md`
-- **Split follow-up path:** `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md`
+- **Split follow-up path:** `foundation_documentation/todos/active/v0.2.0+8/TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md`
 - **Closeout decision:** archival catch-up approved on `2026-06-08` after confirming that the promoted web-to-app boundary is already on `origin/main` and the remaining work is only real external runtime/store/deferred proof.
 - **Historical note:** this file no longer owns Play Store/install/deferred first-open validation.
 - **Reopen rule:** any new product behavior change to the promotion boundary should open a new TODO or update the active split follow-up rather than reopen this archival slice.

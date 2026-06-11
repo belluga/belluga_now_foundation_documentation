@@ -62,7 +62,7 @@ This lane exists to freeze and validate that evidence without reopening settled 
 - `foundation_documentation/todos/completed/TODO-store-release-android.md`
 - `foundation_documentation/todos/active/post_release_hardening/TODO-post-release-funnel-metrics-sink-readback-and-runtime-verification.md`
 - `foundation_documentation/todos/completed/TODO-store-release-web-to-app-conversion-gate.md`
-- `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md`
+- `foundation_documentation/todos/active/v0.2.0+8/TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md`
 - `foundation_documentation/todos/completed/TODO-store-release-phone-otp-auth-and-contact-match.md`
 - `foundation_documentation/todos/completed/TODO-store-release-minimal-friends-and-favorites-mvp.md`
 - `foundation_documentation/todos/completed/TODO-v1-telemetry-frontend.md`
@@ -135,7 +135,7 @@ This lane exists to freeze and validate that evidence without reopening settled 
 
 ## Dependencies & Sequencing
 
-- [x] `DEP-01` `TODO-store-release-web-to-app-conversion-gate.md` now archives the delivered promotion/deferred-flow baseline, while `TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md` owns the unfinished Android runtime/store/deferred closure. This TODO only validates the proof.
+- [x] `DEP-01` `TODO-store-release-web-to-app-conversion-gate.md` now archives the delivered promotion/deferred-flow baseline, while `TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md` owns the unfinished current-package Android startup/bootstrap closure. This TODO only validates the proof.
 - [x] `DEP-02` `TODO-store-release-phone-otp-auth-and-contact-match.md` remains the owner of OTP/identity behavior and any missing event implementation for those milestones; this TODO only validates the proof.
 - [x] `DEP-03` `TODO-store-release-minimal-friends-and-favorites-mvp.md` remains the owner of first social-loop behavior and any missing event implementation for that milestone; this TODO only validates the proof.
 - [x] `DEP-04` Query/sink access needed for published-build KPI readback was split to `foundation_documentation/todos/active/post_release_hardening/TODO-post-release-funnel-metrics-sink-readback-and-runtime-verification.md`; it is no longer a blocker for this promotion-lane artifact.

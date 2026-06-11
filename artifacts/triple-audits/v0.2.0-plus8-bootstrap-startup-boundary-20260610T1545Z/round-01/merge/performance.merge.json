@@ -25,8 +25,8 @@
       "finding_id": "F-46E72ACB",
       "severity": "medium",
       "title": "Absorbed startup-boundary scope is not yet fully evidenced in the package",
-      "rationale": "The package claims the Home-start rule was absorbed into this TODO and preserved without weakening guarded-route or guarded-action promotion behavior elsewhere, but the listed evidence is narrower: it proves anonymous Home startup and the permission-granted map handoff, not the broader guarded-route/action continuation path or the ownership reconciliation with v0.2.1+9 required by DOD-05 and DOD-06. This is not a concrete performance blocker, but it leaves operational closure incomplete for the bounded slice.",
-      "suggested_action": "Record the missing guarded-route/action evidence and the v0.2.1+9 ownership handoff artifact in the bounded package before declaring the TODO operationally complete.",
+      "rationale": "The package claims the first-route startup rule was absorbed into this TODO and preserved without weakening guarded-route or guarded-action promotion behavior elsewhere, but the listed evidence is narrower: it proves anonymous Home startup and the permission-granted map handoff, not the broader guarded-route/action continuation path or the ownership reconciliation with the current v0.2.0+8 owner required by DOD-05 and DOD-06. This is not a concrete performance blocker, but it leaves operational closure incomplete for the bounded slice.",
+      "suggested_action": "Record the missing guarded-route/action evidence and the current `v0.2.0+8` owner TODO artifact in the bounded package before declaring the TODO operationally complete.",
       "reviewer_labels": [
         "performance"
       ],

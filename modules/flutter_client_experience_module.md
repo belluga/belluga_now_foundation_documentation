@@ -20,7 +20,7 @@
 - Tactical TODO streams:
   - `foundation_documentation/todos/completed/TODO-store-release-android.md`
   - `foundation_documentation/todos/completed/TODO-store-release-web-to-app-conversion-gate.md`
-  - `foundation_documentation/todos/active/v0.2.1+9/TODO-v0.2.1+9-android-web-to-app-store-and-deferred-runtime-validation.md`
+  - `foundation_documentation/todos/active/v0.2.0+8/TODO-v0.2.0+8-tenant-public-bootstrap-and-startup-boundary-hardening.md`
   - `foundation_documentation/todos/completed/TODO-store-release-phone-otp-auth-and-contact-match.md`
   - `foundation_documentation/todos/completed/TODO-store-release-minimal-friends-and-favorites-mvp.md`
   - `foundation_documentation/todos/promotion_lane/store_release_android/TODO-store-release-invites-occurrence-target-migration.md`
