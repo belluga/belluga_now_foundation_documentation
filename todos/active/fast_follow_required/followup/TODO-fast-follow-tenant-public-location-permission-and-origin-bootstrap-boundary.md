@@ -12,6 +12,7 @@ Concrete residuals:
 - the web post-grant reentry contract is not fully ratified in docs/code (`conditional` wording vs effectively `always reload on web after permission grant`).
 - the first-grant flow still uses a timing heuristic while waiting for location publication.
 - the web map-entry helper still carries a top-level mutable mutex and hard-coded `/mapa` reentry shape instead of a router-scoped continuation contract.
+- real web runtime still shows a concrete user-visible symptom on the permission continuation path: after granting location and being redirected to the map, the flow can reopen the application instead of remaining on the canonical in-browser map continuation.
 
 These are not release blockers for `v0.2.0+8` because the current bootstrap root-cause fix is green and the first permission-granted map entry no longer fails. They still require an explicit fast-follow owner because they affect startup clarity, permission ownership, and future regressions.
 
@@ -44,6 +45,7 @@ These are not release blockers for `v0.2.0+8` because the current bootstrap root
 - [ ] Change location-resolution defaults so permission prompting is explicit opt-in, not ambient behavior.
 - [ ] Replace the current post-grant timing heuristic with a deterministic origin-readiness signal or equivalent owner-driven continuation contract.
 - [ ] Ratify and implement the web post-grant reentry rule, including continuation/argument preservation if reentry remains the chosen owner boundary.
+- [ ] Remove the current web post-permission reopen-app behavior from the map continuation path; after browser permission grant, the canonical map continuation must stay inside the served web surface unless an explicit app-handoff route owns that transition.
 - [ ] Add regression coverage for Home initial open, permission-granted map entry, and route-owned continuation semantics.
 
 ## Out of Scope
@@ -56,11 +58,13 @@ These are not release blockers for `v0.2.0+8` because the current bootstrap root
 - [ ] Location/origin resolution no longer requests permission by default from non-owning callers.
 - [ ] The post-grant continuation path no longer depends on a time-based heuristic to guess when origin publication completed.
 - [ ] Browser/runtime evidence proves the chosen web post-grant contract and preserves the correct continuation target.
+- [ ] Permission-granted map continuation on web no longer triggers an unintended reopen-app handoff; it lands on the in-browser map with the resolved canonical origin.
 - [ ] Tests fail if a non-owning public flow regresses into implicit prompting or unstable post-grant continuation.
 
 ## Validation Steps
 - [ ] Add fail-first Flutter tests around permission ownership and post-grant continuation.
 - [ ] Run focused browser/runtime proof for Home initial open and permission-granted map entry on the served tenant-public bundle.
+- [ ] Add or extend browser/runtime proof specifically covering “grant permission -> redirect to map” on web so reopen-app reentry cannot regress silently.
 - [ ] Reconcile any module/policy wording drift so docs and implementation state the same post-grant rule.
 
 ## Execution Lane Tracking (Required)

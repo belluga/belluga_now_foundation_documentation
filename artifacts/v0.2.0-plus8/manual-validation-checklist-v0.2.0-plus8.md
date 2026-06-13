@@ -84,7 +84,7 @@
 - [x] `EVG-03` Open an event that already existed without groups and confirm legacy related profiles still render by fallback grouping.
   - Evidence/notes:
 - [x] `EVG-04` Create or edit an event with multiple occurrences and confirm each occurrence keeps the correct selected occurrence, programming, and location while the public profile tabs remain the aggregate event set.
-  - Evidence/notes: 2026-06-04 Playwright mobile navigation on `manual-v0208-evg-multi-ocorrencias` confirmed the selected occurrence changed date/programming/location while the tab set remained `Palco Bandas` + `Vila Expositores` on both occurrences.
+  - Evidence/notes: 2026-06-04 Playwright mobile navigation on `manual-v0208-evg-multi-ocorrencias` confirmed the selected occurrence changed date/programming/location while the tab set remained `Palco Bandas` + `Vila Expositores` on both occurrences. The shared `manual-v0208-*` fixtures used for that historical proof were retired on 2026-06-12 after drift investigation showed inconsistent admin payload state (`profile_groups=[]` while programming still referenced linked profiles). Future manual reruns of this item require reseeded canonical fixtures, not those retired slugs.
 - [!] `EVG-05` In public event detail, switch occurrences from `Programação` and confirm both click and drag interactions update programming/date/URL without hard reloading while profile tabs/cards remain the aggregate event set.
   - Evidence/notes:
     - Previous selected-occurrence-tab expectation was superseded on 2026-06-03.

@@ -39,6 +39,19 @@ The completed authority for the canonical write model already exists in [TODO-st
 - **Why this state now:** this is a newly opened post-release hardening owner routed from a real runtime finding; the architecture baseline exists, but the cause classification and exact remediation still need to be proven.
 - **Exit condition:** every orphan row in the inspected tenant set is classified, the responsible path is either cleaned up or hardened, and tests/guards prove the canonical integrity contract.
 
+## Execution Notes
+- `2026-06-12` canonical delete-path validation was rerun locally against the authoritative Laravel feature tests and stayed green:
+  - `./laravel-app/scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Events/EventCrudControllerTest.php --filter='test_event_delete_soft_deletes|test_event_delete_rolls_back_when_occurrence_soft_delete_fails_mid_flight'`
+  - `./laravel-app/scripts/delphi/run_laravel_tests_safe.sh tests/Feature/Events/AgendaAndEventsControllerTest.php --filter='test_agenda_excludes_orphan_occurrences_and_only_returns_resolvable_public_detail_rows|test_occurrence_ids_are_applied_in_initial_agenda_and_stream_pipeline_stages'`
+- `2026-06-12` shared-runtime investigation on `https://guarappari.belluga.space` proved that the problematic `manual-v0208-convite-com-grupos` and `manual-v0208-evg-multi-ocorrencias` fixtures were internally drifted before cleanup:
+  - admin detail payloads returned `profile_groups=[]` at the root and occurrence level;
+  - occurrence `own_linked_account_profiles` counts were `0`;
+  - the same payloads still exposed programming items linked to Account Profiles such as `Manual v0208 Banda Azul` and `Manual v0208 Expositor Sol`.
+- `2026-06-12` those two drifted shared fixtures were then removed through the canonical admin mutation boundary, not by direct database edits:
+  - `DELETE /admin/api/v1/events/manual-v0208-convite-com-grupos` -> `200`, subsequent admin `GET` -> `404`
+  - `DELETE /admin/api/v1/events/manual-v0208-evg-multi-ocorrencias` -> `200`, subsequent admin `GET` -> `404`
+- Current interpretation: this is positive evidence that the shared contradiction seen in public event-group validation came from stale/inconsistent fixture state, not from a newly observed failure of the canonical transactional delete path itself. This does **not** yet close the broader orphan-occurrence audit because remote DB-level orphan inventory still has not been classified.
+
 ## Scope
 - [ ] Build a deterministic tenant-scoped orphan inventory method that identifies `EventOccurrence` rows whose parent `Event` does not resolve.
 - [ ] Audit all current runtime/admin/repair/delete/reconcile paths that can mutate or remove `Event` / `EventOccurrence` state and classify each path as `canonical_owner`, `approved_exception`, or `bypass`.
@@ -298,4 +311,3 @@ Treat brittle workarounds and structural shortcuts as explicit negative findings
 | `r0/wf-docker-todo-driven-execution-method/SKILL.md` | Governs tactical TODO ownership, approval, delivery gates, and closeout. | Explicit owner boundary and review/promotion discipline. | Keeping this as an informal note in another TODO. | This follow-up now has its own executable owner contract. |
 | `foundation_documentation/todos/README.md` | Governs follow-up-hardening routing and cutover-integrity requirements. | Post-release hardening placement and explicit cutover review. | Quietly accepting workaround architecture. | The TODO stays under `active/post_release_hardening/hardening/` and includes explicit cutover-integrity review. |
 | `foundation_documentation/todos/completed/TODO-store-release-event-occurrence-transactional-consistency-and-reconcile-removal.md` | Defines the canonical architecture this audit must verify against. | Transaction-owned aggregate consistency and manual-only repair posture. | Reintroducing periodic reconcile or partial-shape rewrite paths. | The audit must treat that completed TODO as the baseline, not rediscover architecture from scratch. |
-
